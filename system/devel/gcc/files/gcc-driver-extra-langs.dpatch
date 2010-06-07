@@ -1,0 +1,39 @@
+#! /bin/sh -e
+
+# DP: Add options and specs for languages that are not built from a source
+# DP: (but built from separate sources).
+
+dir=
+if [ $# -eq 3 -a "$2" = '-d' ]; then
+    pdir="-d $3"
+    dir="$3/"
+elif [ $# -ne 1 ]; then
+    echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
+    exit 1
+fi
+case "$1" in
+    -patch)
+        patch $pdir -f --no-backup-if-mismatch -p0 < $0
+        ;;
+    -unpatch)
+        patch $pdir -f --no-backup-if-mismatch -R -p0 < $0
+        ;;
+    *)
+        echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
+        exit 1
+esac
+exit 0
+
+
+--- gcc/Makefile.in~	2008-10-23 16:26:42.000000000 +0200
++++ gcc/Makefile.in	2008-10-23 16:29:40.000000000 +0200
+@@ -447,6 +447,9 @@
+ extra_modes_file=@extra_modes_file@
+ extra_opt_files=@extra_opt_files@
+ host_hook_obj=@out_host_hook_obj@
++# languages built separately
++lang_opt_files=$(sort @lang_opt_files@ $(foreach lang,$(debian_extra_langs),$(srcdir)/$(lang)/lang.opt)) $(srcdir)/c.opt $(srcdir)/common.opt
++lang_specs_files=$(sort @lang_specs_files@ $(foreach lang,$(debian_extra_langs),$(srcdir)/$(lang)/lang-specs.h))
+ 
+ # ------------------------
+ # Installation directories

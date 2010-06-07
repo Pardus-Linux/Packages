@@ -1,0 +1,52 @@
+#! /bin/sh -e
+
+# DP: updates from the 4.3 branch upto 20090127 (documentation).
+
+last_updated()
+{
+	cat > ${dir}LAST_UPDATED <<EOF
+Tue Jan 27 23:35:18 CET 2009
+Tue Jan 27 22:35:18 UTC 2009 (revision 143712)
+EOF
+}
+
+dir=
+if [ $# -eq 3 -a "$2" = '-d' ]; then
+    pdir="-d $3"
+    dir="$3/"
+elif [ $# -ne 1 ]; then
+    echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
+    exit 1
+fi
+case "$1" in
+    -patch)
+        patch $pdir -f --no-backup-if-mismatch -p0 < $0
+        ;;
+    -unpatch)
+        patch $pdir -f --no-backup-if-mismatch -R -p0 < $0
+        ;;
+    *)
+        echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
+        exit 1
+esac
+exit 0
+
+# svn diff svn://gcc.gnu.org/svn/gcc/tags/gcc_4_3_3_release svn://gcc.gnu.org/svn/gcc/branches/gcc-4_3-branch \
+#     | awk '/^Index:.*\.class/ {skip=1; next} /^Index:/ { skip=0 } skip==0'
+
+Index: gcc/doc/invoke.texi
+===================================================================
+--- gcc/doc/invoke.texi	(.../tags/gcc_4_3_3_release)	(revision 143712)
++++ gcc/doc/invoke.texi	(.../branches/gcc-4_3-branch)	(revision 143712)
+@@ -5406,8 +5406,9 @@
+ This option implies @option{-fmerge-constants}.  In addition to
+ @option{-fmerge-constants} this considers e.g.@: even constant initialized
+ arrays or initialized constant variables with integral or floating point
+-types.  Languages like C or C++ require each non-automatic variable to
+-have distinct location, so using this option will result in non-conforming
++types.  Languages like C or C++ require each variable, including multiple
++instances of the same variable in recursive calls, to have distinct locations,
++so using this option will result in non-conforming
+ behavior.
+ 
+ @item -fmodulo-sched

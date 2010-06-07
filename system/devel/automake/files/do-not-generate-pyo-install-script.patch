@@ -1,0 +1,37 @@
+diff -Nur automake-1.11-old/lib/am/python.am automake-1.11/lib/am/python.am
+--- automake-1.11-old/lib/am/python.am	2009-05-17 16:19:30.000000000 +0300
++++ automake-1.11/lib/am/python.am	2009-09-15 21:33:54.056320691 +0300
+@@ -48,16 +48,7 @@
+ ## Don't perform translation, since script name is important.
+ 	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(%NDIR%dir)'"; \
+ 	  $(INSTALL_DATA) $$files "$(DESTDIR)$(%NDIR%dir)" || exit $$?; \
+-	done || exit $$?; \
+-## Byte-compile must be done at install time, since file times are
+-## encoded in the actual files.
+-	if test -n "$$dlist"; then \
+-	  if test -z "$(DESTDIR)"; then \
+-	    PYTHON=$(PYTHON) $(py_compile) --basedir "$(%NDIR%dir)" $$dlist; \
+-	  else \
+-	    PYTHON=$(PYTHON) $(py_compile) --destdir "$(DESTDIR)" --basedir "$(%NDIR%dir)" $$dlist; \
+-	  fi; \
+-	else :; fi
++	done || exit $$?;
+ else !%?BASE%
+ 	@list='$(%DIR%_PYTHON)'; test -n "$(%NDIR%dir)" || list=; \
+ 	$(am__nobase_list) | while read dir files; do \
+@@ -73,15 +64,6 @@
+ ## Don't perform translation, since script name is important.
+ 	    echo " $(INSTALL_DATA) $$xfiles '$(DESTDIR)$(%NDIR%dir)/$$dir'"; \
+ 	    $(INSTALL_DATA) $$xfiles "$(DESTDIR)$(%NDIR%dir)/$$dir" || exit $$?; }; \
+-## Byte-compile must be done at install time, since file times are
+-## encoded in the actual files.
+-	  if test -n "$$dlist"; then \
+-	    if test -z "$(DESTDIR)"; then \
+-	      PYTHON=$(PYTHON) $(py_compile) --basedir "$(%NDIR%dir)" $$dlist; \
+-	    else \
+-	      PYTHON=$(PYTHON) $(py_compile) --destdir "$(DESTDIR)" --basedir "$(%NDIR%dir)" $$dlist; \
+-	    fi; \
+-	  else :; fi \
+ 	done
+ endif !%?BASE%
+ endif %?INSTALL%

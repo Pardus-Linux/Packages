@@ -1,0 +1,551 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>gcc</Name>
+        <Homepage>http://gcc.gnu.org</Homepage>
+        <Packager>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Packager>
+        <License>GPLv3+</License>
+        <License>LGPLv3+</License>
+        <IsA>app:console</IsA>
+        <Summary>The GNU Compiler Collection, includes C, C++, Objective-C and Fortran compilers</Summary>
+        <Description>The GNU Compiler Collection includes front ends for C, C++, Objective-C, Fortran, as well as libraries for these languages</Description>
+        <Archive sha1sum="e378b7a0cb0f7dbf6436f4efb5756e29a90fdc1c" type="tarbz2">ftp://gcc.gnu.org/pub/gcc/releases/gcc-4.3.3/gcc-4.3.3.tar.bz2</Archive>
+        <BuildDependencies>
+            <Dependency>gettext</Dependency>
+            <Dependency>gnuconfig</Dependency>
+            <Dependency>patch</Dependency>
+            <Dependency>gmp</Dependency>
+            <Dependency versionFrom="1.1.4">zlib</Dependency>
+            <Dependency versionFrom="1.875">bison</Dependency>
+            <Dependency versionFrom="2.18">binutils</Dependency>
+            <Dependency versionFrom="2.3.1">mpfr</Dependency>
+            <Dependency versionFrom="4.2">texinfo</Dependency>
+            <Dependency versionFrom="4">sed</Dependency>
+            <Dependency versionFrom="5.2">ncurses</Dependency>
+        </BuildDependencies>
+        <Patches>
+            <Patch>svn-updates.dpatch</Patch>
+            <Patch level="1">pr30740.dpatch</Patch>
+            <Patch>gcc-textdomain.dpatch</Patch>
+            <Patch>gcc-driver-extra-langs.dpatch</Patch>
+            <Patch>libstdc++-pic.dpatch</Patch>
+            <Patch>libstdc++-doclink.dpatch</Patch>
+            <Patch>libobjc-gc-link.dpatch</Patch>
+            <Patch>libjava-stacktrace.dpatch</Patch>
+            <Patch>libjava-subdir.dpatch</Patch>
+            <Patch>libjava-jnipath.dpatch</Patch>
+            <Patch level="1">libjava-sjlj.dpatch</Patch>
+            <Patch>libjava-rpath.dpatch</Patch>
+            <Patch>libjava-soname.dpatch</Patch>
+            <Patch>libjava-xulrunner1.9.dpatch</Patch>
+            <Patch>libjava-realloc-leak.dpatch</Patch>
+            <Patch>pr28102.dpatch</Patch>
+            <Patch>boehm-gc-getnprocs.dpatch</Patch>
+            <Patch>note-gnu-stack.dpatch</Patch>
+            <Patch level="1">arm-unbreak-eabi-armv4t.dpatch</Patch>
+            <Patch>libjava-armel-ldflags.dpatch</Patch>
+            <Patch>libstdc++-symbols-hppa.dpatch</Patch>
+            <Patch level="1">pr10768.dpatch</Patch>
+            <Patch level="1">pr15808.dpatch</Patch>
+            <Patch level="1">pr15915.dpatch</Patch>
+            <Patch level="1">pr16086.dpatch</Patch>
+            <Patch level="1">pr16087.dpatch</Patch>
+            <Patch level="1">pr16098.dpatch</Patch>
+            <Patch level="1">pr17985.dpatch</Patch>
+            <Patch level="1">pr18680.dpatch</Patch>
+            <Patch level="1">pr22255.dpatch</Patch>
+            <Patch level="1">pr22387.dpatch</Patch>
+            <Patch>pr24170.dpatch</Patch>
+            <Patch level="1">pr28305.dpatch</Patch>
+            <Patch>pr28322.dpatch</Patch>
+            <Patch level="1">pr28733.dpatch</Patch>
+            <Patch level="1">pr29015.dpatch</Patch>
+            <Patch level="1">pr30827.dpatch</Patch>
+            <Patch level="1">pr33688.dpatch</Patch>
+            <Patch level="1">pr34466.dpatch</Patch>
+            <Patch level="1">pr35050.dpatch</Patch>
+            <Patch level="1">pr35792.dpatch</Patch>
+            <Patch level="1">gnalasup_to_lapack.dpatch</Patch>
+            <Patch>gcc-m68k-pch.dpatch</Patch>
+            <Patch>ada-driver-check.dpatch</Patch>
+            <Patch>ada-gcc-name.dpatch</Patch>
+            <Patch>ada-default-project-path.dpatch</Patch>
+            <Patch>ada-symbolic-tracebacks.dpatch</Patch>
+            <Patch>ada-gnatvsn.dpatch</Patch>
+            <Patch>ada-mips.dpatch</Patch>
+            <Patch>ada-mipsel.dpatch</Patch>
+            <Patch level="1">ppc64-ada.dpatch</Patch>
+            <Patch>ada-link-lib.dpatch</Patch>
+            <Patch>ada-libgnatvsn.dpatch</Patch>
+            <Patch>ada-libgnatprj.dpatch</Patch>
+            <Patch level="1">ada-sjlj.dpatch</Patch>
+            <Patch>ada-acats.dpatch</Patch>
+            <Patch>cpu-default-i486.dpatch</Patch>
+            <Patch>gcc-ice-hack.dpatch</Patch>
+            <Patch>libjava-disable-static.dpatch</Patch>
+            <Patch>gcc-ice-apport.dpatch</Patch>
+            <Patch>libjava-nobiarch-check.dpatch</Patch>
+            <Patch>config-ml.dpatch</Patch>
+            <Patch>svn-doc-updates.dpatch</Patch>
+            <Patch level="1">fix-man-page-creation-gentoo-256608.diff</Patch>
+
+            <!-- Some patches from Redhat gcc 4.3 branch -->
+            <Patch>redhat/const-dso-handle.patch</Patch>
+            <Patch>redhat/hash-style-gnu.patch</Patch>
+            <Patch>redhat/build-id.patch</Patch>
+            <Patch>redhat/c++-builtin-redecl.patch</Patch>
+
+            <!-- Pardus only patches, put error/warning count -->
+            <Patch level="1">pr26061.patch</Patch>
+
+            <!-- Fix paths in 64bit -->
+            <Patch level="1">pure64.patch</Patch>
+
+            <!-- Fix uClibc dynamic linker paths to suit our package's needs -->
+            <Patch level="1">fix-uClibc-loader-paths.patch</Patch>
+        </Patches>
+    </Source>
+
+    <Package>
+        <Name>libgcc</Name>
+        <PartOf>system.base</PartOf>
+        <Summary>Contains a shared library of support routines used by GCC's runtime, and thus by every program on the system</Summary>
+        <Files>
+            <Path fileType="config">/etc</Path>
+            <Path fileType="library">/usr/lib/libstdc++.so*</Path>
+            <Path fileType="library">/usr/lib/libgcc_s.so*</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>libgomp</Name>
+        <Summary>Contains GCC shared support library which is needed for OpenMP 2.5 support.</Summary>
+        <Files>
+            <!-- FIXME: remove static library on the next release -->
+            <Path fileType="library">/usr/lib/libgomp*</Path>
+            <Path fileType="info">/usr/share/info/libgomp.info</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>libgfortran</Name>
+        <Summary>Contains GCC shared support library for gfortran.</Summary>
+        <Conflicts>
+            <Package releaseTo="48">gcc</Package>
+        </Conflicts>
+        <Files>
+            <Path fileType="library">/usr/lib/libgfortran.so*</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>libobjc</Name>
+        <Summary>Contains GCC shared support library for objc.</Summary>
+        <Conflicts>
+            <Package releaseTo="48">gcc</Package>
+        </Conflicts>
+        <Files>
+            <Path fileType="library">/usr/lib/libobjc.so*</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>gcc</Name>
+        <RuntimeDependencies>
+            <Dependency>gettext</Dependency>
+            <Dependency>gmp</Dependency>
+            <Dependency versionFrom="1.1.4">zlib</Dependency>
+            <Dependency versionFrom="1.875">bison</Dependency>
+            <Dependency versionFrom="2.18">binutils</Dependency>
+            <Dependency versionFrom="2.3.1">mpfr</Dependency>
+            <Dependency versionFrom="5.2">ncurses</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="executable">/lib</Path>
+            <Path fileType="executable">/usr/bin</Path>
+            <Path fileType="library">/usr/lib</Path>
+            <Path fileType="library">/usr/libexec</Path>
+            <Path fileType="header">/usr/include</Path>
+            <Path fileType="man">/usr/share/man</Path>
+            <Path fileType="info">/usr/share/info</Path>
+        </Files>
+        <AdditionalFiles>
+            <AdditionalFile owner="root" permission="0755" target="/usr/bin/gfilt">gfilt</AdditionalFile>
+            <AdditionalFile owner="root" permission="0644" target="/usr/libexec/gSTLFilt.pl">gSTLFilt.pl</AdditionalFile>
+        </AdditionalFiles>
+    </Package>
+
+    <History>
+        <Update release="52">
+            <Date>2010-02-25</Date>
+            <Version>4.3.3</Version>
+            <Comment>
+                Force install in prefix/lib in x86_64
+                Enable with host info for further biarch compiles
+            </Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="51">
+            <Date>2010-02-19</Date>
+            <Version>4.3.3</Version>
+            <Comment>Set flags according to the architecture.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="50">
+            <Date>2010-02-16</Date>
+            <Version>4.3.3</Version>
+            <Comment>Fix uClibc dynamic linker paths to suit our package's needs</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="49">
+            <Date>2009-10-13</Date>
+            <Version>4.3.3</Version>
+            <Comment>Split libgfortran and libobjc for applications dynamically linking to them, see bug pardus#11267</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="48">
+            <Date>2009-06-30</Date>
+            <Version>4.3.3</Version>
+            <Comment>Fix man pages creation</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="47">
+            <Date>2009-01-29</Date>
+            <Version>4.3.3</Version>
+            <Comment>Version bump, revive pr26061 since we did not have trouble about it in 2008</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="46">
+            <Date>2009-01-23</Date>
+            <Version>4.3.2</Version>
+            <Comment>Add fixes of a lot of PR, especially with the ones related to our flags, a critical example is https://bugs.launchpad.net/ubuntu/+source/gcc-4.3/+bug/316019</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="45">
+            <Date>2008-08-28</Date>
+            <Version>4.3.2</Version>
+            <Comment>Update to 4.3.2</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="44">
+            <Date>2008-06-29</Date>
+            <Version>4.3.1</Version>
+            <Comment>fix http://kerneltrap.org/Linux/Compiler_Oops</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="43">
+            <Date>2008-06-07</Date>
+            <Version>4.3.1</Version>
+            <Comment>Update to 4.3.1</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="42">
+            <Date>2008-06-01</Date>
+            <Version>4.3.1_rc2</Version>
+            <Comment>Update to 4.3.1-RC2</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="41">
+            <Date>2008-05-23</Date>
+            <Version>4.3.1_rc1</Version>
+            <Comment>Update to 4.3.1-RC1</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="40">
+            <Date>2008-03-05</Date>
+            <Version>4.3.0</Version>
+            <Comment>Update to final stable release</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="39">
+            <Date>2008-03-02</Date>
+            <Version>4.3.0_rc2</Version>
+            <Comment>Update to second release candidate</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="38">
+            <Date>2008-02-22</Date>
+            <Version>4.3.0_rc1</Version>
+            <Comment>Update to first release candidate</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="37">
+            <Date>2008-02-21</Date>
+            <Version>4.3_pre20080221</Version>
+            <Comment>Update to latest snapshot</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="36">
+            <Date>2008-02-15</Date>
+            <Version>4.3_pre20080215</Version>
+            <Comment>Update to latest snapshot</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="35">
+            <Date>2008-02-08</Date>
+            <Version>4.3_pre20080208</Version>
+            <Comment>Update to latest snapshot</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="34">
+            <Date>2008-02-02</Date>
+            <Version>4.3_pre20080202</Version>
+            <Comment>Update to latest trunk</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="33">
+            <Date>2008-01-24</Date>
+            <Version>4.3_pre20080124</Version>
+            <Comment>Update to latest trunk, gcc is now in regressions only only mode</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="32">
+            <Date>2008-01-19</Date>
+            <Version>4.3_pre20080119</Version>
+            <Comment>Update to latest trunk</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="31">
+            <Date>2007-12-29</Date>
+            <Version>4.3_pre20071229</Version>
+            <Comment>Update to latest trunk</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="30">
+            <Date>2007-12-02</Date>
+            <Version>4.3_pre20071202</Version>
+            <Comment>Update to latest trunk</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="29">
+            <Date>2007-10-13</Date>
+            <Version>4.2.2_20071012</Version>
+            <Comment>Update to branch</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="28">
+            <Date>2007-10-09</Date>
+            <Version>4.2.2</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="27">
+            <Date>2007-07-21</Date>
+            <Version>4.2.1</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="26">
+            <Date>2007-06-27</Date>
+            <Version>4.2.0_20070627</Version>
+            <Comment>Update to new snapshot</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="25">
+            <Date>2007-06-21</Date>
+            <Version>4.2.0_20070620</Version>
+            <Comment>Update to new snapshot</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="24">
+            <Date>2007-05-14</Date>
+            <Version>4.2.0</Version>
+            <Comment>Update to 4.2.0 final release</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="23">
+            <Date>2007-05-01</Date>
+            <Version>4.2.0</Version>
+            <Comment>Update to rc2</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="22">
+            <Date>2007-03-18</Date>
+            <Version>4.2.0</Version>
+            <Comment>Update to rc1</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="21">
+            <Date>2007-03-07</Date>
+            <Version>4.2.0</Version>
+            <Comment>Update to 20070308 snapshot</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="20">
+            <Date>2007-03-01</Date>
+            <Version>4.2.0</Version>
+            <Comment>Update to 20070228 snapshot</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="19">
+            <Date>2007-02-22</Date>
+            <Version>4.2.0</Version>
+            <Comment>Update to 20070221 snapshot</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="18">
+            <Date>2007-02-15</Date>
+            <Version>4.2.0</Version>
+            <Comment>Update to 20070214 snapshot</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="17">
+            <Date>2007-02-01</Date>
+            <Version>4.2.0</Version>
+            <Comment>Update to 20070207 snapshot</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="16">
+            <Date>2007-02-01</Date>
+            <Version>4.2.0</Version>
+            <Comment>Update to 20070131 snapshot</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="15">
+            <Date>2007-01-26</Date>
+            <Version>4.2.0</Version>
+            <Comment>Update to 20070124 snapshot</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="14">
+            <Date>2007-01-06</Date>
+            <Version>4.2.0</Version>
+            <Comment>Bump to gcc-4.2 snapshot</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="13">
+            <Date>2006-04-09</Date>
+            <Version>3.4.6</Version>
+            <Comment>Add STLFilter script</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="12">
+            <Date>2006-03-30</Date>
+            <Version>3.4.6</Version>
+            <Comment>Remove unneeded patches, more fixes</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="11">
+            <Date>2006-03-27</Date>
+            <Version>3.4.6</Version>
+            <Comment>New stable release</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="10">
+            <Date>2006-01-08</Date>
+            <Version>3.4.5</Version>
+            <Comment>Move fortran libraries to correct location</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="9">
+            <Date>2005-12-06</Date>
+            <Version>3.4.5</Version>
+            <Comment>Version bump</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="8">
+            <Date>2005-11-21</Date>
+            <Version>3.4.5_20051120</Version>
+            <Comment>Update to GCC 3.4 branch 20051121 snapshot</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="7">
+            <Date>2005-11-20</Date>
+            <Version>3.4.4</Version>
+            <Comment>Fix PCH crashes Gcc bug #14400</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="6">
+            <Date>2005-10-30</Date>
+            <Version>3.4.4</Version>
+            <Comment>05gcc belongs libgcc</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="5">
+            <Date>2005-10-26</Date>
+            <Version>3.4.4</Version>
+            <Comment>Typo fixes, some optimizations by İsmail Dönmez</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="4">
+            <Date>2005-10-14</Date>
+            <Version>3.4.4</Version>
+            <Comment>Postinstall script added to fix libtool files for hardcoded gcc library paths</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="3">
+            <Date>2005-10-12</Date>
+            <Version>3.4.4</Version>
+            <Comment>dosed function in action.py fixed.</Comment>
+            <Name>A. Murat Eren</Name>
+            <Email>meren@pardus.org.tr</Email>
+        </Update>
+        <Update release="2">
+            <Date>2005-10-10</Date>
+            <Version>3.4.4</Version>
+            <Comment>Version bump</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="1">
+            <Date>2005-08-11</Date>
+            <Version>3.3.5.20050130</Version>
+            <Comment>First release.</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+    </History>
+</PISI>

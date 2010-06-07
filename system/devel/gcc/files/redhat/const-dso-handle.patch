@@ -1,0 +1,18 @@
+--- gcc/crtstuff.c	2007/12/07 16:07:49	130681
++++ gcc/crtstuff.c	2007/12/07 16:08:37	130682
+@@ -239,12 +239,12 @@
+ extern void *__dso_handle __attribute__ ((__section__ (TARGET_LIBGCC_SDATA_SECTION)));
+ #endif
+ #ifdef HAVE_GAS_HIDDEN
+-extern void *__dso_handle __attribute__ ((__visibility__ ("hidden")));
++extern void *const __dso_handle __attribute__ ((__visibility__ ("hidden")));
+ #endif
+ #ifdef CRTSTUFFS_O
+-void *__dso_handle = &__dso_handle;
++void *const __dso_handle = (void *) &__dso_handle;
+ #else
+-void *__dso_handle = 0;
++void *const __dso_handle = 0;
+ #endif
+ 
+ /* The __cxa_finalize function may not be available so we use only a

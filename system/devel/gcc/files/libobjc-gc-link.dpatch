@@ -1,0 +1,146 @@
+#! /bin/sh -e
+
+# DP: Link libobjc_gc with libgcjgc_convenience.la and needed thread flags
+# DP: and libraries.
+
+dir=
+if [ $# -eq 3 -a "$2" = '-d' ]; then
+    pdir="-d $3"
+    dir="$3/"
+elif [ $# -ne 1 ]; then
+    echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
+    exit 1
+fi
+case "$1" in
+    -patch)
+        patch $pdir -f --no-backup-if-mismatch -p0 < $0
+        cd ${dir}libobjc && autoconf
+        ;;
+    -unpatch)
+        patch $pdir -f --no-backup-if-mismatch -R -p0 < $0
+        rm -f ${dir}libobjc/configure
+        ;;
+    *)
+        echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
+        exit 1
+esac
+exit 0
+
+2008-07-03  Matthias Klose  <doko@ubuntu.com>
+
+	* configure.ac (OBJC_BOEHM_GC_LIBS): Link with libgcjgc_convenience.la
+	and needed thread flags and libraries.
+	* configure: Regenerate.
+	* Makefile.in (libobjc_gc$(libsuffix).la): Link with OBJC_BOEHM_GC_LIBS.
+
+Index: libobjc/Makefile.in
+===================================================================
+--- libobjc/Makefile.in	(revision 137350)
++++ libobjc/Makefile.in	(working copy)
+@@ -95,6 +95,7 @@
+ OBJC_THREAD_FILE=thr-objc
+ OBJC_BOEHM_GC=@OBJC_BOEHM_GC@
+ OBJC_BOEHM_GC_INCLUDES=@OBJC_BOEHM_GC_INCLUDES@
++OBJC_BOEHM_GC_LIBS=@OBJC_BOEHM_GC_LIBS@
+ 
+ INCLUDES = -I$(srcdir)/objc  -I$(srcdir)/$(MULTISRCTOP)../gcc \
+   -I$(srcdir)/$(MULTISRCTOP)../gcc/config \
+@@ -280,7 +281,7 @@
+ 		-version-info $(LIBOBJC_VERSION) $(extra_ldflags_libobjc)
+ 
+ libobjc_gc$(libsuffix).la: $(OBJS_GC)
+-	$(LIBTOOL_LINK) $(CC) -o $@ $(OBJS_GC) \
++	$(LIBTOOL_LINK) $(CC) -o $@ $(OBJS_GC) $(OBJC_BOEHM_GC_LIBS) \
+ 		-rpath $(toolexeclibdir) \
+ 		-version-info $(LIBOBJC_GC_VERSION) $(extra_ldflags_libobjc)
+ 
+Index: libobjc/configure.ac
+===================================================================
+--- libobjc/configure.ac	(revision 137350)
++++ libobjc/configure.ac	(working copy)
+@@ -212,7 +212,85 @@
+         [Define if the compiler has a thread header that is non single.])
+ fi 
+ 
++THREADS=$target_thread_file
++if test -z "$THREADS"; then
++   THREADS=no
++fi
++THREADLIBS=
++case "$THREADS" in
++ no | none | single)
++    THREADS=none
++    ;;
++ posix | posix95 | pthreads)
++    THREADS=posix
++    THREADLIBS=-lpthread
++    case "$host" in
++     *-*-hpux11*)
++	THREADLIBS="-lpthread -lrt"
++	;;
++     *-*-kfreebsd*-gnu)
++        THREADDLLIBS=-pthread
++        ;;
++     *-*-freebsd*)
++	THREADLIBS=-pthread
++      	;;
++     *-*-solaris*)
++	# Need to use alternate thread library, otherwise gctest hangs
++	# on Solaris 8.
++	multi_os_directory=`$CC -print-multi-os-directory`
++	THREADLIBS="-L/usr/lib/lwp/$multi_os_directory \
++		    -R/usr/lib/lwp/$multi_os_directory -lpthread -lthread -lrt"
++	;;
++     *-*-osf*)
++	THREADLIBS="-lpthread -lrt"
++	;;
++    esac
++    ;;
++ win32)
++    ;;
++ dgux386)
++    THREADS=dgux386
++    # Use pthread GCC  switch
++    THREADLIBS=-pthread
++    ;;
++ aix)
++    THREADS=posix
++    THREADLIBS=-lpthread
++    ;;
++ decosf1 | irix | mach | os2 | solaris | dce | vxworks)
++    AC_MSG_ERROR(thread package $THREADS not yet supported)
++    ;;
++ *)
++    AC_MSG_ERROR($THREADS is an unknown thread package)
++    ;;
++esac
+ 
++# We never want libdl on darwin. It is a fake libdl that just ends up making
++# dyld calls anyway
++case "$host" in
++  *-*-darwin*) ;;
++  *)
++    AC_CHECK_LIB(dl, dlopen, extra_libs_libgc=-ldl)
++    ;;
++esac
++
++# extra LD Flags which are required for targets
++case "${host}" in
++  *-*-darwin*)
++    extra_ldflags_libgc=-Wl,-single_module
++    ;;
++esac
++
++case $enable_objc_gc in
++  no)
++    OBJC_BOEHM_GC_LIBS=''
++    ;;
++  *)
++    OBJC_BOEHM_GC_LIBS="../boehm-gc/libgcjgc_convenience.la $THREADLIBS $extra_libs_libgc $extra_ldflags_libgc"
++    ;;
++esac
++AC_SUBST(OBJC_BOEHM_GC_LIBS)
++
+ AC_MSG_CHECKING([for exception model to use])
+ AC_LANG_PUSH(C)
+ AC_ARG_ENABLE(sjlj-exceptions,

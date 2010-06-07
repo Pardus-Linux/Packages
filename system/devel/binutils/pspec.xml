@@ -1,0 +1,305 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>binutils</Name>
+        <Homepage>http://www.gnu.org/software/binutils/</Homepage>
+        <Packager>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Packager>
+        <License>GPLv2</License>
+        <IsA>app:console</IsA>
+        <Summary>Assembler and linker tools</Summary>
+        <Description>Contains commands like as, ld, nm, objdump, ar, ranlib for compiling assembly code to the machine language, and for linking and manipulating the binary object files.</Description>
+        <Archive sha1sum="e589e02898ae50d38b49966785201183371d84b9" type="tarbz2">http://www.kernel.org/pub/linux/devel/binutils/binutils-2.19.51.0.9.tar.bz2</Archive>
+        <Patches>
+            <!-- Enable dtags -->
+            <Patch level="1">ld-dtags.diff</Patch>
+
+            <!-- Skip RPATHS if env set -->
+            <Patch>binutils-skip-rpaths.patch</Patch>
+
+            <Patch>unit-at-a-time.patch</Patch>
+
+            <!-- Enable -z relro globally, see http://people.redhat.com/drepper/nonselsec.pdf -->
+            <Patch>ld-relro.diff</Patch>
+
+            <!-- Warn for text relocations, see http://people.redhat.com/drepper/textrelocs.html -->
+            <Patch level="1">warn-textrel.patch</Patch>
+
+            <!-- switch to hashtype=both by default -->
+            <Patch>ld-hashtype-both.patch</Patch>
+
+            <!-- Build libbfd.so and libopcodes.so with -Bsymbolic-functions if possible
+            Patch generated with
+            sed -i -e 's/^libbfd_la_LDFLAGS = /&-Wl,-Bsymbolic-functions /' bfd/Makefile.{am,in}
+            sed -i -e 's/^libopcodes_la_LDFLAGS = /&-Wl,-Bsymbolic-functions /' opcodes/Makefile.{am,in}
+            -->
+            <Patch level="1">Bsymbolic-functions.patch</Patch>
+
+            <!-- LTP sux but we already started this way, make sure this change does not break anything, or wait for next release
+            perl -pi -e 's/i\[3-7\]86/i[34567]86/g' */conf*
+            sed -i -e 's/%''{release}/%{release}/g' bfd/Makefile{.am,.in}
+            sed -i -e '/^libopcodes_la_\(DEPENDENCIES\|LIBADD\)/s,$, ../bfd/libbfd.la,' opcodes/Makefile.{am,in}
+            <Patch level="1">remove_bfd.patch</Patch>
+            -->
+
+            <Patch level="1">binutils-discarded.patch</Patch>
+            <!-- fix libtool in binutils -->
+            <Patch level="1">binutils-libtool-m.patch</Patch>
+            <Patch level="1">binutils-libtool-relink.patch</Patch>
+
+            <!-- Fix paths in 64bit -->
+            <Patch level="1">pure64.patch</Patch>
+        </Patches>
+    </Source>
+
+    <Package>
+        <Name>binutils</Name>
+        <Files>
+            <Path fileType="executable">/usr/bin</Path>
+            <Path fileType="library">/usr/lib</Path>
+            <Path fileType="header">/usr/include</Path>
+            <Path fileType="info">/usr/share/info</Path>
+            <Path fileType="man">/usr/share/man</Path>
+        </Files>
+    </Package>
+
+    <History>
+        <Update release="33">
+            <Date>2010-03-03</Date>
+            <Version>2.19.51.0.9</Version>
+            <Comment>Teach linker stuff our x86_64 paths</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="32">
+            <Date>2009-06-13</Date>
+            <Version>2.19.51.0.9</Version>
+            <Comment>
+                Bump to latest bugfix
+                Build bfd with PIC
+            </Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="31">
+            <Date>2009-04-29</Date>
+            <Version>2.19.51.0.4</Version>
+            <Comment>Fix libtool in binutils</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="30">
+            <Date>2009-04-28</Date>
+            <Version>2.19.51.0.4</Version>
+            <Comment>Version bump for as-needed and undefined symbol fixes</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="29">
+            <Date>2009-02-02</Date>
+            <Version>2.19.51.0.1</Version>
+            <Comment>Remove ignore-bdirect-and-friends.patch we don't need it anymore</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="28">
+            <Date>2009-01-29</Date>
+            <Version>2.19.51.0.1</Version>
+            <Comment>Stable update</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="27">
+            <Date>2008-07-14</Date>
+            <Version>2.18.50.0.8</Version>
+            <Comment>Stable update</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="26">
+            <Date>2008-05-04</Date>
+            <Version>2.18.50.0.7</Version>
+            <Comment>Stable update</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="25">
+            <Date>2008-04-05</Date>
+            <Version>2.18.50.0.6</Version>
+            <Comment>Stable update</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="24">
+            <Date>2008-03-14</Date>
+            <Version>2.18.50.0.5</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="23">
+            <Date>2008-02-08</Date>
+            <Version>2.18.50.0.4</Version>
+            <Comment>Bump stable release</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="22">
+            <Date>2008-02-07</Date>
+            <Version>2.18.50_20080207</Version>
+            <Comment>Bump to CVS snapshot</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="21">
+            <Date>2007-11-05</Date>
+            <Version>2.18.50.0.3</Version>
+            <Comment>Version bump</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="20">
+            <Date>2007-10-04</Date>
+            <Version>2.18.50.0.2</Version>
+            <Comment>Version bump</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="19">
+            <Date>2007-09-10</Date>
+            <Version>2.18.50.0.1</Version>
+            <Comment>Version bump</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="18">
+            <Date>2007-08-29</Date>
+            <Version>2.18</Version>
+            <Comment>Version bump</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="17">
+            <Date>2007-08-01</Date>
+            <Version>2.17.50.0.18</Version>
+            <Comment>Version bump</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="16">
+            <Date>2007-06-18</Date>
+            <Version>2.17.50.0.17</Version>
+            <Comment>Version bump</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="15">
+            <Date>2007-05-22</Date>
+            <Version>2.17.50.0.16</Version>
+            <Comment>Version bump to CVS to fix crashes</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="14">
+            <Date>2007-05-12</Date>
+            <Version>2.17.50.0.16</Version>
+            <Comment>Version bump</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="13">
+            <Date>2007-04-19</Date>
+            <Version>2.17.50.0.15</Version>
+            <Comment>Version bump</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="12">
+            <Date>2007-03-23</Date>
+            <Version>2.17.50.0.14</Version>
+            <Comment>Version bump</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="11">
+            <Date>2007-03-17</Date>
+            <Version>2.17.50.0.13</Version>
+            <Comment>Version bump</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="10">
+            <Date>2007-02-08</Date>
+            <Version>2.17.50.0.12</Version>
+            <Comment>Version bump</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="9">
+            <Date>2007-01-26</Date>
+            <Version>2.17.50.0.11</Version>
+            <Comment>Version bump</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="8">
+            <Date>2007-01-23</Date>
+            <Version>2.17.50.0.10</Version>
+            <Comment>Version bump</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="7">
+            <Date>2007-01-04</Date>
+            <Version>2.17.50.0.9</Version>
+            <Comment>Version bump</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="6">
+            <Date>2006-09-03</Date>
+            <Version>2.16.1</Version>
+            <Comment>binutils-doc goes into system.doc component</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="5" type="security">
+            <Date>2006-08-24</Date>
+            <Version>2.16.1</Version>
+            <Comment>Fix buffer overflow in gas</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="4" type="security">
+            <Date>2006-05-27</Date>
+            <Version>2.16.1</Version>
+            <Comment>Fix CVE-2006-2362</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="3">
+            <Date>2006-04-01</Date>
+            <Version>2.16.1</Version>
+            <Comment>Cleanup and -Bdirect, -hashvals and -dynsort patches added</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="2">
+            <Date>2006-03-19</Date>
+            <Version>2.16.1</Version>
+            <Comment>Patch cleanup and sync</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="1">
+            <Date>2005-08-27</Date>
+            <Version>2.16.1</Version>
+            <Comment>First release.</Comment>
+            <Name>A. Murat Eren</Name>
+            <Email>meren@pardus.org.tr</Email>
+        </Update>
+    </History>
+</PISI>

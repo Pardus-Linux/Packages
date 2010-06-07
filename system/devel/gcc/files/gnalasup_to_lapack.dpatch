@@ -1,0 +1,66 @@
+#! /bin/sh -e
+
+# DP: Ada: Use liblapack and libblas instead of libgnalasup
+
+dir=
+if [ $# -eq 3 -a "$2" = '-d' ]; then
+    pdir="-d $3"
+    dir="$3/"
+elif [ $# -ne 1 ]; then
+    echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
+    exit 1
+fi
+case "$1" in
+    -patch)
+        patch $pdir -f --no-backup-if-mismatch -p1 < $0
+        #cd ${dir}gcc && autoconf
+        ;;
+    -unpatch)
+        patch $pdir -f --no-backup-if-mismatch -R -p1 < $0
+        #rm ${dir}gcc/configure
+        ;;
+    *)
+        echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
+        exit 1
+esac
+exit 0
+
+From: Samuel Tardieu <sam@rfc1149.net>
+
+Interfaces.Fortran.Blas makes reference to a "gnalasup" library, which
+is an AdaCore bundle containing LAPACK and BLAS.
+
+It is better to make standard libraries such as "lapack" and "blas"
+the default rather than the private bundle. A vendor wanting to build
+a "gnalasup" specific version may use an alternate body for
+Interfaces.Fortran.Blas.
+
+    gcc/ada/
+	* i-forbla.adb: Link against -llapack and -lblas by default
+	instead of the private -lgnalasup.
+---
+
+ gcc/ada/i-forbla.adb |    5 +++--
+ 1 files changed, 3 insertions(+), 2 deletions(-)
+
+
+diff --git a/gcc/ada/i-forbla.adb b/gcc/ada/i-forbla.adb
+index f54497d..bda6084 100644
+--- a/gcc/ada/i-forbla.adb
++++ b/gcc/ada/i-forbla.adb
+@@ -32,12 +32,13 @@
+ ------------------------------------------------------------------------------
+ 
+ --  This Interfaces.Fortran.Blas package body contains the required linker
+---  pragmas for automatically linking with the gnalasup linear algebra support
++--  pragmas for automatically linking with the LAPACK linear algebra support
+ --  library, and the systems math library. Alternative bodies can be supplied
+ --  if different sets of libraries are needed.
+ 
+ package body Interfaces.Fortran.BLAS is
+    pragma Linker_Options ("-lgnala");
+-   pragma Linker_Options ("-lgnalasup");
++   pragma Linker_Options ("-llapack");
++   pragma Linker_Options ("-lblas");
+    pragma Linker_Options ("-lm");
+ end Interfaces.Fortran.BLAS;

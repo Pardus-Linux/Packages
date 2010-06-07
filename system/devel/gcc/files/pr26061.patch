@@ -1,0 +1,129 @@
+diff -Nur gcc-4.3.3-old/gcc/common.opt gcc-4.3.3/gcc/common.opt
+--- gcc-4.3.3-old/gcc/common.opt	2009-01-29 14:39:36.666740755 +0200
++++ gcc-4.3.3/gcc/common.opt	2009-01-29 14:44:40.846653896 +0200
+@@ -932,6 +932,10 @@
+ Common C ObjC C++ ObjC++ Report Var(flag_show_column) Init(0)
+ Show column numbers in diagnostics, when available.  Default off
+ 
++fshow-error-count
++Common Report Var(flag_show_error_count) Init(1)
++Show total number of error and warning messages issued at the end. Default on
++
+ fsignaling-nans
+ Common Report Var(flag_signaling_nans) Optimization
+ Disable optimizations observable by IEEE signaling NaNs
+diff -Nur gcc-4.3.3-old/gcc/testsuite/lib/gcc.exp gcc-4.3.3/gcc/testsuite/lib/gcc.exp
+--- gcc-4.3.3-old/gcc/testsuite/lib/gcc.exp	2009-01-29 14:39:36.956740728 +0200
++++ gcc-4.3.3/gcc/testsuite/lib/gcc.exp	2009-01-29 14:44:40.847693328 +0200
+@@ -150,6 +150,7 @@
+     }
+     lappend options "timeout=[timeout_value]"
+     lappend options "additional_flags=-fno-show-column"
++    lappend options "additional_flags=-fno-show-error-count"
+     lappend options "compiler=$GCC_UNDER_TEST"
+     set options [dg-additional-files-options $options $source]
+     return [target_compile $source $dest $type $options]
+diff -Nur gcc-4.3.3-old/gcc/testsuite/lib/g++.exp gcc-4.3.3/gcc/testsuite/lib/g++.exp
+--- gcc-4.3.3-old/gcc/testsuite/lib/g++.exp	2009-01-29 14:39:36.956740728 +0200
++++ gcc-4.3.3/gcc/testsuite/lib/g++.exp	2009-01-29 14:44:40.847693328 +0200
+@@ -275,6 +275,7 @@
+ 
+     lappend options "additional_flags=[libio_include_flags]"
+     lappend options "additional_flags=-fno-show-column"
++    lappend options "additional_flags=-fno-show-error-count"
+     lappend options "compiler=$GXX_UNDER_TEST"
+     lappend options "timeout=[timeout_value]"
+ 
+diff -Nur gcc-4.3.3-old/gcc/testsuite/lib/gfortran.exp gcc-4.3.3/gcc/testsuite/lib/gfortran.exp
+--- gcc-4.3.3-old/gcc/testsuite/lib/gfortran.exp	2009-01-29 14:39:36.955740681 +0200
++++ gcc-4.3.3/gcc/testsuite/lib/gfortran.exp	2009-01-29 14:45:30.456865785 +0200
+@@ -195,6 +195,7 @@
+ 
+     lappend options "compiler=$GFORTRAN_UNDER_TEST"
+     lappend options "timeout=[timeout_value]"
++    lappend options "additional_flags=-fno-show-error-count"
+ 
+     set options [concat "$ALWAYS_GFORTRANFLAGS" $options]
+     set options [dg-additional-files-options $options $source]
+diff -Nur gcc-4.3.3-old/gcc/testsuite/lib/obj-c++.exp gcc-4.3.3/gcc/testsuite/lib/obj-c++.exp
+--- gcc-4.3.3-old/gcc/testsuite/lib/obj-c++.exp	2009-01-29 14:39:36.956740728 +0200
++++ gcc-4.3.3/gcc/testsuite/lib/obj-c++.exp	2009-01-29 14:46:18.903865935 +0200
+@@ -326,6 +326,7 @@
+     lappend options "additional_flags=[libio_include_flags]"
+     lappend options "compiler=$OBJCXX_UNDER_TEST";
+     lappend options "timeout=[timeout_value]"
++    lappend options "additional_flags=-fno-show-error-count"
+ 
+     set options [concat $gpp_compile_options $options]
+ 
+diff -Nur gcc-4.3.3-old/gcc/testsuite/lib/objc.exp gcc-4.3.3/gcc/testsuite/lib/objc.exp
+--- gcc-4.3.3-old/gcc/testsuite/lib/objc.exp	2009-01-29 14:39:36.956740728 +0200
++++ gcc-4.3.3/gcc/testsuite/lib/objc.exp	2009-01-29 14:46:53.727866403 +0200
+@@ -195,6 +195,7 @@
+     }
+     lappend options "compiler=$OBJC_UNDER_TEST"
+     lappend options "timeout=[timeout_value]"
++    lappend options "additional_flags=-fno-show-error-count"
+ 
+     set_ld_library_path_env_vars
+ 
+diff -Nur gcc-4.3.3-old/gcc/toplev.c gcc-4.3.3/gcc/toplev.c
+--- gcc-4.3.3-old/gcc/toplev.c	2009-01-29 14:39:36.604740820 +0200
++++ gcc-4.3.3/gcc/toplev.c	2009-01-29 14:44:40.850693697 +0200
+@@ -2209,6 +2209,12 @@
+ 
+   /* Language-specific end of compilation actions.  */
+   lang_hooks.finish ();
++
++
++  /* Print error / warning counts.  */
++  if ( flag_show_error_count && (errorcount || warningcount ))
++    fprintf (stderr, "\n*** %d errors, %d warnings\n",
++             errorcount, warningcount);
+ }
+ 
+ /* Initialize the compiler, and compile the input file.  */
+diff -Nur gcc-4.3.3-old/libffi/testsuite/lib/libffi-dg.exp gcc-4.3.3/libffi/testsuite/lib/libffi-dg.exp
+--- gcc-4.3.3-old/libffi/testsuite/lib/libffi-dg.exp	2009-01-29 14:39:36.395740750 +0200
++++ gcc-4.3.3/libffi/testsuite/lib/libffi-dg.exp	2009-01-29 14:44:40.850693697 +0200
+@@ -197,6 +197,7 @@
+     }
+ 
+     lappend options "libs= -lffi"
++    lappend options "additional_flags=-fno-show-error-count"
+ 
+     verbose "options: $options"
+     return [target_compile $source $dest $type $options]
+diff -Nur gcc-4.3.3-old/libgomp/testsuite/lib/libgomp.exp gcc-4.3.3/libgomp/testsuite/lib/libgomp.exp
+--- gcc-4.3.3-old/libgomp/testsuite/lib/libgomp.exp	2009-01-29 14:39:37.314740739 +0200
++++ gcc-4.3.3/libgomp/testsuite/lib/libgomp.exp	2009-01-29 14:44:40.851678871 +0200
+@@ -174,6 +174,7 @@
+     lappend options "additional_flags=[libio_include_flags]"
+     lappend options "timeout=[timeout_value]"
+     lappend options "compiler=$GCC_UNDER_TEST"
++    lappend options "additional_flags=-fno-show-error-count"
+ 
+     set options [concat $libgomp_compile_options $options]
+ 
+diff -Nur gcc-4.3.3-old/libmudflap/testsuite/lib/libmudflap.exp gcc-4.3.3/libmudflap/testsuite/lib/libmudflap.exp
+--- gcc-4.3.3-old/libmudflap/testsuite/lib/libmudflap.exp	2009-01-29 14:39:36.407740713 +0200
++++ gcc-4.3.3/libmudflap/testsuite/lib/libmudflap.exp	2009-01-29 14:44:40.851678871 +0200
+@@ -220,6 +220,7 @@
+     # Picks up the freshly-built testsuite library corresponding to the
+     # multilib under test.
+     lappend options "ldflags=-L${blddir}/testsuite"
++    lappend options "additional_flags=-fno-show-error-count"
+ 
+     return [target_compile $source $dest $type $options]
+ }
+diff -Nur gcc-4.3.3-old/libstdc++-v3/testsuite/lib/libstdc++.exp gcc-4.3.3/libstdc++-v3/testsuite/lib/libstdc++.exp
+--- gcc-4.3.3-old/libstdc++-v3/testsuite/lib/libstdc++.exp	2009-01-29 14:39:36.483740732 +0200
++++ gcc-4.3.3/libstdc++-v3/testsuite/lib/libstdc++.exp	2009-01-29 14:47:57.020865842 +0200
+@@ -411,6 +411,7 @@
+ 
+     lappend options "compiler=$cxx_final"
+     lappend options "timeout=[timeout_value]"
++    lappend options "additional_flags=-fno-show-error-count"
+ 
+     return [target_compile $source $dest $type $options]
+ }

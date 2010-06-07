@@ -1,0 +1,57 @@
+--- ld/lexsup.c
++++ ld/lexsup.c
+@@ -643,6 +643,9 @@
+ 	}
+     }
+ 
++  optarg = "relro";
++  ldemul_handle_option ('z');
++
+   last_optind = -1;
+   while (1)
+     {
+--- ld/testsuite/config/default.exp
++++ ld/testsuite/config/default.exp
+@@ -20,7 +20,7 @@
+ #
+ 
+ if ![info exists ld] then {
+-    set ld [findfile $base_dir/ld-new $base_dir/ld-new [transform ld]]
++    set ld "[findfile $base_dir/ld-new $base_dir/ld-new [transform ld]] -znorelro"
+ }
+ 
+ if ![info exists as] then {
+@@ -67,7 +67,7 @@
+     catch "exec mkdir tmpdir/ld" status
+     catch "exec ln -s ../../ld-new tmpdir/ld/ld" status
+ }
+-set gcc_ld_flag "-B[pwd]/tmpdir/ld/"
++set gcc_ld_flag "-B[pwd]/tmpdir/ld/ -Wl,-z,norelro"
+ 
+ # load the linker path
+ if {[file exists tmpdir/libpath.exp]} {
+@@ -261,7 +261,7 @@
+ }
+ 
+ if ![info exists LD] then {
+-    set LD [findfile $base_dir/ld-new ./ld-new [transform ld]]
++    set LD "[findfile $base_dir/ld-new ./ld-new [transform ld]] -znorelro"
+ }
+ 
+ if ![info exists LDFLAGS] then {
+--- ld/testsuite/ld-bootstrap/bootstrap.exp
++++ ld/testsuite/ld-bootstrap/bootstrap.exp
+@@ -53,7 +53,12 @@
+ 
+     # This test can only be run if we have the ld build directory,
+     # since we need the object files.
+-    if {$ld != "$objdir/ld-new"} {
++    set ldexe $ld
++    set ldparm [string first " " $ld]
++    if { $ldparm > 0 } then {
++	set ldexe [string range $ld 0 $ldparm]
++    }
++    if {$ldexe != "$objdir/ld-new"} {
+ 	untested $testname
+ 	continue
+     }

@@ -1,0 +1,136 @@
+#! /bin/sh -e
+
+# All lines beginning with `# DPATCH:' are a description of the patch.
+# DP: PR ada/35792: Illegal program not detected, RM 3.10.1(4/2)
+
+dir=
+if [ $# -eq 3 -a "$2" = '-d' ]; then
+    pdir="-d $3"
+    dir="$3/"
+elif [ $# -ne 1 ]; then
+    echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
+    exit 1
+fi
+case "$1" in
+    -patch)
+        patch $pdir -f --no-backup-if-mismatch -p1 < $0
+        #cd ${dir}gcc && autoconf
+        ;;
+    -unpatch)
+        patch $pdir -f --no-backup-if-mismatch -R -p1 < $0
+        #rm ${dir}gcc/configure
+        ;;
+    *)
+        echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
+        exit 1
+esac
+exit 0
+
+# append the patch here and adjust the -p? flag in the patch calls.
+
+ada/35792: Refuse completion of tagged type by task type or protected type
+
+From: Samuel Tardieu <sam@rfc1149.net>
+
+If an incomplete_type_declaration includes the reserved word tagged,
+then a full_type_declaration that completes it shall declare a tagged
+type.
+
+Without this patch, GNAT detects the error only on T3 (see testcase)
+and forgets T1 and T2 full type declarations. Those cases (task type and
+protected type) were kept out at the wrong place.
+
+With this patch, GNAT correctly issues:
+
+     7.    protected type T1 is end T1;
+                          |
+        >>> full declaration of type "T1" defined at line 4 must be a tagged type
+
+     8.    task type T2;
+                     |
+        >>> full declaration of type "T2" defined at line 5 must be a tagged type
+
+     9.    type T3 is null record;
+                |
+        >>> full declaration of type "T3" defined at line 6 must be tagged
+
+Tested on Linux/x86.
+
+2008-04-29  Ed Schonberg  <schonberg@adacore.com>
+
+    gcc/ada/
+	PR ada/35792
+	* sem_ch3.adb (Find_Type_Name): Refuse completion of an incomplete
+	tagged type by an untagged protected or task type.
+
+2008-04-29  Samuel Tardieu  <sam@rfc1149.net>
+
+    gcc/testsuite/
+	PR ada/35792
+	* gnat.dg/specs/tag2.ads: New.
+---
+
+ gcc/ada/sem_ch3.adb                  |   23 ++++++++++++++++++-----
+ gcc/testsuite/gnat.dg/specs/tag2.ads |   17 +++++++++++++++++
+ 2 files changed, 35 insertions(+), 5 deletions(-)
+ create mode 100644 gcc/testsuite/gnat.dg/specs/tag2.ads
+
+diff --git a/gcc/ada/sem_ch3.adb b/gcc/ada/sem_ch3.adb
+index 920b149..1936daf 100644
+--- a/gcc/ada/sem_ch3.adb
++++ b/gcc/ada/sem_ch3.adb
+@@ -12778,13 +12778,26 @@ package body Sem_Ch3 is
+          if Is_Type (Prev)
+            and then (Is_Tagged_Type (Prev)
+                       or else Present (Class_Wide_Type (Prev)))
+-           and then not Nkind_In (N, N_Task_Type_Declaration,
+-                                     N_Protected_Type_Declaration)
+          then
+-            --  The full declaration is either a tagged record or an
+-            --  extension otherwise this is an error
++            --  The full declaration is either a tagged type (including
++            --  a synchronized type that implements interfaces) or a
++            --  type extension, otherwise this is an error.
++
++            if Nkind_In (N, N_Task_Type_Declaration,
++                         N_Protected_Type_Declaration)
++            then
++               if No (Interface_List (N))
++                 and then not Error_Posted (N)
++               then
++                  Error_Msg_NE
++                    ("full declaration of } must be a tagged type ", Id, Prev);
++               end if;
++
++            elsif Nkind (Type_Definition (N)) = N_Record_Definition then
++
++               --  Indicate that the previous declaration (tagged incomplete
++               --  or private declaration) requires the same on the full one.
+ 
+-            if Nkind (Type_Definition (N)) = N_Record_Definition then
+                if not Tagged_Present (Type_Definition (N)) then
+                   Error_Msg_NE
+                     ("full declaration of } must be tagged", Prev, Id);
+diff --git a/gcc/testsuite/gnat.dg/specs/tag2.ads b/gcc/testsuite/gnat.dg/specs/tag2.ads
+new file mode 100644
+index 0000000..8431f34
+--- /dev/null
++++ b/gcc/testsuite/gnat.dg/specs/tag2.ads
+@@ -0,0 +1,17 @@
++-- { dg-do compile }
++
++package tag2 is
++   type I is synchronized interface;
++   type T1 is tagged;
++   type T2 is tagged;
++   type T3 is tagged;           -- { dg-error "must be tagged" };
++   type T4 is tagged;
++   type T5 is tagged;
++   type T6 is tagged;
++   protected type T1 is end T1; -- { dg-error "must be a tagged type" }
++   task type T2;                -- { dg-error "must be a tagged type" }
++   type T3 is null record;
++   task type T4 is new I with end;
++   protected type T5 is new I with end;
++   type T6 is tagged null record;
++end tag2;

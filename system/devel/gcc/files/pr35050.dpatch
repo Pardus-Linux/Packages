@@ -1,0 +1,89 @@
+#! /bin/sh -e
+
+# DP: PR ada/35050: [4.1/4.2/4.3/4.4 regression] renames entities not in symbol table
+
+dir=
+if [ $# -eq 3 -a "$2" = '-d' ]; then
+    pdir="-d $3"
+    dir="$3/"
+elif [ $# -ne 1 ]; then
+    echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
+    exit 1
+fi
+case "$1" in
+    -patch)
+        patch $pdir -f --no-backup-if-mismatch -p1 < $0
+        #cd ${dir}gcc && autoconf
+        ;;
+    -unpatch)
+        patch $pdir -f --no-backup-if-mismatch -R -p1 < $0
+        #rm ${dir}gcc/configure
+        ;;
+    *)
+        echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
+        exit 1
+esac
+exit 0
+
+gcc/ada/
+
+From: sam <sam@138bc75d-0d04-0410-961f-82ee72b054a4>
+
+PR ada/35050
+	* xref_lib.adb (Parse_Identifier_Info): Correctly parse and ignore the
+	renaming information.
+
+git-svn-id: svn+ssh://gcc.gnu.org/svn/gcc/trunk@134256 138bc75d-0d04-0410-961f-82ee72b054a4
+---
+
+ gcc/ada/xref_lib.adb |   29 ++++++++++++++++-------------
+ 1 files changed, 16 insertions(+), 13 deletions(-)
+
+
+diff --git a/gcc/ada/xref_lib.adb b/gcc/ada/xref_lib.adb
+index 7f22dce..0c940d2 100644
+--- a/gcc/ada/xref_lib.adb
++++ b/gcc/ada/xref_lib.adb
+@@ -896,6 +896,22 @@ package body Xref_Lib is
+          Skip_To_Matching_Closing_Bracket;
+       end if;
+ 
++      --  Skip any renaming indication
++
++      if Ali (Ptr) = '=' then
++         declare
++            P_Line, P_Column : Natural;
++            pragma Warnings (Off, P_Line);
++            pragma Warnings (Off, P_Column);
++
++         begin
++            Ptr := Ptr + 1;
++            Parse_Number (Ali, Ptr, P_Line);
++            Ptr := Ptr + 1;
++            Parse_Number (Ali, Ptr, P_Column);
++         end;
++      end if;
++
+       if Ali (Ptr) = '<'
+         or else Ali (Ptr) = '('
+         or else Ali (Ptr) = '{'
+@@ -1036,19 +1052,6 @@ package body Xref_Lib is
+             end loop;
+             Ptr := Ptr + 1;
+          end if;
+-
+-      elsif Ali (Ptr) = '=' then
+-         declare
+-            P_Line, P_Column : Natural;
+-            pragma Warnings (Off, P_Line);
+-            pragma Warnings (Off, P_Column);
+-
+-         begin
+-            Ptr := Ptr + 1;
+-            Parse_Number (Ali, Ptr, P_Line);
+-            Ptr := Ptr + 1;
+-            Parse_Number (Ali, Ptr, P_Column);
+-         end;
+       end if;
+ 
+       --  To find the body, we will have to parse the file too

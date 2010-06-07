@@ -1,0 +1,79 @@
+#! /bin/sh -e
+
+# DP: PR ada/28733: GNAT crash while compiling Ada-2005 code
+
+dir=
+if [ $# -eq 3 -a "$2" = '-d' ]; then
+    pdir="-d $3"
+    dir="$3/"
+elif [ $# -ne 1 ]; then
+    echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
+    exit 1
+fi
+case "$1" in
+    -patch)
+        patch $pdir -f --no-backup-if-mismatch -p1 < $0
+        #cd ${dir}gcc && autoconf
+        ;;
+    -unpatch)
+        patch $pdir -f --no-backup-if-mismatch -R -p1 < $0
+        #rm ${dir}gcc/configure
+        ;;
+    *)
+        echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
+        exit 1
+esac
+exit 0
+
+2008-04-15  Samuel Tardieu  <sam@rfc1149.net>
+
+From: sam <sam@138bc75d-0d04-0410-961f-82ee72b054a4>
+
+Gary Dismukes  <dismukes@adacore.com>
+
+    gcc/ada/
+	PR ada/28733
+	* sem_ch8.adb (Analyze_Use_Package): Do not allow "use" of something
+	which is not an entity (and hence not a package).
+	(End_Use_Package): Ditto.
+
+git-svn-id: svn+ssh://gcc.gnu.org/svn/gcc/trunk@134313 138bc75d-0d04-0410-961f-82ee72b054a4
+---
+
+ gcc/ada/sem_ch8.adb |   14 ++++++++++++--
+ 1 files changed, 12 insertions(+), 2 deletions(-)
+
+
+diff --git a/gcc/ada/sem_ch8.adb b/gcc/ada/sem_ch8.adb
+index 0a4ac8e..b20e8a8 100644
+--- a/gcc/ada/sem_ch8.adb
++++ b/gcc/ada/sem_ch8.adb
+@@ -2396,6 +2396,11 @@ package body Sem_Ch8 is
+                   Use_One_Package (Pack, N);
+                end if;
+             end if;
++
++         --  Report error because name denotes something other than a package
++
++         else
++            Error_Msg_N ("& is not a package", Pack_Name);
+          end if;
+ 
+          Next (Pack_Name);
+@@ -3066,9 +3071,14 @@ package body Sem_Ch8 is
+    begin
+       Pack_Name := First (Names (N));
+       while Present (Pack_Name) loop
+-         Pack := Entity (Pack_Name);
+ 
+-         if Ekind (Pack) = E_Package then
++         --  Test that Pack_Name actually denotes a package before processing
++
++         if Is_Entity_Name (Pack_Name)
++           and then Ekind (Entity (Pack_Name)) = E_Package
++         then
++            Pack := Entity (Pack_Name);
++
+             if In_Open_Scopes (Pack) then
+                null;
+ 

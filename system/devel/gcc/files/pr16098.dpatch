@@ -1,0 +1,130 @@
+#! /bin/sh -e
+
+# DP: PR ada/16098: Illegal program not detected, RM 13.1(6)
+
+dir=
+if [ $# -eq 3 -a "$2" = '-d' ]; then
+    pdir="-d $3"
+    dir="$3/"
+elif [ $# -ne 1 ]; then
+    echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
+    exit 1
+fi
+case "$1" in
+    -patch)
+        patch $pdir -f --no-backup-if-mismatch -p1 < $0
+        #cd ${dir}gcc && autoconf
+        ;;
+    -unpatch)
+        patch $pdir -f --no-backup-if-mismatch -R -p1 < $0
+        #rm ${dir}gcc/configure
+        ;;
+    *)
+        echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
+        exit 1
+esac
+exit 0
+
+gcc/ada/
+
+From: sam <sam@138bc75d-0d04-0410-961f-82ee72b054a4>
+
+PR ada/16098
+	* sem_prag.adb (Error_Pragma_Ref): New.
+	(Process_Convention): Specialized message for non-local
+	subprogram renaming. Detect the problem in homonyms as well.
+
+    gcc/testsuite/
+	PR ada/16098
+	* gnat.dg/specs/renamings.ads: New.
+
+git-svn-id: svn+ssh://gcc.gnu.org/svn/gcc/trunk@134262 138bc75d-0d04-0410-961f-82ee72b054a4
+---
+
+ gcc/ada/sem_prag.adb                      |   29 +++++++++++++++++++++++++++++
+ gcc/testsuite/gnat.dg/specs/renamings.ads |   14 ++++++++++++++
+ 2 files changed, 43 insertions(+), 0 deletions(-)
+ create mode 100644 gcc/testsuite/gnat.dg/specs/renamings.ads
+
+
+diff --git a/gcc/ada/sem_prag.adb b/gcc/ada/sem_prag.adb
+index f0f31cb..8dce4de 100644
+--- a/gcc/ada/sem_prag.adb
++++ b/gcc/ada/sem_prag.adb
+@@ -450,6 +450,13 @@ package body Sem_Prag is
+       --  reference the identifier. After placing the message, Pragma_Exit
+       --  is raised.
+ 
++      procedure Error_Pragma_Ref (Msg : String; Ref : Entity_Id);
++      pragma No_Return (Error_Pragma_Ref);
++      --  Outputs error message for current pragma. The message may contain
++      --  a % that will be replaced with the pragma name. The parameter Ref
++      --  must be an entity whose name can be referenced by & and sloc by #.
++      --  After placing the message, Pragma_Exit is raised.
++
+       function Find_Lib_Unit_Name return Entity_Id;
+       --  Used for a library unit pragma to find the entity to which the
+       --  library unit pragma applies, returns the entity found.
+@@ -1534,6 +1541,18 @@ package body Sem_Prag is
+          raise Pragma_Exit;
+       end Error_Pragma_Arg_Ident;
+ 
++      ----------------------
++      -- Error_Pragma_Ref --
++      ----------------------
++
++      procedure Error_Pragma_Ref (Msg : String; Ref : Entity_Id) is
++      begin
++         Error_Msg_Name_1 := Chars (N);
++         Error_Msg_Sloc   := Sloc (Ref);
++         Error_Msg_NE (Msg, N, Ref);
++         raise Pragma_Exit;
++      end Error_Pragma_Ref;
++
+       ------------------------
+       -- Find_Lib_Unit_Name --
+       ------------------------
+@@ -2229,6 +2248,10 @@ package body Sem_Prag is
+             if Nkind (Parent (Declaration_Node (E))) =
+                                        N_Subprogram_Renaming_Declaration
+             then
++               if Scope (E) /= Scope (Alias (E)) then
++                  Error_Pragma_Ref
++                    ("cannot apply pragma% to non-local renaming&#", E);
++               end if;
+                E := Alias (E);
+ 
+             elsif Nkind (Parent (E)) = N_Full_Type_Declaration
+@@ -2358,6 +2381,12 @@ package body Sem_Prag is
+                  and then Nkind (Original_Node (Parent (E1))) /=
+                    N_Full_Type_Declaration
+                then
++                  if Present (Alias (E1))
++                    and then Scope (E1) /= Scope (Alias (E1))
++                  then
++                     Error_Pragma_Ref
++                       ("cannot apply pragma% to non-local renaming&#", E1);
++                  end if;
+                   Set_Convention_From_Pragma (E1);
+ 
+                   if Prag_Id = Pragma_Import then
+diff --git a/gcc/testsuite/gnat.dg/specs/renamings.ads b/gcc/testsuite/gnat.dg/specs/renamings.ads
+new file mode 100644
+index 0000000..3b90827
+--- /dev/null
++++ b/gcc/testsuite/gnat.dg/specs/renamings.ads
+@@ -0,0 +1,14 @@
++package Renamings is
++
++   package Inner is
++      procedure PI (X : Integer);
++   end Inner;
++
++   procedure P (X : Integer) renames Inner.PI;
++   procedure P (X : Float);
++   pragma Convention (C, P); -- { dg-error "non-local renaming" }
++
++   procedure Q (X : Float);
++   procedure Q (X : Integer) renames Inner.PI;
++   pragma Convention (C, Q); -- { dg-error "non-local renaming" }
++end Renamings;

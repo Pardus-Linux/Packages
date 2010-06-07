@@ -1,0 +1,103 @@
+#! /bin/sh -e
+
+# DP: PR ada/17985: GNAT accepts extension aggregate where expected type is not extension
+
+dir=
+if [ $# -eq 3 -a "$2" = '-d' ]; then
+    pdir="-d $3"
+    dir="$3/"
+elif [ $# -ne 1 ]; then
+    echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
+    exit 1
+fi
+case "$1" in
+    -patch)
+        patch $pdir -f --no-backup-if-mismatch -p1 < $0
+        #cd ${dir}gcc && autoconf
+        ;;
+    -unpatch)
+        patch $pdir -f --no-backup-if-mismatch -R -p1 < $0
+        #rm ${dir}gcc/configure
+        ;;
+    *)
+        echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
+        exit 1
+esac
+exit 0
+
+gcc/ada/
+
+From: sam <sam@138bc75d-0d04-0410-961f-82ee72b054a4>
+
+PR ada/17985
+	* sem_aggr.adb (Valid_Ancestor_Type): A type is not an ancestor of
+	itself.
+
+    gcc/testsuite/
+	PR ada/17985
+	* gnat.dg/ancestor_type.ads, gnat.dg/ancestor_type.adb: New test.
+
+git-svn-id: svn+ssh://gcc.gnu.org/svn/gcc/trunk@134244 138bc75d-0d04-0410-961f-82ee72b054a4
+---
+
+ gcc/ada/sem_aggr.adb                    |    4 +++-
+ gcc/testsuite/gnat.dg/ancestor_type.adb |   13 +++++++++++++
+ gcc/testsuite/gnat.dg/ancestor_type.ads |   13 +++++++++++++
+ 3 files changed, 29 insertions(+), 1 deletions(-)
+ create mode 100644 gcc/testsuite/gnat.dg/ancestor_type.adb
+ create mode 100644 gcc/testsuite/gnat.dg/ancestor_type.ads
+
+
+diff --git a/gcc/ada/sem_aggr.adb b/gcc/ada/sem_aggr.adb
+index f6ae6e5..38888b3 100644
+--- a/gcc/ada/sem_aggr.adb
++++ b/gcc/ada/sem_aggr.adb
+@@ -1997,7 +1997,9 @@ package body Sem_Aggr is
+             Imm_Type := Etype (Base_Type (Imm_Type));
+          end loop;
+ 
+-         if Etype (Imm_Type) /= Base_Type (A_Type) then
++         if Etype (Imm_Type) /= Base_Type (A_Type)
++           or else Base_Type (Typ) = Base_Type (A_Type)
++         then
+             Error_Msg_NE ("expect ancestor type of &", A, Typ);
+             return False;
+          else
+diff --git a/gcc/testsuite/gnat.dg/ancestor_type.adb b/gcc/testsuite/gnat.dg/ancestor_type.adb
+new file mode 100644
+index 0000000..b5e9e2c
+--- /dev/null
++++ b/gcc/testsuite/gnat.dg/ancestor_type.adb
+@@ -0,0 +1,13 @@
++-- { dg-do compile }
++
++package body Ancestor_Type is
++
++   package body B is
++      function make return T is
++      begin
++         return (T with n => 0);  -- { dg-error "expect ancestor" }
++      end make;
++
++   end B;
++
++end Ancestor_Type;
+diff --git a/gcc/testsuite/gnat.dg/ancestor_type.ads b/gcc/testsuite/gnat.dg/ancestor_type.ads
+new file mode 100644
+index 0000000..2ed1f19
+--- /dev/null
++++ b/gcc/testsuite/gnat.dg/ancestor_type.ads
+@@ -0,0 +1,13 @@
++package Ancestor_Type is
++
++   type T is tagged private;
++
++   package B is
++      function make return T;
++   end B;
++
++private
++   type T is tagged record
++      n: Natural;
++   end record;
++end Ancestor_Type;

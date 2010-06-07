@@ -1,0 +1,25 @@
+--- icecream.orig/services/comm.cpp  2008-05-12 19:57:14.000000000 +0200
++++ icecream/services/comm.cpp       2008-10-20 15:43:23.000000000 +0200
+@@ -1160,14 +1160,21 @@
+
+   if (ask_fd >= 0)
+     {
++      fcntl(ask_fd, F_SETFL, 0);
+       int status = connect (ask_fd, (struct sockaddr*) &remote_addr, sizeof(remote_addr) );
+-      if (status == 0 || (status < 0 && errno == EISCONN))
++      int connect_errno = errno;
++      fcntl(ask_fd, F_SETFL, O_NONBLOCK);
++      if (status == 0 || (status < 0 && connect_errno == EISCONN))
+         {
+           int fd = ask_fd;
+           ask_fd = -1;
+           return Service::createChannel(fd,
+                   (struct sockaddr*) &remote_addr, sizeof(remote_addr));
+         }
++      else
++        {
++          log_error() << "connect failed : " << strerror(connect_errno) << endl;
++        }
+     }
+   return 0;
+ } 

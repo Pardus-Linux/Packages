@@ -1,0 +1,103 @@
+#! /bin/sh -e
+
+# DP: PR ada/16087: Accept statically matching constraint in full view
+
+dir=
+if [ $# -eq 3 -a "$2" = '-d' ]; then
+    pdir="-d $3"
+    dir="$3/"
+elif [ $# -ne 1 ]; then
+    echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
+    exit 1
+fi
+case "$1" in
+    -patch)
+        patch $pdir -f --no-backup-if-mismatch -p1 < $0
+        #cd ${dir}gcc && autoconf
+        ;;
+    -unpatch)
+        patch $pdir -f --no-backup-if-mismatch -R -p1 < $0
+        #rm ${dir}gcc/configure
+        ;;
+    *)
+        echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
+        exit 1
+esac
+exit 0
+
+ada/16087: Accept statically matching constraint in full view
+
+From: Samuel Tardieu <sam@rfc1149.net>
+
+RM 7.3(13): If the ancestor subtype of a private extension has constrained
+discriminants, then the parent subtype of the full view shall impose a
+statically matching constraint on those discriminants.
+
+The attached test case will compile without error, instead of saying that
+the constraint on T2 is not conformant.
+
+    gcc/ada/
+	PR ada/16087
+	* sem_ch3.adb (Build_Derived_Record_Type): Accept statically matching
+	constraint expressions.
+
+    gcc/testsuite/
+	PR ada/16087
+	* gnat.dg/specs/statically_matching.ads: New.
+---
+
+ gcc/ada/sem_ch3.adb                           |   17 +++++++++++++----
+ gcc/testsuite/gnat.dg/statically_matching.ads |    7 +++++++
+ 2 files changed, 20 insertions(+), 4 deletions(-)
+ create mode 100644 gcc/testsuite/gnat.dg/statically_matching.ads
+
+
+diff --git a/gcc/ada/sem_ch3.adb b/gcc/ada/sem_ch3.adb
+index 1936daf..bf17071 100644
+--- a/gcc/ada/sem_ch3.adb
++++ b/gcc/ada/sem_ch3.adb
+@@ -6162,8 +6162,8 @@ package body Sem_Ch3 is
+               and then Has_Private_Declaration (Derived_Type)
+               and then Present (Discriminant_Constraint (Derived_Type))
+             then
+-               --  Verify that constraints of the full view conform to those
+-               --  given in partial view.
++               --  Verify that constraints of the full view statically match
++               --  those given in the partial view.
+ 
+                declare
+                   C1, C2 : Elmt_Id;
+@@ -6172,9 +6172,18 @@ package body Sem_Ch3 is
+                   C1 := First_Elmt (New_Discrs);
+                   C2 := First_Elmt (Discriminant_Constraint (Derived_Type));
+                   while Present (C1) and then Present (C2) loop
+-                     if not
+-                       Fully_Conformant_Expressions (Node (C1), Node (C2))
++
++                     if Fully_Conformant_Expressions (Node (C1), Node (C2))
++                       or else
++                     (Is_OK_Static_Expression (Node (C1))
++                        and then
++                      Is_OK_Static_Expression (Node (C2))
++                        and then
++                      Expr_Value (Node (C1)) = Expr_Value (Node (C2)))
+                      then
++                        null;
++
++                     else
+                         Error_Msg_N (
+                           "constraint not conformant to previous declaration",
+                              Node (C1));
+diff --git a/gcc/testsuite/gnat.dg/statically_matching.ads b/gcc/testsuite/gnat.dg/statically_matching.ads
+new file mode 100644
+index 0000000..de2ba1b
+--- /dev/null
++++ b/gcc/testsuite/gnat.dg/statically_matching.ads
+@@ -0,0 +1,7 @@
++package Statically_Matching is
++   type T1(b: boolean) is tagged null record;
++   type T2 is new T1(b => false) with private;
++private
++   F: constant boolean := false;
++   type T2 is new T1(b => F) with null record;  -- OK
++end Statically_Matching;

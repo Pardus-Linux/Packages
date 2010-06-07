@@ -1,0 +1,1745 @@
+#! /bin/sh -e
+
+# DP: updates from the 4.3 branch upto 20090127.
+
+last_updated()
+{
+	cat > ${dir}LAST_UPDATED <<EOF
+Tue Jan 27 23:35:18 CET 2009
+Tue Jan 27 22:35:18 UTC 2009 (revision 143712)
+EOF
+}
+
+dir=
+if [ $# -eq 3 -a "$2" = '-d' ]; then
+    pdir="-d $3"
+    dir="$3/"
+elif [ $# -ne 1 ]; then
+    echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
+    exit 1
+fi
+case "$1" in
+    -patch)
+        patch $pdir -f --no-backup-if-mismatch -p0 < $0
+	last_updated
+        #cd ${dir}gcc && autoconf
+        ;;
+    -unpatch)
+        patch $pdir -f --no-backup-if-mismatch -R -p0 < $0
+        #rm ${dir}gcc/configure
+        ;;
+    *)
+        echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
+        exit 1
+esac
+exit 0
+
+# svn diff svn://gcc.gnu.org/svn/gcc/tags/gcc_4_3_3_release svn://gcc.gnu.org/svn/gcc/branches/gcc-4_3-branch \
+#     | awk '/^Index:.*\.class/ {skip=1; next} /^Index:/ { skip=0 } skip==0'
+
+Index: gcc/DATESTAMP
+===================================================================
+--- gcc/DATESTAMP	(.../tags/gcc_4_3_3_release)	(revision 143712)
++++ gcc/DATESTAMP	(.../branches/gcc-4_3-branch)	(revision 143712)
+@@ -1 +1 @@
+-20090124
++20090127
+Index: gcc/tree.h
+===================================================================
+--- gcc/tree.h	(.../tags/gcc_4_3_3_release)	(revision 143712)
++++ gcc/tree.h	(.../branches/gcc-4_3-branch)	(revision 143712)
+@@ -4753,6 +4753,7 @@
+ 
+ extern tree fold (tree);
+ extern tree fold_unary (enum tree_code, tree, tree);
++extern tree fold_unary_ignore_overflow (enum tree_code, tree, tree);
+ extern tree fold_binary (enum tree_code, tree, tree, tree);
+ extern tree fold_ternary (enum tree_code, tree, tree, tree, tree);
+ extern tree fold_build1_stat (enum tree_code, tree, tree MEM_STAT_DECL);
+Index: gcc/fold-const.c
+===================================================================
+--- gcc/fold-const.c	(.../tags/gcc_4_3_3_release)	(revision 143712)
++++ gcc/fold-const.c	(.../branches/gcc-4_3-branch)	(revision 143712)
+@@ -8519,6 +8519,24 @@
+     } /* switch (code) */
+ }
+ 
++
++/* If the operation was a conversion do _not_ mark a resulting constant
++   with TREE_OVERFLOW if the original constant was not.  These conversions
++   have implementation defined behavior and retaining the TREE_OVERFLOW
++   flag here would confuse later passes such as VRP.  */
++tree
++fold_unary_ignore_overflow (enum tree_code code, tree type, tree op0)
++{
++  tree res = fold_unary (code, type, op0);
++  if (res
++      && TREE_CODE (res) == INTEGER_CST
++      && TREE_CODE (op0) == INTEGER_CST
++      && (code == NOP_EXPR || code == CONVERT_EXPR))
++    TREE_OVERFLOW (res) = TREE_OVERFLOW (op0);
++
++  return res;
++}
++
+ /* Fold a binary expression of code CODE and type TYPE with operands
+    OP0 and OP1, containing either a MIN-MAX or a MAX-MIN combination.
+    Return the folded expression if folding is successful.  Otherwise,
+@@ -11673,7 +11691,8 @@
+ 
+     case RSHIFT_EXPR:
+       /* Optimize -1 >> x for arithmetic right shifts.  */
+-      if (integer_all_onesp (arg0) && !TYPE_UNSIGNED (type))
++      if (integer_all_onesp (arg0) && !TYPE_UNSIGNED (type)
++	  && tree_expr_nonnegative_p (arg1))
+ 	return omit_one_operand (type, arg0, arg1);
+       /* ... fall through ...  */
+ 
+Index: gcc/tree-ssa-sccvn.c
+===================================================================
+--- gcc/tree-ssa-sccvn.c	(.../tags/gcc_4_3_3_release)	(revision 143712)
++++ gcc/tree-ssa-sccvn.c	(.../branches/gcc-4_3-branch)	(revision 143712)
+@@ -1507,7 +1507,7 @@
+   if (op0 == TREE_OPERAND (rhs, 0))
+     return rhs;
+ 
+-  result = fold_unary (TREE_CODE (rhs), TREE_TYPE (rhs), op0);
++  result = fold_unary_ignore_overflow (TREE_CODE (rhs), TREE_TYPE (rhs), op0);
+   if (result)
+     {
+       STRIP_USELESS_TYPE_CONVERSION (result);
+Index: gcc/ChangeLog
+===================================================================
+--- gcc/ChangeLog	(.../tags/gcc_4_3_3_release)	(revision 143712)
++++ gcc/ChangeLog	(.../branches/gcc-4_3-branch)	(revision 143712)
+@@ -1,3 +1,102 @@
++2009-01-27  Steve Ellcey  <sje@cup.hp.com>
++
++	PR middle-end/38615
++	* gimplify.c (gimplify_init_constructor): Fix promotion of const
++	variables to static.
++	* doc/invoke.texi (-fmerge-all-constants): Update description.
++
++2009-01-27  Uros Bizjak  <ubizjak@gmail.com>
++
++	Backport from mainline:
++	2009-01-13  Uros Bizjak  <ubizjak@gmail.com>
++
++	* config/alpha/alpha.c (alpha_legitimate_address_p): Explicit
++	relocations of local symbols wider than UNITS_PER_WORD are not valid.
++	(alpha_legitimize_address): Do not split local symbols wider than
++	UNITS_PER_WORD into HIGH/LO_SUM parts.
++
++	2009-01-07  Uros Bizjak  <ubizjak@gmail.com>
++
++	PR target/38706
++	* config/alpha/alpha.c (alpha_end_function): For TARGET_ABI_OSF, call
++	free_after_compilation when outputting a thunk.
++	(alpha_output_mi_thunk_osf): Assert that we are processing a thunk.
++	Do not call free_after_compilation here.
++
++	2008-12-22  Uros Bizjak  <ubizjak@gmail.com>
++
++	* config/alpha/elf.h (ASM_OUTPUT_EXTERNAL): New macro.
++
++	2008-12-21  Uros Bizjak  <ubizjak@gmail.com>
++
++	* config/alpha/alpha.c (alpha_pad_noreturn): New static function.
++	(alpha_reorg): Call alpha_pad_noreturn.
++
++	2008-12-08  Uros Bizjak  <ubizjak@gmail.com>
++
++	* config/alpha/alpha.c (alpha_set_memflags): Process memory
++	references in full insn sequence.
++
++	2008-12-05  Uros Bizjak  <ubizjak@gmail.com>
++
++	* config/alpha/alpha.c (alpha_fold_vector_minmax): Create
++	VIEW_CONVERT_EXPR to convert output to long_integer_type_node.
++
++	(alpha_emit_conditional_branch): Do not generate direct branch
++	for UNORDERED comparisons.
++
++2008-01-26  Paolo Bonzini  <bonzini@gnu.org>
++
++	PR tree-optimization/38932
++	* fold-const.c (fold_unary_ignore_overflow): New.
++	* tree.h (fold_unary_ignore_overflow): Declare.
++	* tree-ssa-ccp.c (ccp_fold): Use fold_unary_ignore_overflow.
++	* tree-ssa-sccvn.c (simplify_unary_expression): Likewise.
++
++2009-01-25  Uros Bizjak  <ubizjak@gmail.com>
++
++	Backport from mainline:
++	2009-01-22  Uros Bizjak  <ubizjak@gmail.com>
++
++	PR target/38931
++	* config/i386/i386.md (*movsi_1): Use type "mmx" for alternative 2.
++	(*movdi_1_rex64): Use type "mmx" for alternative 5.
++
++	2009-01-21  Uros Bizjak  <ubizjak@gmail.com>
++
++	PR rtl-optimization/38879
++	* alias.c (base_alias_check): Unaligned access via AND address can
++	alias all surrounding object types except those with sizes equal
++	or wider than the size of unaligned access.
++
++2009-01-25  Richard Guenther  <rguenther@suse.de>
++
++	Backport from mainline:
++	2008-12-02  Richard Guenther  <rguenther@suse.de>
++
++	PR tree-optimization/38359
++	* fold-const.c (fold_binary): Fold -1 >> x to -1 only for
++	non-negative x.
++
++2009-01-24  Eric Botcazou  <ebotcazou@adacore.com>
++
++	* config/sparc/linux.h (DBX_REGISTER_NUMBER): Delete.
++	* config/sparc/linux64.h (DBX_REGISTER_NUMBER): Likewise.
++	* config/sparc/sysv4.h (DBX_REGISTER_NUMBER): Likewise.
++
++2009-01-24  H.J. Lu  <hongjiu.lu@intel.com>
++
++	PR target/38902
++	Backport from mainline:
++	2008-12-23  Jakub Jelinek  <jakub@redhat.com>
++
++	* config/i386/i386.c (expand_movmem_via_rep_mov): Set MEM_SIZE
++	correctly.
++	(expand_setmem_via_rep_stos): Add ORIG_VALUE argument.  If
++	ORIG_VALUE is const0_rtx and COUNT is constant, set MEM_SIZE
++	on DESTMEM.
++	(ix86_expand_setmem): Adjust callers.
++
+ 2009-01-24  Release Manager
+ 
+ 	* GCC 4.3.3 released.
+@@ -5,8 +109,7 @@
+ 2009-01-20  Joseph Myers  <joseph@codesourcery.com>
+ 
+ 	PR other/38758
+-	* longlong.h: Update copyright years.  Use soft-fp license
+-	notice.
++	* longlong.h: Update copyright years.  Use soft-fp license notice.
+ 
+ 2009-01-19  Richard Guenther  <rguenther@suse.de>
+ 
+@@ -41,7 +144,8 @@
+ 	
+ 2009-01-11  Matthias Klose  <doko@ubuntu.com>
+ 
+-	PR middle-end/38616, backport from mainline:
++	PR middle-end/38616
++	Backport from mainline:
+ 	2008-05-04  Uros Bizjak  <ubizjak@gmail.com>
+ 
+ 	* config/i386/i386.md (*strmovsi_1): Simplify asm alternatives.
+@@ -509,8 +613,8 @@
+ 	PR tree-optimization/37102
+ 	* tree-outof-ssa.c (remove_gimple_phi_args): Remove all the PHI args  
+ 	from a node. Check to see if another PHI is dead.
+-	(eliminate_useless_phis): Rename from eliminate_virtual_phis and remove
+-	real PHIs which have no uses.
++	(eliminate_useless_phis): Rename from eliminate_virtual_phis and
++	remove real PHIs which have no uses.
+ 	(rewrite_out_of_ssa): Call eliminate_useless_phis.
+ 
+ 2008-10-08  Simon Martin  <simartin@users.sourceforge.net>
+@@ -986,8 +1090,10 @@
+ 
+ 	(MFC_MIN_DMA_LIST_ELEMENTS): New define.
+ 	(MFC_MAX_DMA_LIST_ELEMENTS): Likewise.
+-	(MFC_MIN_DMA_LIST_SIZE): Redefine in terms of MFC_MIN_DMA_LIST_ELEMENTS.
+-	(MFC_MAX_DMA_LIST_SIZE): Redefine in terms of MFC_MAX_DMA_LIST_ELEMENTS.
++	(MFC_MIN_DMA_LIST_SIZE): Redefine in terms of
++	MFC_MIN_DMA_LIST_ELEMENTS.
++	(MFC_MAX_DMA_LIST_SIZE): Redefine in terms of
++	MFC_MAX_DMA_LIST_ELEMENTS.
+ 
+ 	(MFC_START_ENABLE): Remove PPU-only define.
+ 	(MFC_PUTS_CMD, MFC_PUTFS_CMD, MFC_PUTBS_CMD): Likewise.
+Index: gcc/testsuite/gcc.c-torture/execute/shiftopt-1.c
+===================================================================
+--- gcc/testsuite/gcc.c-torture/execute/shiftopt-1.c	(.../tags/gcc_4_3_3_release)	(revision 143712)
++++ gcc/testsuite/gcc.c-torture/execute/shiftopt-1.c	(.../branches/gcc-4_3-branch)	(revision 143712)
+@@ -43,12 +43,6 @@
+ 
+   if (0 >> x != 0)
+     link_error ();
+-
+-  if (-1 >> x != -1)
+-    link_error ();
+-
+-  if (~0 >> x != ~0)
+-    link_error ();
+ }
+ 
+ int
+Index: gcc/testsuite/gcc.c-torture/compile/pr38359.c
+===================================================================
+--- gcc/testsuite/gcc.c-torture/compile/pr38359.c	(.../tags/gcc_4_3_3_release)	(revision 0)
++++ gcc/testsuite/gcc.c-torture/compile/pr38359.c	(.../branches/gcc-4_3-branch)	(revision 143712)
+@@ -0,0 +1,17 @@
++unsigned _ov_64_seek_lap (_Bool x1, _Bool x2, _Bool x3)
++{
++  unsigned ltmp_3978_7__PHI_TEMPORARY;
++  signed ltmp_4011_7;
++
++  if (!x1 || !x2)
++    while (1) ;
++
++  if (x3)
++    ltmp_3978_7__PHI_TEMPORARY = 0xffffff7e;
++  else
++    ltmp_3978_7__PHI_TEMPORARY = 1;
++
++  ltmp_4011_7 = -1;
++  return ltmp_4011_7 >> ltmp_3978_7__PHI_TEMPORARY;
++}
++
+Index: gcc/testsuite/gcc.target/i386/pr38931.c
+===================================================================
+--- gcc/testsuite/gcc.target/i386/pr38931.c	(.../tags/gcc_4_3_3_release)	(revision 0)
++++ gcc/testsuite/gcc.target/i386/pr38931.c	(.../branches/gcc-4_3-branch)	(revision 143712)
+@@ -0,0 +1,23 @@
++/* { dg-do compile } */
++/* { dg-options "-O2 -msse" } */
++
++typedef int __m64 __attribute__ ((__vector_size__ (8)));
++
++extern __m64 foo () ;
++
++void bar (const int input_bpl, const unsigned char *input,
++	  unsigned char *output, unsigned long x1)
++{
++  unsigned char *pix_end_ptr = output + x1 * 4;
++  __m64 m_original = { 0, 0 };
++  __m64 m_base_addr = __builtin_ia32_vec_init_v2si (0, input_bpl);
++  __m64 m_addr = __builtin_ia32_paddd (m_original, m_base_addr);
++  __m64 *a0 = (__m64 *) input;
++
++  for (; output < pix_end_ptr; output += 4)
++    {
++      a0 = (__m64 *) (input + __builtin_ia32_vec_ext_v2si (m_addr, 0));
++      m_addr = foo ();
++      __builtin_prefetch (a0, 0);
++    }
++}
+Index: gcc/testsuite/gcc.dg/pr38932.c
+===================================================================
+--- gcc/testsuite/gcc.dg/pr38932.c	(.../tags/gcc_4_3_3_release)	(revision 0)
++++ gcc/testsuite/gcc.dg/pr38932.c	(.../branches/gcc-4_3-branch)	(revision 143712)
+@@ -0,0 +1,19 @@
++/* { dg-do compile } */
++/* { dg-options "-O2" } */
++
++/* This variable needed only to exercise FRE instead of CCP.  */
++unsigned char g;
++
++extern void abort();
++
++void f (long long int p)
++{
++  g = 255;
++  if (p >= (-9223372036854775807LL - 1) - (signed char) g)
++    p = 1;
++
++  if (p)
++    abort ();
++}
++
++
+Index: gcc/testsuite/gcc.dg/pr38615.c
+===================================================================
+--- gcc/testsuite/gcc.dg/pr38615.c	(.../tags/gcc_4_3_3_release)	(revision 0)
++++ gcc/testsuite/gcc.dg/pr38615.c	(.../branches/gcc-4_3-branch)	(revision 143712)
+@@ -0,0 +1,19 @@
++/* { dg-do run } */
++
++int t;
++extern void abort (void);
++
++int f(int t, const int *a)
++{
++ const int b[] = { 1, 2, 3};
++ if (!t)
++   return f(1, b);
++ return b == a;
++}
++
++int main(void)
++{
++ if (f(0, 0))
++   abort ();
++ return 0;
++}
+Index: gcc/testsuite/gcc.dg/pr38902.c
+===================================================================
+--- gcc/testsuite/gcc.dg/pr38902.c	(.../tags/gcc_4_3_3_release)	(revision 0)
++++ gcc/testsuite/gcc.dg/pr38902.c	(.../branches/gcc-4_3-branch)	(revision 143712)
+@@ -0,0 +1,131 @@
++/* PR target/38902 */
++/* { dg-do run } */
++/* { dg-options "-O2 -fstack-protector" } */
++/* { dg-require-effective-target fstack_protector } */
++
++#ifdef DEBUG
++#include <stdio.h>
++#define debug(format, args...) printf (format , ## args)
++#else
++extern int sprintf (char *, const char *, ...);
++#define debug(format, args...)
++#endif
++
++extern void abort (void);
++
++/*
++
++Copyright (C) 2009 Canonical, Ltd.
++Author: Kees Cook <kees@ubuntu.com>
++License: GPLv3
++
++http://gcc.gnu.org/bugzilla/show_bug.cgi?id=38616
++https://bugs.launchpad.net/ubuntu/+source/gcc-4.3/+bug/316019
++http://gcc.gnu.org/bugzilla/show_bug.cgi?id=38902
++
++gcc -O2 -fstack-protector truncate.c -o truncate
++
++    Broken:
++
++        Only the first operation fails, so create a new function for each test.
++        Source must be local (literal or stack)
++
++        __builtin_memmove
++        __builtin_memcpy
++        __builtin_strcpy  (optimized to __builtin_memcpy?)
++        sprintf (direct)  (optmized to __builtin_strcpy?)
++        sprintf (via %s)  (optmized to __builtin_strcpy?)
++
++    OK:
++        __builtin_strcat
++        sprintf (complex format)
++
++ */
++
++char *heap = "1234567890abcdefghijklmnopqrstuvwxyz";
++
++int failed = 0;
++
++#define CHECK(count, a...) \
++void test##count (void) \
++{ \
++  char *local = "1234567890abcdefghijklmnopqrstuvwxyz"; \
++  char buffer[1024]=""; \
++    a; \
++    if (__builtin_strcmp(buffer, heap) == 0) { \
++        debug("Okay(%d):\n\t%s\n", count, # a); \
++    } \
++    else { \
++        debug("Failed(%d):\n\t%s\n", count, # a); \
++	failed++; \
++    } \
++}
++
++
++CHECK( 0, __builtin_memcpy (buffer, "1234567890abcdefghijklmnopqrstuvwxyz", __builtin_strlen("1234567890abcdefghijklmnopqrstuvwxyz")+1);                                        );
++CHECK( 1, __builtin_memcpy (buffer, local, __builtin_strlen(local)+1);                );
++CHECK( 2, __builtin_memcpy (buffer, heap, __builtin_strlen(heap)+1);                );
++
++CHECK( 3, __builtin_memmove (buffer, "1234567890abcdefghijklmnopqrstuvwxyz", __builtin_strlen("1234567890abcdefghijklmnopqrstuvwxyz")+1);                                       );
++CHECK( 4, __builtin_memmove (buffer, local, __builtin_strlen(local)+1);               );
++CHECK( 5, __builtin_memmove (buffer, heap, __builtin_strlen(heap)+1);               );
++
++CHECK( 6, __builtin_strcpy (buffer, "1234567890abcdefghijklmnopqrstuvwxyz");          );
++CHECK( 7, __builtin_strcpy (buffer, local);                                      );
++CHECK( 8, __builtin_strcpy (buffer, heap);                                      );
++
++CHECK( 9,  sprintf (buffer, "1234567890abcdefghijklmnopqrstuvwxyz");         );
++CHECK(10,  sprintf (buffer, local);                                     );
++CHECK(11,  sprintf (buffer, heap);                                     );
++
++CHECK(12,  sprintf (buffer, "%s", "1234567890abcdefghijklmnopqrstuvwxyz");   );
++CHECK(13,  sprintf (buffer, "%s", local);                               );
++CHECK(14,  sprintf (buffer, "%s", heap);                               );
++
++CHECK(15, __builtin_strcat (buffer, "1234567890abcdefghijklmnopqrstuvwxyz");          );
++CHECK(16, __builtin_strcat (buffer, local);                                      );
++CHECK(17, __builtin_strcat (buffer, heap);                                       );
++
++void mongoose(void)
++{
++  char buffer[1024]="";
++  sprintf (buffer, "%s", "1234567890abcdefghijklmnopqrstuvwxyz");;
++    if (__builtin_strcmp(buffer, heap) == 0) {
++        debug("Okay(%d):\n\t%s\n", -1, "sprintf (buffer, \"%s\", \"1234567890abcdefghijklmnopqrstuvwxyz\");");
++    }
++    else {
++        debug("Failed(%d):\n\t%s\n", -1, "sprintf (buffer, \"%s\", \"1234567890abcdefghijklmnopqrstuvwxyz\");");
++	failed++;
++    }
++}
++
++int main (int argc, char *argv[])
++{
++  test0();
++  test1();
++  test2();
++  test3();
++  test4();
++  test5();
++  test6();
++  test7();
++  test8();
++  test9();
++  test10();
++  test11();
++
++  // wtf, why are these different?!
++  test12();
++  mongoose();
++
++  test13();
++  test14();
++  test15();
++  test16();
++  test17();
++
++  if (failed)
++    abort ();
++
++  return 0;
++}
+Index: gcc/testsuite/ChangeLog
+===================================================================
+--- gcc/testsuite/ChangeLog	(.../tags/gcc_4_3_3_release)	(revision 143712)
++++ gcc/testsuite/ChangeLog	(.../branches/gcc-4_3-branch)	(revision 143712)
+@@ -1,3 +1,94 @@
++2009-01-27  Steve Ellcey  <sje@cup.hp.com>
++
++	PR middle-end/38615
++	* gcc.dg/pr38615.c: New test.
++
++2009-01-27  Uros Bizjak  <ubizjak@gmail.com>
++
++	Backport from mainline:
++	2009-01-07  Uros Bizjak  <ubizjak@gmail.com>
++
++	PR target/38706
++	* g++.dg/other/pr38706.C: New test.
++
++2009-01-26  Jason Merrill  <jason@redhat.com>
++
++	PR c++/23287
++	* g++.dg/template/dtor5.C: New test.
++
++2009-01-26  H.J. Lu  <hongjiu.lu@intel.com>
++
++	Backport from mainline:
++	2008-07-17  H.J. Lu  <hongjiu.lu@intel.com>
++
++	PR testsuite/36443
++	* objc.dg/gnu-encoding/gnu-encoding.exp: Temporarily unset
++	GCC_EXEC_PREFIX from environment when running $HOSTCC.
++
++2008-01-26  Paolo Bonzini  <bonzini@gnu.org>
++
++	PR tree-optimization/38932
++	* gcc.dg/pr38932.c: New.
++
++2009-01-26  Paul Thomas  <pault@gcc.gnu.org>
++
++	PR fortran/38907
++	Backport from trunk
++	* gfortran.dg/host_assoc_function_7.f90: New test.
++
++2009-01-26  Mikael Morin  <mikael.morin@tele2.fr>
++
++	PR fortran/38859
++	Backport from trunk
++	* gfortran.dg/bound_5.f90: New test.
++
++2009-01-26  Paul Thomas  <pault@gcc.gnu.org>
++
++	PR fortran/38657
++	Backport from trunk.
++	* gfortran.dg/module_commons_3.f90: Reapply.
++
++2009-01-25  Uros Bizjak  <ubizjak@gmail.com>
++
++	Backport from mainline:
++	2009-01-22  Uros Bizjak  <ubizjak@gmail.com>
++
++	PR target/38931
++	* gcc.target/i386/pr38931.c: New test.
++
++2009-01-25  Richard Guenther  <rguenther@suse.de>
++
++	Backport from mainline:
++	2008-12-02  Richard Guenther  <rguenther@suse.de>
++
++	PR tree-optimization/38359
++	* gcc.c-torture/compile/pr38359.c: New testcase.
++	* gcc.c-torture/execute/shiftopt-1.c: Adjust.
++
++2009-01-24  Thomas Koenig  <tkoenig@gcc.gnu.org>
++
++	PR fortran/38672
++	Backport from trunk.
++	* gfortran.dg/host_assoc_blockdata_1.f90:  New test.
++	* gfortran.dg/host_assoc_blockdata_2.f90:  New test.
++
++2009-01-24  H.J. Lu  <hongjiu.lu@intel.com>
++
++	Backport from mainline:
++	2009-01-20  Kees Cook  <kees@ubuntu.com>
++		    H.J. Lu  <hongjiu.lu@intel.com>
++
++	PR target/38902
++	* gcc.dg/pr38902.c: New.
++
++2009-01-24  H.J. Lu  <hongjiu.lu@intel.com>
++
++	Backport from mainline:
++	2008-01-20  Paolo Bonzini  <bonzini@gnu.org>
++
++	PR target/38868
++	* gfortran.dg/pr38868.f: New testcase.
++
+ 2009-01-24  Release Manager
+ 
+ 	* GCC 4.3.3 released.
+@@ -89,7 +180,7 @@
+ 
+ 	Backport from mainline:
+ 	2008-12-29  Dorit Nuzman  <dorit@il.ibm.com>
+-	            Ira Rosen  <irar@il.ibm.com>
++		    Ira Rosen  <irar@il.ibm.com>
+ 
+ 	PR tree-optimization/38529
+ 	* gcc.dg/vect/pr38529.c: New test.
+@@ -426,8 +517,8 @@
+ 
+ 2008-11-14  Paul Thomas  <pault@gcc.gnu.org>
+ 
+-        PR fortran/37836
+-        * gfortran.dg/minmaxval_1.f90: New test.
++	PR fortran/37836
++	* gfortran.dg/minmaxval_1.f90: New test.
+ 
+ 2008-11-13  Jason Merrill  <jason@redhat.com>
+ 
+Index: gcc/testsuite/g++.dg/other/pr38706.C
+===================================================================
+--- gcc/testsuite/g++.dg/other/pr38706.C	(.../tags/gcc_4_3_3_release)	(revision 0)
++++ gcc/testsuite/g++.dg/other/pr38706.C	(.../branches/gcc-4_3-branch)	(revision 143712)
+@@ -0,0 +1,19 @@
++// PR target/38706
++// { dg-do compile }
++// { dg-options "-O2" }
++
++class ios_base
++{
++public:
++  virtual ~ios_base ();
++
++};
++
++class istrstream:virtual public ios_base
++{
++public:
++  virtual ~istrstream ();
++
++};
++
++istrstream::~istrstream () {}
+Index: gcc/testsuite/g++.dg/template/dtor5.C
+===================================================================
+--- gcc/testsuite/g++.dg/template/dtor5.C	(.../tags/gcc_4_3_3_release)	(revision 0)
++++ gcc/testsuite/g++.dg/template/dtor5.C	(.../branches/gcc-4_3-branch)	(revision 143712)
+@@ -0,0 +1,21 @@
++// PR c++/23287
++
++template <class T> struct A
++{
++  int i;
++  ~A();
++}; 
++
++template <class T> void f(A<T> *ap) {
++  ap->~A(); 
++} 
++
++template <class T> void g(A<T> *ap) {
++  ap->~B(); 			// { dg-error "destructor name" }
++} 
++
++int main()
++{
++  f(new A<int>);
++  g(new A<int>);
++}
+Index: gcc/testsuite/objc.dg/gnu-encoding/gnu-encoding.exp
+===================================================================
+--- gcc/testsuite/objc.dg/gnu-encoding/gnu-encoding.exp	(.../tags/gcc_4_3_3_release)	(revision 143712)
++++ gcc/testsuite/objc.dg/gnu-encoding/gnu-encoding.exp	(.../branches/gcc-4_3-branch)	(revision 143712)
+@@ -37,8 +37,20 @@
+ set generator_src "$generator_src $srcdir/$subdir/generate-random.c"
+ set generator_src "$generator_src $srcdir/$subdir/generate-random_r.c"
+ set generator_cmd "-o $generator $generator_src"
++# Temporarily unset GCC_EXEC_PREFIX from environment, as that might
++# confuse the $HOSTCC.
++set orig_gcc_exec_prefix_saved 0
++if [info exists env(GCC_EXEC_PREFIX)] {
++     set orig_gcc_exec_prefix "$env(GCC_EXEC_PREFIX)"
++     set orig_gcc_exec_prefix_saved 1
++     unsetenv GCC_EXEC_PREFIX
++}
+ set status [remote_exec host "$HOSTCC $HOSTCFLAGS $generator_cmd"]
+ set status [lindex $status 0]
++if { $orig_gcc_exec_prefix_saved } {
++     set orig_gcc_exec_prefix_saved 0
++     setenv GCC_EXEC_PREFIX "$orig_gcc_exec_prefix"
++}
+ if { $status == 0 } then {
+     file delete -force $tstobjdir
+     file mkdir $tstobjdir
+Index: gcc/testsuite/gfortran.dg/host_assoc_blockdata_1.f90
+===================================================================
+--- gcc/testsuite/gfortran.dg/host_assoc_blockdata_1.f90	(.../tags/gcc_4_3_3_release)	(revision 0)
++++ gcc/testsuite/gfortran.dg/host_assoc_blockdata_1.f90	(.../branches/gcc-4_3-branch)	(revision 143712)
+@@ -0,0 +1,11 @@
++! { dg-do compile }
++! PR 38672 - this used to ICE.
++MODULE globals
++  TYPE :: type1
++     integer :: x
++  END TYPE type1
++  TYPE (type1) :: pdm_bps
++END module globals
++BLOCK DATA
++   use globals
++END BLOCK DATA
+Index: gcc/testsuite/gfortran.dg/host_assoc_blockdata_2.f90
+===================================================================
+--- gcc/testsuite/gfortran.dg/host_assoc_blockdata_2.f90	(.../tags/gcc_4_3_3_release)	(revision 0)
++++ gcc/testsuite/gfortran.dg/host_assoc_blockdata_2.f90	(.../branches/gcc-4_3-branch)	(revision 143712)
+@@ -0,0 +1,17 @@
++! { dg-do compile }
++MODULE globals
++  TYPE :: type1
++     sequence
++     integer :: x
++  END TYPE type1
++  TYPE (type1) :: pdm_bps
++  common /co/ pdm_bps
++END module globals
++BLOCK DATA
++   use globals
++END BLOCK DATA
++
++program main
++  use globals
++  common /co/ pdm_bps ! { dg-error "already in a COMMON block" }
++end program main
+Index: gcc/testsuite/gfortran.dg/module_commons_3.f90
+===================================================================
+--- gcc/testsuite/gfortran.dg/module_commons_3.f90	(.../tags/gcc_4_3_3_release)	(revision 0)
++++ gcc/testsuite/gfortran.dg/module_commons_3.f90	(.../branches/gcc-4_3-branch)	(revision 143712)
+@@ -0,0 +1,57 @@
++! { dg-do run }
++!
++! PR fortran/38657, in which the mixture of PRIVATE and
++! COMMON in TEST4, would mess up the association with
++! TESTCHAR in TEST2.
++!
++! Contributed by Paul Thomas <pault@gcc.gnu.org>
++! From a report in clf by Chris Bradley.
++!
++MODULE TEST4
++  PRIVATE
++  CHARACTER(LEN=80) :: T1 = &
++    "Mary had a little lamb, Its fleece was white as snow;"
++  CHARACTER(LEN=80) :: T2 = &
++    "And everywhere that Mary went, The lamb was sure to go."
++  CHARACTER(LEN=80) :: TESTCHAR
++  COMMON /TESTCOMMON1/ TESTCHAR
++  PUBLIC T1, T2, FOOBAR
++CONTAINS
++  subroutine FOOBAR (CHECK)
++    CHARACTER(LEN=80) :: CHECK
++    IF (TESTCHAR .NE. CHECK) CALL ABORT
++  end subroutine
++END MODULE TEST4
++
++MODULE TEST3
++  CHARACTER(LEN=80) :: TESTCHAR
++  COMMON /TESTCOMMON1/ TESTCHAR
++END MODULE TEST3
++
++MODULE TEST2
++  use TEST4
++  USE TEST3, chr => testchar
++  PRIVATE
++  CHARACTER(LEN=80) :: TESTCHAR
++  COMMON /TESTCOMMON1/ TESTCHAR
++  PUBLIC TESTCHAR, FOO, BAR, CHR, T1, T2, FOOBAR
++contains
++  subroutine FOO
++    TESTCHAR = T1
++  end subroutine
++  subroutine BAR (CHECK)
++    CHARACTER(LEN=80) :: CHECK
++    IF (TESTCHAR .NE. CHECK) CALL ABORT
++    IF (CHR .NE. CHECK) CALL ABORT
++  end subroutine
++END MODULE TEST2
++
++PROGRAM TEST1
++  USE TEST2
++  call FOO
++  call BAR (T1)
++  TESTCHAR = T2
++  call BAR (T2)
++  CALL FOOBAR (T2)
++END PROGRAM TEST1
++! { dg-final { cleanup-modules "TEST2 TEST3 TEST4" } }
+Index: gcc/testsuite/gfortran.dg/bounds_5.f90
+===================================================================
+--- gcc/testsuite/gfortran.dg/bounds_5.f90	(.../tags/gcc_4_3_3_release)	(revision 0)
++++ gcc/testsuite/gfortran.dg/bounds_5.f90	(.../branches/gcc-4_3-branch)	(revision 143712)
+@@ -0,0 +1,26 @@
++! { dg-do run }
++!
++! PR fortran/38859
++! Wrong bounds simplification
++!
++! Contributed by Dick Hendrickson <dick.hendrickson@gmail.com>
++
++       type x
++         integer I
++       end type x
++       type (x) A(0:5, 2:8)
++       integer ida(2)
++
++       ida = lbound(a)
++       if (any(ida /= (/0,2/))) call abort
++
++       ida = lbound(a%i)
++       if (any(ida /= (/1,1/))) call abort
++
++       ida = ubound(a)
++       if (any(ida /= (/5,8/))) call abort
++       
++       ida = ubound(a%i)
++       if (any(ida /= (/6,7/))) call abort
++
++       end
+Index: gcc/testsuite/gfortran.dg/host_assoc_function_7.f90
+===================================================================
+--- gcc/testsuite/gfortran.dg/host_assoc_function_7.f90	(.../tags/gcc_4_3_3_release)	(revision 0)
++++ gcc/testsuite/gfortran.dg/host_assoc_function_7.f90	(.../branches/gcc-4_3-branch)	(revision 143712)
+@@ -0,0 +1,41 @@
++! { dg-do run }
++! Tests the fix for PR38907, in which any expressions, including unary plus,
++! in front of the call to S_REAL_SUM_I (marked) would throw the mechanism
++! for correcting invalid host association.
++!
++! Contributed by Dick Hendrickson <dick.hendrickson@gmail.com>
++!
++module sa0054_stuff
++  REAL :: S_REAL_SUM_2(10) = [(REAL (I), I = 1, 10)]
++contains
++  ELEMENTAL FUNCTION S_REAL_SUM_I (A)
++    REAL  ::  S_REAL_SUM_I
++    REAL, INTENT(IN)  ::  A
++    X = 1.0
++    S_REAL_SUM_I = X
++  END FUNCTION S_REAL_SUM_I
++  SUBROUTINE SA0054 (RDA)
++    REAL RDA(:)
++    RDA =  + S_REAL_SUM_I (RDA)          ! Reported problem => ICE
++    RDA = RDA + S_REAL_SUM_2 (INT (RDA)) ! Also failed
++  CONTAINS
++    ELEMENTAL FUNCTION S_REAL_SUM_I (A)
++      REAL  ::  S_REAL_SUM_I
++      REAL, INTENT(IN)  ::  A
++      S_REAL_SUM_I = 2.0 * A
++    END FUNCTION S_REAL_SUM_I
++    ELEMENTAL FUNCTION S_REAL_SUM_2 (A)
++      REAL  ::  S_REAL_SUM_2
++      INTEGER, INTENT(IN)  ::  A
++      S_REAL_SUM_2 = 2.0 * A
++    END FUNCTION S_REAL_SUM_2
++  END SUBROUTINE
++end module sa0054_stuff
++
++  use sa0054_stuff
++  REAL :: RDA(10) = [(REAL(I), I = 1, 10)]
++  call SA0054 (RDA)
++  IF (ANY (INT (RDA) .ne. [(6 * I, I = 1, 10)])) print *, rda
++END
++
++! { dg-final { cleanup-modules "sa0054_stuff" } }
+Index: gcc/testsuite/gfortran.dg/pr38868.f
+===================================================================
+--- gcc/testsuite/gfortran.dg/pr38868.f	(.../tags/gcc_4_3_3_release)	(revision 0)
++++ gcc/testsuite/gfortran.dg/pr38868.f	(.../branches/gcc-4_3-branch)	(revision 143712)
+@@ -0,0 +1,17 @@
++! { dg-do compile }
++! { dg-options "-O2 -fdump-rtl-expand" }
++      PROGRAM testcase
++      IMPLICIT NONE
++
++      CHARACTER*4 ANER(18)
++      CHARACTER*80 LINE
++      aner = ''
++      ANER(1)='A   '
++      ANER(2)='    '
++      LINE=' '
++      LINE(78:80)='xyz'
++      WRITE(*,'(A82)') "'"//LINE//"'"
++      END
++
++! { dg-final { scan-rtl-dump-times "line\\\+80" 0 "expand" } }
++! { dg-final { cleanup-rtl-dump "expand" } } */
+Index: gcc/cp/typeck.c
+===================================================================
+--- gcc/cp/typeck.c	(.../tags/gcc_4_3_3_release)	(revision 143712)
++++ gcc/cp/typeck.c	(.../branches/gcc-4_3-branch)	(revision 143712)
+@@ -2034,8 +2034,8 @@
+   return result;
+ }
+ 
+-/* Return the destructor denoted by OBJECT.SCOPE::~DTOR_NAME, or, if
+-   SCOPE is NULL, by OBJECT.~DTOR_NAME.  */
++/* Return the destructor denoted by OBJECT.SCOPE::DTOR_NAME, or, if
++   SCOPE is NULL, by OBJECT.DTOR_NAME, where DTOR_NAME is ~type.  */
+ 
+ static tree
+ lookup_destructor (tree object, tree scope, tree dtor_name)
+@@ -2050,8 +2050,22 @@
+ 	     scope, dtor_type);
+       return error_mark_node;
+     }
+-  if (!DERIVED_FROM_P (dtor_type, TYPE_MAIN_VARIANT (object_type)))
++  if (TREE_CODE (dtor_type) == IDENTIFIER_NODE)
+     {
++      /* In a template, names we can't find a match for are still accepted
++	 destructor names, and we check them here.  */
++      if (check_dtor_name (object_type, dtor_type))
++	dtor_type = object_type;
++      else
++	{
++	  error ("object type %qT does not match destructor name ~%qT",
++		 object_type, dtor_type);
++	  return error_mark_node;
++	}
++      
++    }
++  else if (!DERIVED_FROM_P (dtor_type, TYPE_MAIN_VARIANT (object_type)))
++    {
+       error ("the type being destroyed is %qT, but the destructor refers to %qT",
+ 	     TYPE_MAIN_VARIANT (object_type), dtor_type);
+       return error_mark_node;
+Index: gcc/cp/ChangeLog
+===================================================================
+--- gcc/cp/ChangeLog	(.../tags/gcc_4_3_3_release)	(revision 143712)
++++ gcc/cp/ChangeLog	(.../branches/gcc-4_3-branch)	(revision 143712)
+@@ -1,3 +1,10 @@
++2009-01-26  Jason Merrill  <jason@redhat.com>
++
++	PR c++/23287
++	* parser.c (cp_parser_unqualified_id): In a template,
++	accept ~identifier.
++	* typeck.c (lookup_destructor): Handle IDENTIFIER_NODE.
++
+ 2009-01-24  Release Manager
+ 
+ 	* GCC 4.3.3 released.
+Index: gcc/cp/parser.c
+===================================================================
+--- gcc/cp/parser.c	(.../tags/gcc_4_3_3_release)	(revision 143712)
++++ gcc/cp/parser.c	(.../branches/gcc-4_3-branch)	(revision 143712)
+@@ -3791,6 +3791,8 @@
+ 	    parser->scope = NULL_TREE;
+ 	    parser->object_scope = NULL_TREE;
+ 	    parser->qualifying_scope = NULL_TREE;
++	    if (processing_template_decl)
++	      cp_parser_parse_tentatively (parser);
+ 	    type_decl
+ 	      = cp_parser_class_name (parser,
+ 				      /*typename_keyword_p=*/false,
+@@ -3799,6 +3801,14 @@
+ 				      /*check_dependency=*/false,
+ 				      /*class_head_p=*/false,
+ 				      declarator_p);
++	    if (processing_template_decl
++		&& ! cp_parser_parse_definitely (parser))
++	      {
++		/* We couldn't find a type with this name, so just accept
++		   it and check for a match at instantiation time.  */
++		type_decl = cp_parser_identifier (parser);
++		return build_nt (BIT_NOT_EXPR, type_decl);
++	      }
+ 	  }
+ 	/* If an error occurred, assume that the name of the
+ 	   destructor is the same as the name of the qualifying
+Index: gcc/tree-ssa-ccp.c
+===================================================================
+--- gcc/tree-ssa-ccp.c	(.../tags/gcc_4_3_3_release)	(revision 143712)
++++ gcc/tree-ssa-ccp.c	(.../branches/gcc-4_3-branch)	(revision 143712)
+@@ -938,7 +938,7 @@
+       if ((code == NOP_EXPR || code == CONVERT_EXPR)
+ 	  && useless_type_conversion_p (TREE_TYPE (rhs), TREE_TYPE (op0)))
+ 	return op0;
+-      return fold_unary (code, TREE_TYPE (rhs), op0);
++      return fold_unary_ignore_overflow (code, TREE_TYPE (rhs), op0);
+     }
+ 
+   /* Binary and comparison operators.  We know one or both of the
+Index: gcc/fortran/ChangeLog
+===================================================================
+--- gcc/fortran/ChangeLog	(.../tags/gcc_4_3_3_release)	(revision 143712)
++++ gcc/fortran/ChangeLog	(.../branches/gcc-4_3-branch)	(revision 143712)
+@@ -1,3 +1,35 @@
++2009-01-26  Paul Thomas  <pault@gcc.gnu.org>
++
++	PR fortran/38907
++	Backport from trunk
++	* resolve.c (check_host_association): Remove the matching to
++	correct an incorrect host association and use manipulation of
++	the expression instead.
++
++2009-01-26  Mikael Morin  <mikael.morin@tele2.fr>
++
++        PR fortran/38859
++	Backport from trunk
++        * simplify.c (simplify_bound): Don't use array specification
++        if variable or component has subsequent references.
++
++2009-01-26  Paul Thomas  <pault@gcc.gnu.org>
++
++	PR fortran/38657
++	Backport from trunk.
++	* module.c (write_common_0): Add argument 'this_module' and
++	check that non-use associated common blocks are written first.
++	(write_common): Call write_common_0 twice, once with true and
++	then with false.
++
++2009-01-24  Thomas Koenig  <tkoenig@gcc.gnu.org>
++
++	PR fortran/38672
++	Backport from trunk.
++	* resolve.c (resolve_symbol):  Check for the
++	presence of derived->ns->proc_name before
++	accessing derived->ns->proc_name->attr.flavor .
++
+ 2009-01-24  Release Manager
+ 
+ 	* GCC 4.3.3 released.
+Index: gcc/fortran/module.c
+===================================================================
+--- gcc/fortran/module.c	(.../tags/gcc_4_3_3_release)	(revision 143712)
++++ gcc/fortran/module.c	(.../branches/gcc-4_3-branch)	(revision 143712)
+@@ -3992,7 +3992,7 @@
+ /* Write a common block to the module -- recursive helper function.  */
+ 
+ static void
+-write_common_0 (gfc_symtree *st)
++write_common_0 (gfc_symtree *st, bool this_module)
+ {
+   gfc_common_head *p;
+   const char * name;
+@@ -4004,7 +4004,7 @@
+   if (st == NULL)
+     return;
+ 
+-  write_common_0 (st->left);
++  write_common_0 (st->left, this_module);
+ 
+   /* We will write out the binding label, or the name if no label given.  */
+   name = st->n.common->name;
+@@ -4023,6 +4023,10 @@
+       w = (c < 0) ? w->left : w->right;
+     }
+ 
++  /* Give priority to commons that are not use associated.  */
++  if (this_module && p->use_assoc)
++    write_me = false;
++
+   if (write_me)
+     {
+       /* Write the common to the module.  */
+@@ -4043,12 +4047,12 @@
+ 
+       /* Record that we have written this common.  */
+       w = gfc_getmem (sizeof (struct written_common));
++      w->label = label;
+       w->name = name;
+-      w->label = label;
+       gfc_insert_bbt (&written_commons, w, compare_written_commons);
+     }
+ 
+-  write_common_0 (st->right);
++  write_common_0 (st->right, this_module);
+ }
+ 
+ 
+@@ -4059,7 +4063,8 @@
+ write_common (gfc_symtree *st)
+ {
+   written_commons = NULL;
+-  write_common_0 (st);
++  write_common_0 (st, true);
++  write_common_0 (st, false);
+   free_written_common (written_commons);
+   written_commons = NULL;
+ }
+Index: gcc/fortran/resolve.c
+===================================================================
+--- gcc/fortran/resolve.c	(.../tags/gcc_4_3_3_release)	(revision 143712)
++++ gcc/fortran/resolve.c	(.../branches/gcc-4_3-branch)	(revision 143712)
+@@ -4189,15 +4189,17 @@
+ /* Checks to see that the correct symbol has been host associated.
+    The only situation where this arises is that in which a twice
+    contained function is parsed after the host association is made.
+-   Therefore, on detecting this, the line is rematched, having got
+-   rid of the existing references and actual_arg_list.  */
++   Therefore, on detecting this, change the symbol in the expression
++   and convert the array reference into an actual arglist if the old
++   symbol is a variable.  */
+ static bool
+ check_host_association (gfc_expr *e)
+ {
+   gfc_symbol *sym, *old_sym;
+-  locus temp_locus;
+-  gfc_expr *expr;
++  gfc_symtree *st;
+   int n;
++  gfc_ref *ref;
++  gfc_actual_arglist *arg, *tail;
+   bool retval = e->expr_type == EXPR_FUNCTION;
+ 
+   /*  If the expression is the result of substitution in
+@@ -4213,26 +4215,16 @@
+   if (gfc_current_ns->parent
+ 	&& old_sym->ns != gfc_current_ns)
+     {
++      /* Use the 'USE' name so that renamed module symbols are
++	 correctly handled.  */
+       gfc_find_symbol (e->symtree->name, gfc_current_ns, 1, &sym);
++
+       if (sym && old_sym != sym
+ 	      && sym->ts.type == old_sym->ts.type
+ 	      && sym->attr.flavor == FL_PROCEDURE
+ 	      && sym->attr.contained)
+ 	{
+-	  temp_locus = gfc_current_locus;
+-	  gfc_current_locus = e->where;
+-
+-	  gfc_buffer_error (1);
+-
+-	  gfc_free_ref_list (e->ref);
+-	  e->ref = NULL;
+-
+-	  if (retval)
+-	    {
+-	      gfc_free_actual_arglist (e->value.function.actual);
+-	      e->value.function.actual = NULL;
+-	    }
+-
++	  /* Clear the shape, since it might not be valid.  */
+ 	  if (e->shape != NULL)
+ 	    {
+ 	      for (n = 0; n < e->rank; n++)
+@@ -4241,22 +4233,58 @@
+ 	      gfc_free (e->shape);
+ 	    }
+ 
+-/* TODO - Replace this gfc_match_rvalue with a straight replacement of
+-   actual arglists for function to function substitutions and with a
+-   conversion of the reference list to an actual arglist in the case of
+-   a variable to function replacement.  This should be quite easy since
+-   only integers and vectors can be involved.  */	    
+-	  gfc_match_rvalue (&expr);
+-	  gfc_clear_error ();
+-	  gfc_buffer_error (0);
++	  /* Give the symbol a symtree in the right place!  */
++	  gfc_get_sym_tree (sym->name, gfc_current_ns, &st);
++	  st->n.sym = sym;
+ 
+-	  gcc_assert (expr && sym == expr->symtree->n.sym);
++	  if (old_sym->attr.flavor == FL_PROCEDURE)
++	    {
++	      /* Original was function so point to the new symbol, since
++		 the actual argument list is already attached to the
++		 expression. */
++	      e->value.function.esym = NULL;
++	      e->symtree = st;
++	    }
++	  else
++	    {
++	      /* Original was variable so convert array references into
++		 an actual arglist. This does not need any checking now
++		 since gfc_resolve_function will take care of it.  */
++	      e->value.function.actual = NULL;
++	      e->expr_type = EXPR_FUNCTION;
++	      e->symtree = st;
+ 
+-	  *e = *expr;
+-	  gfc_free (expr);
++	      /* Ambiguity will not arise if the array reference is not
++		 the last reference.  */
++	      for (ref = e->ref; ref; ref = ref->next)
++		if (ref->type == REF_ARRAY && ref->next == NULL)
++		  break;
++
++	      gcc_assert (ref->type == REF_ARRAY);
++
++	      /* Grab the start expressions from the array ref and
++		 copy them into actual arguments.  */
++	      for (n = 0; n < ref->u.ar.dimen; n++)
++		{
++		  arg = gfc_get_actual_arglist ();
++		  arg->expr = gfc_copy_expr (ref->u.ar.start[n]);
++		  if (e->value.function.actual == NULL)
++		    tail = e->value.function.actual = arg;
++	          else
++		    {
++		      tail->next = arg;
++		      tail = arg;
++		    }
++		}
++
++	      /* Dump the reference list and set the rank.  */
++	      gfc_free_ref_list (e->ref);
++	      e->ref = NULL;
++	      e->rank = sym->as ? sym->as->rank : 0;
++	    }
++
++	  gfc_resolve_expr (e);
+ 	  sym->refs++;
+-
+-	  gfc_current_locus = temp_locus;
+ 	}
+     }
+   /* This might have changed!  */
+@@ -8116,6 +8144,7 @@
+      module function and is not PRIVATE.  */
+   if (sym->ts.type == BT_DERIVED
+ 	&& sym->ts.derived->attr.use_assoc
++	&& sym->ns->proc_name
+ 	&& sym->ns->proc_name->attr.flavor == FL_MODULE)
+     {
+       gfc_symbol *ds;
+Index: gcc/fortran/simplify.c
+===================================================================
+--- gcc/fortran/simplify.c	(.../tags/gcc_4_3_3_release)	(revision 143712)
++++ gcc/fortran/simplify.c	(.../branches/gcc-4_3-branch)	(revision 143712)
+@@ -2104,8 +2104,11 @@
+ 	    case AR_FULL:
+ 	      /* We're done because 'as' has already been set in the
+ 		 previous iteration.  */
+-	      goto done;
++	      if (!ref->next)
++	        goto done;
+ 
++	    /* Fall through.  */
++
+ 	    case AR_SECTION:
+ 	    case AR_UNKNOWN:
+ 	      return NULL;
+Index: gcc/alias.c
+===================================================================
+--- gcc/alias.c	(.../tags/gcc_4_3_3_release)	(revision 143712)
++++ gcc/alias.c	(.../branches/gcc-4_3-branch)	(revision 143712)
+@@ -1508,26 +1508,27 @@
+   if (rtx_equal_p (x_base, y_base))
+     return 1;
+ 
+-  /* The base addresses of the read and write are different expressions.
+-     If they are both symbols and they are not accessed via AND, there is
+-     no conflict.  We can bring knowledge of object alignment into play
+-     here.  For example, on alpha, "char a, b;" can alias one another,
+-     though "char a; long b;" cannot.  */
++  /* The base addresses are different expressions.  If they are not accessed
++     via AND, there is no conflict.  We can bring knowledge of object
++     alignment into play here.  For example, on alpha, "char a, b;" can
++     alias one another, though "char a; long b;" cannot.  AND addesses may
++     implicitly alias surrounding objects; i.e. unaligned access in DImode
++     via AND address can alias all surrounding object types except those
++     with aligment 8 or higher.  */
++  if (GET_CODE (x) == AND && GET_CODE (y) == AND)
++    return 1;
++  if (GET_CODE (x) == AND
++      && (GET_CODE (XEXP (x, 1)) != CONST_INT
++	  || (int) GET_MODE_UNIT_SIZE (y_mode) < -INTVAL (XEXP (x, 1))))
++    return 1;
++  if (GET_CODE (y) == AND
++      && (GET_CODE (XEXP (y, 1)) != CONST_INT
++	  || (int) GET_MODE_UNIT_SIZE (x_mode) < -INTVAL (XEXP (y, 1))))
++    return 1;
++
++  /* Differing symbols not accessed via AND never alias.  */
+   if (GET_CODE (x_base) != ADDRESS && GET_CODE (y_base) != ADDRESS)
+-    {
+-      if (GET_CODE (x) == AND && GET_CODE (y) == AND)
+-	return 1;
+-      if (GET_CODE (x) == AND
+-	  && (GET_CODE (XEXP (x, 1)) != CONST_INT
+-	      || (int) GET_MODE_UNIT_SIZE (y_mode) < -INTVAL (XEXP (x, 1))))
+-	return 1;
+-      if (GET_CODE (y) == AND
+-	  && (GET_CODE (XEXP (y, 1)) != CONST_INT
+-	      || (int) GET_MODE_UNIT_SIZE (x_mode) < -INTVAL (XEXP (y, 1))))
+-	return 1;
+-      /* Differing symbols never alias.  */
+-      return 0;
+-    }
++    return 0;
+ 
+   /* If one address is a stack reference there can be no alias:
+      stack references using different base registers do not alias,
+Index: gcc/gimplify.c
+===================================================================
+--- gcc/gimplify.c	(.../tags/gcc_4_3_3_release)	(revision 143712)
++++ gcc/gimplify.c	(.../branches/gcc-4_3-branch)	(revision 143712)
+@@ -3206,7 +3206,8 @@
+ 	if (valid_const_initializer
+ 	    && num_nonzero_elements > 1
+ 	    && TREE_READONLY (object)
+-	    && TREE_CODE (object) == VAR_DECL)
++	    && TREE_CODE (object) == VAR_DECL
++	    && (flag_merge_constants >= 2 || !TREE_ADDRESSABLE (object)))
+ 	  {
+ 	    if (notify_temp_creation)
+ 	      return GS_ERROR;
+Index: gcc/config/alpha/elf.h
+===================================================================
+--- gcc/config/alpha/elf.h	(.../tags/gcc_4_3_3_release)	(revision 143712)
++++ gcc/config/alpha/elf.h	(.../branches/gcc-4_3-branch)	(revision 143712)
+@@ -423,3 +423,13 @@
+ #if defined(HAVE_LD_EH_FRAME_HDR)
+ #define LINK_EH_SPEC "%{!static:--eh-frame-hdr} "
+ #endif
++
++/* A C statement (sans semicolon) to output to the stdio stream STREAM
++   any text necessary for declaring the name of an external symbol
++   named NAME which is referenced in this compilation but not defined.
++   It is needed to properly support non-default visibility.  */
++
++#ifndef ASM_OUTPUT_EXTERNAL
++#define ASM_OUTPUT_EXTERNAL(FILE, DECL, NAME) \
++  default_elf_asm_output_external (FILE, DECL, NAME)
++#endif
+Index: gcc/config/alpha/alpha.c
+===================================================================
+--- gcc/config/alpha/alpha.c	(.../tags/gcc_4_3_3_release)	(revision 143712)
++++ gcc/config/alpha/alpha.c	(.../branches/gcc-4_3-branch)	(revision 143712)
+@@ -1,6 +1,7 @@
+ /* Subroutines used for code generation on the DEC Alpha.
+    Copyright (C) 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001,
+-   2002, 2003, 2004, 2005, 2006, 2007 Free Software Foundation, Inc.
++   2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009
++   Free Software Foundation, Inc.
+    Contributed by Richard Kenner (kenner@vlsi1.ultra.nyu.edu)
+ 
+ This file is part of GCC.
+@@ -863,9 +864,11 @@
+ 	}
+     }
+ 
+-  /* If we're managing explicit relocations, LO_SUM is valid, as
+-     are small data symbols.  */
+-  else if (TARGET_EXPLICIT_RELOCS)
++  /* If we're managing explicit relocations, LO_SUM is valid, as are small
++     data symbols.  Avoid explicit relocations in modes larger than word
++     mode since i.e. $LC0+8($1) can fold around +/- 32k offset.  */
++  else if (TARGET_EXPLICIT_RELOCS
++	   && GET_MODE_SIZE (mode) <= UNITS_PER_WORD)
+     {
+       if (small_symbolic_operand (x, Pmode))
+ 	return true;
+@@ -915,8 +918,7 @@
+    to be legitimate.  If we find one, return the new, valid address.  */
+ 
+ rtx
+-alpha_legitimize_address (rtx x, rtx scratch,
+-			  enum machine_mode mode ATTRIBUTE_UNUSED)
++alpha_legitimize_address (rtx x, rtx scratch, enum machine_mode mode)
+ {
+   HOST_WIDE_INT addend;
+ 
+@@ -964,8 +966,12 @@
+       goto split_addend;
+     }
+ 
+-  /* If this is a local symbol, split the address into HIGH/LO_SUM parts.  */
+-  if (TARGET_EXPLICIT_RELOCS && symbolic_operand (x, Pmode))
++  /* If this is a local symbol, split the address into HIGH/LO_SUM parts.
++     Avoid modes larger than word mode since i.e. $LC0+8($1) can fold
++     around +/- 32k offset.  */
++  if (TARGET_EXPLICIT_RELOCS
++      && GET_MODE_SIZE (mode) <= UNITS_PER_WORD
++      && symbolic_operand (x, Pmode))
+     {
+       rtx r0, r16, eqv, tga, tp, insn, dest, seq;
+ 
+@@ -1602,18 +1608,17 @@
+   return -1;
+ }
+ 
+-/* Given INSN, which is an INSN list or the PATTERN of a single insn
+-   generated to perform a memory operation, look for any MEMs in either
++/* Given SEQ, which is an INSN list, look for any MEMs in either
+    a SET_DEST or a SET_SRC and copy the in-struct, unchanging, and
+    volatile flags from REF into each of the MEMs found.  If REF is not
+    a MEM, don't do anything.  */
+ 
+ void
+-alpha_set_memflags (rtx insn, rtx ref)
++alpha_set_memflags (rtx seq, rtx ref)
+ {
+-  rtx *base_ptr;
++  rtx insn;
+ 
+-  if (GET_CODE (ref) != MEM)
++  if (!MEM_P (ref))
+     return;
+ 
+   /* This is only called from alpha.md, after having had something
+@@ -1626,11 +1631,11 @@
+       && !MEM_READONLY_P (ref))
+     return;
+ 
+-  if (INSN_P (insn))
+-    base_ptr = &PATTERN (insn);
+-  else
+-    base_ptr = &insn;
+-  for_each_rtx (base_ptr, alpha_set_memflags_1, (void *) ref);
++  for (insn = seq; insn; insn = NEXT_INSN (insn))
++    if (INSN_P (insn))
++      for_each_rtx (&PATTERN (insn), alpha_set_memflags_1, (void *) ref);
++    else
++      gcc_unreachable ();
+ }
+ 
+ static rtx alpha_emit_set_const (rtx, enum machine_mode, HOST_WIDE_INT,
+@@ -2452,7 +2457,7 @@
+   if (alpha_compare.fp_p)
+     {
+       cmp_mode = DFmode;
+-      if (flag_unsafe_math_optimizations)
++      if (flag_unsafe_math_optimizations && cmp_code != UNORDERED)
+ 	{
+ 	  /* When we are not as concerned about non-finite values, and we
+ 	     are comparing against zero, we can branch directly.  */
+@@ -6794,7 +6799,7 @@
+   tree op0 = fold_convert (vtype, op[0]);
+   tree op1 = fold_convert (vtype, op[1]);
+   tree val = fold_build2 (code, vtype, op0, op1);
+-  return fold_convert (long_integer_type_node, val);
++  return fold_build1 (VIEW_CONVERT_EXPR, long_integer_type_node, val);
+ }
+ 
+ static tree
+@@ -8242,6 +8247,11 @@
+   if (GET_CODE (insn) == CALL_INSN)
+     output_asm_insn (get_insn_template (CODE_FOR_nop, NULL), NULL);
+ 
++#if TARGET_ABI_OSF
++  if (current_function_is_thunk)
++    free_after_compilation (cfun);
++#endif
++
+ #if TARGET_ABI_OPEN_VMS
+   alpha_write_linkage (file, fnname, decl);
+ #endif
+@@ -8281,6 +8291,8 @@
+   HOST_WIDE_INT hi, lo;
+   rtx this, insn, funexp;
+ 
++  gcc_assert (current_function_is_thunk);
++
+   /* We always require a valid GP.  */
+   emit_insn (gen_prologue_ldgp ());
+   emit_note (NOTE_INSN_PROLOGUE_END);
+@@ -9268,12 +9280,68 @@
+       i = next;
+     }
+ }
++
++/* Insert an unop between a noreturn function call and GP load.  */
++
++static void
++alpha_pad_noreturn (void)
++{
++  rtx insn, next;
++
++  for (insn = get_insns (); insn; insn = NEXT_INSN (insn))
++    {
++      rtx pat;
++
++      if (!CALL_P (insn)
++	  || !find_reg_note (insn, REG_NORETURN, NULL_RTX))
++        continue;
++
++      next = next_active_insn (insn);
++
++      if (next)
++	{
++	  pat = PATTERN (next);
++
++	  if (GET_CODE (pat) == SET
++	      && GET_CODE (SET_SRC (pat)) == UNSPEC_VOLATILE
++	      && XINT (SET_SRC (pat), 1) == UNSPECV_LDGP1)
++	    emit_insn_after (gen_unop (), insn);
++	}
++    }
++}
+ 
+ /* Machine dependent reorg pass.  */
+ 
+ static void
+ alpha_reorg (void)
+ {
++  /* Workaround for a linker error that triggers when an
++     exception handler immediatelly follows a noreturn function.
++
++     The instruction stream from an object file:
++
++  54:   00 40 5b 6b     jsr     ra,(t12),58 <__func+0x58>
++  58:   00 00 ba 27     ldah    gp,0(ra)
++  5c:   00 00 bd 23     lda     gp,0(gp)
++  60:   00 00 7d a7     ldq     t12,0(gp)
++  64:   00 40 5b 6b     jsr     ra,(t12),68 <__func+0x68>
++
++     was converted in the final link pass to:
++
++   fdb24:       a0 03 40 d3     bsr     ra,fe9a8 <_called_func+0x8>
++   fdb28:       00 00 fe 2f     unop
++   fdb2c:       00 00 fe 2f     unop
++   fdb30:       30 82 7d a7     ldq     t12,-32208(gp)
++   fdb34:       00 40 5b 6b     jsr     ra,(t12),fdb38 <__func+0x68>
++
++     GP load instructions were wrongly cleared by the linker relaxation
++     pass.  This workaround prevents removal of GP loads by inserting
++     an unop instruction between a noreturn function call and
++     exception handler prologue.  */
++
++  if (current_function_has_exception_handlers ())
++    alpha_pad_noreturn ();
++
+   if (alpha_tp != ALPHA_TP_PROG || flag_exceptions)
+     alpha_handle_trap_shadows ();
+ 
+Index: gcc/config/sparc/linux.h
+===================================================================
+--- gcc/config/sparc/linux.h	(.../tags/gcc_4_3_3_release)	(revision 143712)
++++ gcc/config/sparc/linux.h	(.../branches/gcc-4_3-branch)	(revision 143712)
+@@ -148,10 +148,6 @@
+   "%{V} %{v:%{!V:-V}} %{!Qn:-Qy} %{n} %{T} %{Ym,*} %{Wa,*:%*} -s \
+    %{fpic|fPIC|fpie|fPIE:-K PIC} %(asm_cpu) %(asm_relax)"
+ 
+-/* Same as sparc.h */
+-#undef DBX_REGISTER_NUMBER
+-#define DBX_REGISTER_NUMBER(REGNO) (REGNO)
+-
+ #undef ASM_OUTPUT_ALIGNED_LOCAL
+ #define ASM_OUTPUT_ALIGNED_LOCAL(FILE, NAME, SIZE, ALIGN)		\
+ do {									\
+Index: gcc/config/sparc/linux64.h
+===================================================================
+--- gcc/config/sparc/linux64.h	(.../tags/gcc_4_3_3_release)	(revision 143712)
++++ gcc/config/sparc/linux64.h	(.../branches/gcc-4_3-branch)	(revision 143712)
+@@ -285,10 +285,6 @@
+ %{mlittle-endian:-EL} \
+ %(asm_cpu) %(asm_arch) %(asm_relax)"
+ 
+-/* Same as sparc.h */
+-#undef DBX_REGISTER_NUMBER
+-#define DBX_REGISTER_NUMBER(REGNO) (REGNO)
+-
+ #undef ASM_OUTPUT_ALIGNED_LOCAL
+ #define ASM_OUTPUT_ALIGNED_LOCAL(FILE, NAME, SIZE, ALIGN)		\
+ do {									\
+Index: gcc/config/sparc/sysv4.h
+===================================================================
+--- gcc/config/sparc/sysv4.h	(.../tags/gcc_4_3_3_release)	(revision 143712)
++++ gcc/config/sparc/sysv4.h	(.../branches/gcc-4_3-branch)	(revision 143712)
+@@ -93,22 +93,6 @@
+ 	fprintf (FILE, "\n");						\
+   } while (0)
+ 
+-/* Define how the SPARC registers should be numbered for Dwarf output.
+-   The numbering provided here should be compatible with the native
+-   svr4 SDB debugger in the SPARC/svr4 reference port.  The numbering
+-   is as follows:
+-
+-   Assembly name	gcc internal regno	Dwarf regno
+-   ----------------------------------------------------------
+-   g0-g7		0-7			0-7
+-   o0-o7		8-15			8-15
+-   l0-l7		16-23			16-23
+-   i0-i7		24-31			24-31
+-   f0-f31		32-63			40-71
+-*/
+-
+-#define DBX_REGISTER_NUMBER(REGNO) ((REGNO) < 32 ? (REGNO) : (REGNO) + 8)
+-
+ /* A set of symbol definitions for assembly pseudo-ops which will
+    get us switched to various sections of interest.  These are used
+    in all places where we simply want to switch to a section, and
+Index: gcc/config/i386/i386.md
+===================================================================
+--- gcc/config/i386/i386.md	(.../tags/gcc_4_3_3_release)	(revision 143712)
++++ gcc/config/i386/i386.md	(.../branches/gcc-4_3-branch)	(revision 143712)
+@@ -1397,7 +1397,7 @@
+ 	  gcc_unreachable ();
+ 	}
+ 
+-    case TYPE_MMXADD:
++    case TYPE_MMX:
+       return "pxor\t%0, %0";
+ 
+     case TYPE_MMXMOV:
+@@ -1415,7 +1415,7 @@
+ }
+   [(set (attr "type")
+      (cond [(eq_attr "alternative" "2")
+-	      (const_string "mmxadd")
++	      (const_string "mmx")
+ 	    (eq_attr "alternative" "3,4,5")
+ 	      (const_string "mmxmov")
+ 	    (eq_attr "alternative" "6")
+@@ -2231,7 +2231,7 @@
+       return "movq\t{%1, %0|%0, %1}";
+ 
+     case TYPE_SSELOG1:
+-    case TYPE_MMXADD:
++    case TYPE_MMX:
+       return "pxor\t%0, %0";
+ 
+     case TYPE_MULTI:
+@@ -2252,7 +2252,7 @@
+ }
+   [(set (attr "type")
+      (cond [(eq_attr "alternative" "5")
+-	      (const_string "mmxadd")
++	      (const_string "mmx")
+ 	    (eq_attr "alternative" "6,7,8,9,10")
+ 	      (const_string "mmxmov")
+ 	    (eq_attr "alternative" "11")
+Index: gcc/config/i386/i386.c
+===================================================================
+--- gcc/config/i386/i386.c	(.../tags/gcc_4_3_3_release)	(revision 143712)
++++ gcc/config/i386/i386.c	(.../branches/gcc-4_3-branch)	(revision 143712)
+@@ -14773,6 +14773,22 @@
+       destexp = gen_rtx_PLUS (Pmode, destptr, countreg);
+       srcexp = gen_rtx_PLUS (Pmode, srcptr, countreg);
+     }
++  if (CONST_INT_P (count))
++    {
++      count = GEN_INT (INTVAL (count)
++		       & ~((HOST_WIDE_INT) GET_MODE_SIZE (mode) - 1));
++      destmem = shallow_copy_rtx (destmem);
++      srcmem = shallow_copy_rtx (srcmem);
++      set_mem_size (destmem, count);
++      set_mem_size (srcmem, count);
++    }
++  else
++    {
++      if (MEM_SIZE (destmem))
++	set_mem_size (destmem, NULL_RTX);
++      if (MEM_SIZE (srcmem))
++	set_mem_size (srcmem, NULL_RTX);
++    }
+   emit_insn (gen_rep_mov (destptr, destmem, srcptr, srcmem, countreg,
+ 			  destexp, srcexp));
+ }
+@@ -14781,8 +14797,8 @@
+    Arguments have same meaning as for previous function */
+ static void
+ expand_setmem_via_rep_stos (rtx destmem, rtx destptr, rtx value,
+-			    rtx count,
+-			    enum machine_mode mode)
++			    rtx count, enum machine_mode mode,
++			    rtx orig_value)
+ {
+   rtx destexp;
+   rtx countreg;
+@@ -14799,6 +14815,15 @@
+     }
+   else
+     destexp = gen_rtx_PLUS (Pmode, destptr, countreg);
++  if (orig_value == const0_rtx && CONST_INT_P (count))
++    {
++      count = GEN_INT (INTVAL (count)
++		       & ~((HOST_WIDE_INT) GET_MODE_SIZE (mode) - 1));
++      destmem = shallow_copy_rtx (destmem);
++      set_mem_size (destmem, count);
++    }
++  else if (MEM_SIZE (destmem))
++    set_mem_size (destmem, NULL_RTX);
+   emit_insn (gen_rep_stos (destptr, countreg, destmem, value, destexp));
+ }
+ 
+@@ -15871,15 +15896,15 @@
+       break;
+     case rep_prefix_8_byte:
+       expand_setmem_via_rep_stos (dst, destreg, promoted_val, count_exp,
+-				  DImode);
++				  DImode, val_exp);
+       break;
+     case rep_prefix_4_byte:
+       expand_setmem_via_rep_stos (dst, destreg, promoted_val, count_exp,
+-				  SImode);
++				  SImode, val_exp);
+       break;
+     case rep_prefix_1_byte:
+       expand_setmem_via_rep_stos (dst, destreg, promoted_val, count_exp,
+-				  QImode);
++				  QImode, val_exp);
+       break;
+     }
+   /* Adjust properly the offset of src and dest memory for aliasing.  */
+Index: libstdc++-v3/scripts/extract_symvers
+===================================================================
+--- libstdc++-v3/scripts/extract_symvers	(.../tags/gcc_4_3_3_release)	(revision 143712)
++++ libstdc++-v3/scripts/extract_symvers	(.../branches/gcc-4_3-branch)	(revision 143712)
+@@ -1,6 +1,6 @@
+ #!/bin/sh
+ 
+-# Copyright (C) 2002, 2003 Free Software Foundation, Inc.
++# Copyright (C) 2002, 2003, 2009 Free Software Foundation, Inc.
+ #
+ # This file is part of the GNU ISO C++ Library.  This library is free
+ # software; you can redistribute it and/or modify it under the
+@@ -52,7 +52,9 @@
+ 
+ tmp=extract.$$
+ 
+-${readelf} ${lib} | sed '/\.dynsym/,/^$/p;d' | egrep -v ' (LOCAL|UND) ' |\
++${readelf} ${lib} |\
++sed -e 's/ \[<other>: [A-Fa-f0-9]*\] //' -e '/\.dynsym/,/^$/p;d' |\
++egrep -v ' (LOCAL|UND) ' |\
+ awk '{ if ($4 == "FUNC" || $4 == "NOTYPE")
+          printf "%s:%s\n", $4, $8;
+        else if ($4 == "OBJECT")
+Index: libstdc++-v3/ChangeLog
+===================================================================
+--- libstdc++-v3/ChangeLog	(.../tags/gcc_4_3_3_release)	(revision 143712)
++++ libstdc++-v3/ChangeLog	(.../branches/gcc-4_3-branch)	(revision 143712)
+@@ -1,3 +1,11 @@
++2009-01-27  Uros Bizjak  <ubizjak@gmail.com>
++
++	Backport from mainline:
++	2009-01-13  Uros Bizjak  <ubizjak@gmail.com>
++
++	* scripts/extract_symvers: Add sed script to remove ' [<other>: xx] '
++	field from readelf output.
++
+ 2009-01-24  Release Manager
+ 
+ 	* GCC 4.3.3 released.

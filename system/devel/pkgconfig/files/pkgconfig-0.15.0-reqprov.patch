@@ -1,0 +1,70 @@
+--- pkg-config-0.18.1/main.c.reqprov	2005-07-07 15:38:55.597133000 -0400
++++ pkg-config-0.18.1/main.c	2005-07-07 15:40:19.400246000 -0400
+@@ -187,6 +187,8 @@
+   int want_uninstalled = 0;
+   char *variable_name = NULL;
+   int want_exists = 0;
++  int want_prov = 0;
++  int want_req = 0;
+   char *required_atleast_version = NULL;
+   char *required_exact_version = NULL;
+   char *required_max_version = NULL;
+@@ -254,6 +256,10 @@
+       "show verbose information about missing or conflicting packages" },
+     { "errors-to-stdout", 0, POPT_ARG_NONE, &want_stdout_errors, 0,
+       "print errors from --print-errors to stdout not stderr" },
++    { "print-provides", 0, POPT_ARG_NONE, &want_prov, 0,
++      "print which packages the package provides" },
++    { "print-requires", 0, POPT_ARG_NONE, &want_req, 0,
++      "print which packages the package requires" },
+ #ifdef G_OS_WIN32
+     { "dont-define-prefix", 0, POPT_ARG_NONE, &dont_define_prefix, 0,
+       "don't try to override the value of prefix for each .pc file found with "
+@@ -545,6 +551,47 @@
+         }
+     }
+ 
++ if (want_prov)
++   {
++     GSList *tmp;
++     tmp = packages;
++     while (tmp != NULL)
++       {
++         Package *pkg = tmp->data;
++         char *key;
++         key = pkg->key;
++         while (*key == '/')
++           key++;
++         if (strlen(key) > 0)
++           printf ("%s = %s\n", key, pkg->version);
++         tmp = g_slist_next (tmp);
++       }
++   }
++
++ if (want_req)
++   {
++     GSList *pkgtmp = packages;
++     while (pkgtmp != NULL)
++       {
++         Package *pkg = pkgtmp->data;
++         GSList *reqtmp = pkg->requires;
++         while (reqtmp != NULL)
++           {
++             Package *deppkg = reqtmp->data;
++             RequiredVersion *req;
++             req = g_hash_table_lookup(pkg->required_versions, deppkg->key);
++             if ((req == NULL) || (req->comparison == ALWAYS_MATCH))
++               printf ("%s\n", deppkg->key);
++             else
++               printf ("%s %s %s\n", deppkg->key,
++                       comparison_to_str(req->comparison),
++                       req->version);
++             reqtmp = g_slist_next (reqtmp);
++           }
++         pkgtmp = g_slist_next (pkgtmp);
++       }
++   }
++
+   if (required_exact_version)
+     {
+       Package *pkg = packages->data;

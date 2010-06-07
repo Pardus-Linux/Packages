@@ -1,0 +1,112 @@
+#! /bin/sh -e
+
+# DP: PR ada/22387: Ada compiler crash when inheriting from a record with custom layout
+
+dir=
+if [ $# -eq 3 -a "$2" = '-d' ]; then
+    pdir="-d $3"
+    dir="$3/"
+elif [ $# -ne 1 ]; then
+    echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
+    exit 1
+fi
+case "$1" in
+    -patch)
+        patch $pdir -f --no-backup-if-mismatch -p1 < $0
+        #cd ${dir}gcc && autoconf
+        ;;
+    -unpatch)
+        patch $pdir -f --no-backup-if-mismatch -R -p1 < $0
+        #rm ${dir}gcc/configure
+        ;;
+    *)
+        echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
+        exit 1
+esac
+exit 0
+
+2008-04-15  Ed Schonberg  <schonberg@adacore.com>
+
+From: sam <sam@138bc75d-0d04-0410-961f-82ee72b054a4>
+
+gcc/ada/
+	PR ada/22387
+	* exp_ch5.adb (Expand_Assign_Record): Within an initialization
+	procedure for a derived type retrieve the discriminant values from
+	the parent using the corresponding discriminant.
+
+2008-04-15  Samuel Tardieu  <sam@rfc1149.net>
+
+    gcc/testsuite/
+	PR ada/22387
+	* gnat.dg/specs/corr_discr.ads: New.
+
+git-svn-id: svn+ssh://gcc.gnu.org/svn/gcc/trunk@134326 138bc75d-0d04-0410-961f-82ee72b054a4
+---
+
+ gcc/ada/exp_ch5.adb                        |   29 ++++++++++++++++++++++------
+ gcc/testsuite/gnat.dg/specs/corr_discr.ads |   13 +++++++++++++
+ 2 files changed, 36 insertions(+), 6 deletions(-)
+ create mode 100644 gcc/testsuite/gnat.dg/specs/corr_discr.ads
+
+
+diff --git a/gcc/ada/exp_ch5.adb b/gcc/ada/exp_ch5.adb
+index d77ec23..75b8ca6 100644
+--- a/gcc/ada/exp_ch5.adb
++++ b/gcc/ada/exp_ch5.adb
+@@ -1346,13 +1346,30 @@ package body Exp_Ch5 is
+             F := First_Discriminant (R_Typ);
+             while Present (F) loop
+ 
+-               if Is_Unchecked_Union (Base_Type (R_Typ)) then
+-                  Insert_Action (N, Make_Field_Assign (F, True));
+-               else
+-                  Insert_Action (N, Make_Field_Assign (F));
+-               end if;
++               --  If we are expanding the initialization of a derived record
++               --  that constrains or renames discriminants of the parent, we
++               --  must use the corresponding discriminant in the parent.
++
++               declare
++                  CF : Entity_Id;
+ 
+-               Next_Discriminant (F);
++               begin
++                  if Inside_Init_Proc
++                    and then Present (Corresponding_Discriminant (F))
++                  then
++                     CF := Corresponding_Discriminant (F);
++                  else
++                     CF := F;
++                  end if;
++
++                  if Is_Unchecked_Union (Base_Type (R_Typ)) then
++                     Insert_Action (N, Make_Field_Assign (CF, True));
++                  else
++                     Insert_Action (N, Make_Field_Assign (CF));
++                  end if;
++
++                  Next_Discriminant (F);
++               end;
+             end loop;
+          end if;
+ 
+diff --git a/gcc/testsuite/gnat.dg/specs/corr_discr.ads b/gcc/testsuite/gnat.dg/specs/corr_discr.ads
+new file mode 100644
+index 0000000..70ea860
+--- /dev/null
++++ b/gcc/testsuite/gnat.dg/specs/corr_discr.ads
+@@ -0,0 +1,13 @@
++package Corr_Discr is
++
++   type Base (T1 : Boolean := True; T2 : Boolean := False)
++     is null record;
++   for Base use record
++      T1 at 0 range 0 .. 0;
++      T2 at 0 range 1 .. 1;
++   end record;
++
++   type Deriv (D : Boolean := False) is new Base (T1 => True, T2 => D);
++
++end Corr_Discr;
++

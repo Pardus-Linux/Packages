@@ -1,0 +1,39 @@
+--- ld/ldmain.c
++++ ld/ldmain.c
+@@ -268,6 +268,7 @@
+   link_info.strip_discarded = TRUE;
+   link_info.warn_shared_textrel = TRUE;
+   link_info.emit_hash = TRUE;
++  link_info.emit_gnu_hash = TRUE;
+   link_info.callbacks = &link_callbacks;
+   link_info.input_bfds_tail = &link_info.input_bfds;
+   /* SVR4 linkers seem to set DT_INIT and DT_FINI based on magic _init
+--- ld/testsuite/config/default.exp
++++ ld/testsuite/config/default.exp
+@@ -20,7 +20,7 @@
+ #
+ 
+ if ![info exists ld] then {
+-    set ld "[findfile $base_dir/ld-new $base_dir/ld-new [transform ld]] -znorelro"
++    set ld "[findfile $base_dir/ld-new $base_dir/ld-new [transform ld]] -znorelro --hash-style=sysv"
+ }
+ 
+ if ![info exists as] then {
+@@ -67,7 +67,7 @@
+     catch "exec mkdir tmpdir/ld" status
+     catch "exec ln -s ../../ld-new tmpdir/ld/ld" status
+ }
+-set gcc_ld_flag "-B[pwd]/tmpdir/ld/ -Wl,-z,norelro"
++set gcc_ld_flag "-B[pwd]/tmpdir/ld/ -Wl,-z,norelro -Wl,--hash-style=sysv"
+ 
+ # load the linker path
+ if {[file exists tmpdir/libpath.exp]} {
+@@ -261,7 +261,7 @@
+ }
+ 
+ if ![info exists LD] then {
+-    set LD "[findfile $base_dir/ld-new ./ld-new [transform ld]] -znorelro"
++    set LD "[findfile $base_dir/ld-new ./ld-new [transform ld]] -znorelro --hash-style=sysv"
+ }
+ 
+ if ![info exists LDFLAGS] then {

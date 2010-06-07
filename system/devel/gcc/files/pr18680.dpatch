@@ -1,0 +1,97 @@
+#! /bin/sh -e
+
+# DP: PR ada/18680: pragma Linker_Section problems
+
+dir=
+if [ $# -eq 3 -a "$2" = '-d' ]; then
+    pdir="-d $3"
+    dir="$3/"
+elif [ $# -ne 1 ]; then
+    echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
+    exit 1
+fi
+case "$1" in
+    -patch)
+        patch $pdir -f --no-backup-if-mismatch -p1 < $0
+        #cd ${dir}gcc && autoconf
+        ;;
+    -unpatch)
+        patch $pdir -f --no-backup-if-mismatch -R -p1 < $0
+        #rm ${dir}gcc/configure
+        ;;
+    *)
+        echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
+        exit 1
+esac
+exit 0
+
+2008-04-14  Samuel Tardieu  <sam@rfc1149.net>
+
+From: sam <sam@138bc75d-0d04-0410-961f-82ee72b054a4>
+
+Robert Dewar  <dewar@adacore.com>
+
+    gcc/ada/
+	PR ada/18680
+	* sem_prag.adb (Analyze_Pragma, Linker_Section case): Refuse to
+	apply pragma Linker_Section on type.
+
+    gcc/testsuite/
+	PR ada/18680
+	* gnat.dg/specs/linker_section.ads: New.
+
+git-svn-id: svn+ssh://gcc.gnu.org/svn/gcc/trunk@134266 138bc75d-0d04-0410-961f-82ee72b054a4
+git-svn-id: svn+ssh://gcc.gnu.org/svn/gcc/trunk@134280 138bc75d-0d04-0410-961f-82ee72b054a4
+
+2008-04-14  Robert Dewar  <dewar@adacore.com>
+
+    gcc/ada/
+	* sem_prag.adb (Analyze_Pragma, Linker_Section case): Extend error
+	to every non-object and change error message.
+
+    gcc/testsuite/
+	* gnat.dg/specs/linker_section.ads: Check for more error conditions.
+---
+
+ gcc/ada/sem_prag.adb                           |    6 ++++++
+ gcc/testsuite/gnat.dg/specs/linker_section.ads |   13 +++++++++++++
+ 2 files changed, 19 insertions(+), 0 deletions(-)
+ create mode 100644 gcc/testsuite/gnat.dg/specs/linker_section.ads
+
+
+diff --git a/gcc/ada/sem_prag.adb b/gcc/ada/sem_prag.adb
+index 8dce4de..f6a6a01 100644
+--- a/gcc/ada/sem_prag.adb
++++ b/gcc/ada/sem_prag.adb
+@@ -8093,6 +8093,12 @@ package body Sem_Prag is
+             Check_Arg_Is_Library_Level_Local_Name (Arg1);
+             Check_Arg_Is_Static_Expression (Arg2, Standard_String);
+ 
++            --  This pragma applies only to objects
++
++            if not Is_Object (Entity (Expression (Arg1))) then
++               Error_Pragma_Arg ("pragma% applies only to objects", Arg1);
++            end if;
++
+             --  The only processing required is to link this item on to the
+             --  list of rep items for the given entity. This is accomplished
+             --  by the call to Rep_Item_Too_Late (when no error is detected
+diff --git a/gcc/testsuite/gnat.dg/specs/linker_section.ads b/gcc/testsuite/gnat.dg/specs/linker_section.ads
+new file mode 100644
+index 0000000..73e89aa
+--- /dev/null
++++ b/gcc/testsuite/gnat.dg/specs/linker_section.ads
+@@ -0,0 +1,13 @@
++package Linker_Section is
++   Data1 : constant String := "12345678901234567";
++   pragma Linker_Section (Entity  => Data1,
++                          Section => ".eeprom");
++   type EEPROM_String is new String;
++   pragma Linker_Section (Entity  => EEPROM_String, -- { dg-error "objects" }
++                          Section => ".eeprom");
++   Data2 : constant EEPROM_String := "12345678901234567";
++   package Inner is end;
++   pragma Linker_Section (Entity  => Inner,        -- { dg-error "objects" }
++                          Section => ".eeprom");
++end Linker_Section;
++

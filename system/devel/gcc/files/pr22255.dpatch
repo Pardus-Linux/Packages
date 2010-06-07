@@ -1,0 +1,95 @@
+#! /bin/sh -e
+
+# DP: PR ada/22255: Reset on shared file causes Use_Error.
+
+dir=
+if [ $# -eq 3 -a "$2" = '-d' ]; then
+    pdir="-d $3"
+    dir="$3/"
+elif [ $# -ne 1 ]; then
+    echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
+    exit 1
+fi
+case "$1" in
+    -patch)
+        patch $pdir -f --no-backup-if-mismatch -p1 < $0
+        #cd ${dir}gcc && autoconf
+        ;;
+    -unpatch)
+        patch $pdir -f --no-backup-if-mismatch -R -p1 < $0
+        #rm ${dir}gcc/configure
+        ;;
+    *)
+        echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
+        exit 1
+esac
+exit 0
+
+gcc/ada/
+
+From: sam <sam@138bc75d-0d04-0410-961f-82ee72b054a4>
+
+PR ada/22255
+	* s-fileio.adb (Reset): Do not raise Use_Error if mode isn't changed.
+
+    gcc/testsuite/
+	PR ada/22255
+	* gnat.dg/test_direct_io.adb: New file.
+
+git-svn-id: svn+ssh://gcc.gnu.org/svn/gcc/trunk@132708 138bc75d-0d04-0410-961f-82ee72b054a4
+---
+
+ gcc/ada/s-fileio.adb                     |   16 +++++++++-------
+ gcc/testsuite/gnat.dg/test_direct_io.adb |   15 +++++++++++++++
+ 2 files changed, 24 insertions(+), 7 deletions(-)
+ create mode 100644 gcc/testsuite/gnat.dg/test_direct_io.adb
+
+
+diff --git a/gcc/ada/s-fileio.adb b/gcc/ada/s-fileio.adb
+index a56877e..4a8393c 100644
+--- a/gcc/ada/s-fileio.adb
++++ b/gcc/ada/s-fileio.adb
+@@ -1074,13 +1074,15 @@ package body System.File_IO is
+    begin
+       Check_File_Open (File);
+ 
+-      --  Change of mode not allowed for shared file or file with no name
+-      --  or file that is not a regular file, or for a system file.
+-
+-      if File.Shared_Status = Yes
+-        or else File.Name'Length <= 1
+-        or else File.Is_System_File
+-        or else not File.Is_Regular_File
++      --  Change of mode not allowed for shared file or file with no name or
++      --  file that is not a regular file, or for a system file. Note that we
++      --  allow the "change" of mode if it is not in fact doing a change.
++
++      if Mode /= File.Mode
++        and then (File.Shared_Status = Yes
++                    or else File.Name'Length <= 1
++                    or else File.Is_System_File
++                    or else not File.Is_Regular_File)
+       then
+          raise Use_Error;
+ 
+diff --git a/gcc/testsuite/gnat.dg/test_direct_io.adb b/gcc/testsuite/gnat.dg/test_direct_io.adb
+new file mode 100644
+index 0000000..0eb8aa2
+--- /dev/null
++++ b/gcc/testsuite/gnat.dg/test_direct_io.adb
+@@ -0,0 +1,15 @@
++-- { dg-do run }
++with Ada.Direct_IO;
++
++procedure Test_Direct_IO is
++
++   package BDIO is new Ada.Direct_IO (Boolean);
++   use BDIO;
++
++   FD : File_Type;
++
++begin
++   Create (FD, Form => "shared=yes");
++   Reset (FD);
++   Close (FD);
++end Test_Direct_IO;

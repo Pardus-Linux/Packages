@@ -1,0 +1,75 @@
+#! /bin/sh -e
+
+# DP: PR ada/30740: Do not optimize X*(2**Y) in a modular context
+
+dir=./
+if [ $# -eq 3 -a "$2" = '-d' ]; then
+    pdir="-d $3"
+    dir="$3/"
+elif [ $# -ne 1 ]; then
+    echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
+    exit 1
+fi
+case "$1" in
+    -patch)
+        patch $pdir -f --no-backup-if-mismatch -p1 < $0
+        ;;
+    -unpatch)
+        patch $pdir -f --no-backup-if-mismatch -R -p1 < $0
+        ;;
+    *)
+        echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
+        exit 1
+esac
+exit 0
+
+ada: Do not optimize X*(2**Y) in a modular context
+
+From: Samuel Tardieu <sam@rfc1149.net>
+
+Compiled and regtested on i686-pc-linux-gnu.
+
+    gcc/ada/
+	PR ada/30740
+	* exp_ch4.adb (Expand_N_Op_Expon): Do not optimize X*(2**Y) into
+	Left_Shift(X, Y) if in a modular context.
+
+    gcc/testsuite/
+	PR ada/30740
+	* gnat.dg/modular.adb: New test.
+
+diff --git a/gcc/ada/exp_ch4.adb b/gcc/ada/exp_ch4.adb
+index c1b88be..9b5f998 100644
+--- a/gcc/ada/exp_ch4.adb
++++ b/gcc/ada/exp_ch4.adb
+@@ -5474,6 +5474,8 @@ package body Exp_Ch4 is
+          begin
+             if (Nkind (P) = N_Op_Multiply
+                  and then
++                   not Is_Modular_Integer_Type (Typ)
++                 and then
+                    ((Is_Integer_Type (Etype (L)) and then R = N)
+                        or else
+                     (Is_Integer_Type (Etype (R)) and then L = N))
+diff --git a/gcc/testsuite/gnat.dg/modular.adb b/gcc/testsuite/gnat.dg/modular.adb
+new file mode 100644
+index 0000000..1eff333
+--- /dev/null
++++ b/gcc/testsuite/gnat.dg/modular.adb
+@@ -0,0 +1,16 @@
++-- { dg-do run }
++with Ada.Text_IO;
++procedure Modular is
++   type T1 is mod 9;
++   package T1_IO is new Ada.Text_IO.Modular_IO(T1);
++   X: T1 := 8;
++   J1: constant := 5;
++begin
++   for J2 in 5..5 loop
++      pragma Assert(X*(2**J1) = X*(2**J2));
++      if X*(2**J1) /= X*(2**J2) then
++         Ada.Text_IO.Put_Line("Failed");
++         raise Program_Error;
++      end if;
++   end loop;
++end Modular;

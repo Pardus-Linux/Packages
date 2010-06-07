@@ -1,0 +1,133 @@
+#! /bin/sh -e
+
+# DP: PR ada/15915: Illegal program not detected, RM 13.11(15)
+
+dir=
+if [ $# -eq 3 -a "$2" = '-d' ]; then
+    pdir="-d $3"
+    dir="$3/"
+elif [ $# -ne 1 ]; then
+    echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
+    exit 1
+fi
+case "$1" in
+    -patch)
+        patch $pdir -f --no-backup-if-mismatch -p1 < $0
+        #cd ${dir}gcc && autoconf
+        ;;
+    -unpatch)
+        patch $pdir -f --no-backup-if-mismatch -R -p1 < $0
+        #rm ${dir}gcc/configure
+        ;;
+    *)
+        echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
+        exit 1
+esac
+exit 0
+
+gcc/ada/
+
+From: sam <sam@138bc75d-0d04-0410-961f-82ee72b054a4>
+
+PR ada/15915
+	* sem_util.ads, sem_util.adb (Denotes_Variable): New function.
+	* sem_ch12.adb (Instantiate_Object): Use it.
+	* sem_ch13.adb (Analyze_Attribute_Definition_Clause): Ensure that
+	storage pool denotes a variable as per RM 13.11(15).
+
+    gcc/testsuite/
+	PR ada/15915
+	* gnat.dg/specs/storage.ads: New.
+
+git-svn-id: svn+ssh://gcc.gnu.org/svn/gcc/trunk@134261 138bc75d-0d04-0410-961f-82ee72b054a4
+git-svn-id: svn+ssh://gcc.gnu.org/svn/gcc/trunk@134281 138bc75d-0d04-0410-961f-82ee72b054a4
+---
+
+ gcc/ada/sem_ch12.adb                    |    2 +-
+ gcc/ada/sem_ch13.adb                    |    5 +++++
+ gcc/ada/sem_util.adb                    |    9 +++++++++
+ gcc/ada/sem_util.ads                    |    3 +++
+ gcc/testsuite/gnat.dg/specs/storage.ads |   10 ++++++++++
+ 5 files changed, 28 insertions(+), 1 deletions(-)
+ create mode 100644 gcc/testsuite/gnat.dg/specs/storage.ads
+
+
+diff --git a/gcc/ada/sem_ch12.adb b/gcc/ada/sem_ch12.adb
+index 4a83060..45fa18b 100644
+--- a/gcc/ada/sem_ch12.adb
++++ b/gcc/ada/sem_ch12.adb
+@@ -8194,7 +8194,7 @@ package body Sem_Ch12 is
+ 
+          Resolve (Actual, Ftyp);
+ 
+-         if not Is_Variable (Actual) or else Paren_Count (Actual) > 0 then
++         if not Denotes_Variable (Actual) then
+             Error_Msg_NE
+               ("actual for& must be a variable", Actual, Formal_Id);
+ 
+diff --git a/gcc/ada/sem_ch13.adb b/gcc/ada/sem_ch13.adb
+index 2b58c12..76ffda0 100644
+--- a/gcc/ada/sem_ch13.adb
++++ b/gcc/ada/sem_ch13.adb
+@@ -1437,6 +1437,11 @@ package body Sem_Ch13 is
+             Analyze_And_Resolve
+               (Expr, Class_Wide_Type (RTE (RE_Root_Storage_Pool)));
+ 
++            if not Denotes_Variable (Expr) then
++               Error_Msg_N ("storage pool must be a variable", Expr);
++               return;
++            end if;
++
+             if Nkind (Expr) = N_Type_Conversion then
+                T := Etype (Expression (Expr));
+             else
+diff --git a/gcc/ada/sem_util.adb b/gcc/ada/sem_util.adb
+index 344122a..1af559d 100644
+--- a/gcc/ada/sem_util.adb
++++ b/gcc/ada/sem_util.adb
+@@ -1984,6 +1984,15 @@ package body Sem_Util is
+ 
+    end Denotes_Discriminant;
+ 
++   ----------------------
++   -- Denotes_Variable --
++   ----------------------
++
++   function Denotes_Variable (N : Node_Id) return Boolean is
++   begin
++      return Is_Variable (N) and then Paren_Count (N) = 0;
++   end Denotes_Variable;
++
+    -----------------------------
+    -- Depends_On_Discriminant --
+    -----------------------------
+diff --git a/gcc/ada/sem_util.ads b/gcc/ada/sem_util.ads
+index 58dbb53..5621a5c 100644
+--- a/gcc/ada/sem_util.ads
++++ b/gcc/ada/sem_util.ads
+@@ -232,6 +232,9 @@ package Sem_Util is
+    --  components of protected types, and constraint checks on entry
+    --  families constrained by discriminants.
+ 
++   function Denotes_Variable (N : Node_Id) return Boolean;
++   --  Returns True if node N denotes a single variable without parentheses.
++
+    function Depends_On_Discriminant (N : Node_Id) return Boolean;
+    --  Returns True if N denotes a discriminant or if N is a range, a subtype
+    --  indication or a scalar subtype where one of the bounds is a
+diff --git a/gcc/testsuite/gnat.dg/specs/storage.ads b/gcc/testsuite/gnat.dg/specs/storage.ads
+new file mode 100644
+index 0000000..e544457
+--- /dev/null
++++ b/gcc/testsuite/gnat.dg/specs/storage.ads
+@@ -0,0 +1,10 @@
++-- { dg-do compile }
++with System.Pool_Global;
++package Storage is
++   x1: System.Pool_Global.Unbounded_No_Reclaim_Pool;
++   type T1 is access integer;
++   for T1'Storage_Pool use (x1);  -- { dg-error "must be a variable" }
++   type T2 is access Integer;
++   for T2'Storage_Pool use x1;
++end Storage;
++

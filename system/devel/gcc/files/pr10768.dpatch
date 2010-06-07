@@ -1,0 +1,77 @@
+#! /bin/sh -e
+
+# DP: PR ada/10768: ICEs on compilation of ada support library for avr
+
+dir=
+if [ $# -eq 3 -a "$2" = '-d' ]; then
+    pdir="-d $3"
+    dir="$3/"
+elif [ $# -ne 1 ]; then
+    echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
+    exit 1
+fi
+case "$1" in
+    -patch)
+        patch $pdir -f --no-backup-if-mismatch -p1 < $0
+        #cd ${dir}gcc && autoconf
+        ;;
+    -unpatch)
+        patch $pdir -f --no-backup-if-mismatch -R -p1 < $0
+        #rm ${dir}gcc/configure
+        ;;
+    *)
+        echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
+        exit 1
+esac
+exit 0
+
+2008-04-08  Tristan Gingold  <gingold@adacore.com>
+
+From: charlet <charlet@138bc75d-0d04-0410-961f-82ee72b054a4>
+
+PR ada/10768
+
+	* cuintp.c: Fix 16 bits issue for AVR.
+	On AVR, integer is 16 bits, so it can't be used to do math with
+	Base (=32768).
+	So use long_integer instead.
+
+git-svn-id: svn+ssh://gcc.gnu.org/svn/gcc/trunk@134013 138bc75d-0d04-0410-961f-82ee72b054a4
+---
+
+ gcc/ada/cuintp.c |   12 ++++++++----
+ 1 files changed, 8 insertions(+), 4 deletions(-)
+
+
+diff --git a/gcc/ada/cuintp.c b/gcc/ada/cuintp.c
+index ba3ffa0..90ea342 100644
+--- a/gcc/ada/cuintp.c
++++ b/gcc/ada/cuintp.c
+@@ -6,7 +6,7 @@
+  *                                                                          *
+  *                          C Implementation File                           *
+  *                                                                          *
+- *          Copyright (C) 1992-2007, Free Software Foundation, Inc.         *
++ *          Copyright (C) 1992-2008, Free Software Foundation, Inc.         *
+  *                                                                          *
+  * GNAT is free software;  you can  redistribute it  and/or modify it under *
+  * terms of the  GNU General Public License as published  by the Free Soft- *
+@@ -101,11 +101,15 @@ UI_To_gnu (Uint Input, tree type)
+ 	 large as an integer not to overflow.  REAL types are always fine, but
+ 	 INTEGER or ENUMERAL types we are handed may be too short.  We use a
+ 	 base integer type node for the computations in this case and will
+-	 convert the final result back to the incoming type later on.  */
++	 convert the final result back to the incoming type later on.
++	 The base integer precision must be superior than 16.  */
+ 
+       if (TREE_CODE (comp_type) != REAL_TYPE
+-	  && TYPE_PRECISION (comp_type) < TYPE_PRECISION (integer_type_node))
+-	comp_type = integer_type_node;
++	  && TYPE_PRECISION (comp_type) < TYPE_PRECISION (long_integer_type_node))
++	{
++	  comp_type = long_integer_type_node;
++	  gcc_assert (TYPE_PRECISION (comp_type) > 16);
++	}
+ 
+       gnu_base = build_cst_from_int (comp_type, Base);
+ 

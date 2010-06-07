@@ -1,0 +1,77 @@
+#! /bin/sh -e
+
+# All lines beginning with `# DPATCH:' are a description of the patch.
+# DP: PR ada/15808: Illegal program not detected, RM 3.9.3(10)
+
+dir=
+if [ $# -eq 3 -a "$2" = '-d' ]; then
+    pdir="-d $3"
+    dir="$3/"
+elif [ $# -ne 1 ]; then
+    echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
+    exit 1
+fi
+case "$1" in
+    -patch)
+        patch $pdir -f --no-backup-if-mismatch -p1 < $0
+        #cd ${dir}gcc && autoconf
+        ;;
+    -unpatch)
+        patch $pdir -f --no-backup-if-mismatch -R -p1 < $0
+        #rm ${dir}gcc/configure
+        ;;
+    *)
+        echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
+        exit 1
+esac
+exit 0
+
+# append the patch here and adjust the -p? flag in the patch calls.
+
+From: sam <sam@138bc75d-0d04-0410-961f-82ee72b054a4>
+
+    gcc/ada/
+	PR ada/15808
+	* sem_ch6.adb (Check_Private_Overriding): Check for generic packages
+	as well.
+
+    gcc/testsuite/
+	PR ada/15808
+	* gnat.dg/specs/abstract_private.ads: New.
+
+diff --git a/gcc/ada/sem_ch6.adb b/gcc/ada/sem_ch6.adb
+index a8707d8..8d2982e 100644
+--- a/gcc/ada/sem_ch6.adb
++++ b/gcc/ada/sem_ch6.adb
+@@ -6088,7 +6088,7 @@ package body Sem_Ch6 is
+ 
+          procedure Check_Private_Overriding (T : Entity_Id) is
+          begin
+-            if Ekind (Current_Scope) = E_Package
++            if Is_Package_Or_Generic_Package (Current_Scope)
+               and then In_Private_Part (Current_Scope)
+               and then Visible_Part_Type (T)
+               and then not In_Instance
+diff --git a/gcc/testsuite/gnat.dg/specs/abstract_private.ads b/gcc/testsuite/gnat.dg/specs/abstract_private.ads
+new file mode 100644
+index 0000000..7420a98
+--- /dev/null
++++ b/gcc/testsuite/gnat.dg/specs/abstract_private.ads
+@@ -0,0 +1,17 @@
++generic
++package Abstract_Private is
++
++   type T1 is abstract tagged private;
++   procedure P1 (X : T1) is abstract;
++
++   type T2 is abstract tagged private;
++
++private
++
++   type T1 is abstract tagged null record;
++   procedure P2 (X : T1) is abstract; -- { dg-error "must be visible" }
++
++   type T2 is abstract new T1 with null record;
++   procedure P1 (X : T2) is abstract;
++
++end Abstract_Private;

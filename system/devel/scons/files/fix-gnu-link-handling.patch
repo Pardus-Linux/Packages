@@ -1,0 +1,32 @@
+Index: scons-1.3.0/engine/SCons/Tool/link.py
+===================================================================
+--- scons-1.3.0.orig/engine/SCons/Tool/link.py
++++ scons-1.3.0/engine/SCons/Tool/link.py
+@@ -74,15 +74,15 @@ def generate(env):
+     SCons.Tool.createProgBuilder(env)
+ 
+     env['SHLINK']      = '$LINK'
+-    env['SHLINKFLAGS'] = SCons.Util.CLVar('$LINKFLAGS -shared')
+-    env['SHLINKCOM']   = '$SHLINK -o $TARGET $SHLINKFLAGS $SOURCES $_LIBDIRFLAGS $_LIBFLAGS'
++    env['SHLINKFLAGS'] = SCons.Util.CLVar('-shared')
++    env['SHLINKCOM']   = '$SHLINK $SHLINKFLAGS $LINKFLAGS $SOURCES $_LIBDIRFLAGS $_LIBFLAGS -o $TARGET'
+     # don't set up the emitter, cause AppendUnique will generate a list
+     # starting with None :-(
+     env.Append(SHLIBEMITTER = [shlib_emitter])
+     env['SMARTLINK']   = smart_link
+     env['LINK']        = "$SMARTLINK"
+     env['LINKFLAGS']   = SCons.Util.CLVar('')
+-    env['LINKCOM']     = '$LINK -o $TARGET $LINKFLAGS $SOURCES $_LIBDIRFLAGS $_LIBFLAGS'
++    env['LINKCOM']     = '$LINK $LINKFLAGS $SOURCES $_LIBDIRFLAGS $_LIBFLAGS -o $TARGET'
+     env['LIBDIRPREFIX']='-L'
+     env['LIBDIRSUFFIX']=''
+     env['_LIBFLAGS']='${_stripixes(LIBLINKPREFIX, LIBS, LIBLINKSUFFIX, LIBPREFIXES, LIBSUFFIXES, __env__)}'
+@@ -105,7 +105,7 @@ def generate(env):
+     env['LDMODULEPREFIX'] = '$SHLIBPREFIX' 
+     env['LDMODULESUFFIX'] = '$SHLIBSUFFIX' 
+     env['LDMODULEFLAGS'] = '$SHLINKFLAGS'
+-    env['LDMODULECOM'] = '$LDMODULE -o $TARGET $LDMODULEFLAGS $SOURCES $_LIBDIRFLAGS $_LIBFLAGS'
++    env['LDMODULECOM'] = '$LDMODULE $LDMODULEFLAGS $SOURCES $_LIBDIRFLAGS $_LIBFLAGS -o $TARGET'
+ 
+ 
+ 

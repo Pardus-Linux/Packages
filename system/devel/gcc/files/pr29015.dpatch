@@ -1,0 +1,120 @@
+#! /bin/sh -e
+
+# DP: ada/29015: Do not ICE on incomplete type whose underlying type is known
+
+dir=
+if [ $# -eq 3 -a "$2" = '-d' ]; then
+    pdir="-d $3"
+    dir="$3/"
+elif [ $# -ne 1 ]; then
+    echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
+    exit 1
+fi
+case "$1" in
+    -patch)
+        patch $pdir -f --no-backup-if-mismatch -p1 < $0
+        #cd ${dir}gcc && autoconf
+        ;;
+    -unpatch)
+        patch $pdir -f --no-backup-if-mismatch -R -p1 < $0
+        #rm ${dir}gcc/configure
+        ;;
+    *)
+        echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
+        exit 1
+esac
+exit 0
+
+From: Samuel Tardieu <sam@rfc1149.net>
+
+When an incomplete type is used in an instantiation, GNAT correctly
+rejects it if its use is premature. However, if the Underlying_Type is
+present, GNAT assumes that the use is not premature and tries to use
+the type Full_View unconditionally.
+
+In some cases, the Underlying_Type may be known even if the type is
+incomplete. In the following example, compiling incomplete2.adb will
+analyze incomplete1.ads. In incomplete2.ads, there is only a "limited
+with" on Incomplete1. At G instantiation time, the type Incomplete1.T
+has no Full_View but its Underlying_Type is known.
+
+This patch checks the full view instead of the underlying type, giving
+the following error message:
+
+% gcc -c -gnatv incomplete2.adb
+==============Error messages for source file: incomplete2.ads
+     7.    package I1 is new G (Incomplete1.T);
+                                           |
+        >>> premature use of incomplete type
+        >>> instantiation abandoned
+
+
+instead of a bug box.
+
+    gcc/ada/
+	PR ada/29015
+	* sem_ch12.adb (Instantiate_Type): Check whether the full view of
+	the type is known instead of the underlying type.
+
+    gcc/testsuite/
+	PR ada/29015
+	* gnat.dg/incomplete1.ads, gnat.dg/incomplete2.ads,
+	gnat.dg/incomplete2.adb: New.
+---
+
+ gcc/ada/sem_ch12.adb                  |    2 +-
+ gcc/testsuite/gnat.dg/incomplete1.ads |    3 +++
+ gcc/testsuite/gnat.dg/incomplete2.adb |    4 ++++
+ gcc/testsuite/gnat.dg/incomplete2.ads |    8 ++++++++
+ 4 files changed, 16 insertions(+), 1 deletions(-)
+ create mode 100644 gcc/testsuite/gnat.dg/incomplete1.ads
+ create mode 100644 gcc/testsuite/gnat.dg/incomplete2.adb
+ create mode 100644 gcc/testsuite/gnat.dg/incomplete2.ads
+
+
+diff --git a/gcc/ada/sem_ch12.adb b/gcc/ada/sem_ch12.adb
+index 45fa18b..a50b09f 100644
+--- a/gcc/ada/sem_ch12.adb
++++ b/gcc/ada/sem_ch12.adb
+@@ -9918,7 +9918,7 @@ package body Sem_Ch12 is
+                          Ekind (Root_Type (Act_T)) = E_Incomplete_Type)
+          then
+             if Is_Class_Wide_Type (Act_T)
+-              or else No (Underlying_Type (Act_T))
++              or else No (Full_View (Act_T))
+             then
+                Error_Msg_N ("premature use of incomplete type", Actual);
+                Abandon_Instantiation (Actual);
+diff --git a/gcc/testsuite/gnat.dg/incomplete1.ads b/gcc/testsuite/gnat.dg/incomplete1.ads
+new file mode 100644
+index 0000000..3490033
+--- /dev/null
++++ b/gcc/testsuite/gnat.dg/incomplete1.ads
+@@ -0,0 +1,3 @@
++package Incomplete1 is
++   type T is null record;
++end Incomplete1;
+diff --git a/gcc/testsuite/gnat.dg/incomplete2.adb b/gcc/testsuite/gnat.dg/incomplete2.adb
+new file mode 100644
+index 0000000..19c8360
+--- /dev/null
++++ b/gcc/testsuite/gnat.dg/incomplete2.adb
+@@ -0,0 +1,4 @@
++-- { dg-do compile }
++-- { dg-excess-errors "instantiation abandoned" }
++with Incomplete1;
++package body Incomplete2 is end Incomplete2;
+diff --git a/gcc/testsuite/gnat.dg/incomplete2.ads b/gcc/testsuite/gnat.dg/incomplete2.ads
+new file mode 100644
+index 0000000..21f2d2b
+--- /dev/null
++++ b/gcc/testsuite/gnat.dg/incomplete2.ads
+@@ -0,0 +1,8 @@
++limited with Incomplete1;
++package Incomplete2 is
++   pragma Elaborate_Body;
++   generic
++      type T is private;
++   package G is end G;
++   package I1 is new G (Incomplete1.T); -- { dg-error "premature use" }
++end Incomplete2;

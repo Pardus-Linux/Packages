@@ -1,0 +1,209 @@
+#! /bin/sh -e
+
+# DP: - When running the ACATS, look for the gnat tools in their new
+# DP:   directory (build/gnattools), and for the shared libraries in
+# DP:   build/gcc/ada/rts-shared-zcx, build/libgnatvsn and build/libgnatprj.
+
+dir=
+if [ $# -eq 3 -a "$2" = '-d' ]; then
+    pdir="-d $3"
+    dir="$3/"
+elif [ $# -ne 1 ]; then
+    echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
+    exit 1
+fi
+case "$1" in
+    -patch)
+        patch $pdir -f --no-backup-if-mismatch -p0 < $0
+        ;;
+    -unpatch)
+        patch $pdir -f --no-backup-if-mismatch -R -p0 < $0
+        ;;
+    *)
+        echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
+        exit 1
+esac
+exit 0
+
+Index: gcc/testsuite/ada/acats/run_acats
+===================================================================
+--- gcc/testsuite/ada/acats/run_acats.orig
++++ gcc/testsuite/ada/acats/run_acats
+@@ -5,51 +5,27 @@
+    exit 1
+ fi
+ 
+-# Set up environment to use the Ada compiler from the object tree
+-
+-host_gnatchop=`type gnatchop | awk '{print $3}'`
+-host_gnatmake=`type gnatmake | awk '{print $3}'`
+-ROOT=`${PWDCMD-pwd}`
+-BASE=`cd $ROOT/../../..; ${PWDCMD-pwd}`
++echo '#!/bin/sh' > host_gnatchop
++echo exec /usr/bin/gnatchop '"$@"' >> host_gnatchop
+ 
+-PATH=$BASE:$ROOT:$PATH
+-ADA_INCLUDE_PATH=$BASE/ada/rts
+-LD_LIBRARY_PATH=$ADA_INCLUDE_PATH:$BASE:$LD_LIBRARY_PATH
+-ADA_OBJECTS_PATH=$ADA_INCLUDE_PATH
++chmod +x host_gnatchop
+ 
+-if [ ! -d $ADA_INCLUDE_PATH ]; then
+-   echo gnatlib missing, exiting.
+-   exit 1
+-fi
++echo '#!/bin/sh' > host_gnatmake
++echo exec /usr/bin/gnatmake '"$@"' >> host_gnatmake
+ 
+-if [ ! -f $BASE/gnatchop ]; then
+-   echo gnattools missing, exiting.
+-   exit 1
+-fi
++chmod +x host_gnatmake
+ 
+-if [ ! -f $BASE/gnatmake ]; then
+-   echo gnattools missing, exiting.
+-   exit 1
+-fi
++# Set up environment to use the Ada compiler from the object tree
+ 
++ROOT=`${PWDCMD-pwd}`
++PATH=$ROOT:$PATH
++BASE=`cd $ROOT/../../..; ${PWDCMD-pwd}`
++GNATTOOLS=`cd $BASE/../gnattools; ${PWDCMD-pwd}`
++LIBGNATVSN=`cd $BASE/../libgnatvsn; ${PWDCMD-pwd}`
++LIBGNATPRJ=`cd $BASE/../libgnatprj; ${PWDCMD-pwd}`
+ GCC_DRIVER="$BASE/xgcc"
+ GCC="$BASE/xgcc -B$BASE/"
+ export PATH ADA_INCLUDE_PATH ADA_OBJECTS_PATH GCC_DRIVER GCC LD_LIBRARY_PATH
+-
+-echo '#!/bin/sh' > host_gnatchop
+-echo PATH=`dirname $host_gnatchop`:'$PATH' >> host_gnatchop
+-echo unset ADA_INCLUDE_PATH ADA_OBJECTS_PATH GCC_EXEC_PREFIX >> host_gnatchop
+-echo export PATH >> host_gnatchop
+-echo exec gnatchop '"$@"' >> host_gnatchop
+-
+-chmod +x host_gnatchop
+-
+-echo '#!/bin/sh' > host_gnatmake
+-echo PATH=`dirname $host_gnatmake`:'$PATH' >> host_gnatmake
+-echo unset ADA_INCLUDE_PATH ADA_OBJECTS_PATH GCC_EXEC_PREFIX >> host_gnatmake
+-echo export PATH >> host_gnatmake
+-echo exec gnatmake '"$@"' >> host_gnatmake
+-
+-chmod +x host_gnatmake
++export GNATTOOLS LIBGNATVSN LIBGNATPRJ
+ 
+ exec $testdir/run_all.sh ${1+"$@"}
+Index: gcc/testsuite/ada/acats/run_all.sh
+===================================================================
+--- gcc/testsuite/ada/acats/run_all.sh.orig
++++ gcc/testsuite/ada/acats/run_all.sh
+@@ -12,6 +12,9 @@
+ gccflags="-O2"
+ gnatflags="-gnatws"
+ 
++LD_LIBRARY_PATH=$BASE/ada/rts-shared-zcx:$LIBGNATVSN:$LIBGNATPRJ
++export LD_LIBRARY_PATH
++
+ target_run () {
+ $*
+ }
+@@ -48,15 +51,21 @@
+ fi
+ 
+ target_gnatchop () {
+-  gnatchop --GCC="$GCC_DRIVER" $*
++  display $GNATTOOLS/gnatchop --GCC="$GCC_DRIVER" $*
++  $GNATTOOLS/gnatchop --GCC="$GCC_DRIVER" $*
+ }
+ 
+ target_gnatmake () {
+-  echo gnatmake --GCC=\"$GCC\" $gnatflags $gccflags $* -largs $EXTERNAL_OBJECTS --GCC=\"$GCC\"
+-  gnatmake --GCC="$GCC" $gnatflags $gccflags $* -largs $EXTERNAL_OBJECTS --GCC="$GCC"
++  display $GNATTOOLS/gnatmake \
++      --GCC="$GCC" --GNATBIND="$GNATTOOLS/gnatbind" --GNATLINK="$GNATTOOLS/gnatlink" \
++      $gnatflags $gccflags $* -bargs -static -largs $EXTERNAL_OBJECTS --GCC=\"$GCC\"
++  $GNATTOOLS/gnatmake \
++      --GCC="$GCC" --GNATBIND="$GNATTOOLS/gnatbind" --GNATLINK="$GNATTOOLS/gnatlink" \
++      $gnatflags $gccflags $* -bargs -static -largs $EXTERNAL_OBJECTS --GCC="$GCC"
+ }
+ 
+ target_gcc () {
++  display $GCC $gccflags $*
+   $GCC $gccflags $*
+ }
+ 
+@@ -84,8 +93,8 @@
+ display `$GCC -v 2>&1`
+ display host=`gcc -dumpmachine`
+ display target=$target
+-display `type gnatmake`
+-gnatls -v >> $dir/acats.log
++display `type $GNATTOOLS/gnatmake`
++$GNATTOOLS/gnatls -v >> $dir/acats.log
+ display ""
+ 
+ display "		=== acats support ==="
+Index: gcc/testsuite/lib/gnat.exp
+===================================================================
+--- gcc/testsuite/lib/gnat.exp.orig
++++ gcc/testsuite/lib/gnat.exp
+@@ -87,13 +87,7 @@
+ 
+     if { $gnat_initialized == 1 } { return }
+ 
+-    if ![info exists GNAT_UNDER_TEST] then {
+-	if [info exists TOOL_EXECUTABLE] {
+-	    set GNAT_UNDER_TEST $TOOL_EXECUTABLE
+-	} else {
+-	    set GNAT_UNDER_TEST [find_gnatmake]
+-	}
+-    }
++    set GNAT_UNDER_TEST "$rootme/../gnattools/gnatmake -I$rootme/ada/rts-shared-zcx --GCC=$rootme/xgcc --GNATBIND=$rootme/../gnattools/gnatbind --GNATLINK=$rootme/../gnattools/gnatlink -cargs -B$rootme -largs --GCC=$rootme/xgcc -B$rootme -margs"
+ 
+     if ![info exists tmpdir] then {
+ 	set tmpdir /tmp
+@@ -127,8 +121,8 @@
+     global ld_library_path
+     global gnat_libgcc_s_path
+ 
+-    setenv ADA_INCLUDE_PATH "${rootme}/ada/rts"
+-    set ld_library_path ".:${gnat_libgcc_s_path}"
++    setenv ADA_INCLUDE_PATH "${rootme}/ada/rts-shared-zcx"
++    set ld_library_path ".:${gnat_libgcc_s_path}:${rootme}/ada/rts-shared-zcx:${rootme}/libgnatvsn:${rootme}/libgnatprj"
+     lappend options "compiler=$GNAT_UNDER_TEST -q -f"
+     lappend options "incdir=${rootme}/ada/rts"
+ 
+@@ -230,31 +224,6 @@
+     return $text
+ }
+ 
+-# If this is an older version of DejaGnu (without find_gnatmake), provide one.
+-# This can be deleted after next DejaGnu release.
+-
+-if { [info procs find_gnatmake] == "" } {
+-    proc find_gnatmake {} {
+-	global tool_root_dir
+-
+-	if ![is_remote host] {
+-	    set file [lookfor_file $tool_root_dir gnatmake]
+-	    if { $file == "" } {
+-		set file [lookfor_file $tool_root_dir gcc/gnatmake]
+-	    }
+-	    if { $file != "" } {
+-		set root [file dirname $file]
+-		set CC "$file -I$root/ada/rts --GCC=$root/xgcc --GNATBIND=$root/gnatbind --GNATLINK=$root/gnatlink -cargs -B$root -largs --GCC=$root/xgcc -B$root -margs";
+-	    } else {
+-		set CC [transform gnatmake]
+-	    }
+-	} else {
+-	    set CC [transform gnatmake]
+-	}
+-	return $CC
+-    }
+-}
+-
+ # If this is an older version of DejaGnu (without runtest_file_p),
+ # provide one and assume the old syntax: foo1.exp bar1.c foo2.exp bar2.c.
+ # This can be deleted after next DejaGnu release.

@@ -1,0 +1,167 @@
+#! /bin/sh -e
+
+# All lines beginning with `# DPATCH:' are a description of the patch.
+# DP: PR ada/16086: Legal program rejected, procedure of protected object should be visible
+
+dir=
+if [ $# -eq 3 -a "$2" = '-d' ]; then
+    pdir="-d $3"
+    dir="$3/"
+elif [ $# -ne 1 ]; then
+    echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
+    exit 1
+fi
+case "$1" in
+    -patch)
+        patch $pdir -f --no-backup-if-mismatch -p1 < $0
+        #cd ${dir}gcc && autoconf
+        ;;
+    -unpatch)
+        patch $pdir -f --no-backup-if-mismatch -R -p1 < $0
+        #rm ${dir}gcc/configure
+        ;;
+    *)
+        echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
+        exit 1
+esac
+exit 0
+
+# append the patch here and adjust the -p? flag in the patch calls.
+
+2008-04-15  Ed Schonberg  <schonberg@adacore.com>
+
+From: sam <sam@138bc75d-0d04-0410-961f-82ee72b054a4>
+
+gcc/ada/
+	PR ada/16086
+	* sem_ch12.adb (Analyze_Formal_Subprogram): The default can be any
+	protected operation that matches the signature, not only an entry, a
+	regular subprogram or a literal.
+
+2008-04-15  Samuel Tardieu  <sam@rfc1149.net>
+
+    gcc/testsuite/
+	PR ada/16086
+	* gnat.dg/prot_def.adb: New.
+
+
+git-svn-id: svn+ssh://gcc.gnu.org/svn/gcc/trunk@134312 138bc75d-0d04-0410-961f-82ee72b054a4
+---
+
+ gcc/ada/sem_ch12.adb               |   32 ++++++++++++++++----------
+ gcc/testsuite/gnat.dg/prot_def.adb |   44 ++++++++++++++++++++++++++++++++++++
+ 2 files changed, 63 insertions(+), 13 deletions(-)
+ create mode 100644 gcc/testsuite/gnat.dg/prot_def.adb
+
+diff --git a/gcc/ada/sem_ch12.adb b/gcc/ada/sem_ch12.adb
+index a50b09f..c078c2e 100644
+--- a/gcc/ada/sem_ch12.adb
++++ b/gcc/ada/sem_ch12.adb
+@@ -2364,31 +2364,34 @@ package body Sem_Ch12 is
+ 
+          --  Default name may be overloaded, in which case the interpretation
+          --  with the correct profile must be  selected, as for a renaming.
++         --  If the definition is an indexed component, it must denote a
++         --  member of an entry family. If it is a selected component, it
++         --  can be a protected operation.
+ 
+          if Etype (Def) = Any_Type then
+             return;
+ 
+          elsif Nkind (Def) = N_Selected_Component then
+-            Subp := Entity (Selector_Name (Def));
+-
+-            if Ekind (Subp) /= E_Entry then
++            if not Is_Overloadable (Entity (Selector_Name (Def))) then
+                Error_Msg_N ("expect valid subprogram name as default", Def);
+-               return;
+             end if;
+ 
+          elsif Nkind (Def) = N_Indexed_Component then
++            if Is_Entity_Name (Prefix (Def)) then
++               if Ekind (Entity (Prefix (Def))) /= E_Entry_Family then
++                  Error_Msg_N ("expect valid subprogram name as default", Def);
++               end if;
+ 
+-            if  Nkind (Prefix (Def)) /= N_Selected_Component then
+-               Error_Msg_N ("expect valid subprogram name as default", Def);
+-               return;
+-
+-            else
+-               Subp := Entity (Selector_Name (Prefix (Def)));
+-
+-               if Ekind (Subp) /= E_Entry_Family then
++            elsif Nkind (Prefix (Def)) = N_Selected_Component then
++               if Ekind (Entity (Selector_Name (Prefix (Def))))
++                 /= E_Entry_Family
++               then
+                   Error_Msg_N ("expect valid subprogram name as default", Def);
+-                  return;
+                end if;
++
++            else
++               Error_Msg_N ("expect valid subprogram name as default", Def);
++               return;
+             end if;
+ 
+          elsif Nkind (Def) = N_Character_Literal then
+@@ -2414,6 +2417,9 @@ package body Sem_Ch12 is
+             end if;
+ 
+          else
++
++            --  Several interpretations. Disambiguate as for a renaming.
++
+             declare
+                I   : Interp_Index;
+                I1  : Interp_Index := 0;
+diff --git a/gcc/testsuite/gnat.dg/prot_def.adb b/gcc/testsuite/gnat.dg/prot_def.adb
+new file mode 100644
+index 0000000..d56195e
+--- /dev/null
++++ b/gcc/testsuite/gnat.dg/prot_def.adb
+@@ -0,0 +1,44 @@
++-- { dg-do run }
++procedure Prot_Def is
++
++   protected Prot is
++      procedure Inc;
++      function Get return Integer;
++   private
++      Data : Integer := 0;
++   end Prot;
++
++   protected body Prot is
++      procedure Inc is
++      begin
++         Data := Data + 1;
++      end Inc;
++      function Get return Integer is
++      begin
++         return Data;
++      end Get;
++   end Prot;
++
++   generic
++      with procedure Inc is Prot.Inc;
++      with function Get return Integer is Prot.Get;
++   package Gen is
++      function Add2_Get return Integer;
++   end Gen;
++
++   package body Gen is
++      function Add2_Get return Integer is
++      begin
++         Inc;
++	 Inc;
++	 return Get;
++      end Add2_Get;
++   end Gen;
++
++   package Inst is new Gen;
++
++begin
++   if Inst.Add2_Get /= 2 then
++      raise Constraint_Error;
++   end if;
++end Prot_Def;

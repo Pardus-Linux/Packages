@@ -1,0 +1,104 @@
+#! /bin/sh -e
+
+# All lines beginning with `# DPATCH:' are a description of the patch.
+# DP: PR ada/30827: GNAT.compiler_version problem for official releases
+
+dir=
+if [ $# -eq 3 -a "$2" = '-d' ]; then
+    pdir="-d $3"
+    dir="$3/"
+elif [ $# -ne 1 ]; then
+    echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
+    exit 1
+fi
+case "$1" in
+    -patch)
+        patch $pdir -f --no-backup-if-mismatch -p1 < $0
+        #cd ${dir}gcc && autoconf
+        ;;
+    -unpatch)
+        patch $pdir -f --no-backup-if-mismatch -R -p1 < $0
+        #rm ${dir}gcc/configure
+        ;;
+    *)
+        echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
+        exit 1
+esac
+exit 0
+
+# append the patch here and adjust the -p? flag in the patch calls.
+
+diff --git a/gcc/ada/bindgen.adb b/gcc/ada/bindgen.adb
+index d344959..36d7f13 100644
+--- a/gcc/ada/bindgen.adb
++++ b/gcc/ada/bindgen.adb
+@@ -2249,17 +2249,19 @@ package body Bindgen is
+                WBI ("   gnat_exit_status : Integer;");
+                WBI ("   pragma Import (C, gnat_exit_status);");
+             end if;
+-
+-            --  Generate the GNAT_Version and Ada_Main_Program_Name info only
+-            --  for the main program. Otherwise, it can lead under some
+-            --  circumstances to a symbol duplication during the link (for
+-            --  instance when a C program uses 2 Ada libraries)
+          end if;
+ 
++         --  Generate the GNAT_Version and Ada_Main_Program_Name info only for
++         --  the main program. Otherwise, it can lead under some circumstances
++         --  to a symbol duplication during the link (for instance when a C
++         --  program uses two Ada libraries). Also zero terminate the string
++         --  so that its end can be found reliably at run time.
++
+          WBI ("");
+          WBI ("   GNAT_Version : constant String :=");
+          WBI ("                    ""GNAT Version: " &
+-                                Gnat_Version_String & """;");
++                                   Gnat_Version_String &
++                                   """ & ASCII.NUL;");
+          WBI ("   pragma Export (C, GNAT_Version, ""__gnat_version"");");
+ 
+          WBI ("");
+diff --git a/gcc/ada/g-comver.adb b/gcc/ada/g-comver.adb
+index 2a0d120..ae3bf3b 100644
+--- a/gcc/ada/g-comver.adb
++++ b/gcc/ada/g-comver.adb
+@@ -53,15 +53,18 @@ package body GNAT.Compiler_Version is
+ 
+    function Version return String is
+    begin
+-      --  Search for terminating right paren
++      --  Search for terminating right paren or NUL ending the string
+ 
+       for J in Ver_Prefix'Length + 1 .. GNAT_Version'Last loop
+          if GNAT_Version (J) = ')' then
+             return GNAT_Version (Ver_Prefix'Length + 1 .. J);
+          end if;
++         if GNAT_Version (J) = Character'Val (0) then
++            return GNAT_Version (Ver_Prefix'Length + 1 .. J - 1);
++         end if;
+       end loop;
+ 
+-      --  This should not happen (no right paren found)
++      --  This should not happen (no right paren or NUL found)
+ 
+       return GNAT_Version;
+    end Version;
+diff --git a/gcc/testsuite/gnat.dg/test_version.adb b/gcc/testsuite/gnat.dg/test_version.adb
+new file mode 100644
+index 0000000..d7fa297
+--- /dev/null
++++ b/gcc/testsuite/gnat.dg/test_version.adb
+@@ -0,0 +1,13 @@
++-- { dg-do run }
++with GNAT.Compiler_Version;
++procedure Test_Version is
++   package Vsn is new GNAT.Compiler_Version;
++   use Vsn;
++   X : constant String := Version;
++begin
++   if X'Length = 46 then
++      -- 46 = Ver_Len_Max + Ver_Prefix
++      -- actual version should be shorter than this
++      raise Program_Error;
++   end if;
++end Test_Version;
