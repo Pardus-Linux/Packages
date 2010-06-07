@@ -1,0 +1,33 @@
+diff -up shadow-4.1.1/src/usermod.c.selinux-user shadow-4.1.1/src/usermod.c
+--- shadow-4.1.1/src/usermod.c.selinux-user	2008-09-09 17:28:45.673915250 +0200
++++ shadow-4.1.1/src/usermod.c	2008-09-09 17:35:39.000000000 +0200
+@@ -116,6 +116,7 @@ static int
+     oflg = 0,			/* permit non-unique user ID to be specified with -u */
+     pflg = 0,			/* new encrypted password */
+     sflg = 0,			/* new shell program */
++    Sflg = 0,			/* new selinux user */
+     uflg = 0,			/* specify new user ID */
+     Uflg = 0;			/* unlock the password */
+ 
+@@ -967,8 +968,10 @@ static void process_flags (int argc, cha
+ 				break;
+ #ifdef WITH_SELINUX
+                          case 'Z':
+-                                if (is_selinux_enabled() > 0)
+-                                        user_selinux = optarg;
++                                if (is_selinux_enabled() > 0) {
++					user_selinux = optarg;
++					Sflg++;
++				}
+                                 else {
+                                         fprintf (stderr, _("%s: -Z requires SELinux enabled kernel\n"), Prog);
+                                         exit (E_BAD_ARG);
+@@ -1015,7 +1018,7 @@ static void process_flags (int argc, cha
+ 	}
+ 
+ 	if (Uflg + uflg + sflg + pflg + oflg + mflg + Lflg + lflg + Gflg +
+-	    gflg + fflg + eflg + dflg + cflg == 0) {
++	    gflg + fflg + eflg + dflg + cflg + Sflg == 0) {
+ 		fprintf (stderr, _("%s: no changes\n"), Prog);
+ 		exit (E_SUCCESS);
+ 	}

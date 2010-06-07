@@ -1,0 +1,163 @@
+Index: util-linux-ng-2.14.1/mount/fstab.c
+===================================================================
+--- util-linux-ng-2.14.1.orig/mount/fstab.c	2008-05-29 01:01:02.000000000 +0200
++++ util-linux-ng-2.14.1/mount/fstab.c	2009-01-07 12:18:03.000000000 +0100
+@@ -773,8 +773,6 @@ update_mtab (const char *dir, struct my_
+ 	if (mtab_does_not_exist() || !mtab_is_writable())
+ 		return;
+ 
+-	lock_mtab();
+-
+ 	/* having locked mtab, read it again */
+ 	mc0 = mc = &mtabhead;
+ 	mc->nxt = mc->prev = NULL;
+@@ -893,7 +891,7 @@ update_mtab (const char *dir, struct my_
+ 	}
+ 
+  leave:
+-	unlock_mtab();
++	;
+ }
+ 
+ 
+Index: util-linux-ng-2.14.1/mount/umount.c
+===================================================================
+--- util-linux-ng-2.14.1.orig/mount/umount.c	2008-07-02 15:08:50.000000000 +0200
++++ util-linux-ng-2.14.1/mount/umount.c	2009-01-07 12:50:48.000000000 +0100
+@@ -102,6 +102,8 @@ check_special_umountprog(const char *spe
+ 	if (strlen(type) < 100) {
+ 		sprintf(umountprog, "/sbin/umount.%s", type);
+ 		if (stat(umountprog, &statbuf) == 0) {
++			/* unlock mtab if we need to exec */
++			unlock_mtab();
+ 			res = fork();
+ 			if (res == 0) {
+ 				char *umountargs[8];
+@@ -383,6 +385,8 @@ umount_all (char *types, char *test_opts
+      struct mntentchn *mc, *hd;
+      int errors = 0;
+ 
++     if (!nomtab && mtab_is_writable())
++	     lock_mtab();
+      hd = mtab_head();
+      if (!hd->prev)
+ 	  die (2, _("umount: cannot find list of filesystems to unmount"));
+@@ -393,6 +397,7 @@ umount_all (char *types, char *test_opts
+ 				     mc->m.mnt_type, mc->m.mnt_opts, mc);
+ 	  }
+      }
++     unlock_mtab();
+ 
+      sync ();
+      return errors;
+@@ -463,6 +468,7 @@ umount_file (char *arg) {
+ 	const char *file, *options;
+ 	int fstab_has_user, fstab_has_users, fstab_has_owner, fstab_has_group;
+ 	int ok;
++	int ret;
+ 
+ 	if (!*arg) {		/* "" would be expanded to `pwd` */
+ 		die(2, _("Cannot umount \"\"\n"));
+@@ -473,6 +479,8 @@ umount_file (char *arg) {
+ 	if (verbose > 1)
+ 		printf(_("Trying to umount %s\n"), file);
+ 
++	if (!nomtab && mtab_is_writable())
++		lock_mtab();
+ 	mc = getmntdirbackward(file, NULL);
+ 	if (!mc)
+ 		mc = getmntdevbackward(file, NULL);
+@@ -572,9 +580,12 @@ umount_file (char *arg) {
+ 	}
+ 
+ 	if (mc)
+-		return umount_one_bw (file, mc);
++		ret = umount_one_bw (file, mc);
+ 	else
+-		return umount_one (arg, arg, arg, arg, NULL);
++		ret = umount_one (arg, arg, arg, arg, NULL);
++
++	unlock_mtab();
++	return ret;
+ }
+ 
+ int
+Index: util-linux-ng-2.14.1/mount/mount.c
+===================================================================
+--- util-linux-ng-2.14.1.orig/mount/mount.c	2009-01-07 12:18:03.000000000 +0100
++++ util-linux-ng-2.14.1/mount/mount.c	2009-01-07 14:40:16.000000000 +0100
+@@ -521,8 +521,6 @@ create_mtab (void) {
+ 	int flags;
+ 	mntFILE *mfp;
+ 
+-	lock_mtab();
+-
+ 	mfp = my_setmntent (_PATH_MOUNTED, "a+");
+ 	if (mfp == NULL || mfp->mntent_fp == NULL) {
+ 		int errsv = errno;
+@@ -556,8 +554,6 @@ create_mtab (void) {
+ 		}
+ 	my_endmntent (mfp);
+ 
+-	unlock_mtab();
+-
+ 	reset_mtab_info();
+ }
+ 
+@@ -626,6 +622,8 @@ check_special_mountprog(const char *spec
+   if (strlen(type) < 100) {
+        sprintf(mountprog, "/sbin/mount.%s", type);
+        if (stat(mountprog, &statbuf) == 0) {
++	    /* unlock mtab if we need to exec */
++	    unlock_mtab();
+ 	    if (verbose)
+ 		 fflush(stdout);
+ 	    res = fork();
+@@ -1004,7 +1002,6 @@ update_mtab_entry(const char *spec, cons
+ 		else {
+ 			mntFILE *mfp;
+ 
+-			lock_mtab();
+ 			mfp = my_setmntent(_PATH_MOUNTED, "a+");
+ 			if (mfp == NULL || mfp->mntent_fp == NULL) {
+ 				int errsv = errno;
+@@ -1018,7 +1015,6 @@ update_mtab_entry(const char *spec, cons
+ 				}
+ 			}
+ 			my_endmntent(mfp);
+-			unlock_mtab();
+ 		}
+ 	}
+ 	my_free(mnt.mnt_fsname);
+@@ -1138,12 +1134,15 @@ try_mount_one (const char *spec0, const
+ 
+ mount_retry:
+   block_signals (SIG_BLOCK);
++  if (!nomtab && mtab_is_writable())
++	  lock_mtab();
+ 
+   if (!fake) {
+     mnt5_res = guess_fstype_and_mount (spec, node, &types, flags & ~MS_NOSYS,
+ 				       mount_opts, &special, &status);
+ 
+     if (special) {
++      unlock_mtab();
+       block_signals (SIG_UNBLOCK);
+       res = status;
+       goto out;
+@@ -1163,6 +1162,7 @@ mount_retry:
+ 			pass);
+       }
+ 
++      unlock_mtab();
+       block_signals (SIG_UNBLOCK);
+       res = 0;
+       goto out;
+@@ -1173,6 +1173,7 @@ mount_retry:
+   if (loop)
+ 	del_loop(spec);
+ 
++  unlock_mtab();
+   block_signals (SIG_UNBLOCK);
+ 
+   /* Mount failed, complain, but don't die.  */

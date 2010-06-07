@@ -1,0 +1,70 @@
+diff -Nur grub-0.96-old/stage2/boot.c grub-0.96/stage2/boot.c
+--- grub-0.96-old/stage2/boot.c	2006-03-12 23:07:19.000000000 +0200
++++ grub-0.96/stage2/boot.c	2006-03-12 23:07:59.000000000 +0200
+@@ -280,8 +280,8 @@
+ 	errnum = ERR_WONT_FIT;
+       else
+ 	{
+-	  grub_printf ("   [Linux-%s, setup=0x%x, size=0x%x]\n",
+-		       (big_linux ? "bzImage" : "zImage"), data_len, text_len);
++	  // grub_printf ("   [Linux-%s, setup=0x%x, size=0x%x]\n",
++	  //       (big_linux ? "bzImage" : "zImage"), data_len, text_len);
+ 
+ 	  /* Video mode selection support. What a mess!  */
+ 	  /* NOTE: Even the word "mess" is not still enough to
+@@ -836,7 +836,7 @@
+   moveto -= 0x10000;
+   memmove ((void *) RAW_ADDR (moveto), (void *) cur_addr, len);
+ 
+-  printf ("   [Linux-initrd @ 0x%x, 0x%x bytes]\n", moveto, len);
++  // printf ("   [Linux-initrd @ 0x%x, 0x%x bytes]\n", moveto, len);
+ 
+   /* FIXME: Should check if the kernel supports INITRD.  */
+   lh->ramdisk_image = RAW_ADDR (moveto);
+diff -Nur grub-0.96-old/stage2/builtins.c grub-0.96/stage2/builtins.c
+--- grub-0.96-old/stage2/builtins.c	2006-03-12 23:07:19.000000000 +0200
++++ grub-0.96/stage2/builtins.c	2006-03-12 23:07:59.000000000 +0200
+@@ -3350,7 +3350,7 @@
+ 	return 1;
+       
+       /* Print the type of the filesystem.  */
+-      print_fsys_type ();
++      // print_fsys_type ();
+     }
+   
+   return 0;
+diff -Nur grub-0.96-old/stage2/cmdline.c grub-0.96/stage2/cmdline.c
+--- grub-0.96-old/stage2/cmdline.c	2006-03-12 23:07:19.000000000 +0200
++++ grub-0.96/stage2/cmdline.c	2006-03-12 23:07:59.000000000 +0200
+@@ -232,12 +232,12 @@
+       builtin = find_command (heap);
+       if (! builtin)
+ 	{
+-	  grub_printf ("%s\n", old_entry);
++	  // grub_printf ("%s\n", old_entry);
+ 	  continue;
+ 	}
+ 
+       if (! (builtin->flags & BUILTIN_NO_ECHO))
+-	grub_printf ("%s\n", old_entry);
++	//grub_printf ("%s\n", old_entry);
+ 
+       /* If BUILTIN cannot be run in the command-line, skip it.  */
+       if (! (builtin->flags & BUILTIN_CMDLINE))
+diff -Nur grub-0.96-old/stage2/stage2.c grub-0.96/stage2/stage2.c
+--- grub-0.96-old/stage2/stage2.c	2006-03-12 23:07:19.000000000 +0200
++++ grub-0.96/stage2/stage2.c	2006-03-12 23:09:48.000000000 +0200
+@@ -708,11 +708,13 @@
+   
+   while (1)
+     {
++    /* I know what I selected
+       if (config_entries)
+ 	printf ("  Booting \'%s\'\n\n",
+ 		get_entry (menu_entries, first_entry + entryno, 0));
+       else
+ 	printf ("  Booting command-list\n\n");
++    */
+ 
+       if (! cur_entry)
+ 	cur_entry = get_entry (config_entries, first_entry + entryno, 1);

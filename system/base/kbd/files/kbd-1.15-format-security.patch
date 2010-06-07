@@ -1,0 +1,51 @@
+diff -p -up kbd-1.15/src/ksyms.c.orig kbd-1.15/src/ksyms.c
+--- kbd-1.15/src/ksyms.c.orig	2009-02-10 08:00:13.000000000 -0500
++++ kbd-1.15/src/ksyms.c	2009-02-10 08:06:52.000000000 -0500
+@@ -1662,7 +1662,7 @@ list_charsets(FILE *f) {
+ 			if(!strncmp(charsets[i].charset, mm[j], lth)) {
+ 				if(ct++)
+ 					fprintf(f, ",");
+-				fprintf(f, charsets[i].charset+lth);
++				fprintf(f, "%s", charsets[i].charset+lth);
+ 			}
+ 		}
+ 		fprintf(f, "}");
+diff -p -up kbd-1.15/src/setfont.c.orig kbd-1.15/src/setfont.c
+--- kbd-1.15/src/setfont.c.orig	2009-02-10 08:08:50.000000000 -0500
++++ kbd-1.15/src/setfont.c	2009-02-10 08:18:57.000000000 -0500
+@@ -725,7 +725,7 @@ saveoldfontplusunicodemap(int fd, char *
+ static void
+ send_escseq(int fd, char *seq, int n) {
+ 	if (write(fd, seq, n) != n)  /* maybe fd is read-only */
+-		printf(seq);
++		printf("%s", seq);
+ }
+ 
+ void
+diff -p -up kbd-1.15/src/setmetamode.c.orig kbd-1.15/src/setmetamode.c
+--- kbd-1.15/src/setmetamode.c.orig	2009-02-10 08:20:56.000000000 -0500
++++ kbd-1.15/src/setmetamode.c	2009-02-10 08:21:33.000000000 -0500
+@@ -41,7 +41,7 @@ report(int meta) {
+       default:
+ 	s = _("Strange mode for Meta key?\n");
+     }
+-    printf(s);
++    printf("%s", s);
+ }
+ 
+ struct meta {
+diff -p -up kbd-1.15/src/showconsolefont.c.orig kbd-1.15/src/showconsolefont.c
+--- kbd-1.15/src/showconsolefont.c.orig	2009-02-10 08:19:19.000000000 -0500
++++ kbd-1.15/src/showconsolefont.c	2009-02-10 08:20:41.000000000 -0500
+@@ -188,9 +188,9 @@ main (int argc, char **argv) {
+ 		printf("    ");
+ 		for(j=0; j < cols && i+j*rows < n; j++) {
+ 			putchar(BASE + (i%nr)*cols+j);
+-			printf(sep);
++			printf("%s", sep);
+ 			if (j%8 == 7)
+-				printf(sep);
++				printf("%s", sep);
+ 		}
+ 		putchar('\n');
+ 		if (i%8 == 7)

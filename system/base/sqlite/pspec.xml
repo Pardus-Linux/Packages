@@ -1,0 +1,257 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>sqlite</Name>
+        <Homepage>http://www.sqlite.org/</Homepage>
+        <Packager>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Packager>
+        <License>as-is</License>
+        <IsA>library</IsA>
+        <Summary>An SQL Database Engine in a C Library</Summary>
+        <Description>SQLite is a small C library that implements a self-contained, embeddable, zero-configuration SQL database engine. Supports databases up to 2 terabytes in size.</Description>
+        <Archive sha1sum="0f4a1390f6405b8f00ecc3694c99ba4e87b40308" type="targz">http://www.sqlite.org/sqlite-amalgamation-3.6.23.1.tar.gz</Archive>
+    </Source>
+
+    <Package>
+        <Name>sqlite</Name>
+        <Files>
+            <Path fileType="executable">/usr/bin</Path>
+            <Path fileType="header">/usr/include</Path>
+            <Path fileType="library">/usr/lib</Path>
+            <Path fileType="data">/usr/lib/pkgconfig</Path>
+            <Path fileType="doc">/usr/share/doc</Path>
+            <Path fileType="man">/usr/share/man</Path>
+        </Files>
+    </Package>
+
+    <History>
+        <Update release="24">
+            <Date>2010-04-15</Date>
+            <Version>3.6.23.1</Version>
+            <Comment>
+                Version bump to 3.6.23.1
+                Force readline usage to make it is detected correctly
+                Force NDEBUG and O3 flags
+            </Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="23">
+            <Date>2010-04-15</Date>
+            <Version>3.6.22</Version>
+            <Comment>
+                sqlite should be compiled with thread safety option for subversion compatibility.
+                one needs --pre-1.6-compatible parameter to create new svn workspace in current situation. (svnadmin create)
+                added --enable-threadsafe to configure options, i guess threadsafety option was forgotten in commit #66289
+            </Comment>
+            <Name>İşbaran Akçayır</Name>
+            <Email>isbaran@comu.edu.tr</Email>
+        </Update>
+        <Update release="22">
+            <Date>2010-04-13</Date>
+            <Version>3.6.22</Version>
+            <Comment>
+                - Fix a problem with queries that have a WHERE clause of the form (x AND y)
+                  OR z where x and z come from one table of a join and y comes from a different table,
+                - Fix a problem where the use of the CAST operator in the WHERE clause can lead to incorrect results,
+                - A 12% reduction in the number of CPU operations (as measured by valgrind).
+            </Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="21" type="security">
+            <Date>2010-01-25</Date>
+            <Version>3.6.20</Version>
+            <Comment>
+                * Add SQLITE_SECURE_DELETE compile-time option.
+                Even if the data is deleted with sqlite query, the traces of the deleted data still remains in the file but cannot be seen with sqlite query. However, it can be seen by opening the file with a text editor. SQLITE_SECURE_DELETE overwrites written data with zeros. #12137
+
+                http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=566326
+            </Comment>
+            <Name>Eren Türkay</Name>
+            <Email>eren@pardus.org.tr</Email>
+        </Update>
+        <Update release="20">
+            <Date>2009-11-10</Date>
+            <Version>3.6.20</Version>
+            <Comment>
+              * Optimizer enhancement: prepared statements are automatically re-compiled when a
+                binding on the RHS of a LIKE operator changes or when any range constraint changes
+                under SQLITE_ENABLE_STAT2.
+              * Various minor bug fixes and documentation enhancements.
+            </Comment>
+            <Name>Faik Uygur</Name>
+            <Email>faik@pardus.org.tr</Email>
+        </Update>
+        <Update release="19">
+            <Date>2009-10-30</Date>
+            <Version>3.6.19</Version>
+            <Comment>
+                * Version bump to latest stable version, at least 3.6.16 is needed by Firefox 3.5.4:
+                * Added support for foreign key constraints. Foreign key constraints are
+                  disabled by default. Use the foreign_keys pragma to turn them on.
+                * Generalized the IS and IS NOT operators to take arbitrary expressions
+                  on their right-hand side.
+                * The TCL Interface has been enhanced to use the Non-Recursive Engine (NRE) interface
+                  to the TCL interpreter when linked against TCL 8.6 or later.
+                * Fix a bug introduced in 3.6.18 that can lead to a segfault when an attempt is made
+                  to write on a read-only database.
+                * Versioning of the SQLite source code has transitioned from CVS to Fossil.
+                * Query planner enhancements.
+                * The SQLITE_ENABLE_STAT2 compile-time option causes the ANALYZE command to collect a
+                  small histogram of each index, to help SQLite better select among competing range
+                  query indices.
+                * Recursive triggers can be enabled using the PRAGMA recursive_triggers statement.
+                * Delete triggers fire when rows are removed due to a REPLACE conflict resolution.
+                  This feature is only enabled when recursive triggers are enabled.
+                * Added the SQLITE_OPEN_SHAREDCACHE and SQLITE_OPEN_PRIVATECACHE flags for sqlite3_open_v2()
+                  used to override the global shared cache mode settings for individual database connections.
+                * Added improved version identification features: C-Preprocessor macro SQLITE_SOURCE_ID, C/C++
+                  interface sqlite3_sourceid(), and SQL function sqlite_source_id().
+                * Obscure bug fix on triggers ([efc02f9779]).
+                * Expose the sqlite3_strnicmp() interface for use by extensions and applications.
+                * Remove the restriction on virtual tables and shared cache mode. Virtual tables and
+                  shared cache can now be used at the same time.
+                * Many code simplifications and obscure bug fixes in support of providing 100% branch test
+                  coverage.
+                * Fix a bug (ticket #3929) that occasionally causes INSERT or UPDATE operations to fail on
+                  an indexed table that has a self-modifying trigger.
+                * Other minor bug fixes and performance optimizations.
+            </Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="18">
+            <Date>2009-06-16</Date>
+            <Version>3.6.15</Version>
+            <Comment>Version bump to latest stable version</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="17">
+            <Date>2009-05-04</Date>
+            <Version>3.6.13</Version>
+            <Comment>Version bump to latest stable version</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="16">
+            <Date>2009-01-27</Date>
+            <Version>3.5.9</Version>
+            <Comment>
+                - Improve NaN testing to work with divisions on highly optimized x86 code. This
+                fixes empty results when doing e.g. "select 30.3/22" (LP: #254228).
+            </Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="15">
+            <Date>2008-07-15</Date>
+            <Version>3.5.9</Version>
+            <Comment>Stable update</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="14">
+            <Date>2007-12-18</Date>
+            <Version>3.5.4</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="13">
+            <Date>2007-12-06</Date>
+            <Version>3.5.3</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="12">
+            <Date>2007-11-07</Date>
+            <Version>3.5.2</Version>
+            <Comment>Version bump</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="11">
+            <Date>2007-08-17</Date>
+            <Version>3.4.2</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="10">
+            <Date>2007-07-23</Date>
+            <Version>3.4.1</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="9">
+            <Date>2007-06-21</Date>
+            <Version>3.4.0</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="8">
+            <Date>2007-05-07</Date>
+            <Version>3.3.17</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="7">
+            <Date>2007-04-22</Date>
+            <Version>3.3.16</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="6">
+            <Date>2007-02-21</Date>
+            <Version>3.3.13</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="5">
+            <Date>2007-02-01</Date>
+            <Version>3.3.12</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="4">
+            <Date>2007-01-11</Date>
+            <Version>3.3.10</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="3">
+            <Date>2006-10-24</Date>
+            <Version>3.3.8</Version>
+            <Comment>Version bump</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="2">
+            <Date>2006-04-07</Date>
+            <Version>3.3.5</Version>
+            <Comment>Version bump</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="1">
+            <Date>2005-11-11</Date>
+            <Version>3.2.7</Version>
+            <Comment>First release.</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+    </History>
+</PISI>

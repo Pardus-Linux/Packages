@@ -1,0 +1,23 @@
+#!/bin/sh /usr/share/dpatch/dpatch-run
+
+@DPATCH@
+
+diff -Naurp ncurses-5.6+20071103.orig/ncurses/tinfo/write_entry.c ncurses-5.6+20071103/ncurses/tinfo/write_entry.c
+--- ncurses-5.6+20071103.orig/ncurses/tinfo/write_entry.c	2007-09-10 12:37:45.000000000 +0000
++++ ncurses-5.6+20071103/ncurses/tinfo/write_entry.c	2007-11-04 14:30:04.000000000 +0000
+@@ -411,8 +411,13 @@ _nc_write_entry(TERMTYPE *const tp)
+ 	{
+ 	    int code;
+ #if USE_SYMLINKS
+-	    strcpy(symlinkname, "../");
+-	    strncat(symlinkname, filename, sizeof(symlinkname) - 4);
++	    if (first_name[0] == linkname[0])
++	      strncpy (symlinkname, first_name, sizeof (symlinkname) - 1);
++	    else
++	      {
++		strcpy(symlinkname, "../");
++		strncat(symlinkname, filename, sizeof(symlinkname) - 4);
++	      }
+ 	    symlinkname[sizeof(symlinkname) - 1] = '\0';
+ #endif /* USE_SYMLINKS */
+ #if HAVE_REMOVE

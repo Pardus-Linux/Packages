@@ -1,0 +1,871 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>mudur</Name>
+        <Homepage>http://www.pardus.org.tr/</Homepage>
+        <Packager>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Packager>
+        <License>GPLv2</License>
+        <IsA>app:console</IsA>
+        <Summary>Pardus boot and initialization system</Summary>
+        <Description>mudur handles mounting of the filesystems, loading of the device drivers, starting of the system services, and other jobs during the Pardus boot and shutdown sequences.</Description>
+        <Archive sha1sum="ee69f8b3512d7f526d81802170a7c942aba2e694" type="tarbz2">http://cekirdek.pardus.org.tr/~ozan/dist/sources/mudur-3.1.5.tar.bz2</Archive>
+        <Patches>
+            <Patch>network-errors.patch</Patch>
+        </Patches>
+    </Source>
+
+    <Package>
+        <Name>mudur</Name>
+        <RuntimeDependencies>
+            <Dependency>kbd</Dependency>
+            <Dependency>bash</Dependency>
+            <Dependency>udev</Dependency>
+            <Dependency>dbus</Dependency>
+            <Dependency>comar</Dependency>
+            <Dependency>python</Dependency>
+            <Dependency>procps</Dependency>
+            <Dependency>sysvinit</Dependency>
+            <Dependency>coreutils</Dependency>
+            <Dependency>net-tools</Dependency>
+            <Dependency>e2fsprogs</Dependency>
+            <Dependency>util-linux</Dependency>
+            <Dependency>baselayout</Dependency>
+            <Dependency>pardus-python</Dependency>
+            <Dependency>wireless-tools</Dependency>
+            <Dependency>module-init-tools</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="config">/etc/conf.d</Path>
+            <Path fileType="config">/etc/network</Path>
+            <Path fileType="data">/etc/mudur/services</Path>
+            <Path fileType="executable">/etc/init.d</Path>
+            <Path fileType="executable">/sbin</Path>
+            <Path fileType="executable">/bin</Path>
+            <Path fileType="localedata">/usr/share/locale</Path>
+        </Files>
+        <AdditionalFiles>
+            <AdditionalFile owner="root" permission="0755" target="/sbin/adduser">adduser.py</AdditionalFile>
+            <AdditionalFile owner="root" permission="0755" target="/sbin/deluser">deluser.py</AdditionalFile>
+        </AdditionalFiles>
+        <Provides>
+            <COMAR script="pakhandler.py">System.PackageHandler</COMAR>
+            <COMAR script="package.py">System.Package</COMAR>
+            <COMAR script="disk.py">Disk.Manager</COMAR>
+            <COMAR script="system.py">System.Settings</COMAR>
+        </Provides>
+    </Package>
+
+    <History>
+        <Update release="110">
+            <Date>2010-06-02</Date>
+            <Version>3.1.5</Version>
+            <Comment>Fixed network code not trying to bring up other interfaces, if first one fails.</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="109">
+            <Date>2010-05-13</Date>
+            <Version>3.1.5</Version>
+            <Comment>Version bump</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="108">
+            <Date>2010-03-31</Date>
+            <Version>3.1.4</Version>
+            <Comment>Drop hdparm dependency</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="107">
+            <Date>2010-02-01</Date>
+            <Version>3.1.4</Version>
+            <Comment>Version bump</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="106">
+            <Date>2010-01-22</Date>
+            <Version>3.1.3</Version>
+            <Comment>Version bump</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="105">
+            <Date>2010-01-14</Date>
+            <Version>3.1.1</Version>
+            <Comment>Added scripts for adding and removing users.</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="104">
+            <Date>2010-01-06</Date>
+            <Version>3.1.1</Version>
+            <Comment>Add new live system changes</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="103">
+            <Date>2009-12-11</Date>
+            <Version>3.1.1</Version>
+            <Comment>Don't remove livemedia file in /var/run</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="102">
+            <Date>2009-11-09</Date>
+            <Version>3.1.1</Version>
+            <Comment>
+                - Added missing runtime dependencies,
+                - Version bump,
+                - Fix /etc/mtab~ stale lock files,
+                - Fix a possible NoneType reference,
+                - Don't bork if /etc/fstab doesn't have an entry for /,
+                - Suggest an fsck through gfxmenu if rootfs can't be mounted as rw,
+                - Refactor the code.
+            </Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="101">
+            <Date>2009-10-31</Date>
+            <Version>3.0.6</Version>
+            <Comment>Revert back to 3.0.6 as it seems we have some problems during separate /home mount.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="100">
+            <Date>2009-10-22</Date>
+            <Version>3.1.0</Version>
+            <Comment>
+                - Added missing runtime dependencies,
+                - Version bump,
+                - Fix /etc/mtab~ stale lock files,
+                - Don't bork if /etc/fstab doesn't have an entry for /,
+                - Suggest an fsck through gfxmenu if rootfs can't be mounted as rw,
+                - Refactor the code.
+            </Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="99">
+            <Date>2009-10-20</Date>
+            <Version>3.0.6</Version>
+            <Comment>
+                - Add refreshPartitionTable method to disk.py. Written by Renan Cakirerk,
+                - Add missing runtime dependencies.
+            </Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="98">
+            <Date>2009-07-16</Date>
+            <Version>3.0.6</Version>
+            <Comment>Remove a debug message.</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="97">
+            <Date>2009-07-03</Date>
+            <Version>3.0.6</Version>
+            <Comment>Added translations to COMAR script(s).</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="96">
+            <Date>2009-07-02</Date>
+            <Version>3.0.6</Version>
+            <Comment>New release.</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="95">
+            <Date>2009-06-30</Date>
+            <Version>3.0.5</Version>
+            <Comment>New release, fixes service command not starting services on boot.</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="94">
+            <Date>2009-06-29</Date>
+            <Version>3.0.4</Version>
+            <Comment>New release, fixes to network code.</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="93">
+            <Date>2009-06-19</Date>
+            <Version>3.0.3</Version>
+            <Comment>Disk.Manager: (u)mount raises exception</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="92">
+            <Date>2009-06-19</Date>
+            <Version>3.0.3</Version>
+            <Comment>System.Settings: System keymap is not language dependent.</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="91">
+            <Date>2009-06-19</Date>
+            <Version>3.0.3</Version>
+            <Comment>System.Settings backend for editing mudur configuration.</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="90">
+            <Date>2009-06-05</Date>
+            <Version>3.0.3</Version>
+            <Comment>Disk.Manager won't umount root partition.</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="89">
+            <Date>2009-06-04</Date>
+            <Version>3.0.3</Version>
+            <Comment>Fixed Disk.Manager not mounting devices all the time.</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="88">
+            <Date>2009-06-04</Date>
+            <Version>3.0.3</Version>
+            <Comment>Fixed mount path change problems in Disk.Manager</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="87">
+            <Date>2009-06-04</Date>
+            <Version>3.0.3</Version>
+            <Comment>Remove extended partitions from Disk.Manager.getDeviceParts() output</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="86">
+            <Date>2009-05-25</Date>
+            <Version>3.0.3</Version>
+            <Comment>Version bump, update translations, add colorized output to network.py.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="85">
+            <Date>2009-05-20</Date>
+            <Version>3.0.2</Version>
+            <Comment>Fix network code trying to bring unplugged device up.</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="84">
+            <Date>2009-05-20</Date>
+            <Version>3.0.2</Version>
+            <Comment>New release</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="83">
+            <Date>2009-05-15</Date>
+            <Version>3.0.1</Version>
+            <Comment>Updated network patch</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="82">
+            <Date>2009-05-09</Date>
+            <Version>3.0.1</Version>
+            <Comment>Fixed a race condition in network code.</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="81">
+            <Date>2009-05-05</Date>
+            <Version>3.0.1</Version>
+            <Comment>Fixed postInstall method not converting address mode attribute.</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="80">
+            <Date>2009-05-04</Date>
+            <Version>3.0.1</Version>
+            <Comment>PostInstall method for converting Net.Link profiles to Network.Link</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="79">
+            <Date>2009-05-04</Date>
+            <Version>3.0.1</Version>
+            <Comment>Version bump, use new network backend.</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="78">
+            <Date>2009-04-20</Date>
+            <Version>3.0.0</Version>
+            <Comment>Version bump to the new version.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="77">
+            <Date>2009-04-06</Date>
+            <Version>2.1.1</Version>
+            <Comment>Fix disappearing /dev/ppp node problem (#9497).</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="76">
+            <Date>2009-03-31</Date>
+            <Version>2.1.1</Version>
+            <Comment>
+                - Check whether /forcefsck exists before trying to delete it,
+                - Load conservative cpufreq governor instead of ondemand. ondemand is already
+                  compiled in.
+                - Don't trigger udev second time after copying the persistent rules.
+            </Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="75">
+            <Date>2009-03-09</Date>
+            <Version>2.1.1</Version>
+            <Comment>
+                - Organize fileTypes,
+                - Don't check for legacy kernels during udev startup,
+                - Log uevent activities into /var/log/udev.log,
+                - Handle logger.sync exceptions (#7410),
+                - Copy the generated persistent cdrom and network rules into /etc/udev/rules.d (#8458, #8520),
+                - Probe powernow_k8 for AMD CPU family >= 7 (#8678, #9355).
+            </Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="74">
+            <Date>2009-02-09</Date>
+            <Version>2.1.0</Version>
+            <Comment>Automount support for Disk.Manager</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="73">
+            <Date>2009-01-29</Date>
+            <Version>2.1.0</Version>
+            <Comment>Mudur now provides Disk.Manager service.</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="72">
+            <Date>2009-01-12</Date>
+            <Version>2.1.0</Version>
+            <Comment>Replace Swedish console font by lat0-16 (#8940).</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="71">
+            <Date>2009-01-07</Date>
+            <Version>2.1.0</Version>
+            <Comment>
+                New release: 2.1.0
+                * Start sysklogd after startNetwork and remove redundant sysklogd as it's manually started.
+                * Add kde4 directories.
+                * Use Python's default SIGINT signal handler.
+                * Encapsulate mudur with a main() function.
+                * Remove module dependency calculation as it's handled by kernel's pakhandler.
+            </Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="70">
+            <Date>2008-12-19</Date>
+            <Version>2.0.1</Version>
+            <Comment>Ignore cleanup errors silently.</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="69">
+            <Date>2008-11-10</Date>
+            <Version>2.0.1</Version>
+            <Comment>PKG_CONFIG_PATH is added to special variables</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="68">
+            <Date>2008-10-12</Date>
+            <Version>2.0.1</Version>
+            <Comment>Service CLI: Allow "-" in package names.</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="67">
+            <Date>2008-10-09</Date>
+            <Version>2.0.1</Version>
+            <Comment>New release. Supports setting service state to conditional.</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="66">
+            <Date>2008-10-09</Date>
+            <Version>2.0</Version>
+            <Comment>Remove starting irqbalance unconditionally, we will start it as a service</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="65">
+            <Date>2008-09-11</Date>
+            <Version>2.0</Version>
+            <Comment>Do not run ldconfig on live cd</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="64">
+            <Date>2008-08-27</Date>
+            <Version>2.0</Version>
+            <Comment>sv_SE locale</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="63">
+            <Date>2008-06-27</Date>
+            <Version>2.0</Version>
+            <Comment>Enable head_start again</Comment>
+            <Name>Ekin Meroğlu</Name>
+            <Email>ekin@pardus.org.tr</Email>
+        </Update>
+        <Update release="62">
+            <Date>2008-06-27</Date>
+            <Version>2.0</Version>
+            <Comment>New release</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="61">
+            <Date>2008-06-25</Date>
+            <Version>2.0_beta2</Version>
+            <Comment>Do not add firewire disks to fstab.</Comment>
+            <Name>Ekin Meroğlu</Name>
+            <Email>ekin@pardus.org.tr</Email>
+        </Update>
+        <Update release="60">
+            <Date>2008-06-20</Date>
+            <Version>2.0_beta2</Version>
+            <Comment>New release</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="59">
+            <Date>2008-06-17</Date>
+            <Version>2.0_beta1</Version>
+            <Comment>Mount remote filesystems after starting network.</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="58">
+            <Date>2008-06-13</Date>
+            <Version>2.0_beta1</Version>
+            <Comment>New release</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="57">
+            <Date>2008-05-27</Date>
+            <Version>2.0_alpha8</Version>
+            <Comment>Add cpufreq support, grab Fatih's patches for speed improvements and splash fixes, clean pulseaudio temps.</Comment>
+            <Name>Ekin Meroğlu</Name>
+            <Email>ekin@pardus.org.tr</Email>
+        </Update>
+        <Update release="56">
+            <Date>2008-05-21</Date>
+            <Version>2.0_alpha8</Version>
+            <Comment>Get network applications from COMAR</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="55">
+            <Date>2008-05-09</Date>
+            <Version>2.0_alpha8</Version>
+            <Comment>Sync with trunk. Service and module fixes.</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="54">
+            <Date>2008-05-05</Date>
+            <Version>2.0_alpha8</Version>
+            <Comment>New release</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="53">
+            <Date>2008-04-21</Date>
+            <Version>2.0_alpha7</Version>
+            <Comment>Service command bug fixes.</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="52">
+            <Date>2008-04-15</Date>
+            <Version>2.0_alpha6</Version>
+            <Comment>Network and service command bug fixes.</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="51">
+            <Date>2008-04-10</Date>
+            <Version>2.0_alpha5</Version>
+            <Comment>Ask for authentication info in network-cli</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="50">
+            <Date>2008-04-07</Date>
+            <Version>2.0_alpha5</Version>
+            <Comment>New release</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="49">
+            <Date>2008-04-01</Date>
+            <Version>2.0_alpha4</Version>
+            <Comment>Swapname fix for new parted</Comment>
+            <Name>Ekin Meroğlu</Name>
+            <Email>ekin@pardus.org.tr</Email>
+        </Update>
+        <Update release="48">
+            <Date>2008-04-01</Date>
+            <Version>2.0_alpha4</Version>
+            <Comment>New release</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="47">
+            <Date>2008-03-19</Date>
+            <Version>2.0_alpha3</Version>
+            <Comment>New release</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="46">
+            <Date>2008-03-14</Date>
+            <Version>2.0_alpha2</Version>
+            <Comment>New release</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="45">
+            <Date>2008-03-10</Date>
+            <Version>2.0_alpha1</Version>
+            <Comment>Create service dirs</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="44">
+            <Date>2008-03-03</Date>
+            <Version>2.0_alpha1</Version>
+            <Comment>Improvements to D-Bus service management</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="43">
+            <Date>2008-03-02</Date>
+            <Version>2.0_alpha1</Version>
+            <Comment>New release</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="42">
+            <Date>2008-02-04</Date>
+            <Version>1.19</Version>
+            <Comment>New release</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="41">
+            <Date>2007-09-07</Date>
+            <Version>1.18</Version>
+            <Comment>Fixed syntax error in service.py</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="40">
+            <Date>2007-09-06</Date>
+            <Version>1.18</Version>
+            <Comment>New release: Improvements to network-cli by Selda Kuruoglu</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="39">
+            <Date>2007-07-02</Date>
+            <Version>1.17</Version>
+            <Comment>kexec fix + i18n up</Comment>
+            <Name>Gürer Özen</Name>
+            <Email>gurer@pardus.org.tr</Email>
+        </Update>
+        <Update release="38">
+            <Date>2007-06-07</Date>
+            <Version>1.16</Version>
+            <Comment>In fstab set ntfs locale from system locale, ignore nfs/cifs lines</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="37">
+            <Date>2007-06-04</Date>
+            <Version>1.16</Version>
+            <Comment>nfs/cifs automount</Comment>
+            <Name>Gürer Özen</Name>
+            <Email>gurer@pardus.org.tr</Email>
+        </Update>
+        <Update release="36">
+            <Date>2007-05-25</Date>
+            <Version>1.15</Version>
+            <Comment>smarter service.py, new network.py, -nobarrier</Comment>
+            <Name>Gürer Özen</Name>
+            <Email>gurer@pardus.org.tr</Email>
+        </Update>
+        <Update release="35">
+            <Date>2007-05-20</Date>
+            <Version>1.14</Version>
+            <Comment>Fix console font, add lat5u family fonts for special characters</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="34">
+            <Date>2007-04-06</Date>
+            <Version>1.14</Version>
+            <Comment>HWClock drift is optional with default off, new update-fstab code, service command return values, local.start/stop is not a service anymore, run manually by mudur, i18n updates</Comment>
+            <Name>Gürer Özen</Name>
+            <Email>gurer@pardus.org.tr</Email>
+        </Update>
+        <Update release="33">
+            <Date>2007-03-26</Date>
+            <Version>1.13</Version>
+            <Comment>Remove isLaptop function</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="32">
+            <Date>2007-03-09</Date>
+            <Version>1.13</Version>
+            <Comment>Force update-fstab not to remove LABEL=PARDUS_* in any condition</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="31">
+            <Date>2007-03-03</Date>
+            <Version>1.13</Version>
+            <Comment>Fix update-fstab crash when no label exists in any partition</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="30">
+            <Date>2007-03-03</Date>
+            <Version>1.13</Version>
+            <Comment>Sync update-fstab to add support for labels</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="29">
+            <Date>2007-02-28</Date>
+            <Version>1.13</Version>
+            <Comment>pt_BR support, translation updates</Comment>
+            <Name>Gürer Özen</Name>
+            <Email>gurer@pardus.org.tr</Email>
+        </Update>
+        <Update release="28">
+            <Date>2007-01-16</Date>
+            <Version>1.12</Version>
+            <Comment>support status in service.py, correctly copy /lib/udev/devices, forcefsck option</Comment>
+            <Name>Gürer Özen</Name>
+            <Email>gurer@pardus.org.tr</Email>
+        </Update>
+        <Update release="27" type="security">
+            <Date>2007-01-04</Date>
+            <Version>1.11</Version>
+            <Comment>Dont follow symlinks in /tmp while cleaning up</Comment>
+            <Name>Gürer Özen</Name>
+            <Email>gurer@pardus.org.tr</Email>
+        </Update>
+        <Update release="26">
+            <Date>2006-12-10</Date>
+            <Version>1.10</Version>
+            <Comment>mmc card support, update-fstab fix for / part, Notebook+Portable for dmidecode</Comment>
+            <Name>Gürer Özen</Name>
+            <Email>gurer@pardus.org.tr</Email>
+        </Update>
+        <Update release="25">
+            <Date>2006-12-01</Date>
+            <Version>1.9</Version>
+            <Comment>Workaround of bug #4297</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="24">
+            <Date>2006-11-29</Date>
+            <Version>1.9</Version>
+            <Comment>update-fstab fixes, i18n, no dmfe in blacklist, dvb detect</Comment>
+            <Name>Gürer Özen</Name>
+            <Email>gurer@pardus.org.tr</Email>
+        </Update>
+        <Update release="23">
+            <Date>2006-11-23</Date>
+            <Version>1.8</Version>
+            <Comment>New tarball, service perm message fixes</Comment>
+            <Name>Gürer Özen</Name>
+            <Email>gurer@pardus.org.tr</Email>
+        </Update>
+        <Update release="22">
+            <Date>2006-11-23</Date>
+            <Version>1.7</Version>
+            <Comment>Update fstab in postInstall to fix all automount issues, sync with SVN</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="21">
+            <Date>2006-11-10</Date>
+            <Version>1.7</Version>
+            <Comment>Parport, blacklist fixes</Comment>
+            <Name>Gürer Özen</Name>
+            <Email>gurer@pardus.org.tr</Email>
+        </Update>
+        <Update release="20">
+            <Date>2006-10-29</Date>
+            <Version>1.6</Version>
+            <Comment>New service.py interface</Comment>
+            <Name>Gürer Özen</Name>
+            <Email>gurer@pardus.org.tr</Email>
+        </Update>
+        <Update release="19">
+            <Date>2006-10-10</Date>
+            <Version>1.5</Version>
+            <Comment>Minor fixes for livecd</Comment>
+            <Name>Gürer Özen</Name>
+            <Email>gurer@pardus.org.tr</Email>
+        </Update>
+        <Update release="18">
+            <Date>2006-09-18</Date>
+            <Version>1.4</Version>
+            <Comment>New release, use udevtrigger (requires new release), irqbalance fix, a bit faster.</Comment>
+            <Name>Gürer Özen</Name>
+            <Email>gurer@pardus.org.tr</Email>
+        </Update>
+        <Update release="17">
+            <Date>2006-09-03</Date>
+            <Version>1.3</Version>
+            <Comment>Patch for fixing scsi module loading bug</Comment>
+            <Name>Gürer Özen</Name>
+            <Email>gurer@pardus.org.tr</Email>
+        </Update>
+        <Update release="16">
+            <Date>2006-09-01</Date>
+            <Version>1.3</Version>
+            <Comment>New release, improved muavin and support of new udev features</Comment>
+            <Name>Gürer Özen</Name>
+            <Email>gurer@pardus.org.tr</Email>
+        </Update>
+        <Update release="15">
+            <Date>2006-08-15</Date>
+            <Version>1.2</Version>
+            <Comment>New release, i18n nl support, udev fixes</Comment>
+            <Name>Gürer Özen</Name>
+            <Email>gurer@pardus.org.tr</Email>
+        </Update>
+        <Update release="14">
+            <Date>2006-07-11</Date>
+            <Version>1.1</Version>
+            <Comment>Release</Comment>
+            <Name>Gürer Özen</Name>
+            <Email>gurer@pardus.org.tr</Email>
+        </Update>
+        <Update release="13">
+            <Date>2006-07-09</Date>
+            <Version>1.0</Version>
+            <Comment>Release</Comment>
+            <Name>Gürer Özen</Name>
+            <Email>gurer@pardus.org.tr</Email>
+        </Update>
+        <Update release="12">
+            <Date>2006-07-07</Date>
+            <Version>0.9</Version>
+            <Comment>Release</Comment>
+            <Name>Gürer Özen</Name>
+            <Email>gurer@pardus.org.tr</Email>
+        </Update>
+        <Update release="11">
+            <Date>2006-07-07</Date>
+            <Version>0.8</Version>
+            <Comment>Fix for pisi updates</Comment>
+            <Name>Gürer Özen</Name>
+            <Email>gurer@pardus.org.tr</Email>
+        </Update>
+        <Update release="10">
+            <Date>2006-07-06</Date>
+            <Version>0.8</Version>
+            <Comment>Mark filetypes correctly</Comment>
+            <Name>Gürer Özen</Name>
+            <Email>gurer@pardus.org.tr</Email>
+        </Update>
+        <Update release="9">
+            <Date>2006-07-04</Date>
+            <Version>0.8</Version>
+            <Comment>Fix comar dependency</Comment>
+            <Name>Gürer Özen</Name>
+            <Email>gurer@pardus.org.tr</Email>
+        </Update>
+        <Update release="8">
+            <Date>2006-07-04</Date>
+            <Version>0.8</Version>
+            <Comment>New comar script</Comment>
+            <Name>Gürer Özen</Name>
+            <Email>gurer@pardus.org.tr</Email>
+        </Update>
+        <Update release="7">
+            <Date>2006-06-14</Date>
+            <Version>0.8</Version>
+            <Comment>New release</Comment>
+            <Name>Gürer Özen</Name>
+            <Email>gurer@pardus.org.tr</Email>
+        </Update>
+        <Update release="6">
+            <Date>2006-05-10</Date>
+            <Version>0.7</Version>
+            <Comment>conflict with hotplug</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="5">
+            <Date>2006-05-08</Date>
+            <Version>0.7</Version>
+            <Comment>Config fix</Comment>
+            <Name>Gürer Özen</Name>
+            <Email>gurer@pardus.org.tr</Email>
+        </Update>
+        <Update release="4">
+            <Date>2006-05-08</Date>
+            <Version>0.7</Version>
+            <Comment>New release</Comment>
+            <Name>Gürer Özen</Name>
+            <Email>gurer@pardus.org.tr</Email>
+        </Update>
+        <Update release="3">
+            <Date>2006-05-06</Date>
+            <Version>0.6</Version>
+            <Comment>New release</Comment>
+            <Name>Gürer Özen</Name>
+            <Email>gurer@pardus.org.tr</Email>
+        </Update>
+        <Update release="2">
+            <Date>2006-04-15</Date>
+            <Version>0.5</Version>
+            <Comment>Comar init script</Comment>
+            <Name>Gürer Özen</Name>
+            <Email>gurer@pardus.org.tr</Email>
+        </Update>
+        <Update release="1">
+            <Date>2006-03-22</Date>
+            <Version>0.5</Version>
+            <Comment>First release</Comment>
+            <Name>Gürer Özen</Name>
+            <Email>gurer@pardus.org.tr</Email>
+        </Update>
+    </History>
+</PISI>

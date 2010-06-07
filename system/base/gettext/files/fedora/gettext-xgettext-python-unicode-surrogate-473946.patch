@@ -1,0 +1,23 @@
+2008-08-03  Bruno Haible  <bruno@clisp.org>
+
+	* x-python.c (mixed_string_buffer_append): Replace a lone high
+	surrogate with U+FFFD.
+	Reported by Yann <asterix@lagaule.org>
+	via Santiago Vila <sanvila@unex.es>.
+
+*** gettext-tools/src/x-python.c	20 Apr 2008 05:23:52 -0000	1.32
+--- gettext-tools/src/x-python.c	3 Aug 2008 19:56:58 -0000
+***************
+*** 930,935 ****
+--- 930,940 ----
+  
+  	  if (c >= UNICODE (0xd800) && c < UNICODE (0xdc00))
+  	    bp->utf16_surr = UNICODE_VALUE (c);
++ 	  else if (c >= UNICODE (0xdc00) && c < UNICODE (0xe000))
++ 	    {
++ 	      /* A half surrogate is invalid, therefore use U+FFFD instead.  */
++ 	      mixed_string_buffer_append_unicode (bp, 0xfffd);
++ 	    }
+  	  else
+  	    mixed_string_buffer_append_unicode (bp, UNICODE_VALUE (c));
+  	}

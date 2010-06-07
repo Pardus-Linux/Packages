@@ -1,0 +1,43 @@
+--- a/src/truetype/ttinterp.c
++++ b/src/truetype/ttinterp.c
+@@ -6688,12 +6701,12 @@
+   {
+     FT_Long  K;
+ 
+-
+     K = 0;
+ 
+     /* We return MS rasterizer version 1.7 for the font scaler. */
+     if ( ( args[0] & 1 ) != 0 )
+-      K = 35;
++      /*K = 35;*/
++      K = 37;
+ 
+     /* Has the glyph been rotated? */
+     if ( ( args[0] & 2 ) != 0 && CUR.tt_metrics.rotated )
+@@ -6701,12 +6714,21 @@
+ 
+     /* Has the glyph been stretched? */
+     if ( ( args[0] & 4 ) != 0 && CUR.tt_metrics.stretched )
+-      K |= 1 << 8;
++      K |= (1 << 8);
+ 
+-    /* Are we hinting for grayscale? */
++    /* Are we hinting for grayscale? (ClearType enabled)*/
+     if ( ( args[0] & 32 ) != 0 && CUR.grayscale )
+-      K |= 1 << 12;
+-
++      K |= (1 << 12);
++#if 1
++    /* If ClearType widths are compatible with mono- and grayscale widths */
++    if ( ( args[0] & (1 << 6) ) != 0 && CUR.grayscale )
++      K |= (1 << 13); 
++#endif
++#if 0
++    /* If ClearType symmetrical smoothing is being used */
++    if ( ( args[0] & (1 << 7) ) )
++      K |= (1 << 14);
++#endif
+     args[0] = K;
+   }
+ 

@@ -1,0 +1,99 @@
+diff -up shadow-4.1.2/libmisc/find_new_ids.c.sysAccountDownhill shadow-4.1.2/libmisc/find_new_ids.c
+--- shadow-4.1.2/libmisc/find_new_ids.c.sysAccountDownhill	2008-05-26 14:52:49.000000000 +0200
++++ shadow-4.1.2/libmisc/find_new_ids.c	2008-05-26 14:58:55.000000000 +0200
+@@ -52,6 +52,7 @@ int find_new_uid (int sys_user, uid_t *u
+ {
+ 	const struct passwd *pwd;
+ 	uid_t uid_min, uid_max, user_id;
++	char * index;
+ 
+ 	assert (uid != NULL);
+ 
+@@ -62,6 +63,8 @@ int find_new_uid (int sys_user, uid_t *u
+ 		uid_min = getdef_unum ("SYS_UID_MIN", 1);
+ 		uid_max = getdef_unum ("UID_MIN", 500) - 1;
+ 		uid_max = getdef_unum ("SYS_UID_MAX", uid_max);
++                index = alloca (sizeof (char) * uid_max +1);
++                memset (index, 0, sizeof (char) * uid_max + 1);
+ 	}
+ 
+ 	if (   (NULL != preferred_uid)
+@@ -91,12 +94,28 @@ int find_new_uid (int sys_user, uid_t *u
+ 	pw_rewind ();
+ 	while (   ((pwd = getpwent ()) != NULL)
+ 	       || ((pwd = pw_next ()) != NULL)) {
+-		if ((pwd->pw_uid >= user_id) && (pwd->pw_uid <= uid_max)) {
+-			user_id = pwd->pw_uid + 1;
++		if (sys_user == 0) {
++			if ((pwd->pw_uid >= user_id) && (pwd->pw_uid <= uid_max)) {
++				user_id = pwd->pw_uid + 1;
++			}
++		}
++		else {
++			/* create index of occupied system accounts UIDs */
++ 	 		if (pwd->pw_uid <= uid_max)
++				index[pwd->pw_uid] = 1;
+ 		}
+ 	}
+ 	endpwent ();
+ 
++	/* find free system account */
++        if(sys_user) {
++                for( user_id = uid_max; (user_id >= uid_min) && index[user_id]; user_id--);
++                if ( user_id < uid_min ) {
++               		fputs (_("Can't get unique UID (no more available UIDs)\n"), stderr);
++			return -1;
++		}
++	}
++
+ 	/*
+ 	 * If a user with UID equal to UID_MAX exists, the above algorithm
+ 	 * will give us UID_MAX+1 even if not unique. Search for the first
+@@ -135,6 +154,7 @@ int find_new_gid (int sys_group, gid_t *
+ {
+ 	const struct group *grp;
+ 	gid_t gid_min, gid_max, group_id;
++        char * index;
+ 
+ 	assert (gid != NULL);
+ 
+@@ -145,6 +165,8 @@ int find_new_gid (int sys_group, gid_t *
+ 		gid_min = getdef_unum ("SYS_GID_MIN", 1);
+ 		gid_max = getdef_unum ("GID_MIN", 500) - 1;
+ 		gid_max = getdef_unum ("SYS_GID_MAX", gid_max);
++                index = alloca (sizeof (char) * gid_max +1);
++                memset (index, 0, sizeof (char) * gid_max + 1);
+ 	}
+ 
+ 	if (   (NULL != preferred_gid)
+@@ -173,12 +195,28 @@ int find_new_gid (int sys_group, gid_t *
+ 	gr_rewind ();
+ 	while (   ((grp = getgrent ()) != NULL)
+ 	       || ((grp = gr_next ()) != NULL)) {
+-		if ((grp->gr_gid >= group_id) && (grp->gr_gid <= gid_max)) {
+-			group_id = grp->gr_gid + 1;
++                if (sys_group == 0) {
++                        if ((grp->gr_gid >= group_id) && (grp->gr_gid <= gid_max)) {
++                                group_id = grp->gr_gid + 1;
++                        }
++                }
++                else {
++                        /* create index of occupied system accounts GIDs */
++                        if (grp->gr_gid <= gid_max)
++                                index[grp->gr_gid] = 1;
+ 		}
+ 	}
+ 	endgrent ();
+ 
++        /* find free system account */
++        if(sys_group) {
++                for( group_id = gid_max; (group_id >= gid_min) && index[group_id]; group_id--);
++                if ( group_id < gid_min ) {
++                        fputs (_("Can't get unique GID (no more available GIDs)\n"), stderr);
++                        return -1;
++                }
++        }
++
+ 	/*
+ 	 * If a group with GID equal to GID_MAX exists, the above algorithm
+ 	 * will give us GID_MAX+1 even if not unique. Search for the first

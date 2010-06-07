@@ -1,0 +1,168 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>ConsoleKit</Name>
+        <Homepage>http://freedesktop.org/Software/Hal</Homepage>
+        <Packager>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Packager>
+        <License>GPLv2</License>
+        <IsA>library</IsA>
+        <Summary>A framework for defining and tracking users, login sessions, and seats</Summary>
+        <Description>ConsoleKit is a system daemon for tracking what users are logged into the system and how they interact with the computer (e.g. which keyboard and mouse they use).</Description>
+        <Archive sha1sum="ab2b8643c1e696df4dc79d9ee0323bdc95aaa6a1" type="tarbz2">http://www.freedesktop.org/software/ConsoleKit/dist/ConsoleKit-0.4.1.tar.bz2</Archive>
+        <BuildDependencies>
+            <Dependency>dbus</Dependency>
+            <Dependency>dbus-glib</Dependency>
+            <Dependency>libX11-devel</Dependency>
+            <Dependency>polkit-devel</Dependency>
+        </BuildDependencies>
+        <Patches>
+            <!-- Fedora patches -->
+            <Patch level="1">nodaemon.patch</Patch>
+            <Patch level="1">reorder-initialization.patch</Patch>
+
+            <Patch level="1">pam_console-compat.patch</Patch>
+            <Patch level="1">disable-policykit.patch</Patch>
+        </Patches>
+    </Source>
+
+    <Package>
+        <Name>ConsoleKit</Name>
+        <RuntimeDependencies>
+            <Dependency>dbus</Dependency>
+            <Dependency>libX11</Dependency>
+            <Dependency>dbus-glib</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="config">/etc</Path>
+            <Path fileType="executable">/usr/bin</Path>
+            <Path fileType="executable">/usr/sbin</Path>
+            <Path fileType="library">/usr/libexec</Path>
+            <Path fileType="library">/lib</Path>
+            <Path fileType="library">/usr/lib</Path>
+            <Path fileType="header">/usr/include</Path>
+            <Path fileType="data">/usr/share/dbus-1</Path>
+            <Path fileType="data">/usr/share/polkit-1/actions</Path>
+            <Path fileType="data">/usr/lib/pkgconfig</Path>
+            <Path fileType="man">/usr/share/man</Path>
+            <Path fileType="doc">/usr/share/doc</Path>
+            <Path fileType="data">/var</Path>
+        </Files>
+    </Package>
+
+    <History>
+        <Update release="15">
+            <Date>2010-01-23</Date>
+            <Version>0.4.1</Version>
+            <Comment>Version bump</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="14">
+            <Date>2009-10-26</Date>
+            <Version>0.3.0</Version>
+            <Comment>Enable polkit support, don't remove scripts.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="13">
+            <Date>2009-05-08</Date>
+            <Version>0.3.0</Version>
+            <Comment>
+                - Fix double close of the log file (->file is an fdopen(->priv), which occasionally causes segfaults.
+                - Close the directory handle when we're done with it, so that we aren't leaking file descriptors.
+                - Fix common crash when trying to remove a NULL watch
+                - Unref the dbus proxy when finalizing the session object, so that they are not leaked
+            </Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="12">
+            <Date>2008-08-11</Date>
+            <Version>0.3.0</Version>
+            <Comment>Version bump.</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="11">
+            <Date>2008-02-29</Date>
+            <Version>0.2.10</Version>
+            <Comment>Version bump.</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="10">
+            <Date>2008-02-27</Date>
+            <Version>0.2.9</Version>
+            <Comment>Add missing build dep. dbus-glib</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="9">
+            <Date>2008-02-24</Date>
+            <Version>0.2.9</Version>
+            <Comment>Version bump</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="8">
+            <Date>2008-01-31</Date>
+            <Version>0.2.7</Version>
+            <Comment>Bump</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="7">
+            <Date>2008-01-23</Date>
+            <Version>0.2.5</Version>
+            <Comment>Bump</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="6">
+            <Date>2008-01-23</Date>
+            <Version>0.2.4</Version>
+            <Comment>Bump</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="5">
+            <Date>2007-09-18</Date>
+            <Version>0.2.3</Version>
+            <Comment>Bump</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="4">
+            <Date>2007-04-11</Date>
+            <Version>0.2.1</Version>
+            <Comment>Bump</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="3">
+            <Date>2007-03-15</Date>
+            <Version>0.2.0</Version>
+            <Comment>Bump</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="2">
+            <Date>2007-02-27</Date>
+            <Version>0.1.2</Version>
+            <Comment>Bump</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="1">
+            <Date>2007-02-13</Date>
+            <Version>0.1.1</Version>
+            <Comment>First release.</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+    </History>
+</PISI>

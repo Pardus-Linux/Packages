@@ -1,0 +1,48 @@
+--- perl-5.10.0.orig/debian/patches/23_fix_isa_fiddling
++++ perl-5.10.0/debian/patches/23_fix_isa_fiddling
+@@ -0,0 +1,45 @@
++Fix crashes on @ISA fiddling. (Closes: #480480)
++
++Applicable parts of blead changes 33684 and 33898.
++
++[perl #52074]
++[perl #54566]
++diff --git a/mg.c b/mg.c
++index c4d7aeb..91a36f2 100644
++--- a/mg.c
+++++ b/mg.c
++@@ -1543,10 +1543,11 @@ Perl_magic_setisa(pTHX_ SV *sv, MAGIC *mg)
++     stash = GvSTASH(
++         SvTYPE(mg->mg_obj) == SVt_PVGV
++             ? (GV*)mg->mg_obj
++-            : (GV*)SvMAGIC(mg->mg_obj)->mg_obj
+++            : (GV*)mg_find(mg->mg_obj, PERL_MAGIC_isa)->mg_obj
++     );
++ 
++-    mro_isa_changed_in(stash);
+++    if (stash)
+++	mro_isa_changed_in(stash);
++ 
++     return 0;
++ }
++diff --git a/t/mro/pkg_gen.t b/t/mro/pkg_gen.t
++index 6a507ac..e1f5eb0 100644
++--- a/t/mro/pkg_gen.t
+++++ b/t/mro/pkg_gen.t
++@@ -4,7 +4,7 @@ use strict;
++ use warnings;
++ 
++ chdir 't' if -d 't';
++-require q(./test.pl); plan(tests => 6);
+++require q(./test.pl); plan(tests => 7);
++ 
++ {
++     package Foo;
++@@ -34,3 +34,7 @@ is(mro::get_pkg_gen('Foo'), 1, "pkg_gen 1 for undef %Pkg::");
++ 
++ delete $::{"Foo::"};
++ is(mro::get_pkg_gen('Foo'), 0, 'pkg_gen 0 for delete $::{Pkg::}');
+++
+++delete $::{"Quux::"};
+++push @Quux::ISA, "Woot"; # should not segfault
+++ok(1, "No segfault on modification of ISA in a deleted stash");

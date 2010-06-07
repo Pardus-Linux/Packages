@@ -1,0 +1,32 @@
+--- ./src/dfa.c.orig	2004-10-20 02:13:43.000000000 +0900
++++ ./src/dfa.c	2004-10-20 02:14:14.000000000 +0900
+@@ -658,6 +658,29 @@
+ 	  REALLOC_IF_NECESSARY(work_mbc->range_ends, wchar_t,
+ 			       range_ends_al, work_mbc->nranges + 1);
+ 	  work_mbc->range_ends[work_mbc->nranges++] = (wchar_t)wc2;
++	  if (case_fold 
++	      && (iswlower((wint_t)wc) || iswupper((wint_t)wc))
++	      && (iswlower((wint_t)wc2) || iswupper((wint_t)wc2))) {
++	    wint_t altcase;
++	    altcase = wc;
++	    if (iswlower((wint_t)wc))
++	      altcase = towupper((wint_t)wc);
++	    else
++	      altcase = towlower((wint_t)wc);
++	    REALLOC_IF_NECESSARY(work_mbc->range_sts, wchar_t,
++				 range_sts_al, work_mbc->nranges + 1);
++	    work_mbc->range_sts[work_mbc->nranges] = (wchar_t)altcase;
++	    
++	    altcase = wc2;
++	    if (iswlower((wint_t)wc2))
++	      altcase = towupper((wint_t)wc2);
++	    else
++	      altcase = towlower((wint_t)wc2);
++	    REALLOC_IF_NECESSARY(work_mbc->range_ends, wchar_t,
++				 range_ends_al, work_mbc->nranges + 1);
++	    work_mbc->range_ends[work_mbc->nranges++] = (wchar_t)altcase;
++	    
++	  }
+ 	}
+       else if (wc != WEOF)
+ 	/* build normal characters.  */

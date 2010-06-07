@@ -1,0 +1,78 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>timezone</Name>
+        <Homepage>ftp://elsie.nci.nih.gov/pub/</Homepage>
+        <Packager>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Packager>
+        <License>BSD</License>
+        <License>public-domain</License>
+        <IsA>app:console</IsA>
+        <IsA>data</IsA>
+        <Summary>Timezone data files and tools</Summary>
+        <Description>timezone includes timezone data files and tools to use them. Package contents are synchronized with glibc tree.</Description>
+        <!-- Source is prepared from http://cekirdek.pardus.org.tr/~onur/distfiles/tzdata-base-0.tar.bz2 and ftp://elsie.nci.nih.gov/pub/  tzcode and tzdata -->
+        <Archive sha1sum="0b0043f3e15b61eeff74a833da79f41d603e6db6" type="tarbz2">http://cekirdek.pardus.org.tr/~onur/distfiles/tzdata-base-0.tar.bz2</Archive>
+        <Archive sha1sum="151a77e7df589c95c353822626c33103301932d8" type="targz" target="tzdata/tzcode2010c">http://cekirdek.pardus.org.tr/~onur/distfiles/tzcode2010c.tar.gz</Archive>
+        <Archive sha1sum="507b02d9dbf810bfb594c905ab1e05de474a11d8" type="targz" target="tzdata/tzdata2010c">http://cekirdek.pardus.org.tr/~onur/distfiles/tzdata2010c.tar.gz</Archive>
+        <BuildDependencies>
+            <Dependency>perl</Dependency>
+            <Dependency>gawk</Dependency>
+        </BuildDependencies>
+        <Patches>
+            <Patch level="1">tzdata-extra-tz-links.patch</Patch>
+            <Patch level="1">tzdata-mdvconfig.patch</Patch>
+
+            <!-- this script generates tz-db used by Comar Clock methods -->
+            <Patch>add-dump-tz-db-script.patch</Patch>
+        </Patches>
+    </Source>
+
+    <Package>
+        <Name>timezone</Name>
+        <Conflicts>
+            <Package releaseTo="45">glibc</Package>
+            <Package releaseTo="31">util-linux</Package>
+        </Conflicts>
+        <Replaces>
+            <Package>glibc-zoneinfo</Package>
+        </Replaces>
+        <Files>
+            <Path fileType="executable">/usr/bin</Path>
+            <Path fileType="executable">/usr/sbin</Path>
+            <Path fileType="doc">/usr/share/doc/timezone</Path>
+            <Path fileType="data">/usr/share/zoneinfo</Path>
+        </Files>
+        <AdditionalFiles>
+            <AdditionalFile owner="root" permission="0755" target="/usr/bin/timezone">timezone.py</AdditionalFile>
+        </AdditionalFiles>
+        <Provides>
+            <COMAR script="package.py">System.Package</COMAR>
+            <COMAR script="clock.py">Time.Clock</COMAR>
+        </Provides>
+    </Package>
+
+    <History>
+        <Update release="2">
+            <Date>2010-03-09</Date>
+            <Version>0.0_20100309</Version>
+            <Comment>
+                Update tzdata to 2010c
+                Update tzcode to 2010c
+                Switch to using multisource archive in pspec
+            </Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="1">
+            <Date>2009-12-14</Date>
+            <Version>0.0_20091214</Version>
+            <Comment>First release, fixes bug (#11462)</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+    </History>
+</PISI>

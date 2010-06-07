@@ -1,0 +1,25 @@
+--- perl-5.10.0.orig/debian/patches/37_fix_coredump_indicator
++++ perl-5.10.0/debian/patches/37_fix_coredump_indicator
+@@ -0,0 +1,22 @@
++Fix $? when dumping core. (Closes: #509041)
++
++WCOREDUMP is in <sys/wait.h>
++
++Without this, $? & 128 doesn't get set properly on some (glibc) systems
++when dumping core.
++diff --git a/perl.h b/perl.h
++index abcae45..ebf57cd 100644
++--- a/perl.h
+++++ b/perl.h
++@@ -663,6 +663,11 @@ register struct op *Perl_op asm(stringify(OP_IN_REGISTER));
++ #   include <unistd.h>
++ #endif
++ 
+++/* for WCOREDUMP */
+++#ifdef I_SYS_WAIT
+++#   include <sys/wait.h>
+++#endif
+++
++ #ifdef __SYMBIAN32__
++ #   undef _SC_ARG_MAX /* Symbian has _SC_ARG_MAX but no sysconf() */
++ #endif

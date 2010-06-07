@@ -1,0 +1,21 @@
+--- perl-5.10.0.orig/debian/patches/30_fix_freetmps
++++ perl-5.10.0/debian/patches/30_fix_freetmps
+@@ -0,0 +1,18 @@
++Revert an incorrect substitution optimization introduced in 5.10.0. (Closes: #501178)
++
++[perl #52658]
++
++Bug introduced by upstream change 26334, reverted with change 33685 in blead
++and 33732 in maint-5.10.
++diff --git a/pp_ctl.c b/pp_ctl.c
++index 7a377f0..88269a7 100644
++--- a/pp_ctl.c
+++++ b/pp_ctl.c
++@@ -218,7 +218,6 @@ PP(pp_substcont)
++ 	if (!(cx->sb_rxtainted & 2) && SvTAINTED(TOPs))
++ 	    cx->sb_rxtainted |= 2;
++ 	sv_catsv(dstr, POPs);
++-	FREETMPS; /* Prevent excess tmp stack */
++ 
++ 	/* Are we done */
++ 	if (cx->sb_once || !CALLREGEXEC(rx, s, cx->sb_strend, orig,

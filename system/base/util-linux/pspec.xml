@@ -1,0 +1,353 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>util-linux</Name>
+        <Homepage>http://userweb.kernel.org/~kzak/util-linux-ng/</Homepage>
+        <Packager>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Packager>
+        <License>GPLv2</License>
+        <IsA>app:console</IsA>
+        <IsA>library</IsA>
+        <Summary>Various useful Linux utilities</Summary>
+        <Archive sha1sum="69275de84f7dabb7a5d90d0046c3a6b861c16a1d" type="tarbz2">http://ftp.kernel.org/pub/linux/utils/util-linux-ng/v2.17/util-linux-ng-2.17.2.tar.bz2</Archive>
+        <BuildDependencies>
+            <Dependency>libuuid</Dependency>
+            <Dependency>ncurses</Dependency>
+            <Dependency>shadow</Dependency>
+            <Dependency>audit</Dependency>
+            <Dependency>zlib</Dependency>
+        </BuildDependencies>
+        <Patches>
+            <!-- fedora patches -->
+            <Patch level="1">fedora/util-linux-ng-2.13-ctrlaltdel-man.patch</Patch>
+            <Patch level="1">fedora/util-linux-ng-2.13-fdformat-man-ide.patch</Patch>
+
+            <!-- makeing /var/log/lastlog -->
+            <Patch level="1">fedora/util-linux-ng-2.13-login-lastlog.patch</Patch>
+            <Patch level="1">fedora/util-linux-ng-2.14-ipcs-32bit.patch</Patch>
+
+            <!-- suse patches -->
+            <Patch level="1">suse/util-linux-2.12r-fdisk_cyl.patch</Patch>
+            <Patch level="1">suse/util-linux-2.12r-fdisk_remove_bogus_warnings.patch</Patch>
+            <Patch level="1">suse/util-linux-2.13-hwclock_rtc_wait_busy_tempfix.patch</Patch>
+            <Patch level="1">suse/util-linux-2.14.1-fdisk_cylinder.patch</Patch>
+            <Patch level="1">suse/util-linux-2.14.1-hwclock_adjust_and_hctosys.patch</Patch>
+            <Patch level="1">suse/util-linux-2.14.1-mount_race.patch</Patch>
+            <Patch level="1">suse/util-linux-2.14.1-mount_skip_sync.patch</Patch>
+
+            <!-- Addon util klogconsole -->
+            <Patch level="1">suse/klogconsole.patch</Patch>
+            <Patch level="1">suse/klogconsole_newconsole.patch</Patch>
+            <Patch level="1">suse/klogconsole-quiet.patch</Patch>
+
+            <!-- Addon util mkzimage_cmdline -->
+            <Patch level="1">suse/mkzimage_cmdline.patch</Patch>
+
+            <Patch level="1">ntfs-3g.patch</Patch>
+
+        </Patches>
+    </Source>
+
+    <Package>
+        <Name>util-linux</Name>
+        <RuntimeDependencies>
+            <Dependency>libuuid</Dependency>
+            <Dependency>gettext</Dependency>
+            <Dependency>ncurses</Dependency>
+            <Dependency>shadow</Dependency>
+            <Dependency>audit</Dependency>
+            <Dependency>zlib</Dependency>
+            <Dependency>perl</Dependency>
+        </RuntimeDependencies>
+        <Conflicts>
+            <Package>schedutils</Package>
+            <Package releaseTo="19">e2fsprogs</Package>
+        </Conflicts>
+        <Files>
+            <Path fileType="config">/etc</Path>
+            <Path fileType="executable">/bin</Path>
+            <Path fileType="executable">/sbin</Path>
+            <Path fileType="executable">/usr/bin</Path>
+            <Path fileType="executable">/usr/sbin</Path>
+            <Path fileType="doc">/usr/share/doc</Path>
+            <Path fileType="man">/usr/share/man</Path>
+            <Path fileType="info">/usr/share/info</Path>
+            <Path fileType="data">/usr/share/misc</Path>
+            <Path fileType="data">/usr/lib/pkgconfig</Path>
+            <Path fileType="data">/usr/share/getopt</Path>
+            <Path fileType="localedata">/usr/share/locale</Path>
+            <Path fileType="header">/usr/include</Path>
+            <Path fileType="library">/usr/lib</Path>
+            <Path fileType="library">/lib</Path>
+        </Files>
+    </Package>
+
+    <History>
+        <Update release="35">
+            <Date>2010-04-12</Date>
+            <Version>2.17.2</Version>
+            <Comment>Version bump</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="34">
+            <Date>2010-02-23</Date>
+            <Version>2.17.1</Version>
+            <Comment>Version bump, more blkid and fdisk fixes.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="33">
+            <Date>2010-01-09</Date>
+            <Version>2.17</Version>
+            <Comment>Version bump to 2.17</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="32">
+            <Date>2009-12-18</Date>
+            <Version>2.16.1</Version>
+            <Comment>
+                Remove timezone script and Comar clock methods since they are now coming with timezone package
+                Remove glibc-zoneinfo dependency, it will be removed by new timezone package too
+            </Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="31">
+            <Date>2009-09-08</Date>
+            <Version>2.16.1</Version>
+            <Comment>
+                - Bump to the latest stable maintenance version which includes important blkid fixes,
+                - Disable libuuid and uuidd as they'll be shipped withing e2fsprogs,
+            </Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="30">
+            <Date>2009-06-17</Date>
+            <Version>2.15.1</Version>
+            <Comment>
+                - Add timezone script to extract zone name from /etc/localtime,
+                - Cleanup postInstall script for migrating from Pardus 2008 to 2009 correctly.
+            </Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="29">
+            <Date>2009-06-10</Date>
+            <Version>2.15.1</Version>
+            <Comment>Version bump.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="28">
+            <Date>2009-05-26</Date>
+            <Version>2.15</Version>
+            <Comment>
+                - Fix reiserfs id in blkid,
+                - Highlight current day when possible even month/year is given,
+                - Fix hanging blkid on MD devices.
+            </Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="27">
+            <Date>2009-05-21</Date>
+            <Version>2.15</Version>
+            <Comment>Set ntfs type to ntfs-3g in blkid</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="26">
+            <Date>2009-05-16</Date>
+            <Version>2.15</Version>
+            <Comment>Enable libblkid, depend on libuuid.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="25">
+            <Date>2009-05-12</Date>
+            <Version>2.15</Version>
+            <Comment>Version bump</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="24">
+            <Date>2009-02-17</Date>
+            <Version>2.14.2</Version>
+            <Comment>Disable hostid as it comes with coreutils</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="23">
+            <Date>2009-02-16</Date>
+            <Version>2.14.2</Version>
+            <Comment>Remove cvs dependency with autopoint hack</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="22">
+            <Date>2009-02-15</Date>
+            <Version>2.14.2</Version>
+            <Comment>
+                Minor version bump
+                Add a bunch of fixes
+                Add some nice utilities by hand
+                Fix largefile support
+            </Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="21">
+            <Date>2008-06-09</Date>
+            <Version>2.14</Version>
+            <Comment>Version bump</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="20" type="security">
+            <Date>2008-04-24</Date>
+            <Version>2.13.1</Version>
+            <Comment>Fix CVE-2008-1926</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="19">
+            <Date>2008-03-03</Date>
+            <Version>2.13.1</Version>
+            <Comment>COMAR scripts ported to 2.0</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="18">
+            <Date>2008-01-16</Date>
+            <Version>2.13.1</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="17">
+            <Date>2008-01-02</Date>
+            <Version>2.13.1_rc2</Version>
+            <Comment>Version bump</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="16" type="security">
+            <Date>2007-10-04</Date>
+            <Version>2.13_20071003</Version>
+            <Comment>Branch update to fix CVE-2007-5191</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="15">
+            <Date>2007-08-28</Date>
+            <Version>2.13</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="14">
+            <Date>2007-08-08</Date>
+            <Version>2.13_rc3</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="13">
+            <Date>2007-07-04</Date>
+            <Version>2.13_rc1</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="12">
+            <Date>2007-06-04</Date>
+            <Version>2.13_pre7</Version>
+            <Comment>Switch to util-linux-ng commit c1e0a256184209e7c758321617ec8072d14d0a35</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="11">
+            <Date>2007-05-09</Date>
+            <Version>2.13_pre7</Version>
+            <Comment>Switch to util-linux-ng commit e1bc6da937a2c96b3e8d06e491916a9be5f21a77</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="10">
+            <Date>2007-05-08</Date>
+            <Version>2.13_pre7</Version>
+            <Comment>Add uhelper support from util-linux git tree, needed by hal</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="9" type="security">
+            <Date>2007-05-03</Date>
+            <Version>2.13_pre7</Version>
+            <Comment>Fix CVE-2006-7108</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="8">
+            <Date>2007-03-15</Date>
+            <Version>2.13_pre7</Version>
+            <Comment>Grab swsusp-patch from debian (if swap has SUSPEND signature reenable it)</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="7" type="security">
+            <Date>2007-03-07</Date>
+            <Version>2.13_pre7</Version>
+            <Comment>Fix CVE-2007-0822</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="6">
+            <Date>2006-11-11</Date>
+            <Version>2.13_pre7</Version>
+            <Comment>Don't unmount sysfs with umount -a</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="5">
+            <Date>2006-08-24</Date>
+            <Version>2.13_pre7</Version>
+            <Comment>Don't depend on hashalot</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="4">
+            <Date>2006-06-29</Date>
+            <Version>2.13_pre7</Version>
+            <Comment>Update for pam-login dependency removal</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="3" type="security">
+            <Date>2005-12-22</Date>
+            <Version>2.12r</Version>
+            <Comment>Fix CAN-2005-2876</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="2">
+            <Date>2005-10-19</Date>
+            <Version>2.12q</Version>
+            <Comment>Comar script for default timezone.</Comment>
+            <Name>Gürer Özen</Name>
+            <Email>gurer@pardus.org.tr</Email>
+        </Update>
+        <Update release="1">
+            <Date>2005-09-02</Date>
+            <Version>2.12q</Version>
+            <Comment>First release.</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+    </History>
+</PISI>

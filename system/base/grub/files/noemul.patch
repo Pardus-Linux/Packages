@@ -1,0 +1,11 @@
+diff -Nur grub-0.97-old/stage2/bios.c grub-0.97/stage2/bios.c
+--- grub-0.97-old/stage2/bios.c	2008-01-09 17:44:28.000000000 +0200
++++ grub-0.97/stage2/bios.c	2008-01-09 17:44:41.000000000 +0200
+@@ -147,6 +147,7 @@
+   grub_memset (&cdrp, 0, sizeof (cdrp));
+   cdrp.size = sizeof (cdrp) - sizeof (cdrp.dummy);
+   err = biosdisk_int13_extensions (0x4B01, drive, &cdrp);
++  err = 0; /* really ugly hack to circumvent faulty BIOS versions like Acer 292LMi */
+   if (! err && cdrp.drive_no == drive)
+     {
+       if ((cdrp.media_type & 0x0F) == 0)

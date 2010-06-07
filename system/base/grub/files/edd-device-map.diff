@@ -1,0 +1,418 @@
+--- a/lib/device.c	2008-04-02 13:49:57.000000000 +0100
++++ b/lib/device.c	2008-04-02 13:49:29.000000000 +0100
+@@ -35,6 +35,11 @@
+ #include <errno.h>
+ #include <limits.h>
+ #include <stdarg.h>
++#include <dirent.h>
++
++#define EDD_MBR_SIG_OFFSET 0x1B8
++
++typedef unsigned int grub_uint32_t;
+ 
+ #ifdef __linux__
+ # if !defined(__GLIBC__) || \
+@@ -400,6 +405,92 @@
+     close (fd);
+ }
+ 
++/* Read MBR signatures from EDD, if available.  */
++static void
++read_edd (grub_uint32_t *mbr_sig, char *mbr_sig_avail)
++{
++#ifdef __linux__
++  DIR *edd = opendir ("/sys/firmware/edd");
++  struct dirent *edd_entry;
++
++  if (! edd)
++    return;
++
++  while ((edd_entry = readdir (edd)))
++    {
++      char bios_dev_str[4];
++      int bios_dev;
++      char *signature_name;
++      FILE *signature_file;
++      char line[16];
++
++      if (strcmp (edd_entry->d_name, ".") == 0 ||
++	  strcmp (edd_entry->d_name, "..") == 0)
++	continue;
++
++      if (sscanf (edd_entry->d_name, "int13_dev%3s", bios_dev_str) != 1)
++	continue;
++      errno = 0;
++      bios_dev = strtol (bios_dev_str, NULL, 16);
++      if (errno || bios_dev < 0 || bios_dev >= NUM_DISKS)
++	continue;
++
++      signature_name = malloc (strlen ("/sys/firmware/edd/") +
++			       strlen (edd_entry->d_name) +
++			       strlen ("/mbr_signature") + 1);
++      if (! signature_name)
++	continue;
++      sprintf (signature_name, "/sys/firmware/edd/%s/mbr_signature",
++	       edd_entry->d_name);
++      signature_file = fopen (signature_name, "r");
++      if (! signature_file)
++	{
++	  free (signature_name);
++	  continue;
++	}
++
++      *line = 0;
++      fgets (line, 16, signature_file);
++      if (*line == '0' && *(line + 1) == 'x')
++	{
++	  mbr_sig[bios_dev] = (grub_uint32_t) strtol(line, NULL, 16);
++	  mbr_sig_avail[bios_dev] = 1;
++	}
++
++      fclose (signature_file);
++      free (signature_name);
++    }
++
++  closedir (edd);
++#endif /* __linux__ */
++}
++
++static int
++read_device_mbr_sig (char *device, grub_uint32_t *mbr)
++{
++#ifdef __linux__
++  char buf[512];
++  FILE *fp;
++
++  if (*device == 0)
++    return 0;
++
++  fp = fopen (device, "r");
++  if (! fp)
++    return 0;
++  if (fread (buf, 1, 512, fp) != 512)
++    {
++      fclose (fp);
++      return 0;
++    }
++
++  *mbr = *(grub_uint32_t *) &buf[EDD_MBR_SIG_OFFSET];
++  return 1;
++#else
++  return 0;
++#endif /* __linux__ */
++}
++
+ #ifdef __linux__
+ /* Check if we have devfs support.  */
+ static int
+@@ -788,6 +879,8 @@
+   int i;
+   int num_hd = 0;
+   FILE *fp = 0;
++  grub_uint32_t *edd_mbr_sig = 0;
++  char *edd_mbr_sig_avail = 0;
+ 
+   assert (map);
+   assert (*map == 0);
+@@ -820,6 +913,17 @@
+ 	   "Probing devices to guess BIOS drives. "
+ 	   "This may take a long time.\n");
+   
++  /* Probe EDD, if available, to get more accurate device mapping. */
++  edd_mbr_sig = malloc (NUM_DISKS * sizeof (grub_uint32_t));
++  assert (edd_mbr_sig);
++  edd_mbr_sig_avail = malloc (NUM_DISKS * sizeof (char));
++  assert (edd_mbr_sig_avail);
++  
++  for (i = 0; i < NUM_DISKS; i++)
++    edd_mbr_sig_avail[i] = 0;
++  
++  read_edd (edd_mbr_sig, edd_mbr_sig_avail);
++  
+   if (map_file)
+     /* Try to open the device map file to write the probed data.  */
+     fp = fopen (map_file, "w");
+@@ -862,20 +966,12 @@
+ 	      strcat (name, "/disc");
+ 	      (*map)[num_hd + 0x80] = strdup (name);
+ 	      assert ((*map)[num_hd + 0x80]);
+-	      
+-	      /* If the device map file is opened, write the map.  */
+-	      if (fp)
+-		fprintf (fp, "(hd%d)\t%s\n", num_hd, name);
+ 	    }
+ 	  
+ 	  num_hd++;
+ 	}
+       
+-      /* OK, close the device map file if opened.  */
+-      if (fp)
+-	fclose (fp);
+-      
+-      return 1;
++      goto edd_reorder;
+     }
+ #endif /* __linux__ */
+ 
+@@ -891,10 +987,6 @@
+ 	  (*map)[num_hd + 0x80] = strdup (name);
+ 	  assert ((*map)[num_hd + 0x80]);
+ 	  
+-	  /* If the device map file is opened, write the map.  */
+-	  if (fp)
+-	    fprintf (fp, "(hd%d)\t%s\n", num_hd, name);
+-	  
+ 	  num_hd++;
+ 	}
+     }
+@@ -911,10 +1003,6 @@
+ 	  (*map)[num_hd + 0x80] = strdup (name);
+ 	  assert ((*map)[num_hd + 0x80]);
+ 	  
+-	  /* If the device map file is opened, write the map.  */
+-	  if (fp)
+-	    fprintf (fp, "(hd%d)\t%s\n", num_hd, name);
+-	  
+ 	  num_hd++;
+ 	}
+     }
+@@ -931,10 +1019,6 @@
+           (*map)[num_hd + 0x80] = strdup (name);
+           assert ((*map)[num_hd + 0x80]);
+ 
+-          /* If the device map file is opened, write the map.  */
+-          if (fp)
+-            fprintf (fp, "(hd%d)\t%s\n", num_hd, name);
+-
+           num_hd++;
+         }
+     }
+@@ -951,10 +1035,6 @@
+ 	  (*map)[num_hd + 0x80] = strdup (name);
+ 	  assert ((*map)[num_hd + 0x80]);
+ 	  
+-	  /* If the device map file is opened, write the map.  */
+-	  if (fp)
+-	    fprintf (fp, "(hd%d)\t%s\n", num_hd, name);
+-	  
+ 	  num_hd++;
+ 	}
+     }
+@@ -980,10 +1060,6 @@
+ 		(*map)[num_hd + 0x80] = strdup (name);
+ 		assert ((*map)[num_hd + 0x80]);
+ 		
+-		/* If the device map file is opened, write the map.  */
+-		if (fp)
+-		  fprintf (fp, "(hd%d)\t%s\n", num_hd, name);
+-		
+ 		num_hd++;
+ 	      }
+ 	  }
+@@ -1003,10 +1079,6 @@
+           {
+               (*map)[num_hd + 0x80] = strdup (name);
+                   assert ((*map)[num_hd + 0x80]);
+-                  
+-	    /* If the device map file is opened, write the map.  */
+-               if (fp)
+-                     fprintf (fp, "(hd%d)\t%s\n", num_hd, name);
+                      
+ 	    num_hd++;
+           }
+@@ -1037,10 +1109,6 @@
+ 		(*map)[num_hd + 0x80] = strdup (name);
+ 		assert ((*map)[num_hd + 0x80]);
+ 		
+-		/* If the device map file is opened, write the map.  */
+-		if (fp)
+-		  fprintf (fp, "(hd%d)\t%s\n", num_hd, name);
+-		
+ 		num_hd++;
+ 	      }
+ 	  }
+@@ -1082,10 +1146,184 @@
+   }
+ #endif /* __linux__ */
+   
++edd_reorder:
++  /* If any devices have unique matching MBR signatures, then we can be
++     sure of its BIOS ID, so use that.
++     
++     If some devices match an MBR signature, but the signature is not
++     unique, then try to match those devices up with their signatures in
++     order to maximize our probability of being correct.
++     
++     Any devices that remain fill in the remaining slots in the same order
++     as they were detected above.
++     
++     The algorithm that follows could probably be faster, but correctness is
++     more important.  */
++  {
++    char *unique_edd = malloc (NUM_DISKS * sizeof (char));
++    char *fixed = malloc (NUM_DISKS * sizeof (char));
++    grub_uint32_t *device_mbr_sig = malloc (NUM_DISKS *
++					    sizeof (grub_uint32_t));
++    char *device_mbr_sig_avail = malloc (NUM_DISKS * sizeof (char));
++
++    auto void copy_device (int src, int dest);
++    auto void move_device (int src, int dest);
++
++    /* Copy device at position SRC to position DEST.  */
++    auto void copy_device (int src, int dest)
++      {
++	(*map)[dest] = (*map)[src];
++	device_mbr_sig[dest] = device_mbr_sig[src];
++	device_mbr_sig_avail[dest] = device_mbr_sig_avail[src];
++      }
++
++    /* Move the device at position SRC to position DEST, shifting everything
++       else along to make room. Relies on devices starting at 0x80 so that
++       we always have a temporary slot available at position 0.  */
++    auto void move_device (int src, int dest)
++      {
++	int cur = src;
++	int step, limit;
++
++	assert (! fixed[dest]);
++	assert (! fixed[src]);
++
++	fixed[dest] = 1;
++
++	if (dest == src)
++	  return;
++
++	copy_device (src, 0);
++
++	if (dest < src)
++	  {
++	    step = -1;
++	    limit = 0x80 - 1;
++	  }
++	else
++	  {
++	    step = 1;
++	    limit = NUM_DISKS;
++	  }
++	for (;;)
++	  {
++	    int walk, next = 0;
++	    for (walk = cur + step; walk != limit; walk += step)
++	      if (walk == dest || ! fixed[walk])
++		{
++		  next = walk;
++		  break;
++		}
++	    if (walk == limit)
++	      break;
++	    copy_device (next, cur);
++	    if (next == dest)
++	      break;
++	    cur = next;
++	  }
++
++	copy_device (0, dest);
++	(*map)[0] = 0;
++	device_mbr_sig[0] = 0;
++	device_mbr_sig_avail[0] = 0;
++      }
++
++    if (unique_edd && fixed && device_mbr_sig && device_mbr_sig_avail)
++      {
++	int other;
++
++	for (i = 0; i < NUM_DISKS; i++)
++	  {
++	    fixed[i] = 0;
++	    device_mbr_sig[i] = 0;
++	    device_mbr_sig_avail[i] = 0;
++	  }
++
++	/* Read all the signatures from their devices.  */
++	for (i = 0x80; i < NUM_DISKS; i++)
++	  {
++	    if ((*map)[i])
++	      device_mbr_sig_avail[i] = read_device_mbr_sig
++		((*map)[i], &device_mbr_sig[i]);
++	    else
++	      device_mbr_sig_avail[i] = 0;
++	  }
++
++	/* Check for unique EDD signatures.  */
++	for (i = 0x80; i < NUM_DISKS; i++)
++	  {
++	    if (! edd_mbr_sig_avail[i])
++	      {
++		unique_edd[i] = 0;
++		continue;
++	      }
++
++	    unique_edd[i] = 1;
++	    for (other = 0x80; other < NUM_DISKS; other++)
++	      {
++		if (i != other && edd_mbr_sig[i] == edd_mbr_sig[other])
++		  {
++		    unique_edd[i] = 0;
++		    break;
++		  }
++	      }
++	  }
++
++	/* Move the disks with unique EDD signatures into place.  */
++	for (i = 0x80; i < NUM_DISKS; i++)
++	  {
++	    if (! unique_edd[i])
++	      continue;
++
++	    for (other = 0x80; other < NUM_DISKS; other++)
++	      {
++		if (! fixed[other] && edd_mbr_sig[i] == device_mbr_sig[other])
++		  {
++		    move_device (other, i);
++		    break;
++		  }
++	      }
++	  }
++
++	/* Move the disks with non-unique EDD signatures into place.  */
++	for (i = 0x80; i < NUM_DISKS; i++)
++	  {
++	    if (fixed[i] || ! edd_mbr_sig_avail[i])
++	      continue;
++
++	    for (other = 0x80; other < NUM_DISKS; other++)
++	      {
++		if (! fixed[other] && edd_mbr_sig[i] == device_mbr_sig[other])
++		  {
++		    move_device (other, i);
++		    break;
++		  }
++	      }
++	  }
++      }
++    free (device_mbr_sig_avail);
++    free (device_mbr_sig);
++    free (fixed);
++    free (unique_edd);
++  }
++
++  /* If the device map file is opened, write the map.  */
++  if (fp)
++    {
++      for (i = 0x80; i < NUM_DISKS; i++)
++	{
++	  if ((*map)[i])
++	    fprintf (fp, "(hd%d)\t%s\n", i - 0x80, (*map)[i]);
++	}
++    }
++
+   /* OK, close the device map file if opened.  */
+   if (fp)
+     fclose (fp);
+ 
++  free (edd_mbr_sig_avail);
++  free (edd_mbr_sig);
++
+   return 1;
+ }
+ 

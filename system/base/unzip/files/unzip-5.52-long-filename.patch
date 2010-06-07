@@ -1,0 +1,68 @@
+--- unzip-5.52/process.c.pom3	2006-02-06 10:29:02.630237064 +0100
++++ unzip-5.52/process.c	2006-02-06 10:29:02.650234024 +0100
+@@ -576,16 +576,16 @@
+         if (lastchance && (uO.qflag < 3)) {
+ #if defined(UNIX) || defined(QDOS)
+             if (G.no_ecrec)
+-                Info(slide, 1, ((char *)slide,
++                Info2(slide, 1, ((char *)slide, WSIZE, 
+                   LoadFarString(CannotFindZipfileDirMsg), uO.zipinfo_mode?
+                   LoadFarStringSmall(Zipnfo) : LoadFarStringSmall(Unzip),
+                   G.wildzipfn, uO.zipinfo_mode? "  " : "", G.wildzipfn,
+-                  G.zipfn));
++                  G.zipfn),WSIZE);
+             else
+-                Info(slide, 1, ((char *)slide,
++                Info2(slide, 1, ((char *)slide, WSIZE, 
+                   LoadFarString(CannotFindEitherZipfile), uO.zipinfo_mode?
+                   LoadFarStringSmall(Zipnfo) : LoadFarStringSmall(Unzip),
+-                  G.wildzipfn, G.wildzipfn, G.zipfn));
++                  G.wildzipfn, G.wildzipfn, G.zipfn), WSIZE);
+ #else /* !(UNIX || QDOS) */
+             if (G.no_ecrec)
+                 Info(slide, 0x401, ((char *)slide,
+--- unzip-5.52/fileio.c.pom3	2006-02-06 10:29:02.000000000 +0100
++++ unzip-5.52/fileio.c	2006-02-06 10:30:59.755431328 +0100
+@@ -1188,8 +1188,14 @@
+ 
+ #endif /* !VMS */
+ 
++/****************/
++/* Function min */
++/****************/
+ 
+-
++int min (int val_i, int val_j)
++{
++  return (val_i>val_j?val_j:val_i);
++}
+ 
+ 
+ /*****************************/
+--- unzip-5.52/unzpriv.h.pom3	2006-02-06 10:29:02.625237824 +0100
++++ unzip-5.52/unzpriv.h	2006-02-06 10:31:45.538471248 +0100
+@@ -2286,6 +2286,24 @@
+ #  endif
+ #endif /* !Info */
+ 
++#ifndef Info2   /* may already have been defined for redirection */
++#  ifdef FUNZIP
++#    define Info2(buf,flag,sprf_arg,size) \
++     fprintf((flag)&1? stderr : stdout, (char *)(sprintf sprf_arg, (buf)))
++#  else
++#    ifdef INT_SPRINTF  /* optimized version for "int sprintf()" flavour */
++#      define Info2(buf,flag,sprf_arg,size) \
++       (*G.message)((zvoid *)&G, (uch *)(buf), (ulg) min(snprintf sprf_arg, (int) size), (flag))
++#    else          /* generic version, does not use sprintf() return value */
++#      define Info2(buf,flag,sprf_arg,size) \
++       (*G.message)((zvoid *)&G, (uch *)(buf), \
++            (ulg)(sprintf sprf_arg, strlen((char *)(buf))), (flag))
++#    endif
++#  endif
++#endif /* !Info */
++
++
++
+ /*  The following macro wrappers around the fnfilter function are used many
+  *  times to prepare archive entry names or name components for displaying
+  *  listings and (warning/error) messages. They use sections in the upper half

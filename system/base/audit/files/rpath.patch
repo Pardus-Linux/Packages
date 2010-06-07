@@ -1,0 +1,120 @@
+--- a/tools/aulast/Makefile.am
++++ b/tools/aulast/Makefile.am
+@@ -24,10 +24,9 @@ CONFIG_CLEAN_FILES = *.loT *.rej *.orig
+ AUTOMAKE_OPTIONS = no-dependencies
+ EXTRA_DIST = $(man_MANS)
+ INCLUDES = -I${top_srcdir} -I${top_srcdir}/lib -I${top_srcdir}/auparse
+-LIBS = -L${top_builddir}/auparse -lauparse
++LDADD = ${top_builddir}/auparse/libauparse.la
+ bin_PROGRAMS = aulast
+ noinst_HEADERS = aulast-llist.h
+ man_MANS = aulast.8
+ 
+ aulast_SOURCES = aulast.c aulast-llist.c
+-
+--- a/tools/aulast/Makefile.in
++++ b/tools/aulast/Makefile.in
+@@ -73,6 +73,7 @@ PROGRAMS = $(bin_PROGRAMS)
+ am_aulast_OBJECTS = aulast.$(OBJEXT) aulast-llist.$(OBJEXT)
+ aulast_OBJECTS = $(am_aulast_OBJECTS)
+ aulast_LDADD = $(LDADD)
++aulast_DEPENDENCIES = ${top_builddir}/auparse/libauparse.la
+ DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
+ depcomp =
+ am__depfiles_maybe =
+@@ -131,7 +131,7 @@
+ LIBOBJS = @LIBOBJS@
+ LIBPRELUDE_CFLAGS = @LIBPRELUDE_CFLAGS@
+ LIBPRELUDE_LDFLAGS = @LIBPRELUDE_LDFLAGS@
+-LIBS = -L${top_builddir}/auparse -lauparse
++LIBS = @LIBS@
+ LIBTOOL = @LIBTOOL@
+ LIBTOOL_DEPS = @LIBTOOL_DEPS@
+ LIBWRAP_LIBS = @LIBWRAP_LIBS@
+@@ -224,6 +225,7 @@ CONFIG_CLEAN_FILES = *.loT *.rej *.orig
+ AUTOMAKE_OPTIONS = no-dependencies
+ EXTRA_DIST = $(man_MANS)
+ INCLUDES = -I${top_srcdir} -I${top_srcdir}/lib -I${top_srcdir}/auparse
++LDADD = ${top_builddir}/auparse/libauparse.la
+ noinst_HEADERS = aulast-llist.h
+ man_MANS = aulast.8
+ aulast_SOURCES = aulast.c aulast-llist.c
+--- a/tools/aulastlog/Makefile.am
++++ b/tools/aulastlog/Makefile.am
+@@ -24,10 +24,9 @@ CONFIG_CLEAN_FILES = *.loT *.rej *.orig
+ AUTOMAKE_OPTIONS = no-dependencies
+ EXTRA_DIST = $(man_MANS)
+ INCLUDES = -I${top_srcdir} -I${top_srcdir}/auparse
+-LIBS = -L${top_builddir}/auparse -lauparse
++LDADD = ${top_builddir}/auparse/libauparse.la
+ bin_PROGRAMS = aulastlog
+ noinst_HEADERS = aulastlog-llist.h
+ man_MANS = aulastlog.8
+ 
+ aulastlog_SOURCES = aulastlog.c aulastlog-llist.c
+-
+--- a/tools/aulastlog/Makefile.in
++++ b/tools/aulastlog/Makefile.in
+@@ -73,6 +73,7 @@ PROGRAMS = $(bin_PROGRAMS)
+ am_aulastlog_OBJECTS = aulastlog.$(OBJEXT) aulastlog-llist.$(OBJEXT)
+ aulastlog_OBJECTS = $(am_aulastlog_OBJECTS)
+ aulastlog_LDADD = $(LDADD)
++aulastlog_DEPENDENCIES = ${top_builddir}/auparse/libauparse.la
+ DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
+ depcomp =
+ am__depfiles_maybe =
+@@ -131,7 +132,7 @@ LDFLAGS = @LDFLAGS@
+ LIBOBJS = @LIBOBJS@
+ LIBPRELUDE_CFLAGS = @LIBPRELUDE_CFLAGS@
+ LIBPRELUDE_LDFLAGS = @LIBPRELUDE_LDFLAGS@
+-LIBS = -L${top_builddir}/auparse -lauparse
++LIBS = @LIBS@
+ LIBTOOL = @LIBTOOL@
+ LIBTOOL_DEPS = @LIBTOOL_DEPS@
+ LIBWRAP_LIBS = @LIBWRAP_LIBS@
+@@ -224,6 +225,7 @@ CONFIG_CLEAN_FILES = *.loT *.rej *.orig
+ AUTOMAKE_OPTIONS = no-dependencies
+ EXTRA_DIST = $(man_MANS)
+ INCLUDES = -I${top_srcdir} -I${top_srcdir}/auparse
++LDADD = ${top_builddir}/auparse/libauparse.la
+ noinst_HEADERS = aulastlog-llist.h
+ man_MANS = aulastlog.8
+ aulastlog_SOURCES = aulastlog.c aulastlog-llist.c
+--- a/tools/ausyscall/Makefile.am
++++ b/tools/ausyscall/Makefile.am
+@@ -24,7 +24,7 @@ CONFIG_CLEAN_FILES = *.loT *.rej *.orig
+ AUTOMAKE_OPTIONS = no-dependencies
+ EXTRA_DIST = $(man_MANS)
+ INCLUDES = -I${top_srcdir} -I${top_srcdir}/lib
+-LIBS = -L${top_builddir}/lib -laudit
++LDADD = ${top_builddir}/lib/libaudit.la
+ bin_PROGRAMS = ausyscall
+ man_MANS = ausyscall.8
+ 
+--- a/tools/ausyscall/Makefile.in
++++ b/tools/ausyscall/Makefile.in
+@@ -71,6 +71,7 @@ PROGRAMS = $(bin_PROGRAMS)
+ am_ausyscall_OBJECTS = ausyscall-ausyscall.$(OBJEXT)
+ ausyscall_OBJECTS = $(am_ausyscall_OBJECTS)
+ ausyscall_LDADD = $(LDADD)
++ausyscall_DEPENDENCIES = ${top_builddir}/lib/libaudit.la
+ ausyscall_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
+ 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(ausyscall_CFLAGS) \
+ 	$(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
+@@ -131,7 +132,7 @@ LDFLAGS = @LDFLAGS@
+ LIBOBJS = @LIBOBJS@
+ LIBPRELUDE_CFLAGS = @LIBPRELUDE_CFLAGS@
+ LIBPRELUDE_LDFLAGS = @LIBPRELUDE_LDFLAGS@
+-LIBS = -L${top_builddir}/lib -laudit
++LIBS = @LIBS@
+ LIBTOOL = @LIBTOOL@
+ LIBTOOL_DEPS = @LIBTOOL_DEPS@
+ LIBWRAP_LIBS = @LIBWRAP_LIBS@
+@@ -224,6 +225,7 @@ CONFIG_CLEAN_FILES = *.loT *.rej *.orig
+ AUTOMAKE_OPTIONS = no-dependencies
+ EXTRA_DIST = $(man_MANS)
+ INCLUDES = -I${top_srcdir} -I${top_srcdir}/lib
++LDADD = ${top_builddir}/lib/libaudit.la
+ man_MANS = ausyscall.8
+ ausyscall_SOURCES = ausyscall.c
+ ausyscall_CFLAGS = -g -D_GNU_SOURCE

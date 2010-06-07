@@ -1,0 +1,25 @@
+diff -rup Python-2.5.1-orig/Python/codecs.c Python-2.5.1/Python/codecs.c
+--- Python-2.5.1-orig/Python/codecs.c	2006-06-23 17:16:18.000000000 -0400
++++ Python-2.5.1/Python/codecs.c	2007-10-30 12:51:10.000000000 -0400
+@@ -45,6 +45,11 @@ int PyCodec_Register(PyObject *search_fu
+     return -1;
+ }
+ 
++/* isupper() forced into the ASCII Locale */
++#define ascii_isupper(x) (((x) >= 0x41) && ((x) <= 0x5A))
++/* tolower() forced into the ASCII Locale */
++#define ascii_tolower(x) (ascii_isupper(x) ? ((x) + 0x20) : (x))
++
+ /* Convert a string to a normalized Python string: all characters are
+    converted to lower case, spaces are replaced with underscores. */
+ 
+@@ -70,7 +75,7 @@ PyObject *normalizestring(const char *st
+         if (ch == ' ')
+             ch = '-';
+         else
+-            ch = tolower(Py_CHARMASK(ch));
++            ch = ascii_tolower(Py_CHARMASK(ch));
+ 	p[i] = ch;
+     }
+     return v;
+Only in Python-2.5.1/Python: codecs.c~

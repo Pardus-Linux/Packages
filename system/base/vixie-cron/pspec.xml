@@ -1,0 +1,164 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>vixie-cron</Name>
+        <Homepage>http://www.gentoo.org/</Homepage>
+        <Packager>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Packager>
+        <License>as-is</License>
+        <IsA>service</IsA>
+        <Summary>Paul Vixie's cron daemon, a fully featured crond implementation.</Summary>
+        <Description>Vixie cron (Cron is a daemon that runs scheduled tasks.) is a full featured cron implementation based on SysV cron. Each user has his own crontab ( Crontab (CRON TABle) is a file which contains the schedule of cron) and is allowed to specify environment variables within that crontab.</Description>
+        <Archive sha1sum="d8b087c0e5f7a2a9c74e3400b660756ab6d800c9" type="tarbz2">ftp://ftp.linux.org.tr/pub/gentoo/distfiles/vixie-cron-4.1.tar.bz2</Archive>
+        <BuildDependencies>
+            <Dependency versionFrom="4.0.5">sed</Dependency>
+            <Dependency>pam</Dependency>
+        </BuildDependencies>
+        <Patches>
+            <Patch compressionType="bz2" level="1">vixie-cron-4.1-gentoo-r4.patch.bz2</Patch>
+            <Patch level="0">crontab.5.diff</Patch>
+            <Patch level="0">vixie-cron-4.1-commandline.patch</Patch>
+            <Patch level="1">vixie-cron-4.1-pam.patch</Patch>
+            <Patch level="1">vixie-cron-4.1-CAN-2005-1038.patch</Patch>
+            <Patch>CVE-2006-2607.patch</Patch>
+            <Patch>CVE-2007-1856.patch</Patch>
+        </Patches>
+    </Source>
+
+    <Package>
+        <Name>vixie-cron</Name>
+        <RuntimeDependencies>
+            <Dependency>pam</Dependency>
+            <Dependency releaseFrom="17">comar-api</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="executable">/usr/sbin</Path>
+            <Path fileType="executable">/usr/bin</Path>
+            <Path fileType="config">/etc</Path>
+            <Path fileType="data">/var/spool</Path>
+            <Path fileType="doc">/usr/share/doc</Path>
+            <Path fileType="man">/usr/share/man</Path>
+        </Files>
+        <AdditionalFiles>
+            <AdditionalFile owner="root" permission="0755" target="/usr/sbin/run-crons">run-crons-0.3.1</AdditionalFile>
+            <AdditionalFile owner="root" permission="0600" target="/etc/crontab">crontab</AdditionalFile>
+            <AdditionalFile owner="root" permission="0644" target="/etc/cron.deny">vixie-cron-4.1-cron.deny</AdditionalFile>
+            <AdditionalFile owner="root" permission="0644" target="/etc/pam.d/cron">cron.pam.d</AdditionalFile>
+        </AdditionalFiles>
+        <Provides>
+            <COMAR script="package.py">System.Package</COMAR>
+            <COMAR script="service.py">System.Service</COMAR>
+        </Provides>
+    </Package>
+
+    <History>
+        <Update release="15">
+            <Date>2007-05-28</Date>
+            <Version>4.1</Version>
+            <Comment>From now on its' default is on.</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="14">
+            <Date>2007-05-23</Date>
+            <Version>4.1</Version>
+            <Comment>Updated Service script.</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="13" type="security">
+            <Date>2007-04-19</Date>
+            <Version>4.1</Version>
+            <Comment>Fixed crontab ownerships and permissions</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="12" type="security">
+            <Date>2007-04-16</Date>
+            <Version>4.1</Version>
+            <Comment>Fix CVE-2007-1856</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="11">
+            <Date>2007-02-05</Date>
+            <Version>4.1</Version>
+            <Comment>A little cleanup.</Comment>
+            <Name>Ahmet AYGÜN</Name>
+            <Email>ahmet@zion.gen.tr</Email>
+        </Update>
+        <Update release="10">
+            <Date>2006-11-20</Date>
+            <Version>4.1</Version>
+            <Comment>Service script localized.</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="9">
+            <Date>2006-10-09</Date>
+            <Version>4.1</Version>
+            <Comment>Service script updated.</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="8">
+            <Date>2006-07-11</Date>
+            <Version>4.1</Version>
+            <Comment>Service script updated.</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="7" type="security">
+            <Date>2006-05-26</Date>
+            <Version>4.1</Version>
+            <Comment>Fix CVE-2006-2607</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="6">
+            <Date>2006-03-29</Date>
+            <Version>4.1</Version>
+            <Comment>Service script and small bugfix</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="5">
+            <Date>2006-01-12</Date>
+            <Version>4.1</Version>
+            <Comment>Fixed bug #1849</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="4" type="security">
+            <Date>2005-10-27</Date>
+            <Version>4.1</Version>
+            <Comment>Fix CAN-2005-1038</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="3">
+            <Date>2005-10-16</Date>
+            <Version>4.1</Version>
+            <Comment>Added COMAR script to set file mods.</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="2">
+            <Date>2005-10-13</Date>
+            <Version>4.1</Version>
+            <Comment>Fixed wrong file mod.</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="1">
+            <Date>2005-10-13</Date>
+            <Version>4.1</Version>
+            <Comment>First release.</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+    </History>
+</PISI>

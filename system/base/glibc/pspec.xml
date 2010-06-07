@@ -1,0 +1,2025 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>glibc</Name>
+        <Homepage>http://www.gnu.org/software/libc</Homepage>
+        <Packager>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Packager>
+        <License>GPLv2</License>
+        <License>LGPLv2.1</License>
+        <IsA>library</IsA>
+        <Summary>GNU libc6 (also called glibc2) C library</Summary>
+        <Description>The GNU C library is used as the C library in the GNU system and most systems with the Linux kernel. It defines the system calls and other basic C programming language facilities.</Description>
+        <Archive sha1sum="f2eac639afdb3639361001daf002fa6567a5b3a6" type="tarbz2">http://cekirdek.pardus.org.tr/~onur/distfiles/glibc-20081113T2206.tar.bz2</Archive>
+        <BuildDependencies>
+            <Dependency versionFrom="2.6.25">kernel-headers</Dependency>
+            <Dependency>gettext</Dependency>
+        </BuildDependencies>
+        <Patches>
+            <Patch level="1">locale-no-archive.patch</Patch>
+            <Patch level="1">sandbox.patch</Patch>
+            <!-- https://bugs.launchpad.net/ubuntu/+source/gcc-4.3/+bug/305901 -->
+            <Patch level="1">no-sprintf-pre-truncate.diff</Patch>
+            <Patch level="1">stack-guard-quick-randomization.diff</Patch>
+            <Patch level="1">translation-ldconfig-tr.patch</Patch>
+
+            <!-- Ubuntu/Debian patches -->
+            <Patch level="1">all/local-alias-UTF-8.diff</Patch>
+            <Patch level="1">all/local-alias-et_EE.diff</Patch>
+            <Patch level="1">all/local-ru_RU.diff</Patch>
+            <Patch level="1">any/cvs-bz-9720-resource.diff</Patch>
+            <Patch level="1">any/cvs-bz697-posix-regexec.diff</Patch>
+            <Patch level="1">any/cvs-bz9697-posix-regcomp.diff</Patch>
+            <Patch level="1">any/cvs-bz9706-nss_nss-files_files-parse.diff</Patch>
+            <Patch level="1">any/local-dynamic-resolvconf.diff</Patch>
+            <Patch level="1">any/local-ldconfig-fsync.diff</Patch>
+            <Patch level="1">any/local-ldd.diff</Patch>
+            <Patch level="1">any/local-nss-overflow.diff</Patch>
+            <Patch level="1">any/submitted-clock-settime.diff</Patch>
+            <Patch level="1">any/submitted-date-and-unknown-tz.diff</Patch>
+            <Patch level="1">any/submitted-fileops-and-signals.diff</Patch>
+            <Patch level="1">any/submitted-getcwd-sys_param_h.diff</Patch>
+            <Patch level="1">any/submitted-libgcc_s.so.diff</Patch>
+            <Patch level="1">any/submitted-nis-netgrp.diff</Patch>
+            <Patch level="1">any/submitted-popen.diff</Patch>
+            <Patch level="1">any/submitted-sched_h.diff</Patch>
+            <Patch level="1">i386/local-clone.diff</Patch>
+            <Patch level="1">i386/local-cmov.diff</Patch>
+            <Patch level="1">i386/submitted-i686-timing.diff</Patch>
+            <Patch level="1">locale/LC_IDENTIFICATION-optional-fields.diff</Patch>
+            <Patch level="1">locale/fix-C-first_weekday.diff</Patch>
+            <Patch level="1">locale/first_weekday.diff</Patch>
+            <Patch level="1">locale/locale-print-LANGUAGE.diff</Patch>
+            <!-- Don't declare the fwrite and fwrite_unlocked functions with __attribute__((warn_unused_result)).
+                 See https://lists.ubuntu.com/archives/ubuntu-devel/2009-March/027832.html -->
+            <Patch>ubuntu/local-fwrite-no-attr-unused.diff</Patch>
+
+            <!-- Fedora patches -->
+            <Patch level="1">fedora/glibc-fixes1.patch</Patch>
+            <Patch level="1">fedora/glibc-nss_dns-gethostbyname4-disable.patch</Patch>
+
+            <!-- Gentoo patches -->
+            <Patch level="1">gentoo/0008_all_glibc-2.9-linker-scripts.patch</Patch>
+            <Patch level="1">gentoo/0050_all_glibc-_nss_dns_gethostbyaddr2_r-check-and-adjust-the-buffer-alignment.patch</Patch>
+            <Patch>gentoo/0085_all_glibc-disable-ldconfig.patch</Patch>
+            <Patch level="1">gentoo/1020_all_glibc-2.9-strlen-hack.patch</Patch>
+            <Patch level="1">gentoo/1160_all_glibc-2.8-nscd-one-fork.patch</Patch>
+            <Patch>gentoo/5021_all_2.9-fnmatch.patch</Patch>
+
+            <!-- http://securityreason.com/achievement_securityalert/53, #11610 -->
+            <Patch level="1">CVE-2008-1391-formatting-functions-integer-overflow.patch</Patch>
+            <Patch level="1">strfmon_widthcheck.patch</Patch>
+
+            <!-- http://bugs.pardus.org.tr/show_bug.cgi?id=12091 -->
+            <Patch level="1">CVE-2010-0015.patch</Patch>
+
+            <!-- http://bugs.pardus.org.tr/show_bug.cgi?id=13286 -->
+            <Patch level="1">CVE-2010-0830.patch</Patch>
+
+            <!-- http://bugs.pardus.org.tr/show_bug.cgi?id=13283 -->
+            <Patch level="1">CVE-2010-0296.patch</Patch>
+
+            <!-- Fix paths in 64bit -->
+            <Patch level="1">pure64.patch</Patch>
+        </Patches>
+    </Source>
+
+    <Package>
+        <Name>glibc</Name>
+        <RuntimeDependencies>
+            <Dependency>gettext</Dependency>
+        </RuntimeDependencies>
+        <Conflicts>
+            <Package>glibc-locales</Package>
+            <Package>memusage</Package>
+        </Conflicts>
+        <Files>
+            <Path fileType="config">/etc</Path>
+            <Path fileType="library">/lib</Path>
+            <Path fileType="executable">/usr/bin</Path>
+            <Path fileType="library">/usr/lib/</Path>
+            <Path fileType="executable">/usr/sbin</Path>
+            <Path fileType="man">/usr/share/man</Path>
+            <Path fileType="localedata">/usr/share/i18n</Path>
+            <Path fileType="localedata">/usr/share/locale</Path>
+            <Path fileType="header">/usr/include</Path>
+            <Path fileType="executable">/sbin</Path>
+            <Path fileType="data">/var</Path>
+        </Files>
+        <AdditionalFiles>
+            <AdditionalFile owner="root" permission="0644" target="/etc/host.conf">host.conf</AdditionalFile>
+            <AdditionalFile owner="root" permission="0644" target="/etc/nsswitch.conf">nsswitch.conf</AdditionalFile>
+            <AdditionalFile owner="root" permission="0644" target="/etc/nscd.conf">nscd.conf</AdditionalFile>
+        </AdditionalFiles>
+        <Provides>
+            <COMAR script="package.py">System.Package</COMAR>
+        </Provides>
+    </Package>
+
+    <Package>
+        <Name>glibc-doc</Name>
+        <PartOf>system.doc</PartOf>
+        <Files>
+            <Path fileType="doc">/usr/share/doc</Path>
+            <Path fileType="info">/usr/share/info</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-aa</Name>
+        <IsA>locale:aa</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/aa_DJ</Path>
+            <Path fileType="localedata">/usr/lib/locale/aa_DJ.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/aa_ER</Path>
+            <Path fileType="localedata">/usr/lib/locale/aa_ER@saaho</Path>
+            <Path fileType="localedata">/usr/lib/locale/aa_ET</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-af</Name>
+        <IsA>locale:af</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/af_ZA</Path>
+            <Path fileType="localedata">/usr/lib/locale/af_ZA.utf8</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-am</Name>
+        <IsA>locale:am</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/am_ET</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-an</Name>
+        <IsA>locale:an</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/an_ES</Path>
+            <Path fileType="localedata">/usr/lib/locale/an_ES.utf8</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-ar</Name>
+        <IsA>locale:ar</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/ar_AE</Path>
+            <Path fileType="localedata">/usr/lib/locale/ar_AE.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/ar_BH</Path>
+            <Path fileType="localedata">/usr/lib/locale/ar_BH.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/ar_DZ</Path>
+            <Path fileType="localedata">/usr/lib/locale/ar_DZ.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/ar_EG</Path>
+            <Path fileType="localedata">/usr/lib/locale/ar_EG.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/ar_IN</Path>
+            <Path fileType="localedata">/usr/lib/locale/ar_IQ</Path>
+            <Path fileType="localedata">/usr/lib/locale/ar_IQ.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/ar_JO</Path>
+            <Path fileType="localedata">/usr/lib/locale/ar_JO.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/ar_KW</Path>
+            <Path fileType="localedata">/usr/lib/locale/ar_KW.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/ar_LB</Path>
+            <Path fileType="localedata">/usr/lib/locale/ar_LB.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/ar_LY</Path>
+            <Path fileType="localedata">/usr/lib/locale/ar_LY.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/ar_MA</Path>
+            <Path fileType="localedata">/usr/lib/locale/ar_MA.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/ar_OM</Path>
+            <Path fileType="localedata">/usr/lib/locale/ar_OM.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/ar_QA</Path>
+            <Path fileType="localedata">/usr/lib/locale/ar_QA.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/ar_SA</Path>
+            <Path fileType="localedata">/usr/lib/locale/ar_SA.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/ar_SD</Path>
+            <Path fileType="localedata">/usr/lib/locale/ar_SD.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/ar_SY</Path>
+            <Path fileType="localedata">/usr/lib/locale/ar_SY.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/ar_TN</Path>
+            <Path fileType="localedata">/usr/lib/locale/ar_TN.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/ar_YE</Path>
+            <Path fileType="localedata">/usr/lib/locale/ar_YE.utf8</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-as</Name>
+        <IsA>locale:as</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/as_IN.utf8</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-ast</Name>
+        <IsA>locale:ast</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/ast_ES</Path>
+            <Path fileType="localedata">/usr/lib/locale/ast_ES.utf8</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-az</Name>
+        <IsA>locale:az</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/az_AZ.utf8</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-be</Name>
+        <IsA>locale:be</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/be_BY</Path>
+            <Path fileType="localedata">/usr/lib/locale/be_BY.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/be_BY@latin</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-ber</Name>
+        <IsA>locale:ber</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/ber_DZ</Path>
+            <Path fileType="localedata">/usr/lib/locale/ber_DZ.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/ber_MA</Path>
+        </Files>
+    </Package>
+
+
+    <Package>
+        <Name>glibc-locales-bg</Name>
+        <IsA>locale:bg</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/bg_BG</Path>
+            <Path fileType="localedata">/usr/lib/locale/bg_BG.utf8</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-bn</Name>
+        <IsA>locale:bn</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/bn_BD</Path>
+            <Path fileType="localedata">/usr/lib/locale/bn_IN</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-br</Name>
+        <IsA>locale:br</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/br_FR</Path>
+            <Path fileType="localedata">/usr/lib/locale/br_FR@euro</Path>
+            <Path fileType="localedata">/usr/lib/locale/br_FR.utf8</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-bo</Name>
+        <IsA>locale:bo</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/bo_CN</Path>
+            <Path fileType="localedata">/usr/lib/locale/bo_IN</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-bs</Name>
+        <IsA>locale:bs</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/bs_BA</Path>
+            <Path fileType="localedata">/usr/lib/locale/bs_BA.utf8</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-byn</Name>
+        <IsA>locale:byn</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/byn_ER</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-ca</Name>
+        <IsA>locale:ca</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/ca_ES</Path>
+            <Path fileType="localedata">/usr/lib/locale/ca_ES@euro</Path>
+            <Path fileType="localedata">/usr/lib/locale/ca_ES.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/ca_AD</Path>
+            <Path fileType="localedata">/usr/lib/locale/ca_AD.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/ca_FR</Path>
+            <Path fileType="localedata">/usr/lib/locale/ca_FR.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/ca_IT</Path>
+            <Path fileType="localedata">/usr/lib/locale/ca_IT.utf8</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-cs</Name>
+        <IsA>locale:cs</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/cs_CZ</Path>
+            <Path fileType="localedata">/usr/lib/locale/cs_CZ.utf8</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-csb</Name>
+        <IsA>locale:csb</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/csb_PL</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-crh</Name>
+        <IsA>locale:crh</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/crh_UA</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-cy</Name>
+        <IsA>locale:cy</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/cy_GB</Path>
+            <Path fileType="localedata">/usr/lib/locale/cy_GB.utf8</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-da</Name>
+        <IsA>locale:da</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/da_DK</Path>
+            <Path fileType="localedata">/usr/lib/locale/da_DK.utf8</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-de</Name>
+        <IsA>locale:de</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/de_AT</Path>
+            <Path fileType="localedata">/usr/lib/locale/de_AT@euro</Path>
+            <Path fileType="localedata">/usr/lib/locale/de_AT.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/de_BE</Path>
+            <Path fileType="localedata">/usr/lib/locale/de_BE@euro</Path>
+            <Path fileType="localedata">/usr/lib/locale/de_BE.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/de_CH</Path>
+            <Path fileType="localedata">/usr/lib/locale/de_CH.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/de_DE</Path>
+            <Path fileType="localedata">/usr/lib/locale/de_DE@euro</Path>
+            <Path fileType="localedata">/usr/lib/locale/de_DE.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/de_LU</Path>
+            <Path fileType="localedata">/usr/lib/locale/de_LU@euro</Path>
+            <Path fileType="localedata">/usr/lib/locale/de_LU.utf8</Path>
+        </Files>
+    </Package>
+
+     <Package>
+        <Name>glibc-locales-dz</Name>
+        <IsA>locale:dz</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/dz_BT</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-el</Name>
+        <IsA>locale:el</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/el_GR</Path>
+            <Path fileType="localedata">/usr/lib/locale/el_GR.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/el_CY</Path>
+            <Path fileType="localedata">/usr/lib/locale/el_CY.utf8</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-et</Name>
+        <IsA>locale:et</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/et_EE</Path>
+            <Path fileType="localedata">/usr/lib/locale/et_EE.iso885915</Path>
+            <Path fileType="localedata">/usr/lib/locale/et_EE.utf8</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-eu</Name>
+        <IsA>locale:eu</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/eu_ES</Path>
+            <Path fileType="localedata">/usr/lib/locale/eu_ES@euro</Path>
+            <Path fileType="localedata">/usr/lib/locale/eu_ES.utf8</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-en</Name>
+        <IsA>locale:en</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/en_AG</Path>
+            <Path fileType="localedata">/usr/lib/locale/en_AU</Path>
+            <Path fileType="localedata">/usr/lib/locale/en_AU.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/en_BW</Path>
+            <Path fileType="localedata">/usr/lib/locale/en_BW.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/en_CA</Path>
+            <Path fileType="localedata">/usr/lib/locale/en_CA.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/en_DK</Path>
+            <Path fileType="localedata">/usr/lib/locale/en_DK.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/en_GB</Path>
+            <Path fileType="localedata">/usr/lib/locale/en_GB.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/en_HK</Path>
+            <Path fileType="localedata">/usr/lib/locale/en_HK.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/en_IE</Path>
+            <Path fileType="localedata">/usr/lib/locale/en_IE@euro</Path>
+            <Path fileType="localedata">/usr/lib/locale/en_IE.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/en_IN</Path>
+            <Path fileType="localedata">/usr/lib/locale/en_NG</Path>
+            <Path fileType="localedata">/usr/lib/locale/en_NZ</Path>
+            <Path fileType="localedata">/usr/lib/locale/en_NZ.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/en_PH</Path>
+            <Path fileType="localedata">/usr/lib/locale/en_PH.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/en_SG</Path>
+            <Path fileType="localedata">/usr/lib/locale/en_SG.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/en_ZA</Path>
+            <Path fileType="localedata">/usr/lib/locale/en_ZA.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/en_ZW</Path>
+            <Path fileType="localedata">/usr/lib/locale/en_ZW.utf8</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-es</Name>
+        <IsA>locale:es</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/es_AR</Path>
+            <Path fileType="localedata">/usr/lib/locale/es_AR.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/es_BO</Path>
+            <Path fileType="localedata">/usr/lib/locale/es_BO.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/es_CL</Path>
+            <Path fileType="localedata">/usr/lib/locale/es_CL.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/es_CO</Path>
+            <Path fileType="localedata">/usr/lib/locale/es_CO.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/es_CR</Path>
+            <Path fileType="localedata">/usr/lib/locale/es_CR.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/es_DO</Path>
+            <Path fileType="localedata">/usr/lib/locale/es_DO.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/es_EC</Path>
+            <Path fileType="localedata">/usr/lib/locale/es_EC.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/es_ES</Path>
+            <Path fileType="localedata">/usr/lib/locale/es_ES@euro</Path>
+            <Path fileType="localedata">/usr/lib/locale/es_ES.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/es_GT</Path>
+            <Path fileType="localedata">/usr/lib/locale/es_GT.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/es_HN</Path>
+            <Path fileType="localedata">/usr/lib/locale/es_HN.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/es_MX</Path>
+            <Path fileType="localedata">/usr/lib/locale/es_MX.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/es_NI</Path>
+            <Path fileType="localedata">/usr/lib/locale/es_NI.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/es_PA</Path>
+            <Path fileType="localedata">/usr/lib/locale/es_PA.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/es_PE</Path>
+            <Path fileType="localedata">/usr/lib/locale/es_PE.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/es_PR</Path>
+            <Path fileType="localedata">/usr/lib/locale/es_PR.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/es_PY</Path>
+            <Path fileType="localedata">/usr/lib/locale/es_PY.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/es_SV</Path>
+            <Path fileType="localedata">/usr/lib/locale/es_SV.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/es_US</Path>
+            <Path fileType="localedata">/usr/lib/locale/es_US.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/es_UY</Path>
+            <Path fileType="localedata">/usr/lib/locale/es_UY.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/es_VE</Path>
+            <Path fileType="localedata">/usr/lib/locale/es_VE.utf8</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-fa</Name>
+        <IsA>locale:fa</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/fa_IR</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-fi</Name>
+        <IsA>locale:fi</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/fi_FI</Path>
+            <Path fileType="localedata">/usr/lib/locale/fi_FI@euro</Path>
+            <Path fileType="localedata">/usr/lib/locale/fi_FI.utf8</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-fil</Name>
+        <IsA>locale:fil</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/fil_PH</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-fur</Name>
+        <IsA>locale:fur</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/fur_IT</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-fo</Name>
+        <IsA>locale:fo</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/fo_FO</Path>
+            <Path fileType="localedata">/usr/lib/locale/fo_FO.utf8</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-fr</Name>
+        <IsA>locale:fr</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/fr_BE</Path>
+            <Path fileType="localedata">/usr/lib/locale/fr_BE@euro</Path>
+            <Path fileType="localedata">/usr/lib/locale/fr_BE.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/fr_CA</Path>
+            <Path fileType="localedata">/usr/lib/locale/fr_CA.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/fr_CH</Path>
+            <Path fileType="localedata">/usr/lib/locale/fr_CH.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/fr_FR</Path>
+            <Path fileType="localedata">/usr/lib/locale/fr_FR@euro</Path>
+            <Path fileType="localedata">/usr/lib/locale/fr_FR.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/fr_LU</Path>
+            <Path fileType="localedata">/usr/lib/locale/fr_LU@euro</Path>
+            <Path fileType="localedata">/usr/lib/locale/fr_LU.utf8</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-fy</Name>
+        <IsA>locale:fy</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/fy_DE</Path>
+            <Path fileType="localedata">/usr/lib/locale/fy_NL</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-ga</Name>
+        <IsA>locale:ga</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/ga_IE</Path>
+            <Path fileType="localedata">/usr/lib/locale/ga_IE@euro</Path>
+            <Path fileType="localedata">/usr/lib/locale/ga_IE.utf8</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-gd</Name>
+        <IsA>locale:gd</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/gd_GB</Path>
+            <Path fileType="localedata">/usr/lib/locale/gd_GB.utf8</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-gez</Name>
+        <IsA>locale:gez</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/gez_ER</Path>
+            <Path fileType="localedata">/usr/lib/locale/gez_ER@abegede</Path>
+            <Path fileType="localedata">/usr/lib/locale/gez_ET</Path>
+            <Path fileType="localedata">/usr/lib/locale/gez_ET@abegede</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-gl</Name>
+        <IsA>locale:gl</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/gl_ES</Path>
+            <Path fileType="localedata">/usr/lib/locale/gl_ES@euro</Path>
+            <Path fileType="localedata">/usr/lib/locale/gl_ES.utf8</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-gu</Name>
+        <IsA>locale:gu</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/gu_IN</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-gv</Name>
+        <IsA>locale:gv</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/gv_GB</Path>
+            <Path fileType="localedata">/usr/lib/locale/gv_GB.utf8</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-ha</Name>
+        <IsA>locale:ha</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/ha_NG</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-hsb</Name>
+        <IsA>locale:hsb</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/hsb_DE</Path>
+            <Path fileType="localedata">/usr/lib/locale/hsb_DE.utf8</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-hy</Name>
+        <IsA>locale:hy</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/hy_AM</Path>
+            <Path fileType="localedata">/usr/lib/locale/hy_AM.armscii8</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-he</Name>
+        <IsA>locale:he</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/he_IL</Path>
+            <Path fileType="localedata">/usr/lib/locale/he_IL.utf8</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-hi</Name>
+        <IsA>locale:hi</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/hi_IN</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-hne</Name>
+        <IsA>locale:hne</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/hne_IN</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-hr</Name>
+        <IsA>locale:hr</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/hr_HR</Path>
+            <Path fileType="localedata">/usr/lib/locale/hr_HR.utf8</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-ht</Name>
+        <IsA>locale:ht</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/ht_HT</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-hu</Name>
+        <IsA>locale:hu</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/hu_HU</Path>
+            <Path fileType="localedata">/usr/lib/locale/hu_HU.utf8</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-id</Name>
+        <IsA>locale:id</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/id_ID</Path>
+            <Path fileType="localedata">/usr/lib/locale/id_ID.utf8</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-ig</Name>
+        <IsA>locale:ig</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/ig_NG</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-is</Name>
+        <IsA>locale:is</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/is_IS</Path>
+            <Path fileType="localedata">/usr/lib/locale/is_IS.utf8</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-it</Name>
+        <IsA>locale:it</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/it_CH</Path>
+            <Path fileType="localedata">/usr/lib/locale/it_CH.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/it_IT</Path>
+            <Path fileType="localedata">/usr/lib/locale/it_IT@euro</Path>
+            <Path fileType="localedata">/usr/lib/locale/it_IT.utf8</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-ik</Name>
+        <IsA>locale:ik</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/ik_CA</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-iu</Name>
+        <IsA>locale:iu</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/iu_CA</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-iw</Name>
+        <IsA>locale:iw</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/iw_IL</Path>
+            <Path fileType="localedata">/usr/lib/locale/iw_IL.utf8</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-ja</Name>
+        <IsA>locale:ja</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/ja_JP.eucjp</Path>
+            <Path fileType="localedata">/usr/lib/locale/ja_JP.utf8</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-ka</Name>
+        <IsA>locale:ka</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/ka_GE</Path>
+            <Path fileType="localedata">/usr/lib/locale/ka_GE.utf8</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-kk</Name>
+        <IsA>locale:kk</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/kk_KZ</Path>
+            <Path fileType="localedata">/usr/lib/locale/kk_KZ.utf8</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-kl</Name>
+        <IsA>locale:kl</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/kl_GL</Path>
+            <Path fileType="localedata">/usr/lib/locale/kl_GL.utf8</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-kn</Name>
+        <IsA>locale:kn</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/kn_IN</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-ko</Name>
+        <IsA>locale:ko</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/ko_KR.euckr</Path>
+            <Path fileType="localedata">/usr/lib/locale/ko_KR.utf8</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-km</Name>
+        <IsA>locale:km</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/km_KH</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-ks</Name>
+        <IsA>locale:ks</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/ks_IN@devanagari</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-ku</Name>
+        <IsA>locale:ku</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/ku_TR</Path>
+            <Path fileType="localedata">/usr/lib/locale/ku_TR.utf8</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-ky</Name>
+        <IsA>locale:ky</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/ky_KG</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-kw</Name>
+        <IsA>locale:kw</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/kw_GB</Path>
+            <Path fileType="localedata">/usr/lib/locale/kw_GB.utf8</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-lg</Name>
+        <IsA>locale:lg</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/lg_UG</Path>
+            <Path fileType="localedata">/usr/lib/locale/lg_UG.utf8</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-lo</Name>
+        <IsA>locale:lo</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/lo_LA</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-lt</Name>
+        <IsA>locale:lt</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/lt_LT</Path>
+            <Path fileType="localedata">/usr/lib/locale/lt_LT.utf8</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-li</Name>
+        <IsA>locale:li</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/li_BE</Path>
+            <Path fileType="localedata">/usr/lib/locale/li_NL</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-lv</Name>
+        <IsA>locale:lv</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/lv_LV</Path>
+            <Path fileType="localedata">/usr/lib/locale/lv_LV.utf8</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-mai</Name>
+        <IsA>locale:mai</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/mai_IN</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-mg</Name>
+        <IsA>locale:mg</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/mg_MG</Path>
+            <Path fileType="localedata">/usr/lib/locale/mg_MG.utf8</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-mi</Name>
+        <IsA>locale:mi</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/mi_NZ</Path>
+            <Path fileType="localedata">/usr/lib/locale/mi_NZ.utf8</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-mk</Name>
+        <IsA>locale:mk</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/mk_MK</Path>
+            <Path fileType="localedata">/usr/lib/locale/mk_MK.utf8</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-ml</Name>
+        <IsA>locale:ml</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/ml_IN</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-mn</Name>
+        <IsA>locale:mn</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/mn_MN</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-mr</Name>
+        <IsA>locale:mr</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/mr_IN</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-ms</Name>
+        <IsA>locale:ms</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/ms_MY</Path>
+            <Path fileType="localedata">/usr/lib/locale/ms_MY.utf8</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-mt</Name>
+        <IsA>locale:mt</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/mt_MT</Path>
+            <Path fileType="localedata">/usr/lib/locale/mt_MT.utf8</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-nb</Name>
+        <IsA>locale:nb</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/nb_NO</Path>
+            <Path fileType="localedata">/usr/lib/locale/nb_NO.utf8</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-nds</Name>
+        <IsA>locale:nds</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/nds_DE</Path>
+            <Path fileType="localedata">/usr/lib/locale/nds_NL</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-ne</Name>
+        <IsA>locale:ne</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/ne_NP</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-nl</Name>
+        <IsA>locale:nl</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/nl_AW</Path>
+            <Path fileType="localedata">/usr/lib/locale/nl_BE</Path>
+            <Path fileType="localedata">/usr/lib/locale/nl_BE@euro</Path>
+            <Path fileType="localedata">/usr/lib/locale/nl_BE.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/nl_NL</Path>
+            <Path fileType="localedata">/usr/lib/locale/nl_NL@euro</Path>
+            <Path fileType="localedata">/usr/lib/locale/nl_NL.utf8</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-nn</Name>
+        <IsA>locale:nn</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/nn_NO</Path>
+            <Path fileType="localedata">/usr/lib/locale/nn_NO.utf8</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-nr</Name>
+        <IsA>locale:nr</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/nr_ZA</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-nso</Name>
+        <IsA>locale:nso</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/nso_ZA</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-oc</Name>
+        <IsA>locale:oc</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/oc_FR</Path>
+            <Path fileType="localedata">/usr/lib/locale/oc_FR.utf8</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-om</Name>
+        <IsA>locale:om</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/om_ET</Path>
+            <Path fileType="localedata">/usr/lib/locale/om_KE</Path>
+            <Path fileType="localedata">/usr/lib/locale/om_KE.utf8</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-or</Name>
+        <IsA>locale:or</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/or_IN</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-pa</Name>
+        <IsA>locale:pa</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/pa_IN</Path>
+            <Path fileType="localedata">/usr/lib/locale/pa_PK</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-pap</Name>
+        <IsA>locale:pap</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/pap_AN</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-pl</Name>
+        <IsA>locale:pl</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/pl_PL</Path>
+            <Path fileType="localedata">/usr/lib/locale/pl_PL.utf8</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-pt</Name>
+        <IsA>locale:pt</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/pt_BR</Path>
+            <Path fileType="localedata">/usr/lib/locale/pt_BR.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/pt_PT</Path>
+            <Path fileType="localedata">/usr/lib/locale/pt_PT@euro</Path>
+            <Path fileType="localedata">/usr/lib/locale/pt_PT.utf8</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-ro</Name>
+        <IsA>locale:ro</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/ro_RO</Path>
+            <Path fileType="localedata">/usr/lib/locale/ro_RO.utf8</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-ru</Name>
+        <IsA>locale:ru</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/ru_RU</Path>
+            <Path fileType="localedata">/usr/lib/locale/ru_RU.koi8r</Path>
+            <Path fileType="localedata">/usr/lib/locale/ru_RU.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/ru_UA</Path>
+            <Path fileType="localedata">/usr/lib/locale/ru_UA.utf8</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-rw</Name>
+        <IsA>locale:rw</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/rw_RW</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-sa</Name>
+        <IsA>locale:sa</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/sa_IN</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-sc</Name>
+        <IsA>locale:sc</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/sc_IT</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-sd</Name>
+        <IsA>locale:sd</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/sd_IN</Path>
+            <Path fileType="localedata">/usr/lib/locale/sd_IN@devanagari</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-se</Name>
+        <IsA>locale:se</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/se_NO</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-shs</Name>
+        <IsA>locale:shs</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/shs_CA</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-si</Name>
+        <IsA>locale:si</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/si_LK</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-sid</Name>
+        <IsA>locale:sid</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/sid_ET</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-sk</Name>
+        <IsA>locale:sk</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/sk_SK</Path>
+            <Path fileType="localedata">/usr/lib/locale/sk_SK.utf8</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-sl</Name>
+        <IsA>locale:sl</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/sl_SI</Path>
+            <Path fileType="localedata">/usr/lib/locale/sl_SI.utf8</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-sr</Name>
+        <IsA>locale:sr</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/sr_CS</Path>
+            <Path fileType="localedata">/usr/lib/locale/sr_CS.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/sr_RS</Path>
+            <Path fileType="localedata">/usr/lib/locale/sr_RS@latin</Path>
+            <Path fileType="localedata">/usr/lib/locale/sr_ME</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-so</Name>
+        <IsA>locale:so</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/so_DJ</Path>
+            <Path fileType="localedata">/usr/lib/locale/so_DJ.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/so_ET</Path>
+            <Path fileType="localedata">/usr/lib/locale/so_KE</Path>
+            <Path fileType="localedata">/usr/lib/locale/so_KE.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/so_SO</Path>
+            <Path fileType="localedata">/usr/lib/locale/so_SO.utf8</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-sq</Name>
+        <IsA>locale:sq</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/sq_AL</Path>
+            <Path fileType="localedata">/usr/lib/locale/sq_AL.utf8</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-st</Name>
+        <IsA>locale:st</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/st_ZA</Path>
+            <Path fileType="localedata">/usr/lib/locale/st_ZA.utf8</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-ss</Name>
+        <IsA>locale:ss</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/ss_ZA</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-sv</Name>
+        <IsA>locale:sv</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/sv_FI</Path>
+            <Path fileType="localedata">/usr/lib/locale/sv_FI@euro</Path>
+            <Path fileType="localedata">/usr/lib/locale/sv_FI.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/sv_SE</Path>
+            <Path fileType="localedata">/usr/lib/locale/sv_SE.utf8</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-ta</Name>
+        <IsA>locale:ta</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/ta_IN</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-te</Name>
+        <IsA>locale:te</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/te_IN</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-tg</Name>
+        <IsA>locale:tg</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/tg_TJ</Path>
+            <Path fileType="localedata">/usr/lib/locale/tg_TJ.utf8</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-th</Name>
+        <IsA>locale:th</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/th_TH</Path>
+            <Path fileType="localedata">/usr/lib/locale/th_TH.utf8</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-tk</Name>
+        <IsA>locale:tk</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/tk_TM</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-ti</Name>
+        <IsA>locale:ti</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/ti_ER</Path>
+            <Path fileType="localedata">/usr/lib/locale/ti_ET</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-tig</Name>
+        <IsA>locale:tig</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/tig_ER</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-tl</Name>
+        <IsA>locale:tl</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/tl_PH</Path>
+            <Path fileType="localedata">/usr/lib/locale/tl_PH.utf8</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-tt</Name>
+        <IsA>locale:tt</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/tt_RU.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/tt_RU@iqtelif.UTF-8</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-tn</Name>
+        <IsA>locale:tn</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/tn_ZA</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-ts</Name>
+        <IsA>locale:ts</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/ts_ZA</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-ug</Name>
+        <IsA>locale:ug</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/ug_CN</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-uk</Name>
+        <IsA>locale:uk</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/uk_UA</Path>
+            <Path fileType="localedata">/usr/lib/locale/uk_UA.utf8</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-ur</Name>
+        <IsA>locale:ur</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/ur_PK</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-uz</Name>
+        <IsA>locale:uz</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/uz_UZ</Path>
+            <Path fileType="localedata">/usr/lib/locale/uz_UZ@cyrillic</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-ve</Name>
+        <IsA>locale:ve</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/ve_ZA</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-vi</Name>
+        <IsA>locale:vi</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/vi_VN</Path>
+            <Path fileType="localedata">/usr/lib/locale/vi_VN.tcvn</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-wa</Name>
+        <IsA>locale:wa</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/wa_BE</Path>
+            <Path fileType="localedata">/usr/lib/locale/wa_BE@euro</Path>
+            <Path fileType="localedata">/usr/lib/locale/wa_BE.utf8</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-wo</Name>
+        <IsA>locale:wo</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/wo_SN</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-xh</Name>
+        <IsA>locale:xh</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/xh_ZA</Path>
+            <Path fileType="localedata">/usr/lib/locale/xh_ZA.utf8</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-yi</Name>
+        <IsA>locale:yi</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/yi_US</Path>
+            <Path fileType="localedata">/usr/lib/locale/yi_US.utf8</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-yo</Name>
+        <IsA>locale:yo</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/yo_NG</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-zh</Name>
+        <IsA>locale:zh</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/zh_CN</Path>
+            <Path fileType="localedata">/usr/lib/locale/zh_CN.gb18030</Path>
+            <Path fileType="localedata">/usr/lib/locale/zh_CN.gbk</Path>
+            <Path fileType="localedata">/usr/lib/locale/zh_CN.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/zh_HK</Path>
+            <Path fileType="localedata">/usr/lib/locale/zh_HK.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/zh_SG</Path>
+            <Path fileType="localedata">/usr/lib/locale/zh_SG.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/zh_SG.gbk</Path>
+            <Path fileType="localedata">/usr/lib/locale/zh_TW</Path>
+            <Path fileType="localedata">/usr/lib/locale/zh_TW.euctw</Path>
+            <Path fileType="localedata">/usr/lib/locale/zh_TW.utf8</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-zu</Name>
+        <IsA>locale:zu</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/zu_ZA</Path>
+            <Path fileType="localedata">/usr/lib/locale/zu_ZA.utf8</Path>
+        </Files>
+    </Package>
+
+    <History>
+        <Update release="51" type="security">
+            <Date>2010-06-02</Date>
+            <Version>2.9</Version>
+            <Comment>
+                Fix handling if newline in addmntent, CVE-2010-0296 bug #13283
+                Use correct type when casting d_tag, CVE-2010-0830 bug #13286
+            </Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="50">
+            <Date>2010-03-01</Date>
+            <Version>2.9</Version>
+            <Comment>Teach linker stuff our x86_64 paths</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="49">
+            <Date>2010-02-24</Date>
+            <Version>2.9</Version>
+            <Comment>Force install in prefix/lib in x86_64</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="48">
+            <Date>2010-02-19</Date>
+            <Version>2.9</Version>
+            <Comment>Set CFLAGS according to the architecture.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="47" type="security">
+            <Date>2010-01-20</Date>
+            <Version>2.9</Version>
+            <Comment>Fix NIS shadow password leakage, CVE-2010-0015, bug (#12091)</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="46">
+            <Date>2009-12-18</Date>
+            <Version>2.9</Version>
+            <Comment>
+                Timezone package is replacing glibc-zoneinfo now, remove dump-tz-db, zdump, zic and /usr/share/zoneinfo
+            </Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="45" type="security">
+            <Date>2009-12-03</Date>
+            <Version>2.9</Version>
+            <Comment>Properly check width in strfmon(), completes fix of integer overflow CVE-2008-1391 bug #11610</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="44" type="security">
+            <Date>2009-11-24</Date>
+            <Version>2.9</Version>
+            <Comment>Fix integer overflow in formatting functions, strfmon() integer overflow (CVE-2008-1391) (#11610)</Comment>
+            <Name>Eren Türkay</Name>
+            <Email>eren@pardus.org.tr</Email>
+        </Update>
+        <Update release="43">
+            <Date>2009-07-15</Date>
+            <Version>2.9</Version>
+            <Comment>Split more locales</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="42">
+            <Date>2009-06-30</Date>
+            <Version>2.9</Version>
+            <Comment>Add a patch to generate a Timezone lookup DB which will be shipped by glibc-zoneinfo.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="41">
+            <Date>2009-06-15</Date>
+            <Version>2.9</Version>
+            <Comment>Add IsA tag for locales</Comment>
+            <Name>Gökmen Göksel</Name>
+            <Email>gokmen@pardus.org.tr</Email>
+        </Update>
+        <Update release="40">
+            <Date>2009-06-13</Date>
+            <Version>2.9</Version>
+            <Comment>Split docs to seperate package</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="39">
+            <Date>2009-04-29</Date>
+            <Version>2.9</Version>
+            <Comment>
+                Correctly link with new binutils
+                Fork nscd only once
+                Correct strlen hack
+                Fix gethostbyaddr2 buffer allignment
+                Fix fnmatch for one byte chars in two byte environments
+            </Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="38">
+            <Date>2009-04-15</Date>
+            <Version>2.9</Version>
+            <Comment>Enable local-fwrite-no-attr-unused.diff since the segfaults seems to be from gettext</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="37">
+            <Date>2009-04-11</Date>
+            <Version>2.9</Version>
+            <Comment>Disable local-fwrite-no-attr-unused.diff until we are sure it is ok</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="36">
+            <Date>2009-04-09</Date>
+            <Version>2.9</Version>
+            <Comment>Avoid linking with gd which is out-of-system-base.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="35">
+            <Date>2009-03-28</Date>
+            <Version>2.9</Version>
+            <Comment>Don't declare the fwrite and fwrite_unlocked functions with __attribute__((warn_unused_result)), by Ozan</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="34">
+            <Date>2009-03-14</Date>
+            <Version>2.9</Version>
+            <Comment>
+                Fix first day of the week for many locales
+                Fix Turkish translation of ldconfig
+            </Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="33">
+            <Date>2009-02-09</Date>
+            <Version>2.9</Version>
+            <Comment>Switch to Fedora style and make 2.6.25 as glibc base kernel version</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="32">
+            <Date>2009-01-29</Date>
+            <Version>2.9</Version>
+            <Comment>Version bump and add some fixes</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="31">
+            <Date>2009-01-12</Date>
+            <Version>2.8</Version>
+            <Comment>Fix actions API usage errors</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="30">
+            <Date>2009-01-12</Date>
+            <Version>2.8</Version>
+            <Comment>Fix sprintf (and family) pretruncate with FORTIFY_SOURCE and O?, which borks on lots of packages, thanks to Ozan</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="29">
+            <Date>2008-11-14</Date>
+            <Version>2.8</Version>
+            <Comment>Fix nsswitch.conf hosts setting, to get quicker replies when addr resolution fails, see bug #7919 for details, also fix sandbox violation</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="28">
+            <Date>2008-04-11</Date>
+            <Version>2.8</Version>
+            <Comment>Bump to stable release</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="27">
+            <Date>2008-04-09</Date>
+            <Version>2.7.90</Version>
+            <Comment>Sync with trunk</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="26">
+            <Date>2008-02-06</Date>
+            <Version>2.7_20080112</Version>
+            <Comment>Sync with trunk</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="25" type="security">
+            <Date>2007-11-16</Date>
+            <Version>2.7</Version>
+            <Comment>Fix http://www.securityfocus.com/archive/1/483648/30/30/threaded</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="24">
+            <Date>2007-10-19</Date>
+            <Version>2.7</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="23">
+            <Date>2007-08-03</Date>
+            <Version>2.6.1</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="22" type="security">
+            <Date>2007-07-04</Date>
+            <Version>2.6</Version>
+            <Comment>Fix CVE-2007-3508</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="21">
+            <Date>2007-06-09</Date>
+            <Version>2.6</Version>
+            <Comment>Fix #2730</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="20">
+            <Date>2007-05-18</Date>
+            <Version>2.6</Version>
+            <Comment>Version bump to 2.6</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="19">
+            <Date>2007-05-01</Date>
+            <Version>2.5</Version>
+            <Comment>Version bump to 2.5.90-21 (from fedora)</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="18">
+            <Date>2007-04-11</Date>
+            <Version>2.5</Version>
+            <Comment>Version bump to 2.5.90-20 (from fedora)</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="17">
+            <Date>2007-03-25</Date>
+            <Version>2.5</Version>
+            <Comment>Version bump to 2.5.90-19 (from fedora)</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="16">
+            <Date>2006-12-30</Date>
+            <Version>2.5</Version>
+            <Comment>Version bump to 2.5, hashvals is now deprecated, lots of cleanup for package</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="15">
+            <Date>2006-10-29</Date>
+            <Version>2.3.6</Version>
+            <Comment>Split all locales into seperated locale packages</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="14">
+            <Date>2006-10-06</Date>
+            <Version>2.3.6</Version>
+            <Comment>Move nl* into glibc package, so glibc-locales can be excluded from CD</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="13">
+            <Date>2006-08-25</Date>
+            <Version>2.3.6</Version>
+            <Comment>Fix some performance issues since wrap-around segments as used by glibc need expensive extra handling (see http://wiki.xensource.com/xenwiki/XenSpecificGlibc)</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="12">
+            <Date>2006-07-09</Date>
+            <Version>2.3.6</Version>
+            <Comment>Remove unneeded files</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="11">
+            <Date>2006-04-01</Date>
+            <Version>2.3.6</Version>
+            <Comment>Version bump to latest stable</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="10">
+            <Date>2006-03-28</Date>
+            <Version>2.3.5</Version>
+            <Comment>Use madvise syscall to inform kernel about memory usage, and depend linux-headers-2.6.15+</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="9">
+            <Date>2005-11-28</Date>
+            <Version>2.3.5</Version>
+            <Comment>strip locales</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="8">
+            <Date>2005-11-16</Date>
+            <Version>2.3.5</Version>
+            <Comment>Fix #753</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="7">
+            <Date>2005-11-13</Date>
+            <Version>2.3.5</Version>
+            <Comment>Default timezone is set by util-linux package</Comment>
+            <Name>Gürer Özen</Name>
+            <Email>gurer@pardus.org.tr</Email>
+        </Update>
+        <Update release="6">
+            <Date>2005-11-05</Date>
+            <Version>2.3.5</Version>
+            <Comment>glibc-2.3.5-readahead.diff removed</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="5">
+            <Date>2005-10-30</Date>
+            <Version>2.3.5</Version>
+            <Comment>AdditionalFile permissions fixed</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="4">
+            <Date>2005-10-27</Date>
+            <Version>2.3.5</Version>
+            <Comment>glibc-2.3.5-readahead.diff added (for preloading libraries), with this we'll gain ~%5 extra performance</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="3">
+            <Date>2005-10-10</Date>
+            <Version>2.3.5</Version>
+            <Comment>Our toolchain is young enough for as-needed. So as-needed enabled</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="2">
+            <Date>2005-10-10</Date>
+            <Version>2.3.5</Version>
+            <Comment>Version bump</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="1">
+            <Date>2005-08-10</Date>
+            <Version>2.3.4.20041102</Version>
+            <Comment>First release.</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+    </History>
+</PISI>
+

@@ -1,0 +1,248 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>pam</Name>
+        <Homepage>http://www.kernel.org/pub/linux/libs/pam/</Homepage>
+        <Packager>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Packager>
+        <License>PAM</License>
+        <IsA>library</IsA>
+        <Summary>Pluggable Authentication Modules</Summary>
+        <Archive sha1sum="8baf11b04396230ba7cf8b2bfb2d2bd75aab8fa6" type="tarbz2">http://www.kernel.org/pub/linux/libs/pam/library/Linux-PAM-1.1.1.tar.bz2</Archive>
+        <AdditionalFiles>
+            <AdditionalFile target="dlopen.sh" permission="0755">fedora/dlopen.sh</AdditionalFile>
+            <AdditionalFile target="dlopen-test.sh" permission="0755">fedora/dlopen-test.sh</AdditionalFile>
+        </AdditionalFiles>
+        <BuildDependencies>
+            <Dependency>perl</Dependency>
+            <Dependency>audit</Dependency>
+            <Dependency>gettext</Dependency>
+            <Dependency>cracklib</Dependency>
+        </BuildDependencies>
+        <Patches>
+            <Patch level="1">fedora/pam-1.0.91-std-noclose.patch</Patch>
+            <Patch level="1">fedora/pam-1.1.0-notally.patch</Patch>
+            <Patch level="0">fedora/pam-1.1.1-authtok-prompt.patch</Patch>
+            <Patch level="1">no-lib64.patch</Patch>
+
+            <!-- Fix Turkish translations -->
+            <Patch level="1">tr.patch</Patch>
+        </Patches>
+    </Source>
+
+    <Package>
+        <Name>pam</Name>
+        <RuntimeDependencies>
+            <Dependency>audit</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="config">/etc</Path>
+            <Path fileType="library">/lib</Path>
+            <Path fileType="data">/var/run/console</Path>
+            <Path fileType="library">/usr/lib</Path>
+            <Path fileType="executable">/sbin</Path>
+            <Path fileType="executable">/usr/sbin</Path>
+            <Path fileType="doc">/usr/share/doc</Path>
+            <Path fileType="man">/usr/share/man</Path>
+            <Path fileType="header">/usr/include</Path>
+            <Path fileType="localedata">/usr/share/locale</Path>
+        </Files>
+        <AdditionalFiles>
+            <AdditionalFile owner="root" permission="0644" target="/etc/limit.d/90-nproc.conf">90-nproc.conf</AdditionalFile>
+        </AdditionalFiles>
+        <Provides>
+            <COMAR script="postInstall.py">System.Package</COMAR>
+        </Provides>
+    </Package>
+
+    <History>
+        <Update release="26">
+            <Date>2010-05-31</Date>
+            <Version>1.1.1</Version>
+            <Comment>Fix translations (#4213)</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="25">
+            <Date>2010-03-01</Date>
+            <Version>1.1.1</Version>
+            <Comment>Do not use /lib64 on x86_64</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="24">
+            <Date>2010-02-23</Date>
+            <Version>1.1.1</Version>
+            <Comment>Version bump</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="23">
+            <Date>2009-04-20</Date>
+            <Version>1.0.4</Version>
+            <Comment>Fixed postInstall script changing mode of non-existing file.</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="22">
+            <Date>2009-04-11</Date>
+            <Version>1.0.4</Version>
+            <Comment>Drop XAUTHLOCALHOSTNAME patch as we don't need it in 2009</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="21" type="security">
+            <Date>2009-03-05</Date>
+            <Version>1.0.4</Version>
+            <Comment>Stable version bump to fix (CVE-2009-0579), (bug#9344) and fix include for out of tree build in tst-pam_mkargv.c.</Comment>
+            <Name>Pınar Yanardağ</Name>
+            <Email>pinar@pardus.org.tr</Email>
+        </Update>
+        <Update release="20" type="security">
+            <Date>2009-03-04</Date>
+            <Version>1.0.3</Version>
+            <Comment>Make pam to respect MINDAYS for password changing Aliases (CVE-2009-0579), (bug#9344).</Comment>
+            <Name>Pınar Yanardağ</Name>
+            <Email>pinar@pardus.org.tr</Email>
+        </Update>
+        <Update release="19">
+            <Date>2009-02-11</Date>
+            <Version>1.0.3</Version>
+            <Comment>Fix compatibility with new libtool</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="18">
+            <Date>2009-01-25</Date>
+            <Version>1.0.3</Version>
+            <Comment>
+                * Avoid multiple calls to sysconf
+                * Set XAUTHLOCALHOSTNAME when changing user with su -
+            </Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="17">
+            <Date>2009-01-23</Date>
+            <Version>1.0.3</Version>
+            <Comment>Stable update</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="16">
+            <Date>2008-09-01</Date>
+            <Version>1.0.2</Version>
+            <Comment>Stable update</Comment>
+            <Name>Faik Uygur</Name>
+            <Email>faik@pardus.org.tr</Email>
+        </Update>
+        <Update release="15">
+            <Date>2008-04-18</Date>
+            <Version>1.0.1</Version>
+            <Comment>Stable update</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="14">
+            <Date>2008-04-07</Date>
+            <Version>1.0.0</Version>
+            <Comment>Stable update</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="13">
+            <Date>2007-12-29</Date>
+            <Version>0.99.9.0</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="12" type="security">
+            <Date>2007-03-28</Date>
+            <Version>0.99.7.1</Version>
+            <Comment>Fix CVE-2007-1716</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="11">
+            <Date>2007-03-20</Date>
+            <Version>0.99.7.1</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="10">
+            <Date>2006-11-16</Date>
+            <Version>0.99.6.3</Version>
+            <Comment>Re-enabled pardus groups patch</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="9">
+            <Date>2006-11-10</Date>
+            <Version>0.99.6.3</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="8">
+            <Date>2006-09-18</Date>
+            <Version>0.99.4.0</Version>
+            <Comment>Use Pardus groups</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="7">
+            <Date>2006-06-29</Date>
+            <Version>0.99.4.0</Version>
+            <Comment>Don't install system-auth</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="6">
+            <Date>2006-06-15</Date>
+            <Version>0.99.4.0</Version>
+            <Comment>Don't change /dev/snd* owners (fix #2881)</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="5">
+            <Date>2006-05-25</Date>
+            <Version>0.99.4.0</Version>
+            <Comment>Version bump</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="4">
+            <Date>2006-03-19</Date>
+            <Version>0.99.3.0</Version>
+            <Comment>Enable pam_tally</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="3">
+            <Date>2006-03-19</Date>
+            <Version>0.99.3.0</Version>
+            <Comment>Add Turkish translation</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="2" type="security">
+            <Date>2006-03-05</Date>
+            <Version>0.99.3.0</Version>
+            <Comment>"We all love Kukuk" version bump</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="1">
+            <Date>2005-08-15</Date>
+            <Version>0.77</Version>
+            <Comment>First release.</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+    </History>
+</PISI>

@@ -1,0 +1,251 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>openssh</Name>
+        <Homepage>http://www.openssh.com/</Homepage>
+        <Packager>
+            <Name>Taner Taş</Name>
+            <Email>taner@pardus.org.tr</Email>
+        </Packager>
+        <License>BSD</License>
+        <IsA>app:console</IsA>
+        <IsA>service</IsA>
+        <IsA>library</IsA>
+        <Summary>Port of OpenBSD's free SSH release</Summary>
+        <Description>OpenSSH is a FREE version of the SSH connectivity tools that technical users of the Internet rely on. Users of telnet, rlogin, and ftp may not realize that their password is transmitted across the Internet unencrypted, but it is. OpenSSH encrypts all traffic (including passwords) to effectively eliminate eavesdropping, connection hijacking, and other attacks.</Description>
+        <Archive sha1sum="8273a0237db98179fbdc412207ff8eb14ff3d6de" type="targz">http://ftp.belnet.be/packages/openbsd/OpenSSH/portable/openssh-5.2p1.tar.gz</Archive>
+        <BuildDependencies>
+            <Dependency>ConsoleKit</Dependency>
+            <Dependency>dbus</Dependency>
+        </BuildDependencies>
+        <Patches>
+            <Patch level="1" compressionType="gz">openssh-5.2p1-hpn13v5.diff.gz</Patch>
+            <Patch level="1" compressionType="gz">openssh-5.2p1-consolekit.patch.gz</Patch>
+        </Patches>
+    </Source>
+
+    <Package>
+        <Name>openssh</Name>
+        <RuntimeDependencies>
+            <Dependency>ConsoleKit</Dependency>
+            <Dependency>comar-api</Dependency>
+            <Dependency>dbus</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="executable">/usr/bin</Path>
+            <Path fileType="executable">/usr/sbin</Path>
+            <Path fileType="library">/usr/lib</Path>
+            <Path fileType="doc">/usr/share/doc</Path>
+            <Path fileType="man">/usr/share/man</Path>
+            <Path fileType="config">/etc</Path>
+            <Path fileType="data">/usr/share/openssh</Path>
+            <Path fileType="data">/var/empty</Path>
+        </Files>
+        <AdditionalFiles>
+           <AdditionalFile owner="root" permission="0644" target="/etc/pam.d/sshd">sshd.pam</AdditionalFile>
+        </AdditionalFiles>
+        <Provides>
+            <COMAR script="service.py">System.Service</COMAR>
+        </Provides>
+    </Package>
+
+    <History>
+        <Update release="28">
+            <Date>2009-11-17</Date>
+            <Version>5.2_p1</Version>
+            <Comment>Rebuild to avoid pisi check symlink borkage</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="27">
+            <Date>2009-08-30</Date>
+            <Version>5.2_p1</Version>
+            <Comment>Add missing ssh-copy-id script and the related man page. Fixes #10992.</Comment>
+            <Name>Serdar Dalgıç</Name>
+            <Email>dalgic.srdr@gmail.com</Email>
+        </Update>
+        <Update release="26">
+            <Date>2009-03-19</Date>
+            <Version>5.2_p1</Version>
+            <Comment>Version bump</Comment>
+            <Name>David Stegbauer</Name>
+            <Email>daaste@gmail.com</Email>
+        </Update>
+        <Update release="25">
+            <Date>2009-02-12</Date>
+            <Version>5.1_p1</Version>
+            <Comment>Removed unnecessary dosed</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="24">
+            <Date>2008-08-18</Date>
+            <Version>5.1_p1</Version>
+            <Comment>Version bump</Comment>
+            <Name>Faik Uygur</Name>
+            <Email>faik@pardus.org.tr</Email>
+        </Update>
+        <Update release="23" type="security">
+            <Date>2008-04-10</Date>
+            <Version>5.0_p1</Version>
+            <Comment>Version bump and CVE-2008-1483 fixed</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="22" type="security">
+            <Date>2008-04-03</Date>
+            <Version>4.9_p1</Version>
+            <Comment>Version bump and CVE-2008-1657 fixed</Comment>
+            <Name>Ali Erdinç Köroğlu</Name>
+            <Email>erdinc@pardus.org.tr</Email>
+        </Update>
+        <Update release="21" type="security">
+            <Date>2008-03-26</Date>
+            <Version>4.7_p1</Version>
+            <Comment>Fix CVE-2008-1483. See: http://secunia.com/advisories/29522/</Comment>
+            <Name>Eren Türkay</Name>
+            <Email>turkay.eren@gmail.com</Email>
+        </Update>
+        <Update release="20">
+            <Date>2008-03-22</Date>
+            <Version>4.7_p1</Version>
+            <Comment>ConsoleKit support (patch from Ubuntu), ConsoleKit and DBus deps added</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="19" type="security">
+            <Date>2007-09-10</Date>
+            <Version>4.7_p1</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="18">
+            <Date>2007-08-14</Date>
+            <Version>4.6_p1</Version>
+            <Comment>chan_read_failed patch added, for more info https://bugzilla.mindrot.org/show_bug.cgi?id=1306</Comment>
+            <Name>Ali Erdinç Köroğlu</Name>
+            <Email>erdinc@pardus.org.tr</Email>
+        </Update>
+        <Update release="17">
+            <Date>2007-05-23</Date>
+            <Version>4.6_p1</Version>
+            <Comment>Updated Service script.</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="16">
+            <Date>2007-03-20</Date>
+            <Version>4.6_p1</Version>
+            <Comment>Don't use deprecated pam_stack</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="15">
+            <Date>2007-03-13</Date>
+            <Version>4.6_p1</Version>
+            <Comment>Version bump</Comment>
+            <Name>Ali Erdinç Köroğlu</Name>
+            <Email>erdinc@pardus.org.tr</Email>
+        </Update>
+        <Update release="14">
+            <Date>2007-01-27</Date>
+            <Version>4.5_p1</Version>
+            <Comment>Add ServerAliveInterval into ssh_config</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="13">
+            <Date>2006-11-10</Date>
+            <Version>4.5_p1</Version>
+            <Comment>sshd_config UseDNS parameter changes</Comment>
+            <Name>Ali Erdinç Köroğlu</Name>
+            <Email>erdinc@pardus.org.tr</Email>
+        </Update>
+        <Update release="12">
+            <Date>2006-11-08</Date>
+            <Version>4.5_p1</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="11" type="security">
+            <Date>2006-11-04</Date>
+            <Version>4.4_p1</Version>
+            <Comment>Chroot patch correction</Comment>
+            <Name>Ali Erdinç Köroğlu</Name>
+            <Email>erdinc@pardus.org.tr</Email>
+        </Update>
+        <Update release="10">
+            <Date>2006-10-09</Date>
+            <Version>4.4_p1</Version>
+            <Comment>Service script updated.</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="9" type="security">
+            <Date>2006-09-28</Date>
+            <Version>4.4_p1</Version>
+            <Comment>Stable update to fix CVE-2006-5051</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="8" type="security">
+            <Date>2006-09-27</Date>
+            <Version>4.3_p2</Version>
+            <Comment>Prevent a possible DoS attack (CVE-2006-4924)</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="7">
+            <Date>2006-05-23</Date>
+            <Version>4.3_p2</Version>
+            <Comment>New stable release</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="6">
+            <Date>2006-04-14</Date>
+            <Version>4.3_p1</Version>
+            <Comment>Comar init script</Comment>
+            <Name>Gürer Özen</Name>
+            <Email>gurer@pardus.org.tr</Email>
+        </Update>
+        <Update release="5">
+            <Date>2006-03-14</Date>
+            <Version>4.3_p1</Version>
+            <Comment>Add a script for scp resume</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="4" type="security">
+            <Date>2006-02-01</Date>
+            <Version>4.3_p1</Version>
+            <Comment>New stable release</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="3">
+            <Date>2005-11-07</Date>
+            <Version>4.2_p1</Version>
+            <Comment>Install /etc/ssh files too</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="2" type="security">
+            <Date>2005-10-27</Date>
+            <Version>4.2_p1</Version>
+            <Comment>Update to version 4.2_p1</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="1">
+            <Date>2005-08-08</Date>
+            <Version>3.9_p1</Version>
+            <Comment>First release.</Comment>
+            <Name>A. Murat Eren</Name>
+            <Email>meren@pardus.org.tr</Email>
+        </Update>
+    </History>
+</PISI>

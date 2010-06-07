@@ -1,0 +1,33 @@
+diff -up attr-2.4.43/libattr/attr_copy_action.c.leak attr-2.4.43/libattr/attr_copy_action.c
+--- attr-2.4.43/libattr/attr_copy_action.c.leak	2008-06-30 07:22:50.000000000 +0200
++++ attr-2.4.43/libattr/attr_copy_action.c	2009-02-17 09:50:38.000000000 +0100
+@@ -53,7 +53,7 @@ free_attr_actions(void)
+ static int
+ attr_parse_attr_conf(struct error_context *ctx)
+ {
+-	char *text, *t;
++	char *text = NULL, *t;
+ 	size_t size_guess = 4096, len;
+ 	FILE *file;
+ 	char *pattern = NULL;
+@@ -64,15 +64,16 @@ attr_parse_attr_conf(struct error_contex
+ 		return 0;
+ 
+ repeat:
+-	text = malloc(size_guess + 1);
+-	if (!text)
+-		goto fail;
+-
+ 	if ((file = fopen(ATTR_CONF, "r")) == NULL) {
+ 		if (errno == ENOENT)
+ 			return 0;
+ 		goto fail;
+ 	}
++
++	text = malloc(size_guess + 1);
++	if (!text)
++		goto fail;
++
+ 	len = fread(text, 1, size_guess, file);
+ 	if (ferror(file))
+ 		goto fail;

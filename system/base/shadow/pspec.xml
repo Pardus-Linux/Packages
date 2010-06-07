@@ -1,0 +1,217 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>shadow</Name>
+        <Homepage>http://pkg-shadow.alioth.debian.org/</Homepage>
+        <Packager>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Packager>
+        <License>BSD</License>
+        <IsA>app:console</IsA>
+        <Summary>Utilities to deal with user accounts</Summary>
+        <Description>The Shadow password file utilities package includes programs necessary to convert traditional V7 *NIX password files to the SVR4 shadow password format, and additional tools to maintain password and group files (that work with both shadow and non-shadow passwords).</Description>
+        <Archive sha1sum="6cbd29104c219ff6776eececb8068f7326d57a45" type="tarbz2">ftp://pkg-shadow.alioth.debian.org/pub/pkg-shadow/shadow-4.1.2.2.tar.bz2</Archive>
+        <BuildDependencies>
+            <Dependency>pam</Dependency>
+            <Dependency>gettext</Dependency>
+            <Dependency>audit</Dependency>
+        </BuildDependencies>
+        <Patches>
+            <Patch level="1">shadow-4.1.2-redhat.patch</Patch>
+            <Patch level="1">shadow-4.1.2-goodname.patch</Patch>
+            <Patch level="1">shadow-4.1.2-selinux.patch</Patch>
+            <Patch level="1">shadow-4.1.2-sysAccountDownhill.patch</Patch>
+            <Patch level="1">shadow-4.1.2-gmSEGV.patch</Patch>
+            <Patch level="1">shadow-4.1.2-audit.patch</Patch>
+            <Patch level="1">shadow-4.1.1-selinuxUserMappings.patch</Patch>
+            <Patch level="1">shadow-4.1.2-checkName.patch</Patch>
+            <Patch level="1">shadow-4.1.2-gmNoGroup.patch</Patch>
+
+            <!-- Fixes #5900, the problem of ignoring 3rd login attempt -->
+            <Patch level="1">shadow-4.0.15-maxtries.patch</Patch>
+
+            <!-- Fixes some little translations -->
+            <Patch level="1">tr.patch</Patch>
+            <Patch level="1">gettext-login.patch</Patch>
+        </Patches>
+    </Source>
+
+    <Package>
+        <Name>shadow</Name>
+        <RuntimeDependencies>
+            <Dependency>pam</Dependency>
+        </RuntimeDependencies>
+        <Conflicts>
+            <Package>pam-login</Package>
+        </Conflicts>
+        <Files>
+            <Path fileType="executable">/bin</Path>
+            <Path fileType="executable">/usr/bin</Path>
+            <Path fileType="executable">/sbin</Path>
+            <Path fileType="executable">/usr/sbin</Path>
+            <Path fileType="config">/etc</Path>
+            <Path fileType="library">/lib</Path>
+            <Path fileType="man">/usr/share/man</Path>
+            <Path fileType="doc">/usr/share/doc</Path>
+            <Path fileType="info">/usr/share/info</Path>
+            <Path fileType="localedata">/usr/share/locale</Path>
+        </Files>
+        <AdditionalFiles>
+            <AdditionalFile owner="root" permission="0600" target="/etc/securetty">securetty</AdditionalFile>
+            <AdditionalFile owner="root" permission="0600" target="/etc/default/useradd">default/useradd</AdditionalFile>
+            <AdditionalFile owner="root" permission="0644" target="/etc/pam.d/login">pam.d/login</AdditionalFile>
+            <AdditionalFile owner="root" permission="0644" target="/etc/pam.d/other">pam.d/other</AdditionalFile>
+            <AdditionalFile owner="root" permission="0644" target="/etc/pam.d/passwd">pam.d/passwd</AdditionalFile>
+            <AdditionalFile owner="root" permission="0644" target="/etc/pam.d/shadow">pam.d/shadow</AdditionalFile>
+            <AdditionalFile owner="root" permission="0644" target="/etc/pam.d/chage">pam.d/shadow</AdditionalFile>
+            <AdditionalFile owner="root" permission="0644" target="/etc/pam.d/chsh">pam.d/shadow</AdditionalFile>
+            <AdditionalFile owner="root" permission="0644" target="/etc/pam.d/chfn">pam.d/shadow</AdditionalFile>
+            <AdditionalFile owner="root" permission="0644" target="/etc/pam.d/chpasswd">pam.d/shadow</AdditionalFile>
+            <AdditionalFile owner="root" permission="0644" target="/etc/pam.d/newusers">pam.d/shadow</AdditionalFile>
+            <AdditionalFile owner="root" permission="0644" target="/etc/pam.d/useradd">pam.d/shadow</AdditionalFile>
+            <AdditionalFile owner="root" permission="0644" target="/etc/pam.d/userdel">pam.d/shadow</AdditionalFile>
+            <AdditionalFile owner="root" permission="0644" target="/etc/pam.d/usermod">pam.d/shadow</AdditionalFile>
+            <AdditionalFile owner="root" permission="0644" target="/etc/pam.d/groupadd">pam.d/shadow</AdditionalFile>
+            <AdditionalFile owner="root" permission="0644" target="/etc/pam.d/groupdel">pam.d/shadow</AdditionalFile>
+            <AdditionalFile owner="root" permission="0644" target="/etc/pam.d/groupmod">pam.d/shadow</AdditionalFile>
+            <AdditionalFile owner="root" permission="0644" target="/etc/pam.d/su">pam.d/su</AdditionalFile>
+            <AdditionalFile owner="root" permission="0644" target="/etc/pam.d/system-auth">pam.d/system-auth</AdditionalFile>
+            <AdditionalFile owner="root" permission="0644" target="/etc/login.defs">login.defs</AdditionalFile>
+        </AdditionalFiles>
+    </Package>
+
+    <History>
+        <Update release="18">
+            <Date>2010-06-01</Date>
+            <Version>4.1.2.2</Version>
+            <Comment>Correctly update .po files</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="17">
+            <Date>2010-05-31</Date>
+            <Version>4.1.2.2</Version>
+            <Comment>Update translations</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="16">
+            <Date>2009-02-11</Date>
+            <Version>4.1.2.2</Version>
+            <Comment>
+                Version bump
+                fix wrong actionsapi usage
+                set minimum password length
+            </Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="15">
+            <Date>2008-07-30</Date>
+            <Version>4.1.1</Version>
+            <Comment>Gettextize a forgotten string in login.c, fix some translations</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="14">
+            <Date>2008-07-12</Date>
+            <Version>4.1.1</Version>
+            <Comment>Add /usr/sbin and /sbin directories to PATH variable when su command is used</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="13">
+            <Date>2008-04-18</Date>
+            <Version>4.1.1</Version>
+            <Comment>Version bump</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="12">
+            <Date>2008-03-12</Date>
+            <Version>4.1.0</Version>
+            <Comment>Fixes #5900, the third login attempt problem</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="11">
+            <Date>2007-12-30</Date>
+            <Version>4.1.0</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="10">
+            <Date>2007-03-20</Date>
+            <Version>4.0.18.1</Version>
+            <Comment>Don't use deprecated pam_stack</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="9">
+            <Date>2007-01-14</Date>
+            <Version>4.0.18.1</Version>
+            <Comment>usermod --append shouldn't require an argument</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="8" type="security">
+            <Date>2006-11-16</Date>
+            <Version>4.0.18.1</Version>
+            <Comment>Fix chpasswd and chgpasswd stack overflow, fix #4110</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="7">
+            <Date>2006-11-10</Date>
+            <Version>4.0.18.1</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="6">
+            <Date>2006-11-02</Date>
+            <Version>4.0.16</Version>
+            <Comment>Don't install groups command</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="5">
+            <Date>2006-07-16</Date>
+            <Version>4.0.16</Version>
+            <Comment>Update Turkish translation</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="4">
+            <Date>2006-06-29</Date>
+            <Version>4.0.16</Version>
+            <Comment>Version bump</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="3">
+            <Date>2006-05-24</Date>
+            <Version>4.0.15</Version>
+            <Comment>Version bump</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="2" type="security">
+            <Date>2006-03-05</Date>
+            <Version>4.0.14</Version>
+            <Comment>Version bump</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="1">
+            <Date>2005-08-05</Date>
+            <Version>4.0.5</Version>
+            <Comment>First release.</Comment>
+            <Name>A. Murat Eren</Name>
+            <Email>meren@pardus.org.tr</Email>
+        </Update>
+    </History>
+</PISI>

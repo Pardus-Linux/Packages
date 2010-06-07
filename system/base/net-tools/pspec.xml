@@ -1,0 +1,414 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>net-tools</Name>
+        <Homepage>http://sites.inka.de/lina/linux/NetTools/</Homepage>
+        <Packager>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Packager>
+        <License>GPLv2</License>
+        <IsA>app:console</IsA>
+        <Summary>Standard Linux networking tools</Summary>
+        <Description>net-tools is a collection of programs that form the base set of the networking tools for the Linux operating system. It includes arp, hostname, ifconfig, ipmaddr, iptunnel, mii-tool, nameif, netstat, plipconfig, rarp, route and slattach.</Description>
+        <Archive sha1sum="944fb70641505d5d1139dba3aeb81ba124574b83" type="tarbz2">ftp://ftp.linux.org.tr/pub/mirrors/gentoo/distfiles/net-tools-1.60.tar.bz2</Archive>
+        <Patches>
+            <Patch compressionType="bz2" level="1">01_all_net-tools-1.60-2.6-compilefix.patch.bz2</Patch>
+            <Patch compressionType="bz2">02_all_net-tools-1.60-gcc34.patch.bz2</Patch>
+            <Patch compressionType="bz2">03_all_net-tools-1.60-cleanup-list-handling.patch.bz2</Patch>
+            <Patch compressionType="bz2" level="1">04_all_net-tools-1.60-get_name.patch.bz2</Patch>
+            <Patch compressionType="bz2" level="1">20_all_net-tools-1.54-ipvs.patch.bz2</Patch>
+            <Patch compressionType="bz2" level="1">21_all_net-tools-1.57-bug22040.patch.bz2</Patch>
+            <Patch compressionType="bz2">22_all_net-tools-1.60-manydevs.patch.bz2</Patch>
+            <Patch compressionType="bz2" level="1">23_all_net-tools-1.60-miiioctl.patch.bz2</Patch>
+            <Patch compressionType="bz2" level="1">24_all_net-tools-1.60-virtualname.patch.bz2</Patch>
+            <Patch compressionType="bz2" level="1">25_all_net-tools-1.60-cycle.patch.bz2</Patch>
+            <Patch compressionType="bz2" level="1">26_all_net-tools-1.60-overflow.patch.bz2</Patch>
+            <Patch compressionType="bz2" level="1">27_all_net-tools-1.60-netstat_ulong.patch.bz2</Patch>
+            <Patch compressionType="bz2" level="1">50_all_net-tools-1.60-multiline-string.patch.bz2</Patch>
+            <Patch compressionType="bz2">51_all_net-tools-1.60-man.patch.bz2</Patch>
+            <Patch compressionType="bz2" level="1">52_all_net-tools-1.60-numeric-ports.patch.bz2</Patch>
+            <Patch compressionType="bz2" level="1">53_all_net-tools-1.60-appletalk.patch.bz2</Patch>
+            <Patch compressionType="bz2" level="1">54_all_net-tools-1.60-wide.patch.bz2</Patch>
+            <Patch compressionType="bz2">55_all_net-tools-1.60-Makefile.patch.bz2</Patch>
+            <Patch compressionType="bz2">56_all_net-tools-1.60-ipv6-hostname.patch.bz2</Patch>
+            <Patch compressionType="bz2" level="1">57_all_net-tools-1.60-ifconfig-infiniband.patch.bz2</Patch>
+            <Patch compressionType="bz2" level="1">60_all_net-tools-1.60-headers.patch.bz2</Patch>
+            <Patch level="1">net-tools-missing.patch</Patch>
+            <Patch level="1">kernel_headers.patch</Patch>
+            <Patch>gcc-4.3.patch</Patch>
+            <Patch>large-buffer.patch</Patch>
+        </Patches>
+    </Source>
+
+    <Package>
+        <Name>net-tools</Name>
+        <RuntimeDependencies>
+            <Dependency>comar</Dependency>
+            <Dependency>comar-api</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="executable">/lib/udev</Path>
+            <Path fileType="data">/lib/udev/rules.d</Path>
+            <Path fileType="executable">/bin</Path>
+            <Path fileType="executable">/sbin</Path>
+            <Path fileType="executable">/usr/bin</Path>
+            <Path fileType="executable">/usr/sbin</Path>
+            <Path fileType="doc">/usr/share/doc</Path>
+            <Path fileType="man">/usr/share/man</Path>
+            <Path fileType="localedata">/usr/share/locale</Path>
+        </Files>
+        <AdditionalFiles>
+            <AdditionalFile owner="root" permission="0644" target="/lib/udev/rules.d/99-comar-ethernet.rules">99-comar-ethernet.rules</AdditionalFile>
+            <AdditionalFile owner="root" permission="0755" target="/lib/udev/comar-ethernet.py">comar-ethernet.py</AdditionalFile>
+        </AdditionalFiles>
+        <Provides>
+            <COMAR script="link.py">Network.Link</COMAR>
+        </Provides>
+    </Package>
+
+    <History>
+        <Update release="44">
+            <Date>2009-08-18</Date>
+            <Version>1.60</Version>
+            <Comment>
+                - Don't check for connection type in udev rule, backend is transparent,
+                - Stop ifplugd only when the profile is matched with the device.
+            </Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="43">
+            <Date>2009-07-15</Date>
+            <Version>1.60</Version>
+            <Comment>
+                - Allow user to bring down connections associated with unplugged devices.
+            </Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="42">
+            <Date>2009-07-10</Date>
+            <Version>1.60</Version>
+            <Comment>
+                - Check cable state state for 5 seconds, also cleaned up code.
+            </Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="41">
+            <Date>2009-07-06</Date>
+            <Version>1.60</Version>
+            <Comment>
+                - Fixes to cable detection code.
+            </Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="40">
+            <Date>2009-07-03</Date>
+            <Version>1.60</Version>
+            <Comment>
+                - Added translations to COMAR script(s).
+            </Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="39">
+            <Date>2009-06-25</Date>
+            <Version>1.60</Version>
+            <Comment>
+                - Network backend warns user if firmware is missing.
+                - Fixed cable status check not working on some devices.
+            </Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="38">
+            <Date>2009-06-22</Date>
+            <Version>1.60</Version>
+            <Comment>
+                - Network script allows setting custom address in DHCP mode.
+            </Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="37">
+            <Date>2009-05-21</Date>
+            <Version>1.60</Version>
+            <Comment>
+                - Network script allows bringind connection down, no matter what the device status is.
+            </Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="36">
+            <Date>2009-05-20</Date>
+            <Version>1.60</Version>
+            <Comment>
+                - Ifplug support by Nihat Ciddi.
+                - Udev device unplug support.
+            </Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="35">
+            <Date>2009-05-19</Date>
+            <Version>1.60</Version>
+            <Comment>Fixed a typo in Network.Link script.</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="34">
+            <Date>2009-05-19</Date>
+            <Version>1.60</Version>
+            <Comment>Update connection state properly if device is missing.</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="33">
+            <Date>2009-05-15</Date>
+            <Version>1.60</Version>
+            <Comment>Gateway is optional in manual mode.</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="32">
+            <Date>2009-05-11</Date>
+            <Version>1.60</Version>
+            <Comment>Script execution support by Nihat Ciddi.</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="31">
+            <Date>2009-05-10</Date>
+            <Version>1.60</Version>
+            <Comment>Refactored Network.Link script</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="30">
+            <Date>2009-05-07</Date>
+            <Version>1.60</Version>
+            <Comment>
+                - UDEV event handler added
+            </Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="29">
+            <Date>2009-05-04</Date>
+            <Version>1.60</Version>
+            <Comment>
+                - Provide new network script
+            </Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="28">
+            <Date>2009-01-14</Date>
+            <Version>1.60</Version>
+            <Comment>
+                - Added Deutsch translations by Mustafa (#8138),
+                - Make it use our CC.
+            </Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="27">
+            <Date>2009-01-12</Date>
+            <Version>1.60</Version>
+            <Comment>
+                - Support for running scripts after changing connection states.
+                /etc/network/netlink.d/ProfileName.up will be executer after a successful connection, and
+                /etc/network/netlink.d/ProfileName.down after disconnection.
+                All kudos go to Nihat Ciddi.
+            </Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="26">
+            <Date>2008-12-19</Date>
+            <Version>1.60</Version>
+            <Comment>Fixed COMAR script raising an exception instead of DHCP error.</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="25">
+            <Date>2008-11-24</Date>
+            <Version>1.60</Version>
+            <Comment>Reset DNS config after setting after closing connection.</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="24">
+            <Date>2008-11-05</Date>
+            <Version>1.60</Version>
+            <Comment>Fixed COMAR script not stopping network devices properly.</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="23">
+            <Date>2008-03-19</Date>
+            <Version>1.60</Version>
+            <Comment>Fixed COMAR script to get gateway from DHCP</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="22">
+            <Date>2008-03-19</Date>
+            <Version>1.60</Version>
+            <Comment>Fixed udev script.</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="21">
+            <Date>2008-03-18</Date>
+            <Version>1.60</Version>
+            <Comment>Fixed #6920</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="20">
+            <Date>2008-03-03</Date>
+            <Version>1.60</Version>
+            <Comment>COMAR script ported to 2.0</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="19">
+            <Date>2007-11-28</Date>
+            <Version>1.60</Version>
+            <Comment>Look for search line only in dhcp(auto) mode</Comment>
+            <Name>Faik Uygur</Name>
+            <Email>faik@pardus.org.tr</Email>
+        </Update>
+        <Update release="18">
+            <Date>2007-11-26</Date>
+            <Version>1.60</Version>
+            <Comment>startAuto does not take timeout parameter</Comment>
+            <Name>Faik Uygur</Name>
+            <Email>faik@pardus.org.tr</Email>
+        </Update>
+        <Update release="17">
+            <Date>2007-11-20</Date>
+            <Version>1.60</Version>
+            <Comment>Add search line to resolv.conf from dhcpcd</Comment>
+            <Name>Faik Uygur</Name>
+            <Email>faik@pardus.org.tr</Email>
+        </Update>
+        <Update release="16">
+            <Date>2007-11-16</Date>
+            <Version>1.60</Version>
+            <Comment>Use a dhcpcd timeout of 120 seconds as a workaround for problematic LAN environments</Comment>
+            <Name>Faik Uygur</Name>
+            <Email>faik@pardus.org.tr</Email>
+        </Update>
+        <Update release="15">
+            <Date>2007-11-10</Date>
+            <Version>1.60</Version>
+            <Comment>Use 2048-byte buffers in process_fd function to fix netstat -s with 2.6.23+ kernels</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="14">
+            <Date>2007-07-12</Date>
+            <Version>1.60</Version>
+            <Comment>mtu change code</Comment>
+            <Name>Gürer Özen</Name>
+            <Email>gurer@pardus.org.tr</Email>
+        </Update>
+        <Update release="13">
+            <Date>2007-03-01</Date>
+            <Version>1.60</Version>
+            <Comment>get device events from udev</Comment>
+            <Name>Gürer Özen</Name>
+            <Email>gurer@pardus.org.tr</Email>
+        </Update>
+        <Update release="12">
+            <Date>2007-01-13</Date>
+            <Version>1.60</Version>
+            <Comment>Compile with new kernel-headers package</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="11">
+            <Date>2006-12-04</Date>
+            <Version>1.60</Version>
+            <Comment>DHCP and state fixes</Comment>
+            <Name>Gürer Özen</Name>
+            <Email>gurer@pardus.org.tr</Email>
+        </Update>
+        <Update release="10">
+            <Date>2006-12-01</Date>
+            <Version>1.60</Version>
+            <Comment>Release bump to include newest link.py</Comment>
+            <Name>Gürer Özen</Name>
+            <Email>gurer@pardus.org.tr</Email>
+        </Update>
+        <Update release="9">
+            <Date>2006-11-24</Date>
+            <Version>1.60</Version>
+            <Comment>Comar script updated</Comment>
+            <Name>Gürer Özen</Name>
+            <Email>gurer@pardus.org.tr</Email>
+        </Update>
+        <Update release="8">
+            <Date>2006-11-10</Date>
+            <Version>1.60</Version>
+            <Comment>Comar script updated</Comment>
+            <Name>Gürer Özen</Name>
+            <Email>gurer@pardus.org.tr</Email>
+        </Update>
+        <Update release="7">
+            <Date>2006-09-04</Date>
+            <Version>1.60</Version>
+            <Comment>Comar script updated to new comar network api, fixes device name changing problem</Comment>
+            <Name>Gürer Özen</Name>
+            <Email>gurer@pardus.org.tr</Email>
+        </Update>
+        <Update release="6">
+            <Date>2006-05-09</Date>
+            <Version>1.60</Version>
+            <Comment>Comar script updated.</Comment>
+            <Name>Gürer Özen</Name>
+            <Email>gurer@pardus.org.tr</Email>
+        </Update>
+        <Update release="5">
+            <Date>2005-12-26</Date>
+            <Version>1.60</Version>
+            <Comment>Comar script updated.</Comment>
+            <Name>Gürer Özen</Name>
+            <Email>gurer@pardus.org.tr</Email>
+        </Update>
+        <Update release="4">
+            <Date>2005-12-25</Date>
+            <Version>1.60</Version>
+            <Comment>Comar script updated.</Comment>
+            <Name>Gürer Özen</Name>
+            <Email>gurer@pardus.org.tr</Email>
+        </Update>
+        <Update release="3">
+            <Date>2005-12-24</Date>
+            <Version>1.60</Version>
+            <Comment>Comar script updated.</Comment>
+            <Name>Gürer Özen</Name>
+            <Email>gurer@pardus.org.tr</Email>
+        </Update>
+        <Update release="2">
+            <Date>2005-12-15</Date>
+            <Version>1.60</Version>
+            <Comment>Comar script updated.</Comment>
+            <Name>Gürer Özen</Name>
+            <Email>gurer@pardus.org.tr</Email>
+        </Update>
+        <Update release="1">
+            <Date>2005-07-04</Date>
+            <Version>1.60</Version>
+            <Comment>First release.</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+    </History>
+</PISI>

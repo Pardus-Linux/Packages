@@ -1,0 +1,89 @@
+Başlıktan da anlayabileceğiniz gibi, dikkatinizi coreutils
+paketindeki bir hataya çekmek istiyorum. Bu sorunun Pardus 2008
+çıkmadan çözülmesi çok güzel olur. Hemen konuya giriyorum.
+
+Ben aslında Debian Sid kullanırım ama bu hata coreutils'de olduğu
+için Pardus'ta da var. Bu hatayı göstermek için size komut satırında
+yaptığım bir "söyleşi"yi göstermek istiyorum:
+
+===
+$ LANG=tr_TR.UTF-8 date -d "Fri"   ### Buna dikkat!
+date: invalid date `Fri'
+
+$ LANG=tr_TR.UTF-8 date -d "FRI"
+Cum Haz 27 00:00:00 EEST 2008
+
+$ LANG=en_US.UTF-8 date -d "Fri"   ### İngilizce yerelinde düzgün
+Fri Jun 27 00:00:00 EEST 2008
+
+$ LANG=en_US.UTF-8 date -d "FRI"
+Fri Jun 27 00:00:00 EEST 2008
+===
+
+Gördüğünüz gibi Türkçe yerelindeyken haftanın gününü "Fri" olarak
+verirsek, "date" hata veriyor. Oysa "FRI" olarak verirsek bir sorun
+olmuyor. Bunun sebebi de artık sizin görmeye alışık olduğunuz Türkçe
+yerelindeki "ı/i/I/İ" harflerinin İngilizce yerelindeki "i/I"
+harflerininkiler gibi ilişkileri olmaması.
+
+Mektubu kısa tutup sorunu çözen yamayı ekliyorum.
+
+Saygılar,
+
+M. Vefa Bıçakcı
+
+diff -ur coreutils-6.12.orig/lib/getdate.c coreutils-6.12/lib/getdate.c
+--- coreutils-6.12.orig/lib/getdate.c	2008-06-26 21:06:06.000000000 +0300
++++ coreutils-6.12/lib/getdate.c	2008-06-26 21:06:55.000000000 +0300
+@@ -181,6 +181,8 @@
+ #include <stdlib.h>
+ #include <string.h>
+
++#include <locale.h>
++
+ #include "xalloc.h"
+
+
+@@ -2686,12 +2688,14 @@
+   bool period_found;
+   bool abbrev;
+
++  setlocale(LC_ALL, "C");
+   /* Make it uppercase.  */
+   for (p = word; *p; p++)
+     {
+       unsigned char ch = *p;
+       *p = toupper (ch);
+     }
++  setlocale(LC_ALL, "");
+
+   for (tp = meridian_table; tp->name; tp++)
+     if (strcmp (word, tp->name) == 0)
+diff -ur coreutils-6.12.orig/lib/getdate.y coreutils-6.12/lib/getdate.y
+--- coreutils-6.12.orig/lib/getdate.y	2008-06-26 21:06:06.000000000 +0300
++++ coreutils-6.12/lib/getdate.y	2008-06-26 21:06:55.000000000 +0300
+@@ -66,6 +66,8 @@
+ #include <stdlib.h>
+ #include <string.h>
+
++#include <locale.h>
++
+ #include "xalloc.h"
+
+
+@@ -915,12 +917,14 @@
+   bool period_found;
+   bool abbrev;
+
++  setlocale(LC_ALL, "C");
+   /* Make it uppercase.  */
+   for (p = word; *p; p++)
+     {
+       unsigned char ch = *p;
+       *p = toupper (ch);
+     }
++  setlocale(LC_ALL, "");
+
+   for (tp = meridian_table; tp->name; tp++)
+     if (strcmp (word, tp->name) == 0)
+

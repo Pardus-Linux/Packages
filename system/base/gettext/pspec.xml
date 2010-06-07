@@ -1,0 +1,146 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>gettext</Name>
+        <Homepage>http://www.gnu.org/software/gettext/gettext.html</Homepage>
+        <Packager>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Packager>
+        <License>GPLv3+</License>
+        <IsA>app:console</IsA>
+        <Summary>GNU libraries and utilities for producing multi-lingual messages</Summary>
+        <Summary>gettext provides a set of tools and documentation for producing multi-lingual messages in programs.</Summary>
+        <Archive sha1sum="c51803d9f745f6ace36bd09c0486d5735ce399cf" type="targz">mirrors://gnu/gettext/gettext-0.17.tar.gz</Archive>
+        <BuildDependencies>
+            <Dependency>acl</Dependency>
+            <Dependency>glib2</Dependency>
+        </BuildDependencies>
+        <Patches>
+            <Patch>sigfpe.patch</Patch>
+            <Patch>gettextize.patch</Patch>
+            <Patch>codecleanup.patch</Patch>
+            <Patch>initialize-vars.patch</Patch>
+            <Patch>autotools.patch</Patch>
+            <Patch>longlong.patch</Patch>
+            <Patch>gcc-lint.patch</Patch>
+            <Patch>missing-mode.patch</Patch>
+            <Patch level="1">docdir.patch</Patch>
+            <Patch level="1">gnuinfo.patch</Patch>
+            <!-- disable dlopen patch as it seems to cause segfaults 
+            <Patch level="1">gettext-0.15-expat-no-dlopen.patch</Patch>
+            -->
+
+            <!-- fedora patches -->
+            <Patch>fedora/gettext-0.17-autopoint-CVS-441481.patch</Patch>
+            <Patch level="1">fedora/gettext-0.17-rpathFix.patch</Patch>
+            <Patch>fedora/gettext-xgettext-python-unicode-surrogate-473946.patch</Patch>
+        </Patches>
+    </Source>
+
+    <Package>
+        <Name>gettext-docs</Name>
+        <PartOf>system.doc</PartOf>
+        <RuntimeDependencies>
+            <Dependency>gettext</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="doc">/usr/share/doc</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>gettext</Name>
+        <RuntimeDependencies>
+            <Dependency>acl</Dependency>
+            <Dependency>glib2</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="executable">/usr/bin</Path>
+            <Path fileType="library">/usr/lib</Path>
+            <Path fileType="data">/usr/share/gettext</Path>
+            <Path fileType="localedata">/usr/share/locale</Path>
+            <Path fileType="data">/usr/share/aclocal</Path>
+            <Path fileType="header">/usr/include</Path>
+            <Path fileType="info">/usr/share/info</Path>
+            <Path fileType="man">/usr/share/man</Path>
+        </Files>
+    </Package>
+
+    <History>
+        <Update release="10">
+            <Date>2009-04-30</Date>
+            <Version>0.17</Version>
+            <Comment>Fix docdir and split docs</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="9">
+            <Date>2009-04-14</Date>
+            <Version>0.17</Version>
+            <Comment>Disable expat dlopen preventer patch, seems to cause segfaults</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="8">
+            <Date>2009-04-09</Date>
+            <Version>0.17</Version>
+            <Comment>
+                - Avoid msgmerge from linking to libgomp by disabling openMP,
+                - Link directly to libexpat instead of using dlopen().
+            </Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="7">
+            <Date>2009-02-15</Date>
+            <Version>0.17</Version>
+            <Comment>Add fedora fixes</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="6">
+            <Date>2009-01-30</Date>
+            <Version>0.17</Version>
+            <Comment>Fix broken info file, fix actions.py, split docs</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="5">
+            <Date>2007-12-29</Date>
+            <Version>0.17</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="4">
+            <Date>2007-01-05</Date>
+            <Version>0.16.1</Version>
+            <Comment>Disable static libraries</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="3">
+            <Date>2007-01-04</Date>
+            <Version>0.16.1</Version>
+            <Comment>Update to version 0.16.1</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="2">
+            <Date>2005-11-06</Date>
+            <Version>0.14.5</Version>
+            <Comment>Update to version 0.14.5</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="1">
+            <Date>2005-07-22</Date>
+            <Version>0.14.1</Version>
+            <Comment>First release.</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+    </History>
+</PISI>

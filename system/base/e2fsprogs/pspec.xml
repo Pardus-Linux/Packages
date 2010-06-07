@@ -1,0 +1,278 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>e2fsprogs</Name>
+        <Homepage>http://e2fsprogs.sourceforge.net/</Homepage>
+        <Packager>
+            <Name>Faik Uygur</Name>
+            <Email>faik@pardus.org.tr</Email>
+        </Packager>
+        <License>GPLv2</License>
+        <IsA>app:console</IsA>
+        <Summary>Standard ext2/3/4 filesystem utilities</Summary>
+        <Description>e2fsprogs provides the filesystem utilities for use with the ext2 filesystem. It also supports the ext3/4 filesystem with journaling support.</Description>
+        <Archive sha1sum="1cd75560595cff0b7b5ac9da11cfdaa7d0dfd6d9" type="targz">mirrors://sourceforge/e2fsprogs/e2fsprogs-1.41.11.tar.gz</Archive>
+        <BuildDependencies>
+            <Dependency>gettext</Dependency>
+        </BuildDependencies>
+        <Patches>
+            <Patch level="1">ntfs-3g.patch</Patch>
+        </Patches>
+    </Source>
+
+    <Package>
+        <Name>e2fsprogs</Name>
+        <RuntimeDependencies>
+            <Dependency>libuuid</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="config">/etc</Path>
+            <Path fileType="executable">/bin</Path>
+            <Path fileType="executable">/usr/bin</Path>
+            <Path fileType="library">/lib</Path>
+            <Path fileType="library">/usr/lib</Path>
+            <Path fileType="executable">/sbin</Path>
+            <Path fileType="executable">/usr/sbin</Path>
+            <Path fileType="header">/usr/include</Path>
+            <Path fileType="data">/usr/share/et</Path>
+            <Path fileType="data">/usr/share/ss</Path>
+            <Path fileType="data">/usr/lib/pkgconfig</Path>
+            <Path fileType="localedata">/usr/share/locale</Path>
+            <Path fileType="info">/usr/share/info</Path>
+            <Path fileType="man">/usr/share/man</Path>
+            <Path fileType="doc">/usr/share/doc</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>libuuid</Name>
+        <IsA>library</IsA>
+        <Summary>A library for UUID processing</Summary>
+        <Conflicts>
+            <Package releaseTo="19">e2fsprogs</Package>
+        </Conflicts>
+        <Files>
+            <Path fileType="man">/usr/share/man/man3/uuid*</Path>
+            <Path fileType="header">/usr/include/uuid/*</Path>
+            <Path fileType="library">/lib/libuuid.*</Path>
+            <Path fileType="library">/usr/lib/libuuid.so</Path>
+            <Path fileType="data">/usr/lib/pkgconfig/uuid.pc</Path>
+        </Files>
+    </Package>
+
+    <History>
+        <Update release="26">
+            <Date>2010-03-30</Date>
+            <Version>1.41.11</Version>
+            <Comment>Version bump</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="25">
+            <Date>2010-02-23</Date>
+            <Version>1.41.10</Version>
+            <Comment>
+                - Fix e2fsck so it will correctly find and detect duplicate directory entries
+                  for non-indexed directoriesFix e2fsck so it will correctly find and detect
+                  duplicate directory entries for non-indexed directories,
+                - Fix file descriptor leaks in fsck and debugfs,
+                - Fix tune2fs so it can add a journal when an extent-enabled file system is mounted.
+            </Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="24">
+            <Date>2009-09-02</Date>
+            <Version>1.41.9</Version>
+            <Comment>Version bump</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="23">
+            <Date>2009-07-14</Date>
+            <Version>1.41.8</Version>
+            <Comment>Version bump.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="22">
+            <Date>2009-07-09</Date>
+            <Version>1.41.7</Version>
+            <Comment>Version bump.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="21">
+            <Date>2009-06-05</Date>
+            <Version>1.41.6</Version>
+            <Comment>Version bump.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="20">
+            <Date>2009-05-16</Date>
+            <Version>1.41.5</Version>
+            <Comment>Split libuuid, depend on new util-linux which provides libblkid.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="19">
+            <Date>2009-04-29</Date>
+            <Version>1.41.5</Version>
+            <Comment>
+                - Fix a number of filesystem corruption bugs in resize2fs when growing or shrinking ext4 filesystems off-line,
+                - Speed up e2fsck when checking clean filesystems by avoiding unnecessary block reads,
+                - Fix a bug in libext2fs functions that check to see if a particular device or filesystem image is mounted,
+                - Starting in the 2.6.29 linux kernel, the ext4 filesystem driver can be used to support filesystems without a journal.
+            </Comment>
+            <Name>Faik Uygur</Name>
+            <Email>faik@pardus.org.tr</Email>
+        </Update>
+        <Update release="18">
+            <Date>2009-02-12</Date>
+            <Version>1.41.4</Version>
+            <Comment>Sandbox violation and new actions api fixes</Comment>
+            <Name>Faik Uygur</Name>
+            <Email>faik@pardus.org.tr</Email>
+        </Update>
+        <Update release="17">
+            <Date>2009-01-28</Date>
+            <Version>1.41.4</Version>
+            <Comment>
+                - Fixed a bug which could sometimes cause blkid to return zero for a non-existant device,
+                - tune2fs's inode size resizing algorithms have been fixed,
+                - Fix resize2fs for ext4 filesystems,
+                - mke2fs now has a new option -U, which allows the user to specify the UUID for the new filesystem,
+                - Fix a long-standing bug in e2fsck which would cause it to crash when replying journals for 
+                filesystems with block sizes greater than 8k,
+                - A lot of other critical fixes and improvements.
+            </Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="16">
+            <Date>2008-10-14</Date>
+            <Version>1.41.3</Version>
+            <Comment>
+              * Fix a file descriptor leak
+              * Fix e2fsck bug (Red Hat Bugzilla #465679)
+              * Fix a bug in resize2fs (Red Hat Bugzilla: #465984)
+              * Fix a bug in libblkid so it correctly detects the ext4 and ext4dev filesystems
+              * Fixed a parallel build problem (Sourceforge Bug: #214328)
+            </Comment>
+            <Name>Faik Uygur</Name>
+            <Email>faik@pardus.org.tr</Email>
+        </Update>
+        <Update release="15">
+            <Date>2008-10-06</Date>
+            <Version>1.41.2</Version>
+            <Comment>
+              * Fix e2fsck's automatic blocksize detection.
+              * Fix a potential memory corruption problem in resize2fs.
+              * Fix e2fsck so that not to print the translation file's header.
+              * Various enchancements and documentation fixes.
+            </Comment>
+            <Name>Faik Uygur</Name>
+            <Email>faik@pardus.org.tr</Email>
+        </Update>
+        <Update release="14">
+            <Date>2008-09-03</Date>
+            <Version>1.41.1</Version>
+            <Comment>Stable update</Comment>
+            <Name>Faik Uygur</Name>
+            <Email>faik@pardus.org.tr</Email>
+        </Update>
+        <Update release="13">
+            <Date>2008-08-12</Date>
+            <Version>1.41.0</Version>
+            <Comment>Stable update</Comment>
+            <Name>Faik Uygur</Name>
+            <Email>faik@pardus.org.tr</Email>
+        </Update>
+        <Update release="12">
+            <Date>2008-03-21</Date>
+            <Version>1.40.8</Version>
+            <Comment>Stable update</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="11">
+            <Date>2008-03-10</Date>
+            <Version>1.40.7</Version>
+            <Comment>Stable update</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="10">
+            <Date>2008-02-28</Date>
+            <Version>1.40.6</Version>
+            <Comment>Stable update</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="9">
+            <Date>2008-02-01</Date>
+            <Version>1.40.5</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="8">
+            <Date>2008-01-01</Date>
+            <Version>1.40.4</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="7">
+            <Date>2007-12-30</Date>
+            <Version>1.40.2</Version>
+            <Comment>Version bump</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="6" type="security">
+            <Date>2007-12-05</Date>
+            <Version>1.38</Version>
+            <Comment>Fix CVE-2007-5497</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="5">
+            <Date>2007-07-03</Date>
+            <Version>1.38</Version>
+            <Comment>Fix #4297</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="4">
+            <Date>2005-11-19</Date>
+            <Version>1.38</Version>
+            <Comment>Fix symlinks</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="3">
+            <Date>2005-10-29</Date>
+            <Version>1.38</Version>
+            <Comment>Update to version 1.38</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="2">
+            <Date>2005-10-21</Date>
+            <Version>1.35</Version>
+            <Comment>Dep fix</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="1">
+            <Date>2005-08-09</Date>
+            <Version>1.35</Version>
+            <Comment>First release.</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+    </History>
+</PISI>

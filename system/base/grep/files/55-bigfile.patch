@@ -1,0 +1,97 @@
+--- src/grep.c.orig	2002-03-26 16:54:12.000000000 +0100
++++ src/grep.c	2003-04-03 16:46:36.000000000 +0200
+@@ -1,5 +1,5 @@
+ /* grep.c - main driver file for grep.
+-   Copyright 1992, 1997-1999, 2000 Free Software Foundation, Inc.
++   Copyright 1992, 1997-1999, 2000, 2003 Free Software Foundation, Inc.
+ 
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+@@ -82,6 +82,12 @@ static struct exclude *included_patterns
+ static char const short_options[] =
+ "0123456789A:B:C:D:EFGHIPUVX:abcd:e:f:hiKLlm:noqRrsuvwxyZz";
+ 
++/* Default for `file_list' if no files are given on the command line. */
++static char *stdin_argv[] =
++{
++  "-", NULL
++};
++
+ /* Non-boolean long options that have no corresponding short equivalents.  */
+ enum
+ {
+@@ -348,7 +354,16 @@ fillbuf (size_t save, struct stats const
+ 	 for byte sentinels fore and aft.  */
+       newalloc = newsize + pagesize + 1;
+ 
+-      newbuf = bufalloc < newalloc ? xmalloc (bufalloc = newalloc) : buffer;
++      newbuf = bufalloc < newalloc ? malloc (bufalloc = newalloc) : buffer;
++      if (newbuf == NULL)
++	{
++	  int saved_errno = errno;
++	  free (buffer);
++	  bufalloc = ALIGN_TO (INITIAL_BUFSIZE, pagesize) + pagesize + 1;
++	  buffer = xmalloc (bufalloc);
++	  errno = saved_errno;
++	  return 0;
++	}
+       readbuf = ALIGN_TO (newbuf + 1 + save, pagesize);
+       bufbeg = readbuf - save;
+       memmove (bufbeg, buffer + saved_offset, save);
+@@ -1288,6 +1303,7 @@ main (int argc, char **argv)
+   FILE *fp;
+   extern char *optarg;
+   extern int optind;
++  char **file_list;
+ 
+   initialize_main (&argc, &argv);
+   program_name = argv[0];
+@@ -1712,29 +1728,29 @@ warranty; not even for MERCHANTABILITY o
+   if (max_count == 0)
+     exit (1);
+ 
+-  if (optind < argc)
++  file_list = (optind == argc ? stdin_argv : &argv[optind]);
++
++  status = 1;
++  while (1)
+     {
+-	status = 1;
+-	do
++      char *file = *file_list++;
++
++      if (file == NULL)
++	break;
++
++      if ((included_patterns || excluded_patterns)
++	  && !isdir (file))
+ 	{
+-	  char *file = argv[optind];
+-	  if ((included_patterns || excluded_patterns)
+-	      && !isdir (file))
+-	    {
+-	      if (included_patterns &&
+-		  ! excluded_filename (included_patterns, file, 0))
+-		continue;
+-	      if (excluded_patterns &&
+-		  excluded_filename (excluded_patterns, file, 0))
+-		continue;
+-	    }
+-	  status &= grepfile (strcmp (file, "-") == 0 ? (char *) NULL : file,
+-			      &stats_base);
++	  if (included_patterns &&
++	      ! excluded_filename (included_patterns, file, 0))
++	    continue;
++	  if (excluded_patterns &&
++	      excluded_filename (excluded_patterns, file, 0))
++	    continue;
+ 	}
+-	while ( ++optind < argc);
++      status &= grepfile (strcmp (file, "-") == 0
++			  ? (char *) NULL : file, &stats_base);
+     }
+-  else
+-    status = grepfile ((char *) NULL, &stats_base);
+ 
+   /* We register via atexit() to test stdout.  */
+   exit (errseen ? 2 : status);

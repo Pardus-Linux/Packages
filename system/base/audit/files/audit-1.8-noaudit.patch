@@ -1,0 +1,110 @@
+--- trunk/init.d/auditd.init (revision 243)
++++ trunk/init.d/auditd.init (revision 265)
+@@ -72,7 +72,7 @@
+ 	if test $RETVAL = 0 ; then
+ 		touch /var/lock/subsys/auditd
++		# Load the default rules
++		test -f /etc/audit/audit.rules && /sbin/auditctl -R /etc/audit/audit.rules >/dev/null
+ 	fi
+-	# Load the default rules
+-	test -f /etc/audit/audit.rules && /sbin/auditctl -R /etc/audit/audit.rules >/dev/null
+ 	return $RETVAL
+ }
+@@ -85,9 +85,15 @@
+ 	rm -f /var/lock/subsys/auditd
+ 	# Remove watches so shutdown works cleanly
+-	if test "`echo $AUDITD_CLEAN_STOP | tr 'NO' 'no'`" != "no" ; then
+-		/sbin/auditctl -D >/dev/null
++	if test x"$AUDITD_CLEAN_STOP" != "x" ; then
++		if test "`echo $AUDITD_CLEAN_STOP | tr 'NO' 'no'`" != "no"
++		then
++			/sbin/auditctl -D >/dev/null
++		fi
+ 	fi
+-	if test "`echo $AUDITD_STOP_DISABLE | tr 'NO' 'no'`" != "no" ; then
+-		/sbin/auditctl -e 0 >/dev/null
++	if test x"$AUDITD_STOP_DISABLE" != "x" ; then
++		if test "`echo $AUDITD_STOP_DISABLE | tr 'NO' 'no'`" != "no"
++		then
++			/sbin/auditctl -e 0 >/dev/null
++		fi
+ 	fi
+ 	return $RETVAL
+--- trunk/src/auditctl.c (revision 242)
++++ trunk/src/auditctl.c (revision 265)
+@@ -971,4 +971,6 @@
+ 	}
+     }
++    if (retval == -1 && errno == ECONNREFUSED)
++		fprintf(stderr,	"The audit system is disabled\n");
+     return retval;
+ }
+@@ -1086,4 +1088,10 @@
+ 					"There was an error in line %d of %s\n",
+ 					lineno, file);
++				else {
++					fprintf(stderr,
++					"The audit system is disabled\n");
++					fclose(f);
++					return 0;
++				}
+ 				if (!ignore) {
+ 					fclose(f);
+@@ -1122,4 +1130,7 @@
+ 				"The audit system is in immutable "
+ 				"mode, no rules loaded\n");
++			return 0;
++		} else if (errno == ECONNREFUSED) {
++			fprintf(stderr, "The audit system is disabled\n");
+ 			return 0;
+ 		} else if (fileopt(argv[2]))
+@@ -1141,4 +1152,7 @@
+ 				"The audit system is in immutable "
+ 				"mode, no rules loaded\n");
++			return 0;
++		} else if (errno == ECONNREFUSED) {
++			fprintf(stderr, "The audit system is disabled\n");
+ 			return 0;
+ 		}
+--- trunk/src/auditd-event.c (revision 258)
++++ trunk/src/auditd-event.c (revision 265)
+@@ -287,6 +287,7 @@
+ 			data->tail = NULL;
+ 		data->head = data->head->next;
+-		if (data->head == NULL && stop &&
+-					cur->reply.type == AUDIT_DAEMON_END)
++		if (data->head == NULL && stop && 
++				( cur->reply.type == AUDIT_DAEMON_END ||
++				cur->reply.type == AUDIT_DAEMON_ABORT) )
+ 			stop_req = 1;
+ 		pthread_mutex_unlock(&data->queue_lock);
+--- trunk/src/auditd.c (revision 256)
++++ trunk/src/auditd.c (revision 265)
+@@ -616,5 +616,5 @@
+ 			return 1;
+ 		}
+-		if(getsubj(subj))
++		if (getsubj(subj))
+ 			snprintf(start, sizeof(start),
+ 				"auditd start, ver=%s format=%s "
+@@ -684,5 +684,5 @@
+ 		send_audit_event(AUDIT_DAEMON_ABORT, emsg);
+ 		audit_msg(LOG_ERR,
+-		"Unable to set intitial audit startup state to '%s', exiting",
++		"Unable to set initial audit startup state to '%s', exiting",
+ 			startup_states[opt_startup]);
+ 		close_down();
+--- trunk/src/autrace.c (revision 1)
++++ trunk/src/autrace.c (revision 265)
+@@ -156,5 +156,10 @@
+ 	{
+ 		case -1:
+-			fprintf(stderr, "Error - can't get rule count.\n");
++			if (errno == ECONNREFUSED)
++		                fprintf(stderr,
++					"The audit system is disabled\n");
++			else
++				fprintf(stderr,
++					"Error - can't get rule count.\n");
+ 			return 1;
+ 		case 0:

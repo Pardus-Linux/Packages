@@ -1,0 +1,38 @@
+--- src/fs.h
++++ src/fs.h	2008-11-19 12:28:00.977049694 +0100
+@@ -34,6 +34,7 @@
+ # define S_MAGIC_MINIX_V2_30 0x2478
+ # define S_MAGIC_MSDOS 0x4D44
+ # define S_MAGIC_NCP 0x564C
++# define S_MAGIC_AFS 0x6B414653
+ # define S_MAGIC_NFS 0x6969
+ # define S_MAGIC_NFSD 0x6E667364
+ # define S_MAGIC_NTFS 0x5346544E
+@@ -44,6 +45,7 @@
+ # define S_MAGIC_REISERFS 0x52654973
+ # define S_MAGIC_ROMFS 0x7275
+ # define S_MAGIC_SMB 0x517B
++# define S_MAGIC_CIFS 0xFF534D42
+ # define S_MAGIC_SQUASHFS 0x73717368
+ # define S_MAGIC_SYSFS 0x62656572
+ # define S_MAGIC_SYSV2 0x012FF7B6
+--- src/stat.c
++++ src/stat.c	2008-11-19 12:28:26.235780004 +0100
+@@ -283,6 +283,8 @@ human_fstype (STRUCT_STATVFS const *stat
+       return "msdos";
+     case S_MAGIC_NCP: /* 0x564C */
+       return "novell";
++    case S_MAGIC_AFS: /* 0x6B414653 */
++      return "afs";
+     case S_MAGIC_NFS: /* 0x6969 */
+       return "nfs";
+     case S_MAGIC_NFSD: /* 0x6E667364 */
+@@ -303,6 +305,8 @@ human_fstype (STRUCT_STATVFS const *stat
+       return "romfs";
+     case S_MAGIC_SMB: /* 0x517B */
+       return "smb";
++    case S_MAGIC_CIFS: /* 0xFF534D42 */
++      return "cifs";
+     case S_MAGIC_SQUASHFS: /* 0x73717368 */
+       return "squashfs";
+     case S_MAGIC_SYSFS: /* 0x62656572 */

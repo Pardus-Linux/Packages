@@ -1,0 +1,38 @@
+--- perl-5.10.0.orig/debian/patches/36_fix_file_temp_cleanup
++++ perl-5.10.0/debian/patches/36_fix_file_temp_cleanup
+@@ -0,0 +1,35 @@
++Make File::Temp warn on cleaning up the current working directory at exit instead of bailing out. (Closes: #479317)
++
++Adapted from File-Temp 0.21.
++[rt.cpan.org #35779]
++diff --git a/lib/File/Temp.pm b/lib/File/Temp.pm
++index b933963..ccc2316 100644
++--- a/lib/File/Temp.pm
+++++ b/lib/File/Temp.pm
++@@ -890,7 +890,12 @@ sub _can_do_level {
++ 		  @{ $dirs_to_unlink{$$} } : () );
++       foreach my $dir (@dirs) {
++ 	if (-d $dir) {
++-	  rmtree($dir, $DEBUG, 0);
+++          # Some versions of rmtree will abort if you attempt to remove
+++          # the directory you are sitting in. We protect that and turn it
+++          # into a warning. We do this because this occurs during
+++          # cleanup and so can not be caught by the user.
+++          eval { rmtree($dir, $DEBUG, 0); };
+++          warn $@ if ($@ && $^W);
++ 	}
++       }
++ 
++@@ -2234,6 +2239,12 @@ srand(EXPR) in each child else all the children will attempt to walk
++ through the same set of random file names and may well cause
++ themselves to give up if they exceed the number of retry attempts.
++ 
+++=head2 Directory removal
+++
+++Note that if you have chdir'ed into the temporary directory and it is
+++subsequently cleaned up in the END block, then you will get a warning
+++from File::Path::rmtree().
+++
++ =head2 BINMODE
++ 
++ The file returned by File::Temp will have been opened in binary mode

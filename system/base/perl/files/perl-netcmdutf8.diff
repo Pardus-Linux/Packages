@@ -1,0 +1,24 @@
+--- ./lib/Net/Cmd.pm.orig	2009-09-03 14:32:13.000000000 +0000
++++ ./lib/Net/Cmd.pm	2009-09-03 14:47:30.000000000 +0000
+@@ -226,6 +226,10 @@ sub command {
+     $str = $cmd->toascii($str) if $tr;
+     $str .= "\015\012";
+ 
++    # encode to individual utf8 bytes if
++    # $str is a string (in internal UTF-8)
++    utf8::encode($str) if is_utf8($str);
++
+     my $len = length $str;
+     my $swlen;
+ 
+@@ -473,6 +477,10 @@ sub rawdatasend {
+ 
+   return 0 unless defined(fileno($cmd));
+ 
++  # encode to individual utf8 bytes if
++  # $line is a string (in internal UTF-8)
++  utf8::encode($line) if is_utf8($line);
++
+   return 1
+     unless length($line);
+ 

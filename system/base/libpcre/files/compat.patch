@@ -1,0 +1,49 @@
+--- pcreposix.h
++++ pcreposix.h
+@@ -129,11 +129,16 @@
+ 
+ /* The functions */
+ 
+-PCREPOSIX_EXP_DECL int regcomp(regex_t *, const char *, int);
+-PCREPOSIX_EXP_DECL int regexec(const regex_t *, const char *, size_t,
++PCREPOSIX_EXP_DECL int pcreposix_regcomp(regex_t *, const char *, int);
++PCREPOSIX_EXP_DECL int pcreposix_regexec(const regex_t *, const char *, size_t,
+                      regmatch_t *, int);
+-PCREPOSIX_EXP_DECL size_t regerror(int, const regex_t *, char *, size_t);
+-PCREPOSIX_EXP_DECL void regfree(regex_t *);
++PCREPOSIX_EXP_DECL size_t pcreposix_regerror(int, const regex_t *, char *, size_t);
++PCREPOSIX_EXP_DECL void pcreposix_regfree(regex_t *);
++
++#define regcomp pcreposix_regcomp
++#define regexec pcreposix_regexec
++#define regerror pcreposix_regerror
++#define regfree pcreposix_regfree
+ 
+ #ifdef __cplusplus
+ }   /* extern "C" */
+--- pcrecpp.h
++++ pcrecpp.h
+@@ -649,6 +649,8 @@
+  private:
+ 
+   void Init(const string& pattern, const RE_Options* options);
++  // Old version from PCRE 6.x, for compatibility
++  void Init(const char *pattern, const RE_Options* options);
+   void Cleanup();
+ 
+   // Match against "text", filling in "vec" (up to "vecsize" * 2/3) with
+--- pcrecpp.cc
++++ pcrecpp.cc
+@@ -63,6 +63,12 @@
+ // If the user doesn't ask for any options, we just use this one
+ static RE_Options default_options;
+ 
++// PCRE6.x compatible API
++void RE::Init(const char *c_pat, const RE_Options* options) {
++  const string cxx_pat(c_pat);
++  Init(cxx_pat, options);
++}
++
+ void RE::Init(const string& pat, const RE_Options* options) {
+   pattern_ = pat;
+   if (options == NULL) {

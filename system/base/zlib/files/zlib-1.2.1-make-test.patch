@@ -1,0 +1,23 @@
+--- zlib-1.1.4/Makefile.in.jj	Mon Mar 11 08:58:30 2002
++++ zlib-1.1.4/Makefile.in	Fri Apr 26 06:53:12 2002
+@@ -62,13 +62,16 @@ all: example minigzip
+ 
+ test: all
+ 	@LD_LIBRARY_PATH=.:$(LD_LIBRARY_PATH) ; export LD_LIBRARY_PATH; \
+-	echo hello world | ./minigzip | ./minigzip -d || \
+-	  echo '		*** minigzip test FAILED ***' ; \
++	ret=0; \
++	if ! echo hello world | ./minigzip | ./minigzip -d; then \
++	  echo '		*** minigzip test FAILED ***'; ret=1; \
++	fi; \
+ 	if ./example; then \
+ 	  echo '		*** zlib test OK ***'; \
+ 	else \
+-	  echo '		*** zlib test FAILED ***'; \
+-	fi
++	  echo '		*** zlib test FAILED ***'; ret=1; \
++	fi; \
++	exit $$ret
+ 
+ libz.a: $(OBJS) $(OBJA)
+ 	$(AR) $@ $(OBJS) $(OBJA)

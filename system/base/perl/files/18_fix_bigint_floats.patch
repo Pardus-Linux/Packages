@@ -1,0 +1,50 @@
+--- perl-5.10.0.orig/debian/patches/18_fix_bigint_floats
++++ perl-5.10.0/debian/patches/18_fix_bigint_floats
+@@ -0,0 +1,47 @@
++Fix Math::BigFloat::sqrt() breaking with too many digits. (Closes: #417528)
++
++Dual-lived module, fixed on the CPAN side in 1.89.
++
++Integrated with the other 1.89 changes in blead as change 33715
++and maint-5.10 as change 33821.
++
++[rt.cpan.org #34459]
++diff --git a/lib/Math/BigFloat.pm b/lib/Math/BigFloat.pm
++index 6e1ecc8..1c1fba8 100644
++--- a/lib/Math/BigFloat.pm
+++++ b/lib/Math/BigFloat.pm
++@@ -2142,8 +2142,9 @@ sub bsqrt
++   # But we need at least $scale digits, so calculate how many are missing
++   my $shift = $scale - $digits;
++ 
++-  # That should never happen (we take care of integer guesses above)
++-  # $shift = 0 if $shift < 0; 
+++  # This happens if the input had enough digits 
+++  # (we take care of integer guesses above)
+++  $shift = 0 if $shift < 0; 
++ 
++   # Multiply in steps of 100, by shifting left two times the "missing" digits
++   my $s2 = $shift * 2;
++diff --git a/lib/Math/BigInt/t/mbimbf.t b/lib/Math/BigInt/t/mbimbf.t
++index fae3c8c..88201e1 100644
++--- a/lib/Math/BigInt/t/mbimbf.t
+++++ b/lib/Math/BigInt/t/mbimbf.t
++@@ -32,7 +32,7 @@ BEGIN
++   print "# INC = @INC\n";
++ 
++   plan tests => 684 
++-    + 23;		# own tests
+++    + 26;		# own tests
++   }
++ 
++ use Math::BigInt 1.70;
++@@ -100,3 +100,9 @@ $x = Math::BigFloat->new(100);
++ $x = $x->blog(Math::BigInt->new(10));
++ 
++ ok ($x,2);
+++
+++for my $i (80,88,100) {
+++    $x = Math::BigFloat->new("1." . ("0" x $i) . "1");
+++    $x = $x->bsqrt;
+++    ok ($x, 1);
+++}

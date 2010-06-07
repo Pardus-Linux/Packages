@@ -1,0 +1,23 @@
+--- coreutils-6.8+/tests/cp/acl.getfacl-exit-code	2007-03-01 16:48:29.000000000 +0000
++++ coreutils-6.8+/tests/cp/acl	2007-03-01 16:49:35.000000000 +0000
+@@ -70,16 +70,16 @@
+ # copy a file without preserving permissions
+ cp a/file b/ || fail=1
+ 
+-acl2=`cd b && getfacl file` || framework_failure
++acl2=`cd b && getfacl file`
+ test "$acl1" = "$acl2" || fail=1
+ rm a/file || framework_failure
+ 
+ # copy a file, preserving permissions
+ touch a/file || framework_failure
+-setfacl -m user:bin:rw a/file || framework_failure
+-acl1=`cd a && getfacl file` || framework_failure
++setfacl -m user:bin:rw a/file
++acl1=`cd a && getfacl file`
+ cp -p a/file b/ || fail=1
+-acl2=`cd b && getfacl file` || framework_failure
++acl2=`cd b && getfacl file`
+ test "$acl1" = "$acl2" || fail=1
+ 
+ Exit $fail

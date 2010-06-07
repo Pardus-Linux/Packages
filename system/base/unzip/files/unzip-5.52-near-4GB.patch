@@ -1,0 +1,258 @@
+--- unzip-5.52/extract.c.4GB	2005-02-26 05:47:30.000000000 +0100
++++ unzip-5.52/extract.c	2005-12-22 13:39:54.903205040 +0100
+@@ -308,7 +308,7 @@
+     int reached_end, no_endsig_found;
+     int error, error_in_archive=PK_COOL;
+     int *fn_matched=NULL, *xn_matched=NULL;
+-    unsigned members_processed;
++    Z_OFF_T members_processed;
+     ulg num_skipped=0L, num_bad_pwd=0L;
+     Z_OFF_T old_extra_bytes = 0L;
+ #ifdef SET_DIR_ATTRIB
+@@ -541,7 +541,7 @@
+         G.cur_zipfile_bufstart = ftell((FILE *)G.zipfd);
+ #else /* !USE_STRM_INPUT */
+         G.cur_zipfile_bufstart =
+-          lseek(G.zipfd, cd_bufstart, SEEK_SET);
++          lseek64(G.zipfd,(Z_OFF_T)cd_bufstart, SEEK_SET);
+ #endif /* ?USE_STRM_INPUT */
+         read(G.zipfd, (char *)G.inbuf, INBUFSIZ);  /* been here before... */
+         G.inptr = cd_inptr;
+@@ -942,7 +942,8 @@
+         Trace((stderr,
+           "debug: bufstart = %ld, cur_zipfile_bufstart = %ld\n",
+           (long)bufstart, (long)G.cur_zipfile_bufstart));
+-        if (request < 0) {
++        if ((request < 0) || (request > MAX_ZIP_SIZE)) { /* >2^32-8193 */  
++	    printf("retry - request = 0x%lu\n", (ulg)request);
+             Info(slide, 0x401, ((char *)slide, LoadFarStringSmall(SeekMsg),
+               G.zipfn, LoadFarString(ReportMsg)));
+             error_in_archive = PK_ERR;
+@@ -982,7 +983,7 @@
+             G.cur_zipfile_bufstart = ftell((FILE *)G.zipfd);
+ #else /* !USE_STRM_INPUT */
+             G.cur_zipfile_bufstart =
+-              lseek(G.zipfd, bufstart, SEEK_SET);
++              lseek64(G.zipfd, bufstart, SEEK_SET);
+ #endif /* ?USE_STRM_INPUT */
+             if ((G.incnt = read(G.zipfd, (char *)G.inbuf, INBUFSIZ)) <= 0)
+             {
+--- unzip-5.52/unix/Makefile.4GB	2005-12-22 13:39:54.767225712 +0100
++++ unzip-5.52/unix/Makefile	2005-12-22 13:39:54.904204888 +0100
+@@ -783,7 +783,7 @@
+ # Linux (Posix, approximately SysV):  virtually any version since before 0.96,
+ # for any platform.  Change "-O" to "-O3" or whatever, as desired...
+ linux_noasm:	unix_make
+-	$(MAKE) unzips CC=gcc LD=gcc CF="-O -Wall -I. $(LOC)"
++	$(MAKE) unzips CC=gcc LD=gcc CF="-O -D_LARGEFILE64_SOURCE -D_GNU_SOURCE -Wall -I. $(LOC)"
+ 
+ # Linux with lcc compiler:  __inline__ (stat.h) not recognized, and must edit
+ # /usr/include/gnu/types.h to get rid of "long long" if __LCC__ defined.  -O3
+--- unzip-5.52/unzpriv.h.4GB	2005-02-04 00:26:42.000000000 +0100
++++ unzip-5.52/unzpriv.h	2005-12-22 13:39:54.905204736 +0100
+@@ -785,9 +785,9 @@
+ #endif
+ #ifndef SSTAT
+ #  ifdef WILD_STAT_BUG
+-#    define SSTAT(path,pbuf) (iswild(path) || stat(path,pbuf))
++#    define SSTAT(path,pbuf) (iswild(path) || stat64(path,pbuf))
+ #  else
+-#    define SSTAT stat
++#    define SSTAT stat64
+ #  endif
+ #endif
+ #ifndef STRNICMP
+--- unzip-5.52/list.c.4GB	2005-01-27 02:02:02.000000000 +0100
++++ unzip-5.52/list.c	2005-12-22 13:39:54.908204280 +0100
+@@ -62,12 +62,12 @@
+      "%8lu  %-7s%8lu %4s  %02u%c%02u%c%02u %02u:%02u  %08lx %c";
+    static ZCONST char Far LongFileTrailer[] =
+      "--------          -------  ---                       \
+-     -------\n%8lu         %8lu %4s                            %lu file%s\n";
++     -------\n%8ju         %8ju %4s                            %lu file%s\n";
+ #ifdef OS2_EAS
+    static ZCONST char Far ShortHdrStats[] =
+      "%9lu %6lu %6lu  %02u%c%02u%c%02u %02u:%02u  %c";
+    static ZCONST char Far ShortFileTrailer[] = " --------  -----  -----       \
+-            -------\n%9lu %6lu %6lu                   %lu file%s\n";
++            -------\n%9ju %6lu %6lu                   %lu file%s\n";
+    static ZCONST char Far OS2ExtAttrTrailer[] =
+      "%lu file%s %lu bytes of OS/2 extended attributes attached.\n";
+    static ZCONST char Far OS2ACLTrailer[] =
+@@ -105,7 +105,8 @@
+     struct tm *t;
+ #endif
+     unsigned yr, mo, dy, hh, mm;
+-    ulg csiz, tot_csize=0L, tot_ucsize=0L;
++    ulg csiz;
++    unsigned long long tot_csize=0, tot_ucsize=0;
+ #ifdef OS2_EAS
+     ulg ea_size, tot_easize=0L, tot_eafiles=0L;
+     ulg acl_size, tot_aclsize=0L, tot_aclfiles=0L;
+--- unzip-5.52/unzip.h.4GB	2005-02-26 16:23:18.000000000 +0100
++++ unzip-5.52/unzip.h	2005-12-22 13:39:54.909204128 +0100
+@@ -604,6 +604,8 @@
+ #define UZ_ST_CONTINUE          0
+ #define UZ_ST_BREAK             1
+ 
++#define MAX_ZIP_SIZE           0xffffdffe
++
+ 
+ /*---------------------------------------------------------------------------
+     Prototypes for public UnZip API (DLL) functions.
+--- unzip-5.52/fileio.c.4GB	2005-02-27 03:10:12.000000000 +0100
++++ unzip-5.52/fileio.c	2005-12-22 13:59:17.959393624 +0100
+@@ -113,6 +113,9 @@
+ /* Strings used in fileio.c */
+ /****************************/
+ 
++static ZCONST char Far ZipFileTooBig[] =
++  "error:  Zip file too big (greater than %lu bytes)\n";
++
+ static ZCONST char Far CannotOpenZipfile[] =
+   "error:  cannot open zipfile [ %s ]\n        %s\n";
+ 
+@@ -183,6 +186,7 @@
+ int open_input_file(__G)    /* return 1 if open failed */
+     __GDEF
+ {
++    struct stat64 sb;
+     /*
+      *  open the zipfile for reading and in BINARY mode to prevent cr/lf
+      *  translation, which would corrupt the bitstreams
+@@ -201,9 +205,9 @@
+     G.zipfd = fopen(G.zipfn, FOPR);
+ #else /* !USE_STRM_INPUT */
+ # ifdef O_BINARY
+-    G.zipfd = open(G.zipfn, O_RDONLY | O_BINARY);
++    G.zipfd = open(G.zipfn, O_RDONLY | O_BINARY | O_LARGEFILE);
+ # else
+-    G.zipfd = open(G.zipfn, O_RDONLY);
++    G.zipfd = open(G.zipfn, O_RDONLY | O_LARGEFILE);
+ # endif
+ #endif /* ?USE_STRM_INPUT */
+ #endif /* ?CMS_MVS */
+@@ -221,6 +225,12 @@
+           G.zipfn, strerror(errno)));
+         return 1;
+     }
++    fstat64(G.zipfd, &sb);
++    if (sb.st_size > MAX_ZIP_SIZE) {
++        Info(slide, 0x401, ((char *)slide,
++                           LoadFarString(ZipFileTooBig),
++                           ((ulg)MAX_ZIP_SIZE)));
++    }
+     return 0;
+ 
+ } /* end function open_input_file() */
+@@ -238,6 +248,7 @@
+ int open_outfile(__G)         /* return 1 if fail */
+     __GDEF
+ {
++    int fd;
+ #ifdef DLL
+     if (G.redirect_data)
+         return (redirect_outfile(__G) == FALSE);
+@@ -259,7 +270,7 @@
+     }
+ #endif /* BORLAND_STAT_BUG */
+ #ifdef SYMLINKS
+-    if (SSTAT(G.filename, &G.statbuf) == 0 || lstat(G.filename,&G.statbuf) == 0)
++    if (SSTAT(G.filename, &G.statbuf) == 0 || lstat64(G.filename,&G.statbuf) == 0)
+ #else
+     if (SSTAT(G.filename, &G.statbuf) == 0)
+ #endif /* ?SYMLINKS */
+@@ -413,7 +424,9 @@
+ #endif /* NOVELL_BUG_FAILSAFE */
+     Trace((stderr, "open_outfile:  doing fopen(%s) for writing\n",
+       FnFilter1(G.filename)));
+-    if ((G.outfile = fopen(G.filename, FOPW)) == (FILE *)NULL) {
++    
++    fd = open(G.filename, O_WRONLY | O_LARGEFILE | O_CREAT);
++    if ((G.outfile = fdopen(fd, FOPW)) == (FILE *)NULL) {
+         Info(slide, 0x401, ((char *)slide, LoadFarString(CannotCreateFile),
+           FnFilter1(G.filename)));
+         return 1;
+@@ -682,7 +695,7 @@
+     Z_OFF_T inbuf_offset = request % INBUFSIZ;
+     Z_OFF_T bufstart = request - inbuf_offset;
+ 
+-    if (request < 0) {
++    if (request < 0) { 
+         Info(slide, 1, ((char *)slide, LoadFarStringSmall(SeekMsg),
+              G.zipfn, LoadFarString(ReportMsg)));
+         return(PK_BADERR);
+@@ -694,7 +707,7 @@
+         fseek(G.zipfd, bufstart, SEEK_SET);
+         G.cur_zipfile_bufstart = ftell(G.zipfd);
+ #else /* !USE_STRM_INPUT */
+-        G.cur_zipfile_bufstart = lseek(G.zipfd, bufstart, SEEK_SET);
++        G.cur_zipfile_bufstart = lseek64(G.zipfd, bufstart, SEEK_SET);
+ #endif /* ?USE_STRM_INPUT */
+         Trace((stderr,
+           "       request = %ld, (abs+extra) = %ld, inbuf_offset = %ld\n",
+@@ -1850,7 +1863,7 @@
+         Trace((stderr, "check_for_newer:  doing lstat(%s)\n",
+           FnFilter1(filename)));
+         /* GRR OPTION:  could instead do this test ONLY if G.symlnk is true */
+-        if (lstat(filename, &G.statbuf) == 0) {
++        if (lstat64(filename, &G.statbuf) == 0) {
+             Trace((stderr,
+               "check_for_newer:  lstat(%s) returns 0:  symlink does exist\n",
+               FnFilter1(filename)));
+@@ -1867,7 +1880,7 @@
+ 
+ #ifdef SYMLINKS
+     /* GRR OPTION:  could instead do this test ONLY if G.symlnk is true */
+-    if (lstat(filename, &G.statbuf) == 0 && S_ISLNK(G.statbuf.st_mode)) {
++    if (lstat64(filename, &G.statbuf) == 0 && S_ISLNK(G.statbuf.st_mode)) {
+         Trace((stderr, "check_for_newer:  %s is a symbolic link\n",
+           FnFilter1(filename)));
+         if (QCOND2 && !IS_OVERWRT_ALL)
+--- unzip-5.52/process.c.4GB	2004-11-22 01:42:54.000000000 +0100
++++ unzip-5.52/process.c	2005-12-22 13:39:54.911203824 +0100
+@@ -923,8 +923,8 @@
+     Treat case of short zipfile separately.
+   ---------------------------------------------------------------------------*/
+ 
+-    if (G.ziplen <= INBUFSIZ) {
+-        lseek(G.zipfd, 0L, SEEK_SET);
++    if ((unsigned long)G.ziplen <= (unsigned long)INBUFSIZ) {
++        lseek64(G.zipfd, 0L, SEEK_SET);
+         if ((G.incnt = read(G.zipfd,(char *)G.inbuf,(unsigned int)G.ziplen))
+             == (int)G.ziplen)
+ 
+@@ -951,7 +951,7 @@
+             fseek((FILE *)G.zipfd, G.ziplen-tail_len, SEEK_SET);
+             G.cur_zipfile_bufstart = ftell((FILE *)G.zipfd);
+ #else /* !USE_STRM_INPUT */
+-            G.cur_zipfile_bufstart = lseek(G.zipfd, G.ziplen-tail_len,
++            G.cur_zipfile_bufstart = lseek64(G.zipfd, G.ziplen-tail_len,
+               SEEK_SET);
+ #endif /* ?USE_STRM_INPUT */
+             if ((G.incnt = read(G.zipfd, (char *)G.inbuf,
+@@ -985,7 +985,7 @@
+ 
+         for (i = 1;  !found && (i <= numblks);  ++i) {
+             G.cur_zipfile_bufstart -= INBUFSIZ;
+-            lseek(G.zipfd, G.cur_zipfile_bufstart, SEEK_SET);
++            lseek64(G.zipfd, G.cur_zipfile_bufstart, SEEK_SET);
+             if ((G.incnt = read(G.zipfd,(char *)G.inbuf,INBUFSIZ))
+                 != INBUFSIZ)
+                 break;          /* fall through and fail */
+--- unzip-5.52/globals.h.4GB	2004-11-22 01:42:00.000000000 +0100
++++ unzip-5.52/globals.h	2005-12-22 13:39:54.912203672 +0100
+@@ -256,7 +256,12 @@
+     local_file_hdr  lrec;          /* used in unzip.c, extract.c */
+     cdir_file_hdr   crec;          /* used in unzip.c, extract.c, misc.c */
+     ecdir_rec       ecrec;         /* used in unzip.c, extract.c */
+-    struct stat     statbuf;       /* used by main, mapname, check_for_newer */
++#ifdef _LARGEFILE64_SOURCE
++    struct stat64   statbuf;       /* used by main, mapname, check_for_newer */
++#else
++    struct stat   statbuf;       /* used by main, mapname, check_for_newer */
++#endif
++    
+ 
+     int      mem_mode;
+     uch      *outbufptr;           /* extract.c static */

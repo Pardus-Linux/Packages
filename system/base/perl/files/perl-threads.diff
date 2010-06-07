@@ -1,0 +1,29 @@
+--- ext/threads/threads.xs.orig	2009-09-04 06:58:42.000000000 +0000
++++ ext/threads/threads.xs	2009-09-04 07:00:10.000000000 +0000
+@@ -603,8 +603,10 @@ S_ithread_create(
+     ithread     *thread;
+     ithread     *current_thread = S_ithread_get(aTHX);
+ 
++#if 0
+     SV         **tmps_tmp = PL_tmps_stack;
+     IV           tmps_ix  = PL_tmps_ix;
++#endif
+ #ifndef WIN32
+     int          rc_stack_size = 0;
+     int          rc_thread_create = 0;
+@@ -695,6 +697,7 @@ S_ithread_create(
+         thread->params = sv_dup(params, &clone_param);
+         SvREFCNT_inc_void(thread->params);
+ 
++#if 0
+         /* The code below checks that anything living on the tmps stack and
+          * has been cloned (so it lives in the ptr_table) has a refcount
+          * higher than 0.
+@@ -717,6 +720,7 @@ S_ithread_create(
+                 SvREFCNT_dec(sv);
+             }
+         }
++#endif
+ 
+         SvTEMP_off(thread->init_function);
+         ptr_table_free(PL_ptr_table);

@@ -1,0 +1,269 @@
+diff -up shadow-4.1.2/libmisc/find_new_ids.c.redhat shadow-4.1.2/libmisc/find_new_ids.c
+--- shadow-4.1.2/libmisc/find_new_ids.c.redhat	2008-04-22 00:00:19.000000000 +0200
++++ shadow-4.1.2/libmisc/find_new_ids.c	2008-05-26 14:18:43.000000000 +0200
+@@ -56,11 +56,11 @@ int find_new_uid (int sys_user, uid_t *u
+ 	assert (uid != NULL);
+ 
+ 	if (sys_user == 0) {
+-		uid_min = getdef_unum ("UID_MIN", 1000);
++		uid_min = getdef_unum ("UID_MIN", 500);
+ 		uid_max = getdef_unum ("UID_MAX", 60000);
+ 	} else {
+ 		uid_min = getdef_unum ("SYS_UID_MIN", 1);
+-		uid_max = getdef_unum ("UID_MIN", 1000) - 1;
++		uid_max = getdef_unum ("UID_MIN", 500) - 1;
+ 		uid_max = getdef_unum ("SYS_UID_MAX", uid_max);
+ 	}
+ 
+@@ -139,11 +139,11 @@ int find_new_gid (int sys_group, gid_t *
+ 	assert (gid != NULL);
+ 
+ 	if (sys_group == 0) {
+-		gid_min = getdef_unum ("GID_MIN", 1000);
++		gid_min = getdef_unum ("GID_MIN", 500);
+ 		gid_max = getdef_unum ("GID_MAX", 60000);
+ 	} else {
+ 		gid_min = getdef_unum ("SYS_GID_MIN", 1);
+-		gid_max = getdef_unum ("GID_MIN", 1000) - 1;
++		gid_max = getdef_unum ("GID_MIN", 500) - 1;
+ 		gid_max = getdef_unum ("SYS_GID_MAX", gid_max);
+ 	}
+ 
+diff -up shadow-4.1.2/src/useradd.c.redhat shadow-4.1.2/src/useradd.c
+--- shadow-4.1.2/src/useradd.c.redhat	2008-05-19 22:31:52.000000000 +0200
++++ shadow-4.1.2/src/useradd.c	2008-05-26 14:18:43.000000000 +0200
+@@ -85,7 +85,7 @@
+ static gid_t def_group = 100;
+ static const char *def_gname = "other";
+ static const char *def_home = "/home";
+-static const char *def_shell = "";
++static const char *def_shell = "/sbin/nologin";
+ static const char *def_template = SKEL_DIR;
+ static const char *def_create_mail_spool = "no";
+ 
+@@ -97,7 +97,7 @@ static char def_file[] = USER_DEFAULTS_F
+ #define	VALID(s)	(strcspn (s, ":\n") == strlen (s))
+ 
+ static const char *user_name = "";
+-static const char *user_pass = "!";
++static const char *user_pass = "!!";
+ static uid_t user_id;
+ static gid_t user_gid;
+ static const char *user_comment = "";
+@@ -133,6 +133,7 @@ static int
+     kflg = 0,			/* specify a directory to fill new user directory */
+     lflg = 0,			/* do not add user to lastlog database file */
+     mflg = 0,			/* create user's home directory if it doesn't exist */
++    Mflg = 0,                   /* do NOT create user's home directory no matter what */
+     Nflg = 0,			/* do not create a group having the same name as the user, but add the user to def_group (or the group specified with -g) */
+     oflg = 0,			/* permit non-unique user ID to be specified with -u */
+     rflg = 0,			/* create a system account */
+@@ -656,6 +657,7 @@ static void usage (void)
+ 	         "                                faillog databases\n"
+ 	         "  -m, --create-home             create home directory for the new user\n"
+ 	         "                                account\n"
++		 "  -M, 	                  do not create user's home directory(overrides /etc/login.defs)\n"		
+ 	         "  -N, --no-user-group           do not create a group with the same name as\n"
+ 	         "                                the user\n"
+ 	         "  -o, --non-unique              allow create user with duplicate\n"
+@@ -886,7 +888,7 @@ static void process_flags (int argc, cha
+ 			{NULL, 0, NULL, '\0'}
+ 		};
+ 		while ((c =
+-			getopt_long (argc, argv, "b:c:d:De:f:g:G:k:K:lmMNop:rs:u:U",
++			getopt_long (argc, argv, "b:c:d:De:f:g:G:k:K:lmMnNop:rs:u:U",
+ 				     long_options, NULL)) != -1) {
+ 			switch (c) {
+ 			case 'b':
+@@ -1026,6 +1028,10 @@ static void process_flags (int argc, cha
+ 			case 'm':
+ 				mflg++;
+ 				break;
++                        case 'M':
++                                Mflg++;
++                                break;
++       			case 'n':
+ 			case 'N':
+ 				Nflg++;
+ 				break;
+@@ -1079,6 +1085,9 @@ static void process_flags (int argc, cha
+ 		Uflg = getdef_bool ("USERGROUPS_ENAB");
+ 	}
+ 
++        if (mflg && Mflg) /* the admin is not decided .. create or not ? */
++               usage();
++
+ 	/*
+ 	 * Certain options are only valid in combination with others.
+ 	 * Check it here so that they can be specified in any order.
+@@ -1628,6 +1637,14 @@ int main (int argc, char **argv)
+ 	}
+ #endif				/* USE_PAM */
+ 
++        if (!rflg) /* for system accounts defaults are ignored and we
++                    * do not create a home dir -- gafton */
++        	if (getdef_bool("CREATE_HOME"))
++               		mflg = 1;
++
++        if (Mflg) /* absolutely sure that we do not create home dirs */
++        	mflg = 0;
++
+ 	/*
+ 	 * See if we are messing with the defaults file, or creating
+ 	 * a new user.
+@@ -1727,27 +1744,22 @@ int main (int argc, char **argv)
+ 				 ("%s: warning: the home directory already exists.\n"
+ 				  "Not copying any file from skel directory into it.\n"),
+ 				 Prog);
+-
+-	} else if (getdef_str ("CREATE_HOME")) {
+-		/*
+-		 * RedHat added the CREATE_HOME option in login.defs in their
+-		 * version of shadow-utils (which makes -m the default, with
+-		 * new -M option to turn it off). Unfortunately, this
+-		 * changes the way useradd works (it can be run by scripts
+-		 * expecting some standard behaviour), compared to other
+-		 * Unices and other Linux distributions, and also adds a lot
+-		 * of confusion :-(.
+-		 * So we now recognize CREATE_HOME and give a warning here
+-		 * (better than "configuration error ... notify administrator"
+-		 * errors in every program that reads /etc/login.defs). -MM
+-		 */
+-		fprintf (stderr,
+-			 _
+-			 ("%s: warning: CREATE_HOME not supported, please use -m instead.\n"),
+-			 Prog);
+ 	}
+-
+-	create_mail ();
++        /* Warning removed to protect the innocent. */
++        /*
++         * The whole idea about breaking some stupid scripts by creating a new
++         * variable is crap - I could care less about the scripts. Historically
++         * adduser type programs have always created the home directories and
++         * I don't like the idea of providing a script when we can fix the
++         * binary itself. And if the scripts are using the right options to the
++         * useradd then they will not break. If not, they depend on unspecified
++         * behavior and they will break, but they were broken anyway to begin
++         * with --gafton
++         */
++
++	/* Do not create mail directory for system accounts */
++	if( !rflg )
++		create_mail ();
+ 
+ 	close_files ();
+ 
+diff -up shadow-4.1.2/man/useradd.8.redhat shadow-4.1.2/man/useradd.8
+--- shadow-4.1.2/man/useradd.8.redhat	2008-05-25 01:20:26.000000000 +0200
++++ shadow-4.1.2/man/useradd.8	2008-05-26 14:26:14.000000000 +0200
+@@ -27,7 +27,7 @@ option, the
+ \fBuseradd\fR
+ command creates a new user account using the values specified on the command line plus the default values from the system\&. Depending on command line options, the
+ \fBuseradd\fR
+-command will update system files and may also create the new user\'s home directory and copy initial files\&.
++command will update system files and may also create the new user\'s home directory and copy initial files\&. The version provided with Red Hat Linux will create a group for each user added to the system by default\&.
+ .SH "OPTIONS"
+ .PP
+ The options which apply to the
+@@ -84,8 +84,7 @@ The number of days after a password expi
+ .PP
+ \fB\-g\fR, \fB\-\-gid\fR \fIGROUP\fR
+ .RS 4
+-The group name or number of the user\'s initial login group\&. The group name must exist\&. A group number must refer to an already existing group\&. The default group number is 1 or whatever is specified in
+-\fI/etc/default/useradd\fR\&.
++The group name or number of the user\'s initial login group\&. The group name must exist\&. A group number must refer to an already existing group\&.
+ .RE
+ .PP
+ \fB\-G\fR, \fB\-\-groups\fR \fIGROUP1\fR[\fI,GROUP2,\&.\&.\&.\fR[\fI,GROUPN\fR]]]
+@@ -143,6 +142,13 @@ Do not add the user to the lastlog and f
+ By default, the user\'s entries in the lastlog and faillog databases are resetted to avoid reusing the entry from a previously deleted user\&.
+ .RE
+ .PP
++\fB-M\fR
++.RS 4
++The user\'s home directory will not be created, even if the system wide settings from 
++\fI/etc/login.defs\fR 
++is to create home dirs\.
++.RE
++.PP
+ \fB\-m\fR, \fB\-\-create\-home\fR
+ .RS 4
+ Create the user\'s home directory if it does not exist\&. The files and directories contained in the skeleton directory (which can be defined with the
+@@ -195,6 +201,19 @@ range, defined in
+ counterparts for the creation of groups)\&.
+ .RE
+ .PP
++\fB-r\fR
++.RS 4
++This flag is used to create a system account\. That is, a user with a UID lower than the value of UID_MIN defined in 
++\fI/etc/login.defs\fR 
++and whose password does not expire\. Note that 
++\fBuseradd\fR 
++will not create a home directory for such an user, regardless of the default setting in 
++\fI/etc/login.defs\fR\. 
++You have to specify 
++\fB-m\fR 
++option if you want a home directory for a system account to be created\. This is an option added by Red Hat\.
++.RE
++.PP
+ \fB\-s\fR, \fB\-\-shell\fR \fISHELL\fR
+ .RS 4
+ The name of the user\'s login shell\&. The default is to leave this field blank, which causes the system to select the default login shell\&.
+@@ -265,6 +284,8 @@ The name of a new user\'s login shell\&.
+ The system administrator is responsible for placing the default user files in the
+ \fI/etc/skel/\fR
+ directory\&.
++.br
++This version of useradd was modified by Red Hat to suit Red Hat user/group conventions\&.
+ .SH "CAVEATS"
+ .PP
+ You may not add a user to a NIS or LDAP group\&. This must be performed on the corresponding server\&.
+@@ -407,6 +428,11 @@ Group account information\&.
+ Secure group account information\&.
+ .RE
+ .PP
++\fI/etc/gshadow\fR
++.RS 4
++Secure group account information\.
++.RE
++.PP
+ \fI/etc/default/useradd\fR
+ .RS 4
+ Default values for account creation\&.
+diff -up shadow-4.1.2/man/groupadd.8.redhat shadow-4.1.2/man/groupadd.8
+--- shadow-4.1.2/man/groupadd.8.redhat	2008-05-25 01:20:05.000000000 +0200
++++ shadow-4.1.2/man/groupadd.8	2008-05-26 14:35:49.000000000 +0200
+@@ -14,7 +14,7 @@
+ groupadd \- create a new group
+ .SH "SYNOPSIS"
+ .HP 9
+-\fBgroupadd\fR [\-g\ \fIGID\fR\ [\-o]] [\-f] [\-K\ \fIKEY\fR=\fIVALUE\fR] \fIgroup\fR
++\fBgroupadd\fR [\-g\ \fIgid\fR\ [\-o]] [\-r] [\-f] [\-K\ \fIKEY\fR=\fIVALUE\fR] \fIgroup\fR
+ .SH "DESCRIPTION"
+ .PP
+ The
+@@ -34,11 +34,22 @@ This option causes the command to simply
+ is turned off)\&.
+ .RE
+ .PP
++\fB-r\fR
++.RS 4
++This flag instructs
++\fBgroupadd\fR
++to add a system account\. The first available
++\fIgid\fR
++lower than 500 will be automatically selected unless the
++\fB-g\fR
++option is also given on the command line\. This is an option added by Red Hat\.
++.RE
++.PP
+ \fB\-g\fR, \fB\-\-gid\fR \fIGID\fR
+ .RS 4
+ The numerical value of the group\'s ID\&. This value must be unique, unless the
+ \fB\-o\fR
+-option is used\&. The value must be non\-negative\&. The default is to use the smallest ID value greater than 999 and greater than every other group\&. Values between 0 and 999 are typically reserved for system accounts\&.
++option is used\&. The value must be non\-negative\&. The default is to use the smallest ID value greater than 499 and greater than every other group\&. Values between 0 and 500 are typically reserved for system accounts\&.
+ .RE
+ .PP
+ \fB\-h\fR, \fB\-\-help\fR

@@ -1,0 +1,25 @@
+--- grub-0.5.96.1/stage2/disk_io.c.pix	Sat Dec  9 14:34:00 2000
++++ grub-0.5.96.1/stage2/disk_io.c	Sat Dec  9 14:36:36 2000
+@@ -662,7 +662,8 @@
+ 
+   /* Initialize CURRENT_PARTITION for next_partition.  */
+   current_partition = 0xFFFFFF;
+-  
++
++ rescan:
+   while (next ())
+     {
+ #ifndef STAGE1_5
+@@ -675,6 +676,12 @@
+       /* If this is a valid partition...  */
+       if (current_slice)
+ 	{
++	  if (current_slice == 0x55) 
++	    {
++	      ext_offset = 0;
++	      part_offset = 1;
++	      goto rescan;
++	    }
+ #ifndef STAGE1_5
+ 	  /* Display partition information.  */
+ 	  if (flags && ! IS_PC_SLICE_TYPE_EXTENDED (current_slice))

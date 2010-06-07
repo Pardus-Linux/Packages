@@ -1,0 +1,88 @@
+Index: configure.in
+===================================================================
+--- configure.in.orig
++++ configure.in
+@@ -1238,7 +1238,7 @@ then
+ AC_MSG_CHECKING(whether $CC accepts -pthread)
+ AC_CACHE_VAL(ac_cv_thread,
+ [ac_save_cc="$CC"
+-CC="$CC -pthread"
++LIBS="$LIBS -lpthread"
+ AC_TRY_RUN([
+ #include <pthread.h>
+ 
+@@ -1277,7 +1277,7 @@ then
+   ac_cv_cxx_thread=yes
+ elif test "$ac_cv_pthread" = "yes"
+ then 
+-  CXX="$CXX -pthread"
++  LIBS="$LIBS -lpthread"
+   ac_cv_cxx_thread=yes
+ fi
+ 
+@@ -1536,7 +1536,7 @@ then CC="$CC -Kpthread"
+ elif test "$ac_cv_kthread" = "yes"
+ then CC="$CC -Kthread"
+ elif test "$ac_cv_pthread" = "yes"
+-then CC="$CC -pthread"
++then LIBS="$LIBS -lpthread"
+ fi
+ AC_MSG_CHECKING(for pthread_t)
+ have_pthread_t=no
+@@ -2128,10 +2128,7 @@ then
+     THREADOBJ="Python/thread.o"
+ elif test "$ac_cv_pthread" = "yes"
+ then
+-    CC="$CC -pthread"
+-    if test "$ac_cv_cxx_thread" = "yes"; then
+-        CXX="$CXX -pthread"
+-    fi
++    LIBS="$LIBS -lpthread"
+     AC_DEFINE(WITH_THREAD)
+     posix_threads=yes
+     THREADOBJ="Python/thread.o"
+Index: setup.py
+===================================================================
+--- setup.py.orig
++++ setup.py
+@@ -556,7 +556,7 @@ class PyBuildExt(build_ext):
+         # Operations on audio samples
+         # According to #993173, this one should actually work fine on
+         # 64-bit platforms.
+-        exts.append( Extension('audioop', ['audioop.c']) )
++        exts.append( Extension('audioop', ['audioop.c'], library_dirs=lib_dirs, libraries=['m']) )
+ 
+         # Disabled on 64-bit platforms
+         if sys.maxint != 9223372036854775807L:
+@@ -1256,7 +1256,7 @@ class PyBuildExt(build_ext):
+             # This requires sizeof(int) == sizeof(long) == sizeof(char*)
+             dl_inc = find_file('dlfcn.h', [], inc_dirs)
+             if (dl_inc is not None) and (platform not in ['atheos']):
+-                exts.append( Extension('dl', ['dlmodule.c']) )
++                exts.append( Extension('dl', ['dlmodule.c'], library_dirs=lib_dirs, libraries=['dl']) )
+             else:
+                 missing.append('dl')
+         else:
+@@ -1342,6 +1342,7 @@ class PyBuildExt(build_ext):
+         if sysconfig.get_config_var('WITH_THREAD'):
+             exts.append ( Extension('_multiprocessing', multiprocessing_srcs,
+                                     define_macros=macros.items(),
++                                    libraries=['pthread'],
+                                     include_dirs=["Modules/_multiprocessing"]))
+         else:
+             missing.append('_multiprocessing')
+@@ -1784,10 +1785,13 @@ class PyBuildExt(build_ext):
+                         include_dirs=include_dirs,
+                         extra_compile_args=extra_compile_args,
+                         extra_link_args=extra_link_args,
+-                        libraries=[],
++			library_dirs=lib_dirs,
++                        libraries=['dl'],
+                         sources=sources,
+                         depends=depends)
+         ext_test = Extension('_ctypes_test',
++			     libraries=['m'],
++			     library_dirs=lib_dirs,
+                              sources=['_ctypes/_ctypes_test.c'])
+         self.extensions.extend([ext, ext_test])
+ 

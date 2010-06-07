@@ -1,0 +1,30 @@
+diff -up shadow-4.1.2/src/groupmems.c.gmSEGV shadow-4.1.2/src/groupmems.c
+--- shadow-4.1.2/src/groupmems.c.gmSEGV	2008-04-22 22:05:11.000000000 +0200
++++ shadow-4.1.2/src/groupmems.c	2008-09-02 08:30:52.000000000 +0200
+@@ -95,7 +95,7 @@ static char *whoami (void)
+ 	}
+ }
+ 
+-static void addtogroup (char *user, char **members)
++static char **addtogroup (char *user, char **members)
+ {
+ 	int i;
+ 
+@@ -109,6 +109,8 @@ static void addtogroup (char *user, char
+ 	members = (char **) realloc (members, sizeof (char *) * (i+2));
+ 	members[i] = user;
+ 	members[i + 1] = NULL;
++
++	return members;
+ }
+ 
+ static void rmfromgroup (char *user, char **members)
+@@ -285,7 +287,7 @@ int main (int argc, char **argv) 
+ 	grp = (struct group *) gr_locate (name);
+ 
+ 	if (NULL != adduser) {
+-		addtogroup (adduser, grp->gr_mem);
++		grp->gr_mem = addtogroup (adduser, grp->gr_mem);
+ 		gr_update (grp);
+ 	} else if (NULL != deluser) {
+ 		rmfromgroup (deluser, grp->gr_mem);

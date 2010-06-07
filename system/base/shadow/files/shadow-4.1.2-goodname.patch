@@ -1,0 +1,93 @@
+diff -up shadow-4.1.2/libmisc/chkname.c.goodname shadow-4.1.2/libmisc/chkname.c
+--- shadow-4.1.2/libmisc/chkname.c.goodname	2008-04-27 02:40:13.000000000 +0200
++++ shadow-4.1.2/libmisc/chkname.c	2008-05-26 14:37:09.000000000 +0200
+@@ -50,16 +50,24 @@
+ static int good_name (const char *name)
+ {
+ 	/*
+-	 * User/group names must match [a-z_][a-z0-9_-]*[$]
+-	 */
+-	if (!*name || !((*name >= 'a' && *name <= 'z') || *name == '_'))
++         * User/group names must match gnu e-regex:
++         *    [a-zA-Z0-9_.][a-zA-Z0-9_.-]{0,30}[a-zA-Z0-9_.$-]?
++         *
++         * as a non-POSIX, extension, allow "$" as the last char for
++         * sake of Samba 3.x "add machine script"
++         */
++	if (!*name || !((*name >= 'a' && *name <= 'z')
++             || (*name >= 'A' && *name <= 'Z')
++             || (*name >= '0' && *name <= '9')
++             || *name == '_' || *name == '.'))
+ 		return 0;
+ 
+ 	while (*++name) {
+-		if (!((*name >= 'a' && *name <= 'z') ||
+-		      (*name >= '0' && *name <= '9') ||
+-		      *name == '_' || *name == '-' ||
+-		      (*name == '$' && *(name + 1) == '\0')))
++		if (!(  (*name >= 'a' && *name <= 'z')
++		     || (*name >= 'A' && *name <= 'Z')
++                     || (*name >= '0' && *name <= '9')
++                     || *name == '_' || *name == '.' || *name == '-'
++                     || (*name == '$' && *(name + 1) == '\0')))
+ 			return 0;
+ 	}
+ 
+@@ -75,10 +83,9 @@ int check_user_name (const char *name)
+ #endif
+ 
+ 	/*
+-	 * User names are limited by whatever utmp can
+-	 * handle (usually max 8 characters).
++	 * User names are limited by whatever utmp can handle.
+ 	 */
+-	if (strlen (name) > sizeof (ut.ut_user))
++	if (strlen(name) + 1 > sizeof(ut.ut_user))
+ 		return 0;
+ 
+ 	return good_name (name);
+@@ -86,11 +93,13 @@ int check_user_name (const char *name)
+ 
+ int check_group_name (const char *name)
+ {
+-	/*
+-	 * Arbitrary limit for group names - max 16
+-	 * characters (same as on HP-UX 10).
+-	 */
+-	if (strlen (name) > 16)
++#if HAVE_UTMPX_H
++	struct utmpx ut;
++#else
++	struct utmp ut;
++#endif
++
++	if (strlen(name) + 1 > sizeof(ut.ut_user))
+ 		return 0;
+ 
+ 	return good_name (name);
+diff -up shadow-4.1.2/man/groupadd.8.goodname shadow-4.1.2/man/groupadd.8
+--- shadow-4.1.2/man/groupadd.8.goodname	2008-05-26 14:37:09.000000000 +0200
++++ shadow-4.1.2/man/groupadd.8	2008-05-26 14:40:51.000000000 +0200
+@@ -150,9 +150,7 @@ Shadow password suite configuration\&.
+ .RE
+ .SH "CAVEATS"
+ .PP
+-Groupnames must begin with a lower case letter or an underscore, and only lower case letters, underscores, dashes, and dollar signs may follow\&. In regular expression terms: [a\-z_][a\-z0\-9_\-]*[$]
+-.PP
+-Groupnames may only be up to 16 characters long\&.
++Groupnames may only be up to 32 characters long\&.
+ .PP
+ You may not add a NIS or LDAP group\&. This must be performed on the corresponding server\&.
+ .PP
+diff -up shadow-4.1.2/man/useradd.8.goodname shadow-4.1.2/man/useradd.8
+--- shadow-4.1.2/man/useradd.8.goodname	2008-05-26 14:37:09.000000000 +0200
++++ shadow-4.1.2/man/useradd.8	2008-05-26 14:41:48.000000000 +0200
+@@ -293,8 +293,6 @@ You may not add a user to a NIS or LDAP 
+ Similarly, if the username already exists in an external user database such as NIS or LDAP,
+ \fBuseradd\fR
+ will deny the user account creation request\&.
+-.PP
+-Usernames must begin with a lower case letter or an underscore, and only lower case letters, underscores, dashes, and dollar signs may follow\&. In regular expression terms: [a\-z_][a\-z0\-9_\-]*[$]
+ .SH "CONFIGURATION"
+ .PP
+ The following configuration variables in

@@ -1,0 +1,22 @@
+diff -up shadow-4.1.2/src/groupmems.c.gmNoGroup shadow-4.1.2/src/groupmems.c
+--- shadow-4.1.2/src/groupmems.c.gmNoGroup	2008-09-24 15:00:30.000000000 +0200
++++ shadow-4.1.2/src/groupmems.c	2008-09-24 15:07:20.000000000 +0200
+@@ -56,6 +56,7 @@
+ #define EXIT_NOT_MEMBER		6	/* member of group does not exist */
+ #define EXIT_MEMBER_EXISTS	7	/* member of group already exists */
+ #define E_BAD_ARG		8       /* invalid argument to option */
++#define EXIT_NOT_GROUP		8	/* group does not exist */
+ 
+ #define TRUE 1
+ #define FALSE 0
+@@ -293,6 +294,10 @@ int main (int argc, char **argv) 
+ 	}
+ 
+ 	grp = (struct group *) gr_locate (name);
++	if (NULL == grp) {
++		fputs (_("Specified group does not exist\n"), stderr);
++		exit (EXIT_NOT_GROUP);
++	}
+ 
+ 	if (NULL != adduser) {
+ 		grp->gr_mem = addtogroup (adduser, grp->gr_mem);

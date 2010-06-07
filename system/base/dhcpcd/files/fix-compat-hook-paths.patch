@@ -1,0 +1,20 @@
+Index: dhcpcd-5.1.3/dhcpcd-hooks/50-dhcpcd-compat
+===================================================================
+--- dhcpcd-5.1.3.orig/dhcpcd-hooks/50-dhcpcd-compat
++++ dhcpcd-5.1.3/dhcpcd-hooks/50-dhcpcd-compat
+@@ -30,12 +30,12 @@ BOUND|INFORM|REBIND|REBOOT|TEST|TIMEOUT|
+ esac
+ 
+ if [ "$reason" != "down" ]; then
+-	rm -f /var/lib/dhcpcd-"$INTERFACE".info
++	rm -f /var/lib/dhcpcd/dhcpcd-"$INTERFACE".info
+ 	for x in IPADDR INTERFACE NETMASK BROADCAST NETWORK DHCPSID GATEWAYS \
+ 		DNSSERVERS DNSDOMAIN DNSSEARCH NISDOMAIN NISSERVERS \
+ 		NTPSERVERS GATEWAY DNS; do
+-		eval echo "$x=\'\$$x\'" >> /var/lib/dhcpcd-"$INTERFACE".info
++		eval echo "$x=\'\$$x\'" >> /var/lib/dhcpcd/dhcpcd-"$INTERFACE".info
+ 	done
+ fi
+ 
+-set -- /var/lib/dhcpcd-"$INTERFACE".info "$x"
++set -- /var/lib/dhcpcd/dhcpcd-"$INTERFACE".info "$x"

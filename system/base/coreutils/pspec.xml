@@ -1,0 +1,330 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>coreutils</Name>
+        <Homepage>http://www.gnu.org/software/coreutils/</Homepage>
+        <Packager>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Packager>
+        <License>GPLv3+</License>
+        <IsA>app:console</IsA>
+        <Summary>Standard GNU file, text and shell utilities</Summary>
+        <Description>Standard GNU file utilities (chmod, cp, dd, dir, ls...), text utilities (sort, tr, head, wc..), and shell utilities (whoami, who,...)</Description>
+        <Archive sha1sum="98880651bee000b1b31e1ee55ff8fabdad8eeecd" type="targz">mirrors://gnu/coreutils/coreutils-7.6.tar.gz</Archive>
+        <BuildDependencies>
+            <Dependency>acl</Dependency>
+            <Dependency>perl</Dependency>
+            <Dependency>shadow</Dependency>
+            <Dependency>gettext</Dependency>
+            <Dependency>ncurses</Dependency>
+        </BuildDependencies>
+        <Patches>
+            <!-- Pardus patches -->
+            <Patch level="1">remove_am_silent_rules.patch</Patch>
+            <Patch level="1">automake_version.patch</Patch>
+            <Patch level="1">dircolors_pisi.patch</Patch>
+            <!-- this is replaced by c_toupper, make sure it is ok
+            <Patch level="1">date_utf8.patch</Patch>
+            -->
+            <!-- Candy  FIXME: needs a few magic touches
+            <Patch level="1">progressbar.patch</Patch>
+            -->
+
+            <Patch level="1">coreutils-4.5.3-langinfo.patch</Patch>
+            <Patch level="1">coreutils-overflow.patch</Patch>
+            <Patch level="1">more-dir-colors.patch</Patch>
+
+            <!-- Fedora patches -->
+            <Patch level="1">fedora/coreutils-6.10-configuration.patch</Patch>
+            <Patch level="1">fedora/coreutils-6.10-longoptions.patch</Patch>
+            <Patch level="1">fedora/coreutils-6.10-manpages.patch</Patch>
+            <Patch level="1">fedora/coreutils-silentmv.patch</Patch>
+            <Patch level="1">fedora/coreutils-getfacl-exit-code.patch</Patch>
+            <!-- https://bugzilla.redhat.com/show_bug.cgi?id=504798 -->
+            <Patch level="1">fedora/coreutils-7.4-sttytcsadrain.patch</Patch>
+
+            <!-- Suse patches -->
+            <Patch>suse/coreutils-add_ogv.patch</Patch>
+            <Patch>suse/coreutils-cifs-afs.diff</Patch>
+            <Patch level="1">suse/coreutils-getaddrinfo.diff</Patch>
+            <Patch level="1">suse/coreutils-sysinfo.diff</Patch>
+            <Patch level="1">suse/invalid-ids.diff</Patch>
+
+            <Patch level="1">ae034822c535fa5168069a75fb5e1c58f93a7834.patch</Patch>
+        </Patches>
+    </Source>
+
+    <Package>
+        <Name>coreutils</Name>
+        <RuntimeDependencies>
+            <Dependency>acl</Dependency>
+            <Dependency>perl</Dependency>
+            <Dependency>shadow</Dependency>
+            <Dependency>gettext</Dependency>
+            <Dependency>ncurses</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="executable">/bin</Path>
+            <Path fileType="config">/etc</Path>
+            <Path fileType="executable">/usr/bin</Path>
+            <Path fileType="library">/usr/lib</Path>
+            <Path fileType="doc">/usr/share/doc</Path>
+            <Path fileType="man">/usr/share/man</Path>
+            <Path fileType="info">/usr/share/info</Path>
+            <Path fileType="localedata">/usr/share/locale</Path>
+        </Files>
+        <!-- switch to dircolors.hin but keep this for now
+        <AdditionalFiles>
+            <AdditionalFile owner="root" permission="0644" target="/etc/DIR_COLORS">DIR_COLORS</AdditionalFile>
+        </AdditionalFiles>
+        -->
+    </Package>
+
+    <History>
+        <Update release="33">
+            <Date>2010-03-31</Date>
+            <Version>7.6</Version>
+            <Comment>Disable libcap as it very rarely be useful and there are rumours that it slows down ls</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="32" type="security">
+            <Date>2009-12-09</Date>
+            <Version>7.6</Version>
+            <Comment>Fix unsafe temporary directory use in distcheck rule, CVE-2009-4135 bug #11693</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="31">
+            <Date>2009-09-15</Date>
+            <Version>7.6</Version>
+            <Comment>
+                Version bump
+                Workaround termios lockup
+                Force compiling without gmp to avoid linking to system.devel package
+                Add stdbuf tool
+            </Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="30">
+            <Date>2009-05-13</Date>
+            <Version>7.4</Version>
+            <Comment>
+                Version bump
+                Use colorinfo from the package
+            </Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="29">
+            <Date>2009-02-16</Date>
+            <Version>6.12</Version>
+            <Comment>
+                Add a bunch of fixes
+                Enable xattr acl capabilities support
+                Remove cvs dependency
+            </Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="28">
+            <Date>2008-06-26</Date>
+            <Version>6.12</Version>
+            <Comment>Fix date command for Turkish locale, patch by Vefa Bıçakçı</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="27">
+            <Date>2008-06-23</Date>
+            <Version>6.12</Version>
+            <Comment>Stable update</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="26">
+            <Date>2008-04-20</Date>
+            <Version>6.11</Version>
+            <Comment>Stable update</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="25">
+            <Date>2008-01-23</Date>
+            <Version>6.10</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="24">
+            <Date>2007-04-07</Date>
+            <Version>6.9</Version>
+            <Comment>Fix ls -x DIR showing wrong first entry for some cases</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="23">
+            <Date>2007-03-23</Date>
+            <Version>6.9</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="22">
+            <Date>2007-01-10</Date>
+            <Version>6.7</Version>
+            <Comment>Fix a cut coredump</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="21" type="security">
+            <Date>2006-12-08</Date>
+            <Version>6.7</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="20">
+            <Date>2006-11-24</Date>
+            <Version>6.6</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="19">
+            <Date>2006-11-19</Date>
+            <Version>6.4</Version>
+            <Comment>Revert last</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="18">
+            <Date>2006-11-19</Date>
+            <Version>6.5</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="17">
+            <Date>2006-11-02</Date>
+            <Version>6.4</Version>
+            <Comment>Provide kill and groups commands</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="16">
+            <Date>2006-10-23</Date>
+            <Version>6.4</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="15">
+            <Date>2006-09-30</Date>
+            <Version>6.3</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="14" type="security">
+            <Date>2006-08-24</Date>
+            <Version>6.1</Version>
+            <Comment>Version bump</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="13" type="security">
+            <Date>2006-08-14</Date>
+            <Version>5.97</Version>
+            <Comment>Stable update and fix CVE-2005-1039</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="12">
+            <Date>2006-07-08</Date>
+            <Version>5.96</Version>
+            <Comment>Dont delete hostname, it comes from another package now</Comment>
+            <Name>Gürer Özen</Name>
+            <Email>gurer@pardus.org.tr</Email>
+        </Update>
+        <Update release="11">
+            <Date>2006-06-07</Date>
+            <Version>5.96</Version>
+            <Comment>Remove unnecessary /usr/bin/su link.</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="10">
+            <Date>2006-06-05</Date>
+            <Version>5.96</Version>
+            <Comment>fix #2857</Comment>
+            <Name>A. Murat Eren</Name>
+            <Email>meren@pardus.org.tr</Email>
+        </Update>
+        <Update release="9">
+            <Date>2006-05-25</Date>
+            <Version>5.96</Version>
+            <Comment>Don't overwrite /bin/hostname</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="8">
+            <Date>2006-05-24</Date>
+            <Version>5.96</Version>
+            <Comment>Version bump</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="7">
+            <Date>2006-05-15</Date>
+            <Version>5.95</Version>
+            <Comment>Version bump</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="6">
+            <Date>2006-03-13</Date>
+            <Version>5.94</Version>
+            <Comment>Fix Turkish translation</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="5">
+            <Date>2006-02-15</Date>
+            <Version>5.94</Version>
+            <Comment>New stable release</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="4" type="security">
+            <Date>2005-11-07</Date>
+            <Version>5.93</Version>
+            <Comment>Add some security patches from OpenSuse</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="3">
+            <Date>2005-11-06</Date>
+            <Version>5.93</Version>
+            <Comment>Update to version 5.93 which upstream says is latest stable</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="2">
+            <Date>2005-11-03</Date>
+            <Version>5.3.0</Version>
+            <Comment>Update to version 5.3.0 and add ACL support</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="1">
+            <Date>2005-07-25</Date>
+            <Version>5.2.1</Version>
+            <Comment>First release.</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+    </History>
+</PISI>

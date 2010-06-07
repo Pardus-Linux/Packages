@@ -1,0 +1,139 @@
+--- cpio-2.9/src/copypass.c.chmodRaceC	2007-06-28 14:10:01.000000000 +0200
++++ cpio-2.9/src/copypass.c	2007-07-19 10:43:26.000000000 +0200
+@@ -239,15 +239,23 @@ process_copy_pass ()
+ 		  cdf_flag = 1;
+ 		}
+ #endif
+-	      res = mkdir (output_name.ds_string, in_file_stat.st_mode);
++	      res = mkdir (output_name.ds_string, in_file_stat.st_mode & ~077);
+ 
+ 	    }
+ 	  else
+-	    res = 0;
++            {
++              if (!no_chown_flag && (out_file_stat.st_mode & 077) != 0
++                  && chmod (output_name.ds_string, out_file_stat.st_mode & 07700) < 0)
++                {
++                  error (0, errno, "%s: chmod", output_name.ds_string);
++                  continue;
++                }
++              res = 0;
++            }
+ 	  if (res < 0 && create_dir_flag)
+ 	    {
+ 	      create_all_directories (output_name.ds_string);
+-	      res = mkdir (output_name.ds_string, in_file_stat.st_mode);
++	      res = mkdir (output_name.ds_string, in_file_stat.st_mode & ~077);
+ 	    }
+ 	  if (res < 0)
+ 	    {
+@@ -290,12 +298,12 @@ process_copy_pass ()
+ 
+ 	  if (link_res < 0)
+ 	    {
+-	      res = mknod (output_name.ds_string, in_file_stat.st_mode,
++	      res = mknod (output_name.ds_string, in_file_stat.st_mode & ~077,
+ 			   in_file_stat.st_rdev);
+ 	      if (res < 0 && create_dir_flag)
+ 		{
+ 		  create_all_directories (output_name.ds_string);
+-		  res = mknod (output_name.ds_string, in_file_stat.st_mode,
++		  res = mknod (output_name.ds_string, in_file_stat.st_mode & ~077,
+ 			       in_file_stat.st_rdev);
+ 		}
+ 	      if (res < 0)
+--- cpio-2.9/src/copyin.c.chmodRaceC	2007-06-28 12:51:09.000000000 +0200
++++ cpio-2.9/src/copyin.c	2007-07-19 10:37:50.000000000 +0200
+@@ -186,11 +186,12 @@ list_file(struct cpio_file_stat* file_hd
+ 
+ static int
+ try_existing_file (struct cpio_file_stat* file_hdr, int in_file_des,
+-		   int *existing_dir)
++		   int *existing_dir, mode_t *existing_mode)
+ {
+   struct stat file_stat;
+ 
+   *existing_dir = false;
++  *existing_mode = 0;
+   if (lstat (file_hdr->c_name, &file_stat) == 0)
+     {
+       if (S_ISDIR (file_stat.st_mode)
+@@ -200,6 +201,7 @@ try_existing_file (struct cpio_file_stat
+ 	     we are trying to create, don't complain about
+ 	     it.  */
+ 	  *existing_dir = true;
++	  *existing_mode = file_stat.st_mode;
+ 	  return 0;
+ 	}
+       else if (!unconditional_flag
+@@ -567,7 +569,7 @@ copyin_regular_file (struct cpio_file_st
+ }
+ 
+ static void
+-copyin_directory (struct cpio_file_stat *file_hdr, int existing_dir)
++copyin_directory (struct cpio_file_stat *file_hdr, int existing_dir, mode_t existing_mode)
+ {
+   int res;			/* Result of various function calls.  */
+ #ifdef HPUX_CDF
+@@ -610,14 +612,22 @@ copyin_directory (struct cpio_file_stat 
+ 	  cdf_flag = 1;
+ 	}
+ #endif
+-      res = mkdir (file_hdr->c_name, file_hdr->c_mode);
++      res = mkdir (file_hdr->c_name, file_hdr->c_mode & ~077);
+     }
+   else
+-    res = 0;
++    {
++      if (!no_chown_flag && (existing_mode & 077) != 0
++         && chmod (file_hdr->c_name, existing_mode & 07700) < 0)
++       {
++         error (0, errno, "%s: chmod", file_hdr->c_name);
++         return;
++       }
++      res = 0;
++    }
+   if (res < 0 && create_dir_flag)
+     {
+       create_all_directories (file_hdr->c_name);
+-      res = mkdir (file_hdr->c_name, file_hdr->c_mode);
++      res = mkdir (file_hdr->c_name, file_hdr->c_mode & ~077);
+     }
+   if (res < 0)
+     {
+@@ -692,12 +702,12 @@ copyin_device (struct cpio_file_stat* fi
+       return;
+     }
+   
+-  res = mknod (file_hdr->c_name, file_hdr->c_mode,
++  res = mknod (file_hdr->c_name, file_hdr->c_mode & ~077,
+ 	    makedev (file_hdr->c_rdev_maj, file_hdr->c_rdev_min));
+   if (res < 0 && create_dir_flag)
+     {
+       create_all_directories (file_hdr->c_name);
+-      res = mknod (file_hdr->c_name, file_hdr->c_mode,
++      res = mknod (file_hdr->c_name, file_hdr->c_mode & ~077,
+ 	    makedev (file_hdr->c_rdev_maj, file_hdr->c_rdev_min));
+     }
+   if (res < 0)
+@@ -772,9 +782,10 @@ static void
+ copyin_file (struct cpio_file_stat* file_hdr, int in_file_des)
+ {
+   int existing_dir;
++  mode_t existing_mode;
+ 
+   if (!to_stdout_option
+-      && try_existing_file (file_hdr, in_file_des, &existing_dir) < 0)
++      && try_existing_file (file_hdr, in_file_des, &existing_dir, &existing_mode) < 0)
+     return;
+ 
+   /* Do the real copy or link.  */
+@@ -785,7 +796,7 @@ copyin_file (struct cpio_file_stat* file
+       break;
+ 
+     case CP_IFDIR:
+-      copyin_directory (file_hdr, existing_dir);
++      copyin_directory(file_hdr, existing_dir, existing_mode);
+       break;
+ 
+     case CP_IFCHR:

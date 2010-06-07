@@ -1,0 +1,25 @@
+--- perl-5.10.0.orig/debian/patches/15_fix_local_symtab
++++ perl-5.10.0/debian/patches/15_fix_local_symtab
+@@ -0,0 +1,22 @@
++Fix a segmentation fault occurring in the mod_perl2 test suite. (Closes: #475498)
++
++Upstream change #33807 backported from blead.
++
++[perl #52740]
++diff --git a/sv.c b/sv.c
++index 718e305..fe36438 100644
++--- a/sv.c
+++++ b/sv.c
++@@ -3557,8 +3557,10 @@ Perl_sv_setsv_flags(pTHX_ SV *dstr, register SV *sstr, I32 flags)
++ 		GvMULTI_on(dstr);
++ 		return;
++ 	    }
++-	    glob_assign_glob(dstr, sstr, dtype);
++-	    return;
+++	    if (isGV_with_GP(sstr)) {
+++		glob_assign_glob(dstr, sstr, dtype);
+++		return;
+++	    }
++ 	}
++ 
++ 	if (dtype >= SVt_PV) {

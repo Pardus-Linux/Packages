@@ -1,0 +1,37 @@
+--- unzip-5.52/unix/unix.c.toctou	2005-12-20 13:28:52.000000000 +0100
++++ unzip-5.52/unix/unix.c	2005-12-20 13:52:02.773125776 +0100
+@@ -1043,6 +1043,17 @@
+     int have_uidgid_flg;
+ 
+     fchmod(fileno(G.outfile), 0400);
++    
++/*---------------------------------------------------------------------------
++    Change the file permissions from default ones to those stored in the
++    zipfile. It is necessary to change permissions before fclose command.
++  ---------------------------------------------------------------------------*/
++
++#ifndef NO_CHMOD
++    if (fchmod(fileno(G.outfile), 0xffff & G.pInfo->file_attr))
++          perror("chmod (file attributes) error");
++#endif
++    
+     fclose(G.outfile);
+ 
+ /*---------------------------------------------------------------------------
+@@ -1155,16 +1166,6 @@
+ #endif /* ?AOS_VS */
+     }
+ 
+-/*---------------------------------------------------------------------------
+-    Change the file permissions from default ones to those stored in the
+-    zipfile.
+-  ---------------------------------------------------------------------------*/
+-
+-#ifndef NO_CHMOD
+-    if (chmod(G.filename, filtattr(__G__ G.pInfo->file_attr)))
+-        perror("chmod (file attributes) error");
+-#endif
+-
+ } /* end function close_outfile() */
+ 
+ #endif /* !MTS */

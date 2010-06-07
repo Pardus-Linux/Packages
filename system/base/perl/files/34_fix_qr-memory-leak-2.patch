@@ -1,0 +1,20 @@
+--- perl-5.10.0.orig/debian/patches/34_fix_qr-memory-leak-2
++++ perl-5.10.0/debian/patches/34_fix_qr-memory-leak-2
+@@ -0,0 +1,17 @@
++Fix memory leak with qr//. (Closes: #503975)
++
++Adapted from upstream change 34506.
++diff --git a/pp_hot.c b/pp_hot.c
++index 57fa328..4a4e9e8 100644
++--- a/pp_hot.c
+++++ b/pp_hot.c
++@@ -1198,6 +1198,9 @@ PP(pp_qr)
++     if (rx->extflags & RXf_TAINTED)
++         SvTAINTED_on(rv);
++     sv_magic(sv,(SV*)ReREFCNT_inc(rx), PERL_MAGIC_qr,0,0);
+++    if (pkg) {
+++	SvREFCNT_dec(pkg);
+++    }
++     XPUSHs(rv);
++     RETURN;
++ }

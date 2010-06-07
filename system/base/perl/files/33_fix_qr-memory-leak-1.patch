@@ -1,0 +1,26 @@
+--- perl-5.10.0.orig/debian/patches/33_fix_qr-memory-leak-1
++++ perl-5.10.0/debian/patches/33_fix_qr-memory-leak-1
+@@ -0,0 +1,23 @@
++Fix memory leak in // caused by single-char character class optimization. (See #503975)
++
++Blead change 34507:
++
++Fix memory leak in // caused by single-char character class
++optimization. This was most probably introduced with #28262.
++This change fixes perl #59516.
++
++p4raw-id: //depot/perl@34507
++diff --git a/regcomp.c b/regcomp.c
++index 5a175ba..9e6bb7b 100644
++--- a/regcomp.c
+++++ b/regcomp.c
++@@ -8239,6 +8239,9 @@ parseit:
++         *STRING(ret)= (char)value;
++         STR_LEN(ret)= 1;
++         RExC_emit += STR_SZ(1);
+++	if (listsv) {
+++	    SvREFCNT_dec(listsv);
+++	}
++         return ret;
++     }
++     /* optimize case-insensitive simple patterns (e.g. /[a-z]/i) */

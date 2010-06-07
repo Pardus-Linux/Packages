@@ -1,0 +1,447 @@
+diff -urp shadow-4.1.2.orig/src/groupadd.c shadow-4.1.2/src/groupadd.c
+--- shadow-4.1.2.orig/src/groupadd.c	2008-09-02 08:31:11.000000000 -0400
++++ shadow-4.1.2/src/groupadd.c	2008-09-02 09:05:14.000000000 -0400
+@@ -205,7 +205,7 @@ static void grp_update (void)
+ 	}
+ #endif				/* SHADOWGRP */
+ #ifdef WITH_AUDIT
+-	audit_logger (AUDIT_USER_CHAUTHTOK, Prog, "adding group", group_name,
++	audit_logger (AUDIT_ADD_GROUP, Prog, "adding group", group_name,
+ 	              group_id, 1);
+ #endif
+ 	SYSLOG ((LOG_INFO, "new group: name=%s, GID=%u",
+@@ -269,7 +269,7 @@ static void open_files (void)
+ 	if (!gr_lock ()) {
+ 		fprintf (stderr, _("%s: unable to lock group file\n"), Prog);
+ #ifdef WITH_AUDIT
+-		audit_logger (AUDIT_USER_CHAUTHTOK, Prog, "locking group file",
++		audit_logger (AUDIT_ADD_GROUP, Prog, "locking group file",
+ 		              group_name, -1, 0);
+ #endif
+ 		exit (E_GRP_UPDATE);
+@@ -277,7 +277,7 @@ static void open_files (void)
+ 	if (!gr_open (O_RDWR)) {
+ 		fprintf (stderr, _("%s: unable to open group file\n"), Prog);
+ #ifdef WITH_AUDIT
+-		audit_logger (AUDIT_USER_CHAUTHTOK, Prog, "opening group file",
++		audit_logger (AUDIT_ADD_GROUP, Prog, "opening group file",
+ 		              group_name, -1, 0);
+ #endif
+ 		fail_exit (E_GRP_UPDATE);
+@@ -310,7 +310,7 @@ static void fail_exit (int code)
+ 
+ #ifdef WITH_AUDIT
+ 	if (code != E_SUCCESS) {
+-		audit_logger (AUDIT_USER_CHAUTHTOK, Prog, "adding group",
++		audit_logger (AUDIT_ADD_GROUP, Prog, "adding group",
+ 		              group_name, -1, 0);
+ 	}
+ #endif
+diff -urp shadow-4.1.2.orig/src/groupdel.c shadow-4.1.2/src/groupdel.c
+--- shadow-4.1.2.orig/src/groupdel.c	2008-09-02 08:31:11.000000000 -0400
++++ shadow-4.1.2/src/groupdel.c	2008-09-02 09:04:18.000000000 -0400
+@@ -100,7 +100,7 @@ static void fail_exit (int code)
+ #endif
+ 
+ #ifdef	WITH_AUDIT
+-	audit_logger (AUDIT_USER_CHAUTHTOK, Prog, "deleting group",
++	audit_logger (AUDIT_DEL_GROUP, Prog, "deleting group",
+ 	              group_name, -1, 0);
+ #endif
+ 
+@@ -143,7 +143,7 @@ static void grp_update (void)
+ static void close_files (void)
+ {
+ #ifdef WITH_AUDIT
+-	audit_logger (AUDIT_USER_CHAUTHTOK, Prog, "deleting group", group_name,
++	audit_logger (AUDIT_DEL_GROUP, Prog, "deleting group", group_name,
+ 	              group_id, 1);
+ #endif
+ 	SYSLOG ((LOG_INFO, "remove group `%s'\n", group_name));
+@@ -316,7 +316,7 @@ int main (int argc, char **argv)
+ 			fprintf (stderr, _("%s: group %s does not exist\n"),
+ 				 Prog, group_name);
+ #ifdef WITH_AUDIT
+-			audit_logger (AUDIT_USER_CHAUTHTOK, Prog,
++			audit_logger (AUDIT_DEL_GROUP, Prog,
+ 				      "deleting group",
+ 				      group_name, -1, 0);
+ #endif
+@@ -338,7 +338,7 @@ int main (int argc, char **argv)
+ 			 Prog, group_name);
+ 
+ #ifdef WITH_AUDIT
+-		audit_logger (AUDIT_USER_CHAUTHTOK, Prog, "deleting group",
++		audit_logger (AUDIT_DEL_GROUP, Prog, "deleting group",
+ 			      group_name, -1, 0);
+ #endif
+ 		if (!yp_get_default_domain (&nis_domain) &&
+diff -urp shadow-4.1.2.orig/src/useradd.c shadow-4.1.2/src/useradd.c
+--- shadow-4.1.2.orig/src/useradd.c	2008-09-02 08:31:11.000000000 -0400
++++ shadow-4.1.2/src/useradd.c	2008-09-02 08:47:31.000000000 -0400
+@@ -216,7 +216,7 @@ static void fail_exit (int code)
+ #endif
+ 
+ #ifdef WITH_AUDIT
+-	audit_logger (AUDIT_USER_CHAUTHTOK, Prog, "adding user", user_name, -1,
++	audit_logger (AUDIT_ADD_USER, Prog, "adding user", user_name, -1,
+ 		      0);
+ #endif
+ 	SYSLOG ((LOG_INFO, "failed adding user `%s', data deleted", user_name));
+@@ -793,7 +793,7 @@ static void grp_update (void)
+ 			fail_exit (E_GRP_UPDATE);
+ 		}
+ #ifdef WITH_AUDIT
+-		audit_logger (AUDIT_USER_CHAUTHTOK, Prog,
++		audit_logger (AUDIT_ADD_USER, Prog,
+ 			      "adding user to group", user_name, -1, 1);
+ #endif
+ 		SYSLOG ((LOG_INFO, "add `%s' to group `%s'",
+@@ -844,7 +844,7 @@ static void grp_update (void)
+ 			fail_exit (E_GRP_UPDATE);
+ 		}
+ #ifdef WITH_AUDIT
+-		audit_logger (AUDIT_USER_CHAUTHTOK, Prog,
++		audit_logger (AUDIT_ADD_USER, Prog,
+ 			      "adding user to shadow group", user_name, -1, 1);
+ #endif
+ 		SYSLOG ((LOG_INFO, "add `%s' to shadow group `%s'",
+@@ -1162,7 +1162,7 @@ static void process_flags (int argc, cha
+ 				 ("%s: invalid user name '%s'\n"),
+ 				 Prog, user_name);
+ #ifdef WITH_AUDIT
+-			audit_logger (AUDIT_USER_CHAUTHTOK, Prog, "adding user",
++			audit_logger (AUDIT_ADD_USER, Prog, "adding user",
+ 				      user_name, -1, 0);
+ #endif
+ 			exit (E_BAD_ARG);
+@@ -1251,7 +1251,7 @@ static void open_files (void)
+ 	if (!pw_lock ()) {
+ 		fprintf (stderr, _("%s: unable to lock password file\n"), Prog);
+ #ifdef WITH_AUDIT
+-		audit_logger (AUDIT_USER_CHAUTHTOK, Prog,
++		audit_logger (AUDIT_ADD_USER, Prog,
+ 			      "locking password file", user_name, user_id, 0);
+ #endif
+ 		exit (E_PW_UPDATE);
+@@ -1260,7 +1260,7 @@ static void open_files (void)
+ 	if (!pw_open (O_RDWR)) {
+ 		fprintf (stderr, _("%s: unable to open password file\n"), Prog);
+ #ifdef WITH_AUDIT
+-		audit_logger (AUDIT_USER_CHAUTHTOK, Prog,
++		audit_logger (AUDIT_ADD_USER, Prog,
+ 			      "opening password file", user_name, user_id, 0);
+ #endif
+ 		fail_exit (E_PW_UPDATE);
+@@ -1271,7 +1271,7 @@ static void open_files (void)
+ 			         _("%s: cannot lock shadow password file\n"),
+ 			         Prog);
+ #ifdef WITH_AUDIT
+-			audit_logger (AUDIT_USER_CHAUTHTOK, Prog,
++			audit_logger (AUDIT_ADD_USER, Prog,
+ 			              "locking shadow password file", user_name,
+ 			              user_id, 0);
+ #endif
+@@ -1283,7 +1283,7 @@ static void open_files (void)
+ 			         _("%s: cannot open shadow password file\n"),
+ 			         Prog);
+ #ifdef WITH_AUDIT
+-			audit_logger (AUDIT_USER_CHAUTHTOK, Prog,
++			audit_logger (AUDIT_ADD_USER, Prog,
+ 			              "opening shadow password file", user_name,
+ 			              user_id, 0);
+ #endif
+@@ -1385,6 +1385,10 @@ static void grp_add (void)
+ 	 * Write out the new group file entry.
+ 	 */
+ 	if (!gr_update (&grp)) {
++#ifdef WITH_AUDIT
++		audit_logger (AUDIT_ADD_GROUP, Prog,
++				      "adding group", grp.gr_name, -1, 0);
++#endif
+ 		fprintf (stderr, _("%s: error adding new group entry\n"), Prog);
+ 		fail_exit (E_GRP_UPDATE);
+ 	}
+@@ -1393,11 +1397,19 @@ static void grp_add (void)
+ 	 * Write out the new shadow group entries as well.
+ 	 */
+ 	if (is_shadow_grp && !sgr_update (&sgrp)) {
++#ifdef WITH_AUDIT
++		audit_logger (AUDIT_ADD_GROUP, Prog,
++				      "adding group", grp.gr_name, -1, 0);
++#endif
+ 		fprintf (stderr, _("%s: error adding new group entry\n"), Prog);
+ 		fail_exit (E_GRP_UPDATE);
+ 	}
+ #endif				/* SHADOWGRP */
+ 	SYSLOG ((LOG_INFO, "new group: name=%s, GID=%u", user_name, user_gid));
++#ifdef WITH_AUDIT
++	audit_logger (AUDIT_ADD_GROUP, Prog, "adding group", 
++			grp.gr_name, -1, 1);
++#endif
+ 	do_grp_update++;
+ }
+ 
+@@ -1486,13 +1498,13 @@ static void usr_update (void)
+ 			 ("%s: error adding new shadow password entry\n"),
+ 			 Prog);
+ #ifdef WITH_AUDIT
+-		audit_logger (AUDIT_USER_CHAUTHTOK, Prog,
++		audit_logger (AUDIT_ADD_USER, Prog,
+ 			      "adding shadow password", user_name, user_id, 0);
+ #endif
+ 		fail_exit (E_PW_UPDATE);
+ 	}
+ #ifdef WITH_AUDIT
+-	audit_logger (AUDIT_USER_CHAUTHTOK, Prog, "adding user", user_name,
++	audit_logger (AUDIT_ADD_USER, Prog, "adding user", user_name,
+ 		      user_id, 1);
+ #endif
+ 
+@@ -1522,7 +1534,7 @@ static void selinux_update_mapping () {
+ 				 _("%s: warning: the user name %s to %s SELinux user mapping failed.\n"),
+ 				 Prog, user_name, user_selinux);
+ #ifdef WITH_AUDIT
+-			audit_logger (AUDIT_USER_CHAUTHTOK, Prog,
++			audit_logger (AUDIT_ADD_USER, Prog,
+ 				      "adding SELinux user mapping", user_name, user_id, 0);
+ #endif        
+ 		}
+@@ -1551,7 +1563,7 @@ static void create_home (void)
+ 				 ("%s: cannot create directory %s\n"),
+ 				 Prog, user_home);
+ #ifdef WITH_AUDIT
+-			audit_logger (AUDIT_USER_CHAUTHTOK, Prog,
++			audit_logger (AUDIT_ADD_USER, Prog,
+ 				      "adding home directory", user_name,
+ 				      user_id, 0);
+ #endif
+@@ -1562,7 +1574,7 @@ static void create_home (void)
+ 		       0777 & ~getdef_num ("UMASK", GETDEF_DEFAULT_UMASK));
+ 		home_added++;
+ #ifdef WITH_AUDIT
+-		audit_logger (AUDIT_USER_CHAUTHTOK, Prog,
++		audit_logger (AUDIT_ADD_USER, Prog,
+ 			      "adding home directory", user_name, user_id, 1);
+ #endif
+ #ifdef WITH_SELINUX
+@@ -1722,7 +1734,7 @@ int main (int argc, char **argv)
+ 	if (getpwnam (user_name)) { /* local, no need for xgetpwnam */
+ 		fprintf (stderr, _("%s: user %s exists\n"), Prog, user_name);
+ #ifdef WITH_AUDIT
+-		audit_logger (AUDIT_USER_CHAUTHTOK, Prog, "adding user",
++		audit_logger (AUDIT_ADD_USER, Prog, "adding user",
+ 			      user_name, -1, 0);
+ #endif
+ 		fail_exit (E_NAME_IN_USE);
+@@ -1741,7 +1753,7 @@ int main (int argc, char **argv)
+ 				 ("%s: group %s exists - if you want to add this user to that group, use -g.\n"),
+ 				 Prog, user_name);
+ #ifdef WITH_AUDIT
+-			audit_logger (AUDIT_USER_CHAUTHTOK, Prog,
++			audit_logger (AUDIT_ADD_GROUP, Prog,
+ 				      "adding group", user_name, -1, 0);
+ #endif
+ 			fail_exit (E_NAME_IN_USE);
+@@ -1772,7 +1784,7 @@ int main (int argc, char **argv)
+ 			if (getpwuid (user_id) != NULL) {
+ 				fprintf (stderr, _("%s: UID %u is not unique\n"), Prog, (unsigned int) user_id);
+ #ifdef WITH_AUDIT
+-				audit_logger (AUDIT_USER_CHAUTHTOK, Prog, "adding user", user_name, user_id, 0);
++				audit_logger (AUDIT_ADD_USER, Prog, "adding user", user_name, user_id, 0);
+ #endif
+ 				fail_exit (E_UID_IN_USE);
+ 			}
+diff -urp shadow-4.1.2.orig/src/userdel.c shadow-4.1.2/src/userdel.c
+--- shadow-4.1.2.orig/src/userdel.c	2008-09-02 08:31:11.000000000 -0400
++++ shadow-4.1.2/src/userdel.c	2008-09-02 09:03:20.000000000 -0400
+@@ -170,7 +170,7 @@ static void update_groups (void)
+ 		 * Update the DBM group file with the new entry as well.
+ 		 */
+ #ifdef WITH_AUDIT
+-		audit_logger (AUDIT_USER_CHAUTHTOK, Prog,
++		audit_logger (AUDIT_DEL_USER, Prog,
+ 			      "deleting user from group", user_name, user_id,
+ 			      0);
+ #endif
+@@ -220,8 +220,8 @@ static void update_groups (void)
+ #endif
+ 
+ #ifdef WITH_AUDIT
+-			audit_logger (AUDIT_USER_CHAUTHTOK, Prog,
+-				      "deleting group", user_name, user_id, 0);
++			audit_logger (AUDIT_DEL_GROUP, Prog, "deleting group",
++					grp->gr_name, -1, 1);
+ #endif
+ 			SYSLOG ((LOG_INFO,
+ 				 "removed group `%s' owned by `%s'\n",
+@@ -270,7 +270,7 @@ static void update_groups (void)
+ 			exit (E_GRP_UPDATE);
+ 		}
+ #ifdef WITH_AUDIT
+-		audit_logger (AUDIT_USER_CHAUTHTOK, Prog,
++		audit_logger (AUDIT_DEL_USER, Prog,
+ 			      "deleting user from shadow group", user_name,
+ 			      user_id, 0);
+ #endif
+@@ -327,7 +327,7 @@ static void fail_exit (int code)
+ 		sgr_unlock ();
+ #endif
+ #ifdef WITH_AUDIT
+-	audit_logger (AUDIT_USER_CHAUTHTOK, Prog, "deleting user", user_name,
++	audit_logger (AUDIT_DEL_USER, Prog, "deleting user", user_name,
+ 		      user_id, 0);
+ #endif
+ 	exit (code);
+@@ -344,7 +344,7 @@ static void open_files (void)
+ 	if (!pw_lock ()) {
+ 		fprintf (stderr, _("%s: unable to lock password file\n"), Prog);
+ #ifdef WITH_AUDIT
+-		audit_logger (AUDIT_USER_CHAUTHTOK, Prog,
++		audit_logger (AUDIT_DEL_USER, Prog,
+ 			      "locking password file", user_name, user_id, 0);
+ #endif
+ 		exit (E_PW_UPDATE);
+@@ -352,7 +352,7 @@ static void open_files (void)
+ 	if (!pw_open (O_RDWR)) {
+ 		fprintf (stderr, _("%s: unable to open password file\n"), Prog);
+ #ifdef WITH_AUDIT
+-		audit_logger (AUDIT_USER_CHAUTHTOK, Prog,
++		audit_logger (AUDIT_DEL_USER, Prog,
+ 			      "opening password file", user_name, user_id, 0);
+ #endif
+ 		fail_exit (E_PW_UPDATE);
+@@ -361,7 +361,7 @@ static void open_files (void)
+ 		fprintf (stderr,
+ 			 _("%s: cannot lock shadow password file\n"), Prog);
+ #ifdef WITH_AUDIT
+-		audit_logger (AUDIT_USER_CHAUTHTOK, Prog,
++		audit_logger (AUDIT_DEL_USER, Prog,
+ 			      "locking shadow password file", user_name,
+ 			      user_id, 0);
+ #endif
+@@ -371,7 +371,7 @@ static void open_files (void)
+ 		fprintf (stderr,
+ 			 _("%s: cannot open shadow password file\n"), Prog);
+ #ifdef WITH_AUDIT
+-		audit_logger (AUDIT_USER_CHAUTHTOK, Prog,
++		audit_logger (AUDIT_DEL_USER, Prog,
+ 			      "opening shadow password file", user_name,
+ 			      user_id, 0);
+ #endif
+@@ -380,7 +380,7 @@ static void open_files (void)
+ 	if (!gr_lock ()) {
+ 		fprintf (stderr, _("%s: unable to lock group file\n"), Prog);
+ #ifdef WITH_AUDIT
+-		audit_logger (AUDIT_USER_CHAUTHTOK, Prog, "locking group file",
++		audit_logger (AUDIT_DEL_USER, Prog, "locking group file",
+ 			      user_name, user_id, 0);
+ #endif
+ 		fail_exit (E_GRP_UPDATE);
+@@ -388,7 +388,7 @@ static void open_files (void)
+ 	if (!gr_open (O_RDWR)) {
+ 		fprintf (stderr, _("%s: cannot open group file\n"), Prog);
+ #ifdef WITH_AUDIT
+-		audit_logger (AUDIT_USER_CHAUTHTOK, Prog, "opening group file",
++		audit_logger (AUDIT_DEL_USER, Prog, "opening group file",
+ 			      user_name, user_id, 0);
+ #endif
+ 		fail_exit (E_GRP_UPDATE);
+@@ -398,7 +398,7 @@ static void open_files (void)
+ 		fprintf (stderr,
+ 			 _("%s: unable to lock shadow group file\n"), Prog);
+ #ifdef WITH_AUDIT
+-		audit_logger (AUDIT_USER_CHAUTHTOK, Prog,
++		audit_logger (AUDIT_DEL_USER, Prog,
+ 			      "locking shadow group file", user_name, user_id,
+ 			      0);
+ #endif
+@@ -408,7 +408,7 @@ static void open_files (void)
+ 		fprintf (stderr, _("%s: cannot open shadow group file\n"),
+ 			 Prog);
+ #ifdef WITH_AUDIT
+-		audit_logger (AUDIT_USER_CHAUTHTOK, Prog,
++		audit_logger (AUDIT_DEL_USER, Prog,
+ 			      "opening shadow group file", user_name, user_id,
+ 			      0);
+ #endif
+@@ -436,7 +436,7 @@ static void update_user (void)
+ 		fail_exit (E_PW_UPDATE);
+ 	}
+ #ifdef WITH_AUDIT
+-	audit_logger (AUDIT_USER_CHAUTHTOK, Prog, "deleting user entries",
++	audit_logger (AUDIT_DEL_USER, Prog, "deleting user entries",
+ 		      user_name, user_id, 1);
+ #endif
+ 	SYSLOG ((LOG_INFO, "delete user `%s'\n", user_name));
+@@ -476,7 +476,7 @@ static void user_busy (const char *name,
+ 			 _("%s: user %s is currently logged in\n"), Prog, name);
+ 		if (!fflg) {
+ #ifdef WITH_AUDIT
+-			audit_logger (AUDIT_USER_CHAUTHTOK, Prog,
++			audit_logger (AUDIT_DEL_USER, Prog,
+ 				      "deleting user logged in", name, -1, 0);
+ #endif
+ 			exit (E_USER_BUSY);
+@@ -577,7 +577,7 @@ static void remove_mailbox (void)
+ 	if (fflg) {
+ 		unlink (mailfile);	/* always remove, ignore errors */
+ #ifdef WITH_AUDIT
+-		audit_logger (AUDIT_USER_CHAUTHTOK, Prog, "deleting mail file",
++		audit_logger (AUDIT_DEL_USER, Prog, "deleting mail file",
+ 			      user_name, user_id, 1);
+ #endif
+ 		return;
+@@ -589,7 +589,7 @@ static void remove_mailbox (void)
+ 			 ("%s: %s not owned by %s, not removing\n"),
+ 			 Prog, mailfile, user_name);
+ #ifdef WITH_AUDIT
+-		audit_logger (AUDIT_USER_CHAUTHTOK, Prog, "deleting mail file",
++		audit_logger (AUDIT_DEL_USER, Prog, "deleting mail file",
+ 			      user_name, user_id, 0);
+ #endif
+ 		return;
+@@ -601,7 +601,7 @@ static void remove_mailbox (void)
+ 	}
+ #ifdef WITH_AUDIT
+ 	else {
+-		audit_logger (AUDIT_USER_CHAUTHTOK, Prog, "deleting mail file",
++		audit_logger (AUDIT_DEL_USER, Prog, "deleting mail file",
+ 			      user_name, user_id, 1);
+ 	}
+ #endif
+@@ -713,7 +713,7 @@ int main (int argc, char **argv)
+ 			fprintf (stderr, _("%s: user %s does not exist\n"),
+ 				 Prog, user_name);
+ #ifdef WITH_AUDIT
+-			audit_logger (AUDIT_USER_CHAUTHTOK, Prog,
++			audit_logger (AUDIT_DEL_USER, Prog,
+ 				      "deleting user not found", user_name, -1, 0);
+ #endif
+ 			exit (E_NOTFOUND);
+@@ -799,14 +799,14 @@ int main (int argc, char **argv)
+ 				 _("%s: error removing directory %s\n"),
+ 				 Prog, user_home);
+ #ifdef WITH_AUDIT
+-			audit_logger (AUDIT_USER_CHAUTHTOK, Prog,
++			audit_logger (AUDIT_DEL_USER, Prog,
+ 				      "deleting home directory", user_name,
+ 				      user_id, 1);
+ #endif
+ 			errors++;
+ 		}
+ #ifdef WITH_AUDIT
+-		audit_logger (AUDIT_USER_CHAUTHTOK, Prog,
++		audit_logger (AUDIT_DEL_USER, Prog,
+ 			      "deleting home directory", user_name, user_id, 1);
+ #endif
+ 	}
+@@ -838,7 +838,7 @@ int main (int argc, char **argv)
+ #endif				/* USE_PAM */
+ #ifdef WITH_AUDIT
+ 	if (errors)
+-		audit_logger (AUDIT_USER_CHAUTHTOK, Prog,
++		audit_logger (AUDIT_DEL_USER, Prog,
+ 			      "deleting home directory", user_name, -1, 0);
+ #endif
+ 	exit (errors ? E_HOMEDIR : E_SUCCESS);

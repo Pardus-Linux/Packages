@@ -1,0 +1,42 @@
+2009-01-05  Paolo Bonzini  <bonzini@gnu.org>
+
+	[BZ 697]
+	* posix/regexec.c (prune_impossible_nodes): Handle sifted_states[0]
+	being NULL also if there are no backreferences.
+	* posix/rxspencer/tests: Add testcases.
+
+diff --git a/posix/regexec.c b/posix/regexec.c
+index 135efe7..7bf0c08 100644
+--- a/posix/regexec.c
++++ b/posix/regexec.c
+@@ -1,5 +1,5 @@
+ /* Extended regular expression matching and search library.
+-   Copyright (C) 2002, 2003, 2004, 2005, 2007 Free Software Foundation, Inc.
++   Copyright (C) 2002, 2003, 2004, 2005, 2007, 2009 Free Software Foundation, Inc.
+    This file is part of the GNU C Library.
+    Contributed by Isamu Hasegawa <isamu@yamato.ibm.com>.
+ 
+@@ -1004,6 +1004,11 @@ prune_impossible_nodes (mctx)
+       re_node_set_free (&sctx.limits);
+       if (BE (ret != REG_NOERROR, 0))
+ 	goto free_return;
++      if (sifted_states[0] == NULL)
++	{
++	  ret = REG_NOMATCH;
++	  goto free_return;
++	}
+     }
+   re_free (mctx->state_log);
+   mctx->state_log = sifted_states;
+diff --git a/posix/rxspencer/tests b/posix/rxspencer/tests
+index b84a270..3ad46e2 100644
+--- a/posix/rxspencer/tests
++++ b/posix/rxspencer/tests
+@@ -536,3 +536,7 @@ a.*\b	&	abT	ab
+ \B	&	aSbTc
+ \B	&	SaT	@SaT
+ \B	&	aSTSb	@TSb
++
++o$($|.)	-	oN
++o$($|.)	-	op
++o$($|.)	-	o	o

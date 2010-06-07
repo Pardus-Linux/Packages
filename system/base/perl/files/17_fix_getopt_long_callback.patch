@@ -1,0 +1,23 @@
+--- perl-5.10.0.orig/debian/patches/17_fix_getopt_long_callback
++++ perl-5.10.0/debian/patches/17_fix_getopt_long_callback
+@@ -0,0 +1,20 @@
++Remove numeric overloading of Getopt::Long callback functions. (Closes: #479434)
++
++The numeric overloading introduced in Getopt::Long 2.36 broke
++lintian and libvcp-perl.
++
++Dual-lived module, fixed on the CPAN side in 2.37_01.
++
++[rt.cpan.org #35759]
++diff --git a/lib/Getopt/Long.pm b/lib/Getopt/Long.pm
++index f44e615..b5f94b1 100644
++--- a/lib/Getopt/Long.pm
+++++ b/lib/Getopt/Long.pm
++@@ -1483,7 +1483,6 @@ sub name {
++ use overload
++   # Treat this object as an oridinary string for legacy API.
++   '""'	   => \&name,
++-  '0+'	   => sub { 0 },
++   fallback => 1;
++ 
++ 1;

@@ -1,0 +1,16 @@
+--- zlib-1.2.2/zlib.h.xx	2005-02-23 12:52:02.889385975 +0100
++++ zlib-1.2.2/zlib.h	2005-02-23 12:55:14.227599948 +0100
+@@ -986,7 +986,12 @@
+    (0 in case of error).
+ */
+ 
+-ZEXTERN int ZEXPORTVA   gzprintf OF((gzFile file, const char *format, ...));
++
++ZEXTERN int ZEXPORTVA   gzprintf OF((gzFile file, const char *format, ...)) 
++#ifdef __GNUC__
++	__attribute__((__format__(__printf__,2,3)))
++#endif
++;
+ /*
+      Converts, formats, and writes the args to the compressed file under
+    control of the format string, as in fprintf. gzprintf returns the number of

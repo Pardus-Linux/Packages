@@ -1,0 +1,134 @@
+
+Author: Robert Millan
+Description: Surpass 128 GiB limit.
+
+diff -ur -x .deps -x Makefile -x config.log -x config.status -x 00list -x docs -x configure ../grub-0.97/grub/asmstub.c ./grub/asmstub.c
+--- ../grub-0.97/grub/asmstub.c	2008-03-19 16:25:34.000000000 -0400
++++ ./grub/asmstub.c	2008-03-19 21:06:33.000000000 -0400
+@@ -984,7 +984,7 @@
+ 
+ int
+ biosdisk (int subfunc, int drive, struct geometry *geometry,
+-	  int sector, int nsec, int segment)
++	  unsigned int sector, int nsec, int segment)
+ {
+   char *buf;
+   int fd = geometry->flags;
+diff -ur -x .deps -x Makefile -x config.log -x config.status -x 00list -x docs -x configure ../grub-0.97/lib/device.c ./lib/device.c
+--- ../grub-0.97/lib/device.c	2008-03-19 16:25:34.000000000 -0400
++++ ./lib/device.c	2008-03-19 21:06:33.000000000 -0400
+@@ -69,9 +69,7 @@
+ # ifndef CDROM_GET_CAPABILITY
+ #  define CDROM_GET_CAPABILITY	0x5331	/* get capabilities */
+ # endif /* ! CDROM_GET_CAPABILITY */
+-# ifndef BLKGETSIZE
+-#  define BLKGETSIZE	_IO(0x12,96)	/* return device size */
+-# endif /* ! BLKGETSIZE */
++# include <sys/mount.h> /* BLKGETSIZE64 */
+ #endif /* __linux__ */
+ 
+ /* Use __FreeBSD_kernel__ instead of __FreeBSD__ for compatibility with
+@@ -297,13 +295,13 @@
+ #if defined(__linux__)
+   /* Linux */
+   {
+-    unsigned long nr;
++    unsigned long long nr;
+ 
+-    if (ioctl (fd, BLKGETSIZE, &nr))
++    if (ioctl (fd, BLKGETSIZE64, &nr))
+       goto fail;
+     
+     /* Got the geometry, so save it. */
+-    geom->total_sectors = nr;
++    geom->total_sectors = nr / 512;
+     get_linux_geometry(fd, geom);
+     if (!geom->heads && !geom->cylinders && !geom->sectors)
+         goto fail;
+diff -ur -x .deps -x Makefile -x config.log -x config.status -x 00list -x docs -x configure ../grub-0.97/stage2/bios.c ./stage2/bios.c
+--- ../grub-0.97/stage2/bios.c	2004-03-27 11:34:04.000000000 -0500
++++ ./stage2/bios.c	2008-03-19 21:06:33.000000000 -0400
+@@ -47,7 +47,7 @@
+    return the error number. Otherwise, return 0.  */
+ int
+ biosdisk (int read, int drive, struct geometry *geometry,
+-	  int sector, int nsec, int segment)
++	  unsigned int sector, int nsec, int segment)
+ {
+   int err;
+   
+diff -ur -x .deps -x Makefile -x config.log -x config.status -x 00list -x docs -x configure ../grub-0.97/stage2/disk_io.c ./stage2/disk_io.c
+--- ../grub-0.97/stage2/disk_io.c	2004-05-23 12:35:24.000000000 -0400
++++ ./stage2/disk_io.c	2008-03-19 21:06:33.000000000 -0400
+@@ -137,7 +137,7 @@
+ }
+ 
+ int
+-rawread (int drive, int sector, int byte_offset, int byte_len, char *buf)
++rawread (int drive, unsigned int sector, int byte_offset, int byte_len, char *buf)
+ {
+   int slen, sectors_per_vtrack;
+   int sector_size_bits = log2 (buf_geom.sector_size);
+@@ -261,7 +261,7 @@
+        */
+       if (disk_read_func)
+ 	{
+-	  int sector_num = sector;
++	  unsigned int sector_num = sector;
+ 	  int length = buf_geom.sector_size - byte_offset;
+ 	  if (length > size)
+ 	    length = size;
+@@ -291,7 +291,7 @@
+ 
+ 
+ int
+-devread (int sector, int byte_offset, int byte_len, char *buf)
++devread (unsigned int sector, int byte_offset, int byte_len, char *buf)
+ {
+   /*
+    *  Check partition boundaries
+@@ -330,7 +330,7 @@
+ 
+ #ifndef STAGE1_5
+ int
+-rawwrite (int drive, int sector, char *buf)
++rawwrite (int drive, unsigned int sector, char *buf)
+ {
+   if (sector == 0)
+     {
+@@ -363,7 +363,7 @@
+ }
+ 
+ int
+-devwrite (int sector, int sector_count, char *buf)
++devwrite (unsigned int sector, int sector_count, char *buf)
+ {
+ #if defined(GRUB_UTIL) && defined(__linux__)
+   if (current_partition != 0xFFFFFF
+diff -ur -x .deps -x Makefile -x config.log -x config.status -x 00list -x docs -x configure ../grub-0.97/stage2/shared.h ./stage2/shared.h
+--- ../grub-0.97/stage2/shared.h	2008-03-19 16:25:34.000000000 -0400
++++ ./stage2/shared.h	2008-03-19 21:06:33.000000000 -0400
+@@ -816,7 +816,7 @@
+ /* Low-level disk I/O */
+ int get_diskinfo (int drive, struct geometry *geometry);
+ int biosdisk (int subfunc, int drive, struct geometry *geometry,
+-	      int sector, int nsec, int segment);
++	      unsigned int sector, int nsec, int segment);
+ void stop_floppy (void);
+ 
+ /* Command-line interface functions. */
+@@ -930,10 +930,10 @@
+ int gunzip_read (char *buf, int len);
+ #endif /* NO_DECOMPRESSION */
+ 
+-int rawread (int drive, int sector, int byte_offset, int byte_len, char *buf);
+-int devread (int sector, int byte_offset, int byte_len, char *buf);
+-int rawwrite (int drive, int sector, char *buf);
+-int devwrite (int sector, int sector_len, char *buf);
++int rawread (int drive, unsigned int sector, int byte_offset, int byte_len, char *buf);
++int devread (unsigned int sector, int byte_offset, int byte_len, char *buf);
++int rawwrite (int drive, unsigned int sector, char *buf);
++int devwrite (unsigned int sector, int sector_len, char *buf);
+ 
+ /* Parse a device string and initialize the global parameters. */
+ char *set_device (char *device);

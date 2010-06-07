@@ -1,0 +1,35 @@
+diff -Nur grub-0.97-old/util/grub-install.in grub-0.97/util/grub-install.in
+--- grub-0.97-old/util/grub-install.in	2008-06-03 16:48:35.000000000 +0300
++++ grub-0.97/util/grub-install.in	2008-06-03 16:48:48.000000000 +0300
+@@ -462,6 +462,20 @@
+ # stageX files (see Debian bugs #239111, #246111, #243835)
+ /bin/sync
+ 
++# Sync to prevent GRUB from not finding stage files (notably, on XFS)
++sync
++
++# XFS needs special magic
++xfs_frozen=false
++if which xfs_freeze > /dev/null ; then
++  cat << EOF
++Due to a bug in xfs_freeze, the following command might produce a segmentation
++fault when ${grubdir} is not in an XFS filesystem. This error is harmless and
++can be ignored.
++EOF
++  if xfs_freeze -f ${grubdir} ; then xfs_frozen=true ; fi
++fi
++
+ # Now perform the installation.
+ $grub_shell --batch $no_floppy --device-map=$device_map <<EOF >$log_file
+ root $root_drive
+@@ -469,6 +483,10 @@
+ quit
+ EOF
+ 
++if ${xfs_frozen} ; then
++  xfs_freeze -u ${grubdir}
++fi
++
+ if grep "Error [0-9]*: " $log_file >/dev/null || test $debug = yes; then
+     cat $log_file 1>&2
+     exit 1

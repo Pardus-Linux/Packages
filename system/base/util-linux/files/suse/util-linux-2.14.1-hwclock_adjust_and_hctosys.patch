@@ -1,0 +1,137 @@
+diff -Nur util-linux-ng-2.15-old/hwclock/hwclock.8 util-linux-ng-2.15/hwclock/hwclock.8
+--- util-linux-ng-2.15-old/hwclock/hwclock.8	2009-05-13 00:31:03.006706017 +0300
++++ util-linux-ng-2.15/hwclock/hwclock.8	2009-05-13 00:31:50.158956317 +0300
+@@ -77,6 +77,10 @@
+ Add or subtract time from the Hardware Clock to account for systematic
+ drift since the last time the clock was set or adjusted.  See discussion
+ below.
++.B \-\-adjust
++can be used together with
++.B \-\-hctosys 
++to speed up the boot process by 1s.
+ .TP
+ .B \-\-getepoch
+ Print the kernel's Hardware Clock epoch value to standard output.
+diff -Nur util-linux-ng-2.15-old/hwclock/hwclock.c util-linux-ng-2.15/hwclock/hwclock.c
+--- util-linux-ng-2.15-old/hwclock/hwclock.c	2009-05-13 00:31:03.006706017 +0300
++++ util-linux-ng-2.15/hwclock/hwclock.c	2009-05-13 00:35:50.912706952 +0300
+@@ -500,11 +500,16 @@
+ 
+ 
+ 
++static int
++set_system_clock(const bool hclock_valid, const time_t newtime,
++                 const bool testing, const int usec);
++
+ static void
+ set_hardware_clock_exact(const time_t sethwtime,
+                          const struct timeval refsystime,
+                          const bool universal,
+-                         const bool testing) {
++                         const bool testing,
++                         const bool hctosys) {
+ /*----------------------------------------------------------------------------
+   Set the Hardware Clock to the time "sethwtime", in local time zone or UTC,
+   according to "universal".
+@@ -553,6 +558,8 @@
+ 	  tdiff = time_diff(nowsystime, refsystime);
+   } while (newhwtime == sethwtime + (int) (tdiff + 0.5));
+ 
++  if (hctosys)
++    set_system_clock(TRUE, newhwtime, testing, 500000);
+   set_hardware_clock(newhwtime, universal, testing);
+ }
+ 
+@@ -685,7 +692,7 @@
+ 
+ static int
+ set_system_clock(const bool hclock_valid, const time_t newtime,
+-                 const bool testing) {
++                 const bool testing, const int usec) {
+ /*----------------------------------------------------------------------------
+    Set the System Clock to time 'newtime'.
+ 
+@@ -713,7 +720,7 @@
+     int rc;
+ 
+     tv.tv_sec = newtime;
+-    tv.tv_usec = 0;
++    tv.tv_usec = usec;
+ 
+     broken = localtime(&newtime);
+ #ifdef HAVE_TM_GMTOFF
+@@ -1025,7 +1032,8 @@
+ do_adjustment(struct adjtime *adjtime_p,
+               const bool hclock_valid, const time_t hclocktime,
+               const struct timeval read_time,
+-              const bool universal, const bool testing) {
++              const bool universal, const bool testing,
++	      const bool hctosys) {
+ /*---------------------------------------------------------------------------
+   Do the adjustment requested, by 1) setting the Hardware Clock (if
+   necessary), and 2) updating the last-adjusted time in the adjtime
+@@ -1080,7 +1088,7 @@
+     if (adjustment > 0 || adjustment < -1) {
+       set_hardware_clock_exact(hclocktime + adjustment,
+                                time_inc(read_time, -retro),
+-                               universal, testing);
++                               universal, testing, hctosys);
+       adjtime_p->last_adj_time = hclocktime + adjustment;
+       adjtime_p->not_adjusted = 0;
+       adjtime_p->dirty = TRUE;
+@@ -1136,6 +1144,7 @@
+       /* Contents of the adjtime file, or what they should be. */
+     int rc;  /* local return code */
+     bool no_auth;  /* User lacks necessary authorization to access the clock */
++    int usec = 0;
+ 
+     no_auth = ur->get_permissions();
+     if (no_auth)
+@@ -1191,13 +1200,13 @@
+                        time_diff(read_time, startup_time));
+         } else if (set) {
+           set_hardware_clock_exact(set_time, startup_time,
+-				      universal, testing);
++				      universal, testing, FALSE);
+ 	  if (!noadjfile)
+             adjust_drift_factor(&adjtime, set_time, hclock_valid, hclocktime,
+ 			        time_diff(read_time, startup_time));
+         } else if (adjust) {
+           do_adjustment(&adjtime, hclock_valid, hclocktime,
+-                        read_time, universal, testing);
++                        read_time, universal, testing, hctosys);
+         } else if (systohc) {
+           struct timeval nowtime, reftime;
+           /* We can only set_hardware_clock_exact to a whole seconds
+@@ -1209,12 +1218,12 @@
+           reftime.tv_usec = 0;
+ 
+           set_hardware_clock_exact((time_t) reftime.tv_sec, reftime,
+-                                   universal, testing);
++                                   universal, testing, FALSE);
+ 	  if (!noadjfile)
+             adjust_drift_factor(&adjtime, (time_t) reftime.tv_sec, hclock_valid,
+                                 hclocktime, (double) read_time.tv_usec / 1E6);
+         } else if (hctosys) {
+-          rc = set_system_clock(hclock_valid, hclocktime, testing);
++          rc = set_system_clock(hclock_valid, hclocktime, testing, usec);
+           if (rc) {
+             printf(_("Unable to set system clock.\n"));
+ 	    return rc;
+@@ -1555,7 +1564,15 @@
+ 		      MYNAME, argc);
+ 	}
+ 
+-	if (show + set + systohc + hctosys + systz + adjust + getepoch
++	if (show + set + systohc + hctosys + systz + getepoch
++	    + setepoch > 1){
++		fprintf(stderr, _("You have specified multiple functions.\n"
++				  "You can only perform one function "
++				  "at a time.\n"));
++		hwclock_exit(EX_USAGE);
++	}
++
++	if (show + set + systohc + systz + adjust + getepoch
+ 	    + setepoch > 1){
+ 		fprintf(stderr, _("You have specified multiple functions.\n"
+ 				  "You can only perform one function "

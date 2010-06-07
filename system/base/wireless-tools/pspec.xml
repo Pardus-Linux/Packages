@@ -1,0 +1,557 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>wireless-tools</Name>
+        <Homepage>http://www.hpl.hp.com/personal/Jean_Tourrilhes/Linux/Tools.html</Homepage>
+        <Packager>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Packager>
+        <License>GPLv2</License>
+        <IsA>app:console</IsA>
+        <Summary>A collection of tools to configure wireless lan cards.</Summary>
+        <Description>The Wireless Tools (WT) is a set of tools allowing to manipulate the Wireless Extensions, a generic application programming interface allowing a driver to expose to the user space configuration and statistics specific to common Wireless LANs. They use a textual interface and are rather crude, but aim to support the full Wireless Extension.</Description>
+        <Archive sha1sum="22040ac1497f4c5f8ddeca365591b01ae3475710" type="targz">http://www.hpl.hp.com/personal/Jean_Tourrilhes/Linux/wireless_tools.29.tar.gz</Archive>
+        <Patches>
+            <Patch>no-ldconfig.patch</Patch>
+
+            <!-- Fixes #8583, the problems with non-ASCII char included ESSIDS -->
+            <Patch level="1">non-ascii-essid-support.patch</Patch>
+        </Patches>
+    </Source>
+
+    <Package>
+        <Name>wireless-tools</Name>
+        <RuntimeDependencies>
+            <Dependency>comar</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="executable">/lib/udev</Path>
+            <Path fileType="data">/lib/udev/rules.d</Path>
+            <Path fileType="executable">/usr/bin</Path>
+            <Path fileType="executable">/usr/sbin</Path>
+            <Path fileType="library">/usr/lib</Path>
+            <Path fileType="header">/usr/include</Path>
+            <Path fileType="man">/usr/share/man</Path>
+            <Path fileType="doc">/usr/share/doc</Path>
+        </Files>
+        <AdditionalFiles>
+            <AdditionalFile owner="root" permission="0644" target="/lib/udev/rules.d/99-comar-wireless.rules">99-comar-wireless.rules</AdditionalFile>
+            <AdditionalFile owner="root" permission="0755" target="/lib/udev/comar-wireless.py">comar-wireless.py</AdditionalFile>
+        </AdditionalFiles>
+        <Provides>
+            <COMAR script="link.py">Network.Link</COMAR>
+        </Provides>
+    </Package>
+
+    <History>
+        <Update release="67">
+            <Date>2019-02-19</Date>
+            <Version>29</Version>
+            <Comment>Make wireless ESSID stuff 64bit compatible in Network.Link</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="66">
+            <Date>2019-01-21</Date>
+            <Version>29</Version>
+            <Comment>
+                - Fixed network backend not understanding network profiles created in Pardus 2008.
+            </Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="65">
+            <Date>2009-08-18</Date>
+            <Version>29</Version>
+            <Comment>
+                - Don't check for connection type in udev rule, backend is transparent,
+                - Stop ifplugd only when the profile is matched with the device.
+            </Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="64">
+            <Date>2009-07-17</Date>
+            <Version>29</Version>
+            <Comment>Wireless signal quality added to remote scan results.</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="63">
+            <Date>2009-07-06</Date>
+            <Version>29</Version>
+            <Comment>
+                - Update connection entry in database, if authentication fails.
+            </Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="62">
+            <Date>2009-07-03</Date>
+            <Version>29</Version>
+            <Comment>
+                - Start Ifplug when necessary.
+            </Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="61">
+            <Date>2009-07-03</Date>
+            <Version>29</Version>
+            <Comment>
+                - Added translations to COMAR script(s).
+            </Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="60">
+            <Date>2009-05-26</Date>
+            <Version>29</Version>
+            <Comment>
+                - Start Ifplug service when necessary.
+                - Handle WPA supplicant errors.
+            </Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="59">
+            <Date>2009-05-25</Date>
+            <Version>29</Version>
+            <Comment>
+                - Network backend warns user if firmware is missing.
+            </Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="58">
+            <Date>2009-05-22</Date>
+            <Version>29</Version>
+            <Comment>
+                - Network script allows setting custom address in DHCP mode.
+            </Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="57">
+            <Date>2009-05-21</Date>
+            <Version>29</Version>
+            <Comment>
+                - Network script allows bringind connection down, no matter what the device status is.
+            </Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="56">
+            <Date>2009-05-20</Date>
+            <Version>29</Version>
+            <Comment>
+                - Ifplug support by Nihat Ciddi.
+                - Udev device unplug support.
+            </Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="55">
+            <Date>2009-05-19</Date>
+            <Version>29</Version>
+            <Comment>Update connection state properly if device is missing.</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="54">
+            <Date>2009-05-15</Date>
+            <Version>29</Version>
+            <Comment>Gateway is optional in manual mode.</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="53">
+            <Date>2009-05-11</Date>
+            <Version>29</Version>
+            <Comment>Script execution support by Nihat Ciddi.</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="52">
+            <Date>2009-05-11</Date>
+            <Version>29</Version>
+            <Comment>Localized Network.Link strings.</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="51">
+            <Date>2009-05-10</Date>
+            <Version>29</Version>
+            <Comment>Refactored Network.Link script.</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="50">
+            <Date>2009-05-07</Date>
+            <Version>29</Version>
+            <Comment>
+                - UDEV event handler added
+                - Fixed a typo in WPA Supplicant error message
+            </Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="49">
+            <Date>2009-05-04</Date>
+            <Version>29</Version>
+            <Comment>
+                - Provide new network backend script
+            </Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="48">
+            <Date>2009-01-31</Date>
+            <Version>29</Version>
+            <Comment>
+                - Fixed wireless scanner occasionally identifying WPA1/2 encryption as WEP ASCII
+            </Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="47">
+            <Date>2009-01-14</Date>
+            <Version>29</Version>
+            <Comment>
+                - Added Deutsch translations by Mustafa (#8138),
+                - Make it use our CC.
+            </Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="46">
+            <Date>2009-01-12</Date>
+            <Version>29</Version>
+            <Comment>
+                - Support for running scripts after changing connection states.
+                /etc/network/netlink.d/ProfileName.up will be executer after a successful connection, and
+                /etc/network/netlink.d/ProfileName.down after disconnection.
+                All kudos go to Nihat Ciddi.
+            </Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="45">
+            <Date>2008-12-19</Date>
+            <Version>29</Version>
+            <Comment>Fixed COMAR script raising an exception instead of DHCP error.</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="44">
+            <Date>2008-12-17</Date>
+            <Version>29</Version>
+            <Comment>Backport Non-ASCII character included ESSID problems from 30pre7 (Fixes #8583).</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="43">
+            <Date>2008-11-24</Date>
+            <Version>29</Version>
+            <Comment>Reset DNS config after setting after closing connection.</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="42">
+            <Date>2008-11-06</Date>
+            <Version>29</Version>
+            <Comment>Fixed COMAR script not saving MAC address properly.</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="41">
+            <Date>2008-11-05</Date>
+            <Version>29</Version>
+            <Comment>Fixed COMAR script not stopping network devices properly.</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="40">
+            <Date>2008-09-10</Date>
+            <Version>29</Version>
+            <Comment>Changes in Net.Link for certificates</Comment>
+            <Name>İşbaran Akçayır</Name>
+            <Email>isbaran@comu.edu.tr</Email>
+        </Update>
+        <Update release="39">
+            <Date>2008-08-28</Date>
+            <Version>29</Version>
+            <Comment>Don't set channel if it's not specified in profile.</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="38">
+            <Date>2008-08-27</Date>
+            <Version>29</Version>
+            <Comment>Fixed a typo in Ad-Hoc support</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="37">
+            <Date>2008-08-27</Date>
+            <Version>29</Version>
+            <Comment>802.1x support</Comment>
+            <Name>İşbaran Akçayır</Name>
+            <Email>isbaran@comu.edu.tr</Email>
+        </Update>
+        <Update release="36">
+            <Date>2008-08-27</Date>
+            <Version>29</Version>
+            <Comment>Ad-Hoc support</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="35">
+            <Date>2008-06-25</Date>
+            <Version>29</Version>
+            <Comment>Typo fixed in Net.Link script</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="34">
+            <Date>2008-06-24</Date>
+            <Version>29</Version>
+            <Comment>Fixed COMAR script to get gateway from DHCP</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="33">
+            <Date>2008-06-19</Date>
+            <Version>29</Version>
+            <Comment>Save MAC to profile DB on first connect.</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="32">
+            <Date>2008-06-15</Date>
+            <Version>29</Version>
+            <Comment>Bring interface up before scaning, fixes many connection problems</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="31">
+            <Date>2008-06-11</Date>
+            <Version>29</Version>
+            <Comment>Set WEP ascii key properly</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="30">
+            <Date>2008-03-19</Date>
+            <Version>29</Version>
+            <Comment>Fixed udev script.</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="29">
+            <Date>2008-03-03</Date>
+            <Version>29</Version>
+            <Comment>COMAR script ported to 2.0</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="28">
+            <Date>2007-11-28</Date>
+            <Version>29</Version>
+            <Comment>Look for search line only in dhcp(auto) mode</Comment>
+            <Name>Faik Uygur</Name>
+            <Email>faik@pardus.org.tr</Email>
+        </Update>
+        <Update release="27">
+            <Date>2007-11-28</Date>
+            <Version>29</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="26">
+            <Date>2007-11-21</Date>
+            <Version>29_pre22</Version>
+            <Comment>Update resolv.conf search line if dhcp used</Comment>
+            <Name>Faik Uygur</Name>
+            <Email>faik@pardus.org.tr</Email>
+        </Update>
+        <Update release="25">
+            <Date>2007-11-16</Date>
+            <Version>29_pre22</Version>
+            <Comment>Use a dhcpcd timeout of 120 seconds as a workaround for problematic LAN environments</Comment>
+            <Name>Faik Uygur</Name>
+            <Email>faik@pardus.org.tr</Email>
+        </Update>
+        <Update release="24">
+            <Date>2007-10-30</Date>
+            <Version>29_pre22</Version>
+            <Comment>Comar scripts fixed</Comment>
+            <Name>Gökmen Göksel</Name>
+            <Email>gokmen@pardus.org.tr</Email>
+        </Update>
+        <Update release="23">
+            <Date>2007-07-17</Date>
+            <Version>29_pre22</Version>
+            <Comment>Version bump</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="22">
+            <Date>2007-05-29</Date>
+            <Version>29_pre21</Version>
+            <Comment>PEAP-MSCHAPv2 support added</Comment>
+            <Name>Furkan Duman</Name>
+            <Email>coderlord@gmail.com</Email>
+        </Update>
+        <Update release="21">
+            <Date>2007-05-16</Date>
+            <Version>29_pre21</Version>
+            <Comment>Version bump</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="20">
+            <Date>2007-03-20</Date>
+            <Version>29_pre17</Version>
+            <Comment>Version bump</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="19">
+            <Date>2007-03-18</Date>
+            <Version>29_pre10</Version>
+            <Comment>Wireless.setAuthentication method now takes SSID name from DB for ndiswrapper cards.</Comment>
+            <Name>Furkan Duman</Name>
+            <Email>coderlord@gmail.com</Email>
+        </Update>
+        <Update release="18">
+            <Date>2007-03-03</Date>
+            <Version>29_pre10</Version>
+            <Comment>Disable authentication modes first</Comment>
+            <Name>Furkan Duman</Name>
+            <Email>coderlord@gmail.com</Email>
+        </Update>
+       <Update release="17">
+            <Date>2007-03-01</Date>
+            <Version>29_pre10</Version>
+            <Comment>get device events from udev, report AP signal and encryption, wpa support</Comment>
+            <Name>Gürer Özen</Name>
+            <Email>gurer@pardus.org.tr</Email>
+        </Update>
+       <Update release="16">
+            <Date>2006-12-12</Date>
+            <Version>29_pre10</Version>
+            <Comment>comar script: state and i18n fixes</Comment>
+            <Name>Gürer Özen</Name>
+            <Email>gurer@pardus.org.tr</Email>
+        </Update>
+       <Update release="15">
+            <Date>2006-12-01</Date>
+            <Version>29_pre10</Version>
+            <Comment>Release bump to include newest link.py</Comment>
+            <Name>Gürer Özen</Name>
+            <Email>gurer@pardus.org.tr</Email>
+        </Update>
+       <Update release="14">
+            <Date>2006-11-24</Date>
+            <Version>29_pre10</Version>
+            <Comment>Script update</Comment>
+            <Name>Gürer Özen</Name>
+            <Email>gurer@pardus.org.tr</Email>
+        </Update>
+       <Update release="13">
+            <Date>2006-11-10</Date>
+            <Version>29_pre10</Version>
+            <Comment>Script fix</Comment>
+            <Name>Gürer Özen</Name>
+            <Email>gurer@pardus.org.tr</Email>
+        </Update>
+       <Update release="12">
+            <Date>2006-10-17</Date>
+            <Version>29_pre10</Version>
+            <Comment>Version bump</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+       <Update release="11">
+            <Date>2006-10-04</Date>
+            <Version>28</Version>
+            <Comment>Version bump</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+       <Update release="10">
+            <Date>2006-09-27</Date>
+            <Version>28_pre16</Version>
+            <Comment>Updated script for fixing wireless api essid and silly drivers problem</Comment>
+            <Name>Gürer Özen</Name>
+            <Email>gurer@pardus.org.tr</Email>
+        </Update>
+       <Update release="9">
+            <Date>2006-09-04</Date>
+            <Version>28_pre16</Version>
+            <Comment>Updated script to new comar network api, fixed iface name change problem</Comment>
+            <Name>Gürer Özen</Name>
+            <Email>gurer@pardus.org.tr</Email>
+        </Update>
+        <Update release="8">
+            <Date>2006-05-09</Date>
+            <Version>28_pre16</Version>
+            <Comment>Updated script</Comment>
+            <Name>Gürer Özen</Name>
+            <Email>gurer@pardus.org.tr</Email>
+        </Update>
+        <Update release="7">
+            <Date>2006-04-03</Date>
+            <Version>28_pre16</Version>
+            <Comment>Version bump, partially solve #2357 and missing man pages added to package</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="6">
+            <Date>2005-12-26</Date>
+            <Version>28_pre10</Version>
+            <Comment>Comar script updated.</Comment>
+            <Name>Gürer Özen</Name>
+            <Email>gurer@pardus.org.tr</Email>
+        </Update>
+        <Update release="5">
+            <Date>2005-12-25</Date>
+            <Version>28_pre10</Version>
+            <Comment>Comar script updated.</Comment>
+            <Name>Gürer Özen</Name>
+            <Email>gurer@pardus.org.tr</Email>
+        </Update>
+        <Update release="4">
+            <Date>2005-12-24</Date>
+            <Version>28_pre10</Version>
+            <Comment>Comar script updated.</Comment>
+            <Name>Gürer Özen</Name>
+            <Email>gurer@pardus.org.tr</Email>
+        </Update>
+        <Update release="3">
+            <Date>2005-12-15</Date>
+            <Version>28_pre10</Version>
+            <Comment>Comar script added.</Comment>
+            <Name>Gürer Özen</Name>
+            <Email>gurer@pardus.org.tr</Email>
+        </Update>
+        <Update release="2">
+            <Date>2005-12-05</Date>
+            <Version>28_pre10</Version>
+            <Comment>Version bump</Comment>
+            <Name>Ali Erdinç Köroğlu</Name>
+            <Email>erdinc@pardus.org.tr</Email>
+        </Update>
+        <Update release="1">
+            <Date>2005-09-07</Date>
+            <Version>27</Version>
+            <Comment>First release.</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+    </History>
+</PISI>

@@ -1,0 +1,41 @@
+#!/bin/bash
+
+# Make sure we do not have stale/invalid libperl.so 's ...
+if [ -f "/usr/lib/libperl.so" -a ! -L "/usr/lib/libperl.so" ]
+then
+    mv -f /usr/lib/libperl.so /usr/lib/libperl.so.old
+fi
+
+perllib="`readlink -f /usr/lib/libperl.so | sed -e 's:^.*/::'`"
+
+# If we are installing perl, we need the /usr/lib/libperl.so symlink to
+#point to the version of perl we are running, else builing something
+# against libperl.so will break ...
+if [ "${perllib}" != "libperl.so.1.5.8" ]
+then
+    # Delete stale symlinks
+    rm -f /usr/lib/libperl.so
+    rm -f /usr/lib/libperl.so.1
+    # Regenerate libperl.so.1
+    ln -snf libperl.so.1.5.8 /usr/lib/libperl.so.1
+    # Create libperl.so (we use the *soname* versioned lib here ..)
+    ln -snf libperl.so.1 /usr/lib/libperl.so
+fi
+
+INC=$(perl -e 'for $line (@INC) { next if $line eq "."; next if $line =~ m/'${PV}'|etc|local|perl$/; print "$line\n" }')
+
+for DIR in $INC; do
+    if [ -d $DIR ]; then
+        for file in $(find $DIR -name "*.ph" -type f); do
+            rm $file
+        done
+    fi
+done
+
+cd /usr/include;
+# syslog.pl uses those:
+h2ph syslog.h sys/socket.h
+# those are not used at all, but causes a 25 second wait at postInstall for nothing
+#h2ph * sys/* arpa/* netinet/* bits/* security/* asm/* gnu/* linux/*
+#cd /usr/include/linux;
+#h2ph *

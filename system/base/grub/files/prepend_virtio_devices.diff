@@ -1,0 +1,48 @@
+=== modified file 'lib/device.c'
+--- grub-0.97~/lib/device.c	2008-02-12 16:28:21 +0000
++++ grub-0.97/lib/device.c	2008-02-12 16:32:24 +0000
+@@ -454,6 +454,14 @@
+ #endif
+ }
+ 
++#if defined(__linux__)
++static void
++get_virtio_disk_name (char *name, int unit)
++{
++  sprintf (name, "/dev/vd%c", unit + 'a');
++}
++#endif
++
+ static void
+ get_ide_disk_name (char *name, int unit)
+ {
+@@ -870,6 +878,27 @@
+       return 1;
+     }
+ #endif /* __linux__ */
++
++#ifdef __linux__
++  /* virtio devices.  */
++  for (i = 0; i < 16; i++)
++    {
++      char name[16];
++      
++      get_virtio_disk_name (name, i);
++      if (check_device (name))
++	{
++	  (*map)[num_hd + 0x80] = strdup (name);
++	  assert ((*map)[num_hd + 0x80]);
++	  
++	  /* If the device map file is opened, write the map.  */
++	  if (fp)
++	    fprintf (fp, "(hd%d)\t%s\n", num_hd, name);
++	  
++	  num_hd++;
++	}
++    }
++#endif /* __linux__ */
+     
+   /* IDE disks.  */
+   for (i = 0; i < 8; i++)
+
+=== modified file 'util/grub-install.in'

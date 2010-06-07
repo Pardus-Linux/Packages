@@ -1,0 +1,887 @@
+2008-12-07  Ulrich Drepper  <drepper@redhat.com>
+
+	* resolv/res_send.c (send_dg): Use correct guards for SOCK_CLOEXEC
+	use.
+
+	* resolv/res_init.c (__res_vinit): Always assign to statp->nscount
+	after reading name server list.
+
+	* nis/nss_nis/nis-hosts.c (_nss_nis_gethostbyname4_r): Fix memory
+	handling for host name aliases.
+
+2008-11-24  Arkadiusz Miśkiewicz  <arekm@maven.pl>
+
+	* sysdeps/i386/dl-tlsdesc.S (_dl_tlsdesc_dynamic): Use LOAD_PIC_REG
+	instead of doing things manually.
+
+2008-11-26  Chris Steel  <chris.steel.lnx@googlemail.com>
+
+	* posix/regex_internal.h (build_wcs_upper_buffer):
+	Return type is reg_error_t.
+
+2008-12-05  Ulrich Drepper  <drepper@redhat.com>
+
+	* posix/globtest.sh: Use mktemp to create temporary file and
+	directory.
+
+	* sysdeps/unix/sysv/linux/bits/sched.h (__CPU_SET_S): Handle large
+	sets correctly.
+	(__CPU_CLR_S): Likewise.
+	(__CPU_ISSET_S): Likewise.
+
+2008-12-04  Ulrich Drepper  <drepper@redhat.com>
+
+	* locale/programs/ld-address.c (DEFINE_LANGUAGE_CODE2): Define.
+	* locale/iso-639.def: Add Chhattisgarhi entry.
+
+2008-12-02  Ulrich Drepper  <drepper@redhat.com>
+
+	* resolv/nss_dns/dns-host.c (_nss_dns_gethostbyname3_r): Recognize
+	ESRCH return value.
+	(_nss_dns_gethostbyname4_r): Likewise.
+	* resolv/res_init.c (__res_vinit): Initialize nscount to zero.
+	* sysdeps/posix/getaddrinfo.c (gaih_inet): In case we use
+	gethostbyname4_r, we don't have a separate IPv6 status, so copy
+	the no_data variable.
+
+	* resolv/res_init.c (__res_vinit): Fill in IPv4 name server
+	information at the correct index.
+
+2008-12-01  Ulrich Drepper  <drepper@redhat.com>
+
+	* resolv/res_send.c (send_dg): Create sockets with non-blocking
+	flag already set.
+
+	* stdlib/setenv.c (unsetenv): Don't search environment if it does
+	not exist.
+	* stdlib/Makefile (tests): Add tst-unsetenv1.
+	* stdlib/tst-unsetenv1.c: New file.
+
+2008-11-29  Ulrich Drepper  <drepper@redhat.com>
+
+	* login/utmp_file.c (file_writable): New variable.
+	(setutent_file): Don't try to open file for writing.
+	(pututline_file): Before writing, make descriptor writable if
+	necessary.
+
+2008-11-26  Ulrich Drepper  <drepper@redhat.com>
+
+	* sysdeps/posix/getaddrinfo.c (getaddrinfo): Only restrict search
+	to IPv4 or IPv6 if an interface has been found.
+
+2008-11-26  Roland McGrath  <roland@redhat.com>
+
+	* elf/elf.h (NT_386_IOPERM): New macro.
+	(NT_PPC_VSX): New macro.
+
+localedata/
+2008-12-05  Ulrich Drepper  <drepper@redhat.com>
+
+	* SUPPORTED (SUPPORTED-LOCALES): Add hne_IN.
+
+	* locales/hne_IN: New file.
+	Contributed by Pravin Satpute <psatpute@redhat.com>.
+
+--- libc/elf/elf.h	1 Oct 2008 19:41:34 -0000	1.167
++++ libc/elf/elf.h	26 Nov 2008 09:15:31 -0000	1.168
+@@ -608,7 +608,9 @@ typedef struct
+ #define NT_PRXFPREG	0x46e62b7f	/* Contains copy of user_fxsr_struct */
+ #define NT_PPC_VMX	0x100		/* PowerPC Altivec/VMX registers */
+ #define NT_PPC_SPE	0x101		/* PowerPC SPE/EVR registers */
++#define NT_PPC_VSX	0x102		/* PowerPC VSX registers */
+ #define NT_386_TLS	0x200		/* i386 TLS slots (struct user_desc) */
++#define NT_386_IOPERM	0x201		/* x86 io permission bitmap (1=deny) */
+ 
+ /* Legal values for the note segment descriptor types for object files.  */
+ 
+--- libc/locale/iso-639.def	4 Mar 2008 17:42:10 -0000	1.18
++++ libc/locale/iso-639.def	5 Dec 2008 03:26:04 -0000	1.19
+@@ -1,8 +1,9 @@
+ /*
+- * Defines the languages codes and abbreviations according to ISO 639-[12].
++ * Defines the languages codes and abbreviations according to ISO 639-[123].
+  * This is used in ld-address.c (address_finish).
+  *
+  * Format is: ("English name", 639-1-code, 639-2/T-code, 639-2/B-code)
++ * For some languages which have no 639-2 code the 639-3 code is used.
+  * If you find something missing or wrong, please go to the URL
+  * http://www.gnu.org/software/libc/bugs.html and follow
+  * instructions there to file a bug report.
+@@ -89,6 +90,7 @@ DEFINE_LANGUAGE_CODE ("Chamorro", ch, ch
+ DEFINE_LANGUAGE_CODE ("Chechen", ce, che, che)
+ DEFINE_LANGUAGE_CODE3 ("Cherokee", chr, chr)
+ DEFINE_LANGUAGE_CODE3 ("Cheyenne", chy, chy)
++DEFINE_LANGUAGE_CODE2 ("Chhattisgarhi", hne)	/* ISO 639-3 */
+ DEFINE_LANGUAGE_CODE3 ("Chibcha", chb, chb)
+ DEFINE_LANGUAGE_CODE ("Chichewa; Chewa; Nyanja", ny, nya, nya)
+ DEFINE_LANGUAGE_CODE ("Chinese", zh, zho, chi)
+--- libc/locale/programs/ld-address.c	16 Jul 2007 00:54:59 -0000	1.25
++++ libc/locale/programs/ld-address.c	5 Dec 2008 03:25:18 -0000	1.26
+@@ -57,6 +57,8 @@ static struct
+   { #Ab, #Term, #Lib },
+ #define DEFINE_LANGUAGE_CODE3(Name, Term, Lib) \
+   { "", #Term, #Lib },
++#define DEFINE_LANGUAGE_CODE2(Name, Term) \
++  { "", #Term, "" },
+ #include "iso-639.def"
+ };
+ 
+--- libc/localedata/SUPPORTED	16 Sep 2008 21:24:57 -0000	1.114
++++ libc/localedata/SUPPORTED	6 Dec 2008 03:02:45 -0000	1.115
+@@ -222,6 +222,7 @@ ha_NG/UTF-8 \
+ he_IL.UTF-8/UTF-8 \
+ he_IL/ISO-8859-8 \
+ hi_IN/UTF-8 \
++hne_IN/UTF-8 \
+ hr_HR.UTF-8/UTF-8 \
+ hr_HR/ISO-8859-2 \
+ hsb_DE/ISO-8859-2 \
+--- libc/localedata/locales/hne_IN	1 Jan 1970 00:00:00 -0000
++++ libc/localedata/locales/hne_IN	6 Dec 2008 02:13:13 -0000	1.1
+@@ -0,0 +1,180 @@
++comment_char    %
++escape_char     /
++% Chhattisgarhi language locale for India.
++% Contributed by Pravin Satpute <psatpute@redhat.com> and
++% Ravishankar Shrivastava <raviratlami@gmail.com>.
++
++LC_IDENTIFICATION
++title      "Chhattisgarhi language locale for India"
++source     "Red Hat, Pune"
++address    "Marisfot III, Marigold Premises, East-Wing, Kalyaninagar, Pune, India-411014"
++contact    ""
++email      "bug-glibc-locales@gnu.org"
++tel        ""
++fax        ""
++language   "Chhattisgarhi"
++territory  "India"
++revision   "1.0"
++date       "2008-12-03"
++%
++category  "hne_IN:2008";LC_IDENTIFICATION
++category  "hne_IN:2008";LC_CTYPE
++category  "hne_IN:2008";LC_COLLATE
++category  "hne_IN:2008";LC_TIME
++category  "hne_IN:2008";LC_NUMERIC
++category  "hne_IN:2008";LC_MONETARY
++category  "hne_IN:2008";LC_MESSAGES
++category  "hne_IN:2008";LC_PAPER
++category  "hne_IN:2008";LC_NAME
++category  "hne_IN:2008";LC_ADDRESS
++category  "hne_IN:2008";LC_TELEPHONE
++
++END LC_IDENTIFICATION
++
++LC_CTYPE
++copy "hi_IN"
++END LC_CTYPE
++
++LC_COLLATE
++copy "hi_IN"
++END LC_COLLATE
++
++LC_MONETARY
++copy "hi_IN"
++END LC_MONETARY
++
++
++LC_NUMERIC
++copy "hi_IN"
++END LC_NUMERIC
++
++
++LC_TIME
++% This is the POSIX Locale definition for the LC_TIME category.
++% These are generated based on XML base Locale difintion file
++% for IBM Class for Unicode/Java
++%
++% Abbreviated weekday names (%a)
++abday       "<U0907><U0924><U0020>";/
++            "<U0938><U094B><U092E><U0020>";/
++            "<U092E><U0902><U0917><U0020>";/
++            "<U092C><U0941><U0927><U0020>";/
++            "<U092C><U093F><U0930><U0020>";/
++            "<U0938><U0941><U0915>";/
++            "<U0938><U0928><U093F>"
++%
++% Full weekday names (%A)
++day       "<U0907><U0924><U0935><U093E><U0930><U0020>";/
++            "<U0938><U094B><U092E><U0935><U093E><U0930><U0020>";/
++            "<U092E><U0902><U0917><U0932><U0935><U093E><U0930><U0020>";/
++            "<U092C><U0941><U0927><U0935><U093E><U0930><U0020>";/
++            "<U092C><U093F><U0930><U0938><U092A><U0924><U0020>";/
++            "<U0938><U0941><U0915><U0930><U0935><U093E><U0930><U0020>";/
++            "<U0938><U0928><U093F><U0935><U093E><U0930><U0020>"
++%
++% Abbreviated month names (%b)
++abmon       "<U091C><U0928>";/
++            "<U092B><U0930>";/
++            "<U092E><U093E><U0930><U094D><U091A>";/
++            "<U0905><U092A>";/
++            "<U092E><U0908>";"<U091C><U0942><U0928>";/
++            "<U091C><U0941><U0932><U093E>";/
++            "<U0905><U0917>";/
++            "<U0938><U093F><U0924>";/
++            "<U0905><U0915><U091F><U0942>";/
++            "<U0928><U0935>";/
++            "<U0926><U093F><U0938>"
++%
++% Full month names (%B)
++mon         "<U091C><U0928><U0935><U0930><U0940>";/
++            "<U092B><U0930><U0935><U0930><U0940>";/
++            "<U092E><U093E><U0930><U094D><U091A>";/
++            "<U0905><U092A><U0930><U0947><U0932>";/
++            "<U092E><U0908>";"<U091C><U0942><U0928>";/
++            "<U091C><U0941><U0932><U093E><U0908>";/
++            "<U0905><U0917><U0938><U094D><U0924>";/
++            "<U0938><U093F><U0924><U092E><U092C><U0930>";/
++            "<U0905><U0915><U091F><U0942><U092C><U0930>";/
++            "<U0928><U0935><U092E><U092C><U0930>";/
++            "<U0926><U093F><U0938><U092E><U092C><U0930>"
++%
++% Equivalent of AM PM
++am_pm       "<U092C><U093F><U0939><U093F><U0928><U093F><U092F><U093E><U0901>";/
++            "<U092E><U0902><U091D><U0928><U093F><U092F><U093E><U0901>"
++%
++% Appropriate date and time representation
++% %A %d %b %Y%I:%M:%S  %Z
++d_t_fmt     "<U0025><U0041><U0020><U0025><U0064><U0020><U0025><U0062>/
++<U0020><U0025><U0059><U0020><U0025><U0049><U003A><U0025><U004D><U003A>/
++<U0025><U0053><U0020><U0025><U0070><U0020><U0025><U005A>"
++%
++% Appropriate date representation
++% %A %d %b %Y
++d_fmt       "<U0025><U0041><U0020><U0025><U0064><U0020><U0025><U0062>/
++<U0020><U0025><U0059>"
++%
++% Appropriate time representation
++% %I:%M:%S  %Z
++t_fmt       "<U0025><U0049><U003A><U0025><U004D><U003A><U0025><U0053>/
++<U0020><U0020><U0025><U005A>"
++%
++% Appropriate 12 h time representation (%r)
++t_fmt_ampm  "<U0025><U0049><U003A><U0025><U004D><U003A><U0025><U0053>/
++<U0020><U0025><U0070><U0020><U0025><U005A>"
++%
++date_fmt       "<U0025><U0061><U0020><U0025><U0062><U0020><U0025><U0065>/
++<U0020><U0025><U0048><U003A><U0025><U004D><U003A><U0025><U0053><U0020>/
++<U0025><U005A><U0020><U0025><U0059>"
++END LC_TIME
++
++
++LC_MESSAGES
++yesexpr     "<U005E><U005B><U0939><U0935><U0079><U0059><U005D>"
++noexpr      "<U005E><U005B><U0928><U0907><U006E><U004E><U005D>"
++yesstr      "<U0939><U0935>"
++nostr       "<U0928><U0907>"
++END LC_MESSAGES
++
++
++LC_PAPER
++copy "hi_IN"
++END LC_PAPER
++
++
++LC_NAME
++% This is the ISO_IEC TR14652 Locale definition for the
++% LC_NAME category.
++%
++name_fmt    "<U0025><U0070><U0025><U0074><U0025><U0066><U0025><U0074>/
++<U0025><U0067>"
++name_gen    ""
++name_mr     "<U0938><U093F><U0930><U0940><U092E><U093E><U0928>"
++name_mrs    "<U0938><U093F><U0930><U0940><U092E><U0924><U0940>"
++name_miss   "<U0915><U0941><U0902><U0935><U093E><U0930><U0940>"
++name_ms     "<U0915><U0941><U0902>"
++
++END LC_NAME
++
++
++LC_ADDRESS
++% This is the ISO_IEC TR14652 Locale definition for the
++% LC_ADDRESS
++postal_fmt  "<U0025><U007A><U0025><U0063><U0025><U0054><U0025><U0073>/
++<U0025><U0062><U0025><U0065><U0025><U0072>"
++
++country_ab2 "<U0049><U004E>"
++country_ab3 "<U0049><U004E><U0044>"
++country_num 356
++lang_term   "<U0068><U006E><U0065>"
++
++END LC_ADDRESS
++
++
++LC_TELEPHONE
++copy "hi_IN"
++END LC_TELEPHONE
++
++
++LC_MEASUREMENT
++copy "hi_IN"
++END LC_MEASUREMENT
+--- libc/localedata/locales/sd_IN	16 Sep 2008 00:12:28 -0000	1.1
++++ libc/localedata/locales/sd_IN	5 Dec 2008 06:33:30 -0000	1.2
+@@ -7,7 +7,7 @@ escape_char     /
+ LC_IDENTIFICATION
+ 
+ title      "Sindhi language locale for India"
+-source     "Redhat, Pune"
++source     "Red Hat, Pune"
+ address    "Marisfot III, Marigold Premises, East-Wing, Kalyaninagar, Pune, India-411014"
+ contact    ""
+ email      "bug-glibc-locales@gnu.org"
+--- libc/localedata/locales/sd_IN@devanagari	16 Sep 2008 00:09:22 -0000	1.2
++++ libc/localedata/locales/sd_IN@devanagari	5 Dec 2008 06:33:30 -0000	1.3
+@@ -6,7 +6,7 @@ escape_char     /
+ 
+ LC_IDENTIFICATION
+ title      "Sindhi language locale for India"
+-source     "Redhat, Pune"
++source     "Red Hat, Pune"
+ address    "Marisfot III, Marigold Premises, East-Wing, Kalyaninagar, Pune, India-411014"
+ contact    ""
+ email      "bug-glibc-locales@gnu.org"
+--- libc/login/utmp_file.c	14 Aug 2008 04:22:59 -0000	1.22
++++ libc/login/utmp_file.c	30 Nov 2008 06:56:18 -0000	1.23
+@@ -36,6 +36,7 @@
+ 
+ /* Descriptor for the file and position.  */
+ static int file_fd = -1;
++static bool file_writable;
+ static off64_t file_offset;
+ 
+ /* Cache for the last read entry.  */
+@@ -138,7 +139,6 @@ setutent_file (void)
+   if (file_fd < 0)
+     {
+       const char *file_name;
+-      int result;
+ 
+       file_name = TRANSFORM_UTMP_FILE_NAME (__libc_utmp_file_name);
+ 
+@@ -147,14 +147,10 @@ setutent_file (void)
+ #else
+ # define O_flags O_LARGEFILE
+ #endif
+-      file_fd = open_not_cancel_2 (file_name, O_RDWR | O_flags);
++      file_writable = false;
++      file_fd = open_not_cancel_2 (file_name, O_RDONLY | O_flags);
+       if (file_fd == -1)
+-	{
+-	  /* Hhm, read-write access did not work.  Try read-only.  */
+-	  file_fd = open_not_cancel_2 (file_name, O_RDONLY | O_flags);
+-	  if (file_fd == -1)
+-	    return 0;
+-	}
++	return 0;
+ 
+ #ifndef __ASSUME_O_CLOEXEC
+ # ifdef O_CLOEXEC
+@@ -162,7 +158,7 @@ setutent_file (void)
+ # endif
+ 	{
+ 	  /* We have to make sure the file is `closed on exec'.  */
+-	  result = fcntl_not_cancel (file_fd, F_GETFD, 0);
++	  int result = fcntl_not_cancel (file_fd, F_GETFD, 0);
+ 	  if (result >= 0)
+ 	    {
+ # ifdef O_CLOEXEC
+@@ -404,6 +400,52 @@ pututline_file (const struct utmp *data)
+ 
+   assert (file_fd >= 0);
+ 
++  if (! file_writable)
++    {
++      /* We must make the file descriptor writable before going on.  */
++      const char *file_name = TRANSFORM_UTMP_FILE_NAME (__libc_utmp_file_name);
++
++      int new_fd = open_not_cancel_2 (file_name, O_RDWR | O_flags);
++      if (new_fd == -1)
++	return NULL;
++
++#ifndef __ASSUME_O_CLOEXEC
++# ifdef O_CLOEXEC
++      if (__have_o_cloexec <= 0)
++# endif
++	{
++	  /* We have to make sure the file is `closed on exec'.  */
++	  int result = fcntl_not_cancel (file_fd, F_GETFD, 0);
++	  if (result >= 0)
++	    {
++# ifdef O_CLOEXEC
++	      if (__have_o_cloexec == 0)
++		__have_o_cloexec = (result & FD_CLOEXEC) ? 1 : -1;
++
++	      if (__have_o_cloexec < 0)
++# endif
++		result = fcntl_not_cancel (file_fd, F_SETFD,
++					   result | FD_CLOEXEC);
++	    }
++
++	  if (result == -1)
++	    {
++	      close_not_cancel_no_status (file_fd);
++	      return NULL;
++	    }
++	}
++#endif
++
++      if (__lseek64 (new_fd, __lseek64 (file_fd, 0, SEEK_CUR), SEEK_SET) == -1
++	  || dup2 (new_fd, file_fd) < 0)
++	{
++	  close_not_cancel_no_status (new_fd);
++	  return NULL;
++	}
++      close_not_cancel_no_status (new_fd);
++      file_writable = true;
++    }
++
+   /* Find the correct place to insert the data.  */
+   if (file_offset > 0
+       && (
+--- libc/nis/nss_nis/nis-hosts.c	10 May 2008 23:23:25 -0000	1.29
++++ libc/nis/nss_nis/nis-hosts.c	7 Dec 2008 17:06:43 -0000	1.31
+@@ -485,24 +485,6 @@ _nss_nis_gethostbyname4_r (const char *n
+       return retval;
+     }
+ 
+-  struct parser_data data;
+-  struct hostent host;
+-  int parse_res = parse_line (result, &host, &data, buflen, errnop, AF_UNSPEC,
+-			      0);
+-  if (__builtin_expect (parse_res < 1, 0))
+-    {
+-      if (parse_res == -1)
+-	{
+-	  *herrnop = NETDB_INTERNAL;
+-	  return NSS_STATUS_TRYAGAIN;
+-	}
+-      else
+-	{
+-	  *herrnop = HOST_NOT_FOUND;
+-	  return NSS_STATUS_NOTFOUND;
+-	}
+-    }
+-
+   if (*pat == NULL)
+     {
+       uintptr_t pad = (-(uintptr_t) buffer
+@@ -524,16 +506,47 @@ _nss_nis_gethostbyname4_r (const char *n
+       buflen -= sizeof (struct gaih_addrtuple);
+     }
+ 
+-  (*pat)->next = NULL;
+-  size_t h_name_len = strlen (host.h_name);
+-  if (h_name_len >= buflen)
++  uintptr_t pad = -(uintptr_t) buffer % __alignof__ (struct parser_data);
++  buffer += pad;
++
++  struct parser_data *data = (void *) buffer;
++
++  if (__builtin_expect (buflen < sizeof *data + 1 + pad, 0))
+     goto erange;
+-  (*pat)->name = memcpy (buffer, host.h_name, h_name_len + 1);
++  buflen -= pad;
++
++  struct hostent host;
++  int parse_res = parse_line (result, &host, data, buflen, errnop, AF_UNSPEC,
++			      0);
++  if (__builtin_expect (parse_res < 1, 0))
++    {
++      if (parse_res == -1)
++	{
++	  *herrnop = NETDB_INTERNAL;
++	  return NSS_STATUS_TRYAGAIN;
++	}
++      else
++	{
++	  *herrnop = HOST_NOT_FOUND;
++	  return NSS_STATUS_NOTFOUND;
++	}
++    }
++
++  (*pat)->next = NULL;
+   (*pat)->family = host.h_addrtype;
+   memcpy ((*pat)->addr, host.h_addr_list[0], host.h_length);
+   (*pat)->scopeid = 0;
+   assert (host.h_addr_list[1] == NULL);
+ 
++  /* Undo the alignment for parser_data.  */
++  buffer -= pad;
++  buflen += pad;
++
++  size_t h_name_len = strlen (host.h_name) + 1;
++  if (h_name_len >= buflen)
++    goto erange;
++  (*pat)->name = memcpy (buffer, host.h_name, h_name_len);
++
+   free (result);
+ 
+   return NSS_STATUS_SUCCESS;
+--- libc/posix/globtest.sh	14 Feb 2007 19:52:33 -0000	1.26
++++ libc/posix/globtest.sh	6 Dec 2008 06:05:39 -0000	1.27
+@@ -1,4 +1,4 @@
+-#! /bin/sh
++#! /bin/bash
+ 
+ common_objpfx=$1; shift
+ elf_objpfx=$1; shift
+@@ -28,14 +28,11 @@ export LANG
+ 
+ # Create the arena
+ : ${TMPDIR=/tmp}
+-testdir=$TMPDIR/globtest-dir
+-testout=$TMPDIR/globtest-out
++testdir=$(mktemp -d $TMPDIR/globtest-dir.XXXXXX)
++testout=$(mktemp $TMPDIR/globtest-out.XXXXXX)
+ 
+ trap 'chmod 777 $testdir/noread; rm -fr $testdir $testout' 1 2 3 15
+ 
+-test -d $testdir/noread && chmod 777 $testdir/noread
+-rm -fr $testdir 2>/dev/null
+-mkdir $testdir
+ echo 1 > $testdir/file1
+ echo 2 > $testdir/file2
+ echo 3 > $testdir/-file3
+--- libc/posix/regex_internal.h	26 Aug 2007 01:35:05 -0000	1.74
++++ libc/posix/regex_internal.h	6 Dec 2008 00:12:55 -0000	1.75
+@@ -391,7 +391,8 @@ static reg_errcode_t re_string_realloc_b
+      internal_function;
+ # ifdef RE_ENABLE_I18N
+ static void build_wcs_buffer (re_string_t *pstr) internal_function;
+-static int build_wcs_upper_buffer (re_string_t *pstr) internal_function;
++static reg_errcode_t build_wcs_upper_buffer (re_string_t *pstr)
++  internal_function;
+ # endif /* RE_ENABLE_I18N */
+ static void build_upper_buffer (re_string_t *pstr) internal_function;
+ static void re_string_translate_buffer (re_string_t *pstr) internal_function;
+--- libc/resolv/res_init.c	7 Apr 2008 17:20:25 -0000	1.47
++++ libc/resolv/res_init.c	8 Dec 2008 03:59:05 -0000	1.50
+@@ -183,7 +183,7 @@ __res_vinit(res_state statp, int preinit
+ #endif
+ 	statp->nsaddr.sin_family = AF_INET;
+ 	statp->nsaddr.sin_port = htons(NAMESERVER_PORT);
+-	statp->nscount = 1;
++	statp->nscount = 0;
+ 	statp->ndots = 1;
+ 	statp->pfcode = 0;
+ 	statp->_vcsock = -1;
+@@ -314,9 +314,9 @@ __res_vinit(res_state statp, int preinit
+ 			cp++;
+ 		    if ((*cp != '\0') && (*cp != '\n')
+ 			&& __inet_aton(cp, &a)) {
+-			statp->nsaddr_list[nserv].sin_addr = a;
+-			statp->nsaddr_list[nserv].sin_family = AF_INET;
+-			statp->nsaddr_list[nserv].sin_port =
++			statp->nsaddr_list[nservall].sin_addr = a;
++			statp->nsaddr_list[nservall].sin_family = AF_INET;
++			statp->nsaddr_list[nservall].sin_port =
+ 				htons(NAMESERVER_PORT);
+ 			nserv++;
+ #ifdef _LIBC
+@@ -420,8 +420,7 @@ __res_vinit(res_state statp, int preinit
+ 		    continue;
+ 		}
+ 	    }
+-	    if (nserv > 1)
+-		statp->nscount = nserv;
++	    statp->nscount = nserv;
+ #ifdef _LIBC
+ 	    if (nservall - nserv > 0) {
+ 		statp->_u._ext.nscount6 = nservall - nserv;
+--- libc/resolv/res_send.c	31 Oct 2008 17:36:29 -0000	1.62
++++ libc/resolv/res_send.c	8 Dec 2008 04:08:41 -0000	1.64
+@@ -95,6 +95,7 @@ static const char rcsid[] = "$BINDId: re
+ #include <stdlib.h>
+ #include <string.h>
+ #include <unistd.h>
++#include <kernel-features.h>
+ 
+ #if PACKETSZ > 65536
+ #define MAXPACKET       PACKETSZ
+@@ -103,6 +104,13 @@ static const char rcsid[] = "$BINDId: re
+ #endif
+ 
+ 
++#ifndef __ASSUME_SOCK_CLOEXEC
++static int __have_o_nonblock;
++#else
++# define __have_o_nonblock 0
++#endif
++
++
+ /* From ev_streams.c.  */
+ 
+ static inline void
+@@ -920,8 +928,20 @@ send_dg(res_state statp,
+ 	if (EXT(statp).nssocks[ns] == -1) {
+ 		/* only try IPv6 if IPv6 NS and if not failed before */
+ 		if ((EXT(statp).nscount6 > 0) && !statp->ipv6_unavail) {
+-			EXT(statp).nssocks[ns] =
+-			    socket(PF_INET6, SOCK_DGRAM, 0);
++			if (__have_o_nonblock >= 0) {
++				EXT(statp).nssocks[ns] =
++				  socket(PF_INET6, SOCK_DGRAM|SOCK_NONBLOCK,
++					 0);
++#ifndef __ASSUME_SOCK_CLOEXEC
++				if (__have_o_nonblock == 0)
++					__have_o_nonblock
++					  = (EXT(statp).nssocks[ns] == -1
++					     && errno == EINVAL ? -1 : 1);
++#endif
++			}
++			if (__have_o_nonblock < 0)
++				EXT(statp).nssocks[ns] =
++				  socket(PF_INET6, SOCK_DGRAM, 0);
+ 			if (EXT(statp).nssocks[ns] < 0)
+ 			    statp->ipv6_unavail = errno == EAFNOSUPPORT;
+ 			/* If IPv6 socket and nsap is IPv4, make it
+@@ -929,8 +949,22 @@ send_dg(res_state statp,
+ 			else if (nsap->sin6_family == AF_INET)
+ 			    convaddr4to6(nsap);
+ 		}
+-		if (EXT(statp).nssocks[ns] < 0)
+-			EXT(statp).nssocks[ns] = socket(PF_INET, SOCK_DGRAM, 0);
++		if (EXT(statp).nssocks[ns] < 0) {
++			if (__have_o_nonblock >= 0) {
++				EXT(statp).nssocks[ns]
++				  = socket(PF_INET, SOCK_DGRAM|SOCK_NONBLOCK,
++					   0);
++#ifndef __ASSUME_SOCK_CLOEXEC
++				if (__have_o_nonblock == 0)
++					__have_o_nonblock
++					  = (EXT(statp).nssocks[ns] == -1
++					     && errno == EINVAL ? -1 : 1);
++#endif
++			}
++			if (__have_o_nonblock < 0)
++				EXT(statp).nssocks[ns]
++				  = socket(PF_INET, SOCK_DGRAM, 0);
++		}
+ 		if (EXT(statp).nssocks[ns] < 0) {
+ 			*terrno = errno;
+ 			Perror(statp, stderr, "socket(dg)", errno);
+@@ -955,13 +989,15 @@ send_dg(res_state statp,
+ 			__res_iclose(statp, false);
+ 			return (0);
+ 		}
+-		/* Make socket non-blocking.  */
+-		int fl = __fcntl (EXT(statp).nssocks[ns], F_GETFL);
+-		if  (fl != -1)
+-			__fcntl (EXT(statp).nssocks[ns], F_SETFL,
+-				 fl | O_NONBLOCK);
+-		Dprint(statp->options & RES_DEBUG,
+-		       (stdout, ";; new DG socket\n"))
++		if (__have_o_nonblock < 0) {
++			/* Make socket non-blocking.  */
++			int fl = __fcntl (EXT(statp).nssocks[ns], F_GETFL);
++			if  (fl != -1)
++				__fcntl (EXT(statp).nssocks[ns], F_SETFL,
++					 fl | O_NONBLOCK);
++			Dprint(statp->options & RES_DEBUG,
++			       (stdout, ";; new DG socket\n"))
++		}
+ 	}
+ 
+ 	/*
+--- libc/resolv/nss_dns/dns-host.c	12 Nov 2008 07:52:20 -0000	1.54
++++ libc/resolv/nss_dns/dns-host.c	3 Dec 2008 07:09:26 -0000	1.55
+@@ -198,8 +198,14 @@ _nss_dns_gethostbyname3_r (const char *n
+ 			  1024, &host_buffer.ptr, NULL, NULL, NULL);
+   if (n < 0)
+     {
+-      status = (errno == ECONNREFUSED
+-		? NSS_STATUS_UNAVAIL : NSS_STATUS_NOTFOUND);
++      if (errno == ESRCH)
++	{
++	  status = NSS_STATUS_TRYAGAIN;
++	  h_errno = TRY_AGAIN;
++	}
++      else
++	status = (errno == ECONNREFUSED
++		  ? NSS_STATUS_UNAVAIL : NSS_STATUS_NOTFOUND);
+       *h_errnop = h_errno;
+       if (h_errno == TRY_AGAIN)
+ 	*errnop = EAGAIN;
+@@ -304,8 +310,14 @@ _nss_dns_gethostbyname4_r (const char *n
+ 			      &ans2p, &nans2p, &resplen2);
+   if (n < 0)
+     {
+-      status = (errno == ECONNREFUSED
+-		? NSS_STATUS_UNAVAIL : NSS_STATUS_NOTFOUND);
++      if (errno == ESRCH)
++	{
++	  status = NSS_STATUS_TRYAGAIN;
++	  h_errno = TRY_AGAIN;
++	}
++      else
++	status = (errno == ECONNREFUSED
++		  ? NSS_STATUS_UNAVAIL : NSS_STATUS_NOTFOUND);
+       *herrnop = h_errno;
+       if (h_errno == TRY_AGAIN)
+ 	*errnop = EAGAIN;
+--- libc/stdlib/Makefile	8 Mar 2008 21:31:19 -0000	1.122
++++ libc/stdlib/Makefile	2 Dec 2008 02:27:21 -0000	1.123
+@@ -69,7 +69,7 @@ tests		:= tst-strtol tst-strtod testmb t
+ 		   test-a64l tst-qsort tst-system testmb2 bug-strtod2	    \
+ 		   tst-atof1 tst-atof2 tst-strtod2 tst-strtod3 tst-rand48-2 \
+ 		   tst-makecontext tst-strtod4 tst-strtod5 tst-qsort2	    \
+-		   tst-makecontext2 tst-strtod6
++		   tst-makecontext2 tst-strtod6 tst-unsetenv1
+ 
+ include ../Makeconfig
+ 
+--- libc/stdlib/setenv.c	14 Dec 2005 10:44:05 -0000	1.1
++++ libc/stdlib/setenv.c	2 Dec 2008 01:39:44 -0000	1.2
+@@ -292,19 +292,20 @@ unsetenv (name)
+   LOCK;
+ 
+   ep = __environ;
+-  while (*ep != NULL)
+-    if (!strncmp (*ep, name, len) && (*ep)[len] == '=')
+-      {
+-	/* Found it.  Remove this pointer by moving later ones back.  */
+-	char **dp = ep;
+-
+-	do
+-	  dp[0] = dp[1];
+-	while (*dp++);
+-	/* Continue the loop in case NAME appears again.  */
+-      }
+-    else
+-      ++ep;
++  if (ep != NULL)
++    while (*ep != NULL)
++      if (!strncmp (*ep, name, len) && (*ep)[len] == '=')
++	{
++	  /* Found it.  Remove this pointer by moving later ones back.  */
++	  char **dp = ep;
++
++	  do
++	    dp[0] = dp[1];
++	  while (*dp++);
++	  /* Continue the loop in case NAME appears again.  */
++	}
++      else
++	++ep;
+ 
+   UNLOCK;
+ 
+--- libc/stdlib/tst-unsetenv1.c	1 Jan 1970 00:00:00 -0000
++++ libc/stdlib/tst-unsetenv1.c	2 Dec 2008 02:27:12 -0000	1.1
+@@ -0,0 +1,12 @@
++#include <stdlib.h>
++
++static int
++do_test (void)
++{
++  clearenv ();
++  unsetenv ("FOO");
++  return 0;
++}
++
++#define TEST_FUNCTION do_test ()
++#include "../test-skeleton.c"
+--- libc/sysdeps/i386/dl-tlsdesc.S	13 May 2008 05:33:06 -0000	1.1
++++ libc/sysdeps/i386/dl-tlsdesc.S	6 Dec 2008 00:15:17 -0000	1.2
+@@ -128,8 +128,7 @@ _dl_tlsdesc_dynamic:
+ .Lslow:
+ 	cfi_adjust_cfa_offset (28)
+ 	movl	%ebx, 16(%esp)
+-	call	__i686.get_pc_thunk.bx
+-	addl	$_GLOBAL_OFFSET_TABLE_, %ebx
++	LOAD_PIC_REG (bx)
+ 	call	___tls_get_addr@PLT
+ 	movl	16(%esp), %ebx
+ 	jmp	.Lret
+--- libc/sysdeps/posix/getaddrinfo.c	30 Jul 2008 19:14:22 -0000	1.136
++++ libc/sysdeps/posix/getaddrinfo.c	3 Dec 2008 07:04:10 -0000	1.139
+@@ -733,6 +733,8 @@ gaih_inet (const char *name, const struc
+ 					      tmpbuflen, 2 * tmpbuflen);
+ 		    }
+ 
++		  no_inet6_data = no_data;
++
+ 		  if (status == NSS_STATUS_SUCCESS)
+ 		    {
+ 		      if ((req->ai_flags & AI_CANONNAME) != 0 && canon == NULL)
+@@ -2108,7 +2110,7 @@ getaddrinfo (const char *name, const cha
+ 	{
+ 	  /* If we haven't seen both IPv4 and IPv6 interfaces we can
+ 	     narrow down the search.  */
+-	  if (! seen_ipv4 || ! seen_ipv6)
++	  if ((! seen_ipv4 || ! seen_ipv6) && (seen_ipv4 || seen_ipv6))
+ 	    {
+ 	      local_hints = *hints;
+ 	      local_hints.ai_family = seen_ipv4 ? PF_INET : PF_INET6;
+--- libc/sysdeps/unix/sysv/linux/bits/sched.h	13 Nov 2008 19:56:57 -0000	1.31
++++ libc/sysdeps/unix/sysv/linux/bits/sched.h	6 Dec 2008 05:59:22 -0000	1.33
+@@ -131,26 +131,31 @@ typedef struct
+   do {									      \
+     size_t __i;								      \
+     size_t __imax = (setsize) / sizeof (__cpu_mask);			      \
+-    cpu_set_t *__arr = (cpusetp);					      \
++    __cpu_mask *__bits = (cpusetp)->__bits;				      \
+     for (__i = 0; __i < __imax; ++__i)					      \
+-      __arr->__bits[__i] = 0;						      \
++      __bits[__i] = 0;							      \
+   } while (0)
+ # endif
+ # define __CPU_SET_S(cpu, setsize, cpusetp) \
+   (__extension__							      \
+    ({ size_t __cpu = (cpu);						      \
+       __cpu < 8 * (setsize)						      \
+-      ? ((cpusetp)->__bits[__CPUELT (__cpu)] |= __CPUMASK (__cpu)) : 0; }))
++      ? (((__cpu_mask *) ((cpusetp)->__bits))[__CPUELT (__cpu)]		      \
++	 |= __CPUMASK (__cpu))						      \
++      : 0; }))
+ # define __CPU_CLR_S(cpu, setsize, cpusetp) \
+   (__extension__							      \
+    ({ size_t __cpu = (cpu);						      \
+       __cpu < 8 * (setsize)						      \
+-      ? ((cpusetp)->__bits[__CPUELT (__cpu)] &= ~__CPUMASK (__cpu)) : 0; }))
++      ? (((__cpu_mask *) ((cpusetp)->__bits))[__CPUELT (__cpu)]		      \
++	 &= ~__CPUMASK (__cpu))						      \
++      : 0; }))
+ # define __CPU_ISSET_S(cpu, setsize, cpusetp) \
+   (__extension__							      \
+    ({ size_t __cpu = (cpu);						      \
+       __cpu < 8 * (setsize)						      \
+-      ? (((cpusetp)->__bits[__CPUELT (__cpu)] & __CPUMASK (__cpu))) != 0      \
++      ? ((((__cpu_mask *) ((cpusetp)->__bits))[__CPUELT (__cpu)]	      \
++	  & __CPUMASK (__cpu))) != 0					      \
+       : 0; }))
+ 
+ # define __CPU_COUNT_S(setsize, cpusetp) \
+@@ -162,12 +167,12 @@ typedef struct
+ # else
+ #  define __CPU_EQUAL_S(setsize, cpusetp1, cpusetp2) \
+   (__extension__							      \
+-   ({ cpu_set_t *__arr1 = (cpusetp1);					      \
+-      cpu_set_t *__arr2 = (cpusetp2);					      \
++   ({ __cpu_mask *__arr1 = (cpusetp1)->__bits;				      \
++      __cpu_mask *__arr2 = (cpusetp2)->__bits;				      \
+       size_t __imax = (setsize) / sizeof (__cpu_mask);			      \
+       size_t __i;							      \
+       for (__i = 0; __i < __imax; ++__i)				      \
+-	if (__arr1->__bits[__i] != __arr2->__bits[__i])			      \
++	if (__bits[__i] != __bits[__i])					      \
+ 	  break;							      \
+       __i == __imax; }))
+ # endif
+@@ -175,12 +180,12 @@ typedef struct
+ # define __CPU_OP_S(setsize, destset, srcset1, srcset2, op) \
+   (__extension__							      \
+    ({ cpu_set_t *__dest = (destset);					      \
+-      cpu_set_t *__arr1 = (srcset1);					      \
+-      cpu_set_t *__arr2 = (srcset2);					      \
++      __cpu_mask *__arr1 = (srcset1)->__bits;				      \
++      __cpu_mask *__arr2 = (srcset2)->__bits;				      \
+       size_t __imax = (setsize) / sizeof (__cpu_mask);			      \
+       size_t __i;							      \
+       for (__i = 0; __i < __imax; ++__i)				      \
+-	__dest->__bits[__i] = __arr1->__bits[__i] op __arr2->__bits[__i];     \
++	((__cpu_mask *) __dest->__bits)[__i] = __arr1[__i] op __arr2[__i];    \
+       __dest; }))
+ 
+ # define __CPU_ALLOC_SIZE(count) \

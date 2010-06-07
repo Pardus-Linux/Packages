@@ -1,0 +1,200 @@
+diff -Naur grep-2.5.1a-orig/doc/grep.1 grep-2.5.1a/doc/grep.1
+--- grep-2.5.1a-orig/doc/grep.1	2008-07-29 21:25:15.000000000 +0300
++++ grep-2.5.1a/doc/grep.1	2008-07-29 21:25:45.000000000 +0300
+@@ -330,10 +330,18 @@
+ Recurse in directories only searching file matching
+ .I PATTERN.
+ .TP
++.BR "\fR \fP \-\^\-include-dir=" PATTERN
++Only recurse into directories matching
++.I PATTERN.
++.TP
+ .BR "\fR \fP \-\^\-exclude=" PATTERN
+ Recurse in directories skip file matching
+ .I PATTERN.
+ .TP
++.BR "\fR \fP \-\^\-exclude-dir=" PATTERN
++Skip recursing into directories matching
++.I PATTERN.
++.TP
+ .BR \-s ", " \-\^\-no-messages
+ Suppress error messages about nonexistent or unreadable files.
+ Portability note: unlike \s-1GNU\s0
+diff -Naur grep-2.5.1a-orig/doc/grep.texi grep-2.5.1a/doc/grep.texi
+--- grep-2.5.1a-orig/doc/grep.texi	2008-07-29 21:25:15.000000000 +0300
++++ grep-2.5.1a/doc/grep.texi	2008-07-29 21:25:45.000000000 +0300
+@@ -417,7 +417,14 @@
+ @cindex include files
+ @cindex searching directory trees
+ When processing directories recursively, only files matching @var{file_pattern}
+-will be search.
++will be searched.
++
++@item --include-dir=@var{file_pattern}
++@opindex --include-dir
++@cindex include files
++@cindex searching directory trees
++When processing directories recursively, only directories matching
++@var{file_pattern} will be searched.
+ 
+ @item --exclude=@var{file_pattern}
+ @opindex --exclude
+@@ -425,6 +432,13 @@
+ @cindex searching directory trees
+ When processing directories recursively, skip files matching @var{file_pattern}.
+ 
++@item --exclude-dir=@var{file_pattern}
++@opindex --exclude-dir
++@cindex exclude files
++@cindex searching directory trees
++When processing directories recursively, skip directories matching
++@var{file_pattern}.
++
+ @item -m @var{num}
+ @itemx --max-count=@var{num}
+ @opindex -m
+diff -Naur grep-2.5.1a-orig/lib/savedir.c grep-2.5.1a/lib/savedir.c
+--- grep-2.5.1a-orig/lib/savedir.c	2008-07-29 21:25:15.000000000 +0300
++++ grep-2.5.1a/lib/savedir.c	2008-07-29 21:25:45.000000000 +0300
+@@ -100,7 +100,9 @@
+    Return NULL if DIR cannot be opened or if out of memory. */
+ char *
+ savedir (const char *dir, off_t name_size, struct exclude *included_patterns,
+-	 struct exclude *excluded_patterns)
++	 struct exclude *excluded_patterns,
++	struct exclude *included_dir_patterns,
++	struct exclude *excluded_dir_patterns)
+ {
+   DIR *dirp;
+   struct dirent *dp;
+@@ -144,6 +146,17 @@
+ 		continue;
+ 	    }
+ 
++		if ((included_dir_patterns || excluded_dir_patterns) &&
++		    isdir1(dir, dp->d_name))
++		{
++			if (included_dir_patterns &&
++			    !excluded_filename(included_dir_patterns, dp->d_name, 0))
++				continue;
++			if (excluded_dir_patterns &&
++			    excluded_filename(excluded_dir_patterns, dp->d_name, 0))
++				continue;
++		}
++
+ 	  if (size_needed > name_size)
+ 	    {
+ 	      char *new_name_space;
+diff -Naur grep-2.5.1a-orig/lib/savedir.h grep-2.5.1a/lib/savedir.h
+--- grep-2.5.1a-orig/lib/savedir.h	2008-07-29 21:25:15.000000000 +0300
++++ grep-2.5.1a/lib/savedir.h	2008-07-29 21:25:45.000000000 +0300
+@@ -13,6 +13,7 @@
+ 
+ extern char *
+ savedir PARAMS ((const char *dir, off_t name_size,
++		 struct exclude *, struct exclude *,
+ 		 struct exclude *, struct exclude *));
+ 
+ #endif
+diff -Naur grep-2.5.1a-orig/src/grep.c grep-2.5.1a/src/grep.c
+--- grep-2.5.1a-orig/src/grep.c	2008-07-29 21:25:15.000000000 +0300
++++ grep-2.5.1a/src/grep.c	2008-07-29 21:30:44.000000000 +0300
+@@ -84,6 +84,8 @@
+ 
+ static struct exclude *excluded_patterns;
+ static struct exclude *included_patterns;
++static struct exclude *excluded_dir_patterns;
++static struct exclude *included_dir_patterns;
+ /* Short options.  */
+ static char const short_options[] =
+ "0123456789A:B:C:D:EFGHIPUVX:abcd:e:f:hiKLlm:noqRrsuvwxyZz";
+@@ -101,6 +103,8 @@
+   COLOR_OPTION,
+   INCLUDE_OPTION,
+   EXCLUDE_OPTION,
++  INCLUDE_DIR_OPTION,
++  EXCLUDE_DIR_OPTION,
+   EXCLUDE_FROM_OPTION,
+   LINE_BUFFERED_OPTION,
+   LABEL_OPTION
+@@ -122,6 +126,7 @@
+   {"directories", required_argument, NULL, 'd'},
+   {"extended-regexp", no_argument, NULL, 'E'},
+   {"exclude", required_argument, NULL, EXCLUDE_OPTION},
++  {"exclude-dir", required_argument, NULL, EXCLUDE_DIR_OPTION},
+   {"exclude-from", required_argument, NULL, EXCLUDE_FROM_OPTION},
+   {"file", required_argument, NULL, 'f'},
+   {"files-with-matches", no_argument, NULL, 'l'},
+@@ -130,6 +135,7 @@
+   {"fixed-strings", no_argument, NULL, 'F'},
+   {"help", no_argument, &show_help, 1},
+   {"include", required_argument, NULL, INCLUDE_OPTION},
++  {"include-dir", required_argument, NULL, INCLUDE_DIR_OPTION},
+   {"ignore-case", no_argument, NULL, 'i'},
+   {"label", required_argument, NULL, LABEL_OPTION},
+   {"line-buffered", no_argument, NULL, LINE_BUFFERED_OPTION},
+@@ -1023,7 +1029,8 @@
+ 	}
+ 
+   name_space = savedir (dir, stats->stat.st_size, included_patterns,
+-			excluded_patterns);
++			excluded_patterns,
++                        included_dir_patterns, excluded_dir_patterns);
+ 
+   if (! name_space)
+     {
+@@ -1121,7 +1128,9 @@
+                             ACTION is 'read' or 'skip'\n\
+   -R, -r, --recursive       equivalent to --directories=recurse\n\
+       --include=PATTERN     files that match PATTERN will be examined\n\
++      --include-dir=PATTERN directories that match PATTERN will be examined.\n\
+       --exclude=PATTERN     files that match PATTERN will be skipped.\n\
++      --exclude-dir=PATTERN directories that match PATTERN will be skipped.\n\
+       --exclude-from=FILE   files that match PATTERN in FILE will be skipped.\n\
+   -L, --files-without-match only print FILE names containing no match\n\
+   -l, --files-with-matches  only print FILE names containing matches\n\
+@@ -1613,6 +1622,12 @@
+         }
+ 	break;
+ 
++		case EXCLUDE_DIR_OPTION:
++			if (!excluded_dir_patterns)
++				excluded_dir_patterns = new_exclude ();
++			add_exclude (excluded_dir_patterns, optarg);
++			break;
++
+       case EXCLUDE_OPTION:
+ 	if (!excluded_patterns)
+ 	  excluded_patterns = new_exclude ();
+@@ -1629,6 +1644,12 @@
+           }
+         break;
+ 
++		case INCLUDE_DIR_OPTION:
++			if (!included_dir_patterns)
++				included_dir_patterns = new_exclude ();
++			add_exclude (included_dir_patterns, optarg);
++			break;
++
+       case INCLUDE_OPTION:
+ 	if (!included_patterns)
+ 	  included_patterns = new_exclude ();
+@@ -1785,6 +1806,18 @@
+ 	      excluded_filename (excluded_patterns, file, 0))
+ 	    continue;
+ 	}
++
++	if ((included_dir_patterns || excluded_dir_patterns) &&
++	    isdir(file))
++	{
++		if (included_dir_patterns &&
++		    !excluded_filename(included_dir_patterns, file, 0))
++			continue;
++		if (excluded_dir_patterns &&
++		    excluded_filename(excluded_dir_patterns, file, 0))
++			continue;
++	}
++
+       status &= grepfile (strcmp (file, "-") == 0
+ 			  ? (char *) NULL : file, &stats_base);
+     }

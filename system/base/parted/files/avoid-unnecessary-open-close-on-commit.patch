@@ -1,0 +1,34 @@
+X-Git-Url: http://git.debian.org/?p=parted%2Fparted.git;a=blobdiff_plain;f=libparted%2Fdisk.c;h=8c5a9e3ee48cc177d17aea22f33fd5fe214d2f9b;hp=72a32993c81bbbc7254e127b46455f690f595f88;hb=ad25892bb995f61b0ddf801ed1f74e0b1e7390ce;hpb=c3d0c29999af4f3a08e9f5cc7f950f3fd4d2fb53
+
+diff --git a/libparted/disk.c b/libparted/disk.c
+index 72a3299..8c5a9e3 100644
+--- a/libparted/disk.c
++++ b/libparted/disk.c
+@@ -499,9 +499,25 @@ error:
+ int
+ ped_disk_commit (PedDisk* disk)
+ {
++        /* Open the device here, so that the underlying fd is not closed
++           between commit_to_dev and commit_to_os (closing causes unwanted
++           udev events to be sent under Linux). */
++	if (!ped_device_open (disk->dev))
++		goto error;
++
+ 	if (!ped_disk_commit_to_dev (disk))
+-		return 0;
+-	return ped_disk_commit_to_os (disk);
++		goto error_close_dev;
++
++	if (!ped_disk_commit_to_os (disk))
++		goto error_close_dev;
++
++	ped_device_close (disk->dev);
++	return 1;
++
++error_close_dev:
++	ped_device_close (disk->dev);
++error:
++	return 0;
+ }
+ 
+ /**

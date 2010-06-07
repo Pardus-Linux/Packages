@@ -1,0 +1,36 @@
+diff -Nur grub-0.97-old/util/grub-install.in grub-0.97/util/grub-install.in
+--- grub-0.97-old/util/grub-install.in	2007-05-31 20:55:18.367374730 +0300
++++ grub-0.97/util/grub-install.in	2007-05-31 20:57:01.108755667 +0300
+@@ -336,6 +336,10 @@
+     # Create a safe temporary file.
+     test -n "$mklog" && log_file=`$mklog`
+ 
++    # Sync the filesystem to help XFS (and possibly others) to find the
++    # stageX files (see Debian bugs #239111, #246111, #243835)
++    /bin/sync
++
+     $grub_shell --batch $no_floppy --device-map=$device_map <<EOF >$log_file
+ quit
+ EOF
+@@ -422,6 +426,10 @@
+ test -n "$mkimg" && img_file=`$mkimg`
+ test -n "$mklog" && log_file=`$mklog`
+ 
++# Sync the filesystem to help XFS (and possibly others) to find the
++# stageX files (see Debian bugs #239111, #246111, #243835)
++/bin/sync
++
+ for file in ${grubdir}/stage1 ${grubdir}/stage2 ${grubdir}/*stage1_5; do
+     count=5
+     tmp=`echo $file | sed "s|^${grubdir}|${grub_prefix}|"`
+@@ -450,6 +458,10 @@
+ # Create a safe temporary file.
+ test -n "$mklog" && log_file=`$mklog`
+ 
++# Sync the filesystem to help XFS (and possibly others) to find the
++# stageX files (see Debian bugs #239111, #246111, #243835)
++/bin/sync
++
+ # Now perform the installation.
+ $grub_shell --batch $no_floppy --device-map=$device_map <<EOF >$log_file
+ root $root_drive

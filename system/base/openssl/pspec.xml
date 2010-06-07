@@ -1,0 +1,280 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>openssl</Name>
+        <Homepage>http://www.openssl.org/</Homepage>
+        <Packager>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Packager>
+        <License>as-is</License>
+        <IsA>app:console</IsA>
+        <IsA>library</IsA>
+        <Summary>Toolkit for SSL v2/v3 and TLS v1</Summary>
+        <Description>OpenSSL is a cryptography toolkit implementing the Secure Sockets Layer (SSL v2/v3) and Transport Layer Security (TLS v1) network protocols and related cryptography standards required by them.</Description>
+        <Archive sha1sum="3ba079f91d3c1ec90a36dcd1d43857165035703f" type="targz">http://www.openssl.org/source/openssl-0.9.8k.tar.gz</Archive>
+        <BuildDependencies>
+            <Dependency>perl</Dependency>
+            <Dependency>sed</Dependency>
+        </BuildDependencies>
+        <Patches>
+            <Patch level="1">openssl-0.9.8i-tls-extensions.patch</Patch>
+            <Patch level="1">openssl-0.9.8h-ldflags.patch</Patch>
+            <Patch>openssl-0.9.8k-toolchain.patch</Patch>
+            <Patch level="1">openssl-0.9.8-CVE-2009-1377.patch</Patch>
+            <Patch>openssl-0.9.8-CVE-2009-1378.patch</Patch>
+            <Patch level="1">CVE-2009-1387.diff</Patch>
+            <Patch level="1">CVE-2009-2409.patch</Patch>
+            <!-- http://extendedsubset.com/?p=8 , #11515 -->
+            <Patch level="1">CVE-2009-3555-no-renegotiation.patch</Patch>
+            <!-- significant pre-connect memory leak -->
+            <Patch level="1">CVE-2009-4355.patch</Patch>
+            <!-- bug #12513 -->
+            <Patch level="1">CVE-2010-0740-record-of-death.patch</Patch>
+            <!-- Invalid ASN1 Module Definition for CMS (CVE-2010-0742), #13321 -->
+            <Patch level="1">openssl-0.9.8n-cve-2010-0742.patch</Patch>
+        </Patches>
+    </Source>
+
+    <Package>
+        <Name>openssl</Name>
+        <Files>
+            <Path fileType="config">/etc</Path>
+            <Path fileType="executable">/usr/bin</Path>
+            <Path fileType="library">/usr/lib</Path>
+            <Path fileType="header">/usr/include</Path>
+            <Path fileType="man">/usr/share/man</Path>
+            <Path fileType="doc">/usr/share/doc</Path>
+        </Files>
+        <AdditionalFiles>
+            <!-- checked out from Mozilla CVS using the update-certificates.pl script in files directory, also in http://www.mail-archive.com/modssl-users@modssl.org/msg16980.html -->
+            <!-- Also do not forget to keep mozilla/security/nss/lib/ckfw/builtins/certdata.c file of nss package updated -->
+            <AdditionalFile target="/etc/ssl/certs/ca-bundle.crt" owner="root" permission="0644">ca-bundle.crt</AdditionalFile>
+        </AdditionalFiles>
+        <Provides>
+            <COMAR script="package.py">System.Package</COMAR>
+        </Provides>
+    </Package>
+
+    <History>
+        <Update release="28" type="security">
+            <Date>2010-06-07</Date>
+            <Version>0.9.8k</Version>
+            <Comment>
+                - Fix invalid asn1 module definition for cms (CVE-2010-0742)
+            </Comment>
+            <Name>Eren Türkay</Name>
+            <Email>eren@pardus.org.tr</Email>
+        </Update>
+        <Update release="27" type="security">
+            <Date>2010-03-29</Date>
+            <Version>0.9.8k</Version>
+            <Comment>
+                * Add patch to fix CVE-2010-0740, denial of service bug (#12513)
+            </Comment>
+            <Name>Eren Türkay</Name>
+            <Email>eren@pardus.org.tr</Email>
+        </Update>
+        <Update release="26" type="security">
+            <Date>2010-01-19</Date>
+            <Version>0.9.8k</Version>
+            <Comment>
+                * Add patch to fix CVE-2009-4355, denial of service bug via vectors that trigger incorrect calls to the CRYPTO_free_all_ex_data function (#12014)
+            </Comment>
+            <Name>Eren Türkay</Name>
+            <Email>eren@pardus.org.tr</Email>
+        </Update>
+        <Update release="25" type="security">
+            <Date>2009-11-15</Date>
+            <Version>0.9.8k</Version>
+            <Comment>
+                * Add patch to completely disable renegotiation. (CVE-2009-3555, #11515). See: http://extendedsubset.com/?p=8
+                * NOTE: This fixes 90% of the cases. If renegotiation is needed, we can not do anything about it.
+                  Now, TLS extension is being developed to solve the issue but it needs time. When extension is completed,
+                  we will keep us updated as well..
+                * NOTE #2: With this commit, apache will also be fixed. There is no need to patch mod_ssl. The patch to mod_ssl is needed
+                  with old version of openssl which does not reject renegotiating.
+            </Comment>
+            <Name>Eren Türkay</Name>
+            <Email>eren@pardus.org.tr</Email>
+        </Update>
+       <Update release="24" type="security">
+            <Date>2009-09-27</Date>
+            <Version>0.9.8k</Version>
+            <Comment>Disable MD2 to prevent a spoofing vulnerability (CVE-2009-2409), #10815</Comment>
+            <Name>Pınar Yanardağ</Name>
+            <Email>pinar@pardus.org.tr</Email>
+        </Update>
+       <Update release="23" type="security">
+            <Date>2009-09-25</Date>
+            <Version>0.9.8k</Version>
+            <Comment>Fix for another DTLS Denial of Service vulnerability (CVE-2009-1387), #11218</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="22">
+            <Date>2009-09-02</Date>
+            <Version>0.9.8k</Version>
+            <Comment>Add new root certificates including KamuSM from Mozilla.</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="21" type="security">
+            <Date>2009-05-20</Date>
+            <Version>0.9.8k</Version>
+            <Comment>Fix for DTLS Denial of Service (CVE-2009-{1377,1378}), #9778</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="20">
+            <Date>2009-03-31</Date>
+            <Version>0.9.8k</Version>
+            <Comment>
+                * Root CA certificates are updated.
+                * Issue 'make rehash' command.
+            </Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="19" type="security">
+            <Date>2009-03-30</Date>
+            <Version>0.9.8k</Version>
+            <Comment>Version bump to fix multiple vulnerabilities CVE-2009-{0590,0591,0789} (bug#9462)</Comment>
+            <Name>Pınar Yanardağ</Name>
+            <Email>pinar@pardus.org.tr</Email>
+        </Update>
+        <Update release="18">
+            <Date>2009-02-12</Date>
+            <Version>0.9.8i</Version>
+            <Comment>
+                * Fixed ignoring CFLAGS and LDFLAGS
+                * Fixed test script trying to write /root/.rnd
+            </Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="17" type="security">
+            <Date>2009-01-07</Date>
+            <Version>0.9.8i</Version>
+            <Comment>Version bump to fix CVE-2008-5077 (bug#8988)</Comment>
+            <Name>Pınar Yanardağ</Name>
+            <Email>pinar@pardus.org.tr</Email>
+        </Update>
+        <Update release="16">
+            <Date>2009-01-05</Date>
+            <Version>0.9.8h</Version>
+            <Comment>
+                * Newly included patch (by wpa_supplicant) adds support for TLS SessionTicket extension (RFC 5077) for the parts used by EAP-FAST (RFC 4851). Thanks to Furkan Duman.
+                * Command that inserts certificates from openssl removed, because there are no root certificates in openssl any longer.
+            </Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="15">
+            <Date>2008-08-22</Date>
+            <Version>0.9.8h</Version>
+            <Comment>fix CVS-17196</Comment>
+            <Name>İşbaran Akçayır</Name>
+            <Email>isbaran@comu.edu.tr</Email>
+        </Update>
+        <Update release="14" type="security">
+            <Date>2008-05-28</Date>
+            <Version>0.9.8h</Version>
+            <Comment>Version bump to fix CVE-2008-{0891, 1672}. http://www.openssl.org/news/secadv_20080528.txt</Comment>
+            <Name>Eren Türkay</Name>
+            <Email>turkay.eren@gmail.com</Email>
+        </Update>
+        <Update release="13">
+            <Date>2008-01-04</Date>
+            <Version>0.9.8g</Version>
+            <Comment>Version bump</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="12">
+            <Date>2007-11-07</Date>
+            <Version>0.9.7m</Version>
+            <Comment>Fixup some valid warnings</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="11" type="security">
+            <Date>2007-09-27</Date>
+            <Version>0.9.7m</Version>
+            <Comment>Fix SSL_get_shared_ciphers() off-by-one buffer overflow</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="10" type="security">
+            <Date>2007-08-03</Date>
+            <Version>0.9.7m</Version>
+            <Comment>Fix CVE-2007-3108 and be strict about session ID context matching</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="9">
+            <Date>2007-02-23</Date>
+            <Version>0.9.7m</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="8">
+            <Date>2006-10-09</Date>
+            <Version>0.9.7l</Version>
+            <Comment>Fix patch for CVE-2006-2940</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="7" type="security">
+            <Date>2006-09-28</Date>
+            <Version>0.9.7l</Version>
+            <Comment>Version bump to fix CVE-2006-{2937,2940,3738,4343}</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="6" type="security">
+            <Date>2006-09-05</Date>
+            <Version>0.9.7k</Version>
+            <Comment>Version bump to fix CVE-2006-4339</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="5">
+            <Date>2006-06-30</Date>
+            <Version>0.9.7i</Version>
+            <Comment>Remove conflicting manpage</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="4">
+            <Date>2005-11-17</Date>
+            <Version>0.9.7i</Version>
+            <Comment>Enable no-executable-stack</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="3">
+            <Date>2005-10-15</Date>
+            <Version>0.9.7i</Version>
+            <Comment>Compatibility fix</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="2">
+            <Date>2005-10-12</Date>
+            <Version>0.9.7h</Version>
+            <Comment>Update to openssl-0.9.7h fixing security problems</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+             <Update release="1">
+            <Date>2005-08-14</Date>
+            <Version>0.9.7e</Version>
+            <Comment>First release.</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+    </History>
+</PISI>

@@ -1,0 +1,30 @@
+Index: sysklogd-1.5/Makefile
+===================================================================
+--- sysklogd-1.5.orig/Makefile
++++ sysklogd-1.5/Makefile
+@@ -17,14 +17,7 @@
+ #   along with this program; if not, write to the Free Software
+ #   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ 
+-CC= gcc
+-#SKFLAGS= -g -DSYSV -Wall
+-#LDFLAGS= -g
+-SKFLAGS= $(RPM_OPT_FLAGS) -O3 -DSYSV -fomit-frame-pointer -Wall -fno-strength-reduce
+-# -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE
+-# -D_FILE_OFFSET_BITS=64 -D_LARGEFILE64_SOURCE
+-# $(shell getconf LFS_SKFLAGS)
+-LDFLAGS= -s
++SKFLAGS = $(OS_CFLAGS) -DSYSV -fno-strength-reduce
+ 
+ # Look where your install program is.
+ INSTALL = /usr/bin/install
+@@ -94,6 +94,9 @@ syslogd.o: syslogd.c version.h
+ syslog.o: syslog.c
+ 	${CC} ${SKFLAGS} ${SYSLOG_FLAGS} -c syslog.c
+ 
++pidfile.o: pidfile.c
++	${CC} ${SKFLAGS} -c pidfile.c
++
+ klogd.o: klogd.c klogd.h version.h
+ 	${CC} ${SKFLAGS} ${KLOGD_FLAGS} $(DEB) -c klogd.c
+

@@ -1,0 +1,33 @@
+diff -uNr grub-0.97/stage2/builtins.c grub-0.97.new/stage2/builtins.c
+--- grub-0.97/stage2/builtins.c	2006-11-07 18:42:42.000000000 +0000
++++ grub-0.97.new/stage2/builtins.c	2006-11-07 18:34:35.000000000 +0000
+@@ -1426,7 +1426,7 @@
+     }
+ 
+   /* Hard disks.  */
+-  for (drive = 0x80; drive < 0x88; drive++)
++  for (drive = 0x80; drive < 0x90; drive++)
+     {
+       unsigned long part = 0xFFFFFF;
+       unsigned long start, len, offset, ext_offset;
+diff -uNr grub-0.97/stage2/disk_io.c grub-0.97.new/stage2/disk_io.c
+--- grub-0.97/stage2/disk_io.c	2006-11-07 18:42:42.000000000 +0000
++++ grub-0.97.new/stage2/disk_io.c	2006-11-07 18:33:44.000000000 +0000
+@@ -400,7 +400,7 @@
+     return 1;
+   
+   if (!(current_partition & 0xFF000000uL)
+-      && ((current_drive & 0xFFFFFF7F) < 8
++      && ((current_drive & 0xFFFFFF7F) < 16
+ 	  || current_drive == cdrom_drive)
+       && (current_partition & 0xFF) == 0xFF
+       && ((current_partition & 0xFF00) == 0xFF00
+@@ -1385,7 +1385,7 @@
+ 		       i < (ptr && (*(ptr-1) == 'd' && *(ptr-2) == 'f') ? 1:2);
+ 		       i++)
+ 		    {
+-		      for (j = 0; j < 8; j++)
++		      for (j = 0; j < 16; j++)
+ 			{
+ 			  disk_no = (i * 0x80) + j;
+ 			  if ((disk_choice || disk_no == current_drive)

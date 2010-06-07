@@ -1,0 +1,34 @@
+diff -Nur coreutils-7.6-old/lib/userspec.c coreutils-7.6/lib/userspec.c
+--- coreutils-7.6-old/lib/userspec.c	2009-09-15 20:27:55.935290144 +0300
++++ coreutils-7.6/lib/userspec.c	2009-09-15 20:28:19.515314963 +0300
+@@ -169,7 +169,7 @@
+ 	    {
+ 	      unsigned long int tmp;
+ 	      if (xstrtoul (u, NULL, 10, &tmp, "") == LONGINT_OK
+-		  && tmp <= MAXUID)
++		  && tmp <= MAXUID && tmp != (uid_t) -1)
+ 		unum = tmp;
+ 	      else
+ 		error_msg = E_invalid_user;
+@@ -200,7 +200,8 @@
+       if (grp == NULL)
+ 	{
+ 	  unsigned long int tmp;
+-	  if (xstrtoul (g, NULL, 10, &tmp, "") == LONGINT_OK && tmp <= MAXGID)
++	  if (xstrtoul (g, NULL, 10, &tmp, "") == LONGINT_OK && tmp <= MAXGID
++	      && tmp != (gid_t) -1)
+ 	    gnum = tmp;
+ 	  else
+ 	    error_msg = E_invalid_group;
+diff -Nur coreutils-7.6-old/src/chgrp.c coreutils-7.6/src/chgrp.c
+--- coreutils-7.6-old/src/chgrp.c	2009-09-15 20:27:55.960290538 +0300
++++ coreutils-7.6/src/chgrp.c	2009-09-15 20:29:43.460195524 +0300
+@@ -89,7 +89,7 @@
+         {
+           unsigned long int tmp;
+           if (! (xstrtoul (name, NULL, 10, &tmp, "") == LONGINT_OK
+-                 && tmp <= GID_T_MAX))
++                 && tmp <= GID_T_MAX && tmp != (gid_t) -1))
+             error (EXIT_FAILURE, 0, _("invalid group: %s"), quote (name));
+           gid = tmp;
+         }

@@ -1,0 +1,29 @@
+fix the following problem in multibyte locales.
+ % echo Y | egrep -i '[y]'
+ %
+
+derived from gawk's dfa.c.
+
+--- ./src/dfa.c.orig	2004-10-20 02:04:52.000000000 +0900
++++ ./src/dfa.c	2004-10-20 02:07:01.000000000 +0900
+@@ -652,6 +652,20 @@
+ 	  REALLOC_IF_NECESSARY(work_mbc->chars, wchar_t, chars_al,
+ 			       work_mbc->nchars + 1);
+ 	  work_mbc->chars[work_mbc->nchars++] = (wchar_t)wc;
++	  if (case_fold && (iswlower((wint_t) wc) || iswupper((wint_t) wc)))
++	    {
++		wint_t altcase;
++
++		altcase = wc;		/* keeps compiler happy */
++		if (iswlower((wint_t) wc))
++		  altcase = towupper((wint_t) wc);
++		else if (iswupper((wint_t) wc))
++		  altcase = towlower((wint_t) wc);
++
++		REALLOC_IF_NECESSARY(work_mbc->chars, wchar_t, chars_al,
++			       work_mbc->nchars + 1);
++		work_mbc->chars[work_mbc->nchars++] = (wchar_t) altcase;
++	    }
+ 	}
+     }
+   while ((wc = wc1) != L']');

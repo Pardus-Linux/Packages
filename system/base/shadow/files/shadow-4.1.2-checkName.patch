@@ -1,0 +1,32 @@
+diff -up shadow-4.1.2/src/groupmems.c.checkName shadow-4.1.2/src/groupmems.c
+--- shadow-4.1.2/src/groupmems.c.checkName	2008-09-24 11:17:02.000000000 +0200
++++ shadow-4.1.2/src/groupmems.c	2008-09-24 14:03:01.000000000 +0200
+@@ -43,6 +43,7 @@
+ #include <pwd.h>
+ #include "defines.h"
+ #include "groupio.h"
++#include "chkname.h"
+ 
+ /* Exit Status Values */
+ 
+@@ -54,6 +55,7 @@
+ #define EXIT_NOT_PRIMARY	5	/* not primary owner of group  */
+ #define EXIT_NOT_MEMBER		6	/* member of group does not exist */
+ #define EXIT_MEMBER_EXISTS	7	/* member of group already exists */
++#define E_BAD_ARG		8       /* invalid argument to option */
+ 
+ #define TRUE 1
+ #define FALSE 0
+@@ -225,6 +227,12 @@ int main (int argc, char **argv) 
+ 		usage ();
+ 	}
+ 
++        /* check if user names is valid */
++	if ( adduser && !check_user_name (adduser)) {
++	        fprintf (stderr, _("%s is not a valid user name\n"), adduser);
++	        exit (E_BAD_ARG);
++	}
++
+ 	if (!isroot () && NULL != thisgroup) {
+ 		fputs (_("Only root can add members to different groups\n"),
+ 		       stderr);

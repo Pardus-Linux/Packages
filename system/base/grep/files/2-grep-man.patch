@@ -1,0 +1,167 @@
+--- doc/grep.1.orig	2003-08-17 18:03:17.000000000 -0400
++++ doc/grep.1	2003-08-17 18:04:22.000000000 -0400
+@@ -15,7 +15,7 @@
+ .Id $Id: 2-grep-man.patch,v 1.2 2003/09/11 00:55:16 rmgolbeck Exp $
+ .TH GREP 1 \*(Dt "GNU Project"
+ .SH NAME
+-grep, egrep, fgrep \- print lines matching a pattern
++grep, egrep, fgrep, rgrep \- print lines matching a pattern
+ .SH SYNOPSIS
+ .B grep
+ .RI [ options ]
+@@ -45,10 +45,11 @@
+ .B grep
+ prints the matching lines.
+ .PP
+-In addition, two variant programs
+-.B egrep
+-and
++In addition, three variant programs
++.B egrep,
+ .B fgrep
++and
++.B rgrep
+ are available.
+ .B Egrep
+ is the same as
+@@ -56,6 +57,9 @@
+ .B Fgrep
+ is the same as
+ .BR "grep\ \-F" .
++.B Rgrep
++is the same as
++.BR "grep\ \-r" .
+ .SH OPTIONS
+ .TP
+ .BI \-A " NUM" "\fR,\fP \-\^\-after-context=" NUM
+@@ -79,14 +83,6 @@
+ .B \-\^\-
+ between contiguous groups of matches.
+ .TP
+-.BI \-C " NUM" "\fR,\fP \-\^\-context=" NUM
+-Print
+-.I NUM
+-lines of output context.
+-Places a line containing
+-.B \-\^\-
+-between contiguous groups of matches.
+-.TP
+ .BR \-b ", " \-\^\-byte-offset
+ Print the byte offset within the input file before
+ each line of output.
+@@ -126,10 +122,13 @@
+ which can have nasty side effects if the output is a terminal and if the
+ terminal driver interprets some of it as commands.
+ .TP
+-.BI \-\^\-colour[=\fIWHEN\fR] ", " \-\^\-color[=\fIWHEN\fR]
+-Surround the matching string with the marker find in
+-.B GREP_COLOR
+-environment variable. WHEN may be `never', `always', or `auto'
++.BI \-C " NUM" "\fR,\fP \-\^\-context=" NUM
++Print
++.I NUM
++lines of output context.
++Places a line containing
++.B \-\^\-
++between contiguous groups of matches.
+ .TP
+ .BR \-c ", " \-\^\-count
+ Suppress normal output; instead print a count of
+@@ -138,6 +137,11 @@
+ .BR \-v ", " \-\^\-invert-match
+ option (see below), count non-matching lines.
+ .TP
++.BI \-\^\-colour[=\fIWHEN\fR] ", " \-\^\-color[=\fIWHEN\fR]
++Surround the matching string with the marker find in
++.B GREP_COLOR
++environment variable. WHEN may be `never', `always', or `auto'
++.TP
+ .BI \-D " ACTION" "\fR,\fP \-\^\-devices=" ACTION
+ If an input file is a device, FIFO or socket, use
+ .I ACTION
+@@ -191,10 +195,6 @@
+ .I PATTERN
+ as a list of fixed strings, separated by newlines,
+ any of which is to be matched.
+-.BR \-P ", " \-\^\-perl-regexp
+-Interpret
+-.I PATTERN
+-as a Perl regular expression.
+ .TP
+ .BI \-f " FILE" "\fR,\fP \-\^\-file=" FILE
+ Obtain patterns from
+@@ -240,6 +240,15 @@
+ would normally have been printed.  The scanning will
+ stop on the first match.
+ .TP
++.BI \-\^\-label= LABEL
++Displays input actually coming from standard input as input coming from file
++.I LABEL.
++This is especially useful for tools like zgrep, e.g.
++.B "gzip -cd foo.gz |grep --label=foo something"
++.TP
++.BR \-\^\-line-buffered
++Use line buffering, it can be a performance penalty.
++.TP
+ .BI \-m " NUM" "\fR,\fP \-\^\-max-count=" NUM
+ Stop reading a file after
+ .I NUM
+@@ -296,14 +305,10 @@
+ Show only the part of a matching line that matches
+ .I PATTERN.
+ .TP
+-.BI \-\^\-label= LABEL
+-Displays input actually coming from standard input as input coming from file
+-.I LABEL.
+-This is especially useful for tools like zgrep, e.g.
+-.B "gzip -cd foo.gz |grep --label=foo something"
+-.TP
+-.BR \-\^\-line-buffering
+-Use line buffering, it can be a performance penality.
++.BR \-P ", " \-\^\-perl-regexp
++Interpret
++.I PATTERN
++as a Perl regular expression.
+ .TP
+ .BR \-q ", " \-\^\-quiet ", " \-\^\-silent
+ Quiet; do not write anything to standard output.
+@@ -425,6 +430,18 @@
+ .B "xargs \-0"
+ to process arbitrary file names,
+ even those that contain newline characters.
++.TP
++.BR \-z ", " \-\^\-null-data
++Treat the input as a set of lines, each terminated by a zero byte
++(the \s-1ASCII\s0
++.B NUL 
++character) instead of a newline.  Like the 
++.BR \-Z
++or 
++.BR "\-\-null"
++option, this option can be used with commands like 
++.BR "sort \-z"
++to process arbitrary file names.
+ .SH "REGULAR EXPRESSIONS"
+ .PP
+ A regular expression is a pattern that describes a set of strings.
+@@ -432,13 +449,17 @@
+ expressions, by using various operators to combine smaller expressions.
+ .PP
+ .B Grep
+-understands two different versions of regular expression syntax:
+-\*(lqbasic\*(rq and \*(lqextended.\*(rq  In
++understands three different versions of regular expression syntax:
++\*(lqbasic,\*(rq \*(lqextended,\*(rq and \*(lqperl.\*(rq  In
+ .RB "\s-1GNU\s0\ " grep ,
+-there is no difference in available functionality using either syntax.
++there is no difference in available functionality using either of the 
++first two syntaxes.
+ In other implementations, basic regular expressions are less powerful.
+ The following description applies to extended regular expressions;
+ differences for basic regular expressions are summarized afterwards.
++Perl regular expressions add additional functionality, but the implementation
++used here is undocumented and is not compatible with 
++other grep implementations.
+ .PP
+ The fundamental building blocks are the regular expressions that match
+ a single character.  Most characters, including all letters and digits,
