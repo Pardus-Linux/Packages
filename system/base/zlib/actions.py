@@ -1,43 +1,39 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright 2005-2008 TUBITAK/UEKAE
+# Copyright 2005-2010 TUBITAK/UEKAE
 # Licensed under the GNU General Public License, version 2.
 # See the file http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
 
+from pisi.actionsapi import shelltools
 from pisi.actionsapi import autotools
 from pisi.actionsapi import pisitools
-from pisi.actionsapi import libtools
-from pisi.actionsapi import shelltools
 from pisi.actionsapi import get
 
-version = get.srcVERSION()
-
 def setup():
-    pisitools.dosed("Makefile*", "ldconfig \|\| ", "")
+    shelltools.makedirs("m4")
+    autotools.autoreconf("-fi")
 
-    autotools.rawConfigure("--shared \
-                            --prefix=/usr \
-                            --libdir=/lib")
+    autotools.configure("--disable-static")
+
 
 def build():
     autotools.make()
 
 def install():
-    autotools.install("libdir=%s/lib" % get.installDIR())
-    pisitools.dolib("libz.so.%s" % version)
+    autotools.install()
 
-    shelltools.chmod("%s/lib/libz.so.*" % get.installDIR())
-    libtools.gen_usr_ldscript("libz.so")
+    # Copy zlib to /lib
+    pisitools.domove("/usr/lib/libz*", "/lib")
 
-    pisitools.remove("/lib/libz.a")
+    # Create symlinks in /usr/lib
+    pisitools.dosym("/lib/libz.so.%s" % get.srcVERSION(), "/usr/lib/libz.so.%s" % get.srcVERSION())
+    pisitools.dosym("libz.so.%s" % get.srcVERSION(), "/usr/lib/libz.so.1")
+    pisitools.dosym("libz.so.1", "/usr/lib/libz.so")
 
     for header in ["zconf.h","zlib.h","zutil.h"]:
         pisitools.insinto("/usr/include", header)
 
     pisitools.doman("zlib.3")
     pisitools.dodoc("FAQ", "README", "ChangeLog", "algorithm.txt")
-
-def test():
-    autotools.make("test")
 
