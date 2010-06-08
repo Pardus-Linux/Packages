@@ -28,16 +28,8 @@ def check():
 def install():
     autotools.rawInstall("DESTDIR=%s" % get.installDIR())
 
-    # These were explicitly not installed in udev-125, so I remove them.
-    pisitools.remove("/lib/udev/fstab_import")
+    # This were explicitly not installed in Pardus 2008, so I remove it.
     pisitools.remove("/lib/udev/rules.d/79-fstab_import.rules")
-
-    # Let's keep it for a while, I'm not sure (Dropped from Corporate2)
-    # pisitools.insinto("/lib/udev/rules.d", "rules/gentoo/40-gentoo.rules")
-
-    # Install additional rules from packages/ directory
-    for rule in ("40-pilot-links.rules",):
-        pisitools.insinto("/lib/udev/rules.d", "rules/packages/%s" % rule)
 
     # FIXME: We have GROUP conversions here!
     # Only some gentoo and 50-udev-default.rules are affected by the renamings below
@@ -48,7 +40,7 @@ def install():
     pisitools.dosed("%s/lib/udev/rules.d/50-udev-default.rules" % get.installDIR(), 'GROUP="cdrom"', 'GROUP="removable"')
 
     # create needed directories
-    for d in ("", "net", "pts", "shm"):
+    for d in ("", "net", "pts", "shm", "hugepages"):
         pisitools.dodir("/lib/udev/devices/%s" % d)
 
     # Create vol_id and scsi_id symlinks in /sbin probably needed by multipath-tools

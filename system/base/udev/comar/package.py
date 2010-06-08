@@ -22,29 +22,3 @@ def postInstall(fromVersion, fromRelease, toVersion, toRelease):
 
     if os.path.exists("/lib/udev/devices/rtc"):
         os.unlink("/lib/udev/devices/rtc")
-
-    try:
-        os.symlink("/proc/self/fd", "/lib/udev/devices/fd")
-    except OSError:
-        pass
-
-    try:
-        os.symlink("/proc/self/fd/0", "/lib/udev/devices/stdin")
-    except OSError:
-        pass
-
-    try:
-        os.symlink("/proc/self/fd/1", "/lib/udev/devices/stdout")
-    except OSError:
-        pass
-
-    try:
-        os.symlink("/proc/self/fd/2", "/lib/udev/devices/stderr")
-    except OSError:
-        pass
-
-    try:
-        os.symlink("/proc/kcore", "/lib/udev/devices/core")
-    except OSError:
-        pass
-
