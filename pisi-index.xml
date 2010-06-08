@@ -10513,7 +10513,6 @@
             <Summary xml:lang="tr">Çeşitli kullanışlı Linux araçları</Summary>
             <Archive type="tarbz2" sha1sum="69275de84f7dabb7a5d90d0046c3a6b861c16a1d">http://ftp.kernel.org/pub/linux/utils/util-linux-ng/v2.17/util-linux-ng-2.17.2.tar.bz2</Archive>
             <BuildDependencies>
-                <Dependency>libuuid</Dependency>
                 <Dependency>ncurses</Dependency>
                 <Dependency>shadow</Dependency>
                 <Dependency>audit</Dependency>
@@ -10568,11 +10567,49 @@
                 <Path fileType="library">/lib</Path>
             </Files>
             <Conflicts>
-                <Package>schedutils</Package>
                 <Package releaseTo="19">e2fsprogs</Package>
             </Conflicts>
         </Package>
+        <Package>
+            <Name>libuuid</Name>
+            <Summary xml:lang="en">A library for UUID processing</Summary>
+            <Summary xml:lang="tr">UUID üretimi için bir kitaplık</Summary>
+            <IsA>library</IsA>
+            <Files>
+                <Path fileType="man">/usr/share/man/man3/uuid*</Path>
+                <Path fileType="header">/usr/include/uuid/*</Path>
+                <Path fileType="library">/lib/libuuid.*</Path>
+                <Path fileType="library">/usr/lib/libuuid.so</Path>
+                <Path fileType="data">/usr/lib/pkgconfig/uuid.pc</Path>
+            </Files>
+        </Package>
+        <Package>
+            <Name>uuidd</Name>
+            <Summary xml:lang="en">Helper daemon to guarantee uniqueness of time-based UUIDs</Summary>
+            <Summary xml:lang="tr">Zaman tabanlı UUID&apos;lerin benzersizliğini garantileyen sistem hizmeti</Summary>
+            <IsA>service</IsA>
+            <IsA>app:console</IsA>
+            <RuntimeDependencies>
+                <Dependency>libuuid</Dependency>
+            </RuntimeDependencies>
+            <Files>
+                <Path fileType="executable">/usr/bin/uuidgen</Path>
+                <Path fileType="executable">/usr/sbin/uuidd</Path>
+                <Path fileType="man">/usr/share/man/man1/uuidgen.1</Path>
+                <Path fileType="man">/usr/share/man/man8/uuidd.8</Path>
+            </Files>
+            <Conflicts>
+                <Package releaseTo="27">e2fsprogs</Package>
+            </Conflicts>
+        </Package>
         <History>
+            <Update release="36">
+                <Date>2010-06-08</Date>
+                <Version>2.17.2</Version>
+                <Comment>Split libuuid from util-linux</Comment>
+                <Name>Ozan Çağlayan</Name>
+                <Email>ozan@pardus.org.tr</Email>
+            </Update>
             <Update release="35">
                 <Date>2010-04-12</Date>
                 <Version>2.17.2</Version>
@@ -18511,8 +18548,9 @@
             <Description xml:lang="fr">e2frprogs fournit les outils de système de fichier à utiliser avec les systèmes de fichier de type ext2. Il prend également en charge les système de fichier de type ext3/4 avec support de la journalisation.</Description>
             <Description xml:lang="en">e2fsprogs provides the filesystem utilities for use with the ext2 filesystem. It also supports the ext3/4 filesystem with journaling support.</Description>
             <Description xml:lang="tr">e2fsprogs ext2 dosya sistemi için standart dosya sistemi uygulamaları sağlar. ext3/4 dosya sistemlerinin günlüğe kaydetme özelliklerini de destekler.</Description>
-            <Archive type="targz" sha1sum="1cd75560595cff0b7b5ac9da11cfdaa7d0dfd6d9">mirrors://sourceforge/e2fsprogs/e2fsprogs-1.41.11.tar.gz</Archive>
+            <Archive type="targz" sha1sum="62b002fe507b2ddafc24b89532e472fe4b55a14f">mirrors://sourceforge/e2fsprogs/e2fsprogs-1.41.12.tar.gz</Archive>
             <BuildDependencies>
+                <Dependency releaseFrom="36">libuuid</Dependency>
                 <Dependency>gettext</Dependency>
                 <Dependency>util-linux</Dependency>
             </BuildDependencies>
@@ -18524,7 +18562,7 @@
         <Package>
             <Name>e2fsprogs</Name>
             <RuntimeDependencies>
-                <Dependency>libuuid</Dependency>
+                <Dependency releaseFrom="36">libuuid</Dependency>
                 <Dependency>util-linux</Dependency>
             </RuntimeDependencies>
             <Files>
@@ -18545,23 +18583,15 @@
                 <Path fileType="doc">/usr/share/doc</Path>
             </Files>
         </Package>
-        <Package>
-            <Name>libuuid</Name>
-            <Summary xml:lang="en">A library for UUID processing</Summary>
-            <Summary xml:lang="tr">UUID üretimi için bir kitaplık</Summary>
-            <IsA>library</IsA>
-            <Files>
-                <Path fileType="man">/usr/share/man/man3/uuid*</Path>
-                <Path fileType="header">/usr/include/uuid/*</Path>
-                <Path fileType="library">/lib/libuuid.*</Path>
-                <Path fileType="library">/usr/lib/libuuid.so</Path>
-                <Path fileType="data">/usr/lib/pkgconfig/uuid.pc</Path>
-            </Files>
-            <Conflicts>
-                <Package releaseTo="19">e2fsprogs</Package>
-            </Conflicts>
-        </Package>
         <History>
+            <Update release="28">
+                <Date>2010-06-08</Date>
+                <Version>1.41.12</Version>
+                <Comment>- Version bump,
+                - Depend on libuuid from util-linux for avoiding circular dependency.</Comment>
+                <Name>Ozan Çağlayan</Name>
+                <Email>ozan@pardus.org.tr</Email>
+            </Update>
             <Update release="27">
                 <Date>2010-06-08</Date>
                 <Version>1.41.11</Version>
@@ -23586,7 +23616,6 @@
                 <Dependency>libXdmcp</Dependency>
                 <Dependency>libcap-ng</Dependency>
                 <Dependency>e2fsprogs</Dependency>
-                <Dependency>baselayout</Dependency>
                 <Dependency>libX11-devel</Dependency>
             </BuildDependencies>
             <Patches>
@@ -23606,7 +23635,6 @@
                 <Dependency>libXdmcp</Dependency>
                 <Dependency>libcap-ng</Dependency>
                 <Dependency>e2fsprogs</Dependency>
-                <Dependency>baselayout</Dependency>
             </RuntimeDependencies>
             <Files>
                 <Path fileType="config">/etc/dbus-1</Path>
@@ -23623,6 +23651,13 @@
             </Files>
         </Package>
         <History>
+            <Update release="48">
+                <Date>2010-06-08</Date>
+                <Version>1.2.24</Version>
+                <Comment>Drop baselayout dependency.</Comment>
+                <Name>Ozan Çağlayan</Name>
+                <Email>ozan@pardus.org.tr</Email>
+            </Update>
             <Update release="47">
                 <Date>2010-03-30</Date>
                 <Version>1.2.24</Version>
@@ -26314,7 +26349,6 @@
                 <Dependency>glib2</Dependency>
                 <Dependency>expat</Dependency>
                 <Dependency>libxml2</Dependency>
-                <Dependency>baselayout</Dependency>
             </BuildDependencies>
             <SourceURI>system/base/dbus-glib/pspec.xml</SourceURI>
         </Source>
@@ -26325,7 +26359,6 @@
                 <Dependency>glib2</Dependency>
                 <Dependency>expat</Dependency>
                 <Dependency>libxml2</Dependency>
-                <Dependency>baselayout</Dependency>
             </RuntimeDependencies>
             <Files>
                 <Path fileType="executable">/usr/bin</Path>
@@ -26341,6 +26374,13 @@
             </Files>
         </Package>
         <History>
+            <Update release="13">
+                <Date>2010-06-08</Date>
+                <Version>0.86</Version>
+                <Comment>Drop baselayout dependency.</Comment>
+                <Name>Ozan Çağlayan</Name>
+                <Email>ozan@pardus.org.tr</Email>
+            </Update>
             <Update release="12">
                 <Date>2010-04-01</Date>
                 <Version>0.86</Version>
