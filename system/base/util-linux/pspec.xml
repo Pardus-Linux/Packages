@@ -14,7 +14,6 @@
         <Summary>Various useful Linux utilities</Summary>
         <Archive sha1sum="69275de84f7dabb7a5d90d0046c3a6b861c16a1d" type="tarbz2">http://ftp.kernel.org/pub/linux/utils/util-linux-ng/v2.17/util-linux-ng-2.17.2.tar.bz2</Archive>
         <BuildDependencies>
-            <Dependency>libuuid</Dependency>
             <Dependency>ncurses</Dependency>
             <Dependency>shadow</Dependency>
             <Dependency>audit</Dependency>
@@ -63,7 +62,6 @@
             <Dependency>perl</Dependency>
         </RuntimeDependencies>
         <Conflicts>
-            <Package>schedutils</Package>
             <Package releaseTo="19">e2fsprogs</Package>
         </Conflicts>
         <Files>
@@ -85,7 +83,48 @@
         </Files>
     </Package>
 
+    <Package>
+        <Name>libuuid</Name>
+        <IsA>library</IsA>
+        <Summary>A library for UUID processing</Summary>
+        <Files>
+            <Path fileType="man">/usr/share/man/man3/uuid*</Path>
+            <Path fileType="header">/usr/include/uuid/*</Path>
+            <Path fileType="library">/lib/libuuid.*</Path>
+            <Path fileType="library">/usr/lib/libuuid.so</Path>
+            <Path fileType="data">/usr/lib/pkgconfig/uuid.pc</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>uuidd</Name>
+        <IsA>service</IsA>
+        <IsA>app:console</IsA>
+        <Summary>Helper daemon to guarantee uniqueness of time-based UUIDs</Summary>
+        <RuntimeDependencies>
+            <Dependency>libuuid</Dependency>
+        </RuntimeDependencies>
+        <Conflicts>
+            <Package releaseTo="27">e2fsprogs</Package>
+        </Conflicts>
+        <!-- FIXME: Add COMAR service -->
+        <Files>
+            <Path fileType="executable">/usr/bin/uuidgen</Path>
+            <Path fileType="executable">/usr/sbin/uuidd</Path>
+            <Path fileType="man">/usr/share/man/man1/uuidgen.1</Path>
+            <Path fileType="man">/usr/share/man/man8/uuidd.8</Path>
+        </Files>
+    </Package>
+
+
     <History>
+        <Update release="36">
+            <Date>2010-06-08</Date>
+            <Version>2.17.2</Version>
+            <Comment>Split libuuid from util-linux</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
         <Update release="35">
             <Date>2010-04-12</Date>
             <Version>2.17.2</Version>

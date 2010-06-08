@@ -31,11 +31,11 @@ def setup():
                          --enable-rename \
                          --enable-schedutils \
                          --enable-write \
+                         --enable-libuuid \
+                         --enable-uuidd \
                          --with-audit \
                          --disable-switch_root \
                          --disable-fsck \
-                         --disable-libuuid \
-                         --disable-uuidd \
                          --disable-init \
                          --disable-kill \
                          --disable-last \
