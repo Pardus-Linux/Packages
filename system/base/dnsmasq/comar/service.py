@@ -10,9 +10,9 @@ serviceDesc = _({"en": "DNS Cache Service",
 DNSMASQMESSAGE = "# This line was added by dnsmasq package"
 DNSMASQNAMESERVER = "nameserver 127.0.0.1"
 
-def addLocalNameServerToResolvConf():
+def addLocalNameServerToResolvConf(filename="/etc/resolv.conf"):
     dnslist = []
-    for line in file("/etc/resolv.conf"):
+    for line in file(filename):
         dnslist.append(line)
         line = line.strip()
         if line.startswith(DNSMASQNAMESERVER):
@@ -21,16 +21,16 @@ def addLocalNameServerToResolvConf():
     dnslist.insert(0, "%s\n" % DNSMASQMESSAGE)
     dnslist.insert(1, "%s\n" % DNSMASQNAMESERVER)
 
-    f = file("/etc/resolv.conf", "w")
+    f = file(filename, "w")
     try:
         for dns in dnslist:
             f.write(dns)
     finally:
         f.close()
 
-def removeLocalNameServerFromResolvConf():
+def removeLocalNameServerFromResolvConf(filename="/etc/resolv.conf"):
     dnslist = []
-    for line in file("/etc/resolv.conf"):
+    for line in file(filename):
         strippedLine = line.strip()
         if strippedLine.startswith(DNSMASQMESSAGE):
             continue
@@ -38,7 +38,7 @@ def removeLocalNameServerFromResolvConf():
             continue
         dnslist.append(line)
 
-    f = file("/etc/resolv.conf", "w")
+    f = file(filename, "w")
     try:
         for dns in dnslist:
             f.write(dns)
@@ -47,7 +47,9 @@ def removeLocalNameServerFromResolvConf():
 
 @synchronized
 def start():
-    addLocalNameServerToResolvConf()
+    addLocalNameServerToResolvConf("/etc/resolv.conf")
+    addLocalNameServerToResolvConf("/etc/resolv.default.conf")
+
     startService(command="/usr/sbin/dnsmasq",
                  args="--enable-dbus",
                  pidfile="/var/run/dnsmasq.pid",
@@ -55,7 +57,9 @@ def start():
 
 @synchronized
 def stop():
-    removeLocalNameServerFromResolvConf()
+    removeLocalNameServerFromResolvConf("/etc/resolv.conf")
+    removeLocalNameServerFromResolvConf("/etc/resolv.default.conf")
+
     stopService(pidfile="/var/run/dnsmasq.pid",
                 donotify=True)
 
