@@ -12,9 +12,14 @@
         <IsA>app:console</IsA>
         <Summary>Standard ext2/3/4 filesystem utilities</Summary>
         <Description>e2fsprogs provides the filesystem utilities for use with the ext2 filesystem. It also supports the ext3/4 filesystem with journaling support.</Description>
-        <Archive sha1sum="1cd75560595cff0b7b5ac9da11cfdaa7d0dfd6d9" type="targz">mirrors://sourceforge/e2fsprogs/e2fsprogs-1.41.11.tar.gz</Archive>
+        <Archive sha1sum="62b002fe507b2ddafc24b89532e472fe4b55a14f" type="targz">mirrors://sourceforge/e2fsprogs/e2fsprogs-1.41.12.tar.gz</Archive>
         <BuildDependencies>
+            <!-- The first release shipped within util-linux -->
+            <Dependency releaseFrom="36">libuuid</Dependency>
+
             <Dependency>gettext</Dependency>
+
+            <!-- For libblkid -->
             <Dependency>util-linux</Dependency>
         </BuildDependencies>
         <Patches>
@@ -25,7 +30,10 @@
     <Package>
         <Name>e2fsprogs</Name>
         <RuntimeDependencies>
-            <Dependency>libuuid</Dependency>
+            <!-- The first release shipped within util-linux -->
+            <Dependency releaseFrom="36">libuuid</Dependency>
+
+            <!-- For libblkid -->
             <Dependency>util-linux</Dependency>
         </RuntimeDependencies>
         <Files>
@@ -47,23 +55,17 @@
         </Files>
     </Package>
 
-    <Package>
-        <Name>libuuid</Name>
-        <IsA>library</IsA>
-        <Summary>A library for UUID processing</Summary>
-        <Conflicts>
-            <Package releaseTo="19">e2fsprogs</Package>
-        </Conflicts>
-        <Files>
-            <Path fileType="man">/usr/share/man/man3/uuid*</Path>
-            <Path fileType="header">/usr/include/uuid/*</Path>
-            <Path fileType="library">/lib/libuuid.*</Path>
-            <Path fileType="library">/usr/lib/libuuid.so</Path>
-            <Path fileType="data">/usr/lib/pkgconfig/uuid.pc</Path>
-        </Files>
-    </Package>
-
     <History>
+        <Update release="28">
+            <Date>2010-06-08</Date>
+            <Version>1.41.12</Version>
+            <Comment>
+                - Version bump,
+                - Depend on libuuid from util-linux for avoiding circular dependency.
+            </Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
         <Update release="27">
             <Date>2010-06-08</Date>
             <Version>1.41.11</Version>
