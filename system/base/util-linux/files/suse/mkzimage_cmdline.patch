@@ -1,36 +1,36 @@
-Index: util-linux-ng-2.16.1/po/POTFILES.in
+Index: util-linux-ng-2.18-rc1/po/POTFILES.in
 ===================================================================
---- util-linux-ng-2.16.1.orig/po/POTFILES.in
-+++ util-linux-ng-2.16.1/po/POTFILES.in
-@@ -174,6 +174,7 @@ sys-utils/ipcs.c
+--- util-linux-ng-2.18-rc1.orig/po/POTFILES.in
++++ util-linux-ng-2.18-rc1/po/POTFILES.in
+@@ -228,6 +228,7 @@ sys-utils/ipcs.c
  sys-utils/klogconsole.c
  sys-utils/ldattach.c
  sys-utils/lscpu.c
 +sys-utils/mkzimage_cmdline.c
  sys-utils/pivot_root.c
- sys-utils/rdev.c
  sys-utils/readprofile.c
-Index: util-linux-ng-2.16.1/sys-utils/Makefile.am
+ sys-utils/renice.c
+Index: util-linux-ng-2.18-rc1/sys-utils/Makefile.am
 ===================================================================
---- util-linux-ng-2.16.1.orig/sys-utils/Makefile.am
-+++ util-linux-ng-2.16.1/sys-utils/Makefile.am
+--- util-linux-ng-2.18-rc1.orig/sys-utils/Makefile.am
++++ util-linux-ng-2.18-rc1/sys-utils/Makefile.am
 @@ -12,10 +12,10 @@ if LINUX
  bin_PROGRAMS += dmesg
- sbin_PROGRAMS += ctrlaltdel
- usrbin_exec_PROGRAMS += cytune setarch lscpu
+ sbin_PROGRAMS += ctrlaltdel fsfreeze
+ usrbin_exec_PROGRAMS += cytune setarch
 -usrsbin_exec_PROGRAMS += ldattach tunelp rtcwake klogconsole
 +usrsbin_exec_PROGRAMS += ldattach tunelp rtcwake klogconsole mkzimage_cmdline
  
  dist_man_MANS += dmesg.1 ctrlaltdel.8 cytune.8 setarch.8 \
--		ldattach.8 lscpu.1 tunelp.8 rtcwake.8 klogconsole.8
-+		ldattach.8 lscpu.1 tunelp.8 rtcwake.8 klogconsole.8 mkzimage_cmdline.8
- endif
+-		ldattach.8 tunelp.8 rtcwake.8 fsfreeze.8 klogconsole.8
++		ldattach.8 tunelp.8 rtcwake.8 fsfreeze.8 klogconsole.8 mkzimage_cmdline.8
  
- cytune_SOURCES = cytune.c cyclades.h
-Index: util-linux-ng-2.16.1/sys-utils/mkzimage_cmdline.8
+ if HAVE_CPU_SET_T
+ usrbin_exec_PROGRAMS += lscpu
+Index: util-linux-ng-2.18-rc1/sys-utils/mkzimage_cmdline.8
 ===================================================================
 --- /dev/null
-+++ util-linux-ng-2.16.1/sys-utils/mkzimage_cmdline.8
++++ util-linux-ng-2.18-rc1/sys-utils/mkzimage_cmdline.8
 @@ -0,0 +1,20 @@
 +.\" $Id: mkzimage_cmdline.8 590 2006-02-07 14:38:07Z jplack $
 +.TH mkzimage_cmdline 8
@@ -52,10 +52,10 @@ Index: util-linux-ng-2.16.1/sys-utils/mkzimage_cmdline.8
 +clear cmdline area in zImage
 +.SH AUTHOR
 +Olaf Hering <olh@suse.de>
-Index: util-linux-ng-2.16.1/sys-utils/mkzimage_cmdline.c
+Index: util-linux-ng-2.18-rc1/sys-utils/mkzimage_cmdline.c
 ===================================================================
 --- /dev/null
-+++ util-linux-ng-2.16.1/sys-utils/mkzimage_cmdline.c
++++ util-linux-ng-2.18-rc1/sys-utils/mkzimage_cmdline.c
 @@ -0,0 +1,185 @@
 +/*  $Id: mkzimage_cmdline.c 590 2006-02-07 14:38:07Z jplack $ */
 +/*
