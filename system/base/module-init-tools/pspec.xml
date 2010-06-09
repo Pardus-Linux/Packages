@@ -12,7 +12,7 @@
         <IsA>app:console</IsA>
         <Summary>Kernel module tools for 2.6.* series kernels</Summary>
         <Description>The module-init-tools are a set of programs for loading, inserting, and removing Kernel Modules for Linux (versions 2.5.48 and above).It serves the same function that the modutils package serves for Linux 2.4. They are necessary because starting with 2.5.51, modules are handled differently.</Description>
-        <Archive sha1sum="1be5f6be71fb9ea7790c9736114bbbf14e43c32e" type="tarbz2">http://www.kernel.org/pub/linux/utils/kernel/module-init-tools/module-init-tools-3.11.1.tar.bz2</Archive>
+        <Archive sha1sum="caf70188c85370936626027ae5b5a9258cc851f9" type="tarbz2">http://www.kernel.org/pub/linux/utils/kernel/module-init-tools/module-init-tools-3.12.tar.bz2</Archive>
         <BuildDependencies>
             <Dependency>zlib</Dependency>
         </BuildDependencies>
@@ -27,9 +27,6 @@
         <RuntimeDependencies>
             <Dependency>zlib</Dependency>
         </RuntimeDependencies>
-        <Conflicts>
-            <Package>modutils</Package>
-        </Conflicts>
         <Files>
             <Path fileType="executable">/bin</Path>
             <Path fileType="executable">/sbin</Path>
@@ -63,152 +60,19 @@
             <AdditionalFile owner="root" permission="0644" target="/usr/share/man/man8/rmmod.8">man/rmmod.8</AdditionalFile>
         </AdditionalFiles>
         <Provides>
+            <!-- FIXME: This backend needs a complete rewrite dude -->
             <COMAR script="backend.py">Boot.Modules</COMAR>
-            <COMAR script="package.py">System.Package</COMAR>
             <COMAR script="pakhandler.py">System.PackageHandler</COMAR>
         </Provides>
     </Package>
 
     <History>
-        <Update release="18">
-            <Date>2010-02-23</Date>
-            <Version>3.11.1</Version>
-            <Comment>Blacklist cleanup</Comment>
-            <Name>Ozan Çağlayan</Name>
-            <Email>ozan@pardus.org.tr</Email>
-        </Update>
-        <Update release="17">
-            <Date>2009-11-04</Date>
-            <Version>3.11.1</Version>
-            <Comment>Version bump</Comment>
-            <Name>Ozan Çağlayan</Name>
-            <Email>ozan@pardus.org.tr</Email>
-        </Update>
-        <Update release="16">
-            <Date>2009-08-06</Date>
-            <Version>3.9</Version>
-            <Comment>Fix segfault in modinfo when the module is removed from the filesystem but left in modules.dep.</Comment>
-            <Name>Ozan Çağlayan</Name>
-            <Email>ozan@pardus.org.tr</Email>
-        </Update>
-        <Update release="15">
-            <Date>2009-07-08</Date>
-            <Version>3.9</Version>
-            <Comment>
-                - Add postInstall script to correctly upgrade from 2008,
-                - Move kernel pakhandler to this package.
-            </Comment>
-            <Name>Ozan Çağlayan</Name>
-            <Email>ozan@pardus.org.tr</Email>
-        </Update>
-        <Update release="14">
-            <Date>2009-05-21</Date>
-            <Version>3.9</Version>
-            <Comment>Version bump.</Comment>
-            <Name>Ozan Çağlayan</Name>
-            <Email>ozan@pardus.org.tr</Email>
-        </Update>
-        <Update release="13">
-            <Date>2009-05-10</Date>
-            <Version>3.8</Version>
-            <Comment>Version bump.</Comment>
-            <Name>Ozan Çağlayan</Name>
-            <Email>ozan@pardus.org.tr</Email>
-        </Update>
-        <Update release="12">
-            <Date>2009-04-10</Date>
-            <Version>3.7</Version>
-            <Comment>
-                - Version bump,
-                - depmod generates and modprobe uses binary indexes for module lists,
-                  giving a significant performance benefit,
-                - Fixed various rmmod/modprobe memory leaks,
-                - Dropped pre-2.6 kernel support,
-                - Added the ability to parse kernel command line for module options,
-                - Added Ubuntu blacklist files,
-                - Compile it with -Os -g to make booting faster,
-                - Update man pages,
-                - Rename blacklist files to *.conf as it's now the default extension.
-            </Comment>
-            <Name>Ozan Çağlayan</Name>
-            <Email>ozan@pardus.org.tr</Email>
-        </Update>
-        <Update release="11">
-            <Date>2008-07-07</Date>
-            <Version>3.3_pre11</Version>
-            <Comment>Fixed COMAR script to use new blacklist file.</Comment>
-            <Name>Bahadır Kandemir</Name>
-            <Email>bahadir@pardus.org.tr</Email>
-        </Update>
-        <Update release="10">
-            <Date>2008-06-16</Date>
-            <Version>3.3_pre11</Version>
-            <Comment>Probe lp and parport_pc</Comment>
-            <Name>S.Çağlar Onur</Name>
-            <Email>caglar@pardus.org.tr</Email>
-        </Update>
-        <Update release="9">
-            <Date>2008-03-03</Date>
-            <Version>3.3_pre11</Version>
-            <Comment>COMAR script ported to 2.0</Comment>
-            <Name>Bahadır Kandemir</Name>
-            <Email>bahadir@pardus.org.tr</Email>
-        </Update>
-        <Update release="8">
-            <Date>2008-02-09</Date>
-            <Version>3.3_pre11</Version>
-            <Comment>Added pregenerated man pages</Comment>
-            <Name>Ekin Meroğlu</Name>
-            <Email>ekin@pardus.org.tr</Email>
-        </Update>
-        <Update release="7">
-            <Date>2007-07-12</Date>
-            <Version>3.3_pre11</Version>
-            <Comment>Fix bug #6045</Comment>
-            <Name>İsmail Dönmez</Name>
-            <Email>ismail@pardus.org.tr</Email>
-        </Update>
-        <Update release="6">
-            <Date>2007-06-25</Date>
-            <Version>3.3_pre11</Version>
-            <Comment>Boot.Modules script</Comment>
-            <Name>Bahadır Kandemir</Name>
-            <Email>bahadir@pardus.org.tr</Email>
-        </Update>
-        <Update release="5">
-            <Date>2007-03-22</Date>
-            <Version>3.3_pre11</Version>
-            <Comment>Version bump</Comment>
-            <Name>S.Çağlar Onur</Name>
-            <Email>caglar@pardus.org.tr</Email>
-        </Update>
-        <Update release="4">
-            <Date>2007-02-22</Date>
-            <Version>3.3_pre10</Version>
-            <Comment>Version bump</Comment>
-            <Name>S.Çağlar Onur</Name>
-            <Email>caglar@pardus.org.tr</Email>
-        </Update>
-        <Update release="3">
-            <Date>2007-02-12</Date>
-            <Version>3.3_pre6</Version>
-            <Comment>Version bump</Comment>
-            <Name>S.Çağlar Onur</Name>
-            <Email>caglar@pardus.org.tr</Email>
-        </Update>
-        <Update release="2">
-            <Date>2006-08-18</Date>
-            <Version>3.2.2</Version>
-            <Comment>Version bump</Comment>
-            <Name>S.Çağlar Onur</Name>
-            <Email>caglar@pardus.org.tr</Email>
-        </Update>
         <Update release="1">
-            <Date>2005-08-12</Date>
-            <Version>3.0</Version>
-            <Comment>First release.</Comment>
-            <Name>A. Murat Eren</Name>
-            <Email>meren@pardus.org.tr</Email>
+            <Date>2010-06-09</Date>
+            <Version>3.12</Version>
+            <Comment>Version bump to 3.12</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
         </Update>
     </History>
 </PISI>
