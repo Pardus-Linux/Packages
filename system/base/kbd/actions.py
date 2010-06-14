@@ -1,4 +1,3 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
 # Licensed under the GNU General Public License, version 2.
@@ -19,7 +18,7 @@ def install():
 
     for exe in ("loadkeys", "setfont", "unicode_start", "unicode_stop"):
         pisitools.domove("/usr/bin/%s" % exe, "/bin")
-        pisitools.dosym("../../bin/%s" % exe, "/usr/bin/%s" % exe)
+        pisitools.dosym("/bin/%s" % exe, "/usr/bin/%s" % exe)
 
     pisitools.remove("/usr/share/keymaps/i386/qwerty/trf.map.gz")
 
