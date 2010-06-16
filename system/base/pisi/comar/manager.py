@@ -41,10 +41,10 @@ except KeyboardInterrupt:
 
 class UI(pisi.ui.UI):
     def error(self, msg):
-        notify("System.Manager", "error", ("%s" % msg))
+        notify("System.Manager", "error", str(msg))
 
     def warning(self, msg):
-        notify("System.Manager", "warning", ("%s" % msg))
+        notify("System.Manager", "warning", str(msg))
 
     def notify(self, event, **keywords):
         if event == pisi.ui.installing:
