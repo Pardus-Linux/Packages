@@ -1,29 +1,24 @@
-fix the following problem in multibyte locales.
- % echo Y | egrep -i '[y]'
- %
-
-derived from gawk's dfa.c.
-
---- ./src/dfa.c.orig	2004-10-20 02:04:52.000000000 +0900
-+++ ./src/dfa.c	2004-10-20 02:07:01.000000000 +0900
-@@ -652,6 +652,20 @@
- 	  REALLOC_IF_NECESSARY(work_mbc->chars, wchar_t, chars_al,
- 			       work_mbc->nchars + 1);
- 	  work_mbc->chars[work_mbc->nchars++] = (wchar_t)wc;
-+	  if (case_fold && (iswlower((wint_t) wc) || iswupper((wint_t) wc)))
-+	    {
-+		wint_t altcase;
+diff -p -up grep-2.6.1/src/dfa.c.casefold grep-2.6.1/src/dfa.c
+--- grep-2.6.1/src/dfa.c.casefold	2010-03-25 10:28:54.000000000 -0300
++++ grep-2.6.1/src/dfa.c	2010-03-26 09:27:36.000000000 -0300
+@@ -724,6 +724,20 @@ parse_bracket_exp (void)
+               REALLOC_IF_NECESSARY(work_mbc->chars, wchar_t, chars_al,
+                                    work_mbc->nchars + 1);
+               work_mbc->chars[work_mbc->nchars++] = wc;
++              if (case_fold && (iswlower((wint_t) wc) || iswupper((wint_t) wc)))
++                {
++                wint_t altcase;
 +
-+		altcase = wc;		/* keeps compiler happy */
-+		if (iswlower((wint_t) wc))
-+		  altcase = towupper((wint_t) wc);
-+		else if (iswupper((wint_t) wc))
-+		  altcase = towlower((wint_t) wc);
++                altcase = wc;		/* keeps compiler happy */
++                if (iswlower((wint_t) wc))
++                  altcase = towupper((wint_t) wc);
++                else if (iswupper((wint_t) wc))
++                  altcase = towlower((wint_t) wc);
 +
-+		REALLOC_IF_NECESSARY(work_mbc->chars, wchar_t, chars_al,
-+			       work_mbc->nchars + 1);
-+		work_mbc->chars[work_mbc->nchars++] = (wchar_t) altcase;
-+	    }
- 	}
-     }
-   while ((wc = wc1) != L']');
++                REALLOC_IF_NECESSARY(work_mbc->chars, wchar_t, chars_al,
++                           work_mbc->nchars + 1);
++                work_mbc->chars[work_mbc->nchars++] = (wchar_t) altcase;
++                }
+             }
+         }
+ #else

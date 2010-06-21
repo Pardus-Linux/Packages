@@ -1,15 +1,8 @@
---- src/grep.c.orig	2002-03-26 16:54:12.000000000 +0100
-+++ src/grep.c	2003-04-03 16:46:36.000000000 +0200
-@@ -1,5 +1,5 @@
- /* grep.c - main driver file for grep.
--   Copyright 1992, 1997-1999, 2000 Free Software Foundation, Inc.
-+   Copyright 1992, 1997-1999, 2000, 2003 Free Software Foundation, Inc.
- 
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-@@ -82,6 +82,12 @@ static struct exclude *included_patterns
- static char const short_options[] =
- "0123456789A:B:C:D:EFGHIPUVX:abcd:e:f:hiKLlm:noqRrsuvwxyZz";
+--- src/grep.c	2007-06-28 20:57:19.000000000 +0200
++++ src/grep.c.oden	2008-12-20 20:54:41.000000000 +0100
+@@ -274,6 +274,12 @@ static char const short_options[] =
+ #endif
+ ;
  
 +/* Default for `file_list' if no files are given on the command line. */
 +static char *stdin_argv[] =
@@ -20,7 +13,7 @@
  /* Non-boolean long options that have no corresponding short equivalents.  */
  enum
  {
-@@ -348,7 +354,16 @@ fillbuf (size_t save, struct stats const
+@@ -534,7 +540,16 @@ fillbuf (size_t save, struct stats const
  	 for byte sentinels fore and aft.  */
        newalloc = newsize + pagesize + 1;
  
@@ -38,7 +31,7 @@
        readbuf = ALIGN_TO (newbuf + 1 + save, pagesize);
        bufbeg = readbuf - save;
        memmove (bufbeg, buffer + saved_offset, save);
-@@ -1288,6 +1303,7 @@ main (int argc, char **argv)
+@@ -1825,6 +1840,7 @@ main (int argc, char **argv)
    FILE *fp;
    extern char *optarg;
    extern int optind;
@@ -46,7 +39,7 @@
  
    initialize_main (&argc, &argv);
    program_name = argv[0];
-@@ -1712,29 +1728,29 @@ warranty; not even for MERCHANTABILITY o
+@@ -2244,29 +2260,29 @@ warranty; not even for MERCHANTABILITY o
    if (max_count == 0)
      exit (1);
  
