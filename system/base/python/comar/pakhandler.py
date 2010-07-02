@@ -11,7 +11,7 @@ def byteCompile(filepath):
     paths = []
     for item in doc.tags("File"):
         path = item.getTagData("Path")
-        if path.endswith(".py"):
+        if path.endswith(".py") and not path.startswith("usr/share/doc/"):
             paths.append("/"+path)
 
     if paths:
