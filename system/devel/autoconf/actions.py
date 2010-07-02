@@ -22,6 +22,10 @@ def setup():
 def build():
     autotools.make("-j1")
 
+# takes too long, do it by hand
+#def check():
+#    autotools.make("check")
+
 def install():
     autotools.rawInstall("DESTDIR=%s" % get.installDIR())
 
