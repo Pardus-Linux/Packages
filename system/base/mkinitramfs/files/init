@@ -80,7 +80,7 @@ probe_devices() {
 
     if [ x"$HAS_MASS_STORAGE" == "x1" ]; then
         # FIXME: Should we wait here?
-        info "Found USB storage devices."
+        info "Found USB storage devices"
     fi
 
     # Unset hotplug helper
@@ -146,7 +146,7 @@ probe_virtio() {
 
 mount_rootfs() {
     FS_TYPE=`disktype $ROOT_DEVICE | grep KERNELMODULE | awk '{print $2}'`
-    info "Mounting rootfs: $ROOT_DEVICE"
+    info "Mounting rootfs: $ROOT_DEVICE ($FS_TYPE)"
     mount -r -t $FS_TYPE -n ${ROOT_FLAGS} ${ROOT_DEVICE} /newroot
 }
 
@@ -155,6 +155,11 @@ find_live_mount() {
     then
         for x in $*
         do
+            FS_TYPE=`disktype $ROOT_DEVICE | grep KERNELMODULE | awk '{print $2}'`
+            if [ -f /lib/modules/*/$FS_TYPE.ko ]
+            then
+                modprobe $FS_TYPE 1> /dev/null 2>&1
+            fi
             mount -r ${x} /newroot/mnt/cdrom > /dev/null 2>&1
 
             if [ "$?" = "0" ]
@@ -307,7 +312,7 @@ parse_config() {
                 LIVEROOT=$(echo $inputline|cut -f2- -d=)
             ;;
             resume=*)
-                RESUME_DEVICE="${x#resume=}"
+                RESUME_DEVICE="${inputline#resume=}"
             ;;
             noresume=*)
                 NORESUME=$(echo $inputline|cut -f2- -d=)
@@ -316,7 +321,7 @@ parse_config() {
                 COPYTORAM=1
             ;;
             init=*)
-                INIT="${x#INIT=}"
+                INIT="${inputline#INIT=}"
             ;;
         esac
     done < $INITRAMFSCONF
@@ -363,7 +368,7 @@ parse_cmdline() {
             ;;
             liveroot=*)
                 LIVE=1
-                LIVEROOT=$(echo $inputline|cut -f2- -d=)
+                LIVEROOT=$(echo ${x}|cut -f2- -d=)
             ;;
             resume=*)
                 RESUME_DEVICE="${x#resume=}"
