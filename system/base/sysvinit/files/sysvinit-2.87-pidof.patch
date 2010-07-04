@@ -1,0 +1,107 @@
+diff -up sysvinit-2.87dsf/src/killall5.c.pidof sysvinit-2.87dsf/src/killall5.c
+--- sysvinit-2.87dsf/src/killall5.c.pidof	2009-07-12 10:59:06.000000000 -0400
++++ sysvinit-2.87dsf/src/killall5.c	2009-07-27 14:10:02.000000000 -0400
+@@ -54,9 +54,8 @@ typedef struct proc {
+ 	char *argv0base;	/* `basename argv[1]`		  */
+ 	char *argv1;		/* Name as found out from argv[1] */
+ 	char *argv1base;	/* `basename argv[1]`		  */
++	char *pathname;		/* full path to executable	  */
+ 	char *statname;		/* the statname without braces    */
+-	ino_t ino;		/* Inode number			  */
+-	dev_t dev;		/* Device it is on		  */
+ 	pid_t pid;		/* Process ID.			  */
+ 	int sid;		/* Session ID.			  */
+ 	int kernel;		/* Kernel thread or zombie.	  */
+@@ -176,7 +175,6 @@ int readproc(int do_stat)
+ 	FILE		*fp;
+ 	PROC		*p, *n;
+ 	struct dirent	*d;
+-	struct stat	st;
+ 	char		path[256];
+ 	char		buf[256];
+ 	char		*s, *q;
+@@ -199,6 +197,8 @@ int readproc(int do_stat)
+ 		n = p->next;
+ 		if (p->argv0) free(p->argv0);
+ 		if (p->argv1) free(p->argv1);
++		if (p->pathname) free(p->pathname);
++		if (p->statname) free(p->statname);
+ 		free(p);
+ 	}
+ 	plist = NULL;
+@@ -256,6 +256,7 @@ int readproc(int do_stat)
+ 				p->sid = 0;
+ 				nsyslog(LOG_ERR, "can't read sid from %s\n",
+ 					path);
++				if (p->statname) free(p->statname);
+ 				free(p);
+ 				continue;
+ 			}
+@@ -308,15 +309,19 @@ int readproc(int do_stat)
+ 
+ 		} else {
+ 			/* Process disappeared.. */
++			if (p->statname) free(p->statname);
+ 			free(p);
+ 			continue;
+ 		}
+ 
+ 		/* Try to stat the executable. */
+ 		snprintf(path, sizeof(path), "/proc/%s/exe", d->d_name);
+-		if (do_stat && stat(path, &st) == 0) {
+-			p->dev = st.st_dev;
+-			p->ino = st.st_ino;
++		p->pathname = (char *)xmalloc(PATH_MAX);
++		memset(p->pathname,'\0',PATH_MAX);
++		if (readlink(path, p->pathname, PATH_MAX) == -1) {
++			p->pathname = NULL;
++		} else {
++			p->pathname[PATH_MAX-1] = '\0';
+ 		}
+ 
+ 		/* Link it into the list. */
+@@ -380,7 +385,7 @@ PIDQ_HEAD *pidof(char *prog)
+ {
+ 	PROC		*p;
+ 	PIDQ_HEAD	*q;
+-	struct stat	st;
++	char		*real_path;
+ 	char		*s;
+ 	int		dostat = 0;
+ 	int		foundone = 0;
+@@ -402,13 +406,13 @@ PIDQ_HEAD *pidof(char *prog)
+ 	q = init_pid_q(q);
+ 
+ 	/* Try to stat the executable. */
+-	if (prog[0] == '/' && stat(prog, &st) == 0)
++	if (prog[0] == '/' && (real_path = canonicalize_file_name(prog)))
+ 		dostat++;
+ 
+-	/* First try to find a match based on dev/ino pair. */
++	/* First try to find a match based on pathname. */
+ 	if (dostat) {
+ 		for (p = plist; p; p = p->next) {
+-			if (p->dev == st.st_dev && p->ino == st.st_ino) {
++			if (p->pathname && strcmp(real_path, p->pathname) == 0) {
+ 				add_pid_to_q(q, p);
+ 				foundone++;
+ 			}
+@@ -439,6 +443,9 @@ PIDQ_HEAD *pidof(char *prog)
+ 			|| (p->argv0 && s != prog && strcmp(p->argv0, s) == 0)
+ 			|| (p->argv0base && strcmp(p->argv0base, prog) == 0);
+ 
++		if (prog[0] == '/' && p->pathname && strcmp(prog, p->pathname))
++			ok = 0;
++
+ 		/* For scripts, compare argv[1] as well. */
+ 		if (
+ 			scripts_too && p->statname && p->argv1base
+@@ -447,7 +454,7 @@ PIDQ_HEAD *pidof(char *prog)
+ 			ok |=
+ 				(p->argv1 && strcmp(p->argv1, prog) == 0)
+ 				|| (p->argv1 && s != prog && strcmp(p->argv1, s) == 0)
+-				|| (p->argv1base && strcmp(p->argv1base, prog) == 0);
++				|| ((prog[0] != '/') && p->argv1base && strcmp(p->argv1base, prog) == 0);
+ 		}
+ 
+ 		/*

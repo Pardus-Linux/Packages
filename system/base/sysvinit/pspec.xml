@@ -10,15 +10,19 @@
         </Packager>
         <License>GPLv2</License>
         <IsA>app:console</IsA>
-        <Summary>/sbin/init - parent of all processes</Summary>
-        <Archive sha1sum="3e78df609a2ff0fea6304cb662a7f10298d03667" type="targz">ftp://ftp.cistron.nl/pub/people/miquels/software/sysvinit-2.86.tar.gz</Archive>
+        <Summary>Programs which control basic system processes</Summary>
+        <Description>sysvinit package contains a group of utilities that control the very basic functions of your system. sysvinit contains the init program, the first program started by the Linux kernel when the system boots.</Description>
+        <Archive sha1sum="1939658db6fbb178ea20d4eb6300e668a6636ae3" type="targz">http://alioth.debian.org/frs/download.php/3060/sysvinit-2.87dsf.tar.gz</Archive>
         <Patches>
-            <Patch>2.86-pardus.patch</Patch>
+            <Patch>makefile.patch</Patch>
             <Patch>sysvinit-2.86-docs.patch</Patch>
-            <Patch>sysvinit-2.86-off-by-one.patch</Patch>
             <Patch> sysvinit-2.86-shutdown-usage.patch</Patch>
             <Patch level="1">sysvinit-2.86-no-message.patch</Patch>
             <Patch level="1">sysvinit-2.86-ctrlc.patch</Patch>
+            <Patch level="1">sysvinit-2.86-pidof-man.patch</Patch>
+            <Patch level="1">sysvinit-2.87-pidof.patch</Patch>
+            <Patch level="1">sysvinit-2.87-ipv6.patch</Patch>
+            <Patch level="1">sysvinit-2.87-wide.patch</Patch>
         </Patches>
     </Source>
 
@@ -36,7 +40,37 @@
         </Provides>
     </Package>
 
+    <Package>
+        <Name>sysvinit-tools</Name>
+        <Summary>Tools used for process and utmp management</Summary>
+        <Conflicts>
+            <Package releaseTo="5">sysvinit</Package>
+        </Conflicts>
+        <Files>
+            <Path fileType="executable">/bin/mountpoint</Path>
+            <Path fileType="executable">/sbin/pidof</Path>
+            <Path fileType="executable">/sbin/killall5</Path>
+            <Path fileType="executable">/sbin/sulogin</Path>
+            <Path fileType="executable">/usr/bin/wall</Path>
+            <Path fileType="executable">/usr/bin/last</Path>
+            <Path fileType="executable">/usr/bin/lastb</Path>
+            <Path fileType="executable">/usr/bin/mesg</Path>
+            <Path fileType="executable">/usr/bin/utmpdump</Path>
+            <Path fileType="man">/usr/share/man/man1</Path>
+            <Path fileType="man">/usr/share/man/man8/killall5*</Path>
+            <Path fileType="man">/usr/share/man/man8/pidof*</Path>
+            <Path fileType="man">/usr/share/man/man8/sulogin*</Path>
+        </Files>
+    </Package>
+
     <History>
+        <Update release="6">
+            <Date>2010-07-04</Date>
+            <Version>2.87</Version>
+            <Comment>Version bump, split the package for systemd.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
         <Update release="5">
             <Date>2008-12-26</Date>
             <Version>2.86</Version>
