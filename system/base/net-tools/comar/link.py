@@ -179,6 +179,8 @@ def setState(name, state):
         return
     # Here we go...
     if state == "up":
+        # Reset interface address
+        iface.setAddress("0.0.0.0", "0.0.0.0")
         # Stop other profiles on same device
         stopSameDevice(name)
         # Save state
