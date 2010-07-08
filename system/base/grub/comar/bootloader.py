@@ -275,6 +275,10 @@ def addNewKernel(grub, version, root):
             default_index += 1
             grub.setOption("default", default_index)
 
+    # symbolic links
+    os.symlink("/boot/kernel-%s%s" % (version, suffix), "/boot/latest-kernel%s" % suffix)
+    os.symlink("/boot/initramfs-%s%s" % (version, suffix), "/boot/latest-initramfs%s" % suffix)
+
 def moveOldKernels(grub, grub_alt, root):
     """
         Moves old kernels to other GRUB configuration file.
