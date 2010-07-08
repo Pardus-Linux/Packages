@@ -467,6 +467,8 @@ def setState(name, state):
     device_mode = profile.info.get("device_mode", "managed").lower()
     if device_mode == "managed":
         if state == "up":
+            # Reset interface address
+            iface.setAddress("0.0.0.0", "0.0.0.0")
             # Stop other profiles on same device
             stopSameDevice(name)
             # Notify clients
@@ -476,7 +478,7 @@ def setState(name, state):
             profile.save(no_notify=True)
             # Wifi settings
             wifi = Wireless(iface)
-            wifi.setSSID(profile.info["remote"])
+            wifi.setSSID(profile.info.get("remote", ""))
             # Set encryption
             try:
                 wifi.setEncryption(getAuthMethod(name), getAuthParameters(name))
