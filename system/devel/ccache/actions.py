@@ -1,25 +1,31 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright 2005-2009 TUBITAK/UEKAE
+# Copyright 2005-2010 TUBITAK/UEKAE
 # Licensed under the GNU General Public License, version 2.
 # See the file http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
 
+from pisi.actionsapi import shelltools
 from pisi.actionsapi import autotools
 from pisi.actionsapi import pisitools
 from pisi.actionsapi import get
 
 def setup():
+    shelltools.system("rm -rf zlib")
     autotools.configure()
 
 def build():
     autotools.make()
 
+def check():
+    autotools.make("check")
+
 def install():
-    pisitools.dobin("ccache")
+    autotools.install()
 
-    pisitools.doman("ccache.1")
-    pisitools.dodoc("README")
-    pisitools.dohtml("web/")
+    # Create symlinks
+    for cc in ("gcc", "g++", "cc", "c++"):
+        pisitools.dosym("../../../bin/ccache", "/usr/lib/ccache/bin/%s" % cc)
+        pisitools.dosym("../../../bin/ccache", "/usr/lib/ccache/bin/%s-%s" % (get.HOST(), cc))
 
-    pisitools.dodir("/usr/lib/ccache/bin")
+    pisitools.dodoc("COPYING", "README.txt")
