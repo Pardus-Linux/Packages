@@ -276,8 +276,11 @@ def addNewKernel(grub, version, root):
             grub.setOption("default", default_index)
 
     # symbolic links
-    os.symlink("/boot/kernel-%s%s" % (version, suffix), "/boot/latest-kernel%s" % suffix)
-    os.symlink("/boot/initramfs-%s%s" % (version, suffix), "/boot/latest-initramfs%s" % suffix)
+    try:
+        os.symlink("/boot/kernel-%s%s" % (version, suffix), "/boot/latest-kernel%s" % suffix)
+        os.symlink("/boot/initramfs-%s%s" % (version, suffix), "/boot/latest-initramfs%s" % suffix)
+    except OSError:
+        pass
 
 def moveOldKernels(grub, grub_alt, root):
     """
