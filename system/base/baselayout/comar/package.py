@@ -123,7 +123,8 @@ def postInstall(fromVersion, fromRelease, toVersion, toRelease):
               "usbmuxd",
               "users",
               "utmp",
-              "virt"]
+              "virt",
+            ]
 
     for group in groups:
         deleteGroup(group)
@@ -140,6 +141,7 @@ def postInstall(fromVersion, fromRelease, toVersion, toRelease):
              "gnokii",
              "hal",
              "icecast",
+             "kvm",
              "ldap",
              "mediatomb",
              "memcached",
@@ -167,7 +169,8 @@ def postInstall(fromVersion, fromRelease, toVersion, toRelease):
              "tss",
              "ups",
              "usbmuxd",
-             "vboxadd"]
+             "vboxadd",
+            ]
 
     for user in users:
         deleteUser(user)
@@ -244,6 +247,10 @@ def postInstall(fromVersion, fromRelease, toVersion, toRelease):
     # privoxy
     hav("addGroup", (162, "privoxy"))
 
+    # kvm & qemu groups
+    hav("addGroup", (163, "kvm"))
+    hav("addGroup", (164, "qemu"))
+
     # Comar' profile groups
     hav("addGroup", (200, "pnp"))
     hav("addGroup", (201, "removable"))
@@ -251,6 +258,7 @@ def postInstall(fromVersion, fromRelease, toVersion, toRelease):
     hav("addGroup", (203, "netadmin"))
     hav("addGroup", (204, "power"))
     hav("addGroup", (205, "pnpadmin"))
+
 
     # Merge new system users
     # addUser(uid, nick, realname, homedir, shell, password, groups, grantedauths, blockedauths)
@@ -294,6 +302,7 @@ def postInstall(fromVersion, fromRelease, toVersion, toRelease):
     hav("addUser", (160, "usbmuxd", "usbmuxd daemon", "/dev/null", "/bin/false", "", ["usbmuxd"], [], []))
     hav("addUser", (161, "openvpn", "OpenVPN", "/etc/openvpn", "/sbin/nologin", "", ["openvpn"], [], []))
     hav("addUser", (162, "privoxy", "Privoxy", "/etc/privoxy", "/sbin/nologin", "", ["privoxy"], [], []))
+    hav("addUser", (163, "qemu", "qemu user", "/", "/sbin/nologin", "", ["qemu", "kvm", "virt"], [], []))
 
     # Comar' profile users
     hav("addUser", (200, "pnp", "PnP", "/dev/null", "/bin/false", "", ["pnp"], [], []))
