@@ -11,7 +11,10 @@ from pisi.actionsapi import shelltools
 from pisi.actionsapi import get
 
 def setup():
-    autotools.configure("--disable-static")
+    autotools.configure("--disable-static \
+                         --disable-assert \
+                         --enable-shared \
+                         --enable-thread-safe")
 
 def build():
     autotools.make()
