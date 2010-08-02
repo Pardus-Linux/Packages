@@ -18,7 +18,7 @@
  
  while test $# -gt 0; do
    case "$1" in
-@@ -151,13 +152,16 @@
+@@ -153,13 +154,16 @@
      echo "ldd: ${file}:" $"not regular file" >&2
      result=1
    elif test -r "$file"; then
@@ -35,10 +35,10 @@
        if test -x $rtld; then
 -	verify_out=`${rtld} --verify "$file"`
 +	verify_out=`${rtld} --verify "$file" 2>/dev/null`
-         ret=$?
+ 	ret=$?
  	case $ret in
  	[02]) RTLD=${rtld}; break;;
-@@ -169,7 +173,11 @@
+@@ -171,7 +175,11 @@
        # If the program exits with exit code 5, it means the process has been
        # invoked with __libc_enable_secure.  Fall back to running it through
        # the dynamic linker.

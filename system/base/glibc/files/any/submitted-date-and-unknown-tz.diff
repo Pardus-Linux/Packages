@@ -23,23 +23,21 @@ Patch from Andrew Suffield:
 
 --- a/time/tzset.c
 +++ b/time/tzset.c
-@@ -169,7 +169,7 @@
+@@ -175,7 +175,7 @@
  
    /* Clear out old state and reset to unnamed UTC.  */
-   memset (tz_rules, 0, sizeof tz_rules);
+   memset (tz_rules, '\0', sizeof tz_rules);
 -  tz_rules[0].name = tz_rules[1].name = "";
 +  tz_rules[0].name = tz_rules[1].name = "UTC";
  
    /* Get the standard timezone name.  */
-   tzbuf = strdupa (tz);
-@@ -178,14 +178,14 @@
-       (l = strlen (tzbuf)) < 3)
-     goto out;
+   char *tzbuf = strdupa (tz);
+@@ -199,12 +199,12 @@
+   else
+     tz += consumed;
  
 -  tz_rules[0].name = __tzstring (tzbuf);
 -
-   tz += l;
- 
    /* Figure out the standard offset from UTC.  */
    if (*tz == '\0' || (*tz != '+' && *tz != '-' && !isdigit (*tz)))
      goto out;

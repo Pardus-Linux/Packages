@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright 2005-2009 TUBITAK/UEKAE
+# Copyright 2005-2010 TUBITAK/UEKAE
 # Licensed under the GNU General Public License, version 2.
 # See the file http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
 
@@ -10,21 +10,26 @@ from pisi.actionsapi import pisitools
 from pisi.actionsapi import shelltools
 from pisi.actionsapi import get
 
-WorkDir = "glibc-20081113T2206"
+WorkDir = "glibc-2.12-26-g9a98163"
 
-def undef_variables():
+defaultflags = "-O3 -U_FORTIFY_SOURCE -fno-strict-aliasing -mno-tls-direct-seg-refs"
+sysflags = get.CFLAGS().replace("-fstack-protector", "").replace("-D_FORTIFY_SOURCE=2", "")
+buildflags = "%s %s" % (sysflags, defaultflags)
+
+
+def set_variables():
     shelltools.export("LANGUAGE","C")
     shelltools.export("LANG","C")
     shelltools.export("LC_ALL","C")
 
-    if get.ARCH() == "i686":
-        shelltools.export("CFLAGS", "-mtune=generic -march=i686 -O3 -pipe -fomit-frame-pointer -mno-tls-direct-seg-refs -g -ggdb")
-    elif get.ARCH() == "x86_64":
-        # FIXME: This may need additional flags on x86_64. Note that x86-64 is the correct keyword for march
-        shelltools.export("CFLAGS", "-mtune=generic -march=x86-64 -O3 -pipe -fomit-frame-pointer -mno-tls-direct-seg-refs -g -ggdb")
+    # shelltools.export("CC", "gcc")
+    # shelltools.export("CXX", "g++")
+
+    shelltools.export("CFLAGS", buildflags)
+    shelltools.export("CXXFLAGS", buildflags)
 
 def setup():
-    undef_variables()
+    set_variables()
 
     shelltools.makedirs("build")
     shelltools.cd("build")
@@ -33,7 +38,8 @@ def setup():
                        --with-__thread \
                        --enable-add-ons=nptl,libidn \
                        --enable-bind-now \
-                       --enable-kernel=2.6.25 \
+                       --enable-kernel=2.6.31 \
+                       --enable-stackguard-randomization \
                        --without-cvs \
                        --without-gd \
                        --without-selinux \
@@ -46,14 +52,14 @@ def setup():
                        --libexecdir=/usr/lib/misc" % (get.HOST(), get.HOST()))
 
 def build():
-    undef_variables()
+    set_variables()
 
     shelltools.cd("build")
     autotools.make()
 
 # FIXME: yes fix me
 #def check():
-#    undef_variables()
+#    set_variables()
 #    shelltools.chmod("scripts/begin-end-check.pl")
 #
 #    shelltools.cd("build")
@@ -63,7 +69,7 @@ def build():
 
 def install():
     # These should not be set, else the zoneinfo do not always get installed ...
-    undef_variables()
+    set_variables()
 
     # install glibc/glibc-locale files
     shelltools.cd("build")

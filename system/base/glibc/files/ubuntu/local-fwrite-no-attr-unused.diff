@@ -1,3 +1,11 @@
+Description: when compiling with -D_FORTIFY_SOURCE=2, the compiler will
+ generate warn-unused-results notifications for several functions.  It
+ is not sensible to do this for fwrite() since it is frequently unchecked
+ and may not fail until fclose() which is not marked with __wur, making
+ the fwrite() check noisy and pointless.
+Author: Matthias Klose <doko@ubuntu.com>
+Bug-Debian: http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=563637
+
 --- ./libio/stdio.h~	2008-05-24 20:14:36.000000000 +0200
 +++ ./libio/stdio.h	2009-03-27 20:59:20.000000000 +0100
 @@ -682,7 +682,7 @@

@@ -4,7 +4,7 @@ http://bugs.gentoo.org/190785
 
 --- libc/nscd/nscd.c
 +++ libc/nscd/nscd.c
-@@ -178,6 +178,9 @@
+@@ -182,6 +182,9 @@
        if (pid != 0)
  	exit (0);
  
@@ -14,7 +14,7 @@ http://bugs.gentoo.org/190785
        int nullfd = open (_PATH_DEVNULL, O_RDWR);
        if (nullfd != -1)
  	{
-@@ -227,12 +230,6 @@
+@@ -231,12 +234,6 @@
  	for (i = min_close_fd; i < getdtablesize (); i++)
  	  close (i);
  
@@ -27,12 +27,13 @@ http://bugs.gentoo.org/190785
        setsid ();
  
        if (chdir ("/") != 0)
-@@ -241,9 +238,6 @@
+@@ -245,9 +242,6 @@
  
        openlog ("nscd", LOG_CONS | LOG_ODELAY, LOG_DAEMON);
  
 -      if (write_pid (_PATH_NSCDPID) < 0)
--        dbg_log ("%s: %s", _PATH_NSCDPID, strerror (errno));
+-	dbg_log ("%s: %s", _PATH_NSCDPID, strerror (errno));
 -
        if (!init_logfile ())
  	dbg_log (_("Could not create log file"));
+ 

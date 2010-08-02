@@ -13,28 +13,25 @@
         <IsA>library</IsA>
         <Summary>GNU libc6 (also called glibc2) C library</Summary>
         <Description>The GNU C library is used as the C library in the GNU system and most systems with the Linux kernel. It defines the system calls and other basic C programming language facilities.</Description>
-        <Archive sha1sum="f2eac639afdb3639361001daf002fa6567a5b3a6" type="tarbz2">http://cekirdek.pardus.org.tr/~onur/distfiles/glibc-20081113T2206.tar.bz2</Archive>
+        <Archive sha1sum="7c6f6dc904a9168818f4c1f4986c3ad254b84a7e" type="tarbz2">http://cekirdek.pardus.org.tr/~onur/distfiles/glibc-2.12-26-g9a98163.tar.bz2</Archive>
         <BuildDependencies>
-            <Dependency versionFrom="2.6.25">kernel-headers</Dependency>
+            <Dependency versionFrom="2.6.31">kernel-headers</Dependency>
             <Dependency>gettext</Dependency>
         </BuildDependencies>
         <Patches>
             <Patch level="1">locale-no-archive.patch</Patch>
             <Patch level="1">sandbox.patch</Patch>
-            <!-- https://bugs.launchpad.net/ubuntu/+source/gcc-4.3/+bug/305901 -->
+            <!-- It may be a bad idea to allow this undefined behaviour, lets see
+                https://bugs.launchpad.net/ubuntu/+source/gcc-4.3/+bug/305901
+                http://sourceware.org/bugzilla/show_bug.cgi?id=7075
+            -->
             <Patch level="1">no-sprintf-pre-truncate.diff</Patch>
-            <Patch level="1">stack-guard-quick-randomization.diff</Patch>
             <Patch level="1">translation-ldconfig-tr.patch</Patch>
 
             <!-- Ubuntu/Debian patches -->
             <Patch level="1">all/local-alias-UTF-8.diff</Patch>
             <Patch level="1">all/local-alias-et_EE.diff</Patch>
             <Patch level="1">all/local-ru_RU.diff</Patch>
-            <Patch level="1">any/cvs-bz-9720-resource.diff</Patch>
-            <Patch level="1">any/cvs-bz697-posix-regexec.diff</Patch>
-            <Patch level="1">any/cvs-bz9697-posix-regcomp.diff</Patch>
-            <Patch level="1">any/cvs-bz9706-nss_nss-files_files-parse.diff</Patch>
-            <Patch level="1">any/local-dynamic-resolvconf.diff</Patch>
             <Patch level="1">any/local-ldconfig-fsync.diff</Patch>
             <Patch level="1">any/local-ldd.diff</Patch>
             <Patch level="1">any/local-nss-overflow.diff</Patch>
@@ -42,49 +39,41 @@
             <Patch level="1">any/submitted-date-and-unknown-tz.diff</Patch>
             <Patch level="1">any/submitted-fileops-and-signals.diff</Patch>
             <Patch level="1">any/submitted-getcwd-sys_param_h.diff</Patch>
-            <Patch level="1">any/submitted-libgcc_s.so.diff</Patch>
             <Patch level="1">any/submitted-nis-netgrp.diff</Patch>
             <Patch level="1">any/submitted-popen.diff</Patch>
             <Patch level="1">any/submitted-sched_h.diff</Patch>
-            <Patch level="1">any/submitted-sync-mount_h-from-kernel.diff</Patch>
             <Patch level="1">i386/local-clone.diff</Patch>
             <Patch level="1">i386/local-cmov.diff</Patch>
             <Patch level="1">i386/submitted-i686-timing.diff</Patch>
             <Patch level="1">locale/LC_IDENTIFICATION-optional-fields.diff</Patch>
-            <Patch level="1">locale/fix-C-first_weekday.diff</Patch>
             <Patch level="1">locale/first_weekday.diff</Patch>
             <Patch level="1">locale/locale-print-LANGUAGE.diff</Patch>
+
             <!-- Don't declare the fwrite and fwrite_unlocked functions with __attribute__((warn_unused_result)).
                  See https://lists.ubuntu.com/archives/ubuntu-devel/2009-March/027832.html -->
             <Patch>ubuntu/local-fwrite-no-attr-unused.diff</Patch>
 
             <!-- Fedora patches -->
-            <Patch level="1">fedora/glibc-fixes1.patch</Patch>
+            <Patch level="1">fedora/glibc-fedora.patch</Patch>
             <Patch level="1">fedora/glibc-nss_dns-gethostbyname4-disable.patch</Patch>
 
+            <!-- Suse patches -->
+            <Patch>suse/glibc-resolv-reload.diff</Patch>
+            <!-- check for mtime of resolv.conf -->
+            <Patch>suse/glibc-2.4.90-nscd.diff</Patch>
+
             <!-- Gentoo patches -->
-            <Patch level="1">gentoo/0008_all_glibc-2.9-linker-scripts.patch</Patch>
-            <Patch level="1">gentoo/0050_all_glibc-_nss_dns_gethostbyaddr2_r-check-and-adjust-the-buffer-alignment.patch</Patch>
             <Patch>gentoo/0085_all_glibc-disable-ldconfig.patch</Patch>
-            <Patch level="1">gentoo/1020_all_glibc-2.9-strlen-hack.patch</Patch>
             <Patch level="1">gentoo/1160_all_glibc-2.8-nscd-one-fork.patch</Patch>
             <Patch>gentoo/5021_all_2.9-fnmatch.patch</Patch>
 
-            <!-- http://securityreason.com/achievement_securityalert/53, #11610 -->
-            <Patch level="1">CVE-2008-1391-formatting-functions-integer-overflow.patch</Patch>
-            <Patch level="1">strfmon_widthcheck.patch</Patch>
 
-            <!-- http://bugs.pardus.org.tr/show_bug.cgi?id=12091 -->
-            <Patch level="1">CVE-2010-0015.patch</Patch>
-
-            <!-- http://bugs.pardus.org.tr/show_bug.cgi?id=13286 -->
-            <Patch level="1">CVE-2010-0830.patch</Patch>
-
-            <!-- http://bugs.pardus.org.tr/show_bug.cgi?id=13283 -->
-            <Patch level="1">CVE-2010-0296.patch</Patch>
-
+            <!-- Pardus spesific patches -->
             <!-- Fix paths in 64bit -->
             <Patch level="1">pure64.patch</Patch>
+
+            <!-- systemd patches -->
+            <Patch level="1">systemd_listen_fd_in_nscd.patch</Patch>
         </Patches>
     </Source>
 
@@ -1650,6 +1639,27 @@
     </Package>
 
     <History>
+        <Update release="54">
+            <Date>2010-08-01</Date>
+            <Version>2.12_20100706</Version>
+            <Comment>
+                Fix first weekdays
+                Sanitize actions.py
+            </Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="53">
+            <Date>2010-07-22</Date>
+            <Version>2.12_20100706</Version>
+            <Comment>
+                Major version bump to 2.12 series
+                Use snapshot version g9a98163 for latest branch fixes
+                Set 2.6.31 as base kernel version
+            </Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
         <Update release="52">
             <Date>2010-07-04</Date>
             <Version>2.9</Version>

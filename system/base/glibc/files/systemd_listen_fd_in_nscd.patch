@@ -1,0 +1,145 @@
+diff --git a/nscd/connections.c b/nscd/connections.c
+index 69f6533..1544c92 100644
+--- a/nscd/connections.c
++++ b/nscd/connections.c
+@@ -509,6 +509,64 @@ fail:
+ # define EXTRA_O_FLAGS 0
+ #endif
+ 
++static int daemon_socket(void)
++{
++  int s;
++
++  /* Cleanup files created by a previous 'bind'.  */
++  unlink (_PATH_NSCDSOCKET);
++
++  /* Create the socket.  */
++#ifndef __ASSUME_SOCK_CLOEXEC
++  s = -1;
++  if (have_sock_cloexec >= 0)
++#endif
++    {
++      s = socket (AF_UNIX, SOCK_STREAM | SOCK_CLOEXEC | SOCK_NONBLOCK, 0);
++#ifndef __ASSUME_SOCK_CLOEXEC
++      if (have_sock_cloexec == 0)
++	have_sock_cloexec = s != -1 || errno != EINVAL ? 1 : -1;
++#endif
++    }
++#ifndef __ASSUME_SOCK_CLOEXEC
++  if (have_sock_cloexec < 0)
++    s = socket (AF_UNIX, SOCK_STREAM, 0);
++#endif
++  if (s < 0)
++    {
++      dbg_log (_("cannot open socket: %s"), strerror (errno));
++      exit (errno == EACCES ? 4 : 1);
++    }
++  /* Bind a name to the socket.  */
++  struct sockaddr_un sock_addr;
++  sock_addr.sun_family = AF_UNIX;
++  strcpy (sock_addr.sun_path, _PATH_NSCDSOCKET);
++  if (bind (s, (struct sockaddr *) &sock_addr, sizeof (sock_addr)) < 0)
++    {
++      dbg_log ("%s: %s", _PATH_NSCDSOCKET, strerror (errno));
++      exit (errno == EACCES ? 4 : 1);
++    }
++  return s;
++}
++
++static int systemd_socket(void)
++{
++  int s;
++  const char *val;
++
++  val = getenv ("LISTEN_PID");
++  if (!val)
++    return -1;
++  if (atoll(val) != (unsigned long long) getpid())
++    return -1;
++
++  val = getenv ("LISTEN_FDS");
++  if (!val)
++    return -1;
++  if (atoi(val) != 1)
++    return -1;
++  return 3;
++}
+ 
+ /* Initialize database information structures.  */
+ void
+@@ -876,39 +934,12 @@ cannot set socket to close on exec: %s; disabling paranoia mode"),
+ #endif
+       }
+ 
+-  /* Create the socket.  */
+-#ifndef __ASSUME_SOCK_CLOEXEC
+-  sock = -1;
+-  if (have_sock_cloexec >= 0)
+-#endif
+-    {
+-      sock = socket (AF_UNIX, SOCK_STREAM | SOCK_CLOEXEC | SOCK_NONBLOCK, 0);
+-#ifndef __ASSUME_SOCK_CLOEXEC
+-      if (have_sock_cloexec == 0)
+-	have_sock_cloexec = sock != -1 || errno != EINVAL ? 1 : -1;
+-#endif
+-    }
+-#ifndef __ASSUME_SOCK_CLOEXEC
+-  if (have_sock_cloexec < 0)
+-    sock = socket (AF_UNIX, SOCK_STREAM, 0);
+-#endif
++  sock = systemd_socket();
+   if (sock < 0)
+-    {
+-      dbg_log (_("cannot open socket: %s"), strerror (errno));
+-      exit (errno == EACCES ? 4 : 1);
+-    }
+-  /* Bind a name to the socket.  */
+-  struct sockaddr_un sock_addr;
+-  sock_addr.sun_family = AF_UNIX;
+-  strcpy (sock_addr.sun_path, _PATH_NSCDSOCKET);
+-  if (bind (sock, (struct sockaddr *) &sock_addr, sizeof (sock_addr)) < 0)
+-    {
+-      dbg_log ("%s: %s", _PATH_NSCDSOCKET, strerror (errno));
+-      exit (errno == EACCES ? 4 : 1);
+-    }
++    sock = daemon_socket();
+ 
+ #ifndef __ASSUME_SOCK_CLOEXEC
+-  if (have_sock_cloexec < 0)
++  if (have_sock_cloexec <= 0)
+     {
+       /* We don't want to get stuck on accept.  */
+       int fl = fcntl (sock, F_GETFL);
+diff --git a/nscd/nscd.c b/nscd/nscd.c
+index b9035f2..ef1adb7 100644
+--- a/nscd/nscd.c
++++ b/nscd/nscd.c
+@@ -101,6 +101,7 @@ static const struct argp_option options[] =
+     N_("Read configuration data from NAME") },
+   { "debug", 'd', NULL, 0,
+     N_("Do not fork and display messages on the current tty") },
++  { "nofork", 'D', NULL, 0, N_("Do not daemonize") },
+   { "nthreads", 't', N_("NUMBER"), 0, N_("Start NUMBER threads") },
+   { "shutdown", 'K', NULL, 0, N_("Shut the server down") },
+   { "statistics", 'g', NULL, 0, N_("Print current configuration statistics") },
+@@ -269,9 +270,6 @@ main (int argc, char **argv)
+   signal (SIGTERM, termination_handler);
+   signal (SIGPIPE, SIG_IGN);
+ 
+-  /* Cleanup files created by a previous 'bind'.  */
+-  unlink (_PATH_NSCDSOCKET);
+-
+   /* Make sure we do not get recursive calls.  */
+   __nss_disable_nscd ();
+ 
+@@ -291,6 +289,10 @@ parse_opt (int key, char *arg, struct argp_state *state)
+ {
+   switch (key)
+     {
++    case 'D':
++      go_background = 0;
++      break;
++
+     case 'd':
+       ++debug_level;
+       go_background = 0;
