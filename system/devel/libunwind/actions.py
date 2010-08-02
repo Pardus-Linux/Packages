@@ -9,7 +9,6 @@ from pisi.actionsapi import autotools
 from pisi.actionsapi import pisitools
 from pisi.actionsapi import get
 
-NoStrip = ["/"]
 
 def setup():
     autotools.autoreconf("-vfi")
@@ -26,6 +25,5 @@ def build():
 
 def install():
     autotools.rawInstall("DESTDIR=%s" % get.installDIR())
-    pisitools.remove("/usr/lib/libunwind*.a")
 
     pisitools.dodoc("AUTHORS", "ChangeLog", "README*", "NEWS", "TODO")
