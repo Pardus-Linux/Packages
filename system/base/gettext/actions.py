@@ -20,7 +20,9 @@ def setup():
 
     # Build with --without-included-gettext (will use that of glibc), as we
     # need preloadable_libintl.so for new help2man
-    autotools.autoreconf("-vfi")
+
+    # autoreconf breaks linker, graaaaaaaaggggghhhhhhh
+    # autotools.autoreconf("-vfi")
     autotools.configure("--disable-java \
                          --disable-native-java \
                          --disable-csharp \
