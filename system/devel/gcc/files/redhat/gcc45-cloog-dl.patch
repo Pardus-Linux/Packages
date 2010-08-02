@@ -1,0 +1,350 @@
+2010-07-01  Jakub Jelinek  <jakub@redhat.com>
+
+	* Makefile.in (BACKENDLIBS): Link against -ldl instead of -lcloog -lppl.
+	(graphite.o, graphite%.o): Force -O, remove -fkeep-inline-functions.
+	(graphite-ppl.o): Depend on graphite.h.
+	* graphite.h: Include <dlfcn.h>.  Reference libcloog and libppl symbols
+	through pointers in cloog_pointers__ variable.
+	* graphite.c (init_cloog_pointers): New function.
+	(graphite_transform_loops): Call init_cloog_pointers.
+	* graphite-clast-to-gimple.c (gcc_type_for_iv_of_clast_loop): Rename stmt_for
+	argument to stmt_fora.
+	* graphite-ppl.c: Include graphite.h.
+
+--- gcc/graphite.c.jj	2010-06-30 09:48:30.000000000 +0200
++++ gcc/graphite.c	2010-07-01 16:57:48.248523237 +0200
+@@ -67,6 +67,35 @@ along with GCC; see the file COPYING3.  
+ #include "graphite-clast-to-gimple.h"
+ #include "graphite-sese-to-poly.h"
+ 
++__typeof (cloog_pointers__) cloog_pointers__;
++
++static bool
++init_cloog_pointers (void)
++{
++  void *h;
++
++  if (cloog_pointers__.inited)
++    return cloog_pointers__.h != NULL;
++  h = dlopen ("libcloog.so.0", RTLD_LAZY);
++  cloog_pointers__.h = h;
++  if (h == NULL)
++    return false;
++#define DYNSYM(x) \
++  do \
++    { \
++      union { __typeof (cloog_pointers__.p_##x) p; void *q; } u; \
++      u.q = dlsym (h, #x); \
++      if (u.q == NULL) \
++	return false; \
++      cloog_pointers__.p_##x = u.p; \
++    } \
++  while (0)
++  DYNSYMS
++#undef DYNSYM
++  return true;
++}
++
++
+ /* Print global statistics to FILE.  */
+ 
+ static void
+@@ -210,6 +239,12 @@ graphite_initialize (void)
+       return false;
+     }
+ 
++  if (!init_cloog_pointers ())
++    {
++      sorry ("Graphite loop optimizations cannot be used");
++      return false;
++    }
++
+   recompute_all_dominators ();
+   initialize_original_copy_tables ();
+   cloog_initialize ();
+--- gcc/graphite.h.jj	2010-06-30 09:48:30.000000000 +0200
++++ gcc/graphite.h	2010-07-01 17:29:37.225491850 +0200
+@@ -21,4 +21,224 @@ along with GCC; see the file COPYING3.  
+ #ifndef GCC_GRAPHITE_H
+ #define GCC_GRAPHITE_H
+ 
++#include <dlfcn.h>
++#define DYNSYMS \
++  DYNSYM (cloog_block_alloc); \
++  DYNSYM (cloog_block_list_free); \
++  DYNSYM (cloog_block_list_malloc); \
++  DYNSYM (cloog_clast_create); \
++  DYNSYM (cloog_clast_free); \
++  DYNSYM (cloog_domain_free); \
++  DYNSYM (cloog_domain_matrix2domain); \
++  DYNSYM (cloog_initialize); \
++  DYNSYM (cloog_loop_malloc); \
++  DYNSYM (cloog_matrix_alloc); \
++  DYNSYM (cloog_matrix_copy); \
++  DYNSYM (cloog_matrix_free); \
++  DYNSYM (cloog_matrix_print); \
++  DYNSYM (cloog_names_malloc); \
++  DYNSYM (cloog_names_scalarize); \
++  DYNSYM (cloog_options_free); \
++  DYNSYM (cloog_options_malloc); \
++  DYNSYM (cloog_program_dump_cloog); \
++  DYNSYM (cloog_program_extract_scalars); \
++  DYNSYM (cloog_program_free); \
++  DYNSYM (cloog_program_generate); \
++  DYNSYM (cloog_program_malloc); \
++  DYNSYM (cloog_program_print); \
++  DYNSYM (cloog_program_scatter); \
++  DYNSYM (cloog_statement_alloc); \
++  DYNSYM (cloog_domain_union); \
++  DYNSYM (cloog_matrix_read); \
++  DYNSYM (cloog_new_pol); \
++  DYNSYM (cloog_vector_gcd); \
++  DYNSYM (ppl_finalize); \
++  DYNSYM (ppl_assign_Coefficient_from_mpz_t); \
++  DYNSYM (ppl_assign_Linear_Expression_from_Linear_Expression); \
++  DYNSYM (ppl_Coefficient_to_mpz_t); \
++  DYNSYM (ppl_Constraint_coefficient); \
++  DYNSYM (ppl_Constraint_inhomogeneous_term); \
++  DYNSYM (ppl_Constraint_space_dimension); \
++  DYNSYM (ppl_Constraint_System_begin); \
++  DYNSYM (ppl_Constraint_System_const_iterator_dereference); \
++  DYNSYM (ppl_Constraint_System_const_iterator_equal_test); \
++  DYNSYM (ppl_Constraint_System_const_iterator_increment); \
++  DYNSYM (ppl_Constraint_System_end); \
++  DYNSYM (ppl_Constraint_System_insert_Constraint); \
++  DYNSYM (ppl_Constraint_System_space_dimension); \
++  DYNSYM (ppl_Constraint_type); \
++  DYNSYM (ppl_delete_Coefficient); \
++  DYNSYM (ppl_delete_Constraint); \
++  DYNSYM (ppl_delete_Constraint_System_const_iterator); \
++  DYNSYM (ppl_delete_Linear_Expression); \
++  DYNSYM (ppl_delete_Pointset_Powerset_C_Polyhedron); \
++  DYNSYM (ppl_delete_Pointset_Powerset_C_Polyhedron_iterator); \
++  DYNSYM (ppl_delete_Polyhedron); \
++  DYNSYM (ppl_Linear_Expression_add_to_coefficient); \
++  DYNSYM (ppl_Linear_Expression_add_to_inhomogeneous); \
++  DYNSYM (ppl_Linear_Expression_coefficient); \
++  DYNSYM (ppl_Linear_Expression_inhomogeneous_term); \
++  DYNSYM (ppl_Linear_Expression_space_dimension); \
++  DYNSYM (ppl_new_Coefficient); \
++  DYNSYM (ppl_new_Coefficient_from_mpz_t); \
++  DYNSYM (ppl_new_Constraint); \
++  DYNSYM (ppl_new_Constraint_System); \
++  DYNSYM (ppl_new_Constraint_System_const_iterator); \
++  DYNSYM (ppl_new_C_Polyhedron_from_C_Polyhedron); \
++  DYNSYM (ppl_new_C_Polyhedron_from_space_dimension); \
++  DYNSYM (ppl_new_C_Polyhedron_recycle_Constraint_System); \
++  DYNSYM (ppl_new_Linear_Expression); \
++  DYNSYM (ppl_new_Linear_Expression_from_Constraint); \
++  DYNSYM (ppl_new_Linear_Expression_from_Linear_Expression); \
++  DYNSYM (ppl_new_Linear_Expression_with_dimension); \
++  DYNSYM (ppl_new_Pointset_Powerset_C_Polyhedron_from_C_Polyhedron); \
++  DYNSYM (ppl_new_Pointset_Powerset_C_Polyhedron_from_Pointset_Powerset_C_Polyhedron); \
++  DYNSYM (ppl_new_Pointset_Powerset_C_Polyhedron_from_space_dimension); \
++  DYNSYM (ppl_new_Pointset_Powerset_C_Polyhedron_iterator); \
++  DYNSYM (ppl_Pointset_Powerset_C_Polyhedron_add_constraint); \
++  DYNSYM (ppl_Pointset_Powerset_C_Polyhedron_add_space_dimensions_and_embed); \
++  DYNSYM (ppl_Pointset_Powerset_C_Polyhedron_difference_assign); \
++  DYNSYM (ppl_Pointset_Powerset_C_Polyhedron_intersection_assign); \
++  DYNSYM (ppl_Pointset_Powerset_C_Polyhedron_is_empty); \
++  DYNSYM (ppl_Pointset_Powerset_C_Polyhedron_iterator_begin); \
++  DYNSYM (ppl_Pointset_Powerset_C_Polyhedron_iterator_dereference); \
++  DYNSYM (ppl_Pointset_Powerset_C_Polyhedron_iterator_end); \
++  DYNSYM (ppl_Pointset_Powerset_C_Polyhedron_iterator_equal_test); \
++  DYNSYM (ppl_Pointset_Powerset_C_Polyhedron_iterator_increment); \
++  DYNSYM (ppl_Pointset_Powerset_C_Polyhedron_map_space_dimensions); \
++  DYNSYM (ppl_Pointset_Powerset_C_Polyhedron_maximize); \
++  DYNSYM (ppl_Pointset_Powerset_C_Polyhedron_minimize); \
++  DYNSYM (ppl_Pointset_Powerset_C_Polyhedron_remove_space_dimensions); \
++  DYNSYM (ppl_Pointset_Powerset_C_Polyhedron_size); \
++  DYNSYM (ppl_Pointset_Powerset_C_Polyhedron_space_dimension); \
++  DYNSYM (ppl_Pointset_Powerset_C_Polyhedron_upper_bound_assign); \
++  DYNSYM (ppl_Polyhedron_add_constraint); \
++  DYNSYM (ppl_Polyhedron_add_constraints); \
++  DYNSYM (ppl_Polyhedron_add_space_dimensions_and_embed); \
++  DYNSYM (ppl_Polyhedron_get_constraints); \
++  DYNSYM (ppl_Polyhedron_map_space_dimensions); \
++  DYNSYM (ppl_Polyhedron_remove_space_dimensions); \
++  DYNSYM (ppl_Polyhedron_space_dimension); \
++  DYNSYM (ppl_subtract_Linear_Expression_from_Linear_Expression); \
++  DYNSYM (pprint); \
++  DYNSYM (stmt_block); \
++  DYNSYM (stmt_for); \
++  DYNSYM (stmt_guard); \
++  DYNSYM (stmt_root); \
++  DYNSYM (stmt_user);
++extern struct
++{
++  bool inited;
++  void *h;
++#define DYNSYM(x) __typeof (x) *p_##x
++  DYNSYMS
++#undef DYNSYM
++} cloog_pointers__;
++
++#define cloog_block_alloc (*cloog_pointers__.p_cloog_block_alloc)
++#define cloog_block_list_free (*cloog_pointers__.p_cloog_block_list_free)
++#define cloog_block_list_malloc (*cloog_pointers__.p_cloog_block_list_malloc)
++#define cloog_clast_create (*cloog_pointers__.p_cloog_clast_create)
++#define cloog_clast_free (*cloog_pointers__.p_cloog_clast_free)
++#define cloog_domain_free (*cloog_pointers__.p_cloog_domain_free)
++#define cloog_domain_matrix2domain (*cloog_pointers__.p_cloog_domain_matrix2domain)
++#define cloog_initialize (*cloog_pointers__.p_cloog_initialize)
++#define cloog_loop_malloc (*cloog_pointers__.p_cloog_loop_malloc)
++#define cloog_matrix_alloc (*cloog_pointers__.p_cloog_matrix_alloc)
++#define cloog_matrix_copy (*cloog_pointers__.p_cloog_matrix_copy)
++#define cloog_matrix_free (*cloog_pointers__.p_cloog_matrix_free)
++#define cloog_matrix_print (*cloog_pointers__.p_cloog_matrix_print)
++#define cloog_names_malloc (*cloog_pointers__.p_cloog_names_malloc)
++#define cloog_names_scalarize (*cloog_pointers__.p_cloog_names_scalarize)
++#define cloog_options_free (*cloog_pointers__.p_cloog_options_free)
++#define cloog_options_malloc (*cloog_pointers__.p_cloog_options_malloc)
++#define cloog_program_dump_cloog (*cloog_pointers__.p_cloog_program_dump_cloog)
++#define cloog_program_extract_scalars (*cloog_pointers__.p_cloog_program_extract_scalars)
++#define cloog_program_free (*cloog_pointers__.p_cloog_program_free)
++#define cloog_program_generate (*cloog_pointers__.p_cloog_program_generate)
++#define cloog_program_malloc (*cloog_pointers__.p_cloog_program_malloc)
++#define cloog_program_print (*cloog_pointers__.p_cloog_program_print)
++#define cloog_program_scatter (*cloog_pointers__.p_cloog_program_scatter)
++#define cloog_statement_alloc (*cloog_pointers__.p_cloog_statement_alloc)
++#define cloog_domain_union (*cloog_pointers__.p_cloog_domain_union)
++#define cloog_matrix_read (*cloog_pointers__.p_cloog_matrix_read)
++#define cloog_new_pol (*cloog_pointers__.p_cloog_new_pol)
++#define cloog_vector_gcd (*cloog_pointers__.p_cloog_vector_gcd)
++#define ppl_finalize (*cloog_pointers__.p_ppl_finalize)
++#define ppl_assign_Coefficient_from_mpz_t (*cloog_pointers__.p_ppl_assign_Coefficient_from_mpz_t)
++#define ppl_assign_Linear_Expression_from_Linear_Expression (*cloog_pointers__.p_ppl_assign_Linear_Expression_from_Linear_Expression)
++#define ppl_Coefficient_to_mpz_t (*cloog_pointers__.p_ppl_Coefficient_to_mpz_t)
++#define ppl_Constraint_coefficient (*cloog_pointers__.p_ppl_Constraint_coefficient)
++#define ppl_Constraint_inhomogeneous_term (*cloog_pointers__.p_ppl_Constraint_inhomogeneous_term)
++#define ppl_Constraint_space_dimension (*cloog_pointers__.p_ppl_Constraint_space_dimension)
++#define ppl_Constraint_System_begin (*cloog_pointers__.p_ppl_Constraint_System_begin)
++#define ppl_Constraint_System_const_iterator_dereference (*cloog_pointers__.p_ppl_Constraint_System_const_iterator_dereference)
++#define ppl_Constraint_System_const_iterator_equal_test (*cloog_pointers__.p_ppl_Constraint_System_const_iterator_equal_test)
++#define ppl_Constraint_System_const_iterator_increment (*cloog_pointers__.p_ppl_Constraint_System_const_iterator_increment)
++#define ppl_Constraint_System_end (*cloog_pointers__.p_ppl_Constraint_System_end)
++#define ppl_Constraint_System_insert_Constraint (*cloog_pointers__.p_ppl_Constraint_System_insert_Constraint)
++#define ppl_Constraint_System_space_dimension (*cloog_pointers__.p_ppl_Constraint_System_space_dimension)
++#define ppl_Constraint_type (*cloog_pointers__.p_ppl_Constraint_type)
++#define ppl_delete_Coefficient (*cloog_pointers__.p_ppl_delete_Coefficient)
++#define ppl_delete_Constraint (*cloog_pointers__.p_ppl_delete_Constraint)
++#define ppl_delete_Constraint_System_const_iterator (*cloog_pointers__.p_ppl_delete_Constraint_System_const_iterator)
++#define ppl_delete_Linear_Expression (*cloog_pointers__.p_ppl_delete_Linear_Expression)
++#define ppl_delete_Pointset_Powerset_C_Polyhedron (*cloog_pointers__.p_ppl_delete_Pointset_Powerset_C_Polyhedron)
++#define ppl_delete_Pointset_Powerset_C_Polyhedron_iterator (*cloog_pointers__.p_ppl_delete_Pointset_Powerset_C_Polyhedron_iterator)
++#define ppl_delete_Polyhedron (*cloog_pointers__.p_ppl_delete_Polyhedron)
++#define ppl_Linear_Expression_add_to_coefficient (*cloog_pointers__.p_ppl_Linear_Expression_add_to_coefficient)
++#define ppl_Linear_Expression_add_to_inhomogeneous (*cloog_pointers__.p_ppl_Linear_Expression_add_to_inhomogeneous)
++#define ppl_Linear_Expression_coefficient (*cloog_pointers__.p_ppl_Linear_Expression_coefficient)
++#define ppl_Linear_Expression_inhomogeneous_term (*cloog_pointers__.p_ppl_Linear_Expression_inhomogeneous_term)
++#define ppl_Linear_Expression_space_dimension (*cloog_pointers__.p_ppl_Linear_Expression_space_dimension)
++#define ppl_new_Coefficient (*cloog_pointers__.p_ppl_new_Coefficient)
++#define ppl_new_Coefficient_from_mpz_t (*cloog_pointers__.p_ppl_new_Coefficient_from_mpz_t)
++#define ppl_new_Constraint (*cloog_pointers__.p_ppl_new_Constraint)
++#define ppl_new_Constraint_System (*cloog_pointers__.p_ppl_new_Constraint_System)
++#define ppl_new_Constraint_System_const_iterator (*cloog_pointers__.p_ppl_new_Constraint_System_const_iterator)
++#define ppl_new_C_Polyhedron_from_C_Polyhedron (*cloog_pointers__.p_ppl_new_C_Polyhedron_from_C_Polyhedron)
++#define ppl_new_C_Polyhedron_from_space_dimension (*cloog_pointers__.p_ppl_new_C_Polyhedron_from_space_dimension)
++#define ppl_new_C_Polyhedron_recycle_Constraint_System (*cloog_pointers__.p_ppl_new_C_Polyhedron_recycle_Constraint_System)
++#define ppl_new_Linear_Expression (*cloog_pointers__.p_ppl_new_Linear_Expression)
++#define ppl_new_Linear_Expression_from_Constraint (*cloog_pointers__.p_ppl_new_Linear_Expression_from_Constraint)
++#define ppl_new_Linear_Expression_from_Linear_Expression (*cloog_pointers__.p_ppl_new_Linear_Expression_from_Linear_Expression)
++#define ppl_new_Linear_Expression_with_dimension (*cloog_pointers__.p_ppl_new_Linear_Expression_with_dimension)
++#define ppl_new_Pointset_Powerset_C_Polyhedron_from_C_Polyhedron (*cloog_pointers__.p_ppl_new_Pointset_Powerset_C_Polyhedron_from_C_Polyhedron)
++#define ppl_new_Pointset_Powerset_C_Polyhedron_from_Pointset_Powerset_C_Polyhedron (*cloog_pointers__.p_ppl_new_Pointset_Powerset_C_Polyhedron_from_Pointset_Powerset_C_Polyhedron)
++#define ppl_new_Pointset_Powerset_C_Polyhedron_from_space_dimension (*cloog_pointers__.p_ppl_new_Pointset_Powerset_C_Polyhedron_from_space_dimension)
++#define ppl_new_Pointset_Powerset_C_Polyhedron_iterator (*cloog_pointers__.p_ppl_new_Pointset_Powerset_C_Polyhedron_iterator)
++#define ppl_Pointset_Powerset_C_Polyhedron_add_constraint (*cloog_pointers__.p_ppl_Pointset_Powerset_C_Polyhedron_add_constraint)
++#define ppl_Pointset_Powerset_C_Polyhedron_add_space_dimensions_and_embed (*cloog_pointers__.p_ppl_Pointset_Powerset_C_Polyhedron_add_space_dimensions_and_embed)
++#define ppl_Pointset_Powerset_C_Polyhedron_difference_assign (*cloog_pointers__.p_ppl_Pointset_Powerset_C_Polyhedron_difference_assign)
++#define ppl_Pointset_Powerset_C_Polyhedron_intersection_assign (*cloog_pointers__.p_ppl_Pointset_Powerset_C_Polyhedron_intersection_assign)
++#define ppl_Pointset_Powerset_C_Polyhedron_is_empty (*cloog_pointers__.p_ppl_Pointset_Powerset_C_Polyhedron_is_empty)
++#define ppl_Pointset_Powerset_C_Polyhedron_iterator_begin (*cloog_pointers__.p_ppl_Pointset_Powerset_C_Polyhedron_iterator_begin)
++#define ppl_Pointset_Powerset_C_Polyhedron_iterator_dereference (*cloog_pointers__.p_ppl_Pointset_Powerset_C_Polyhedron_iterator_dereference)
++#define ppl_Pointset_Powerset_C_Polyhedron_iterator_end (*cloog_pointers__.p_ppl_Pointset_Powerset_C_Polyhedron_iterator_end)
++#define ppl_Pointset_Powerset_C_Polyhedron_iterator_equal_test (*cloog_pointers__.p_ppl_Pointset_Powerset_C_Polyhedron_iterator_equal_test)
++#define ppl_Pointset_Powerset_C_Polyhedron_iterator_increment (*cloog_pointers__.p_ppl_Pointset_Powerset_C_Polyhedron_iterator_increment)
++#define ppl_Pointset_Powerset_C_Polyhedron_map_space_dimensions (*cloog_pointers__.p_ppl_Pointset_Powerset_C_Polyhedron_map_space_dimensions)
++#define ppl_Pointset_Powerset_C_Polyhedron_maximize (*cloog_pointers__.p_ppl_Pointset_Powerset_C_Polyhedron_maximize)
++#define ppl_Pointset_Powerset_C_Polyhedron_minimize (*cloog_pointers__.p_ppl_Pointset_Powerset_C_Polyhedron_minimize)
++#define ppl_Pointset_Powerset_C_Polyhedron_remove_space_dimensions (*cloog_pointers__.p_ppl_Pointset_Powerset_C_Polyhedron_remove_space_dimensions)
++#define ppl_Pointset_Powerset_C_Polyhedron_size (*cloog_pointers__.p_ppl_Pointset_Powerset_C_Polyhedron_size)
++#define ppl_Pointset_Powerset_C_Polyhedron_space_dimension (*cloog_pointers__.p_ppl_Pointset_Powerset_C_Polyhedron_space_dimension)
++#define ppl_Pointset_Powerset_C_Polyhedron_upper_bound_assign (*cloog_pointers__.p_ppl_Pointset_Powerset_C_Polyhedron_upper_bound_assign)
++#define ppl_Polyhedron_add_constraint (*cloog_pointers__.p_ppl_Polyhedron_add_constraint)
++#define ppl_Polyhedron_add_constraints (*cloog_pointers__.p_ppl_Polyhedron_add_constraints)
++#define ppl_Polyhedron_add_space_dimensions_and_embed (*cloog_pointers__.p_ppl_Polyhedron_add_space_dimensions_and_embed)
++#define ppl_Polyhedron_get_constraints (*cloog_pointers__.p_ppl_Polyhedron_get_constraints)
++#define ppl_Polyhedron_map_space_dimensions (*cloog_pointers__.p_ppl_Polyhedron_map_space_dimensions)
++#define ppl_Polyhedron_remove_space_dimensions (*cloog_pointers__.p_ppl_Polyhedron_remove_space_dimensions)
++#define ppl_Polyhedron_space_dimension (*cloog_pointers__.p_ppl_Polyhedron_space_dimension)
++#define ppl_subtract_Linear_Expression_from_Linear_Expression (*cloog_pointers__.p_ppl_subtract_Linear_Expression_from_Linear_Expression)
++#define pprint (*cloog_pointers__.p_pprint)
++#define stmt_block (*cloog_pointers__.p_stmt_block)
++#define stmt_for (*cloog_pointers__.p_stmt_for)
++#define stmt_guard (*cloog_pointers__.p_stmt_guard)
++#define stmt_root (*cloog_pointers__.p_stmt_root)
++#define stmt_user (*cloog_pointers__.p_stmt_user)
++
++#define cloog_finalize (*cloog_pointers__.p_ppl_finalize)
++
+ #endif  /* GCC_GRAPHITE_H  */
+--- gcc/Makefile.in.jj	2010-06-30 21:23:29.000000000 +0200
++++ gcc/Makefile.in	2010-07-01 17:33:11.016479963 +0200
+@@ -1011,7 +1011,7 @@ BUILD_LIBDEPS= $(BUILD_LIBIBERTY)
+ # and the system's installed libraries.
+ LIBS = @LIBS@ $(CPPLIB) $(LIBINTL) $(LIBICONV) $(LIBIBERTY) $(LIBDECNUMBER) \
+ 	$(HOST_LIBS)
+-BACKENDLIBS = $(CLOOGLIBS) $(PPLLIBS) $(GMPLIBS) $(PLUGINLIBS) $(HOST_LIBS) \
++BACKENDLIBS = $(GMPLIBS) $(if $(CLOOGLIBS),-ldl) $(PLUGINLIBS) $(HOST_LIBS) \
+ 	$(ZLIB) $(LIBELFLIBS)
+ # Any system libraries needed just for GNAT.
+ SYSLIBS = @GNAT_LIBEXC@
+@@ -2607,7 +2607,7 @@ graphite-poly.o: graphite-poly.c $(CONFI
+    $(TREE_DATA_REF_H) tree-pass.h domwalk.h graphite.h graphite-dependences.h \
+    pointer-set.h value-prof.h graphite-ppl.h sese.h output.h graphite-poly.h
+ graphite-ppl.o: graphite-ppl.c $(CONFIG_H) $(SYSTEM_H) coretypes.h $(TM_H) \
+-   $(GGC_H) graphite-ppl.h
++   $(GGC_H) graphite-ppl.h graphite.h
+ graphite-scop-detection.o: graphite-scop-detection.c $(CONFIG_H) $(SYSTEM_H) \
+    $(GGC_H) $(TREE_H) $(RTL_H) $(BASIC_BLOCK_H) $(DIAGNOSTIC_H) $(TOPLEV_H) \
+    $(TREE_FLOW_H) $(TREE_DUMP_H) $(TIMEVAR_H) $(CFGLOOP_H) $(GIMPLE_H) \
+@@ -3359,6 +3359,11 @@ $(out_object_file): $(out_file) $(CONFIG
+ 	$(COMPILER) -c $(ALL_COMPILERFLAGS) $(ALL_CPPFLAGS) \
+ 		$(out_file) $(OUTPUT_OPTION)
+ 
++graphite%.o : \
++  ALL_CFLAGS := -O $(filter-out -fkeep-inline-functions, $(ALL_CFLAGS))
++graphite.o : \
++  ALL_CFLAGS := -O $(filter-out -fkeep-inline-functions, $(ALL_CFLAGS))
++
+ # Build auxiliary files that support ecoff format.
+ mips-tfile: mips-tfile.o version.o $(LIBDEPS)
+ 	$(LINKER) $(LINKERFLAGS) $(LDFLAGS) -o $@ \
+--- gcc/graphite-ppl.c.jj	2010-06-30 09:48:30.000000000 +0200
++++ gcc/graphite-ppl.c	2010-07-01 17:08:14.161335642 +0200
+@@ -29,6 +29,7 @@ along with GCC; see the file COPYING3.  
+ #include "ppl_c.h"
+ #include "cloog/cloog.h"
+ #include "graphite-ppl.h"
++#include "graphite.h"
+ 
+ /* Translates row ROW of the CloogMatrix MATRIX to a PPL Constraint.  */
+ 
+--- gcc/graphite-clast-to-gimple.c.jj	2010-06-30 09:48:30.000000000 +0200
++++ gcc/graphite-clast-to-gimple.c	2010-07-01 16:50:15.812485671 +0200
+@@ -613,11 +613,11 @@ gcc_type_for_cloog_iv (const char *cloog
+    STMT.  */
+ 
+ static tree
+-gcc_type_for_iv_of_clast_loop (struct clast_for *stmt_for)
++gcc_type_for_iv_of_clast_loop (struct clast_for *stmt_fora)
+ {
+-  struct clast_stmt *stmt = (struct clast_stmt *) stmt_for;
++  struct clast_stmt *stmt = (struct clast_stmt *) stmt_fora;
+   struct clast_user_stmt *body = clast_get_body_of_loop (stmt);
+-  const char *cloog_iv = stmt_for->iterator;
++  const char *cloog_iv = stmt_fora->iterator;
+   CloogStatement *cs = body->statement;
+   poly_bb_p pbb = (poly_bb_p) cloog_statement_usr (cs);
+ 

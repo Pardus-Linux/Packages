@@ -1,9 +1,13 @@
 ################################################################################################################
 # gSTLFilt.pl: BD Software STL Error Message Decryptor (a Perl script)
-#			   This version supports the gcc 2/3/3+ C++ compiler/library
-#			   [it was developed and tested under (Mingw32) gcc 3.4.5, 3.2, 2.95.2]
+#			   This version supports the gcc 2/3/4 C++ compiler/library
+#			   It was tested under:
+#                         DJGPP 2.95.2
+#                         MinGW gcc 2.95.2, 3.2.3, 3.4.5, 4.1.1
+#                         TDM gcc 4.2.2
+#
 
-$STLFilt_ID = "BD Software STL Message Decryptor v3.00 for gcc";
+$STLFilt_ID = "BD Software STL Message Decryptor v3.10 for gcc 2/3/4";
 
 #
 # (c) Copyright Leor Zolman 2002-2008. Permission to copy, use, modify, sell and
@@ -678,7 +682,7 @@ while ( 1 )
 	}
   }
 
-  next if $show_backtraces eq 'N' and /\binstantiated from\b/;
+  next if $show_backtraces eq 'N' and (/\binstantiated from\b/ or /^\s*from /);
 
 # get rid of useless messages from gcc
 
@@ -893,7 +897,7 @@ while ( 1 )
 # The following section strips out the "class" keyword when it is part
 # of a type name, but not when it is part of the 'prose' of a message.
 # To do this, we only strip the word "class" when it follows an
-# odd-numbered single quote (1st, 3rd, 5th, etc.):
+# odd-numbered single quote (1st, 3rd, 5th, 
 
   $out = "";								# accumulate result into $out
   $old = $_;
@@ -932,6 +936,7 @@ while ( 1 )
   s/\b__normal_iterator<const $t, ?($t)>\:\:__normal_iterator\(/string::const_iterator(/g;
   s/\b__normal_iterator<$t, ?($t)>\:\:__normal_iterator\(/string::iterator(/g;
 
+
 # The following loop repeats until no transformations occur in the last complete iteration:
 
   for ($pass = 1; ;$pass++)			# pass count (for de-bugging purposes only)
@@ -947,17 +952,27 @@ while ( 1 )
 	$has_double_gt = 0;
 	$has_double_gt++ if />>/;
 
+	s/allocator<($t)>::rebind<\1>::other::($id)/allocator<$1>::$2/g;
 	s/\b,? ?allocator<$t ?>(,(0|1|true|false)) ?>/$2>/g;
+	s/, ?allocator<$id<($t), ?allocator<\1> ?> ?>//g;
+	s/, ?allocator<$t> ?>/>/g;
 
 
-# remove allocator clauses completely if the message doesn't refer to an allocator explicitly:
+# remove allocator clauses
 
-	unless (/' to '.*allocator</)
+# gcc 4.x allocator types
+
+	s/, ?allocator<($t) ?>\:\:rebind<\1 ?>\:\:other>/>/g;
+
+# remove allocator clauses if the message doesn't refer to an allocator explicitly:
+
+	unless (/' to '.*allocator</ or /allocator<$t>\:\:/)
 	{
-	  s/, ?allocator<$t ?> ?//g;					# the leading comma allows the full spec.
+ 	  s/, ?allocator<$t ?> ?//g;					# the leading comma allows the full spec.
 	  s/, ?const allocator<$t ?> ?&//g;				# to appear in the error message details
  	  s/,? ?(const )?$t\:\:allocator_type ?&//g;
 	}
+
 
 	if (!$has_double_gt)
 	{
@@ -1014,11 +1029,17 @@ while ( 1 )
 
 # gcc map:
 
-    s/\b_Rb_tree<($t), ?pair<const \1, ?($t)>, ?_Select1st<pair<const \1, ?\2> > ?>/map<$1,$2>/g;
-    s/\b_Rb_tree<($t), ?pair<const \1, ?($t)>, ?_Select1st<pair<const \1, ?\2> >, ($t) ?>/map<$1,$2,$3>/g;
+    s/\b_Rb_tree<($t), ?pair<const \1, ?($t)>, ?_Select1st<pair<const \1, ?\2> ?> ?>/map<$1,$2>/g;
+    s/\b_Rb_tree<($t), ?pair<const \1, ?($t)>, ?_Select1st<pair<const \1, ?\2> ?>, ($t) ?>/map<$1,$2,$3>/g;
+
+#   s/\b_Rb_tree<($t), ?pair<const \1, ?($t)>, ?_Select1st<pair<const \1, ?\2> > ?>/map<$1,$2>/g;
+    s/\b_Rb_tree<($t), ?pair<const \1, ?($t)>, ?_Select1st<pair<const \1, ?\2> ?>, ($t)::rebind<pair<const \1, ?\2> >::other>/map<$1,$2,$3>/g;
 
 
 # gcc map/multimap iterators:
+
+    s/\b_Rb_tree<($t), ?pair<const \1, ?($t)>, ?_Select1st<pair<const \1, ?\2> ?>::rebind<pair<const \1, ?\2> >::other>/multimap<$1,$2>/g;
+
 
 	s/\b_Rb_tree_iterator<pair<const ($t) ?, ?($t) ?> ?>\:\:_Rb_tree_iterator\(const _Rb_tree_iterator<pair<const \1 ?, ?\2 ?> ?>&\)/gen_map<$1,$2>::iterator(const gen_map<$1,$2>::iterator &)/g;	
 	s/\b_Rb_tree_const_iterator<pair<const ($t) ?, ?($t) ?> ?>\:\:_Rb_tree_const_iterator\(const _Rb_tree_const_iterator<pair<const \1 ?, ?\2 ?> ?>&\)/gen_map<$1,$2>::const_iterator(const gen_map<$1,$2>::const_iterator &)/g;	
@@ -1034,6 +1055,9 @@ while ( 1 )
 
 	s/\b_Rb_tree_iterator<pair<const ($t) ?, ?($t)>, ?pair<const \1, ?\2> ?&, ?pair<const \1, ?\2> ?\*>\:\:_Rb_tree_iterator ?\(/gen_map<$1,$2>::iterator(/g;
 	s/\b_Rb_tree_iterator<pair<const ($t) ?, ?($t)>, ?pair<const \1, ?\2> ?&, ?pair<const \1, ?\2> ?\*>/gen_map<$1,$2>::iterator/g;
+
+	s/\b_Rb_tree_iterator<pair<const ($t) ?, ?($t)>, ?const pair<const \1, ?\2> ?&,const pair<const \1, ?\2> ?\*>\:\:_Rb_tree_iterator ?\(/gen_map<$1,$2>::const_iterator(/g;
+	s/\b_Rb_tree_iterator<pair<($t) ?const, ?($t)>, ?pair<\1 ?const, ?\2> ?&, ?pair<\1 ?const, ?\2> ?\*>\:\:_Rb_tree_iterator ?\(/gen_map<$1,$2>::const_iterator(/g;
 
 	s/\b_Rb_tree_iterator<pair<const ($t) ?, ?($t)>, ?const pair<const \1, ?\2> ?&,const pair<const \1, ?\2> ?\*>/gen_map<$1,$2>::const_iterator/g;
 	s/\b_Rb_tree_iterator<pair<($t) ?const, ?($t)>, ?pair<\1 ?const, ?\2> ?&, ?pair<\1 ?const, ?\2> ?\*>/gen_map<$1,$2>::const_iterator/g;
@@ -1077,7 +1101,7 @@ while ( 1 )
 	s/\b_Rb_tree_iterator ?<($t)>/gen_set<$1>::iterator/g;
 	s/\b_Rb_tree_const_iterator ?<($t)>/gen_set<$1>::const_iterator/g;
 	
-	s/\bconst _Rb_tree_node<($t)> ?\*/gen_set<$1>::const_iterator/g;
+	s/\bconst _Rb_tree_node<($t) ?> ?\*/gen_set<$1>::const_iterator/g;
 	s/\b_Rb_tree_node<($t)> ?\*/gen_set<$1>::iterator/g;
 
 	
@@ -1124,8 +1148,9 @@ while ( 1 )
 
 # reverse iterators:
 
-  s/reverse_iterator<($t)::iterator ?>/$1::reverse_iterator/g;
-  s/reverse_iterator<($t)::const_iterator ?>/$1::const_reverse_iterator/g;
+  s/\breverse_iterator<($t)::iterator ?>/$1::reverse_iterator/g;
+  s/\breverse_iterator<($t)::const_iterator ?>/$1::const_reverse_iterator/g;
+  s/\bconst_reverse_iterator\:\:reverse_iterator/const_reverase_iterator/g;
 
 # reduce iterators according to $iter_policy:
 
@@ -1178,6 +1203,8 @@ while ( 1 )
 
   s/,([^ ])/, $1/g if $space_after_commas;				# add space *after* a comma, however, if desired.
 
+
+  s/   initializing argument / init. arg /;
 
 # and FINALLY, print out the result of all transformations, preceded by saved prefix:
 

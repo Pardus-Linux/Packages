@@ -1,0 +1,41 @@
+Index: boehm-gc/finalize.c
+===================================================================
+RCS file: /cvs/gcc/gcc/boehm-gc/finalize.c,v
+retrieving revision 1.11.28.1
+diff -u -p -r1.11.28.1 finalize.c
+--- boehm-gc/finalize.c	24 Jan 2004 11:05:54 -0000	1.11.28.1
++++ boehm-gc/finalize.c	9 Feb 2004 16:07:25 -0000
+@@ -164,6 +164,7 @@ signed_word * log_size_ptr;
+     int index;
+     struct disappearing_link * new_dl;
+     DCL_LOCK_STATE;
++    struct disappearing_link *** dl_head_adr = &dl_head;
+     
+     if ((word)link & (ALIGNMENT-1))
+     	ABORT("Bad arg to GC_general_register_disappearing_link");
+@@ -176,7 +177,7 @@ signed_word * log_size_ptr;
+ #	ifndef THREADS
+ 	    DISABLE_SIGNALS();
+ #	endif
+-    	GC_grow_table((struct hash_chain_entry ***)(&dl_head),
++    	GC_grow_table((struct hash_chain_entry ***)dl_head_adr,
+     		      &log_dl_table_size);
+ #	ifdef CONDPRINT
+ 	  if (GC_print_stats) {
+@@ -339,6 +340,7 @@ finalization_mark_proc * mp;
+     struct finalizable_object *new_fo;
+     hdr *hhdr;
+     DCL_LOCK_STATE;
++    struct finalizable_object *** fo_head_adr = &fo_head;
+ 
+ #   ifdef THREADS
+ 	DISABLE_SIGNALS();
+@@ -349,7 +351,7 @@ finalization_mark_proc * mp;
+ #	ifndef THREADS
+     	    DISABLE_SIGNALS();
+ #	endif
+-    	GC_grow_table((struct hash_chain_entry ***)(&fo_head),
++    	GC_grow_table((struct hash_chain_entry ***)fo_head_adr,
+     		      &log_fo_table_size);
+ #	ifdef CONDPRINT
+ 	  if (GC_print_stats) {

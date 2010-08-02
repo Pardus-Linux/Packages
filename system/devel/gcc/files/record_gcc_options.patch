@@ -1,0 +1,65 @@
+Index: gcc/varasm.c
+===================================================================
+--- gcc/varasm.c.orig	2010-07-21 17:07:43.000000000 +0100
++++ gcc/varasm.c	2010-07-21 17:34:37.000000000 +0100
+@@ -6664,6 +6664,35 @@ file_end_indicate_exec_stack (void)
+   switch_to_section (get_section (".note.GNU-stack", flags, NULL));
+ }
+ 
++/* This is a generic routine emitting a Pardus specific section for
++   QA check marks. */
++
++void
++pardus_file_end_indicate_optflags (void)
++{
++  unsigned int flags = SECTION_DEBUG | SECTION_STRINGS | SECTION_MERGE | (SECTION_ENTSIZE & 1);
++
++  /*
++     o/O: optimize was off/on
++     s/S: size optimisation was off/on
++     p/P: stack-protector was off/on
++     w/W: warnings were off/on
++     g/G: debug was off/on
++     */
++
++  char opts_buffer[6];
++
++  opts_buffer[0] = (optimize >= 2) ? 'O' : 'o';
++  opts_buffer[1] = (optimize >= 1 && optimize_size) ? 'S' : 's';
++  opts_buffer[2] = (flag_stack_protect >= 1) ? 'P' : 'p';
++  opts_buffer[3] = (warn_uninitialized >= 1 && warn_sequence_point >= 1) ? 'W' : 'w';
++  opts_buffer[4] = (debug_info_level > DINFO_LEVEL_NONE) ? 'G' : 'g';
++  opts_buffer[5] = '\0';
++
++  switch_to_section (get_section (".comment.PARDUS.OPTs", flags, NULL));
++  ASM_OUTPUT_ASCII (asm_out_file, opts_buffer, strlen (opts_buffer) + 1);
++}
++
+ /* Output DIRECTIVE (a C string) followed by a newline.  This is used as
+    a get_unnamed_section callback.  */
+ 
+Index: gcc/output.h
+===================================================================
+--- gcc/output.h.orig	2010-07-21 11:42:32.000000000 +0100
++++ gcc/output.h	2010-07-21 17:34:37.000000000 +0100
+@@ -626,6 +626,7 @@ extern void default_emit_except_table_la
+ extern void default_internal_label (FILE *, const char *, unsigned long);
+ extern void default_file_start (void);
+ extern void file_end_indicate_exec_stack (void);
++extern void pardus_file_end_indicate_optflags (void);
+ 
+ extern void default_elf_asm_output_external (FILE *file, tree,
+ 					     const char *);
+Index: gcc/toplev.c
+===================================================================
+--- gcc/toplev.c.orig	2010-07-21 17:07:42.000000000 +0100
++++ gcc/toplev.c	2010-07-21 17:35:21.000000000 +0100
+@@ -1124,6 +1124,8 @@ compile_file (void)
+   /* Invoke registered plugin callbacks.  */
+   invoke_plugin_callbacks (PLUGIN_FINISH_UNIT, NULL);
+ 
++  pardus_file_end_indicate_optflags ();
++
+   /* This must be at the end.  Some target ports emit end of file directives
+      into the assembly file here, and hence we can not output anything to the
+      assembly file after this point.  */
