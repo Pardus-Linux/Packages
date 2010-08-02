@@ -12,10 +12,12 @@ from pisi.actionsapi import get
 
 
 def setup():
+    # FIXME: check if we need sse2 libs too, if yes recompile in different dir and put in prefix/lib/sse2
     shelltools.export("CCAS","%s -c -Wa,--noexecstack" % get.CC())
 
     autotools.configure("--enable-cxx \
-                         --disable-mpbsd \
+                         --enable-mpbsd \
+                         --enable-fft \
                          --localstatedir=/var/state/gmp")
 
 def build():
