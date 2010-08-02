@@ -12,13 +12,20 @@
         <IsA>app:console</IsA>
         <Summary>Assembler and linker tools</Summary>
         <Description>Contains commands like as, ld, nm, objdump, ar, ranlib for compiling assembly code to the machine language, and for linking and manipulating the binary object files.</Description>
-        <Archive sha1sum="e589e02898ae50d38b49966785201183371d84b9" type="tarbz2">http://www.kernel.org/pub/linux/devel/binutils/binutils-2.19.51.0.9.tar.bz2</Archive>
+        <Archive sha1sum="935e69352c4790ad790a0df0ff9d77ad5cd2bf3f" type="tarbz2">http://www.kernel.org/pub/linux/devel/binutils/binutils-2.20.51.0.10.tar.bz2</Archive>
         <Patches>
             <!-- Enable dtags -->
             <Patch level="1">ld-dtags.diff</Patch>
 
             <!-- Skip RPATHS if env set -->
+            <!--
             <Patch>binutils-skip-rpaths.patch</Patch>
+            -->
+
+            <!-- Force as-needed at linker level when PARDUS_ASNEEDED is set, note Bsymbolic also enables as-needed so this may not be necessary -->
+            <!--
+            <Patch level="1">binutils-build-as-needed.diff</Patch>
+            -->
 
             <Patch>unit-at-a-time.patch</Patch>
 
@@ -50,8 +57,15 @@
             <Patch level="1">binutils-libtool-m.patch</Patch>
             <Patch level="1">binutils-libtool-relink.patch</Patch>
 
-            <!-- Fix paths in 64bit -->
-            <Patch level="1">pure64.patch</Patch>
+
+            <!-- Set libsuffix to 64 -->
+            <!-- use it if we dont go for pure64
+            <Patch>x86-64-biarch.patch</Patch>
+            -->
+
+            <!-- Fix test suites -->
+            <Patch>testsuite.diff</Patch>
+            <Patch>fixup-testcase-perturb.diff</Patch>
         </Patches>
     </Source>
 
@@ -67,6 +81,20 @@
     </Package>
 
     <History>
+        <Update release="35">
+            <Date>2010-08-01</Date>
+            <Version>2.20.51.0.10</Version>
+            <Comment>Remove pure64 stuff since binutils get ld.so path from gcc now</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="34">
+            <Date>2010-07-16</Date>
+            <Version>2.20.51.0.10</Version>
+            <Comment>Major version bump</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
         <Update release="33">
             <Date>2010-03-03</Date>
             <Version>2.19.51.0.9</Version>
