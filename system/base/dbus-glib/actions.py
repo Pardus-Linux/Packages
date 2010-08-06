@@ -7,10 +7,11 @@
 
 from pisi.actionsapi import autotools
 from pisi.actionsapi import pisitools
+from pisi.actionsapi import libtools
 from pisi.actionsapi import get
 
 def setup():
-    autotools.libtoolize("--force --copy")
+    libtools.libtoolize("--force --copy")
     autotools.autoreconf("-fi")
 
     autotools.configure("--localstatedir=/var \
