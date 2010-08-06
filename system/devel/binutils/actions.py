@@ -13,6 +13,8 @@ from pisi.actionsapi import get
 # linker = "gold"
 linker = "ld"
 
+WorkDir = "binutils-2.20.51"
+
 def setup():
     # Build binutils with LD_SYMBOLIC_FUNCTIONS=1 and reduce PLT relocations in libfd.so by 84%.
     shelltools.export("LD_SYMBOLIC_FUNCTIONS", "1")
@@ -33,7 +35,7 @@ def build():
     autotools.make("all")
     autotools.make("info")
 
-# check fails because of LD_LIBRARY_PATH, it is disabled by other distros
+# check fails because of LD_LIBRARY_PATH
 #def check():
 #    autotools.make("check -j1")
 
