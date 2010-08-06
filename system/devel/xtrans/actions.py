@@ -15,4 +15,4 @@ def build():
 def install():
     autotools.install()
 
-    pisitools.removeDir("/usr/share/doc/xtrans/")
+    pisitools.removeDir("/usr/share/doc")
