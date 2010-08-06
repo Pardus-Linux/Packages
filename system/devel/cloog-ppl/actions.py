@@ -17,6 +17,8 @@ def setup():
     for i in ["NEWS", "AUTHORS", "ChangeLog"]:
         shelltools.touch(i)
 
+    pisitools.dosed("configure.in", "^ppl_minor_version=.*", "ppl_minor_version=11")
+
     autotools.autoreconf("-vfi")
     autotools.configure("--disable-static \
                          --enable-shared \
