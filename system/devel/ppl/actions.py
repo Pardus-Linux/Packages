@@ -11,7 +11,7 @@ from pisi.actionsapi import get
 
 
 def setup():
-    autotools.autoreconf("-vfi")
+    # autotools.autoreconf("-vfi")
     autotools.configure('--disable-rpath \
                          --disable-static \
                          --disable-watchdog \
