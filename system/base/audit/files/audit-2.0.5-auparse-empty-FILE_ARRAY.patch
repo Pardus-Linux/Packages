@@ -1,0 +1,14 @@
+diff -urp audit-2.0.5.orig/auparse/auparse.c audit-2.0.5/auparse/auparse.c
+--- audit-2.0.5.orig/auparse/auparse.c	2009-12-09 09:49:10.000000000 -0500
++++ audit-2.0.5/auparse/auparse.c	2009-12-09 09:49:24.000000000 -0500
+@@ -782,6 +782,10 @@ static int retrieve_next_line(auparse_st
+ 		case AUSOURCE_FILE_ARRAY:
+ 			// if the first time through, open file
+ 			if (au->list_idx == 0 && au->in == NULL) {
++				if (au->source_list[au->list_idx] == NULL) {
++					errno = 0;
++					return -2;
++				}
+ 				au->line_number = 0;
+ 				au->in = fopen(au->source_list[au->list_idx],
+ 									"r");
