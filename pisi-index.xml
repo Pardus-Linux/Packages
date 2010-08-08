@@ -1121,7 +1121,7 @@
             <Summary xml:lang="fr">Une librairie pour gérer les erreurs de pagination en mode utilisateur.</Summary>
             <Summary xml:lang="en">A library for handling page faults in user mode</Summary>
             <Summary xml:lang="tr">Oluşan bellek hatalarının kullanıcı kipinde işlenmesini sağlayan bir kütüphane</Summary>
-            <Archive type="targz" sha1sum="15ca1dd9574012b8c4c4d2bf6ba945546114b0b5">mirrors://gnu/libsigsegv/libsigsegv-2.6.tar.gz</Archive>
+            <Archive type="targz" sha1sum="6bfe91907a3479b4137dfd5db8e30586ca97e2f1">mirrors://gnu/libsigsegv/libsigsegv-2.8.tar.gz</Archive>
             <SourceURI>system/devel/libsigsegv/pspec.xml</SourceURI>
         </Source>
         <Package>
@@ -1133,6 +1133,13 @@
             </Files>
         </Package>
         <History>
+            <Update release="4">
+                <Date>2010-08-09</Date>
+                <Version>2.8</Version>
+                <Comment>Version bump</Comment>
+                <Name>Onur Küçük</Name>
+                <Email>onur@pardus.org.tr</Email>
+            </Update>
             <Update release="3">
                 <Date>2008-08-25</Date>
                 <Version>2.6</Version>
@@ -1356,13 +1363,16 @@
             <Description xml:lang="fr">CMake, système make open-source et multi-plateforme. CMake est utilisé pour contrôler le processus de compilation de logiciel en utilisant une plate-forme de fichiers de configuration simple et indépendante de compilateur. CMake génère des makefiles et un environnement de travail natifs pouvant être utilisés dans l&apos;environnement du compilateur de votre choix.</Description>
             <Description xml:lang="en">CMake, the cross-platform, open-source make system. CMake is used to control the software compilation process using simple platform and compiler independent configuration files. CMake generates native makefiles and workspaces that can be used in the compiler environment of your choice.</Description>
             <Description xml:lang="tr">Cmake, açık kaynak kodlu ve birden fazla platformda çalışan bir &apos;make&apos; sistemidir. Yazılım derleme sürecini kontrol etmek için kullanılan CMake, derleyici bağımsız yapılandırma dosyalarının oluşturulmasını sağlar.</Description>
-            <Archive type="targz" sha1sum="e9f99cfccf8ec4fb5bbd8ca7d499771a2f1d4ebe">http://www.cmake.org/files/v2.8/cmake-2.8.1.tar.gz</Archive>
+            <Archive type="targz" sha1sum="272003c2fe392b211ce3b5f895ad84da2ca603cf">http://www.cmake.org/files/v2.8/cmake-2.8.2.tar.gz</Archive>
             <BuildDependencies>
                 <Dependency>curl</Dependency>
                 <Dependency>expat</Dependency>
                 <Dependency>ncurses</Dependency>
                 <Dependency>zlib</Dependency>
             </BuildDependencies>
+            <Patches>
+                <Patch level="1">cmake-2.8.2-python27.patch</Patch>
+            </Patches>
             <SourceURI>system/devel/cmake/pspec.xml</SourceURI>
         </Source>
         <Package>
@@ -1381,6 +1391,14 @@
             </Files>
         </Package>
         <History>
+            <Update release="22">
+                <Date>2010-08-08</Date>
+                <Version>2.8.2</Version>
+                <Comment>- Bump to the new stable release
+                - Add support for Python 2.7</Comment>
+                <Name>Fatih Aşıcı</Name>
+                <Email>fatih@pardus.org.tr</Email>
+            </Update>
             <Update release="21">
                 <Date>2010-03-18</Date>
                 <Version>2.8.1</Version>
@@ -7184,7 +7202,7 @@
                 <Name>Fatih Aşıcı</Name>
                 <Email>fatih@pardus.org.tr</Email>
             </Packager>
-            <License>libSM</License>
+            <License>MIT</License>
             <IsA>library</IsA>
             <PartOf>system.base</PartOf>
             <Summary xml:lang="fr">Librairie SM de X.Org.</Summary>
@@ -7192,9 +7210,9 @@
             <Summary xml:lang="tr">X.Org SM kitaplığı.</Summary>
             <Summary xml:lang="de">X.Org SM Bibliothek</Summary>
             <Description xml:lang="en">libSM is the X Session Management library.</Description>
-            <Archive type="tarbz2" sha1sum="2760a80f0bd1b4728535a92601ce2db0b98cdd98">mirrors://xorg/individual/lib/libSM-1.1.0.tar.bz2</Archive>
+            <Archive type="tarbz2" sha1sum="dc535af7328dee9a6121b85c3f8041656681a195">mirrors://xorg/individual/lib/libSM-1.1.1.tar.bz2</Archive>
             <BuildDependencies>
-                <Dependency>libICE</Dependency>
+                <Dependency>libICE-devel</Dependency>
                 <Dependency>libuuid</Dependency>
             </BuildDependencies>
             <SourceURI>system/base/libSM/pspec.xml</SourceURI>
@@ -7206,14 +7224,33 @@
                 <Dependency>libuuid</Dependency>
             </RuntimeDependencies>
             <Files>
-                <Path fileType="header">/usr/include/X11</Path>
                 <Path fileType="library">/usr/lib</Path>
-                <Path fileType="man">/usr/share/man</Path>
                 <Path fileType="data">/usr/share/X11</Path>
+            </Files>
+        </Package>
+        <Package>
+            <Name>libSM-devel</Name>
+            <Summary xml:lang="en">Development files for libSM</Summary>
+            <Summary xml:lang="tr">libSM için geliştirme dosyaları</Summary>
+            <PartOf>system.devel</PartOf>
+            <RuntimeDependencies>
+                <Dependency>libICE-devel</Dependency>
+                <Dependency release="8">libSM</Dependency>
+            </RuntimeDependencies>
+            <Files>
+                <Path fileType="header">/usr/include/X11</Path>
                 <Path fileType="data">/usr/lib/pkgconfig</Path>
             </Files>
         </Package>
         <History>
+            <Update release="8">
+                <Date>2010-08-08</Date>
+                <Version>1.1.1</Version>
+                <Comment>- Bump to the new stable release
+                - Split development files</Comment>
+                <Name>Fatih Aşıcı</Name>
+                <Email>fatih@pardus.org.tr</Email>
+            </Update>
             <Update release="7">
                 <Date>2009-05-16</Date>
                 <Version>1.1.0</Version>
@@ -14892,12 +14929,12 @@
                 <Dependency>glib2</Dependency>
                 <Dependency>audit</Dependency>
                 <Dependency>expat</Dependency>
-                <Dependency>libXau</Dependency>
-                <Dependency>libxcb</Dependency>
-                <Dependency>libXdmcp</Dependency>
                 <Dependency>libcap-ng</Dependency>
                 <Dependency>e2fsprogs</Dependency>
                 <Dependency>libX11-devel</Dependency>
+                <Dependency>libXau-devel</Dependency>
+                <Dependency>libxcb-devel</Dependency>
+                <Dependency>libXdmcp-devel</Dependency>
             </BuildDependencies>
             <Patches>
                 <Patch level="1">all-your-service-names-are-belong-to-us.patch</Patch>
@@ -15838,18 +15875,18 @@
                 <Name>Fatih Aşıcı</Name>
                 <Email>fatih@pardus.org.tr</Email>
             </Packager>
-            <License>libX11</License>
+            <License>MIT</License>
             <IsA>library</IsA>
             <PartOf>system.base</PartOf>
             <Summary xml:lang="fr">Librairie X11 de X.Org.</Summary>
             <Summary xml:lang="en">X.Org X11 library</Summary>
             <Summary xml:lang="tr">X.Org X11 kitaplığı</Summary>
             <Summary xml:lang="de">X.Org X11 Bibliothek</Summary>
-            <Archive type="tarbz2" sha1sum="d4b3966d8eeb79514daad3eeae0debf65d16edca">mirrors://xorg/individual/lib/libX11-1.3.2.tar.bz2</Archive>
+            <Archive type="tarbz2" sha1sum="5aab6dc8ed5ec0e86419626715efc3edd34d1db4">mirrors://xorg/individual/lib/libX11-1.3.4.tar.bz2</Archive>
             <BuildDependencies>
-                <Dependency>libXau</Dependency>
-                <Dependency>libxcb</Dependency>
-                <Dependency>libXdmcp</Dependency>
+                <Dependency>libXau-devel</Dependency>
+                <Dependency>libxcb-devel</Dependency>
+                <Dependency>libXdmcp-devel</Dependency>
                 <Dependency releaseFrom="26">xorg-proto</Dependency>
                 <Dependency versionFrom="1.2.5">xtrans</Dependency>
             </BuildDependencies>
@@ -15878,9 +15915,10 @@
         <Package>
             <Name>libX11-devel</Name>
             <Summary xml:lang="en">Development files for X11 library</Summary>
+            <Summary xml:lang="tr">libX11 için geliştirme dosyaları</Summary>
             <PartOf>system.devel</PartOf>
             <RuntimeDependencies>
-                <Dependency version="1.3.2">libX11</Dependency>
+                <Dependency version="1.3.4">libX11</Dependency>
             </RuntimeDependencies>
             <Files>
                 <Path fileType="header">/usr/include/X11</Path>
@@ -15889,6 +15927,13 @@
             </Files>
         </Package>
         <History>
+            <Update release="20">
+                <Date>2010-08-09</Date>
+                <Version>1.3.4</Version>
+                <Comment>New stable release</Comment>
+                <Name>Fatih Aşıcı</Name>
+                <Email>fatih@pardus.org.tr</Email>
+            </Update>
             <Update release="19">
                 <Date>2009-12-09</Date>
                 <Version>1.3.2</Version>
@@ -17212,7 +17257,12 @@
             </BuildDependencies>
             <Patches>
                 <Patch>add-manpages.patch</Patch>
-                <Patch level="1">CVE-2010-0624-rpatelib-overflow.patch</Patch>
+                <Patch>buffer_overflow.patch</Patch>
+                <Patch level="1">tar-1.14-loneZeroWarning.patch</Patch>
+                <Patch level="1">tar-1.15.1-vfatTruncate.patch</Patch>
+                <Patch level="1">tar-1.22-atime-rofs.patch</Patch>
+                <Patch level="1">tar-1.22-fortifysourcessigabrt.patch</Patch>
+                <Patch level="1">tar-1.23-oldarchive.patch</Patch>
             </Patches>
             <SourceURI>system/base/tar/pspec.xml</SourceURI>
         </Source>
@@ -17235,6 +17285,16 @@
             </Files>
         </Package>
         <History>
+            <Update release="21">
+                <Date>2010-08-09</Date>
+                <Version>1.23</Version>
+                <Comment>Fix buffer overflow triggered by fortifysource
+                Fix old gnuarchive name
+                Disable rpath
+                Add a lot fixes</Comment>
+                <Name>Onur Küçük</Name>
+                <Email>onur@pardus.org.tr</Email>
+            </Update>
             <Update release="20">
                 <Date>2010-07-01</Date>
                 <Version>1.23</Version>
@@ -18426,19 +18486,38 @@
             <Summary xml:lang="de">X.Org Au Bibliothek</Summary>
             <Description xml:lang="en">libXau provides functions to manage X authorization files</Description>
             <Description xml:lang="tr">libXau, X yetkilendirme dosyalarını yönetmek için işlevler sağlar.</Description>
-            <Archive type="tarbz2" sha1sum="b1c68843edf7e80ce952f7ee0541448f41bac202">mirrors://xorg/individual/lib/libXau-1.0.5.tar.bz2</Archive>
+            <Archive type="tarbz2" sha1sum="0e1ab449f98026e4599f6e0d7491810d36c8fe4d">mirrors://xorg/individual/lib/libXau-1.0.6.tar.bz2</Archive>
             <SourceURI>system/base/libXau/pspec.xml</SourceURI>
         </Source>
         <Package>
             <Name>libXau</Name>
             <Files>
-                <Path fileType="header">/usr/include/X11</Path>
                 <Path fileType="library">/usr/lib</Path>
+            </Files>
+        </Package>
+        <Package>
+            <Name>libXau-devel</Name>
+            <Summary xml:lang="en">Development files for libXau</Summary>
+            <Summary xml:lang="tr">libXau için geliştirme dosyaları</Summary>
+            <PartOf>system.devel</PartOf>
+            <RuntimeDependencies>
+                <Dependency release="6">libXau</Dependency>
+            </RuntimeDependencies>
+            <Files>
+                <Path fileType="header">/usr/include/X11</Path>
                 <Path fileType="data">/usr/lib/pkgconfig</Path>
                 <Path fileType="man">/usr/share/man</Path>
             </Files>
         </Package>
         <History>
+            <Update release="6">
+                <Date>2010-08-09</Date>
+                <Version>1.0.6</Version>
+                <Comment>- Bump to the new stable release
+                - Split development files</Comment>
+                <Name>Fatih Aşıcı</Name>
+                <Email>fatih@pardus.org.tr</Email>
+            </Update>
             <Update release="5">
                 <Date>2009-10-15</Date>
                 <Version>1.0.5</Version>
@@ -19225,8 +19304,8 @@
             <Summary xml:lang="tr">X protokolü için C dili bağlayıcısı (XCB)</Summary>
             <Archive type="tarbz2" sha1sum="b0a6fec4c02ec876f32bbd4b64ffe8a25f0da518">http://xcb.freedesktop.org/dist/libxcb-1.6.tar.bz2</Archive>
             <BuildDependencies>
-                <Dependency>libXau</Dependency>
-                <Dependency>libXdmcp</Dependency>
+                <Dependency>libXau-devel</Dependency>
+                <Dependency>libXdmcp-devel</Dependency>
                 <Dependency>libxslt</Dependency>
                 <Dependency versionFrom="0.2">libpthread-stubs</Dependency>
                 <Dependency versionFrom="1.6">xcb-proto</Dependency>
@@ -19240,13 +19319,31 @@
                 <Dependency>libXdmcp</Dependency>
             </RuntimeDependencies>
             <Files>
-                <Path fileType="header">/usr/include</Path>
                 <Path fileType="library">/usr/lib</Path>
-                <Path fileType="data">/usr/lib/pkgconfig</Path>
                 <Path fileType="doc">/usr/share/doc</Path>
             </Files>
         </Package>
+        <Package>
+            <Name>libxcb-devel</Name>
+            <Summary xml:lang="en">Development files for libxcb</Summary>
+            <Summary xml:lang="tr">libxcb için geliştirme dosyaları</Summary>
+            <PartOf>system.devel</PartOf>
+            <RuntimeDependencies>
+                <Dependency release="19">libxcb</Dependency>
+            </RuntimeDependencies>
+            <Files>
+                <Path fileType="header">/usr/include/xcb</Path>
+                <Path fileType="data">/usr/lib/pkgconfig</Path>
+            </Files>
+        </Package>
         <History>
+            <Update release="19">
+                <Date>2010-08-09</Date>
+                <Version>1.6</Version>
+                <Comment>Split development files</Comment>
+                <Name>Fatih Aşıcı</Name>
+                <Email>fatih@pardus.org.tr</Email>
+            </Update>
             <Update release="18">
                 <Date>2010-04-13</Date>
                 <Version>1.6</Version>
@@ -25855,12 +25952,30 @@
         <Package>
             <Name>libICE</Name>
             <Files>
-                <Path fileType="header">/usr/include/X11</Path>
                 <Path fileType="library">/usr/lib</Path>
+            </Files>
+        </Package>
+        <Package>
+            <Name>libICE-devel</Name>
+            <Summary xml:lang="en">Development files for libICE</Summary>
+            <Summary xml:lang="tr">libICE için geliştirme dosyaları</Summary>
+            <PartOf>system.devel</PartOf>
+            <RuntimeDependencies>
+                <Dependency release="8">libICE</Dependency>
+            </RuntimeDependencies>
+            <Files>
+                <Path fileType="header">/usr/include/X11</Path>
                 <Path fileType="data">/usr/lib/pkgconfig</Path>
             </Files>
         </Package>
         <History>
+            <Update release="8">
+                <Date>2010-08-08</Date>
+                <Version>1.0.6</Version>
+                <Comment>Split development files</Comment>
+                <Name>Fatih Aşıcı</Name>
+                <Email>fatih@pardus.org.tr</Email>
+            </Update>
             <Update release="7">
                 <Date>2009-12-09</Date>
                 <Version>1.0.6</Version>
@@ -28412,7 +28527,7 @@
                 <Name>Fatih Aşıcı</Name>
                 <Email>fatih@pardus.org.tr</Email>
             </Packager>
-            <License>libXdmcp</License>
+            <License>MIT</License>
             <IsA>library</IsA>
             <PartOf>system.base</PartOf>
             <Summary xml:lang="fr">Librairie Xdmcp de X.Org.</Summary>
@@ -28425,12 +28540,30 @@
         <Package>
             <Name>libXdmcp</Name>
             <Files>
-                <Path fileType="header">/usr/include/X11</Path>
                 <Path fileType="library">/usr/lib</Path>
-                <Path fileType="man">/usr/share/man</Path>
+            </Files>
+        </Package>
+        <Package>
+            <Name>libXdmcp-devel</Name>
+            <Summary xml:lang="en">Development files for libXdmcp</Summary>
+            <Summary xml:lang="tr">libXdmcp için geliştirme dosyaları</Summary>
+            <PartOf>system.devel</PartOf>
+            <RuntimeDependencies>
+                <Dependency release="4">libXdmcp</Dependency>
+            </RuntimeDependencies>
+            <Files>
+                <Path fileType="header">/usr/include/X11</Path>
+                <Path fileType="data">/usr/lib/pkgconfig</Path>
             </Files>
         </Package>
         <History>
+            <Update release="4">
+                <Date>2010-08-09</Date>
+                <Version>1.0.3</Version>
+                <Comment>New stable release</Comment>
+                <Name>Fatih Aşıcı</Name>
+                <Email>fatih@pardus.org.tr</Email>
+            </Update>
             <Update release="3">
                 <Date>2009-12-09</Date>
                 <Version>1.0.3</Version>
