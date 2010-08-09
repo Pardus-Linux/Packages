@@ -14,6 +14,7 @@ def setup():
     shelltools.touch("man/*.1")
     shelltools.chmod("config/*", 0775)
 
+    autotools.autoreconf("-vfi")
     autotools.configure("--enable-nls")
 
 def build():
