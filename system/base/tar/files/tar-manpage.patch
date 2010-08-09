@@ -1,0 +1,38 @@
+Index: tar-1.23/doc/Makefile.am
+===================================================================
+--- tar-1.23.orig/doc/Makefile.am
++++ tar-1.23/doc/Makefile.am
+@@ -32,6 +32,9 @@ tar_TEXINFOS = \
+  sparse.texi\
+  value.texi
+ EXTRA_DIST = gendocs_template mastermenu.el texify.sed untabify.el
++dist_man_MANS = tar.1
++TAR = $(top_builddir)/src/tar
++HELP2MAN = /usr/bin/help2man
+ 
+ # The rendering level is anyone of PUBLISH, DISTRIB or PROOF.
+ # Just call `make RENDITION=PROOF [target]' if you want PROOF rendition.
+@@ -39,6 +42,10 @@ RENDITION = DISTRIB
+ 
+ MAKEINFOFLAGS=-D$(RENDITION)
+ 
++tar.1: $(top_srcdir)/src/tar.c $(top_srcdir)/configure.ac
++	$(HELP2MAN) --name "The GNU version of the tar archiving utility" \
++	  -p tar $(TAR) > $(srcdir)/tar.1
++
+ header.texi: $(top_srcdir)/src/tar.h
+ 	sed -f $(srcdir)/texify.sed $(top_srcdir)/src/tar.h \
+ 	  | expand >$@
+Index: tar-1.23/Makefile.am
+===================================================================
+--- tar-1.23.orig/Makefile.am
++++ tar-1.23/Makefile.am
+@@ -20,7 +20,7 @@
+ 
+ ACLOCAL_AMFLAGS = -I m4
+ EXTRA_DIST = ChangeLog.1 Make.rules
+-SUBDIRS = doc gnu lib rmt src scripts po tests
++SUBDIRS = gnu lib rmt src doc scripts po tests
+ 
+ dist-hook: 
+ 	$(MAKE) changelog_dir=$(distdir) ChangeLog

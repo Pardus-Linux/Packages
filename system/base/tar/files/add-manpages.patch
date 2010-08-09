@@ -1,355 +1,6 @@
---- /dev/null	2007-09-05 21:48:06.465013873 +0300
-+++ doc/tar.1	2007-09-06 08:09:36.000000000 +0300
-@@ -0,0 +1,347 @@
-+.\" @(#)tar.1 1.11.1 93/19/22 PJV;
-+.TH TAR 1 "29 Aug 2007"
-+.SH NAME
-+tar \- The GNU version of the tar archiving utility
-+.SH SYNOPSIS
-+.B tar
-+[
-+.B \-
-+]
-+.B A \-\-catenate \-\-concatenate \||\| c \-\-create \||\| d \-\-diff \-\-compare \||\| \-\-delete \||\| r \-\-append \||\| t \-\-list \||\| u \-\-update \||\| x \-\-extract \-\-get
-+.I [ options ]
-+.I pathname [ pathname ... ] 
-+.SH DESCRIPTION
-+.LP
-+This manual page documents the GNU version of
-+.B tar
-+, an archiving program designed to store and extract files from 
-+an archive file known as a 
-+.IR tarfile.
-+A 
-+.IR tarfile 
-+may be made on a tape drive, however, it is also common
-+to write a
-+.IR tarfile
-+to a normal file. 
-+The first argument to 
-+.B tar
-+must be one of the options:
-+.BR Acdrtux ,
-+followed by any optional functions.
-+The final arguments to 
-+.B tar
-+are the names of the files or directories which should be archived. The use
-+of a directory name always implies that the subdirectories below should be
-+included in the archive.
-+.SH EXAMPLES
-+.TP
-+.B tar \-xvvf foo.tar
-+extract foo.tar
-+.TP
-+.B tar \-xvvzf foo.tar.gz
-+extract gzipped foo.tar.gz
-+.TP
-+.B tar \-cvvf foo.tar foo/
-+tar contents of folder foo in foo.tar
-+.SH "FUNCTION LETTERS"
-+.TP
-+.B One of the following options must be used:
-+.TP
-+.B \-A, \-\-catenate, \-\-concatenate
-+append tar files to an archive
-+.TP
-+.B \-c, \-\-create	
-+create a new archive
-+.TP
-+.B \-d, \-\-diff, \-\-compare
-+find differences between archive and file system
-+.TP
-+.B \-\-delete		
-+delete from the archive (not for use on mag tapes!)
-+.TP
-+.B \-r, \-\-append		
-+append files to the end of an archive
-+.TP
-+.B \-t, \-\-list		
-+list the contents of an archive
-+.TP
-+.B \-u, \-\-update		
-+only append files that are newer than copy in archive
-+.TP
-+.B \-x, \-\-extract, \-\-get		
-+extract files from an archive
-+.SH "OTHER OPTIONS"
-+.TP
-+.B \-\-allow\-name\-mangling
-+re-enable handling of GNUTYPE_NAMES which is now disabled by default
-+.TP
-+.B \-\-anchored	
-+force exclusion patterns to match initial subsequences
-+.TP
-+.B \-\-atime\-preserve	
-+don't change access times on dumped files
-+.TP
-+.B \-b, \-\-blocking\-factor N
-+use record size of Nx512 bytes (default N=20)
-+.TP
-+.B \-B, \-\-read\-full\-records
-+reblock as we read (for reading 4.2BSD pipes)
-+.TP
-+.B \-\-backup[\=TYPE]
-+back up files instead of overwriting (TYPE=numbered, existing, simple)
-+.TP 
-+.B \-C, \-\-directory DIR	
-+change to directory DIR
-+.TP 
-+.B \-\-checkpoint		
-+print periodic checkpoints
-+.TP
-+.B \-\-exclude=PATTERN
-+exclude files matching PATTERN
-+.TP
-+.B \-f, \-\-file [HOSTNAME:]F	
-+use archive file or device F (otherwise value of TAPE environment variable; if unset, "\-", meaning stdin/stdout)
-+.TP 
-+.B \-F, \-\-info\-script F, \-\-new\-volume\-script F 
-+run script at end of each tape (implies \-M)
-+.TP
-+.B \-\-force\-local		
-+archive file is local even if it has a colon
-+.TP
-+.B \-G, \-\-incremental	
-+create/list/extract old GNU-format incremental backup
-+.TP
-+.B \-g, \-\-listed\-incremental F 
-+create/list/extract new GNU-format incremental backup
-+.TP
-+.B \-\-group G
-+set group to G while adding files
-+.TP 
-+.B \-h, \-\-dereference	
-+don't dump symlinks; dump the files they point to
-+.TP
-+.B \-\-help
-+print help message
-+.TP
-+.B \-i, \-\-ignore\-zeros	
-+ignore blocks of zeros in archive (normally mean EOF)
-+.TP
-+.B \-\-ignore\-case
-+ignore case when excluding files
-+.TP
-+.B \-\-ignore\-failed\-read	
-+don't exit with non-zero status on unreadable files
-+.TP
-+.B \-j, \-\-bzip2
-+filter archive through bzip2, use to decompress .bz2 files.
-+WARNING: some previous versions of tar used option \-I to 
-+filter through bzip2.  When writing scripts, use \-\-bzip2 
-+instead of \-j so that both older and newer tar versions
-+will work.
-+.TP
-+.B \-k, \-\-keep\-old\-files	
-+keep existing files; don't overwrite them from archive
-+.TP
-+.B \-K, \-\-starting\-file F	
-+begin at file F in the archive
-+.TP
-+.B \-l, \-\-check\-links
-+print a message if not all links are dumped
-+.TP
-+.B \-L, \-\-tape\-length N	
-+change tapes after writing N*1024 bytes
-+.TP
-+.B \-m, \-\-touch
-+don't extract file modified time
-+.TP
-+.B \-M, \-\-multi\-volume	
-+create/list/extract multi-volume archive
-+.TP
-+.B \-\-mode M
-+set permissions to M while adding files
-+.TP
-+.B \-N, \-\-after\-date DATE, \-\-newer DATE
-+only store files newer than DATE
-+.TP
-+.B \-\-newer\-mtime DATE
-+only store files whose contents have changed after DATE
-+.TP
-+.B \-\-no\-anchored
-+allow exclusion patterns to match any substring (the default)
-+.TP
-+.B \-\-no\-ignore\-case
-+match patterns case sensitively (the default)
-+.TP
-+.B \-\-no\-recursion
-+do not recurse into subdirectories
-+.TP
-+.B \-o, \-\-no\-same\-owner
-+extract files with owner set to current user (the default for non-root
-+users)
-+.TP
-+.B \-\-no\-same\-permissions
-+apply umask to extracted files (the default for non-root users)
-+.TP
-+.B \-\-no\-wildcards
-+do not use wildcards when excluding files
-+.TP
-+.B \-\-no\-wildcards\-match\-slash
-+don't let wildcards match "/" when excluding files
-+.TP
-+.B \-\-null
-+for \-T, use "NUL" instead of newline as filename terminator
-+.TP
-+.B \-\-numeric\-owner
-+always use numbers for user/group names
-+.TP
-+.B \-\-old\-archive, \-\-portability	
-+write a V7 format archive, rather than ANSI format.  These options are
-+deprecated, please use 
-+.B \-\-format\=v7
-+instead.
-+.TP
-+.B \-\-one\-file\-system	
-+stay in local file system when creating an archive
-+.TP
-+.B \-\-owner O
-+set owner to O while adding files
-+.TP 
-+.B \-O, \-\-to\-stdout		
-+extract files to standard output
-+.TP
-+.B \-p, \-\-same\-permissions, \-\-preserve\-permissions 
-+ignore umask when extracting files (the default for root)
-+.TP
-+.B \-P, \-\-absolute\-names
-+don't strip leading `/'s from file names
-+.TP
-+.B \-\-posix
-+create POSIX compliant archive.  This option is deprecated,
-+please use 
-+.B \-\-format\=posix
-+instead.
-+.TP
-+.B \-\-preserve		
-+like \-p \-s
-+.TP
-+.B \-R, \-\-block\-number	
-+show block number within archive with each message
-+.TP
-+.B \-\-record\-size SIZE
-+use SIZE bytes per record
-+.TP
-+.B \-\-recursion
-+recurse into directories (the default)
-+.TP
-+.B \-\-recursive\-unlink
-+remove existing directories before extracting directories of the same
-+name
-+.TP 
-+.B \-\-remove\-files		
-+remove files after adding them to the archive
-+.TP
-+.B \-\-rsh\-command=CMD
-+Use remote COMMAND instead of `rsh'.  This option exists so that
-+people who use something other than the standard `rsh' (e.g., a
-+Kerberized `rsh') can access a remote device.
-+.TP
-+.B \-S, \-\-sparse		
-+handle sparse files efficiently
-+.TP
-+.B \-s, \-\-same\-order, \-\-preserve\-order	
-+list of names to extract is sorted to match archive
-+.TP
-+.B \-\-same\-owner		
-+extract files with owner as specified in archive (the default for
-+root)
-+.TP
-+.B \-\-show\-omitted\-dirs
-+mention directories that are being skipped over
-+.TP
-+.BI \-\-strip\-components " n"
-+Strip the given number of leading directory components
-+.TP
-+.B \-\-strip, \-\-strip\-components N
-+Strips the first N components from archive members' pathnames when
-+unpacking.
-+.TP
-+.B \-\-suffix SUFFIX
-+append SUFFIX to make backup files (default ~)
-+.TP 
-+.B \-T, \-\-files\-from F	
-+get names to extract or archive from file F
-+.TP
-+.B \-\-totals
-+display total bytes written after creating an archive
-+.TP
-+.BI \-\-transform " expr"
-+Transform filenames with the given sed expression
-+.TP
-+.B \-U, \-\-unlink\-first
-+unlink & recreate files instead of overwriting
-+.TP
-+.B \-\-use\-compress\-program PROG
-+filter the archive through PROG (which must accept \-d)
-+.TP
-+.B \-v, \-\-verbose		
-+verbosely list files processed
-+.TP
-+.B \-V, \-\-label NAME	
-+create archive with volume name NAME
-+.TP 
-+.B \-\-version		
-+print tar program version number
-+.TP
-+.B \-\-volno\-file F
-+keep track of current volume (of a multi-volume archive) in F
-+.TP
-+.B \-w, \-\-interactive, \-\-confirmation	
-+ask for confirmation for every action
-+.TP
-+.B \-W, \-\-verify		
-+attempt to verify the archive after writing it
-+.TP
-+.B \-\-wildcards
-+use wildcards when excluding files (the default)
-+.TP
-+.B \-\-wildcards\-match\-slash
-+allow wildcards to match "/" (the default)
-+.TP
-+.B \-X, \-\-exclude\-from=FILE	
-+exclude files matching patterns listed in FILE
-+.TP
-+.B \-Z, \-\-compress, \-\-uncompress      	
-+filter the archive through compress
-+.TP 
-+.B \-z, \-\-gzip, \-\-gunzip, \-\-ungzip		
-+filter the archive through gzip
-+.TP
-+.B \-[0\-7][lmh]		
-+specify drive and density
-+.SH ENVIRONMENT
-+The behavior of tar is controlled by the following environment variables,
-+among others:
-+.TP
-+.B TAPE
-+Device or file to use for the archive if \fB--file\fR is not specified.
-+If this environment variable is unset, use stdin or stdout instead.
-+.TP
-+.B TAR_OPTIONS
-+Options to prepend to those specified on the command line, separated by
-+whitespace.  Embedded backslashes may be used to escape whitespace or
-+backslashes within an option.
-+.SH BUGS
-+.LP
-+The GNU folks, in general, abhor man pages, and create info documents instead.
-+Unfortunately, the info document describing tar is licensed under the GFDL with
-+invariant cover texts, which violates the Debian Free Software Guidelines.  As
-+a result, the info documentation for tar is not included in the Debian package.
-+
-+If you want to read the complete documentation for GNU tar, please refer to
-+the online version at <http://www.gnu.org/software/tar/manual/index.html>.
-+
-+This man page was created for the Debian distribution.  It does not describe
-+all of the functionality of tar, and it is often out of date.  Patches to 
-+improve the coverage and/or accuracy of this man page are appreciated, and
-+should be filed as wishlist severity bugs against the Debian tar package, 
-+not submitted to the GNU tar maintainers.
---- /dev/null	2007-09-05 21:48:06.465013873 +0300
-+++ doc/rmt.8	2007-09-06 08:17:32.000000000 +0300
+diff -Nur tar-1.23-old/doc/rmt.8 tar-1.23/doc/rmt.8
+--- tar-1.23-old/doc/rmt.8	1970-01-01 02:00:00.000000000 +0200
++++ tar-1.23/doc/rmt.8	2010-08-09 17:21:35.222311097 +0300
 @@ -0,0 +1,223 @@
 +.\" Copyright (c) 1983, 1991, 1993
 +.\"	The Regents of the University of California.  All rights reserved.
@@ -574,3 +225,574 @@
 +.Nm
 +command appeared in
 +.Bx 4.2 .
+diff -Nur tar-1.23-old/doc/tar.1 tar-1.23/doc/tar.1
+--- tar-1.23-old/doc/tar.1	1970-01-01 02:00:00.000000000 +0200
++++ tar-1.23/doc/tar.1	2010-08-09 17:21:29.743257323 +0300
+@@ -0,0 +1,567 @@
++.\" DO NOT MODIFY THIS FILE!  It was generated by help2man 1.36.
++.TH TAR "1" "August 2010" "tar 1.23" "User Commands"
++.SH NAME
++tar \- The GNU version of the tar archiving utility
++.SH SYNOPSIS
++.B tar
++[\fIOPTION\fR...] [\fIFILE\fR]...
++.SH DESCRIPTION
++GNU `tar' saves many files together into a single tape or disk archive, and can
++restore individual files from the archive.
++.SH EXAMPLES
++.TP
++tar \fB\-cf\fR archive.tar foo bar
++# Create archive.tar from files foo and bar.
++.TP
++tar \fB\-tvf\fR archive.tar
++# List all files in archive.tar verbosely.
++.TP
++tar \fB\-xf\fR archive.tar
++# Extract all files from archive.tar.
++.IP
++Main operation mode:
++.TP
++\fB\-A\fR, \fB\-\-catenate\fR, \fB\-\-concatenate\fR
++append tar files to an archive
++.TP
++\fB\-c\fR, \fB\-\-create\fR
++create a new archive
++.TP
++\fB\-d\fR, \fB\-\-diff\fR, \fB\-\-compare\fR
++find differences between archive and file system
++.TP
++\fB\-\-delete\fR
++delete from the archive (not on mag tapes!)
++.TP
++\fB\-r\fR, \fB\-\-append\fR
++append files to the end of an archive
++.TP
++\fB\-t\fR, \fB\-\-list\fR
++list the contents of an archive
++.TP
++\fB\-\-test\-label\fR
++test the archive volume label and exit
++.TP
++\fB\-u\fR, \fB\-\-update\fR
++only append files newer than copy in archive
++.TP
++\fB\-x\fR, \fB\-\-extract\fR, \fB\-\-get\fR
++extract files from an archive
++.IP
++Operation modifiers:
++.TP
++\fB\-\-check\-device\fR
++check device numbers when creating incremental
++archives (default)
++.TP
++\fB\-g\fR, \fB\-\-listed\-incremental\fR=\fIFILE\fR
++handle new GNU\-format incremental backup
++.TP
++\fB\-G\fR, \fB\-\-incremental\fR
++handle old GNU\-format incremental backup
++.TP
++\fB\-\-ignore\-failed\-read\fR
++do not exit with nonzero on unreadable files
++.TP
++\fB\-\-level\fR=\fINUMBER\fR
++dump level for created listed\-incremental archive
++.TP
++\fB\-n\fR, \fB\-\-seek\fR
++archive is seekable
++.TP
++\fB\-\-no\-check\-device\fR
++do not check device numbers when creating
++incremental archives
++.TP
++\fB\-\-no\-seek\fR
++archive is not seekable
++.TP
++\fB\-\-occurrence\fR[=\fINUMBER\fR]
++process only the NUMBERth occurrence of each file
++in the archive; this option is valid only in
++conjunction with one of the subcommands \fB\-\-delete\fR,
++\fB\-\-diff\fR, \fB\-\-extract\fR or \fB\-\-list\fR and when a list of
++files is given either on the command line or via
++the \fB\-T\fR option; NUMBER defaults to 1
++.TP
++\fB\-\-sparse\-version\fR=\fIMAJOR[\fR.MINOR]
++set version of the sparse format to use (implies
++\fB\-\-sparse\fR)
++.TP
++\fB\-S\fR, \fB\-\-sparse\fR
++handle sparse files efficiently
++.IP
++Overwrite control:
++.TP
++\fB\-k\fR, \fB\-\-keep\-old\-files\fR
++don't replace existing files when extracting
++.TP
++\fB\-\-keep\-newer\-files\fR
++don't replace existing files that are newer than
++their archive copies
++.TP
++\fB\-\-no\-overwrite\-dir\fR
++preserve metadata of existing directories
++.TP
++\fB\-\-overwrite\fR
++overwrite existing files when extracting
++.TP
++\fB\-\-overwrite\-dir\fR
++overwrite metadata of existing directories when
++extracting (default)
++.TP
++\fB\-\-recursive\-unlink\fR
++empty hierarchies prior to extracting directory
++.TP
++\fB\-\-remove\-files\fR
++remove files after adding them to the archive
++.TP
++\fB\-U\fR, \fB\-\-unlink\-first\fR
++remove each file prior to extracting over it
++.TP
++\fB\-W\fR, \fB\-\-verify\fR
++attempt to verify the archive after writing it
++.IP
++Select output stream:
++.HP
++\fB\-\-ignore\-command\-error\fR ignore exit codes of children
++.TP
++\fB\-\-no\-ignore\-command\-error\fR
++treat non\-zero exit codes of children as
++error
++.TP
++\fB\-O\fR, \fB\-\-to\-stdout\fR
++extract files to standard output
++.TP
++\fB\-\-to\-command\fR=\fICOMMAND\fR
++pipe extracted files to another program
++.IP
++Handling of file attributes:
++.TP
++\fB\-\-atime\-preserve\fR[=\fIMETHOD\fR]
++preserve access times on dumped files, either
++by restoring the times after reading
++(METHOD='replace'; default) or by not setting the
++times in the first place (METHOD='system')
++.TP
++\fB\-\-delay\-directory\-restore\fR
++delay setting modification times and
++permissions of extracted directories until the end
++of extraction
++.TP
++\fB\-\-group\fR=\fINAME\fR
++force NAME as group for added files
++.TP
++\fB\-\-mode\fR=\fICHANGES\fR
++force (symbolic) mode CHANGES for added files
++.TP
++\fB\-\-mtime\fR=\fIDATE\-OR\-FILE\fR
++set mtime for added files from DATE\-OR\-FILE
++.TP
++\fB\-m\fR, \fB\-\-touch\fR
++don't extract file modified time
++.TP
++\fB\-\-no\-delay\-directory\-restore\fR
++cancel the effect of \fB\-\-delay\-directory\-restore\fR
++option
++.TP
++\fB\-\-no\-same\-owner\fR
++extract files as yourself (default for ordinary
++users)
++.TP
++\fB\-\-no\-same\-permissions\fR
++apply the user's umask when extracting permissions
++from the archive (default for ordinary users)
++.TP
++\fB\-\-numeric\-owner\fR
++always use numbers for user/group names
++.TP
++\fB\-\-owner\fR=\fINAME\fR
++force NAME as owner for added files
++.TP
++\fB\-p\fR, \fB\-\-preserve\-permissions\fR, \fB\-\-same\-permissions\fR
++extract information about file permissions
++(default for superuser)
++.TP
++\fB\-\-preserve\fR
++same as both \fB\-p\fR and \fB\-s\fR
++.TP
++\fB\-\-same\-owner\fR
++try extracting files with the same ownership as
++exists in the archive (default for superuser)
++.TP
++\fB\-s\fR, \fB\-\-preserve\-order\fR, \fB\-\-same\-order\fR
++sort names to extract to match archive
++.IP
++Device selection and switching:
++.TP
++\fB\-f\fR, \fB\-\-file\fR=\fIARCHIVE\fR
++use archive file or device ARCHIVE
++.TP
++\fB\-\-force\-local\fR
++archive file is local even if it has a colon
++.TP
++\fB\-F\fR, \fB\-\-info\-script\fR=\fINAME\fR, \fB\-\-new\-volume\-script\fR=\fINAME\fR
++run script at end of each tape (implies \fB\-M\fR)
++.TP
++\fB\-L\fR, \fB\-\-tape\-length\fR=\fINUMBER\fR
++change tape after writing NUMBER x 1024 bytes
++.TP
++\fB\-M\fR, \fB\-\-multi\-volume\fR
++create/list/extract multi\-volume archive
++.TP
++\fB\-\-rmt\-command\fR=\fICOMMAND\fR
++use given rmt COMMAND instead of rmt
++.TP
++\fB\-\-rsh\-command\fR=\fICOMMAND\fR
++use remote COMMAND instead of rsh
++.TP
++\fB\-\-volno\-file\fR=\fIFILE\fR
++use/update the volume number in FILE
++.IP
++Device blocking:
++.TP
++\fB\-b\fR, \fB\-\-blocking\-factor\fR=\fIBLOCKS\fR
++BLOCKS x 512 bytes per record
++.TP
++\fB\-B\fR, \fB\-\-read\-full\-records\fR
++reblock as we read (for 4.2BSD pipes)
++.TP
++\fB\-i\fR, \fB\-\-ignore\-zeros\fR
++ignore zeroed blocks in archive (means EOF)
++.TP
++\fB\-\-record\-size\fR=\fINUMBER\fR
++NUMBER of bytes per record, multiple of 512
++.IP
++Archive format selection:
++.TP
++\fB\-H\fR, \fB\-\-format\fR=\fIFORMAT\fR
++create archive of the given format
++.IP
++FORMAT is one of the following:
++.TP
++gnu
++GNU tar 1.13.x format
++.TP
++oldgnu
++GNU format as per tar <= 1.12
++.TP
++pax
++POSIX 1003.1\-2001 (pax) format
++.TP
++posix
++same as pax
++.TP
++ustar
++POSIX 1003.1\-1988 (ustar) format
++.TP
++v7
++old V7 tar format
++.TP
++\fB\-\-old\-archive\fR, \fB\-\-portability\fR
++same as \fB\-\-format\fR=\fIv7\fR
++.TP
++\fB\-\-pax\-option\fR=\fIkeyword[[\fR:]=value][,keyword[[:]=value]]...
++control pax keywords
++.TP
++\fB\-\-posix\fR
++same as \fB\-\-format\fR=\fIposix\fR
++.TP
++\fB\-V\fR, \fB\-\-label\fR=\fITEXT\fR
++create archive with volume name TEXT; at
++list/extract time, use TEXT as a globbing pattern
++for volume name
++.IP
++Compression options:
++.TP
++\fB\-a\fR, \fB\-\-auto\-compress\fR
++use archive suffix to determine the compression
++program
++.TP
++\fB\-I\fR, \fB\-\-use\-compress\-program\fR=\fIPROG\fR
++filter through PROG (must accept \fB\-d\fR)
++.TP
++\fB\-j\fR, \fB\-\-bzip2\fR
++filter the archive through bzip2
++.TP
++\fB\-J\fR, \fB\-\-xz\fR
++filter the archive through xz
++.TP
++\fB\-\-lzip\fR
++filter the archive through lzip
++.TP
++\fB\-\-lzma\fR
++filter the archive through lzma
++.HP
++\fB\-\-lzop\fR
++.TP
++\fB\-\-no\-auto\-compress\fR
++do not use archive suffix to determine the
++compression program
++.TP
++\fB\-z\fR, \fB\-\-gzip\fR, \fB\-\-gunzip\fR, \fB\-\-ungzip\fR
++filter the archive through gzip
++.TP
++\fB\-Z\fR, \fB\-\-compress\fR, \fB\-\-uncompress\fR
++filter the archive through compress
++.IP
++Local file selection:
++.TP
++\fB\-\-add\-file\fR=\fIFILE\fR
++add given FILE to the archive (useful if its name
++starts with a dash)
++.TP
++\fB\-\-backup\fR[=\fICONTROL\fR]
++backup before removal, choose version CONTROL
++.TP
++\fB\-C\fR, \fB\-\-directory\fR=\fIDIR\fR
++change to directory DIR
++.TP
++\fB\-\-exclude\fR=\fIPATTERN\fR
++exclude files, given as a PATTERN
++.TP
++\fB\-\-exclude\-backups\fR
++exclude backup and lock files
++.TP
++\fB\-\-exclude\-caches\fR
++exclude contents of directories containing
++CACHEDIR.TAG, except for the tag file itself
++.TP
++\fB\-\-exclude\-caches\-all\fR
++exclude directories containing CACHEDIR.TAG
++.TP
++\fB\-\-exclude\-caches\-under\fR exclude everything under directories containing
++CACHEDIR.TAG
++.TP
++\fB\-\-exclude\-tag\fR=\fIFILE\fR
++exclude contents of directories containing FILE,
++except for FILE itself
++.HP
++\fB\-\-exclude\-tag\-all\fR=\fIFILE\fR exclude directories containing FILE
++.TP
++\fB\-\-exclude\-tag\-under\fR=\fIFILE\fR
++exclude everything under directories
++containing FILE
++.TP
++\fB\-\-exclude\-vcs\fR
++exclude version control system directories
++.TP
++\fB\-h\fR, \fB\-\-dereference\fR
++follow symlinks; archive and dump the files they
++point to
++.TP
++\fB\-\-hard\-dereference\fR
++follow hard links; archive and dump the files they
++refer to
++.TP
++\fB\-K\fR, \fB\-\-starting\-file\fR=\fIMEMBER\-NAME\fR
++begin at member MEMBER\-NAME in the archive
++.TP
++\fB\-\-newer\-mtime\fR=\fIDATE\fR
++compare date and time when data changed only
++.TP
++\fB\-\-no\-null\fR
++disable the effect of the previous \fB\-\-null\fR option
++.TP
++\fB\-\-no\-recursion\fR
++avoid descending automatically in directories
++.TP
++\fB\-\-no\-unquote\fR
++do not unquote filenames read with \fB\-T\fR
++.HP
++\fB\-\-null\fR                 \fB\-T\fR reads null\-terminated names, disable \fB\-C\fR
++.TP
++\fB\-N\fR, \fB\-\-newer\fR=\fIDATE\-OR\-FILE\fR, \fB\-\-after\-date\fR=\fIDATE\-OR\-FILE\fR
++only store files newer than DATE\-OR\-FILE
++.TP
++\fB\-\-one\-file\-system\fR
++stay in local file system when creating archive
++.TP
++\fB\-P\fR, \fB\-\-absolute\-names\fR
++don't strip leading `/'s from file names
++.TP
++\fB\-\-recursion\fR
++recurse into directories (default)
++.TP
++\fB\-\-suffix\fR=\fISTRING\fR
++backup before removal, override usual suffix ('~'
++unless overridden by environment variable
++SIMPLE_BACKUP_SUFFIX)
++.TP
++\fB\-T\fR, \fB\-\-files\-from\fR=\fIFILE\fR
++get names to extract or create from FILE
++.TP
++\fB\-\-unquote\fR
++unquote filenames read with \fB\-T\fR (default)
++.TP
++\fB\-X\fR, \fB\-\-exclude\-from\fR=\fIFILE\fR
++exclude patterns listed in FILE
++.IP
++File name transformations:
++.TP
++\fB\-\-strip\-components\fR=\fINUMBER\fR
++strip NUMBER leading components from file
++names on extraction
++.TP
++\fB\-\-transform\fR=\fIEXPRESSION\fR, \fB\-\-xform\fR=\fIEXPRESSION\fR
++use sed replace EXPRESSION to transform file
++names
++.IP
++File name matching options (affect both exclude and include patterns):
++.TP
++\fB\-\-anchored\fR
++patterns match file name start
++.TP
++\fB\-\-ignore\-case\fR
++ignore case
++.TP
++\fB\-\-no\-anchored\fR
++patterns match after any `/' (default for
++exclusion)
++.TP
++\fB\-\-no\-ignore\-case\fR
++case sensitive matching (default)
++.TP
++\fB\-\-no\-wildcards\fR
++verbatim string matching
++.TP
++\fB\-\-no\-wildcards\-match\-slash\fR
++wildcards do not match `/'
++.TP
++\fB\-\-wildcards\fR
++use wildcards (default for exclusion)
++.TP
++\fB\-\-wildcards\-match\-slash\fR
++wildcards match `/' (default for exclusion)
++.IP
++Informative output:
++.TP
++\fB\-\-checkpoint\fR[=\fINUMBER\fR]
++display progress messages every NUMBERth record
++(default 10)
++.TP
++\fB\-\-checkpoint\-action\fR=\fIACTION\fR
++execute ACTION on each checkpoint
++.TP
++\fB\-\-index\-file\fR=\fIFILE\fR
++send verbose output to FILE
++.TP
++\fB\-l\fR, \fB\-\-check\-links\fR
++print a message if not all links are dumped
++.TP
++\fB\-\-no\-quote\-chars\fR=\fISTRING\fR
++disable quoting for characters from STRING
++.TP
++\fB\-\-quote\-chars\fR=\fISTRING\fR
++additionally quote characters from STRING
++.TP
++\fB\-\-quoting\-style\fR=\fISTYLE\fR
++set name quoting style; see below for valid STYLE
++values
++.TP
++\fB\-R\fR, \fB\-\-block\-number\fR
++show block number within archive with each
++message
++.TP
++\fB\-\-show\-defaults\fR
++show tar defaults
++.TP
++\fB\-\-show\-omitted\-dirs\fR
++when listing or extracting, list each directory
++that does not match search criteria
++.TP
++\fB\-\-show\-transformed\-names\fR, \fB\-\-show\-stored\-names\fR
++show file or archive names after transformation
++.TP
++\fB\-\-totals\fR[=\fISIGNAL\fR]
++print total bytes after processing the archive;
++with an argument \- print total bytes when this
++SIGNAL is delivered; Allowed signals are: SIGHUP,
++SIGQUIT, SIGINT, SIGUSR1 and SIGUSR2; the names
++without SIG prefix are also accepted
++.TP
++\fB\-\-utc\fR
++print file modification dates in UTC
++.TP
++\fB\-v\fR, \fB\-\-verbose\fR
++verbosely list files processed
++.TP
++\fB\-\-warning\fR=\fIKEYWORD\fR
++warning control
++.TP
++\fB\-w\fR, \fB\-\-interactive\fR, \fB\-\-confirmation\fR
++ask for confirmation for every action
++.IP
++Compatibility options:
++.TP
++\fB\-o\fR
++when creating, same as \fB\-\-old\-archive\fR; when
++extracting, same as \fB\-\-no\-same\-owner\fR
++.IP
++Other options:
++.TP
++\-?, \fB\-\-help\fR
++give this help list
++.TP
++\fB\-\-restrict\fR
++disable use of some potentially harmful options
++.TP
++\fB\-\-usage\fR
++give a short usage message
++.TP
++\fB\-\-version\fR
++print program version
++.PP
++Mandatory or optional arguments to long options are also mandatory or optional
++for any corresponding short options.
++.PP
++The backup suffix is `~', unless set with \fB\-\-suffix\fR or SIMPLE_BACKUP_SUFFIX.
++The version control may be set with \fB\-\-backup\fR or VERSION_CONTROL, values are:
++.TP
++none, off
++never make backups
++.TP
++t, numbered
++make numbered backups
++.TP
++nil, existing
++numbered if numbered backups exist, simple otherwise
++.TP
++never, simple
++always make simple backups
++.PP
++Valid arguments for the \fB\-\-quoting\-style\fR option are:
++.IP
++literal
++shell
++shell\-always
++c
++c\-maybe
++escape
++locale
++clocale
++.PP
++*This* tar defaults to:
++\fB\-\-format\fR=\fIgnu\fR \fB\-f\-\fR \fB\-b20\fR \fB\-\-quoting\-style\fR=\fIescape\fR \fB\-\-rmt\-command=\fR/usr/sbin/rmt
++.SH AUTHOR
++Written by John Gilmore and Jay Fenlason.
++.SH "REPORTING BUGS"
++Report bugs to <bug\-tar@gnu.org>.
++.SH COPYRIGHT
++Copyright \(co 2010 Free Software Foundation, Inc.
++License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>.
++.br
++This is free software: you are free to change and redistribute it.
++There is NO WARRANTY, to the extent permitted by law.
++.SH "SEE ALSO"
++The full documentation for
++.B tar
++is maintained as a Texinfo manual.  If the
++.B info
++and
++.B tar
++programs are properly installed at your site, the command
++.IP
++.B info tar
++.PP
++should give you access to the complete manual.
