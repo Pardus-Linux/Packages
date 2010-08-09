@@ -7,6 +7,7 @@ from pisi.actionsapi import autotools
 from pisi.actionsapi import pisitools
 
 def setup():
+    autotools.autoreconf("-vif")
     autotools.configure()
 
 def build():
@@ -14,7 +15,5 @@ def build():
 
 def install():
     autotools.install()
-
-    pisitools.removeDir("/usr/share/util-macros")
 
     pisitools.dodoc("ChangeLog", "COPYING", "README")
