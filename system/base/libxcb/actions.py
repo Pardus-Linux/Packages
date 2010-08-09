@@ -1,4 +1,3 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
 # Licensed under the GNU General Public License, version 2.
@@ -23,5 +22,8 @@ def build():
 
 def install():
     autotools.install()
+
+    pisitools.remove("/usr/include/xcb/xevie.h")
+    pisitools.remove("/usr/include/xcb/xprint.h")
 
     pisitools.dodoc("COPYING", "NEWS", "README")
