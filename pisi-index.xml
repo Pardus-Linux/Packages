@@ -9,6 +9,7 @@
         <Obsoletes>
             <Package>bootsplash</Package>
             <Package>bootsplash-theme-pardus</Package>
+            <Package>libpthread-stubs</Package>
         </Obsoletes>
     </Distribution>
     <SpecFile>
@@ -217,6 +218,7 @@
                 <Patch>suse/pr27880.diff</Patch>
                 <Patch>suse/pr43270.diff</Patch>
                 <Patch>suse/sap303956-uchar.diff</Patch>
+                <Patch>pr42375.patch</Patch>
                 <Patch level="1">pr26061.patch</Patch>
                 <Patch>record_gcc_options.patch</Patch>
                 <Patch level="1">pure64.patch</Patch>
@@ -292,6 +294,13 @@
             </AdditionalFiles>
         </Package>
         <History>
+            <Update release="58">
+                <Date>2010-08-09</Date>
+                <Version>4.5.1</Version>
+                <Comment>Allow scalar is_va_list_type types, fixes conftest of diffutils</Comment>
+                <Name>Onur Küçük</Name>
+                <Email>onur@pardus.org.tr</Email>
+            </Update>
             <Update release="57">
                 <Date>2010-08-06</Date>
                 <Version>4.5.1</Version>
@@ -1564,47 +1573,6 @@
                 <Comment>First release.</Comment>
                 <Name>İsmail Dönmez</Name>
                 <Email>ismail@pardus.org.tr</Email>
-            </Update>
-        </History>
-    </SpecFile>
-    <SpecFile>
-        <Source>
-            <Name>libpthread-stubs</Name>
-            <Homepage>http://xcb.freedesktop.org/</Homepage>
-            <Packager>
-                <Name>Fatih Aşıcı</Name>
-                <Email>fatih@pardus.org.tr</Email>
-            </Packager>
-            <License>X11</License>
-            <IsA>library</IsA>
-            <PartOf>system.devel</PartOf>
-            <Summary xml:lang="fr">Librairie de squelettes (stubs) libpthread de X.Org.</Summary>
-            <Summary xml:lang="en">X.Org libpthread-stubs library</Summary>
-            <Summary xml:lang="de">X.Org libpthread-stubs Bibliothek</Summary>
-            <Archive type="tarbz2" sha1sum="d34e084dfb11741433d8233a53d4cd9e444ff51e">http://xcb.freedesktop.org/dist/libpthread-stubs-0.2.tar.bz2</Archive>
-            <SourceURI>system/devel/libpthread-stubs/pspec.xml</SourceURI>
-        </Source>
-        <Package>
-            <Name>libpthread-stubs</Name>
-            <Files>
-                <Path fileType="library">/usr/lib</Path>
-                <Path fileType="data">/usr/lib/pkgconfig</Path>
-            </Files>
-        </Package>
-        <History>
-            <Update release="2">
-                <Date>2009-12-08</Date>
-                <Version>0.2</Version>
-                <Comment>New release</Comment>
-                <Name>Fatih Aşıcı</Name>
-                <Email>fatih@pardus.org.tr</Email>
-            </Update>
-            <Update release="1">
-                <Date>2006-11-26</Date>
-                <Version>0.1</Version>
-                <Comment>First release.</Comment>
-                <Name>S.Çağlar Onur</Name>
-                <Email>caglar@pardus.org.tr</Email>
             </Update>
         </History>
     </SpecFile>
@@ -4060,7 +4028,10 @@
             <Summary xml:lang="fr">Macros X.org utilisées pour compiler X.Org.</Summary>
             <Summary xml:lang="en">X.org macros used for X.org compiliation</Summary>
             <Summary xml:lang="de">X.org Makros zum Kompilieren von X.org</Summary>
-            <Archive type="tarbz2" sha1sum="82f832a47ab6ea6aca11f29161e88b14958d883d">mirrors://xorg/individual/util/util-macros-1.7.0.tar.bz2</Archive>
+            <Archive type="tarbz2" sha1sum="01bd26de7f76907ad502b430a5d18f64a896dc81">mirrors://xorg/individual/util/util-macros-1.10.0.tar.bz2</Archive>
+            <Patches>
+                <Patch level="1">doc.patch</Patch>
+            </Patches>
             <SourceURI>system/devel/util-macros/pspec.xml</SourceURI>
         </Source>
         <Package>
@@ -4072,6 +4043,13 @@
             </Files>
         </Package>
         <History>
+            <Update release="14">
+                <Date>2010-08-09</Date>
+                <Version>1.10.0</Version>
+                <Comment>New stable release</Comment>
+                <Name>Fatih Aşıcı</Name>
+                <Email>fatih@pardus.org.tr</Email>
+            </Update>
             <Update release="13">
                 <Date>2010-04-13</Date>
                 <Version>1.7.0</Version>
@@ -11857,33 +11835,53 @@
             <IsA>library</IsA>
             <PartOf>system.base</PartOf>
             <Summary xml:lang="fr">Librairie générale de cryptographie basée sur le code utilisé dans GnuPG.</Summary>
-            <Summary xml:lang="en">General purpose crypto library based on the code used in GnuPG</Summary>
-            <Summary xml:lang="tr">GnuPG içinde kullanılan kod temelinde yazılmış genel amaçlı şifreleme kütüphanesi</Summary>
-            <Archive type="tarbz2" sha1sum="3987f0efcbb7048c136d5c859e88eee1763a14f6">ftp://ftp.gnupg.org/gcrypt/libgcrypt/libgcrypt-1.4.4.tar.bz2</Archive>
+            <Summary xml:lang="en">General purpose crypto library</Summary>
+            <Summary xml:lang="tr">Genel amaçlı bir şifreleme kütüphanesi</Summary>
+            <Description xml:lang="en">Libgcrypt is a general purpose crypto library based on the code used in GNU Privacy Guard.</Description>
+            <Description xml:lang="tr">Libgcrypt, GNU Privacy Guard kodunu temel alan genel amaçlı bir şifreleme kütüphanesidir.</Description>
+            <Archive type="tarbz2" sha1sum="445b9e158aaf91e24eae3d1040c6213e9d9f5ba6">ftp://ftp.gnupg.org/gcrypt/libgcrypt/libgcrypt-1.4.6.tar.bz2</Archive>
             <BuildDependencies>
-                <Dependency versionFrom="1.6">libgpg-error</Dependency>
+                <Dependency>libgpg-error-devel</Dependency>
             </BuildDependencies>
-            <Patches>
-                <Patch level="1">libgcrypt-1.4.4-fips-no-access.patch</Patch>
-            </Patches>
             <SourceURI>system/base/libgcrypt/pspec.xml</SourceURI>
         </Source>
         <Package>
             <Name>libgcrypt</Name>
             <RuntimeDependencies>
-                <Dependency versionFrom="1.6">libgpg-error</Dependency>
+                <Dependency>libgpg-error</Dependency>
             </RuntimeDependencies>
             <Files>
                 <Path fileType="config">/etc/gcrypt</Path>
                 <Path fileType="executable">/usr/bin</Path>
-                <Path fileType="header">/usr/include</Path>
                 <Path fileType="library">/usr/lib</Path>
-                <Path fileType="data">/usr/share/aclocal</Path>
                 <Path fileType="doc">/usr/share/doc</Path>
                 <Path fileType="info">/usr/share/info</Path>
             </Files>
         </Package>
+        <Package>
+            <Name>libgcrypt-devel</Name>
+            <Summary xml:lang="en">Development files for libgcrypt</Summary>
+            <Summary xml:lang="tr">libgcrypt için geliştirme dosyaları</Summary>
+            <PartOf>system.devel</PartOf>
+            <RuntimeDependencies>
+                <Dependency release="10">libgcrypt</Dependency>
+            </RuntimeDependencies>
+            <Files>
+                <Path fileType="executable">/usr/bin/*-config</Path>
+                <Path fileType="header">/usr/include</Path>
+                <Path fileType="data">/usr/lib/pkgconfig</Path>
+                <Path fileType="data">/usr/share/aclocal</Path>
+            </Files>
+        </Package>
         <History>
+            <Update release="10">
+                <Date>2010-08-09</Date>
+                <Version>1.4.6</Version>
+                <Comment>- New stable release
+                - Split development files</Comment>
+                <Name>Fatih Aşıcı</Name>
+                <Email>fatih@pardus.org.tr</Email>
+            </Update>
             <Update release="9">
                 <Date>2009-04-20</Date>
                 <Version>1.4.4</Version>
@@ -16090,7 +16088,7 @@
             <Description xml:lang="fr">FreeType2 est un moteur logiciel de fontes conçu pour être petit, efficace, très flexible et portable tout en étant capable de produire une sortie de très haute qualité. Il peut être utilisé dans les librairies graphiques, les serveurs d&apos;affichage, les outils de conversion, les outils de génération d&apos;images textuelles, ainsi que beaucoup d&apos;autres produits.</Description>
             <Description xml:lang="en">FreeType 2 is a software font engine that is designed to be small, efficient, highly customizable, and portable while capable of producing high-quality output. It can be used in graphics libraries, display servers, font conversion tools, text image generation tools, and many other products as well.</Description>
             <Description xml:lang="tr">FreeType 2; küçük, verimli, özelleştirilebilir, taşınabilir ve yüksek kaliteli çıktı oluşturan bir yazıtipi düzeneğidir. Grafik kütüphaneleri, görüntü sunucuları ve yazıtipi değiştirme araçları gibi birçok üründe kullanılabilir.</Description>
-            <Archive type="tarbz2" sha1sum="4cbb92847b90da5babdaaab260cc09e801a60e74">http://download.savannah.gnu.org/releases/freetype/freetype-2.4.0.tar.bz2</Archive>
+            <Archive type="tarbz2" sha1sum="cc257ceda2950b8c80950d780ccf3ce665a815d1">http://download.savannah.gnu.org/releases/freetype/freetype-2.4.2.tar.bz2</Archive>
             <BuildDependencies>
                 <Dependency>zlib</Dependency>
             </BuildDependencies>
@@ -16099,7 +16097,6 @@
                 <Patch level="1">debian/freetype-bdflib-large-encodings.patch</Patch>
                 <Patch level="1">fedora/freetype-2.2.1-enable-valid.patch</Patch>
                 <Patch level="1">fedora/freetype-2.3.0-enable-spr.patch</Patch>
-                <Patch level="1">off-by-one.patch</Patch>
             </Patches>
             <SourceURI>system/base/freetype/pspec.xml</SourceURI>
         </Source>
@@ -16109,15 +16106,40 @@
                 <Dependency>zlib</Dependency>
             </RuntimeDependencies>
             <Files>
-                <Path fileType="executable">/usr/bin</Path>
                 <Path fileType="library">/usr/lib</Path>
                 <Path fileType="doc">/usr/share/doc</Path>
-                <Path fileType="data">/usr/share/aclocal</Path>
-                <Path fileType="data">/usr/lib/pkgconfig</Path>
+            </Files>
+        </Package>
+        <Package>
+            <Name>freetype-devel</Name>
+            <Summary xml:lang="en">Development files for freetype</Summary>
+            <Summary xml:lang="tr">freetype için geliştirme dosyaları</Summary>
+            <PartOf>system.devel</PartOf>
+            <RuntimeDependencies>
+                <Dependency release="43">freetype</Dependency>
+            </RuntimeDependencies>
+            <Files>
+                <Path fileType="executable">/usr/bin</Path>
                 <Path fileType="header">/usr/include</Path>
+                <Path fileType="data">/usr/lib/pkgconfig</Path>
+                <Path fileType="data">/usr/share/aclocal</Path>
             </Files>
         </Package>
         <History>
+            <Update release="43">
+                <Date>2010-08-09</Date>
+                <Version>2.4.2</Version>
+                <Comment>Split development files</Comment>
+                <Name>Fatih Aşıcı</Name>
+                <Email>fatih@pardus.org.tr</Email>
+            </Update>
+            <Update release="42" type="security">
+                <Date>2010-08-09</Date>
+                <Version>2.4.2</Version>
+                <Comment>New stable release. Fixes CVE-2010-{1797,2805,2806,2807,2808}, #13925, #13929.</Comment>
+                <Name>Fatih Aşıcı</Name>
+                <Email>fatih@pardus.org.tr</Email>
+            </Update>
             <Update release="41" type="critical">
                 <Date>2010-07-15</Date>
                 <Version>2.4.0</Version>
@@ -17256,13 +17278,17 @@
                 <Dependency>ncompress</Dependency>
             </BuildDependencies>
             <Patches>
-                <Patch>add-manpages.patch</Patch>
-                <Patch>buffer_overflow.patch</Patch>
                 <Patch level="1">tar-1.14-loneZeroWarning.patch</Patch>
                 <Patch level="1">tar-1.15.1-vfatTruncate.patch</Patch>
                 <Patch level="1">tar-1.22-atime-rofs.patch</Patch>
-                <Patch level="1">tar-1.22-fortifysourcessigabrt.patch</Patch>
                 <Patch level="1">tar-1.23-oldarchive.patch</Patch>
+                <Patch level="1">tar-disable-listed02-test.patch</Patch>
+                <Patch level="1">tar-disable_languages.patch</Patch>
+                <Patch level="1">tar-fortifysourcessigabrt.patch</Patch>
+                <Patch level="1">tar-wildcards.patch</Patch>
+                <Patch level="1">add-manpages.patch</Patch>
+                <Patch>buffer_overflow.patch</Patch>
+                <Patch level="1">disable-remfiles01-test.patch</Patch>
             </Patches>
             <SourceURI>system/base/tar/pspec.xml</SourceURI>
         </Source>
@@ -17285,6 +17311,13 @@
             </Files>
         </Package>
         <History>
+            <Update release="22">
+                <Date>2010-08-09</Date>
+                <Version>1.23</Version>
+                <Comment>Tidy up patches and man page</Comment>
+                <Name>Onur Küçük</Name>
+                <Email>onur@pardus.org.tr</Email>
+            </Update>
             <Update release="21">
                 <Date>2010-08-09</Date>
                 <Version>1.23</Version>
@@ -19307,7 +19340,6 @@
                 <Dependency>libXau-devel</Dependency>
                 <Dependency>libXdmcp-devel</Dependency>
                 <Dependency>libxslt</Dependency>
-                <Dependency versionFrom="0.2">libpthread-stubs</Dependency>
                 <Dependency versionFrom="1.6">xcb-proto</Dependency>
             </BuildDependencies>
             <SourceURI>system/base/libxcb/pspec.xml</SourceURI>
@@ -19329,14 +19361,28 @@
             <Summary xml:lang="tr">libxcb için geliştirme dosyaları</Summary>
             <PartOf>system.devel</PartOf>
             <RuntimeDependencies>
-                <Dependency release="19">libxcb</Dependency>
+                <Dependency release="20">libxcb</Dependency>
             </RuntimeDependencies>
             <Files>
                 <Path fileType="header">/usr/include/xcb</Path>
                 <Path fileType="data">/usr/lib/pkgconfig</Path>
             </Files>
+            <Replaces>
+                <Package>libpthread-stubs</Package>
+            </Replaces>
+            <AdditionalFiles>
+                <AdditionalFile target="/usr/lib/pkgconfig/pthread-stubs.pc" permission="0644" owner="root">pthread-stubs.pc</AdditionalFile>
+            </AdditionalFiles>
         </Package>
         <History>
+            <Update release="20">
+                <Date>2010-08-09</Date>
+                <Version>1.6</Version>
+                <Comment>- Add pthread-stubs.pc to the devel package and replace libpthread-stubs
+                - Remove unused headers</Comment>
+                <Name>Fatih Aşıcı</Name>
+                <Email>fatih@pardus.org.tr</Email>
+            </Update>
             <Update release="19">
                 <Date>2010-08-09</Date>
                 <Version>1.6</Version>
@@ -20845,7 +20891,7 @@
             <Archive type="targz" sha1sum="69f74df8228b504a87e2b257c2d5238281c65154">ftp://ftp.xmlsoft.org/libxml2/libxslt-1.1.26.tar.gz</Archive>
             <BuildDependencies>
                 <Dependency>libxml2</Dependency>
-                <Dependency>libgcrypt</Dependency>
+                <Dependency>libgcrypt-devel</Dependency>
             </BuildDependencies>
             <Patches>
                 <Patch>libxslt.m4-libxslt-1.1.8.patch</Patch>
@@ -21658,14 +21704,13 @@
             <Description xml:lang="en">Pardus programs are packaged with small scripts which configures them to entegrate with system and each other. Çomar is the tool which manages and executes these scripts.</Description>
             <Description xml:lang="tr">Pardus yazılımları, birbirleri ve sistemle otomatik olarak uyum sağlayabilmek için yanlarında ufak programcıklar ile paketlenmektedir. Bu programcıkların yönetimi ve işletilmesi Çomar aracı tarafından yapılmaktadır.</Description>
             <Description xml:lang="de">Pardus Programme werden mit einem kleinen Skript paketiert, welches sie konfiguriert, um die Integrität mit dem System und anderen Programmen sicherzustellen. Comar ist das Werkzeug, das diese Skripte verwaltet und ausführt.</Description>
-            <Archive type="tarbz2" sha1sum="4db47be44afd16abf24318564a320068a1b905c0">http://cekirdek.pardus.org.tr/~ozan/dist/sources/comar-3.0.0.tar.bz2</Archive>
+            <Archive type="tarbz2" sha1sum="a7336333392ac3a36dadca25d83aa481f7e37682">http://cekirdek.pardus.org.tr/~bahadir/comar/comar-3.0.1.tar.bz2</Archive>
             <BuildDependencies>
                 <Dependency>dbus</Dependency>
                 <Dependency>python</Dependency>
             </BuildDependencies>
             <Patches>
                 <Patch level="1">fix-flags.patch</Patch>
-                <Patch level="1">fix-system-manager-model.patch</Patch>
             </Patches>
             <SourceURI>system/base/comar/pspec.xml</SourceURI>
         </Source>
@@ -21690,6 +21735,13 @@
             </Provides>
         </Package>
         <History>
+            <Update release="106">
+                <Date>2010-08-09</Date>
+                <Version>3.0.1</Version>
+                <Comment>Fix signatures of some System.Manager methods</Comment>
+                <Name>Bahadır Kandemir</Name>
+                <Email>bahadir@pardus.org.tr</Email>
+            </Update>
             <Update release="105" type="critical">
                 <Date>2010-05-17</Date>
                 <Version>3.0.0</Version>
@@ -22554,6 +22606,10 @@
                 <Patch level="1">diffutils-2.8.4-sdiff-no-waitpid.patch</Patch>
                 <Patch level="1">diffutils-2.8.7-i18n.patch</Patch>
                 <Patch level="1">diffutils-2.8.1-badc.patch</Patch>
+                <Patch level="1">diffutils-cmp-s-empty.patch</Patch>
+                <Patch>diffutils-2.8.7-headers.patch</Patch>
+                <Patch level="1">memcpy.patch</Patch>
+                <Patch>diffutils-2.8.7-autoconf.patch</Patch>
             </Patches>
             <SourceURI>system/base/diffutils/pspec.xml</SourceURI>
         </Source>
@@ -22568,6 +22624,16 @@
             </Files>
         </Package>
         <History>
+            <Update release="3">
+                <Date>2010-08-09</Date>
+                <Version>2.8.7</Version>
+                <Comment>Add cmp-s empty fix
+                Add header fixes
+                Fix memcpy usage
+                Fix build with gcc 4.5</Comment>
+                <Name>Onur Küçük</Name>
+                <Email>onur@pardus.org.tr</Email>
+            </Update>
             <Update release="2">
                 <Date>2009-10-21</Date>
                 <Version>2.8.7</Version>
@@ -24171,24 +24237,47 @@
             <IsA>library</IsA>
             <PartOf>system.base</PartOf>
             <Summary xml:lang="fr">Contient les fonctions de gestion d&apos;erreur utilisées par le logiciel GnuPG.</Summary>
-            <Summary xml:lang="en">Contains error handling functions used by GnuPG software</Summary>
-            <Summary xml:lang="tr">GnuPG yazılımı tarafından kullanılan hata yakalama fonksiyonlarını içerir</Summary>
-            <Archive type="tarbz2" sha1sum="bf8c6babe1e28cae7dd6374ca24ddcc42d57e902">ftp://ftp.gnupg.org/gcrypt/libgpg-error/libgpg-error-1.7.tar.bz2</Archive>
+            <Summary xml:lang="en">Library for error values used by GnuPG components</Summary>
+            <Summary xml:lang="tr">GnuPG bileşenlerinin kullandığı hata değerleri için kitaplık</Summary>
+            <Description xml:lang="en">libgpg-error is a library that defines common error values for all GnuPG components.</Description>
+            <Description xml:lang="tr">libgpg-error, tüm GnuPG bileşenleri için ortak olan hata değerlerini tanımlayan bir kitaplıktır.</Description>
+            <Archive type="tarbz2" sha1sum="6836579e42320b057a2372bbcd0325130fe2561e">ftp://ftp.gnupg.org/gcrypt/libgpg-error/libgpg-error-1.9.tar.bz2</Archive>
             <SourceURI>system/base/libgpg-error/pspec.xml</SourceURI>
         </Source>
         <Package>
             <Name>libgpg-error</Name>
             <Files>
                 <Path fileType="executable">/usr/bin</Path>
-                <Path fileType="header">/usr/include</Path>
                 <Path fileType="library">/usr/lib</Path>
-                <Path fileType="data">/usr/share/aclocal</Path>
-                <Path fileType="data">/usr/share/common-lisp</Path>
                 <Path fileType="doc">/usr/share/doc</Path>
                 <Path fileType="localedata">/usr/share/locale</Path>
             </Files>
         </Package>
+        <Package>
+            <Name>libgpg-error-devel</Name>
+            <Summary xml:lang="en">Development files for libgpg-error</Summary>
+            <Summary xml:lang="tr">libgpg-error için geliştirme dosyaları</Summary>
+            <PartOf>system.devel</PartOf>
+            <RuntimeDependencies>
+                <Dependency release="9">libgpg-error</Dependency>
+            </RuntimeDependencies>
+            <Files>
+                <Path fileType="executable">/usr/bin/*-config</Path>
+                <Path fileType="header">/usr/include</Path>
+                <Path fileType="data">/usr/lib/pkgconfig</Path>
+                <Path fileType="data">/usr/share/aclocal</Path>
+            </Files>
+        </Package>
         <History>
+            <Update release="9">
+                <Date>2010-08-09</Date>
+                <Version>1.9</Version>
+                <Comment>- Bump to the new stable release
+                - Split development files
+                - Do not ship Lisp bindings</Comment>
+                <Name>Fatih Aşıcı</Name>
+                <Email>fatih@pardus.org.tr</Email>
+            </Update>
             <Update release="8">
                 <Date>2009-02-01</Date>
                 <Version>1.7</Version>
@@ -28667,6 +28756,192 @@
                 <Comment>First release.</Comment>
                 <Name>A. Murat Eren</Name>
                 <Email>meren@pardus.org.tr</Email>
+            </Update>
+        </History>
+    </SpecFile>
+    <SpecFile>
+        <Source>
+            <Name>rsync</Name>
+            <Homepage>http://rsync.samba.org/</Homepage>
+            <Packager>
+                <Name>Fethican Coşkuner</Name>
+                <Email>fethicanc@gmail.com</Email>
+            </Packager>
+            <License>GPLv2</License>
+            <IsA>service</IsA>
+            <IsA>app:console</IsA>
+            <PartOf>network.share</PartOf>
+            <Summary xml:lang="en">File transfer program to keep local copies in sync with remote files</Summary>
+            <Summary xml:lang="tr">Dosya yedekleme ve eşleme uygulaması</Summary>
+            <Description xml:lang="en">rsync is a tool to keep local copies of remote files in sync (i.e. make sure local files are exact copies of remote files).</Description>
+            <Description xml:lang="tr">rsync, uzaktaki dosyaları senkronize tutan bir dosya transfer uygulamasıdır.</Description>
+            <Archive type="targz" sha1sum="63426a1bc71991d93159cd522521fbacdafb7a61">http://rsync.samba.org/ftp/rsync/rsync-3.0.7.tar.gz</Archive>
+            <SourceURI>network/share/rsync/pspec.xml</SourceURI>
+        </Source>
+        <Package>
+            <Name>rsync</Name>
+            <Files>
+                <Path fileType="executable">/usr/bin</Path>
+                <Path fileType="doc">/usr/share/doc</Path>
+                <Path fileType="man">/usr/share/man</Path>
+                <Path fileType="config">/etc</Path>
+            </Files>
+            <Provides>
+                <COMAR script="service.py">System.Service</COMAR>
+            </Provides>
+            <AdditionalFiles>
+                <AdditionalFile target="/etc/rsyncd.conf" permission="0644" owner="root">rsyncd.conf</AdditionalFile>
+                <AdditionalFile target="/etc/conf.d/rsyncd" permission="0644" owner="root">rsyncd.conf.d</AdditionalFile>
+            </AdditionalFiles>
+        </Package>
+        <History>
+            <Update release="21">
+                <Date>2010-03-14</Date>
+                <Version>3.0.7</Version>
+                <Comment>Bugfix release</Comment>
+                <Name>Fethican Coşkuner</Name>
+                <Email>fethicanc@gmail.com</Email>
+            </Update>
+            <Update release="20">
+                <Date>2009-05-14</Date>
+                <Version>3.0.6</Version>
+                <Comment>Stable update</Comment>
+                <Name>Taner Taş</Name>
+                <Email>taner@pardus.org.tr</Email>
+            </Update>
+            <Update release="19">
+                <Date>2009-04-13</Date>
+                <Version>3.0.5</Version>
+                <Comment>Stable update</Comment>
+                <Name>Ozan Çağlayan</Name>
+                <Email>ozan@pardus.org.tr</Email>
+            </Update>
+            <Update release="18">
+                <Date>2008-09-07</Date>
+                <Version>3.0.4</Version>
+                <Comment>Stable update</Comment>
+                <Name>Fatih Aşıcı</Name>
+                <Email>fatih@pardus.org.tr</Email>
+            </Update>
+            <Update release="17" type="security">
+                <Date>2008-04-09</Date>
+                <Version>3.0.2</Version>
+                <Comment>Version bump to fix CVE-2008-1720</Comment>
+                <Name>Ali Erdinç Köroğlu</Name>
+                <Email>erdinc@pardus.org.tr</Email>
+            </Update>
+            <Update release="16">
+                <Date>2008-03-10</Date>
+                <Version>3.0.0</Version>
+                <Comment>Stable release</Comment>
+                <Name>Pınar Yanardağ</Name>
+                <Email>pinar@pardus.org.tr</Email>
+            </Update>
+            <Update release="15">
+                <Date>2008-01-13</Date>
+                <Version>3.0.0_pre8</Version>
+                <Comment>Version bump</Comment>
+                <Name>İsmail Dönmez</Name>
+                <Email>ismail@pardus.org.tr</Email>
+            </Update>
+            <Update release="14" type="security">
+                <Date>2007-12-24</Date>
+                <Version>3.0.0_pre7</Version>
+                <Comment>Version bump to fix CVE-2007-6200</Comment>
+                <Name>İsmail Dönmez</Name>
+                <Email>ismail@pardus.org.tr</Email>
+            </Update>
+            <Update release="13" type="security">
+                <Date>2007-11-30</Date>
+                <Version>3.0.0_pre6</Version>
+                <Comment>Version bump to fix CVE-2007-6199</Comment>
+                <Name>İsmail Dönmez</Name>
+                <Email>ismail@pardus.org.tr</Email>
+            </Update>
+            <Update release="12">
+                <Date>2007-11-09</Date>
+                <Version>3.0.0_pre5</Version>
+                <Comment>Version bump for testing</Comment>
+                <Name>İsmail Dönmez</Name>
+                <Email>ismail@pardus.org.tr</Email>
+            </Update>
+            <Update release="11" type="security">
+                <Date>2007-08-16</Date>
+                <Version>2.6.9</Version>
+                <Comment>Fix CVE-2007-4091</Comment>
+                <Name>İsmail Dönmez</Name>
+                <Email>ismail@pardus.org.tr</Email>
+            </Update>
+            <Update release="10">
+                <Date>2007-05-23</Date>
+                <Version>2.6.9</Version>
+                <Comment>Updated Service script.</Comment>
+                <Name>Bahadır Kandemir</Name>
+                <Email>bahadir@pardus.org.tr</Email>
+            </Update>
+            <Update release="9">
+                <Date>2007-05-08</Date>
+                <Version>2.6.9</Version>
+                <Comment>Enable ACL support and disable debug</Comment>
+                <Name>İsmail Dönmez</Name>
+                <Email>ismail@pardus.org.tr</Email>
+            </Update>
+            <Update release="8">
+                <Date>2006-11-08</Date>
+                <Version>2.6.9</Version>
+                <Comment>Version bump</Comment>
+                <Name>Ali Erdinç Köroğlu</Name>
+                <Email>erdinc@pardus.org.tr</Email>
+            </Update>
+            <Update release="7">
+                <Date>2006-10-09</Date>
+                <Version>2.6.8</Version>
+                <Comment>Service script updated.</Comment>
+                <Name>Bahadır Kandemir</Name>
+                <Email>bahadir@pardus.org.tr</Email>
+            </Update>
+            <Update release="6" type="security">
+                <Date>2006-05-06</Date>
+                <Version>2.6.8</Version>
+                <Comment>Fix CVE-2006-2083</Comment>
+                <Name>İsmail Dönmez</Name>
+                <Email>ismail@pardus.org.tr</Email>
+            </Update>
+            <Update release="5">
+                <Date>2006-04-19</Date>
+                <Version>2.6.7</Version>
+                <Comment>Updated Mudur script.</Comment>
+                <Name>Bahadır Kandemir</Name>
+                <Email>bahadir@pardus.org.tr</Email>
+            </Update>
+            <Update release="4">
+                <Date>2006-03-28</Date>
+                <Version>2.6.7</Version>
+                <Comment>Service script added.</Comment>
+                <Name>Bahadır Kandemir</Name>
+                <Email>bahadir@pardus.org.tr</Email>
+            </Update>
+            <Update release="3">
+                <Date>2006-03-28</Date>
+                <Version>2.6.7</Version>
+                <Comment>Version bump</Comment>
+                <Name>Bahadır Kandemir</Name>
+                <Email>bahadir@pardus.org.tr</Email>
+            </Update>
+            <Update release="2">
+                <Date>2005-10-16</Date>
+                <Version>2.6.6</Version>
+                <Comment>Upgraded to latest version due to security issues.
+                Added init scripts and config files for daemon.</Comment>
+                <Name>Bahadır Kandemir</Name>
+                <Email>bahadir@pardus.org.tr</Email>
+            </Update>
+            <Update release="1">
+                <Date>2005-10-16</Date>
+                <Version>2.6.0</Version>
+                <Comment>First release.</Comment>
+                <Name>Bahadır Kandemir</Name>
+                <Email>bahadir@pardus.org.tr</Email>
             </Update>
         </History>
     </SpecFile>
