@@ -1,0 +1,254 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>sudo</Name>
+        <Homepage>http://www.sudo.ws/</Homepage>
+        <Packager>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Packager>
+        <License>Sudo</License>
+        <IsA>app:console</IsA>
+        <Summary>Allows certain users/groups to run commands as root</Summary>
+        <Description>sudo allows certain users/groups to run commands with root user privileges.</Description>
+        <Archive sha1sum="575b4678fc284df73a269d74b5d3f616eb71680e" type="targz">http://www.sudo.ws/sudo/dist/sudo-1.7.4p2.tar.gz</Archive>
+        <AdditionalFiles>
+            <AdditionalFile target="tr.po">tr.po</AdditionalFile>
+        </AdditionalFiles>
+        <BuildDependencies>
+            <Dependency>cyrus-sasl</Dependency>
+            <Dependency>openldap-client</Dependency>
+        </BuildDependencies>
+        <Patches>
+            <Patch>sudo-1.6.9-defaults.diff</Patch>
+            <Patch>sudo-1.6.9-__P.diff</Patch>
+            <Patch>sudo-1.6.9-env.diff</Patch>
+            <Patch level="1">gettext.patch</Patch>
+
+            <Patch>sudo-1.7.1-bug348.patch</Patch>
+        </Patches>
+    </Source>
+
+    <Package>
+        <Name>sudo</Name>
+        <RuntimeDependencies>
+            <Dependency>openldap-client</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="config">/etc</Path>
+            <Path fileType="executable">/usr/bin</Path>
+            <Path fileType="executable">/usr/sbin</Path>
+            <Path fileType="library">/usr/libexec</Path>
+            <Path fileType="doc">/usr/share/doc</Path>
+            <Path fileType="localedata">/usr/share/locale</Path>
+            <Path fileType="man">/usr/share/man</Path>
+            <Path fileType="data">/var/db/sudo</Path>
+        </Files>
+        <AdditionalFiles>
+            <AdditionalFile owner="root" permission="0440" target="/etc/sudoers">sudoers</AdditionalFile>
+            <AdditionalFile owner="root" permission="0600" target="/etc/pam.d/sudo">sudo.pamd</AdditionalFile>
+        </AdditionalFiles>
+    </Package>
+
+    <History>
+        <Update release="28">
+            <Date>2010-06-07</Date>
+            <Version>1.7.4_p2</Version>
+            <Comment>New release</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="27" type="security">
+            <Date>2010-06-07</Date>
+            <Version>1.7.2_p7</Version>
+            <Comment>Version bump to fix insufficient environment sanitization issue (CVE-2010-1646) (#13371).</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="26" type="security">
+            <Date>2010-05-18</Date>
+            <Version>1.7.2_p6</Version>
+            <Comment>
+                - Version bump to fix privilege escalation. (CVE-2010-1163, #12829)
+            </Comment>
+            <Name>Eren Türkay</Name>
+            <Email>eren@pardus.org.tr</Email>
+        </Update>
+        <Update release="25" type="security">
+            <Date>2010-02-26</Date>
+            <Version>1.7.1</Version>
+            <Comment>Add patch to fix privilege escalation bug in sudoedit. (CVE-2010-0426, #12352)</Comment>
+            <Name>Eren Türkay</Name>
+            <Email>eren@pardus.org.tr</Email>
+        </Update>
+        <Update release="24">
+            <Date>2009-04-26</Date>
+            <Version>1.7.1</Version>
+            <Comment>Version bump.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="23">
+            <Date>2009-03-05</Date>
+            <Version>1.7.0</Version>
+            <Comment>Version bump to the latest stable.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="22" type="security">
+            <Date>2009-01-29</Date>
+            <Version>1.6.9_p17</Version>
+            <Comment>Fix privilege escalation vulnerability due to incorrect check for user's group.</Comment>
+            <Name>Pınar Yanardağ</Name>
+            <Email>pinar@pardus.org.tr</Email>
+        </Update>
+        <Update release="21">
+            <Date>2008-08-06</Date>
+            <Version>1.6.9_p17</Version>
+            <Comment>Stable update</Comment>
+            <Name>Faik Uygur</Name>
+            <Email>faik@pardus.org.tr</Email>
+        </Update>
+        <Update release="20">
+            <Date>2008-06-08</Date>
+            <Version>1.6.9_p16</Version>
+            <Comment>Stable update, fixes #7273</Comment>
+            <Name>Ekin Meroğlu</Name>
+            <Email>ekin@pardus.org.tr</Email>
+        </Update>
+        <Update release="19">
+            <Date>2008-03-07</Date>
+            <Version>1.6.9_p14</Version>
+            <Comment>Stable update</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="18">
+            <Date>2008-01-21</Date>
+            <Version>1.6.9_p12</Version>
+            <Comment>Stable update</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="17" type="security">
+            <Date>2008-01-21</Date>
+            <Version>1.6.9_p11</Version>
+            <Comment>Don't echo password when restoring terminal settings and ease shoulder surfing.</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="16">
+            <Date>2008-01-06</Date>
+            <Version>1.6.9_p11</Version>
+            <Comment>Stable update</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="15">
+            <Date>2008-01-04</Date>
+            <Version>1.6.9_p10</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="14">
+            <Date>2007-11-04</Date>
+            <Version>1.6.9_p8</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="13">
+            <Date>2007-10-28</Date>
+            <Version>1.6.9_p7</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="12">
+            <Date>2007-10-10</Date>
+            <Version>1.6.9_p6</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="11">
+            <Date>2007-09-11</Date>
+            <Version>1.6.9_p5</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="10">
+            <Date>2007-03-20</Date>
+            <Version>1.6.8_p12</Version>
+            <Comment>Don't use deprecated pam_stack</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="9">
+            <Date>2006-12-06</Date>
+            <Version>1.6.8_p12</Version>
+            <Comment>Gettext support</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="8">
+            <Date>2006-10-09</Date>
+            <Version>1.6.8_p12</Version>
+            <Comment>Add a patch to quickly exit when CTRL-C is pressed</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="7">
+            <Date>2006-09-15</Date>
+            <Version>1.6.8_p12</Version>
+            <Comment>Preserve QTDIR</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="6" type="security">
+            <Date>2006-09-04</Date>
+            <Version>1.6.8_p12</Version>
+            <Comment>Always reset environment variables</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="5" type="security">
+            <Date>2005-12-22</Date>
+            <Version>1.6.8_p12</Version>
+            <Comment>Version bump for security fixes</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="4">
+            <Date>2005-12-20</Date>
+            <Version>1.6.8_p9</Version>
+            <Comment>Fix #1346</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="3">
+            <Date>2005-11-29</Date>
+            <Version>1.6.8_p9</Version>
+            <Comment>needed sudoers file added as additional</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="2" type="security">
+            <Date>2005-10-26</Date>
+            <Version>1.6.8_p9</Version>
+            <Comment>Update to 1.6.8p9 and fix CVE-2005-2959</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="1">
+            <Date>2005-07-11</Date>
+            <Version>1.6.7_p5</Version>
+            <Comment>First release.</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+    </History>
+</PISI>
