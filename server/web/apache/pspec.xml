@@ -1,0 +1,414 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>apache</Name>
+        <Homepage>http://httpd.apache.org/</Homepage>
+        <Packager>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Packager>
+        <License>Apache-2.0</License>
+        <IsA>service</IsA>
+        <Summary>Apache web server</Summary>
+        <Description>Apache HTTP Server is a free software/open source web server for Unix-like systems, Microsoft Windows, Novell NetWare and other operating systems. Apache is notable for playing a key role in the initial growth of the World Wide Web, and continues to be the most popular web server in use, serving as the de facto reference platform against which other web servers are designed and judged.</Description>
+        <Archive sha1sum="5f0e973839ed2e38a4d03adba109ef5ce3381bc2" type="tarbz2">mirrors://apache/httpd/httpd-2.2.15.tar.bz2</Archive>
+        <BuildDependencies>
+            <Dependency>apr</Dependency>
+            <Dependency>apr-util</Dependency>
+        </BuildDependencies>
+        <Patches>
+            <Patch>docroot.patch</Patch>
+            <Patch>apache2ctl-use-conf.patch</Patch>
+        </Patches>
+    </Source>
+
+    <Package>
+        <Name>apache</Name>
+        <RuntimeDependencies>
+            <Dependency>apr</Dependency>
+            <Dependency>apr-util</Dependency>
+            <Dependency>comar-api</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="config">/etc</Path>
+            <Path fileType="executable">/usr/sbin</Path>
+            <Path fileType="header">/usr/include</Path>
+            <Path fileType="data">/var/log/apache2</Path>
+            <Path fileType="config">/var/www</Path>
+            <Path fileType="data">/var/run</Path>
+            <Path fileType="data">/var/cache</Path>
+            <Path fileType="doc">/usr/share/doc</Path>
+            <Path fileType="man">/usr/share/man</Path>
+            <Path fileType="library">/usr/lib</Path>
+        </Files>
+        <AdditionalFiles>
+            <!-- Init script & configuration -->
+            <AdditionalFile target="/etc/conf.d/apache2" permission="0644" owner="root">apache2.confd</AdditionalFile>
+            <!-- HTTPD configuration -->
+            <AdditionalFile target="/etc/apache2/httpd.conf" permission="0644" owner="root">httpd.conf</AdditionalFile>
+            <!-- Vhosts configuration -->
+            <AdditionalFile target="/etc/apache2/vhosts.d/00_default_vhost.conf" permission="0644" owner="root">00_default_vhost.conf</AdditionalFile>
+            <!-- Modules configuration -->
+            <AdditionalFile target="/etc/apache2/modules.d/00_apache_manual.conf" permission="0644" owner="root">00_apache_manual.conf</AdditionalFile>
+            <AdditionalFile target="/etc/apache2/modules.d/40_mod_ssl.conf" permission="0644" owner="root">40_mod_ssl.conf</AdditionalFile>
+            <AdditionalFile target="/etc/apache2/modules.d/41_mod_ssl.default-vhost.conf" permission="0644" owner="root">41_mod_ssl.default-vhost.conf</AdditionalFile>
+            <AdditionalFile target="/etc/apache2/modules.d/45_mod_dav.conf" permission="0644" owner="root">45_mod_dav.conf</AdditionalFile>
+            <AdditionalFile target="/etc/apache2/modules.d/46_mod_ldap.conf" permission="0644" owner="root">46_mod_ldap.conf</AdditionalFile>
+            <!-- Default webroot -->
+            <AdditionalFile target="/var/www/localhost/htdocs/apache.css" permission="0755" owner="root">webroot/apache.css</AdditionalFile>
+            <AdditionalFile target="/var/www/localhost/htdocs/apache_pb.gif" permission="0755" owner="root">webroot/apache_pb.gif</AdditionalFile>
+            <AdditionalFile target="/var/www/localhost/htdocs/index.html" permission="0755" owner="root">webroot/index.html</AdditionalFile>
+            <AdditionalFile target="/var/www/localhost/htdocs/index-tr.html" permission="0755" owner="root">webroot/index-tr.html</AdditionalFile>
+            <AdditionalFile target="/var/www/localhost/htdocs/index-ptbr.html" permission="0755" owner="root">webroot/index-ptbr.html</AdditionalFile>
+            <AdditionalFile target="/var/www/localhost/htdocs/index-es.html" permission="0755" owner="root">webroot/index-es.html</AdditionalFile>
+            <AdditionalFile target="/var/www/localhost/htdocs/index-de.html" permission="0755" owner="root">webroot/index-de.html</AdditionalFile>
+            <AdditionalFile target="/var/www/localhost/htdocs/pardus.png" permission="0755" owner="root">webroot/pardus.png</AdditionalFile>
+            <!-- Tulliana icons instead of default icons -->
+            <AdditionalFile target="/var/www/localhost/htdocs/icons/alert.red.png" permission="0755" owner="root">webroot/icons/alert.red.png</AdditionalFile>
+            <AdditionalFile target="/var/www/localhost/htdocs/icons/alert.red.gif" permission="0755" owner="root">webroot/icons/alert.red.gif</AdditionalFile>
+            <AdditionalFile target="/var/www/localhost/htdocs/icons/back.gif" permission="0755" owner="root">webroot/icons/back.gif</AdditionalFile>
+            <AdditionalFile target="/var/www/localhost/htdocs/icons/back.png" permission="0755" owner="root">webroot/icons/back.png</AdditionalFile>
+            <AdditionalFile target="/var/www/localhost/htdocs/icons/ball.red.gif" permission="0755" owner="root">webroot/icons/ball.red.gif</AdditionalFile>
+            <AdditionalFile target="/var/www/localhost/htdocs/icons/ball.red.png" permission="0755" owner="root">webroot/icons/ball.red.png</AdditionalFile>
+            <AdditionalFile target="/var/www/localhost/htdocs/icons/binary.gif" permission="0755" owner="root">webroot/icons/binary.gif</AdditionalFile>
+            <AdditionalFile target="/var/www/localhost/htdocs/icons/binary.png" permission="0755" owner="root">webroot/icons/binary.png</AdditionalFile>
+            <AdditionalFile target="/var/www/localhost/htdocs/icons/c.gif" permission="0755" owner="root">webroot/icons/c.gif</AdditionalFile>
+            <AdditionalFile target="/var/www/localhost/htdocs/icons/c.png" permission="0755" owner="root">webroot/icons/c.png</AdditionalFile>
+            <AdditionalFile target="/var/www/localhost/htdocs/icons/dir.gif" permission="0755" owner="root">webroot/icons/dir.gif</AdditionalFile>
+            <AdditionalFile target="/var/www/localhost/htdocs/icons/dir.png" permission="0755" owner="root">webroot/icons/dir.png</AdditionalFile>
+            <AdditionalFile target="/var/www/localhost/htdocs/icons/down.gif" permission="0755" owner="root">webroot/icons/down.gif</AdditionalFile>
+            <AdditionalFile target="/var/www/localhost/htdocs/icons/down.png" permission="0755" owner="root">webroot/icons/down.png</AdditionalFile>
+            <AdditionalFile target="/var/www/localhost/htdocs/icons/folder.gif" permission="0755" owner="root">webroot/icons/folder.gif</AdditionalFile>
+            <AdditionalFile target="/var/www/localhost/htdocs/icons/folder.png" permission="0755" owner="root">webroot/icons/folder.png</AdditionalFile>
+            <AdditionalFile target="/var/www/localhost/htdocs/icons/folder.open.gif" permission="0755" owner="root">webroot/icons/folder.open.gif</AdditionalFile>
+            <AdditionalFile target="/var/www/localhost/htdocs/icons/folder.open.png" permission="0755" owner="root">webroot/icons/folder.open.png</AdditionalFile>
+            <AdditionalFile target="/var/www/localhost/htdocs/icons/folder.sec.gif" permission="0755" owner="root">webroot/icons/folder.sec.gif</AdditionalFile>
+            <AdditionalFile target="/var/www/localhost/htdocs/icons/folder.sec.png" permission="0755" owner="root">webroot/icons/folder.sec.png</AdditionalFile>
+            <AdditionalFile target="/var/www/localhost/htdocs/icons/forward.gif" permission="0755" owner="root">webroot/icons/forward.gif</AdditionalFile>
+            <AdditionalFile target="/var/www/localhost/htdocs/icons/forward.png" permission="0755" owner="root">webroot/icons/forward.png</AdditionalFile>
+            <AdditionalFile target="/var/www/localhost/htdocs/icons/image1.gif" permission="0755" owner="root">webroot/icons/image1.gif</AdditionalFile>
+            <AdditionalFile target="/var/www/localhost/htdocs/icons/image1.png" permission="0755" owner="root">webroot/icons/image1.png</AdditionalFile>
+            <AdditionalFile target="/var/www/localhost/htdocs/icons/image2.gif" permission="0755" owner="root">webroot/icons/image2.gif</AdditionalFile>
+            <AdditionalFile target="/var/www/localhost/htdocs/icons/image2.png" permission="0755" owner="root">webroot/icons/image2.png</AdditionalFile>
+            <AdditionalFile target="/var/www/localhost/htdocs/icons/image3.gif" permission="0755" owner="root">webroot/icons/image3.gif</AdditionalFile>
+            <AdditionalFile target="/var/www/localhost/htdocs/icons/image3.png" permission="0755" owner="root">webroot/icons/image3.png</AdditionalFile>
+            <AdditionalFile target="/var/www/localhost/htdocs/icons/layout.gif" permission="0755" owner="root">webroot/icons/layout.gif</AdditionalFile>
+            <AdditionalFile target="/var/www/localhost/htdocs/icons/layout.png" permission="0755" owner="root">webroot/icons/layout.png</AdditionalFile>
+            <AdditionalFile target="/var/www/localhost/htdocs/icons/pdf.gif" permission="0755" owner="root">webroot/icons/pdf.gif</AdditionalFile>
+            <AdditionalFile target="/var/www/localhost/htdocs/icons/pdf.png" permission="0755" owner="root">webroot/icons/pdf.png</AdditionalFile>
+            <AdditionalFile target="/var/www/localhost/htdocs/icons/sound1.gif" permission="0755" owner="root">webroot/icons/sound1.gif</AdditionalFile>
+            <AdditionalFile target="/var/www/localhost/htdocs/icons/sound1.png" permission="0755" owner="root">webroot/icons/sound1.png</AdditionalFile>
+            <AdditionalFile target="/var/www/localhost/htdocs/icons/sound2.gif" permission="0755" owner="root">webroot/icons/sound2.gif</AdditionalFile>
+            <AdditionalFile target="/var/www/localhost/htdocs/icons/sound2.png" permission="0755" owner="root">webroot/icons/sound2.png</AdditionalFile>
+            <AdditionalFile target="/var/www/localhost/htdocs/icons/tex.gif" permission="0755" owner="root">webroot/icons/tex.gif</AdditionalFile>
+            <AdditionalFile target="/var/www/localhost/htdocs/icons/tex.png" permission="0755" owner="root">webroot/icons/tex.png</AdditionalFile>
+            <AdditionalFile target="/var/www/localhost/htdocs/icons/text.gif" permission="0755" owner="root">webroot/icons/text.gif</AdditionalFile>
+            <AdditionalFile target="/var/www/localhost/htdocs/icons/text.png" permission="0755" owner="root">webroot/icons/text.png</AdditionalFile>
+            <AdditionalFile target="/var/www/localhost/htdocs/icons/up.gif" permission="0755" owner="root">webroot/icons/up.gif</AdditionalFile>
+            <AdditionalFile target="/var/www/localhost/htdocs/icons/up.png" permission="0755" owner="root">webroot/icons/up.png</AdditionalFile>
+            <!-- small icons -->
+            <AdditionalFile target="/var/www/localhost/htdocs/icons/small/back.gif" permission="0755" owner="root">webroot/icons/small/back.gif</AdditionalFile>
+            <AdditionalFile target="/var/www/localhost/htdocs/icons/small/back.png" permission="0755" owner="root">webroot/icons/small/back.png</AdditionalFile>
+            <AdditionalFile target="/var/www/localhost/htdocs/icons/small/binary.gif" permission="0755" owner="root">webroot/icons/small/binary.gif</AdditionalFile>
+            <AdditionalFile target="/var/www/localhost/htdocs/icons/small/binary.png" permission="0755" owner="root">webroot/icons/small/binary.png</AdditionalFile>
+            <AdditionalFile target="/var/www/localhost/htdocs/icons/small/c.gif" permission="0755" owner="root">webroot/icons/small/c.gif</AdditionalFile>
+            <AdditionalFile target="/var/www/localhost/htdocs/icons/small/c.png" permission="0755" owner="root">webroot/icons/small/c.png</AdditionalFile>
+            <AdditionalFile target="/var/www/localhost/htdocs/icons/small/dir.gif" permission="0755" owner="root">webroot/icons/small/dir.gif</AdditionalFile>
+            <AdditionalFile target="/var/www/localhost/htdocs/icons/small/dir.png" permission="0755" owner="root">webroot/icons/small/dir.png</AdditionalFile>
+            <AdditionalFile target="/var/www/localhost/htdocs/icons/small/down.gif" permission="0755" owner="root">webroot/icons/small/down.gif</AdditionalFile>
+            <AdditionalFile target="/var/www/localhost/htdocs/icons/small/down.png" permission="0755" owner="root">webroot/icons/small/down.png</AdditionalFile>
+            <AdditionalFile target="/var/www/localhost/htdocs/icons/small/folder.gif" permission="0755" owner="root">webroot/icons/small/folder.gif</AdditionalFile>
+            <AdditionalFile target="/var/www/localhost/htdocs/icons/small/folder.png" permission="0755" owner="root">webroot/icons/small/folder.png</AdditionalFile>
+            <AdditionalFile target="/var/www/localhost/htdocs/icons/small/folder.open.gif" permission="0755" owner="root">webroot/icons/small/folder.open.gif</AdditionalFile>
+            <AdditionalFile target="/var/www/localhost/htdocs/icons/small/folder.open.png" permission="0755" owner="root">webroot/icons/small/folder.open.png</AdditionalFile>
+            <AdditionalFile target="/var/www/localhost/htdocs/icons/small/folder.sec.gif" permission="0755" owner="root">webroot/icons/small/folder.sec.gif</AdditionalFile>
+            <AdditionalFile target="/var/www/localhost/htdocs/icons/small/folder.sec.png" permission="0755" owner="root">webroot/icons/small/folder.sec.png</AdditionalFile>
+            <AdditionalFile target="/var/www/localhost/htdocs/icons/small/forward.gif" permission="0755" owner="root">webroot/icons/small/forward.gif</AdditionalFile>
+            <AdditionalFile target="/var/www/localhost/htdocs/icons/small/forward.png" permission="0755" owner="root">webroot/icons/small/forward.png</AdditionalFile>
+            <AdditionalFile target="/var/www/localhost/htdocs/icons/small/image1.gif" permission="0755" owner="root">webroot/icons/small/image1.gif</AdditionalFile>
+            <AdditionalFile target="/var/www/localhost/htdocs/icons/small/image1.png" permission="0755" owner="root">webroot/icons/small/image1.png</AdditionalFile>
+            <AdditionalFile target="/var/www/localhost/htdocs/icons/small/image2.gif" permission="0755" owner="root">webroot/icons/small/image2.gif</AdditionalFile>
+            <AdditionalFile target="/var/www/localhost/htdocs/icons/small/image2.png" permission="0755" owner="root">webroot/icons/small/image2.png</AdditionalFile>
+            <AdditionalFile target="/var/www/localhost/htdocs/icons/small/image3.gif" permission="0755" owner="root">webroot/icons/small/image3.gif</AdditionalFile>
+            <AdditionalFile target="/var/www/localhost/htdocs/icons/small/image3.png" permission="0755" owner="root">webroot/icons/small/image3.png</AdditionalFile>
+            <AdditionalFile target="/var/www/localhost/htdocs/icons/small/layout.gif" permission="0755" owner="root">webroot/icons/small/layout.gif</AdditionalFile>
+            <AdditionalFile target="/var/www/localhost/htdocs/icons/small/layout.png" permission="0755" owner="root">webroot/icons/small/layout.png</AdditionalFile>
+            <AdditionalFile target="/var/www/localhost/htdocs/icons/small/pdf.gif" permission="0755" owner="root">webroot/icons/small/pdf.gif</AdditionalFile>
+            <AdditionalFile target="/var/www/localhost/htdocs/icons/small/pdf.png" permission="0755" owner="root">webroot/icons/small/pdf.png</AdditionalFile>
+            <AdditionalFile target="/var/www/localhost/htdocs/icons/small/sound1.gif" permission="0755" owner="root">webroot/icons/small/sound1.gif</AdditionalFile>
+            <AdditionalFile target="/var/www/localhost/htdocs/icons/small/sound1.png" permission="0755" owner="root">webroot/icons/small/sound1.png</AdditionalFile>
+            <AdditionalFile target="/var/www/localhost/htdocs/icons/small/sound2.gif" permission="0755" owner="root">webroot/icons/small/sound2.gif</AdditionalFile>
+            <AdditionalFile target="/var/www/localhost/htdocs/icons/small/sound2.png" permission="0755" owner="root">webroot/icons/small/sound2.png</AdditionalFile>
+            <AdditionalFile target="/var/www/localhost/htdocs/icons/small/tex.gif" permission="0755" owner="root">webroot/icons/small/tex.gif</AdditionalFile>
+            <AdditionalFile target="/var/www/localhost/htdocs/icons/small/tex.png" permission="0755" owner="root">webroot/icons/small/tex.png</AdditionalFile>
+            <AdditionalFile target="/var/www/localhost/htdocs/icons/small/text.gif" permission="0755" owner="root">webroot/icons/small/text.gif</AdditionalFile>
+            <AdditionalFile target="/var/www/localhost/htdocs/icons/small/text.png" permission="0755" owner="root">webroot/icons/small/text.png</AdditionalFile>
+            <AdditionalFile target="/var/www/localhost/htdocs/icons/small/up.gif" permission="0755" owner="root">webroot/icons/small/up.gif</AdditionalFile>
+            <AdditionalFile target="/var/www/localhost/htdocs/icons/small/up.png" permission="0755" owner="root">webroot/icons/small/up.png</AdditionalFile>
+        </AdditionalFiles>
+        <Provides>
+             <COMAR script="package.py">System.Package</COMAR>
+             <COMAR script="service.py">System.Service</COMAR>
+        </Provides>
+    </Package>
+
+    <History>
+        <Update release="36" type="security">
+            <Date>2010-03-06</Date>
+            <Version>2.2.15</Version>
+            <Comment>
+                - Version bump to fix multiple issues. (CVE-2010-{0408,0425,0434}, #12387)
+            </Comment>
+            <Name>Eren Türkay</Name>
+            <Email>eren@pardus.org.tr</Email>
+        </Update>
+        <Update release="35" type="security">
+            <Date>2009-10-06</Date>
+            <Version>2.2.14</Version>
+            <Comment>
+                Security and bugfix release (CVE-2009-2699, CVE-2009-3095, CVE-2009-3094, Bug#11273)
+            </Comment>
+            <Name>Taner Taş</Name>
+            <Email>taner@pardus.org.tr</Email>
+        </Update>
+        <Update release="34" type="security">
+            <Date>2009-08-04</Date>
+            <Version>2.2.12</Version>
+            <Comment>Security and bugfix release for multiple vulnerabilities</Comment>
+            <Name>Taner Taş</Name>
+            <Email>taner@pardus.org.tr</Email>
+        </Update>
+        <Update release="33" type="security">
+            <Date>2009-07-07</Date>
+            <Version>2.2.11</Version>
+            <Comment>Fix for CVE-2009-1890, CVE-2009-1891</Comment>
+            <Name>Taner Taş</Name>
+            <Email>taner@pardus.org.tr</Email>
+        </Update>
+        <Update release="32">
+            <Date>2009-06-12</Date>
+            <Version>2.2.11</Version>
+            <Comment>Fix for mod_perl compile problem with CVE-2009-1195 patch</Comment>
+            <Name>Taner Taş</Name>
+            <Email>taner@pardus.org.tr</Email>
+        </Update>
+        <Update release="31" type="security">
+            <Date>2009-06-02</Date>
+            <Version>2.2.11</Version>
+            <Comment>Fix for CVE-2009-1195</Comment>
+            <Name>Taner Taş</Name>
+            <Email>taner@pardus.org.tr</Email>
+        </Update>
+        <Update release="30">
+            <Date>2009-04-30</Date>
+            <Version>2.2.11</Version>
+            <Comment>Doc dir fix</Comment>
+            <Name>Taner Taş</Name>
+            <Email>taner@pardus.org.tr</Email>
+        </Update>
+        <Update release="29">
+            <Date>2008-11-17</Date>
+            <Version>2.2.11</Version>
+            <Comment>Version bump</Comment>
+            <Name>Taner Taş</Name>
+            <Email>taner@pardus.org.tr</Email>
+        </Update>
+        <Update release="28" type="security">
+            <Date>2008-08-07</Date>
+            <Version>2.2.9</Version>
+            <Comment>Fix for CVE-2008-2939</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="27" type="security">
+            <Date>2008-06-19</Date>
+            <Version>2.2.9</Version>
+            <Comment>Version bump</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="26" type="security">
+            <Date>2008-06-11</Date>
+            <Version>2.2.8</Version>
+            <Comment>Fix CVE-2008-2364</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="25" type="security">
+            <Date>2008-05-26</Date>
+            <Version>2.2.8</Version>
+            <Comment>Fix memory leak in SSL connections with zlib compression (CVE-2008-1678). https://issues.apache.org/bugzilla/show_bug.cgi?id=44975</Comment>
+            <Name>Eren Türkay</Name>
+            <Email>turkay.eren@gmail.com</Email>
+        </Update>
+        <Update release="24">
+            <Date>2008-01-28</Date>
+            <Version>2.2.8</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="23">
+            <Date>2008-01-15</Date>
+            <Version>2.2.6</Version>
+            <Comment>Version bump</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="22" type="security">
+            <Date>2008-01-11</Date>
+            <Version>2.0.61</Version>
+            <Comment>Fix CVE-2008-0005</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="21" type="security">
+            <Date>2007-12-02</Date>
+            <Version>2.0.61</Version>
+            <Comment>Fix http://www.securiteam.com/unixfocus/6H0040KKKU.html</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="20" type="security">
+            <Date>2007-09-11</Date>
+            <Version>2.0.61</Version>
+            <Comment>Stable update to fix CVE-2007-1863 and CVE-2007-3304</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="19" type="security">
+            <Date>2007-08-24</Date>
+            <Version>2.0.59</Version>
+            <Comment>Fix CVE-2007-3847</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="18" type="security">
+            <Date>2007-07-30</Date>
+            <Version>2.0.59</Version>
+            <Comment>Remove cgi scripts to fix CVE-2007-4049</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="17" type="security">
+            <Date>2007-06-26</Date>
+            <Version>2.0.59</Version>
+            <Comment>Fix CVE-2006-5752</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="16">
+            <Date>2007-05-23</Date>
+            <Version>2.0.59</Version>
+            <Comment>Updated Service script</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="15">
+            <Date>2007-05-14</Date>
+            <Version>2.0.59</Version>
+            <Comment>/usr/sbin/suexec2 should be owned by apache group</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="14">
+            <Date>2007-05-12</Date>
+            <Version>2.0.59</Version>
+            <Comment>Create needed directory for SSL caching</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="13">
+            <Date>2007-03-18</Date>
+            <Version>2.0.59</Version>
+            <Comment>Fixed apache2ctl not using /etc/conf.d/apache2. Thanks to Aycan İrican.</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="12">
+            <Date>2007-02-20</Date>
+            <Version>2.0.59</Version>
+            <Comment>Expand filename column in directory index.</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="11">
+            <Date>2006-10-25</Date>
+            <Version>2.0.59</Version>
+            <Comment>Icon gallery added from Tulliana2.</Comment>
+            <Name>Koray Löker</Name>
+            <Email>loker@pardus.org.tr</Email>
+        </Update>
+        <Update release="10">
+            <Date>2006-10-09</Date>
+            <Version>2.0.59</Version>
+            <Comment>Service script updated.</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="9" type="security">
+            <Date>2006-07-28</Date>
+            <Version>2.0.59</Version>
+            <Comment>Security update to fix CVE-2006-3747</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="8" type="security">
+            <Date>2006-05-22</Date>
+            <Version>2.0.58</Version>
+            <Comment>Security update to fix CVE-2005-3357 and CVE-2005-3352</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="7">
+            <Date>2006-03-22</Date>
+            <Version>2.0.55</Version>
+            <Comment>New init script</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="6">
+            <Date>2006-03-04</Date>
+            <Version>2.0.55</Version>
+            <Comment>Default document root changed to /var/www/localhost/htdocs</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="5">
+            <Date>2005-12-23</Date>
+            <Version>2.0.55</Version>
+            <Comment>Defaullt web root designed by Serdar Soytetir and Görkem Çetin.</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="4" type="security">
+            <Date>2005-11-10</Date>
+            <Version>2.0.55</Version>
+            <Comment>Update to version 2.0.55 to fix CAN-2005-2728,CAN-2005-2700</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="3">
+            <Date>2005-10-22</Date>
+            <Version>2.0.54</Version>
+            <Comment>Fixed broken file path in apxs2 script.</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="2">
+            <Date>2005-10-22</Date>
+            <Version>2.0.54</Version>
+            <Comment>Actions.py should not delete share/build/ dir.</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="1">
+            <Date>2005-10-15</Date>
+            <Version>2.0.54</Version>
+            <Comment>First release.</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+    </History>
+</PISI>
