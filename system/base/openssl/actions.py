@@ -38,6 +38,8 @@ def install():
     # Certificate stuff
     pisitools.dobin("tools/c_rehash")
     pisitools.dosym("/etc/ssl/certs/ca-bundle.crt","/etc/ssl/cert.pem")
+    pisitools.dodir("/etc/pki/tls")
+    pisitools.dosym("/etc/ssl/certs", "/etc/pki/tls/certs")
 
     # Rename conflicting manpages
     pisitools.rename("/usr/share/man/man1/passwd.1", "ssl-passwd.1")
