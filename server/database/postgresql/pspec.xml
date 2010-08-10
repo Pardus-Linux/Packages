@@ -1,0 +1,290 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>postgresql</Name>
+        <Homepage>http://www.postgresql.org/</Homepage>
+        <Packager>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Packager>
+        <License>GPLv2</License>
+        <IsA>service</IsA>
+        <Summary>A powerful, open source relational database system</Summary>
+        <Description>PostgreSQL is a powerful, open source relational database system</Description>
+        <Archive sha1sum="02592977a601976f8bae7bc3a5c69710d4d0344d" type="tarbz2">http://wwwmaster.postgresql.org/redir/198/h/source/v8.4.4/postgresql-8.4.4.tar.bz2</Archive>
+        <BuildDependencies>
+            <Dependency>openssl</Dependency>
+            <Dependency>libxml2</Dependency>
+            <Dependency>libxslt</Dependency>
+            <Dependency>mit-kerberos</Dependency>
+            <Dependency>tcl</Dependency>
+        </BuildDependencies>
+    </Source>
+
+    <Package>
+        <Name>postgresql-lib</Name>
+        <IsA>library</IsA>
+        <Summary>Essential shared libraries for any PostgreSQL client program or interface</Summary>
+        <RuntimeDependencies>
+            <Dependency>openssl</Dependency>
+            <Dependency>libxml2</Dependency>
+            <Dependency>libxslt</Dependency>
+            <Dependency>mit-kerberos</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="library">/usr/lib</Path>
+            <Path fileType="header">/usr/include</Path>
+            <Path fileType="data">/usr/share/postgresql</Path>
+            <Path fileType="executable">/usr/bin/pg_config</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>postgresql-doc</Name>
+        <IsA>data:doc</IsA>
+        <Summary>Postgresql documents</Summary>
+        <Description>Additional documentation for PostgreSQL</Description>
+        <RuntimeDependencies>
+            <Dependency versionFrom="8.4">postgresql-lib</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="doc">/usr/share/doc</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>postgresql-server</Name>
+        <IsA>service</IsA>
+        <RuntimeDependencies>
+            <Dependency versionFrom="8.4">postgresql-lib</Dependency>
+            <Dependency>libxml2</Dependency>
+            <Dependency>libxslt</Dependency>
+            <Dependency>mit-kerberos</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="config">/etc</Path>
+            <Path fileType="executable">/usr/bin</Path>
+            <Path fileType="localedata">/usr/share/locale</Path>
+            <Path fileType="data">/usr/share/postgresql/contrib</Path>
+            <Path fileType="man">/usr/share/man</Path>
+            <Path fileType="data">/var/lib</Path>
+        </Files>
+        <AdditionalFiles>
+            <AdditionalFile target="/etc/conf.d/postgresql" owner="root" permission="0644">postgresql.conf-8</AdditionalFile>
+        </AdditionalFiles>
+        <Provides>
+             <COMAR script="package.py">System.Package</COMAR>
+             <COMAR script="service.py">System.Service</COMAR>
+        </Provides>
+    </Package>
+
+    <Package>
+        <Name>postgresql-pl</Name>
+        <RuntimeDependencies>
+            <Dependency versionFrom="8.4">postgresql-lib</Dependency>
+            <Dependency>tcl</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="executable">/usr/bin/pltcl_listmod</Path>
+            <Path fileType="executable">/usr/bin/pltcl_loadmod</Path>
+            <Path fileType="executable">/usr/bin/pltcl_delmod</Path>
+            <Path fileType="library">/usr/lib/postgresql/plperl.so</Path>
+            <Path fileType="library">/usr/lib/postgresql/plpython.so</Path>
+            <Path fileType="library">/usr/lib/postgresql/pltcl.so</Path>
+            <Path fileType="data">/usr/share/postgresql/unknown.pltcl</Path>
+        </Files>
+    </Package>
+
+    <History>
+        <Update release="26" type="security">
+            <Date>2010-05-24</Date>
+            <Version>8.4.4</Version>
+            <Comment>
+                - Update to fix multiple vulnerabilities. (CVE-2010-{1169,1170,1447,1975}, #13129)
+            </Comment>
+            <Name>Eren Türkay</Name>
+            <Email>eren@pardus.org.tr</Email>
+        </Update>
+        <Update release="25">
+            <Date>2010-01-18</Date>
+            <Version>8.4.2</Version>
+            <Comment>
+                - New branch
+            </Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="24" type="security">
+            <Date>2009-12-25</Date>
+            <Version>8.3.9</Version>
+            <Comment>
+                - Protect against indirect security threats caused by index functions changing session-local state (CVE-2009-4136),
+                - Reject SSL certificates containing an embedded null byte in the common name (CN) field (CVE-2009-4034).
+            </Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="23" type="security">
+            <Date>2009-09-10</Date>
+            <Version>8.3.8</Version>
+            <Comment>Security update for multiple vulnerabilities, (Bug#11145)</Comment>
+            <Name>Taner Taş</Name>
+            <Email>taner@pardus.org.tr</Email>
+        </Update>
+        <Update release="22">
+            <Date>2009-04-27</Date>
+            <Version>8.3.7</Version>
+            <Comment>Stable update</Comment>
+            <Name>Taner Taş</Name>
+            <Email>taner@pardus.org.tr</Email>
+        </Update>
+        <Update release="21">
+            <Date>2009-04-26</Date>
+            <Version>8.1.17</Version>
+            <Comment>Move pg_config from server package to lib package, add missing mit-kerberos dependency to server.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="20" type="security">
+            <Date>2009-03-18</Date>
+            <Version>8.1.17</Version>
+            <Comment>Stable update to fix Denial of Service (stack consumption) vulnerability, (CVE-2009-0922), (bug#9356).</Comment>
+            <Name>Pınar Yanardağ</Name>
+            <Email>pinar@pardus.org.tr</Email>
+        </Update>
+        <Update release="19" type="security">
+            <Date>2008-01-07</Date>
+            <Version>8.1.11</Version>
+            <Comment>Stable update to fix CVE-2007-{4769,4772,6067,6600,6601}</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="18">
+            <Date>2008-01-06</Date>
+            <Version>8.1.10</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="17" type="security">
+            <Date>2007-06-27</Date>
+            <Version>8.1.9</Version>
+            <Comment>Disable dblink to fix CVE-2007-3278 and CVE-2007-32780</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="16">
+            <Date>2007-05-23</Date>
+            <Version>8.1.9</Version>
+            <Comment>Updated Service script.</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="15" type="security">
+            <Date>2007-04-23</Date>
+            <Version>8.1.9</Version>
+            <Comment>Stable update to fix CVE-2007-2138</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="14" type="security">
+            <Date>2007-02-05</Date>
+            <Version>8.1.8</Version>
+            <Comment>Fixes regressions introduces by 8.1.7 (aka heta olmuş)</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="13" type="security">
+            <Date>2007-02-05</Date>
+            <Version>8.1.7</Version>
+            <Comment>Stable update to fix CVE-2007-055{5,6}</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="12">
+            <Date>2007-01-12</Date>
+            <Version>8.1.6</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="11">
+            <Date>2007-01-05</Date>
+            <Version>8.1.5</Version>
+            <Comment>Disable static libraries</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="10" type="security">
+            <Date>2006-10-24</Date>
+            <Version>8.1.5</Version>
+            <Comment>Fix three low-profile security bugs</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="9">
+            <Date>2006-10-24</Date>
+            <Version>8.1.4</Version>
+            <Comment>Fix package name</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="8">
+            <Date>2006-10-09</Date>
+            <Version>8.1.4</Version>
+            <Comment>Service script updated.</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="7" type="security">
+            <Date>2006-09-29</Date>
+            <Version>8.1.4</Version>
+            <Comment>Fixes and package seperations</Comment>
+            <Name>Ali Erdinç Köroğlu</Name>
+            <Email>erdinc@pardus.org.tr</Email>
+        </Update>
+        <Update release="6">
+            <Date>2006-09-25</Date>
+            <Version>8.1.4</Version>
+            <Comment>Bugfix #3576</Comment>
+            <Name>Ali Erdinç Köroğlu</Name>
+            <Email>erdinc@pardus.org.tr</Email>
+        </Update>
+        <Update release="5">
+            <Date>2006-09-07</Date>
+            <Version>8.1.4</Version>
+            <Comment>Fixed missing dependency.</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="4" type="security">
+            <Date>2006-05-25</Date>
+            <Version>8.1.4</Version>
+            <Comment>New release to fix CVE-2006-2313</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="3">
+            <Date>2006-04-29</Date>
+            <Version>8.1.3</Version>
+            <Comment>Mudur script added</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="2" type="security">
+            <Date>2006-02-20</Date>
+            <Version>8.1.3</Version>
+            <Comment>New release to fix CVE-2006-0553</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="1">
+            <Date>2006-01-25</Date>
+            <Version>8.1.2</Version>
+            <Comment>First release.</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+    </History>
+</PISI>
