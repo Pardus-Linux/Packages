@@ -1,0 +1,263 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PSPEC SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>openldap</Name>
+        <Homepage>http://www.openldap.org</Homepage>
+        <Packager>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Packager>
+        <License>OPENLDAP</License>
+        <Summary>Open-source suite of LDAP applications and development tools</Summary>
+        <Description>OpenLDAP is an open-source suite of LDAP (Lightweight Directory Access Protocol) applications and development tools</Description>
+        <Archive sha1sum="26027e7020256c5f47e17787f17ee8b31af42378" type="targz">http://www.openldap.org/software/download/OpenLDAP/openldap-release/openldap-2.4.23.tgz</Archive>
+        <BuildDependencies>
+            <Dependency>cyrus-sasl</Dependency>
+            <Dependency>mit-kerberos</Dependency>
+        </BuildDependencies>
+        <Patches>
+            <Patch>openldap-2.4-ppolicy.patch</Patch>
+            <Patch>slapd.conf.patch</Patch>
+            <Patch>pie.patch</Patch>
+        </Patches>
+    </Source>
+
+    <Package>
+        <Name>openldap-client</Name>
+        <IsA>library</IsA>
+        <IsA>app:console</IsA>
+        <Summary>Command-line ldap client commands (ldapsearch, ldapadd etc..)</Summary>
+        <RuntimeDependencies>
+            <Dependency>cyrus-sasl</Dependency>
+            <Dependency>mit-kerberos</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="executable">/usr/bin</Path>
+            <Path fileType="library">/usr/lib</Path>
+            <Path fileType="man">/usr/share/man/man1</Path>
+            <Path fileType="header">/usr/include</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>openldap-server</Name>
+        <IsA>service</IsA>
+        <Summary>OpenLDAP server slapd and releated tools</Summary>
+        <Description>OpenLDAP server slapd, additional backends, configuration files, schema definitions required for operation, and database maintenance tools</Description>
+        <RuntimeDependencies>
+            <Dependency>cyrus-sasl</Dependency>
+            <Dependency versionFrom="2.3.39">openldap-client</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="executable">/usr/sbin</Path>
+            <Path fileType="library">/usr/libexec</Path>
+            <Path fileType="config">/etc</Path>
+            <Path fileType="data">/var</Path>
+            <Path fileType="doc">/usr/share/doc</Path>
+            <Path fileType="man">/usr/share/man/man3</Path>
+            <Path fileType="man">/usr/share/man/man5</Path>
+            <Path fileType="man">/usr/share/man/man8</Path>
+        </Files>
+        <AdditionalFiles>
+            <AdditionalFile owner="root" permission="0644" target="/etc/conf.d/slapd">slapd.conf</AdditionalFile>
+            <AdditionalFile owner="root" permission="0755" target="/etc/openldap/ssl/gencert.sh">gencert.sh</AdditionalFile>
+        </AdditionalFiles>
+        <Provides>
+            <COMAR script="package.py">System.Package</COMAR>
+            <COMAR script="slapd.py">System.Service</COMAR>
+        </Provides>
+    </Package>
+
+    <History>
+        <Update release="27">
+            <Date>2010-07-15</Date>
+            <Version>2.4.23</Version>
+            <Comment>New release, also fixed service script</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="26">
+            <Date>2010-03-21</Date>
+            <Version>2.4.20</Version>
+            <Comment>Fixed service script not accepting multiple values in SERVE configuration</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="25">
+            <Date>2010-03-16</Date>
+            <Version>2.4.20</Version>
+            <Comment>Fixed service script not reading service configuration</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="24" type="security">
+            <Date>2009-12-04</Date>
+            <Version>2.4.20</Version>
+            <Comment>New release, fixes #11654 - CVE-2009-3767</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="23">
+            <Date>2009-04-25</Date>
+            <Version>2.4.16</Version>
+            <Comment>Added missing mit-kerberos dependency.</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="22">
+            <Date>2009-04-20</Date>
+            <Version>2.4.16</Version>
+            <Comment>New release, new branch.</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="21" type="security">
+            <Date>2008-07-17</Date>
+            <Version>2.3.43</Version>
+            <Comment>Version bump (fix CVE-2008-2952)</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="20" type="security">
+            <Date>2008-03-03</Date>
+            <Version>2.3.41</Version>
+            <Comment>Version bump (fix CVE-2008-0658)</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="19">
+            <Date>2007-12-14</Date>
+            <Version>2.3.39</Version>
+            <Comment>Set locale to "C" before starting slapd daemon in service script</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="18" type="security">
+            <Date>2007-10-29</Date>
+            <Version>2.3.39</Version>
+            <Comment>Stable update to fix multiple vulnerabilities</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="17">
+            <Date>2007-09-18</Date>
+            <Version>2.3.38</Version>
+            <Comment>Stable update</Comment>
+            <Name>Gürer Özen</Name>
+            <Email>gurer@pardus.org.tr</Email>
+        </Update>
+        <Update release="16">
+            <Date>2007-07-27</Date>
+            <Version>2.3.37</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="15">
+            <Date>2007-05-24</Date>
+            <Version>2.3.35</Version>
+            <Comment>Maintainance takeover, bump to 2.3.35, cleanup</Comment>
+            <Name>Gürer Özen</Name>
+            <Email>gurer@pardus.org.tr</Email>
+        </Update>
+        <Update release="14">
+            <Date>2007-05-24</Date>
+            <Version>2.3.32</Version>
+            <Comment>Service script updated</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="13">
+            <Date>2007-01-24</Date>
+            <Version>2.3.32</Version>
+            <Comment>Version bump</Comment>
+            <Name>Ali Erdinç Köroğlu</Name>
+            <Email>erdinc@pardus.org.tr</Email>
+        </Update>
+        <Update release="12">
+            <Date>2006-11-09</Date>
+            <Version>2.3.28</Version>
+            <Comment>Service script localized</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="11" type="security">
+            <Date>2006-11-09</Date>
+            <Version>2.3.28</Version>
+            <Comment>Stable update and fix CVE-2006-5779</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="10">
+            <Date>2006-10-14</Date>
+            <Version>2.3.27</Version>
+            <Comment>Fix service script</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="9">
+            <Date>2006-09-09</Date>
+            <Version>2.3.27</Version>
+            <Comment>Install headers/libs with openldap-client</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="8">
+            <Date>2006-09-03</Date>
+            <Version>2.3.27</Version>
+            <Comment>Cleanup</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="7">
+            <Date>2006-08-28</Date>
+            <Version>2.3.27</Version>
+            <Comment>Version bump</Comment>
+            <Name>Ali Erdinç Köroğlu</Name>
+            <Email>erdinc@pardus.org.tr</Email>
+        </Update>
+        <Update release="6">
+            <Date>2006-07-13</Date>
+            <Version>2.3.24</Version>
+            <Comment>Revert to 9760</Comment>
+            <Name>Ali Erdinç Köroğlu</Name>
+            <Email>erdinc@pardus.org.tr</Email>
+        </Update>
+        <Update release="5">
+            <Date>2006-07-13</Date>
+            <Version>2.3.24</Version>
+            <Comment>Ldap group and user id fix</Comment>
+            <Name>Ali Erdinç Köroğlu</Name>
+            <Email>erdinc@pardus.org.tr</Email>
+        </Update>
+        <Update release="4">
+            <Date>2006-07-11</Date>
+            <Version>2.3.24</Version>
+            <Comment>IsA and Component additions</Comment>
+            <Name>Ali Erdinç Köroğlu</Name>
+            <Email>erdinc@pardus.org.tr</Email>
+        </Update>
+        <Update release="3">
+            <Date>2006-07-11</Date>
+            <Version>2.3.24</Version>
+            <Comment>Missing libcap dep</Comment>
+            <Name>Ali Erdinç Köroğlu</Name>
+            <Email>erdinc@pardus.org.tr</Email>
+        </Update>
+        <Update release="2">
+            <Date>2006-06-28</Date>
+            <Version>2.3.24</Version>
+            <Comment>Version bump and comar init scripts added</Comment>
+            <Name>Ali Erdinç Köroğlu</Name>
+            <Email>erdinc@pardus.org.tr</Email>
+        </Update>
+        <Update release="1">
+            <Date>2006-05-30</Date>
+            <Version>2.3.23</Version>
+            <Comment>First release.</Comment>
+            <Name>Ali Erdinç Köroğlu</Name>
+            <Email>erdinc@pardus.org.tr</Email>
+        </Update>
+    </History>
+</PISI>
