@@ -1,0 +1,580 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>subversion</Name>
+        <Homepage>http://subversion.tigris.org/</Homepage>
+        <Packager>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Packager>
+        <License>Subversion</License>
+        <IsA>app:console</IsA>
+        <IsA>service</IsA>
+        <Summary>A compelling replacement for CVS</Summary>
+        <Description>SVN is a version controlling system to store files and control their change history in a repository.</Description>
+        <Archive sha1sum="b4ae7c75abbbdade8b2c9122ca7e2e26c6468a82" type="tarbz2">http://subversion.tigris.org/downloads/subversion-1.6.12.tar.bz2</Archive>
+        <BuildDependencies>
+            <Dependency versionFrom="5.10.1">perl</Dependency>
+            <Dependency versionFrom="0.28.4">neon</Dependency>
+            <Dependency releaseFrom="14">apr</Dependency>
+            <Dependency>apache</Dependency>
+            <Dependency>sun-jdk</Dependency>
+            <Dependency>apr-util</Dependency>
+            <Dependency>cyrus-sasl</Dependency>
+        </BuildDependencies>
+        <Patches>
+            <Patch level="1">subversion.header_wrappers.patch</Patch>
+            <Patch level="1">subversion.java14.patch</Patch>
+            <Patch level="1">subversion.libtool-verbose.patch</Patch>
+            <Patch level="1">subversion.perl.LD_RUN_PATH.patch</Patch>
+            <Patch level="1">subversion-swig-perl-install_vendor.patch</Patch>
+            <Patch level="1">dont_compile_pyc.patch</Patch>
+
+            <Patch level="1">subversion-1.6.0-rpath.patch</Patch>
+            <Patch level="1">subversion-1.6.0-disable_linking_against_unneeded_libraries.patch</Patch>
+        </Patches>
+    </Source>
+
+    <Package>
+        <Name>subversion</Name>
+        <RuntimeDependencies>
+            <Dependency versionFrom="5.10.1">perl</Dependency>
+            <Dependency versionFrom="0.28.4">neon</Dependency>
+            <Dependency releaseFrom="14">apr</Dependency>
+            <Dependency>apr-util</Dependency>
+            <Dependency>cyrus-sasl</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="config">/etc/conf.d</Path>
+            <Path fileType="data">/etc/subversion</Path>
+            <Path fileType="data">/usr/share/build</Path>
+            <Path fileType="executable">/usr/bin</Path>
+            <Path fileType="header">/usr/include</Path>
+            <Path fileType="library">/usr/lib</Path>
+            <Path fileType="doc">/usr/share/doc</Path>
+            <Path fileType="info">/usr/share/info</Path>
+            <Path fileType="localedata">/usr/share/locale</Path>
+            <Path fileType="man">/usr/share/man</Path>
+        </Files>
+        <AdditionalFiles>
+            <AdditionalFile owner="root" permission="0644" target="/etc/conf.d/svnserve">svnserve.confd</AdditionalFile>
+
+            <!-- http://websvn.kde.org/trunk/KDE/kdesdk/scripts/ -->
+            <AdditionalFile owner="root" permission="0755" target="/usr/bin/svnlastchange">svnlastchange</AdditionalFile>
+            <AdditionalFile owner="root" permission="0755" target="/usr/bin/svnrevertlast">svnrevertlast</AdditionalFile>
+            <AdditionalFile owner="root" permission="0755" target="/usr/bin/svnlastlog">svnlastlog</AdditionalFile>
+            <AdditionalFile owner="root" permission="0755" target="/usr/bin/svnclean">svn-clean</AdditionalFile>
+
+            <!-- system-wide configuration file for auto mimetype setting -->
+            <AdditionalFile owner="root" permission="0644" target="/etc/subversion/config">subversion.config</AdditionalFile>
+        </AdditionalFiles>
+        <Provides>
+            <COMAR script="service.py">System.Service</COMAR>
+        </Provides>
+    </Package>
+
+    <Package>
+        <Name>mod_dav_svn</Name>
+        <PartOf>server.web</PartOf>
+        <RuntimeDependencies>
+            <Dependency versionFrom="0.25.4">neon</Dependency>
+            <Dependency versionFrom="2.2">apache</Dependency>
+            <Dependency>subversion</Dependency>
+            <Dependency>apr</Dependency>
+            <Dependency>apr-util</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="library">/usr/lib/apache2</Path>
+            <Path fileType="config">/etc/apache2/modules.d</Path>
+            <Path fileType="data">/var/www/localhost/htdocs</Path>
+        </Files>
+        <AdditionalFiles>
+            <AdditionalFile owner="root" permission="0644" target="/etc/apache2/modules.d/47_mod_dav_svn.conf">47_mod_dav_svn.conf</AdditionalFile>
+        </AdditionalFiles>
+        <Provides>
+             <COMAR script="package.py">System.Package</COMAR>
+        </Provides>
+    </Package>
+
+    <History>
+        <Update release="58">
+            <Date>2010-06-25</Date>
+            <Version>1.6.12</Version>
+            <Comment>
+                * further improvements for issue #3242
+                * allow deletion of uris which need character escaping (issue #3636)
+                * fix errors with 'svn mkdir --parents' (issue #3649)
+                * update address to which crash reports are sent (r901304)
+                * check for server certificate revocation on Windows (r898048)
+                * disable custom file mutexes on Windows (r879902, -16)
+                * fix handling of peg revision'd copy targets (issue #3651)
+                * more improvements to 'svn merge --reintegrate' (r935631)
+                * allow copying of broken symlinks (issue #3303)
+                * improve rep-sharing performance on high-concurrency repos (issue #3506)
+                * fixed: added subtrees with mergeinfo break reintegrate (issue #3654)
+                * fixed: assertion triggered by tree-conflicted externals (issue #3469).
+            </Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="57">
+            <Date>2010-06-11</Date>
+            <Version>1.6.11</Version>
+            <Comment>Set mimetype of .html files to application/xml while adding.</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="56">
+            <Date>2010-05-14</Date>
+            <Version>1.6.11</Version>
+            <Comment>
+                - Version bump to 1.6.11,
+                - Add system-wide configuration file for svn:mime-type auto-setting.
+            </Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="55">
+            <Date>2010-02-19</Date>
+            <Version>1.6.9</Version>
+            <Comment>Use get.ARCH in actions.py</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="54">
+            <Date>2010-01-26</Date>
+            <Version>1.6.9</Version>
+            <Comment>Version bump</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="53">
+            <Date>2009-12-07</Date>
+            <Version>1.6.6</Version>
+            <Comment>Depend on new perl.</Comment>
+            <Name>Serdar Dalgıç</Name>
+            <Email>serdar@pardus.org.tr</Email>
+        </Update>
+        <Update release="52">
+            <Date>2009-11-11</Date>
+            <Version>1.6.6</Version>
+            <Comment>Remove empty /usr/lib/perl5/5.10.1/i686-linux-thread-multi directory that conflicts with other perl modules</Comment>
+            <Name>Eren Türkay</Name>
+            <Email>eren@pardus.org.tr</Email>
+        </Update>
+        <Update release="51">
+            <Date>2009-11-02</Date>
+            <Version>1.6.6</Version>
+            <Comment>
+              * fix crash during 'svn update' (r39673)
+              * fix a crash in 'svn rm --force' (r37953)
+              * fix failure to commit replacement of a directory (issue #3281)
+              * fix mod_dav_svn parent dir links to preserve peg revisions (issue #3425)
+              * improve "tree conflict already exists" error message (r38872)
+              * improve merge performance with implicit subtree mergeinfo (issue #3443)
+              * respect Apache's ServerSignature directive (r40008, -21, -31)
+            </Comment>
+            <Name>Faik Uygur</Name>
+            <Email>faik@pardus.org.tr</Email>
+        </Update>
+        <Update release="50">
+            <Date>2009-09-02</Date>
+            <Version>1.6.5</Version>
+            <Comment>Version bump to 1.6.5 which fixes possible data loss on ext4 and GPFS filesystems.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="49">
+            <Date>2009-08-14</Date>
+            <Version>1.6.4</Version>
+            <Comment>Add missing dependency to mod_dav_svn</Comment>
+            <Name>Faik Uygur</Name>
+            <Email>faik@pardus.org.tr</Email>
+        </Update>
+        <Update release="48" type="security">
+            <Date>2009-08-07</Date>
+            <Version>1.6.4</Version>
+            <Comment>Fixed heap overflow vulnerability on server and client (CVE-2009-2411)</Comment>
+            <Name>Faik Uygur</Name>
+            <Email>faik@pardus.org.tr</Email>
+        </Update>
+        <Update release="47">
+            <Date>2009-07-10</Date>
+            <Version>1.6.3</Version>
+            <Comment>Version bump.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="46">
+            <Date>2009-06-19</Date>
+            <Version>1.6.2</Version>
+            <Comment>
+                Bump to new stable version:
+                * vastly improve memory usage with 'svn merge' (issue #3393)
+                * make default depth for merge 'infinity' (r37156)
+                * make 'status --quiet' show tree conflicts (issue #3396)
+                * allow '--set-depth infinity' to expand shallow subtrees (r37169)
+                * return an error if attempting to reintegrate from/to the repo root (r37385)
+                * don't store bogus mergeinfo for '--ignore-ancestry', foreign merges (r37333)
+                * don't allow merge of difference between two repos (r37519)
+                * avoid potential segfault with subtree mergeinfo (r36613, -15, -31, -41)
+                * recommend sqlite 3.6.13 (r37245)
+                * avoid unnecessary server query for implicit mergeinfo (r36509)
+                * avoid unnecessary server query during reverse merges (r36527)
+                * set depth=infinity on 'svn add' items with restricted depth (r37607)
+                * fixed: commit log message template missing paths (issue #3399)
+                * fixed: segfault on merge with servers older than 1.6 (r37363, -67, -68, -79)
+                * fixed: repeat merge failures with non-inheritable mergeinfo (issue #3392)
+                * fixed: another memory leak when performing mergeinfo-aware merges (r37398)
+                * fixed: incorrect mergeinfo on children of shallow merges (issue #3407)
+                * fixed: pool lifetime issues in the BDB backend (r37137)
+            </Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="45">
+            <Date>2009-04-14</Date>
+            <Version>1.6.1</Version>
+            <Comment>Revert last, neon borks svn</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="44">
+            <Date>2009-04-13</Date>
+            <Version>1.6.1</Version>
+            <Comment>Disable neon version check</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="43">
+            <Date>2009-04-13</Date>
+            <Version>1.6.1</Version>
+            <Comment>
+                - Version bump to 1.6.1 which brings important updates,
+                - Cleanup dependencies,
+                - Recommended neon for this version is 0.28.4, adjust the script dep.
+            </Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="42">
+            <Date>2009-04-10</Date>
+            <Version>1.5.6</Version>
+            <Comment>Add missing dependency cyrus-sasl</Comment>
+            <Name>Ekin Meroğlu</Name>
+            <Email>ekin@pardus.org.tr</Email>
+        </Update>
+        <Update release="41">
+            <Date>2009-03-30</Date>
+            <Version>1.5.6</Version>
+            <Comment>
+              * copy properties of added but uncommitted files
+              * improve performance of log operation on older than 1.5 servers
+              * allow commits over Neon of files bigger than 2GB (POSIX only)
+              * fix error handling in mod_dav_svn
+            </Comment>
+            <Name>Faik Uygur</Name>
+            <Email>faik@pardus.org.tr</Email>
+        </Update>
+        <Update release="40">
+            <Date>2009-02-17</Date>
+            <Version>1.5.5</Version>
+            <Comment>
+                * Use svn:svn owner for repositories
+                * Default svnserve.conf of Pardus
+                * Improved mod_dav_svn conf
+                * Include xslt for better repo view via mod_dav_svn
+            </Comment>
+            <Name>Ahmet AYGÜN</Name>
+            <Email>ahmet@pardusman.org</Email>
+        </Update>
+        <Update release="39">
+            <Date>2009-02-16</Date>
+            <Version>1.5.5</Version>
+            <Comment>Workaround actionsapi errors till package is fixed</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="38">
+            <Date>2009-01-02</Date>
+            <Version>1.5.5</Version>
+            <Comment>
+              * Fixed segfault in 'svn cp --parents'
+              * Fixed segfault in BDB backend node-origins cache
+              * Fixed properly encode diff headers used in conflict resolution
+            </Comment>
+            <Name>Faik Uygur</Name>
+            <Email>faik@pardus.org.tr</Email>
+        </Update>
+        <Update release="37">
+            <Date>2008-12-22</Date>
+            <Version>1.5.4</Version>
+            <Comment>
+              * Properly handle explicit mergeinfo added in merge source
+              * Fixed merging of paths containing spaces
+              * Fixed regression in mergeinfo-aware merges against
+            </Comment>
+            <Name>Faik Uygur</Name>
+            <Email>faik@pardus.org.tr</Email>
+        </Update>
+        <Update release="36">
+            <Date>2008-11-18</Date>
+            <Version>1.5.3</Version>
+            <Comment>Fixed service script not emiting COMAR signal.</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="35">
+            <Date>2008-10-16</Date>
+            <Version>1.5.3</Version>
+            <Comment>
+              * Greatly improve merge performance
+              * Fixed merging files with spaces in name
+              * Fixed 'svn mv' hangs and consumes infinite memory
+              * Fixed correctness regression in 'svn log -g'
+              * Fixed current early bailout of 'svn log -g'
+            </Comment>
+            <Name>Faik Uygur</Name>
+            <Email>faik@pardus.org.tr</Email>
+        </Update>
+        <Update release="34">
+            <Date>2008-09-18</Date>
+            <Version>1.5.2</Version>
+            <Comment>Version bump</Comment>
+            <Name>Faik Uygur</Name>
+            <Email>faik@pardus.org.tr</Email>
+        </Update>
+        <Update release="33">
+            <Date>2008-08-12</Date>
+            <Version>1.5.1</Version>
+            <Comment>Version bump</Comment>
+            <Name>Faik Uygur</Name>
+            <Email>faik@pardus.org.tr</Email>
+        </Update>
+        <Update release="32">
+            <Date>2008-06-26</Date>
+            <Version>1.5.0</Version>
+            <Comment>Version bump</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="31">
+            <Date>2008-06-06</Date>
+            <Version>1.5.0_rc9</Version>
+            <Comment>Version bump</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="30">
+            <Date>2008-05-27</Date>
+            <Version>1.5.0_rc7</Version>
+            <Comment>Version bump</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="29">
+            <Date>2008-05-15</Date>
+            <Version>1.5.0_rc5</Version>
+            <Comment>Version bump</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="28">
+            <Date>2008-04-30</Date>
+            <Version>1.5.0_rc4</Version>
+            <Comment>Version bump</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="27">
+            <Date>2007-12-22</Date>
+            <Version>1.4.6</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="26" type="security">
+            <Date>2007-06-09</Date>
+            <Version>1.4.4</Version>
+            <Comment>Stable update to fix CVE-2007-2448</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="25">
+            <Date>2007-05-23</Date>
+            <Version>1.4.3</Version>
+            <Comment>Updated Service script.</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="24">
+            <Date>2007-04-30</Date>
+            <Version>1.4.3</Version>
+            <Comment>colorsvn deleted</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="23">
+            <Date>2007-02-03</Date>
+            <Version>1.4.3</Version>
+            <Comment>Add backport of python bindings of SVN</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="22">
+            <Date>2007-02-03</Date>
+            <Version>1.4.3</Version>
+            <Comment>Enable perl bindings</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="21">
+            <Date>2007-01-25</Date>
+            <Version>1.4.3</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="20">
+            <Date>2006-11-08</Date>
+            <Version>1.4.2</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="19">
+            <Date>2006-11-06</Date>
+            <Version>1.4.0</Version>
+            <Comment>Fix #3926</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="18">
+            <Date>2006-10-15</Date>
+            <Version>1.4.0</Version>
+            <Comment>Fix permissions for svnmerge command.</Comment>
+            <Name>Barış Metin</Name>
+            <Email>baris@pardus.org.tr</Email>
+        </Update>
+        <Update release="17">
+            <Date>2006-10-09</Date>
+            <Version>1.4.0</Version>
+            <Comment>Service script updated.</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="16">
+            <Date>2006-09-11</Date>
+            <Version>1.4.0</Version>
+            <Comment>Version bump</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="15">
+            <Date>2006-07-12</Date>
+            <Version>1.3.2</Version>
+            <Comment>Also merge svn-clean script from KDE SVN</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="14">
+            <Date>2006-07-10</Date>
+            <Version>1.3.2</Version>
+            <Comment>Some usefull scripts merged from KDE SVN</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="13">
+            <Date>2006-07-02</Date>
+            <Version>1.3.2</Version>
+            <Comment>Thy shall the package be compiled</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="12">
+            <Date>2006-06-30</Date>
+            <Version>1.3.2</Version>
+            <Comment>package.py fixed; postInstall changed and preRemove added</Comment>
+            <Name>Ahmet AYGÜN</Name>
+            <Email>ahmet@zion.gen.tr</Email>
+        </Update>
+        <Update release="11">
+            <Date>2006-06-29</Date>
+            <Version>1.3.2</Version>
+            <Comment>Version bump</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="10">
+            <Date>2006-06-24</Date>
+            <Version>1.3.1</Version>
+            <Comment>fix #2962</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="9">
+            <Date>2006-04-24</Date>
+            <Version>1.3.1</Version>
+            <Comment>fix depedency: apr0 -> apr</Comment>
+            <Name>Barış Metin</Name>
+            <Email>baris@pardus.org.tr</Email>
+        </Update>
+        <Update release="8">
+            <Date>2006-04-24</Date>
+            <Version>1.3.1</Version>
+            <Comment>Mudur script added</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="7">
+            <Date>2006-04-09</Date>
+            <Version>1.3.1</Version>
+            <Comment>New release</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="6">
+            <Date>2006-02-01</Date>
+            <Version>1.3.0</Version>
+            <Comment>mod_dav_svn</Comment>
+            <Name>Ahmet AYGÜN</Name>
+            <Email>ahmet@zion.gen.tr</Email>
+        </Update>
+        <Update release="5">
+            <Date>2006-01-08</Date>
+            <Version>1.3.0</Version>
+            <Comment>New stable release</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="4">
+            <Date>2005-10-23</Date>
+            <Version>1.2.3</Version>
+            <Comment>Update to version 1.2.3</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="3">
+            <Date>2005-10-15</Date>
+            <Version>1.1.3</Version>
+            <Comment>Fixed to use apr and apr-util packages, instead of building it's own.</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="2">
+            <Date>2005-10-09</Date>
+            <Version>1.1.3</Version>
+            <Comment>colorsvn script (from KDE SVN) added to package</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="1">
+            <Date>2005-09-16</Date>
+            <Version>1.1.3</Version>
+            <Comment>First release.</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+    </History>
+</PISI>
