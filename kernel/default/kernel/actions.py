@@ -14,7 +14,7 @@ from pisi.actionsapi import get
 WorkDir = "linux-2.6.35"
 NoStrip = ["/"]
 
-perf_make = "-C tools/perf V=1 NO_DEMANGLE=1 prefix=/%s" % get.defaultprefixDIR()
+perf_make = "-C tools/perf V=1 NO_DEMANGLE=1 NO_NEWT=1 prefix=/%s" % get.defaultprefixDIR()
 
 def setup():
     # FIXME: This may be hidden in kerneltools.configure
@@ -26,7 +26,7 @@ def build():
 
     # Build perf
     autotools.make("%s all" % perf_make)
-    autotools.make("%s man" % perf_make)
+    #autotools.make("%s man" % perf_make)
 
 def install():
     kerneltools.install()
@@ -51,5 +51,5 @@ def install():
     # FIXME: Provide perf wrapper
     #pisitools.insinto("/usr/bin", "tools/perf/perf", "perf.%s-%s" % (get.srcNAME(), get.srcVERSION()))
     autotools.rawInstall("%s DESTDIR=%s install" % (perf_make, get.installDIR()))
-    autotools.rawInstall("%s DESTDIR=%s install-man" % (perf_make, get.installDIR()))
-    autotools.install("-C tools/perf/Documentation install-man")
+    #autotools.rawInstall("%s DESTDIR=%s install-man" % (perf_make, get.installDIR()))
+    #autotools.install("-C tools/perf/Documentation install-man")
