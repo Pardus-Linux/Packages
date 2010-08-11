@@ -145,6 +145,7 @@ def postInstall(fromVersion, fromRelease, toVersion, toRelease):
              "ldap",
              "mediatomb",
              "memcached",
+             "mpd",
              "mysql",
              "named",
              "nm-openconnect",
@@ -306,6 +307,8 @@ def postInstall(fromVersion, fromRelease, toVersion, toRelease):
 
     # Comar' profile users
     hav("addUser", (200, "pnp", "PnP", "/dev/null", "/bin/false", "", ["pnp"], [], []))
+
+    hav("addUser", (250, "mpd", "Music Player Daemon", "/var/lib/mpd", "/bin/false", "", ["audio", "pulse", "pulse-access", "pulse-rt"], [], []))
 
     #migrate
     for u, g in migration:
