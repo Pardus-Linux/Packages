@@ -85,6 +85,7 @@ def postInstall(fromVersion, fromRelease, toVersion, toRelease):
               "hal",
               "icecast",
               "italc",
+              "kdm",
               "kvm",
               "ldap",
               "locate",
@@ -141,6 +142,7 @@ def postInstall(fromVersion, fromRelease, toVersion, toRelease):
              "gnokii",
              "hal",
              "icecast",
+             "kdm",
              "kvm",
              "ldap",
              "mediatomb",
@@ -252,6 +254,9 @@ def postInstall(fromVersion, fromRelease, toVersion, toRelease):
     hav("addGroup", (163, "kvm"))
     hav("addGroup", (164, "qemu"))
 
+    # kdm group
+    hav("addGroup", (165, "kdm"))
+
     # Comar' profile groups
     hav("addGroup", (200, "pnp"))
     hav("addGroup", (201, "removable"))
@@ -304,6 +309,8 @@ def postInstall(fromVersion, fromRelease, toVersion, toRelease):
     hav("addUser", (161, "openvpn", "OpenVPN", "/etc/openvpn", "/sbin/nologin", "", ["openvpn"], [], []))
     hav("addUser", (162, "privoxy", "Privoxy", "/etc/privoxy", "/sbin/nologin", "", ["privoxy"], [], []))
     hav("addUser", (163, "qemu", "qemu user", "/", "/sbin/nologin", "", ["qemu", "kvm"], [], []))
+
+    hav("addUser", (165, "kdm", "kdm", "/var", "/sbin/nologin", "", ["kdm"], [], []))
 
     # Comar' profile users
     hav("addUser", (200, "pnp", "PnP", "/dev/null", "/bin/false", "", ["pnp"], [], []))
