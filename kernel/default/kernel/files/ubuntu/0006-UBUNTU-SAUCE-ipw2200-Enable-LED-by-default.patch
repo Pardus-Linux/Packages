@@ -1,0 +1,56 @@
+From c0ea7d406385482c0fb1769772158fb28b0c4839 Mon Sep 17 00:00:00 2001
+From: ubuntu@tjworld.net <ubuntu@tjworld.net>
+Date: Mon, 23 Mar 2009 20:29:28 +0000
+Subject: [PATCH 6/6] UBUNTU: SAUCE: ipw2200: Enable LED by default
+
+Bug: #21367
+
+Enable LED by default. Original (vague) reason for defaulting to disabled
+documented in 2005 no longer appears applicable, and users have been
+requesting this for several years.
+
+Change the MODULE_PARM_DESC for led
+
+Signed-off-by: TJ <ubuntu@tjworld.net>
+Signed-off-by: Tim Gardner <tim.gardner@canonical.com>
+---
+ Documentation/networking/README.ipw2200 |    2 +-
+ drivers/net/wireless/ipw2200.c          |12034 +++++++++++++++++++++++++++++++
+ 2 files changed, 12035 insertions(+), 1 deletions(-)
+ create mode 100644 drivers/net/wireless/ipw2200.c
+
+Index: linux-2.6.32/Documentation/networking/README.ipw2200
+===================================================================
+--- linux-2.6.32.orig/Documentation/networking/README.ipw2200
++++ linux-2.6.32/Documentation/networking/README.ipw2200
+@@ -171,7 +171,7 @@ Where the supported parameter are:
+   
+   led
+ 	Can be used to turn on experimental LED code.
+-	0 = Off, 1 = On.  Default is 0.
++	0 = Off, 1 = On.  Default is 1.
+ 
+   mode
+ 	Can be used to set the default mode of the adapter.  
+Index: linux-2.6.32/drivers/net/wireless/ipw2x00/ipw2200.c
+===================================================================
+--- linux-2.6.32.orig/drivers/net/wireless/ipw2x00/ipw2200.c
++++ linux-2.6.32/drivers/net/wireless/ipw2x00/ipw2200.c
+@@ -90,7 +90,7 @@ static int network_mode = 0;
+ static u32 ipw_debug_level;
+ static int associate;
+ static int auto_create = 1;
+-static int led_support = 0;
++static int led_support = 1;
+ static int disable = 0;
+ static int bt_coexist = 0;
+ static int hwcrypto = 0;
+@@ -11962,7 +11962,7 @@ module_param(auto_create, int, 0444);
+ MODULE_PARM_DESC(auto_create, "auto create adhoc network (default on)");
+ 
+ module_param_named(led, led_support, int, 0444);
+-MODULE_PARM_DESC(led, "enable led control on some systems (default 0 off)");
++MODULE_PARM_DESC(led, "enable led control on some systems (default 1 on)");
+ 
+ module_param(debug, int, 0444);
+ MODULE_PARM_DESC(debug, "debug output mask");

@@ -1,0 +1,53 @@
+From f7d9af49fe52d28e2ce536f12ac3d1ef6c96c53f Mon Sep 17 00:00:00 2001
+From: Steve Conklin <sconklin@canonical.com>
+Date: Mon, 23 Nov 2009 10:41:44 -0600
+Subject: [PATCH 5/8] Ordering - kms after sata in drivers/Makefile
+
+This is the patch linux-2.6.29-kms-after-sata.patch
+from here:
+http://repo.moblin.org/moblin/releases/2.1/source/kernel-2.6.31.5-10.1.moblin2.src.rpm
+
+No other provenance known
+---
+ drivers/Makefile |   16 ++++++++--------
+ 1 files changed, 8 insertions(+), 8 deletions(-)
+
+diff --git a/drivers/Makefile b/drivers/Makefile
+index bc4205d..180c6ab 100644
+--- a/drivers/Makefile
++++ b/drivers/Makefile
+@@ -25,15 +25,8 @@ obj-$(CONFIG_REGULATOR)		+= regulator/
+ # default.
+ obj-y				+= char/
+ 
+-# gpu/ comes after char for AGP vs DRM startup
+-obj-y				+= gpu/
+-
+ obj-$(CONFIG_CONNECTOR)		+= connector/
+ 
+-# i810fb and intelfb depend on char/agp/
+-obj-$(CONFIG_FB_I810)           += video/i810/
+-obj-$(CONFIG_FB_INTEL)          += video/intelfb/
+-
+ obj-y				+= serial/
+ obj-$(CONFIG_PARPORT)		+= parport/
+ obj-y				+= base/ block/ misc/ mfd/
+@@ -43,7 +36,14 @@ obj-$(CONFIG_IDE)		+= ide/
+ obj-$(CONFIG_SCSI)		+= scsi/
+ obj-$(CONFIG_ATA)		+= ata/
+ obj-y				+= net/
+-obj-$(CONFIG_ATM)		+= atm/
++
++# gpu/ comes after char for AGP vs DRM startup
++obj-y				+= gpu/
++# i810fb and intelfb depend on char/agp/
++obj-$(CONFIG_FB_I810)           += video/i810/
++obj-$(CONFIG_FB_INTEL)          += video/intelfb/
++
++obj-$(CONFIG_ATM)		+= atm/
+ obj-$(CONFIG_FUSION)		+= message/
+ obj-$(CONFIG_FIREWIRE)		+= firewire/
+ obj-y				+= ieee1394/
+-- 
+1.6.3.3
+

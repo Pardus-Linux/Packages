@@ -1,0 +1,57 @@
+From: Tim Gardner <tim.gardner@canonical.com>
+Date: Thu, 24 Apr 2008 19:49:19 +0000 (-0600)
+Subject: UBUNTU: SAUCE: frame buffer regression - screen blank except for blinking
+X-Git-Url: http://kernel.ubuntu.com/git?p=ubuntu%2Fubuntu-intrepid.git;a=commitdiff_plain;h=ba0d60fcc049028112c7ae493f5df9e863ea660d
+
+UBUNTU: SAUCE: frame buffer regression - screen blank except for blinking
+cursor after fbcon vtswitch
+OriginalAuthor: Matthew Garrett <mjg59@srcf.ucam.org>
+Bug: #201591
+
+This commit is a combination of Hardy commits
+ed4952a7f17bbc64d7b4b9b148146c023e2dcb31 and
+9e4f5d4d5b3c0d8cd761d7a0e90c944c1973fe63. The first commit
+caused an FTBS on arches without a VGA console.
+
+Signed-off-by: Matthew Garrett <mjg59@srcf.ucam.org>
+Signed-off-by: Tim Gardner <tim.gardner@canonical.com>
+---
+
+Index: 2008-devel/drivers/char/vt_ioctl.c
+===================================================================
+--- 2008-devel.orig/drivers/char/vt_ioctl.c
++++ 2008-devel/drivers/char/vt_ioctl.c
+@@ -1179,7 +1179,9 @@ static void complete_change_console(stru
+ 	 */
+ 	old_vc_mode = oldvc->vc_mode;
+ 
+-	if (old_vc_mode == KD_TEXT && oldvc->vc_sw->con_font_get) {
++#if defined(CONFIG_VGA_CONSOLE)
++	if (old_vc_mode == KD_TEXT && oldvc->vc_sw == &vga_con &&
++	    oldvc->vc_sw->con_font_get) {
+ 		if (!oldvc->vc_font.data)
+ 			oldvc->vc_font.data = kmalloc(max_font_size, 
+ 						      GFP_KERNEL);
+@@ -1187,17 +1189,19 @@ static void complete_change_console(stru
+ 		oldvc->vc_sw->con_font_get(oldvc, &oldvc->vc_font);
+ 		unlock_kernel();
+ 	}
+-
++#endif
+ 	switch_screen(vc);
+ 
+-	if (vc->vc_mode == KD_TEXT && vc->vc_sw->con_font_set) {
++#if defined(CONFIG_VGA_CONSOLE)
++	if (vc->vc_mode == KD_TEXT && vc->vc_sw == &vga_con &&
++	    vc->vc_sw->con_font_set) {
+ 		if (vc->vc_font.data) {
+ 			lock_kernel();
+ 			vc->vc_sw->con_font_set(vc, &vc->vc_font, 0);
+ 			unlock_kernel();
+ 		}
+ 	}
+-
++#endif
+ 	/*
+ 	 * This can't appear below a successful kill_pid().  If it did,
+ 	 * then the *blank_screen operation could occur while X, having

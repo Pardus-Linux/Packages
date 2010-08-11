@@ -1,0 +1,37 @@
+From b931429c4be2c34ff6a188452824887e4fb2363c Mon Sep 17 00:00:00 2001
+From: Tim Gardner <tim.gardner@canonical.com>
+Date: Tue, 17 Mar 2009 19:07:34 -0600
+Subject: [PATCH 2/6] UBUNTU: SAUCE: Dell XPS710 reboot quirk
+
+OriginalAuthor: leann.ogasawara@canonical.com
+OriginalLocation: https://bugs.edge.launchpad.net/ubuntu/+source/linux/+bug/323592/comments/2
+Bug: #323592
+
+Signed-off-by: Leann Ogasawara <leann.ogasawara@canonical.com>
+Signed-off-by: Tim Gardner <tim.gardner@canonical.com>
+---
+ arch/x86/kernel/reboot.c |    8 ++++++++
+ 1 files changed, 8 insertions(+), 0 deletions(-)
+
+diff --git a/arch/x86/kernel/reboot.c b/arch/x86/kernel/reboot.c
+index 667188e..0ed8669 100644
+--- a/arch/x86/kernel/reboot.c
++++ b/arch/x86/kernel/reboot.c
+@@ -240,6 +240,14 @@ static struct dmi_system_id __initdata reboot_dmi_table[] = {
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "VGN-Z540N"),
+ 		},
+ 	},
++	{	/* Handle problems with rebooting on Dell XPS710 */
++		.callback = set_bios_reboot,
++		.ident = "Dell XPS710",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
++			DMI_MATCH(DMI_PRODUCT_NAME, "Dell XPS710"),
++		},
++	},
+ 	{ }
+ };
+ 
+-- 
+1.6.3
+

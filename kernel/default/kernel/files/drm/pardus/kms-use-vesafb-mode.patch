@@ -1,0 +1,29 @@
+Index: linux-2.6.31/drivers/gpu/drm/drm_fb_helper.c
+===================================================================
+--- linux-2.6.31.orig/drivers/gpu/drm/drm_fb_helper.c
++++ linux-2.6.31/drivers/gpu/drm/drm_fb_helper.c
+@@ -221,6 +221,24 @@ int drm_fb_helper_parse_command_line(str
+ {
+ 	struct drm_connector *connector;
+ 
++	if (!fb_mode_option) {
++		static char vesafb_mode[32];
++		int i;
++
++		for (i = 0; i < FB_MAX; i++) {
++			if (!registered_fb[i])
++			    continue;
++
++			if (!strncmp(registered_fb[i]->fix.id, "VESA VGA", 8)) {
++				snprintf(vesafb_mode, 32, "%dx%d-16",
++						registered_fb[i]->var.xres,
++						registered_fb[i]->var.yres);
++				fb_mode_option = vesafb_mode;
++				break;
++			}
++		}
++	}
++
+ 	list_for_each_entry(connector, &dev->mode_config.connector_list, head) {
+ 		char *option = NULL;
+ 

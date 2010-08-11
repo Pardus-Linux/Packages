@@ -1,0 +1,39 @@
+From 6b36122e865c1fed6de0c8b9de5844a48d45c796 Mon Sep 17 00:00:00 2001
+From: Tim Gardner <tim.gardner@canonical.com>
+Date: Wed, 13 May 2009 11:38:45 -0600
+Subject: [PATCH 1/6] UBUNTU: SAUCE: Add MODULE_ALIAS for Dell WMI module
+
+From Mario Limonciello: Until the sysfs WMI interface is ready, there is no way
+to automatically determine when to load dell-wmi.  The equivalent module for Acer
+laptops, acer-wmi has a workaround in place to match on the DMI tables for the machine.
+This type of solution works on for Dell as well and gets the module loading when necessary.
+
+Upstream is not in favor of applying this patch, but rather waiting for the sysfs
+interface to be ready. Until it is, this provides a solution to ensure machines that
+support WMI hotkeys are functional.
+
+OriginalAuthor: mario_limonciello@dell.com
+
+Signed-off-by: Tim Gardner <tim.gardner@canonical.com>
+---
+ drivers/platform/x86/dell-wmi.c |    4 ++++
+ 1 files changed, 4 insertions(+), 0 deletions(-)
+
+diff --git a/drivers/platform/x86/dell-wmi.c b/drivers/platform/x86/dell-wmi.c
+index 2fab941..d4e5b15 100644
+--- a/drivers/platform/x86/dell-wmi.c
++++ b/drivers/platform/x86/dell-wmi.c
+@@ -40,6 +40,10 @@ MODULE_LICENSE("GPL");
+ 
+ MODULE_ALIAS("wmi:"DELL_EVENT_GUID);
+ 
++/* Temporary workaround until the WMI sysfs interface goes in.
++   Borrowed from acer-wmi */
++MODULE_ALIAS("dmi:*:*Dell*:*:");
++
+ struct key_entry {
+ 	char type;		/* See KE_* below */
+ 	u16 code;
+-- 
+1.6.3
+

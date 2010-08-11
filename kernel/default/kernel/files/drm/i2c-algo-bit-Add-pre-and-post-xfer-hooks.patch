@@ -1,0 +1,59 @@
+From 0a9c14751377a1407f5e35791e13651d2fc7801c Mon Sep 17 00:00:00 2001
+From: Jean Delvare <khali@linux-fr.org>
+Date: Sat, 13 Mar 2010 20:56:56 +0100
+Subject: [PATCH] i2c-algo-bit: Add pre- and post-xfer hooks
+
+Drivers might have to do random things before and/or after I2C
+transfers. Add hooks to the i2c-algo-bit implementation to let them do
+so.
+
+Signed-off-by: Jean Delvare <khali@linux-fr.org>
+Cc: Alex Deucher <alexdeucher@gmail.com>
+---
+ drivers/i2c/algos/i2c-algo-bit.c |    9 +++++++++
+ include/linux/i2c-algo-bit.h     |    2 ++
+ 2 files changed, 11 insertions(+), 0 deletions(-)
+
+diff --git a/drivers/i2c/algos/i2c-algo-bit.c b/drivers/i2c/algos/i2c-algo-bit.c
+index e25e139..e8d568c 100644
+--- a/drivers/i2c/algos/i2c-algo-bit.c
++++ b/drivers/i2c/algos/i2c-algo-bit.c
+@@ -522,6 +522,12 @@ static int bit_xfer(struct i2c_adapter *i2c_adap,
+ 	int i, ret;
+ 	unsigned short nak_ok;
+ 
++	if (adap->pre_xfer) {
++		ret = adap->pre_xfer(i2c_adap);
++		if (ret < 0)
++			return ret;
++	}
++
+ 	bit_dbg(3, &i2c_adap->dev, "emitting start condition\n");
+ 	i2c_start(adap);
+ 	for (i = 0; i < num; i++) {
+@@ -570,6 +576,9 @@ static int bit_xfer(struct i2c_adapter *i2c_adap,
+ bailout:
+ 	bit_dbg(3, &i2c_adap->dev, "emitting stop condition\n");
+ 	i2c_stop(adap);
++
++	if (adap->post_xfer)
++		adap->post_xfer(i2c_adap);
+ 	return ret;
+ }
+ 
+diff --git a/include/linux/i2c-algo-bit.h b/include/linux/i2c-algo-bit.h
+index 111334f..4f98148 100644
+--- a/include/linux/i2c-algo-bit.h
++++ b/include/linux/i2c-algo-bit.h
+@@ -36,6 +36,8 @@ struct i2c_algo_bit_data {
+ 	void (*setscl) (void *data, int state);
+ 	int  (*getsda) (void *data);
+ 	int  (*getscl) (void *data);
++	int  (*pre_xfer)  (struct i2c_adapter *);
++	void (*post_xfer) (struct i2c_adapter *);
+ 
+ 	/* local settings */
+ 	int udelay;		/* half clock cycle time in us,
+-- 
+1.7.0.4
+

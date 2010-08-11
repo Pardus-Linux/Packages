@@ -1,0 +1,57 @@
+From bc19ff2e0bff31523af06bc089b71b4f46478837 Mon Sep 17 00:00:00 2001
+From: Jerome Glisse <jglisse@redhat.com>
+Date: Fri, 21 May 2010 14:19:07 +0200
+Subject: [PATCH] drm/radeon/kms: release AGP bridge at suspend
+
+I think it's good to release the AGP bridge at suspend
+and reacquire it at resume. Also fix :
+https://bugzilla.kernel.org/show_bug.cgi?id=15969
+
+Signed-off-by: Jerome Glisse <jglisse@redhat.com>
+---
+ drivers/gpu/drm/radeon/radeon.h        |    1 +
+ drivers/gpu/drm/radeon/radeon_agp.c    |    5 +++++
+ drivers/gpu/drm/radeon/radeon_device.c |    2 ++
+ 3 files changed, 8 insertions(+), 0 deletions(-)
+
+diff --git a/drivers/gpu/drm/radeon/radeon.h b/drivers/gpu/drm/radeon/radeon.h
+index 034218c..4c7204a 100644
+--- a/drivers/gpu/drm/radeon/radeon.h
++++ b/drivers/gpu/drm/radeon/radeon.h
+@@ -566,6 +566,7 @@ typedef int (*radeon_packet3_check_t)(struct radeon_cs_parser *p,
+  */
+ int radeon_agp_init(struct radeon_device *rdev);
+ void radeon_agp_resume(struct radeon_device *rdev);
++void radeon_agp_suspend(struct radeon_device *rdev);
+ void radeon_agp_fini(struct radeon_device *rdev);
+ 
+ 
+diff --git a/drivers/gpu/drm/radeon/radeon_agp.c b/drivers/gpu/drm/radeon/radeon_agp.c
+index 28e473f..f40dfb7 100644
+--- a/drivers/gpu/drm/radeon/radeon_agp.c
++++ b/drivers/gpu/drm/radeon/radeon_agp.c
+@@ -270,3 +270,8 @@ void radeon_agp_fini(struct radeon_device *rdev)
+ 	}
+ #endif
+ }
++
++void radeon_agp_suspend(struct radeon_device *rdev)
++{
++	radeon_agp_fini(rdev);
++}
+diff --git a/drivers/gpu/drm/radeon/radeon_device.c b/drivers/gpu/drm/radeon/radeon_device.c
+index 7b629e3..ed6a724 100644
+--- a/drivers/gpu/drm/radeon/radeon_device.c
++++ b/drivers/gpu/drm/radeon/radeon_device.c
+@@ -748,6 +748,8 @@ int radeon_suspend_kms(struct drm_device *dev, pm_message_t state)
+ 	/* evict remaining vram memory */
+ 	radeon_bo_evict_vram(rdev);
+ 
++	radeon_agp_suspend(rdev);
++
+ 	pci_save_state(dev->pdev);
+ 	if (state.event == PM_EVENT_SUSPEND) {
+ 		/* Shut down the device */
+-- 
+1.7.0.1
+

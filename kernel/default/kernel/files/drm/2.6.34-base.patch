@@ -1,0 +1,74 @@
+Index: linux-2.6.32/arch/x86/kernel/aperture_64.c
+===================================================================
+--- linux-2.6.32.orig/arch/x86/kernel/aperture_64.c
++++ linux-2.6.32/arch/x86/kernel/aperture_64.c
+@@ -30,6 +30,7 @@
+ #include <asm/k8.h>
+ 
+ int gart_iommu_aperture;
++EXPORT_SYMBOL_GPL(gart_iommu_aperture);
+ int gart_iommu_aperture_disabled __initdata;
+ int gart_iommu_aperture_allowed __initdata;
+ 
+Index: linux-2.6.32/drivers/staging/Kconfig
+===================================================================
+--- linux-2.6.32.orig/drivers/staging/Kconfig
++++ linux-2.6.32/drivers/staging/Kconfig
+@@ -99,7 +99,7 @@ source "drivers/staging/p9auth/Kconfig"
+ 
+ source "drivers/staging/line6/Kconfig"
+ 
+-source "drivers/gpu/drm/radeon/Kconfig"
++source "drivers/gpu/drm/nouveau/Kconfig"
+ 
+ source "drivers/staging/octeon/Kconfig"
+ 
+Index: linux-2.6.32/drivers/video/console/fbcon.c
+===================================================================
+--- linux-2.6.32.orig/drivers/video/console/fbcon.c
++++ linux-2.6.32/drivers/video/console/fbcon.c
+@@ -3025,6 +3025,20 @@ static int fbcon_fb_unregistered(struct 
+ 	return 0;
+ }
+ 
++static void fbcon_remap_all(int idx)
++{
++	int i;
++	for (i = first_fb_vc; i <= last_fb_vc; i++)
++		set_con2fb_map(i, idx, 0);
++
++	if (con_is_bound(&fb_con)) {
++		printk(KERN_INFO "fbcon: Remapping primary device, "
++		       "fb%i, to tty %i-%i\n", idx,
++		       first_fb_vc + 1, last_fb_vc + 1);
++		info_idx = idx;
++	}
++}
++
+ #ifdef CONFIG_FRAMEBUFFER_CONSOLE_DETECT_PRIMARY
+ static void fbcon_select_primary(struct fb_info *info)
+ {
+@@ -3225,6 +3239,10 @@ static int fbcon_event_notify(struct not
+ 		caps = event->data;
+ 		fbcon_get_requirement(info, caps);
+ 		break;
++	case FB_EVENT_REMAP_ALL_CONSOLE:
++		idx = info->node;
++		fbcon_remap_all(idx);
++		break;
+ 	}
+ done:
+ 	return ret;
+Index: linux-2.6.32/include/linux/fb.h
+===================================================================
+--- linux-2.6.32.orig/include/linux/fb.h
++++ linux-2.6.32/include/linux/fb.h
+@@ -543,6 +543,8 @@ struct fb_cursor_user {
+ #define FB_EVENT_GET_REQ                0x0D
+ /*      Unbind from the console if possible */
+ #define FB_EVENT_FB_UNBIND              0x0E
++/*      CONSOLE-SPECIFIC: remap all consoles to new fb - for vga switcheroo */
++#define FB_EVENT_REMAP_ALL_CONSOLE      0x0F
+ 
+ struct fb_event {
+ 	struct fb_info *info;

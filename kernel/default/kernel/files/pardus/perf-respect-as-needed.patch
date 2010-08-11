@@ -1,0 +1,33 @@
+Index: linux-2.6.34/tools/perf/Makefile
+===================================================================
+--- linux-2.6.34.orig/tools/perf/Makefile
++++ linux-2.6.34/tools/perf/Makefile
+@@ -580,7 +580,7 @@ endif
+ ifneq ($(shell sh -c "(echo '\#include <EXTERN.h>'; echo '\#include <perl.h>'; echo 'int main(void) { perl_alloc(); return 0; }') | $(CC) -x c - $(PERL_EMBED_CCOPTS) -o $(BITBUCKET) $(PERL_EMBED_LDOPTS) > /dev/null 2>&1 && echo y"), y)
+ 	BASIC_CFLAGS += -DNO_LIBPERL
+ else
+-	ALL_LDFLAGS += $(PERL_EMBED_LDOPTS)
++	EXTLIBS += $(PERL_EMBED_LDOPTS)
+ 	LIB_OBJS += $(OUTPUT)util/scripting-engines/trace-event-perl.o
+ 	LIB_OBJS += $(OUTPUT)scripts/perl/Perf-Trace-Util/Context.o
+ endif
+@@ -593,7 +593,7 @@ endif
+ ifneq ($(shell sh -c "(echo '\#include <Python.h>'; echo 'int main(void) { Py_Initialize(); return 0; }') | $(CC) -x c - $(PYTHON_EMBED_CCOPTS) -o $(BITBUCKET) $(PYTHON_EMBED_LDOPTS) > /dev/null 2>&1 && echo y"), y)
+ 	BASIC_CFLAGS += -DNO_LIBPYTHON
+ else
+-	ALL_LDFLAGS += $(PYTHON_EMBED_LDOPTS)
++	EXTLIBS += $(PYTHON_EMBED_LDOPTS)
+ 	LIB_OBJS += $(OUTPUT)util/scripting-engines/trace-event-python.o
+ 	LIB_OBJS += $(OUTPUT)scripts/python/Perf-Trace-Util/Context.o
+ endif
+@@ -886,8 +886,8 @@ $(OUTPUT)perf.o: perf.c $(OUTPUT)common-
+ 		$(ALL_CFLAGS) -c $(filter %.c,$^) -o $@
+ 
+ $(OUTPUT)perf$X: $(OUTPUT)perf.o $(BUILTIN_OBJS) $(PERFLIBS)
+-	$(QUIET_LINK)$(CC) $(ALL_CFLAGS) -o $@ $(OUTPUT)perf.o \
+-		$(BUILTIN_OBJS) $(ALL_LDFLAGS) $(LIBS)
++	$(QUIET_LINK)$(CC) $(ALL_CFLAGS) $(ALL_LDFLAGS) $(OUTPUT)perf.o \
++		$(BUILTIN_OBJS) $(LIBS) -o $@
+ 
+ $(OUTPUT)builtin-help.o: builtin-help.c $(OUTPUT)common-cmds.h $(OUTPUT)PERF-CFLAGS
+ 	$(QUIET_CC)$(CC) -o $@ -c $(ALL_CFLAGS) \

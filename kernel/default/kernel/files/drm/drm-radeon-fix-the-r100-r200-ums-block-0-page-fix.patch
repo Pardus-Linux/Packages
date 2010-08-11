@@ -1,0 +1,36 @@
+From cf22f20ade30f8c03955324aaf27b1049e182600 Mon Sep 17 00:00:00 2001
+From: Dave Airlie <airlied@redhat.com>
+Date: Sat, 29 May 2010 06:50:37 +1000
+Subject: [PATCH 10/38] drm/radeon: fix the r100/r200 ums block 0 page fix
+
+airlied -> brown paper bag.
+
+I blame Hi-5 or the Wiggles for lowering my IQ, move the fix inside some
+brackets instead of breaking everything in site.
+
+Cc: stable@kernel.org
+Signed-off-by: Dave Airlie <airlied@redhat.com>
+---
+ drivers/gpu/drm/radeon/radeon_state.c |    5 +++--
+ 1 files changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/gpu/drm/radeon/radeon_state.c b/drivers/gpu/drm/radeon/radeon_state.c
+index 40ab6d9..11ce94c 100644
+--- a/drivers/gpu/drm/radeon/radeon_state.c
++++ b/drivers/gpu/drm/radeon/radeon_state.c
+@@ -900,9 +900,10 @@ static void radeon_cp_dispatch_clear(struct drm_device * dev,
+ 			flags |= RADEON_FRONT;
+ 	}
+ 	if (flags & (RADEON_DEPTH|RADEON_STENCIL)) {
+-		if (!dev_priv->have_z_offset)
++		if (!dev_priv->have_z_offset) {
+ 			printk_once(KERN_ERR "radeon: illegal depth clear request. Buggy mesa detected - please update.\n");
+-		flags &= ~(RADEON_DEPTH | RADEON_STENCIL);
++			flags &= ~(RADEON_DEPTH | RADEON_STENCIL);
++		}
+ 	}
+ 
+ 	if (flags & (RADEON_FRONT | RADEON_BACK)) {
+-- 
+1.7.0.4
+

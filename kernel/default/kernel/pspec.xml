@@ -1,0 +1,1740 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>kernel</Name>
+        <Homepage>http://www.kernel.org</Homepage>
+        <Packager>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Packager>
+        <License>GPLv2</License>
+        <IsA>kernel</IsA>
+        <Summary>The Linux kernel (the core of the Linux operating system) for Pardus Linux</Summary>
+        <Description>kernel contains the Linux kernel, the core of any Linux operating system. The kernel handles the basic functions of the operating system: memory allocation, process allocation, device input and output, etc.</Description>
+        <Archive sha1sum="4cb1fbfbeedcd658ca37739679c65dfaa136bf4e" type="tarbz2">http://www.kernel.org/pub/linux/kernel/v2.6/linux-2.6.35.tar.bz2</Archive>
+        <AdditionalFiles>
+            <AdditionalFile target="configs/kernel-i686-config">pardus/configs/kernel-i686-config</AdditionalFile>
+            <AdditionalFile target="configs/kernel-x86_64-config">pardus/configs/kernel-x86_64-config</AdditionalFile>
+        </AdditionalFiles>
+        <BuildDependencies>
+            <Dependency>cpio</Dependency>
+            <Dependency>newt</Dependency> <!-- for perf -->
+            <Dependency>xmlto</Dependency>
+            <Dependency>unifdef</Dependency>
+            <Dependency>elfutils</Dependency>
+            <Dependency>asciidoc</Dependency>
+            <Dependency>diffutils</Dependency>
+            <Dependency>docbook-xsl</Dependency>
+        </BuildDependencies>
+        <Patches>
+            <!-- Stable patch -->
+            <Patch level="1" compressionType="bz2">kernel/patch-2.6.35.1.bz2</Patch>
+
+            <!-- FIXME: Squashfs-lzma support (There's a cleaner patch for this in LKML)
+            <Patch level="1">squashfs/squashfs-devel-add-lzma-support.patch</Patch>
+            -->
+
+
+            <!-- Moblin patches -->
+            <!-- FIXME: Recheck fastboot stuff from moblin and ubuntu -->
+
+            <!-- fastboot: retry mounting / if it fails first time -->
+            <Patch level="1">fastboot/linux-2.6.29-retry-root-mount.patch</Patch>
+
+            <!-- fastboot: try mounting / before all devices  (the mouse) are
+            done probing. This saves several seconds of boot time. -->
+            <Patch level="1">fastboot/linux-2.6.29-dont-wait-for-mouse.patch</Patch>
+
+            <!-- fastboot: Move kms after SATA in drivers/Makefile -->
+            <Patch level="1">fastboot/0005-Ordering-kms-after-sata-in-drivers-Makefile.patch</Patch>
+
+
+            <!-- Ubuntu Kernel Patches -->
+
+            <!-- Restore VT fonts on switch -->
+            <Patch level="1">ubuntu/ubuntu-intrepid.git-0e1f6f9df557fe4c7d5523275c25c166ee15efb5.patch</Patch>
+
+            <!-- frame buffer regression - screen blank except for blinking -->
+            <Patch level="1">ubuntu/ubuntu-intrepid.git-ba0d60fcc049028112c7ae493f5df9e863ea660d.patch</Patch>
+
+            <!-- ata: blacklist FUJITSU MHW2160BH PL -->
+            <Patch level="1">ubuntu/ubuntu-intrepid.git-3522f638ddff561fb46c1056fcb8c678e9e649ab.patch</Patch>
+
+            <!-- Several SAUCE patches from jaunty and karmic -->
+            <Patch level="1">ubuntu/0001-UBUNTU-SAUCE-Add-MODULE_ALIAS-for-Dell-WMI-module.patch</Patch>
+            <Patch level="1">ubuntu/0002-UBUNTU-SAUCE-Dell-XPS710-reboot-quirk.patch</Patch>
+            <Patch level="1">ubuntu/0005-UBUNTU-SAUCE-Correctly-blacklist-Thinkpad-r40e-in-AC.patch</Patch>
+            <Patch level="1">ubuntu/0006-UBUNTU-SAUCE-ipw2200-Enable-LED-by-default.patch</Patch>
+
+            <!-- Don't install scsi headers to avoid conflict with glibc -->
+            <Patch level="1">ubuntu/ubuntu-maverick.git-c7a74029969b912241591b2889961b17514ca61f.patch</Patch>
+
+            <!-- FIXME: Add Apparmor support
+                http://git.kernel.org/?p=linux/kernel/git/jj/linux-apparmor.git;a=summary
+                http://git.kernel.org/?p=linux/kernel/git/jj/linux-apparmor.git;a=summary
+            <Patch level="1">ubuntu/apparmor/apparmor.diff</Patch>
+            <Patch level="1">ubuntu/apparmor/security-default-lsm.diff</Patch>
+            -->
+
+
+
+            <!-- Fedora Kernel Patches -->
+
+            <!-- Add LIRC support -->
+            <Patch level="1">fedora/lirc-2.6.33.patch</Patch>
+
+            <!-- Enable support for kworld ub435-q and 340u usb atsc tuners -->
+            <Patch level="1">fedora/linux-2.6-v4l-dvb-add-kworld-a340-support.patch</Patch>
+            <Patch level="1">fedora/linux-2.6-v4l-dvb-add-lgdt3304-support.patch</Patch>
+
+            <!-- thinkpad_acpi: Fix backlight control on some recent Thinkpads -->
+            <!--<Patch level="1">fedora/thinkpad-acpi-fix-backlight.patch</Patch>-->
+
+            <!-- ssb: check for sprom to fix hard hangs -->
+            <!--<Patch level="1">fedora/ssb_check_for_sprom.patch</Patch>-->
+
+            <!-- hid: add multi-input quirk for eGalax Touchcontroller -->
+            <!--<Patch level="1">fedora/linux-2.6-input-hid-quirk-egalax.patch</Patch>-->
+
+            <!-- Add EC path for Thinkpad X100 -->
+            <!--<Patch level="1">fedora/thinkpad-acpi-add-x100e.patch</Patch>-->
+
+            <!-- acpi: ACPI embedded controller fixes from Fedora 13 -->
+            <Patch level="1">fedora/acpi-ec-add-delay-before-write.patch</Patch>
+
+            <!-- btrfs: Fix ACL -->
+            <!--<Patch level="1">fedora/linux-2.6-btrfs-fix-acl.patch</Patch>-->
+
+            <!-- Use UTF-8 by default on VFAT -->
+            <Patch level="1">fedora/linux-2.6-defaults-fat-utf8.patch</Patch>
+
+            <!-- input: The input layer spews crap no-one cares about -->
+            <Patch level="1">fedora/linux-2.6-input-kill-stupid-messages.patch</Patch>
+
+            <!-- pci: disable message signaled interrupts  -->
+            <Patch level="1">fedora/linux-2.6-defaults-pci_no_msi.patch</Patch>
+
+            <!-- Silence some useless messages that still get printed with 'quiet' -->
+            <Patch level="1">fedora/linux-2.6-silence-noise.patch</Patch>
+
+            <!-- Allow to use 480600 baud on 16C950 UARTs -->
+            <Patch level="1">fedora/linux-2.6-serial-460800.patch</Patch>
+
+            <!-- Disable prism54 in favor of p54pci -->
+            <Patch level="1">fedora/prism54-remove-pci-dev-table.patch</Patch>
+
+            <!-- hdpvr: Enable IR -->
+            <Patch level="1">fedora/hdpvr-ir-enable.patch</Patch>
+
+
+            <!-- FIXME (fatih): DRM stuff
+            <Patch level="1">drm/add-list_sort.patch</Patch>
+            <Patch level="1">drm/i2c-algo-bit-Add-pre-and-post-xfer-hooks.patch</Patch>
+            <Patch level="1">drm/2.6.34-base.patch</Patch>
+            <Patch level="1">drm/2.6.34.patch</Patch>
+
+            <Patch level="1">drm/drm-nouveau-don-t-execute-INIT_GPIO-unless-we-re-rea.patch</Patch>
+            <Patch level="1">drm/drm-radeon-fix-the-r100-r200-ums-block-0-page-fix.patch</Patch>
+            <Patch level="1">drm/drm-radeon-kms-release-AGP-bridge-at-suspend.patch</Patch>
+
+            <Patch level="1">drm/fedora/drm-1024x768-85.patch</Patch>
+            <Patch level="1">drm/fedora/drm_nouveau_ucode.patch</Patch>
+
+            <Patch level="1">drm/fedora/linux-2.6-acpi-video-export-edid.patch</Patch>
+            <Patch level="1">drm/fedora/drm-nouveau-acpi-edid-fallback.patch</Patch>
+
+            <Patch level="1">drm/fedora/drm-intel-big-hammer.patch</Patch>
+            <Patch level="1">drm/fedora/drm-intel-make-lvds-work.patch</Patch>
+            <Patch level="1">drm/fedora/linux-2.6-intel-iommu-igfx.patch</Patch>
+            <Patch level="1">drm/fedora/drm-intel-gen5-dither.patch</Patch>
+            -->
+
+
+
+
+            <!-- Subset of OpenSuSE Kernel Patches -->
+
+            <!-- Eventhough we don't build legacy IDE drivers, prefer libata over them -->
+            <Patch level="1">suse/libata-prefer-over-ide.patch</Patch>
+
+            <!-- Add ELO touchpad driver -->
+            <Patch level="1">suse/elousb.patch</Patch>
+
+            <!-- Explain OOM warning better -->
+            <Patch level="1">suse/explain-oom-warning.patch</Patch>
+
+            <!-- Input: Add Acer ASpire 5710 to nomux quirk table -->
+            <Patch level="1">suse/input-add-acer-aspire-5710-to-nomux.patch</Patch>
+
+            <!-- x86: APIC force bigsmp apic on some IBM and DELL stations -->
+            <Patch level="1">suse/x86-apic-force-bigsmp-apic-on-IBM-EXA3-4.patch</Patch>
+
+            <!-- Module use count must be updated as bridges are created/destroyed -->
+            <Patch level="1">suse/bridge-module-get-put.patch</Patch>
+
+            <!-- Make tsc disabling optional -->
+            <Patch level="1">suse/seccomp-disable-tsc-option.patch</Patch>
+
+            <!-- Enable apm=power_off on uniprocessors (Fixes #4519) -->
+            <Patch level="1">suse/apm_setup_UP.patch</Patch>
+
+            <!-- Don't force select AES in wireless -->
+            <Patch level="1">suse/wireless-no-aes-select.patch</Patch>
+
+            <!-- Make ext3 mount default to barrier=1 -->
+            <Patch level="1">suse/ext3-barrier-default.patch</Patch>
+
+            <!-- NFS4ACL for ext3
+                 FIXME: replace with richacl from suse
+            -->
+
+            <!-- tg3: Update to 3.104
+            <Patch level="1">suse/tg3-update-version-to-3.104.patch</Patch>
+            -->
+
+            <!-- fastboot stuff -->
+            <Patch level="1">suse/linux-2.6.29-enable-async-by-default.patch</Patch>
+            <Patch level="1">suse/linux-2.6.29-jbd-longer-commit-interval.patch</Patch>
+
+            <!-- mouse: Add more touch screen device IDs -->
+            <Patch level="1">suse/linux-2.6.29-touchkit.patch</Patch>
+
+            <!-- SCSI driver for HP Smart Array controllers, a replacement for cciss
+            <Patch level="1">suse/scsi-driver-for-hp-smart-array.patch</Patch>-->
+
+            <!-- Add new serial Wacom device IDs -->
+            <Patch level="1">suse/serial-8250-add-new-wacom-devices.patch</Patch>
+
+
+            <!-- FIXME: Add TuxOnIce 3.1 support for 2.6.35
+            <Patch level="1" compressionType="bz2">tuxonice/tuxonice-3.1.1.1-for-2.6.34.patch.bz2</Patch>-->
+
+
+            <!-- Pardus Kernel Patches -->
+
+            <!-- perf: Fix build -->
+            <Patch level="1">pardus/perf-respect-as-needed.patch</Patch>
+
+            <!-- Use the same resolution when switching from vesafb to KMS -->
+            <Patch level="1">drm/pardus/kms-use-vesafb-mode.patch</Patch>
+
+            <!-- FIXME: This should be moved to udev forced_release quirks -->
+            <!-- atkbd: Add forced release quirk for Samsung R510 -->
+            <Patch level="1">pardus/add-forced-release-quirk-samsung-r510.patch</Patch>
+
+            <!-- Drop a PCI_ID from zc0301 webcam driver -->
+            <Patch level="1">pardus/zc0301-remove-spca-conflicts.patch</Patch>
+
+            <!-- hid-apple: Invert Fn+F? behaviour on apple keyboards -->
+            <Patch level="1">pardus/invert-hidapple-fnkey-behaviour.patch</Patch>
+
+            <!-- FIXME: Patch lmpcm_usb driver into the kernel (build failure)
+            <Patch>pardus/linux-2.6-add-lmpcm_usb-driver.patch</Patch>
+            -->
+
+            <!-- Patch acerhk driver into the kernel -->
+            <Patch>pardus/linux-2.6-add-acerhk-driver.patch</Patch>
+
+            <!-- Add RF kill switch drivers for Fujitsu Amilo M7400 and M7440
+                 FIXME: Grab the new one from Ubuntu if any
+                 http://fsam7440.sourceforge.net
+                 http://www.zwobble.de
+            <Patch level="1">pardus/linux-2.6-add-fujitsu-amilo-74xx-rfkill-drivers.patch</Patch>
+            -->
+
+            <!-- Use buildfarm.pardus.org.tr and pardus for /proc/version -->
+            <Patch level="1">pardus/buildhost.patch</Patch>
+
+            <!-- Pardus Logo Enhancements -->
+            <Patch level="1">pardus/logo.patch</Patch>
+            <Patch level="1">pardus/logo-vga16.patch</Patch>
+            <Patch level="1">pardus/logo-mono.patch</Patch>
+
+            <!-- Remove 2 PCI ID from tulip driver as they work with dmfe (Fixes #4216)
+                 Seems fixed by upstream
+            <Patch level="1">pardus/tulip_patch.patch</Patch>
+            -->
+
+            <!-- Fallback to vesa 640x480x16 on undefined video mode number (Fixes #7117)-->
+            <Patch level="1">pardus/vesa_fallback_on_fail.patch</Patch>
+
+            <!-- FIXME: Sync from upstream AuFS-2 patch
+            <Patch level="1">aufs/aufs2-31-20091003.patch</Patch>
+            -->
+        </Patches>
+    </Source>
+
+    <Package>
+        <Name>kernel</Name>
+        <RuntimeDependencies>
+            <!-- For devtmpfs support -->
+            <Dependency>mkinitramfs</Dependency>
+            <Dependency>kernel-firmware</Dependency>
+            <Dependency>radeon-rlc-firmware</Dependency>
+        </RuntimeDependencies>
+        <Replaces>
+            <Package>module-lirc</Package>
+            <Package>module-ipheth-driver</Package>
+        </Replaces>
+        <Files>
+            <Path fileType="executable" permanent="true">/boot</Path>
+            <Path fileType="library" permanent="true">/lib/modules</Path>
+            <Path fileType="data">/etc/kernel</Path>
+        </Files>
+        <Provides>
+            <COMAR script="package.py">System.Package</COMAR>
+        </Provides>
+    </Package>
+
+    <Package>
+        <Name>kernel-firmware</Name>
+        <PartOf>hardware.firmware</PartOf>
+        <Summary>Firmware drivers shipped with vanilla kernel</Summary>
+        <Files>
+            <Path fileType="data" permanent="true">/lib/firmware</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>kernel-module-headers</Name>
+        <Summary>Kernel header files for external module building</Summary>
+        <Description>kernel-module-headers includes the C header files and the necessary Kbuild files for being able to build external kernel modules.</Description>
+        <Files>
+            <Path fileType="header">/usr/src/linux-headers*</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>kernel-headers</Name>
+        <PartOf>system.devel</PartOf>
+        <Summary>Header files for the Linux kernel for use by glibc</Summary>
+        <Description>kernel-headers includes the C header files that specify the interface between the Linux kernel and userspace libraries and programs. The header files define structures and constants that are needed for building most standard programs and are also needed for rebuilding the glibc package.</Description>
+        <Files>
+            <Path fileType="header">/usr/include</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>kernel-doc</Name>
+        <Summary>Documentation and scripts for the Linux kernel</Summary>
+        <Description>kernel-doc includes several documentation files and scripts for managing several debugging and other tasks.</Description>
+        <Files>
+            <Path fileType="header">/usr/src/linux-source*/Documentation</Path>
+            <Path fileType="header">/usr/src/linux-source*/scripts</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>perf</Name>
+        <Summary>Performance analyser tool that makes full use of the Linux performance counter subsystem</Summary>
+        <Description>perf is a new tool which is used to optimize, validate and measure applications, workloads or the full system through the Linux performance counter subsystem.</Description>
+        <RuntimeDependencies>
+            <Dependency>newt</Dependency>
+            <Dependency>elfutils</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="executable">/usr/libexec/perf-core/*</Path>
+            <Path fileType="executable">/usr/bin/perf*</Path>
+            <Path fileType="man">/usr/share/man/man1/perf*</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>kernel-source</Name>
+        <Summary>Source code for the Linux kernel</Summary>
+        <Description>kernel-source provides the source code for the Linux kernel. If you want to build external modules for your kernel, install the appropriate kernel-headers package instead.</Description>
+        <Files>
+            <Path fileType="header">/usr/src/linux-source*</Path>
+        </Files>
+    </Package>
+
+    <History>
+        <Update release="141">
+            <Date>2010-08-11</Date>
+            <Version>2.6.35.1</Version>
+            <Comment>
+                - Version bump to 2.6.35.1,
+                - Replace module-ipheth-driver,
+                - Enable tm6000 driver (#9111),
+            </Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="140">
+            <Date>2010-07-05</Date>
+            <Version>2.6.32.16</Version>
+            <Comment>
+                - Version bump to 2.6.32.16,
+                - drm/i915: Add more edp fixes,
+                - drm: Add fixes from 2.6.34 stable queue,
+                - drm/nouveau: Add fixes from nouveau/master,
+                - drm/i915: Fix edp panels on a number of notebooks,
+                - sctp: crash due to malformed SCTPChunkInit packet (CVE-2010-1173) (#12914),
+            </Comment>
+            <Type package="kernel">security</Type>
+            <Requires>
+                <Action package="kernel">systemRestart</Action>
+            </Requires>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="139">
+            <Date>2010-05-31</Date>
+            <Version>2.6.32.14</Version>
+            <Comment>
+                - Version bump to 2.6.32.14,
+                - ext4: Fix possible data corruption with ext4 mounted with -o discard,
+                - hid: add multi-input quirk for eGalax Touchcontroller,
+                - ssb: check for sprom to fix hard hangs,
+                - thinkpad_acpi: Fix backlight control on some recent Thinkpads,
+                - Enable support for kworld ub435-q and 340u usb atsc tuners,
+                - drm/nouveau: don't execute INIT_GPIO unless we're really running the table,
+                - drm/radeon: fix the r100/r200 ums block 0 page fix,
+                - drm/radeon/kms: release AGP bridge at suspend.
+                - gfs2: Fix permissions checking for setflags ioctl() (CVE-2010-1641) (#13291),
+                - btrfs: prevent users from setting ACLs on files they do not own (CVE-2010-2071) (#13492),
+                - ext4: Make sure the MOVE_EXT ioctl can't overwrite append-only files (CVE-2010-2066) (#13452),
+                - acpi: video: Add Acer 5710 to BQC quirk table (#10615),
+                - rt2870: Add Zyxel NWD-270N usb id (#12751),
+                - p54usb: Drop duplicate USB ID.
+            </Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="138">
+            <Date>2010-05-17</Date>
+            <Version>2.6.32.13</Version>
+            <Comment>
+                - Version bump to 2.6.32.13,
+                - KEYS: find_keyring_by_name() can gain access to a freed keyring (#12915),
+                - drm: Sync with 2.6.34
+            </Comment>
+            <Type package="kernel">security</Type>
+            <Requires>
+                <Action package="kernel">systemRestart</Action>
+            </Requires>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="137" type="security">
+            <Date>2010-04-27</Date>
+            <Version>2.6.32.12</Version>
+            <Comment>
+                - Bump to 2.6.32.12,
+                - libata: Fix accesses at LBA28 boundary,
+                - acpi: ACPI embedded controller fixes from Fedora 13,
+                - Add EC path for Thinkpad X100.
+                - tty: release_one_tty() forgets to put pids (CVE-2010-1162) (#12774),
+                - oom: fix the unsafe usage of badness() in proc_oom_score() (CVE-2010-1488) (#12778).
+            </Comment>
+            <Requires>
+                <Action package="kernel">systemRestart</Action>
+            </Requires>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="136" type="security">
+            <Date>2010-04-12</Date>
+            <Version>2.6.32.11</Version>
+            <Comment>
+                - Bump to 2.6.32.11,
+                - Bump tuxonice to 3.1,
+                - Disable suse tg3 patch as it conflicts with .11 patch,
+                - Bluetooth: Fix potential bad memory access with sysfs files (CVE-2010-1084) (#12627),
+                - NFS: Fix an Oops when truncating a file (CVE-2010-1087) (#12635),
+                - dvb-core: Fix DoS bug in ULE decapsulation code (CVE-2010-1086) (#12631),
+                - reiserfs: Fix permissions on .reiserfs_priv (CVE-2010-1146) (#12641),
+                - drm: Backport changes from 2.6.34,
+                - drm: Enable radeon KMS by default,
+                - Make kernel package dependant on kernel-firmware and radeon-rlc-firmware packages.
+            </Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="135">
+            <Date>2010-03-18</Date>
+            <Version>2.6.32.10</Version>
+            <Comment>
+                - Version bump to 2.6.32.10,
+                - r8169: imporved rx length check errors,
+                - tcp: fix ICMP-RTO war,
+                - iwlwifi: Silence tfds_in_queue message,
+                - b43: Rewrite DMA Tx status handling sanity checks.
+                - disable AFS filesystem as it conflicts with OpenAFS,
+                - iwlagn: Fix spurious warnings caused by a regression in .10.
+            </Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="134">
+            <Date>2010-02-23</Date>
+            <Version>2.6.32.9</Version>
+            <Comment>Version bump to 2.6.32.9, add configs as additional files.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="133">
+            <Date>2010-02-10</Date>
+            <Version>2.6.32.8</Version>
+            <Comment>Version bump to 2.6.32.8.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="132">
+            <Date>2010-01-31</Date>
+            <Version>2.6.32.7</Version>
+            <Comment>Version bump to 2.6.32.7.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="131">
+            <Date>2010-01-26</Date>
+            <Version>2.6.32.6</Version>
+            <Comment>
+                - Version bump to 2.6.32.6,
+                - Use VESA mode in KMS (by Fatih),
+                - Enable async by default,
+                - Add Suse fixes for sky2, broadcom and tg3 network drivers,
+                - Add AppleIR driver,
+                - Add CrystalHD video decoder driver,
+                - Enable modesetting on intel by default.
+            </Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="130" type="security">
+            <Date>2010-01-19</Date>
+            <Version>2.6.31.11</Version>
+            <Comment>
+                - Version bump to 2.6.31.11,
+                - Bump TuxOnIce to the latest branch,
+                - Add Realtek staging drivers from 2.6.32 (#11957),
+                - Fix x86 MCE malfunctioning (#11923),
+                - Fix boot hangs on AMD Athlon XP processors (#11939),
+                - quota: Fix regression on ext3 file-systems causing panic upon boot (#12008).
+                - timer: Revert "Prevent clockevent_devices list corruption" to fix shutdown hangs (#12036),
+                - disable X86_CPU_DEBUG,
+                - kernel/signal.c: fix kernel information leak with print-fatal-signals=1 (CVE-2010-0003) (#12072).
+            </Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="129" type="security">
+            <Date>2010-01-06</Date>
+            <Version>2.6.31.9</Version>
+            <Comment>
+                - Version bump to 2.6.31.9,
+                - Drop mainlined patches,
+                - Sync'ed aufs with the latest branch,
+                - Add Apparmor back again but don't disable it,
+                - Add lirc drivers,
+                - Add several Suse and Fedora patches,
+                - bluetooth: Add USB autosuspend support (disabled),
+                - memcg: Improve resource counter scalability,
+                - pci: Increase alignment to make more space for hidden code,
+                - virtio_blk: Add support for cache flush,
+                - cpuidle: Fix the menu governor to boost IO performance,
+                - Revert "Attach the ACPI device to the ACPI handle as early as possible",
+                - ahci: Disable 64-bit DMA on SB600 SATA controllers,
+                - nfs: Fixed hang during NFS installs,
+                - nfs: NFSD v4 dynamic pseudo root patch which allows NFSv3 exports to be mounted by v4 clients,
+                - acpi: Fix boot hang with ACPI on some systems,
+                - netlink: Fix typo in initialization (CVE-2009-3612),
+                - security: connector security bypass: capabilities check (CVE-2009-3725, #11521)
+                - security: nfsv4: null pointer dereference (CVE-2009-3726, #11522)
+                - Disable prism54 in favor of p54pci,
+                - Disable rt2800usb in favor of staging/rt2870sta,
+                - Add TG3 network driver fixes,
+                - sched: Update the clock of runqueue select_task_rq() selected,
+                - i8142: Bypass aux loop tests on laptops,
+                - Grab atkbd fixes from upstream,
+                - ath9k: add upstream fixes,
+                - Add several IOMMU fixes from upstream,
+                - Add ACPI fixes from 2.6.32,
+                - squashfs: Add lzma patches from squashfs-devel git,
+                - Add two kill switch drivers for Fujitsu Amilo M7400 and M7440 (#11571),
+                - Enable AppArmor,
+                - fuse: fuse_ioctl_copy_user() denial of service (CVE-2009-4410) (#11842),
+                - firewire: ohci: handle receive packets with a data length of zero (CVE-2009-4138) (#11736),
+                - ext4: divide-by-zero error when trying to mount a corrupted file system (CVE-2009-4307) (#11720),
+                - Add some little fixes from Suse,
+                - Fix bootsplash to work with KMS,
+                - Add KMS/SATA ordering patch from moblin,
+                - Make floppy a module, built-in ATA and SCSI tape driver,
+                - drm: Update Fedora patches.
+            </Comment>
+            <Requires>
+                <Action>reverseDependencyUpdate</Action>
+            </Requires>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="128" type="security">
+            <Date>2009-12-04</Date>
+            <Version>2.6.30.9</Version>
+            <Comment>
+                - Version bump to 2.6.30.9,
+                - x86: Don't leak 64-bit registers into 32-bit processes (#11265),
+                - sched: Add several scheduler fixes from linus-2.6 tree to improve latencies,
+                - ecryptfs: Fix NULL pointer dereference (CVE-2009-2908) (#11282),
+                - netlink: fix typo in initialization (CVE-2009-3612),
+                - ax25: Security fix (CVE-2009-2909),
+                - keys: get_instantiation_keyring() should inc the keyring refcount in all cases (CVE-2009-3624) (#11426),
+                - af_unix: Fix deadlock on connecting to shutdown socket,
+                - forcedeth: Fix race condition,
+                - libata: Fix a drive detection problem,
+                - Several networking fixes from 2.6.31 stable,
+                - ACPI: Add notifier chain for AC/DC connect/disconnect events,
+                - ACPI: Several upstream ACPI EC fixes from 2.6.32,
+                - ACPI: Revert "attach device to handle early.." to fix boot hang on some systems.
+                - drm: Sync with latest drm-next tree.
+                - drm/nouveau: more vbios opcodes, minor fixes, hopeful fix for hangs on nVidia 7800GT.
+            </Comment>
+            <Requires>
+                <Action>reverseDependencyUpdate</Action>
+            </Requires>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="127" type="security">
+            <Date>2009-10-06</Date>
+            <Version>2.6.30.8</Version>
+            <Comment>
+                - Version bump to 2.6.30.8,
+                - PM PCMCIA: Fix CardBus suspend/resume regression introduced after 2.6.28,
+                - cfq: Fix serious performance regression,
+                - KVM: x86: Disallow hypercalls for guest callers in rings > 0 (CVE-2009-3290) (#11210),
+                - appletalk: Fix skb leak when ipddp interface is not loaded (CVE-2009-2903) (#11164),
+                - Fix several getsockname() leaks in net subsystem (CVE-2009-3002) (#10122),
+                - Fix vulnerability in net llc sockaddr_llc struct (#11121, #11016),
+                - Fix uninitialized kernel memory leak in tc (#11092),
+                - Several security improvements for mmap stuff (#11120),
+                - Fix fan control for Acer A0A150 model,
+                - Add Con Kolivas' BFS scheduler patch but don't enable it,
+                - zd1211rw: Add 083a:e503 as a ZD1211B device,
+                - cx25840: Fix CX23885 and CX241XX caused ivtv regression,
+                - xen: Rearrange things to fix stack protector,
+                - af9015: Fix stack corruption bug,
+                - x86: Make sure load_percpu has no stackprotector,
+                - hdpvr: Enable IR,
+                - sched: Add several patches for improving desktop latencies (disabled for now).
+                - drm: Sync with latest drm-next tree.
+                - drm/nouveau: Sync with upstream tree.
+            </Comment>
+            <Requires>
+                <Action>reverseDependencyUpdate</Action>
+            </Requires>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="126" type="security">
+            <Date>2009-08-17</Date>
+            <Version>2.6.30.5</Version>
+            <Comment>
+                - Version bump to 2.6.30.5, (#10774, #10820, #10875, #10908, #10918),
+                - Avoid stack_t leakage to userspace (#10767),
+                - Add more CDC modems to whitelist,
+                - driver-core: add new device to bus's list before probing,
+                - Add new device IDs for usb-serial drivers,
+                - Add new i8042 and atkbd quirks for input layer devices,
+                - Add support for a new Wacom device,
+                - Add new IDs for several network drivers,
+                - Fix reboot on MacBook5,2, MacBookPro5,1.
+            </Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="125" type="security">
+            <Date>2009-07-31</Date>
+            <Version>2.6.30.4</Version>
+            <Comment>
+                - Version bump to 2.6.30.4,
+                - Fix 2 security vulnerability in eCryptfs (CVE-2009-2406, CVE-2009-2407) (#10689, #10691),
+                - Fix LANGID=0 regression (#10521),
+                - Add Fedora's platform patch to get away from polling Toshibas.
+            </Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="124" type="security">
+            <Date>2009-07-20</Date>
+            <Version>2.6.30.2</Version>
+            <Comment>
+                - Version bump to 2.6.30.2 which is mainly a security release for CVE-2009-1895 and CVE-2009-1897,
+                - Backport gcc-4.2 workaround for drivers/fbmon which could hang the kernel upon booting.
+            </Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="123">
+            <Date>2009-07-15</Date>
+            <Version>2.6.30.1</Version>
+            <Comment>
+                - Add patches from upstream to fix some booting link detection issues on bnx2 and bnx2x,
+                - Add several useful SAUCE patches from Jaunty and Karmic,
+                - Split documentations.
+            </Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="122">
+            <Date>2009-07-09</Date>
+            <Version>2.6.30.1</Version>
+            <Comment>
+                - Version bump to 2.6.30.1,
+                - Disable initramfs creation in kernel, do it in postInstall,
+                - Add VIA MMC driver,
+                - Fix inaccurate delay calculation using TSC,
+                - Enable acpi-cpufreq for VIA Centaur' family, disable e_powersaver driver,
+                - Fix port= option for CIFS,
+            </Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="121">
+            <Date>2009-06-10</Date>
+            <Version>2.6.30</Version>
+            <Comment>
+                - Version bump to 2.6.30,
+                - Sync TuxOnIce from upstream,
+                - Enable some new staging drivers,
+                - Backport a DRM patch from linus-2.6 which may fix RS690 Radeon lockups,
+                - Backport Ene Technologies CB7x0 MMC/SD/SDHC card reader support,
+                - Grab recent nouveau fixes from Fedora.
+            </Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="120">
+            <Date>2009-06-03</Date>
+            <Version>2.6.30_rc8</Version>
+            <Comment>
+                - Version bump to 2.6.30_rc8-git1 which contains the latest DRM fixes,
+                - Add DRM patchset from Fatih,
+                - Add CRYPTO_LZMA support from OpenWRT.
+            </Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="119">
+            <Date>2009-06-02</Date>
+            <Version>2.6.30_rc7</Version>
+            <Comment>
+                - Version bump to 2.6.30_rc7,
+                - Migrate to the new kerneltools ActionsAPI module,
+                - Fork off a new kernel-module-headers package that will be sufficient for module building,
+                - Add TuxOnIce as an alternative to swsusp,
+                - Make LZO compression built-in for TuxOnIce.
+            </Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="118">
+            <Date>2009-05-20</Date>
+            <Version>2.6.30_rc6</Version>
+            <Comment>Version bump to 2.6.30_rc6.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="117">
+            <Date>2009-05-16</Date>
+            <Version>2.6.30_rc5</Version>
+            <Comment>
+                - Build rtc-cmos into the kernel,
+                - Build SCSI support into the kernel along with sr_mod and sg_mod,
+                - Replace ov511,
+                - Disable TOMOYO security framework along with path based access control.
+            </Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="116">
+            <Date>2009-05-09</Date>
+            <Version>2.6.30_rc5</Version>
+            <Comment>
+                - Version bump to the latest RC,
+                - Make FUSE in-kernel,
+                - Build usbcore, *hci-hcd in-kernel,
+                - Drop mainlined fastboot and nfs patches,
+                - Enable CONFIG_MOUSE_PS2_ELANTECH and CONFIG_MOUSE_PS2_TOUCHKIT,
+                - Split kernel firmwares to avoid file conflicts with other kernel packages,
+                - lmpcm_usb and acerhk are now patched into the kernel,
+                - Make USBHID support builtin,
+                - Add kernel-firmware dependency to kernel package,
+                - Add acx-firmware dependency to kernel as the driver is now patched into the kernel,
+                - Add replaces tag for sn9c1xx, pwc,
+                - Invert hid-apple Fn+Key behaviour,
+                - Drop old AppArmor patches,
+                - Drop STKWEBCAM support, remove a conflicting PCI_ID from zc0301.
+            </Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="115">
+            <Date>2009-03-13</Date>
+            <Version>2.6.29</Version>
+            <Comment>
+                - Version bump to 2.6.29,
+                - Forwardport nfs4acl and wireless-no-aes patches,
+                - Remove squashfs as it's mainlined,
+                - Add some fedora patches,
+                - Add sreadahead patch for kernel-level open() tracing,
+                - Compile cpufreq_*, acpi*, ext2/3/4, udf, msr, cpuid built-in,
+                - Avoid pcspeaker from being built-in,
+                - Enable cgroups, ath5k,
+                - Add AuFS patches,
+                - Add DRM patches from fedora,
+                - It's not a part of the system.base anymore,
+                - Add some Moblin patches.
+            </Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="114">
+            <Date>2008-12-28</Date>
+            <Version>2.6.28</Version>
+            <Comment>
+                - Version bump to the stable version,
+                - Drop DRM patches,
+                - Drop Unionfs support,
+                - Grab Apparmor's 2.6.28 patchset,
+                - Enable CONFIG_PRIME to make alsa-driver work correctly,
+                - Add Gigabyte M912 to the noloop table to enable its touchpad,
+                - Add LZMA support to SquashFS,
+                - Add sreadahead patch to implement inode timestamping for ext3.
+            </Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="113" type="security">
+            <Date>2008-11-15</Date>
+            <Version>2.6.25.20</Version>
+            <Comment>
+                - Add UDF backports from SUSE,
+                - Version bump to the latest 2.6.25.20 which contains
+                a security fix(CVE-2008-3528) with some other goodies.
+            </Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="112" type="security">
+            <Date>2008-10-24</Date>
+            <Version>2.6.25.19</Version>
+            <Comment>Version bump</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="111">
+            <Date>2008-10-14</Date>
+            <Version>2.6.25.18</Version>
+            <Comment>Fix mtrr warning, fallback to VESA on undefined video mode number (#7117)</Comment>
+            <Name>Ekin Meroğlu</Name>
+            <Email>ekin@pardus.org.tr</Email>
+        </Update>
+        <Update release="110">
+            <Date>2008-10-10</Date>
+            <Version>2.6.25.18</Version>
+            <Comment>Version bump</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="109">
+            <Date>2008-09-08</Date>
+            <Version>2.6.25.17</Version>
+            <Comment>Version bump</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="108">
+            <Date>2008-08-21</Date>
+            <Version>2.6.25.16</Version>
+            <Comment>Version bump</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="107">
+            <Date>2008-08-06</Date>
+            <Version>2.6.25.15</Version>
+            <Comment>Version bump</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="106">
+            <Date>2008-08-03</Date>
+            <Version>2.6.25.14</Version>
+            <Comment>Version bump</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="105">
+            <Date>2008-07-29</Date>
+            <Version>2.6.25.13</Version>
+            <Comment>Version bump</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="104">
+            <Date>2008-07-25</Date>
+            <Version>2.6.25.12</Version>
+            <Comment>Version bump</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="103" type="security">
+            <Date>2008-07-20</Date>
+            <Version>2.6.25.11</Version>
+            <Comment>Version bump</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="102">
+            <Date>2008-07-03</Date>
+            <Version>2.6.25.10</Version>
+            <Comment>Version bump</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="101" type="security">
+            <Date>2008-06-25</Date>
+            <Version>2.6.25.9</Version>
+            <Comment>Version bump</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="100" type="security">
+            <Date>2008-06-23</Date>
+            <Version>2.6.25.8</Version>
+            <Comment>Version bump to 2.6.25.8</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="99">
+            <Date>2008-06-11</Date>
+            <Version>2.6.25.7</Version>
+            <Comment>Version bump to 2.6.25.7</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="98" type="security">
+            <Date>2008-06-11</Date>
+            <Version>2.6.25.6</Version>
+            <Comment>Version bump to 2.6.25.6 with wireless tree updates</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="97" type="security">
+            <Date>2008-06-07</Date>
+            <Version>2.6.25.5</Version>
+            <Comment>Version bump to 2.6.25.5, fixes CVE-2008-1673</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="96">
+            <Date>2008-05-07</Date>
+            <Version>2.6.25.4</Version>
+            <Comment>Version bump to 2.6.25.4</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="95" type="security">
+            <Date>2008-05-07</Date>
+            <Version>2.6.24.7</Version>
+            <Comment>Version bump to stable, fixes CVE-2008-1669</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="94" type="security">
+            <Date>2008-05-02</Date>
+            <Version>2.6.24.6</Version>
+            <Comment>Version bump to stable, fixes CVE-2008-1375 and CVE-2008-1675</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="93">
+            <Date>2008-04-29</Date>
+            <Version>2.6.24.5</Version>
+            <Comment>
+                - Enable CONFIG_FAIR_GROUP_SCHED and CONFIG_LOGO
+                - Sync with stable-queue
+                - Grab "nouveau drm stack" from Fedora
+                - Grab "TSC Clocksource can cause hangs and time jumps" and "sched: retain vruntime" from Ubuntu
+                - Grab "mm: sparsemem memory_present() fix" from 2.6.25
+                - Grab whole wireless stack of 2008-04-25
+            </Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="92">
+            <Date>2008-04-21</Date>
+            <Version>2.6.24.5</Version>
+            <Comment>
+                - Bump to 2.6.24.5
+                - Add unionfs 2.3.2
+                - Grab whole wireless stack of 2008-04-16
+            </Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="91">
+            <Date>2008-04-09</Date>
+            <Version>2.6.24.4</Version>
+            <Comment>
+                - Disable CONFIG_AC97_BUS
+                - Backport PIE and brk() randomization bits
+                - USB: serial: ti_usb_3410_5052: Correct TUSB3410 endpoint requirements
+                - USB: serial: fix regression in Visor/Palm OS module for kernels >= 2.6.24
+                - Prevent sys_io_getevents syscall from clobbering the esi register on x86
+                - inotify: send IN_ATTRIB events when link count changes
+                - Fix a potential bug in inotify_user.c
+                - SIGIO-driven I/O with inotify queues
+                - Backport virtio and lguest changes from 2.6.25-rc9
+            </Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="90">
+            <Date>2008-04-07</Date>
+            <Version>2.6.24.4</Version>
+            <Comment>Grab lots of patches from Ubuntu and Fedora to solve following;
+                - Sync with stable-queue (these will be 2.6.24.5)
+                - Unhiding this smbus breaks acpi thermal zones
+                - Fix pci resource allocation broken in 2.6.24
+                - Make "pci=rom" work as documented: don't assign addresses to every rom by default
+                - Backport MTRR fixes from 2.6.25
+                - Fix resource limits for isapnp devices 
+                - Extend memory resource limit for pnp devices
+                - Disable PNP motherboard resources that overlap PCI BARs
+                - Clear simplex DMA before probing pata_atiixp devices
+                - Fix locking in tun/tap driver when device address changes
+                - Fix mis-read of xfs attr2 superblock flag which was causing corruption in some cases
+                - Fix drm race that can lockup the kernel
+                - EHCI: add separate IAA watchdog timer
+                - PM: Introduce PM_EVENT_HIBERNATE callback state
+                - Update drm and i915 drm driver to fix suspend issues
+                - Disable DRM suspend/resume on pre-915 Intel chips
+                - x86: provide a DMI based port 0x80 I/O delay override 
+                - Resolve sky2 race condition leading to failed suspends
+                - ACPI: fix boot oops regression
+                - Fix for device attached to pata_sis as secondary master
+                - Fix bluetooth rfcomm crash on suspend
+                - Fix reading of MAC address in sis190 driver
+                - Handle suspend/resume in Ricoh MMC disabler
+                - Extend ricoh_mmc to support Ricoh RL5c476
+                - Fix bluetooth log spam with a buggy conwise USB adapter
+                - Allow more IPSEC connections
+            </Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="89">
+            <Date>2008-03-24</Date>
+            <Version>2.6.24.4</Version>
+            <Comment>Version bump to stable and grab following patches from ubuntu and fedora
+                - Refresh mactel patchset from upstream
+                - Add WD WD800ADFS NCQ horkage quirk support
+                - AMD SB700 south bridge support patches
+                - Add AGP support for Radeon Mobility 9000 chipset
+                - ACPI: disable stray GPE, prevent ACPI interrupt storm
+                - Revert "ACPI: EC: Enable boot EC before bus_scan" from stable
+                - ACPI: video: Rationalise ACPI backlight implementation
+                - hwmon: (coretemp) Add Penryn CPU to coretemp
+                - ali atapi dma is broken right now. disable it (but not disk dma)
+                - libata/pata_it821x: Improve handling of poorly compatible emulations
+                - Map volume and brightness events on thinkpads
+                - USB: fix usb-serial generic recursive lock
+            </Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="88">
+            <Date>2008-03-03</Date>
+            <Version>2.6.24.3</Version>
+            <Comment>Version bump,
+                - Add early medium-not-present detection in sr/sd drivers 
+                - Fix CDROM_DRIVE_STATUS ioctl implementation
+                - Fix TEST_UNIT_READY for medium detection
+                - tty: enable the echoing of ^C in the N_TTY discipline
+                - Fix IXANY and restart after signal (e.g. ctrl-C) in n_tty line discipline
+                - PCI x86: always use conf1 to access config space below 256 bytes
+            </Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="87" type="security">
+            <Date>2008-02-11</Date>
+            <Version>2.6.24.2</Version>
+            <Comment>Version bump</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="86" type="security">
+            <Date>2007-07-07</Date>
+            <Version>2.6.18.8</Version>
+            <Comment>Backport/grab some fixes,
+                - NETFILTER: nf_conntrack_h323: add checking of out-of-range on choices' index values
+                - softmac backports from 2.6.21
+                - bcm43xx driver backport from 2.6.22-rc1
+                - ipw2100/ipw2200 driver backport from 2.6.22-rc1
+                - cifs backports from cifs-backport-old-kernels
+                - i386: fix regression, endless loop in ptrace singlestep over an int80
+                - buffer: memorder fix
+                - mm: optimize kill_bdev()
+                - mm: Prevent OOM-kill of unkillable children or siblings
+                - x86: Fix CPUID calls to support GH processors
+                - x86: Fix to nmi to support GH processors
+                - x86: Use CPUID calls to check for mce
+                - x86: Greyhound cpuinfo output cleanups
+                - x86: ICH9 device IDs
+            </Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="85" type="security">
+            <Date>2007-06-26</Date>
+            <Version>2.6.18.8</Version>
+            <Comment>Backport/grab some fixes,
+                - Various agp/drm fixes
+                - ext3: a race condition between ext3_link/unlink that could create an orphan inode list corruption
+                - mm: Keep O_DIRECT I/O from populating the page cache
+                - e1000: a bug in the e1000 driver that could lead to a watchdog timeout panic
+                - nmi: change watchdog timeout to 30 seconds
+                - SHPCHP: driver doesn't work in poll mode
+                - SHPCHP: driver doesn't work if the system was under heavy load
+                - Update FC transport and Emulex lpfc Fibre Channel Driver
+                - Emulex lpfc update to 8.1.10.2
+                - cciss: This is a set of patches that HP considers critical for cciss. This represents some cherry picking from their latest upstream submissions. All are bug fixes.  All are in Linus' tree
+                - iscsi: fix oops if iscsi connection setup fails
+                - iscsi: backports of iscsi fixes
+                - iscsi: fix iscsi sense len handling
+                - iscsi: fix oops in iscsi packet transfer path
+                - mce: Refactor the event processing (syslog messaging and rate limiting) into separate file therm_throt.c. This allows consistent reporting of CPU thermal throttle events.
+            </Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="84" type="security">
+            <Date>2007-06-03</Date>
+            <Version>2.6.18.8</Version>
+            <Comment>Grab some patches from RHEL5 and also solve followings;
+                - Depreceate includes of config.h
+                - Famous data corruption bug backported (http://kerneltrap.org/node/7534)
+                - lockdep: Backport all known lockdep problems from 2.6.20 and also fix the ide/proc interaction
+                - CIFS: Explicitly set stat->blksize for optimum bandwith usage
+                - CIFS: Fix mount failure when domain not specified
+                - CIFS: invalids readdires
+                - The ipw driver sometimes takes a long time to load its firmware. Use 60 sec. timeout
+                - handle races w/ truncate in journal_dirty_data() with ext3
+                - Use semaphores instead of mutexes for block devices mounts
+                - mm: fix statistics in vmscan.c
+                - mm: oom killer fixes backported from 2.6.19
+                - mm: reject corrupt swapfiles earlier
+                - mm: NFS data corruption
+                - mm: handle mapping of memory without a struct page backing it
+                - mm: write failure on swapout could corrupt data
+                - x86: handle _PSS object range corectly in speedstep-centrino
+                - x86: /proc/mtrr interface MTRR bug fix
+                - x86 :vga video fail fix
+                - e100: fix error recovery
+                - e1000: updated driver, backported from 2.6.19
+                - e1000: Add missing ids to e1000
+                - e1000: Reset all functions after a PCI error
+                - e1000: truncated TSO TCP header with 82544, workaround
+                - tg3: BCM5752M crippled after reset
+                - tg3: TG3 support Broadcom 5756M/5756ME  Controller
+                - ipw2200: update to version 1.2.0 from ipw2200.sf.net
+                - netfilter: iptables stop fails because ip_conntrack cannot unload.
+                - fbcon: every time the console cursor blinks, we do a kmalloc/kfree pair. Turn that into a single allocation.
+                - proc: readdir race fix, When many processes are created and destroyed frequently, ps may fail to show some procceses which existed before ps command is exectuted and still exist after ps is done. Backported from 2.6.20
+                - SATA AHCI: support AHCI class code
+                - SATA AHCI: The redefinition of ahci_start_engine() and ahci_stop_engine()
+                - SATA ata_piix: This patch corrects the ICH8 map values for sata ata_piix. This fixes a problem where SATA devices are not detected on some of the SATA ports on an ICH8 motherboard when the BIOS is set to IDE mode.
+                - SATA sata_promise: support PATA ports on SATA controllers
+                - SATA: support legacy IDE mode of SB600 SATA
+            </Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="83" type="security">
+            <Date>2007-04-12</Date>
+            <Version>2.6.18.8</Version>
+            <Comment>Fix CVE-2007-1357, enable RAID support</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="82" type="security">
+            <Date>2007-03-18</Date>
+            <Version>2.6.18.8</Version>
+            <Comment>Fix CVE-2007-149{6,7}</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="81" type="security">
+            <Date>2007-03-09</Date>
+            <Version>2.6.18.8</Version>
+            <Comment>Fix CVE-2007-1000</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="80" type="security">
+            <Date>2007-03-08</Date>
+            <Version>2.6.18.8</Version>
+            <Comment>Fix CVE-2007-0005</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="79">
+            <Date>2007-03-07</Date>
+            <Version>2.6.18.8</Version>
+            <Comment>Pegasus-II USB-Ethernet driver fix</Comment>
+            <Name>Faik Uygur</Name>
+            <Email>faik@pardus.org.tr</Email>
+        </Update>
+        <Update release="78">
+            <Date>2007-02-24</Date>
+            <Version>2.6.18.8</Version>
+            <Comment>Bump to stable</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="77" type="security">
+            <Date>2007-02-20</Date>
+            <Version>2.6.18.7</Version>
+            <Comment>fix CVE-2007-0772</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="76" type="security">
+            <Date>2007-02-11</Date>
+            <Version>2.6.18.6</Version>
+            <Comment>fix CVE-2006-6333 and CVE-2007-0006</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="75" type="security">
+            <Date>2007-02-08</Date>
+            <Version>2.6.18.6</Version>
+            <Comment>fix CVE-2006-5749</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="74" type="security">
+            <Date>2007-02-03</Date>
+            <Version>2.6.18.6</Version>
+            <Comment>Drop asus_acpi and disable CONFIG_ACPI_ASUS, fix CVE-2006-4814 and CVE-2006-5753, use nicer patch for APM poweroff problem from OpenSUSE</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="73">
+            <Date>2007-01-11</Date>
+            <Version>2.6.18.6</Version>
+            <Comment>Fix CIFS corruption, update asus_acpi to 0.31, fix #3729, #4430, fix #4519, enable device-mapper support needed by cryptosetup, remove CONFIG_USB_OV511 as Onur requested</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="72">
+            <Date>2007-01-11</Date>
+            <Version>2.6.18.6</Version>
+            <Comment>Use gspca driver for Logitech Quickcam Express (Laptop model)</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="71">
+            <Date>2007-01-04</Date>
+            <Version>2.6.18.6</Version>
+            <Comment>Disable "Compat VDSO support" which breaks glibc</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="70" type="security">
+            <Date>2006-12-31</Date>
+            <Version>2.6.18.6</Version>
+            <Comment>Fix Linux 2.6.x ISO9660 __find_get_block_slow() denial of service (CVE-2006-5757), Linux 2.6.x zlib_inflate memory corruption (CVE-2006-5823), Linux 2.6.x ext3fs_dirhash denial of service (CVE-2006-6053), Linux 2.6.x ext2_check_page denial of service (CVE-2006-6054), Linux 2.6.x SELinux superblock_doinit denial of service (CVE-2006-6056), Linux 2.6.x squashfs double free (CVE-2006-5701)</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="69">
+            <Date>2006-12-29</Date>
+            <Version>2.6.18.6</Version>
+            <Comment>Conflict with m560x</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="68" type="security">
+            <Date>2006-12-19</Date>
+            <Version>2.6.18.6</Version>
+            <Comment>Bump to latest stable, fix CVE-2006-6106, generate kernel-headers package which replaces linux-headers</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="67">
+            <Date>2006-12-12</Date>
+            <Version>2.6.18.5</Version>
+            <Comment>Bump for new splash</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="66">
+            <Date>2006-12-04</Date>
+            <Version>2.6.18.5</Version>
+            <Comment>Version bump to latest stable, sync with mactel</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="65">
+            <Date>2006-12-04</Date>
+            <Version>2.6.18.4</Version>
+            <Comment>Removed USB devices that don't work with zc0301, but works with gspca, fixing #4326 #3704 etc</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="64" type="security">
+            <Date>2006-11-29</Date>
+            <Version>2.6.18.4</Version>
+            <Comment>Fix possible overflow in get_fdb_entries (CVE-2006-5751), Make sure to properly clamp maxnum to avoid overflow (CVE-2006-5751)</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="63">
+            <Date>2006-11-22</Date>
+            <Version>2.6.18.3</Version>
+            <Comment>Fix #4216, support i965G's, fix microcode-ctl-1.15 issues, Fix _PPC evaluation, allow highest freq on HPs (and others), Allocate AGP pages with GFP_DMA32 by default</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="62">
+            <Date>2006-11-22</Date>
+            <Version>2.6.18.3</Version>
+            <Comment>Provide update-grub</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="61">
+            <Date>2006-11-19</Date>
+            <Version>2.6.18.3</Version>
+            <Comment>Version bump to latest stable</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="60">
+            <Date>2006-11-16</Date>
+            <Version>2.6.18.2</Version>
+            <Comment>Sync with gentoo-sources, fuse disabled again</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="59" type="security">
+            <Date>2006-11-04</Date>
+            <Version>2.6.18.2</Version>
+            <Comment>CVE-2006-5757 ISO9660 __find_get_block_slow (denial of service) and cramfs oops</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="58">
+            <Date>2006-11-04</Date>
+            <Version>2.6.18.2</Version>
+            <Comment>Version bump to .2</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="57">
+            <Date>2006-10-14</Date>
+            <Version>2.6.18.1</Version>
+            <Comment>Version bump to .1, drop *-utf8 patches</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="56">
+            <Date>2006-09-24</Date>
+            <Version>2.6.18</Version>
+            <Comment>Enable fs-cache</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="55">
+            <Date>2006-09-22</Date>
+            <Version>2.6.18</Version>
+            <Comment>Version bump</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="54" type="security">
+            <Date>2006-09-13</Date>
+            <Version>2.6.16.29</Version>
+            <Comment>Enable SMP and highmem with huge config changes, version bump to latest stable</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="53">
+            <Date>2006-09-03</Date>
+            <Version>2.6.16.28</Version>
+            <Comment>Export acpi_ec_{read/write} so sbs module will be an external package</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="52" type="security">
+            <Date>2006-08-26</Date>
+            <Version>2.6.16.28</Version>
+            <Comment>Fix CVE-2006-2935, CVE-2006-3745, CVE-2006-4093 and CVE-2006-4145</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="51" type="security">
+            <Date>2006-08-01</Date>
+            <Version>2.6.16.27</Version>
+            <Comment>Fix CVE-2006-2936 also minor appArmor problem</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="50" type="security">
+            <Date>2006-07-15</Date>
+            <Version>2.6.16.25</Version>
+            <Comment>Fix nasty /proc vulnerability (CVE-2006-3626), merge dvb KConfig fixes so we can make these modules, and fix PPP/PPTP connection dropping regressions, enable spi, enable all misc fs as a module and disable SMBFS (use CIFS instead, see https://bugzilla.samba.org/show_bug.cgi?id=1920)</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="49" type="security">
+            <Date>2006-07-08</Date>
+            <Version>2.6.16.24</Version>
+            <Comment>Version bump (fix fix prctl privilege escalation and suid_dumpable (CVE-2006-2451)), use new splash</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="48">
+            <Date>2006-07-05</Date>
+            <Version>2.6.16.22</Version>
+            <Comment>initramfs added to package</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="47">
+            <Date>2006-07-04</Date>
+            <Version>2.6.16.22</Version>
+            <Comment>new comar script</Comment>
+            <Name>Gürer Özen</Name>
+            <Email>gurer@pardus.org.tr</Email>
+        </Update>
+        <Update release="46">
+            <Date>2006-06-27</Date>
+            <Version>2.6.16.22</Version>
+            <Comment>Jens Axobe's fcache patch enabled, version bump</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="45">
+            <Date>2006-06-18</Date>
+            <Version>2.6.16.20</Version>
+            <Comment>Jens Axobe's fcache patch added as Gürer requested, fuse and pwc modules disabled (newer ones are external)</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="44">
+            <Date>2006-06-16</Date>
+            <Version>2.6.16.20</Version>
+            <Comment>Fix dependencies, enable audit subsystem</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="43">
+            <Date>2006-06-14</Date>
+            <Version>2.6.16.20</Version>
+            <Comment>Sync with other distros</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="42">
+            <Date>2006-06-12</Date>
+            <Version>2.6.16.20</Version>
+            <Comment>Enable usb modem drivers</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="41" type="security">
+            <Date>2006-06-05</Date>
+            <Version>2.6.16.20</Version>
+            <Comment>fix some security related problems (see http://www.kernel.org/pub/linux/kernel/v2.6/ChangeLog-2.6.16.20)</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="40" type="security">
+            <Date>2006-05-21</Date>
+            <Version>2.6.16.17</Version>
+            <Comment>fix CVE-2006-1857, CVE-2006-1858 and lots of problems (see http://www.kernel.org/pub/linux/kernel/v2.6/ChangeLog-2.6.16.17)</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="39" type="security">
+            <Date>2006-05-15</Date>
+            <Version>2.6.16.16</Version>
+            <Comment>fs/locks.c: Fix lease_init (CVE-2006-1860)</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="38" type="security">
+            <Date>2006-05-06</Date>
+            <Version>2.6.16.14</Version>
+            <Comment>Version bump, fix splash problem, fix NETFILTER: SCTP conntrack: infinite loop (CVE-2006-1527), fix smbfs chroot issue (CVE-2006-1864), fix #2666</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="37">
+            <Date>2006-05-02</Date>
+            <Version>2.6.16.12</Version>
+            <Comment>Version bump, and enable USB_ATM again (req. by AEK)</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="36">
+            <Date>2006-04-27</Date>
+            <Version>2.6.16.11</Version>
+            <Comment>Revert use internal USB Modem Drivers (req. by AEK)</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="35" type="security">
+            <Date>2006-04-25</Date>
+            <Version>2.6.16.11</Version>
+            <Comment>Version bump (CVE-2006-1863), use internal USB Modem Drivers (req. by AEK)</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="34" type="security">
+            <Date>2006-04-19</Date>
+            <Version>2.6.16.9</Version>
+            <Comment>Version bump (CVE-2006-1056)</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="33">
+            <Date>2006-04-19</Date>
+            <Version>2.6.16.8</Version>
+            <Comment>Fix hotplug race</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="32" type="security">
+            <Date>2006-04-19</Date>
+            <Version>2.6.16.8</Version>
+            <Comment>Version bump (CVE-2006-1525)</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="31" type="security">
+            <Date>2006-04-18</Date>
+            <Version>2.6.16.6</Version>
+            <Comment>Version bump (CVE-2006-1524), splashutils now compiles</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="30">
+            <Date>2006-04-12</Date>
+            <Version>2.6.16.5</Version>
+            <Comment>sky2 and skge bumped, oprofile added</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="29" type="security">
+            <Date>2006-04-12</Date>
+            <Version>2.6.16.5</Version>
+            <Comment>Version bump (When user could have changed RIP always force IRET (CVE-2006-0744))</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="28" type="security">
+            <Date>2006-04-11</Date>
+            <Version>2.6.16.4</Version>
+            <Comment>Version bump</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="27" type="security">
+            <Date>2006-04-11</Date>
+            <Version>2.6.16.3</Version>
+            <Comment>Version bump (Keys: Fix oops when adding key to non-keyring (CVE-2006-1522))</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="26" type="security">
+            <Date>2006-04-07</Date>
+            <Version>2.6.16.2</Version>
+            <Comment>Version bump (sysfs: zero terminate sysfs write buffers (CVE-2006-1055))</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="25">
+            <Date>2006-03-28</Date>
+            <Version>2.6.16.1</Version>
+            <Comment>Version bump</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="24">
+            <Date>2006-03-24</Date>
+            <Version>2.6.16</Version>
+            <Comment>Version bump</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="23">
+            <Date>2006-03-12</Date>
+            <Version>2.6.15.6</Version>
+            <Comment>MIDI, some serial device and usb-storage support added</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="22">
+            <Date>2006-03-12</Date>
+            <Version>2.6.15.6</Version>
+            <Comment>Enable USB Serial Support, fix #2297</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="21">
+            <Date>2006-03-07</Date>
+            <Version>2.6.15.6</Version>
+            <Comment>Version bump</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="20">
+            <Date>2006-02-13</Date>
+            <Version>2.6.15.4</Version>
+            <Comment>Version bump and now splash comes just after grub</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="19">
+            <Date>2006-02-01</Date>
+            <Version>2.6.15.2</Version>
+            <Comment>Version bump</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="18">
+            <Date>2006-01-15</Date>
+            <Version>2.6.15.1</Version>
+            <Comment>Version bump</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="17">
+            <Date>2006-01-09</Date>
+            <Version>2.6.15</Version>
+            <Comment>Version bump</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="16">
+            <Date>2006-01-09</Date>
+            <Version>2.6.14.4</Version>
+            <Comment>Add ISA ethernet drivers</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="15">
+            <Date>2005-12-24</Date>
+            <Version>2.6.14.4</Version>
+            <Comment>fix #777 (scsi vmware support)</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="14">
+            <Date>2005-12-22</Date>
+            <Version>2.6.14.4</Version>
+            <Comment>Update latest greatest and lots of config/bug fix, add -htslowdown patches for future smp kernel [disabled], and subset of -ck patch set</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="13">
+            <Date>2005-12-21</Date>
+            <Version>2.6.14.3</Version>
+            <Comment>Remove 8139cp, causing lots of problem</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="12">
+            <Date>2005-12-21</Date>
+            <Version>2.6.14.3</Version>
+            <Comment>Remove *-2.6.15 patches as they didnt provide needed sysfs entries</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="11">
+            <Date>2005-12-10</Date>
+            <Version>2.6.14.3</Version>
+            <Comment>Enable DVB support</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="10">
+            <Date>2005-11-29</Date>
+            <Version>2.6.14.3</Version>
+            <Comment>Embed splash-theme into kernel</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="9">
+            <Date>2005-11-29</Date>
+            <Version>2.6.14.3</Version>
+            <Comment>naming changes, serial mouse support</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="8">
+            <Date>2005-11-28</Date>
+            <Version>2.6.14.3</Version>
+            <Comment>Update to 2.6.14.3 and use utf-8 patch</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="7">
+            <Date>2005-11-25</Date>
+            <Version>2.6.14.2</Version>
+            <Comment>Fix hp notebooks acpi pci problem</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="6">
+            <Date>2005-11-24</Date>
+            <Version>2.6.14.2</Version>
+            <Comment>/usr/src/linux symlink</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="5">
+            <Date>2005-11-17</Date>
+            <Version>2.6.14.2</Version>
+            <Comment>Backport wireless drivers from 2.6.15-rc1-mm1</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="4">
+            <Date>2005-11-16</Date>
+            <Version>2.6.14.2</Version>
+            <Comment>Version bump</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="3">
+            <Date>2005-10-27</Date>
+            <Version>2.6.12</Version>
+            <Comment>Postinstall script added</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="2">
+            <Date>2005-10-26</Date>
+            <Version>2.6.12</Version>
+            <Comment>Config changes for various driver support</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="1">
+            <Date>2005-09-03</Date>
+            <Version>2.6.12</Version>
+            <Comment>First release.</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+    </History>
+</PISI>

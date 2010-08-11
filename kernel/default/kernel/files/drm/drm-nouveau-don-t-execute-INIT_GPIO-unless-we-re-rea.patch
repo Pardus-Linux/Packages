@@ -1,0 +1,34 @@
+From 73db4bedc5dde97adf59b5b5a07c6cf0ee56e668 Mon Sep 17 00:00:00 2001
+From: Ben Skeggs <bskeggs@redhat.com>
+Date: Wed, 26 May 2010 10:41:45 +1000
+Subject: [PATCH 05/38] drm/nouveau: don't execute INIT_GPIO unless we're really running the table
+
+This resulted in accidently switching off the eDP panel on certain laptops
+since the default state in the GPIO table was off.
+
+Fixes rh#582621
+
+Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
+---
+ drivers/gpu/drm/nouveau/nouveau_bios.c |    5 ++++-
+ 1 files changed, 4 insertions(+), 1 deletions(-)
+
+diff --git a/drivers/gpu/drm/nouveau/nouveau_bios.c b/drivers/gpu/drm/nouveau/nouveau_bios.c
+index 620cbd9..b3c7a87 100644
+--- a/drivers/gpu/drm/nouveau/nouveau_bios.c
++++ b/drivers/gpu/drm/nouveau/nouveau_bios.c
+@@ -2807,7 +2807,10 @@ init_gpio(struct nvbios *bios, uint16_t offset, struct init_exec *iexec)
+ 
+ 		BIOSLOG(bios, "0x%04X: Entry: 0x%08X\n", offset, gpio->entry);
+ 
+-		nv50_gpio_set(bios->dev, gpio->tag, gpio->state_default);
++		BIOSLOG(bios, "0x%04X: set gpio 0x%02x, state %d\n",
++			offset, gpio->tag, gpio->state_default);
++		if (bios->execute)
++			nv50_gpio_set(bios->dev, gpio->tag, gpio->state_default);
+ 
+ 		/* The NVIDIA binary driver doesn't appear to actually do
+ 		 * any of this, my VBIOS does however.
+-- 
+1.7.0.4
+
