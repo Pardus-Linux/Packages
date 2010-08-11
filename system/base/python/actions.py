@@ -10,18 +10,22 @@ from pisi.actionsapi import pisitools
 from pisi.actionsapi import shelltools
 from pisi.actionsapi import get
 
-import os
+#import os
 
 WorkDir = "Python-%s" % get.srcVERSION()
+
+PythonVersion = "2.7"
 
 def setup():
     shelltools.export("OPT", "%s -fPIC" % get.CFLAGS())
 
+    shelltools.unlinkDir("Modules/expat")
+    #shelltools.unlinkDir("Modules/zlib")
     # Uncomment to use installed libffi as does other distributions and replace 
     # shelltools.export("CPPFLAGS", "%s" % os.popen("pkg-config --cflags-only-I libffi").read().strip())
     # shelltools.system("rm -rf Modules/_ctypes/libffi*")
 
-    autotools.autoreconf()
+    autotools.autoreconf("-vif")
     autotools.configure("--with-fpectl \
                          --enable-shared \
                          --enable-ipv6 \
@@ -29,6 +33,7 @@ def setup():
                          --with-libc='' \
                          --enable-unicode=ucs4 \
                          --with-wctype-functions \
+                         --with-system-expat \
                          --without-system-ffi")
 
 def build():
@@ -40,19 +45,19 @@ def check():
 def install():
     autotools.rawInstall("DESTDIR=%s" % get.installDIR(), "altinstall")
 
-    pisitools.dosym("/usr/bin/python2.6","/usr/bin/python")
-    pisitools.dosym("/usr/bin/python2.6-config","/usr/bin/python-config")
-    pisitools.dosym("/usr/lib/python2.6/pdb.py","/usr/bin/pdb")
+    pisitools.dosym("/usr/bin/python%s" % PythonVersion, "/usr/bin/python")
+    pisitools.dosym("/usr/bin/python%s-config" % PythonVersion, "/usr/bin/python-config")
+    pisitools.dosym("/usr/lib/python%s/pdb.py" % PythonVersion, "/usr/bin/pdb")
 
     pisitools.remove("/usr/bin/idle")
     pisitools.remove("/usr/bin/pydoc")
     pisitools.remove("/usr/bin/smtpd.py")
     pisitools.remove("/usr/bin/2to3")
-    pisitools.removeDir("/usr/lib/python2.6/idlelib")
+    pisitools.removeDir("/usr/lib/python%s/idlelib" % PythonVersion)
 
-    tkinterFile = "/usr/lib/python2.6/lib-dynload/_tkinter.so"
+    tkinterFile = "/usr/lib/python%s/lib-dynload/_tkinter.so" % PythonVersion
     if shelltools.isFile("%s/%s" % (get.installDIR(), tkinterFile)):
         pisitools.remove(tkinterFile)
-        pisitools.removeDir("/usr/lib/python2.6/lib-tk")
+        pisitools.removeDir("/usr/lib/python%s/lib-tk" % PythonVersion)
 
     pisitools.dodoc("LICENSE", "README")
