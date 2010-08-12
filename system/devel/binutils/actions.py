@@ -13,7 +13,7 @@ from pisi.actionsapi import get
 # linker = "gold"
 linker = "ld"
 
-WorkDir = "binutils-2.20.51"
+# WorkDir = "binutils-2.20.51"
 
 def setup():
     # Build binutils with LD_SYMBOLIC_FUNCTIONS=1 and reduce PLT relocations in libfd.so by 84%.
