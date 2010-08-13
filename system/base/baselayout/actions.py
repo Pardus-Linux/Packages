@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright 2005-2009 TUBITAK/UEKAE
+# Copyright 2005-2010 TUBITAK/UEKAE
 # Licensed under the GNU General Public License, version 2.
 # See the file http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
 
@@ -21,7 +21,7 @@ def install():
 
     shelltools.chmod("%s/etc/shadow" % get.installDIR(), 0600)
 
-    shelltools.echo("%s/etc/pardus-release" % get.installDIR(), "Pardus Corporate 2 Alpha")
+    shelltools.echo("%s/etc/pardus-release" % get.installDIR(), "Pardus 2011 Pre-Alpha")
 
     # Install some files to /usr/share/baselayout instead of /etc to keep from overwriting the user's settings,
     for f in ("passwd", "shadow", "group", "fstab", "hosts", "ld.so.conf", "resolv.conf", "inittab.live"):
@@ -99,9 +99,6 @@ def create_directories():
     kdir("/var/spool")
     kdir("/var/state")
     kdir("/var/tmp", "-m 01777")
-
-    # Link /usr/share/autostart to /etc/xdg/autostart
-    pisitools.dosym("/etc/xdg/autostart", "/usr/share/autostart")
 
     # FHS compatibility symlinks stuff
     pisitools.dosym("/var/tmp", "/usr/tmp")
