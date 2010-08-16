@@ -1,0 +1,200 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>ppp</Name>
+        <Homepage>http://samba.org/ppp</Homepage>
+        <Packager>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Packager>
+        <License>BSD</License>
+        <License>GPLv2</License>
+        <IsA>service</IsA>
+        <Summary>Point-to-point protocol - patched for PPPOE</Summary>
+        <Description>The Point-to-Point Protocol (PPP) provides a standard way to transmit datagrams over a serial link.</Description>
+        <Archive sha1sum="cb977b31584e3488e08a643aaa672fdb229d2e78" type="targz">http://samba.org/ftp/ppp/ppp-2.4.5.tar.gz</Archive>
+        <BuildDependencies>
+            <Dependency>libpcap</Dependency>
+        </BuildDependencies>
+        <Patches>
+            <!--<Patch level="1">ppp-2.4.3-make.patch</Patch>-->
+            <Patch level="1">ppp-2.4.5-make.patch</Patch>
+
+            <Patch level="1">ppp-2.4.4-fd_leak.patch</Patch>
+            <Patch level="1">ppp-2.4.2-libutil.patch</Patch>
+            <Patch level="1">ppp-2.4.2-pie.patch</Patch>
+            <!--<Patch level="1">ppp-2.4.3-fix.patch</Patch>-->
+            <Patch level="1">ppp-2.4.2-change_resolv_conf.patch</Patch>
+            <!--<Patch level="1">ppp-2.4.2-pppoatm-mtu.patch</Patch>-->
+            <!--<Patch level="1">ppp-2.4.2-pppoatm-make.patch</Patch>-->
+            <Patch level="1">ppp-2.4.3-local.patch</Patch>
+            <Patch level="1">ppp-2.4.3-ipv6-accept-remote.patch</Patch>
+            <Patch level="1">ppp-2.4.3-usepeerdns-var_run_ppp_resolv.conf.patch</Patch>
+            <Patch level="1">ppp-2.4.4-cbcp.patch</Patch>
+            <Patch level="1">ppp-2.4.2-dontwriteetc.patch</Patch>
+            <Patch level="1">ppp-2.4.5-manpg.patch</Patch>
+
+            <Patch level="1">nostrip.patch</Patch>
+            <Patch level="1">fix-install-paths.patch</Patch>
+        </Patches>
+    </Source>
+
+    <Package>
+        <Name>ppp</Name>
+        <RuntimeDependencies>
+            <Dependency>libpcap</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="config">/etc</Path>
+            <Path fileType="header">/usr/include</Path>
+            <Path fileType="library">/usr/lib</Path>
+            <Path fileType="executable">/usr/sbin</Path>
+            <Path fileType="doc">/usr/share/doc</Path>
+            <Path fileType="man">/usr/share/man</Path>
+            <Path fileType="data">/var/run/ppp</Path>
+        </Files>
+        <AdditionalFiles>
+            <AdditionalFile target="/etc/ppp/options-pptp" permission="0644" owner="root">options-pptp</AdditionalFile>
+            <AdditionalFile target="/etc/ppp/options-pppoe" permission="0644" owner="root">options-pppoe</AdditionalFile>
+            <AdditionalFile target="/etc/ppp/chat-default" permission="0644" owner="root">chat-default</AdditionalFile>
+            <AdditionalFile target="/etc/ppp/ip-up" permission="0755" owner="root">ip-up</AdditionalFile>
+            <AdditionalFile target="/etc/ppp/ip-down" permission="0755" owner="root">ip-down</AdditionalFile>
+            <AdditionalFile target="/etc/conf.d/net.ppp0" permission="0600" owner="root">confd.ppp0</AdditionalFile>
+            <AdditionalFile target="/etc/pam.d/ppp" permission="0644" owner="root">ppp.pamd</AdditionalFile>
+            <AdditionalFile target="/etc/logrotate.d/ppp" permission="0644" owner="root">ppp.logrotate</AdditionalFile>
+        </AdditionalFiles>
+        <!--
+        <Provides>
+            <COMAR script="link.py">Net.Link</COMAR>
+        </Provides>
+        -->
+    </Package>
+
+    <History>
+        <Update release="16">
+            <Date>2010-04-29</Date>
+            <Version>2.4.5</Version>
+            <Comment>Version bump</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="15">
+            <Date>2010-03-05</Date>
+            <Version>2.4.4</Version>
+            <Comment>
+                - Make sure ppp compiles with our flags, also helps 64bit build,
+                - Fix abandoned directories.
+            </Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="14">
+            <Date>2010-01-07</Date>
+            <Version>2.4.4</Version>
+            <Comment>Fixed PPP sometimes gets incorrect DNS servers for mobile connections</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="13">
+            <Date>2009-08-29</Date>
+            <Version>2.4.4</Version>
+            <Comment>
+                - Add further patches from Fedora,
+                - Add logrotate script.
+            </Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="12">
+            <Date>2009-05-12</Date>
+            <Version>2.4.4</Version>
+            <Comment>
+                - Patches to make ChapMS2 work properly
+                - Mobile broadband DNS problems fixed
+                - Support for new speeds
+                - Log into /var/log
+                - Net.Link script disabled. (Network.Link will be written)
+            </Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="11">
+            <Date>2008-10-19</Date>
+            <Version>2.4.4</Version>
+            <Comment>ip-up script dns merge fix</Comment>
+            <Name>Furkan Duman</Name>
+            <Email>coderlord@gmail.com</Email>
+        </Update>
+        <Update release="10">
+            <Date>2008-08-28</Date>
+            <Version>2.4.4</Version>
+            <Comment>Necessary changes to link script for model</Comment>
+            <Name>İşbaran Akçayır</Name>
+            <Email>isbaran@comu.edu.tr</Email>
+        </Update>
+        <Update release="9">
+            <Date>2008-04-05</Date>
+            <Version>2.4.4</Version>
+            <Comment>Net.Link script ported to COMAR 2.0</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="8">
+            <Date>2007-07-13</Date>
+            <Version>2.4.4</Version>
+            <Comment>Stable update and add PPPoATM support</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="7">
+            <Date>2006-12-01</Date>
+            <Version>2.4.2</Version>
+            <Comment>Release bump to include newest link.py</Comment>
+            <Name>Gürer Özen</Name>
+            <Email>gurer@pardus.org.tr</Email>
+        </Update>
+        <Update release="6">
+            <Date>2006-11-24</Date>
+            <Version>2.4.2</Version>
+            <Comment>Comar script update</Comment>
+            <Name>Gürer Özen</Name>
+            <Email>gurer@pardus.org.tr</Email>
+        </Update>
+        <Update release="5">
+            <Date>2006-04-24</Date>
+            <Version>2.4.2</Version>
+            <Comment>Remove unused init script</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="4">
+            <Date>2006-03-04</Date>
+            <Version>2.4.2</Version>
+            <Comment>Fix octet permissions.</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih.asici@gmail.com</Email>
+        </Update>
+        <Update release="3">
+            <Date>2005-12-26</Date>
+            <Version>2.4.2</Version>
+            <Comment>Comar betiği</Comment>
+            <Name>Gürer Özen</Name>
+            <Email>gurer@pardus.org.tr</Email>
+        </Update>
+        <Update release="2">
+            <Date>2005-11-16</Date>
+            <Version>2.4.2</Version>
+            <Comment>Fix deps</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="1">
+            <Date>2005-10-22</Date>
+            <Version>2.4.2</Version>
+            <Comment>First release.</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+    </History>
+</PISI>
