@@ -18,8 +18,14 @@
         </BuildDependencies>
         <Patches>
             <Patch level="1">pngconf-setjmp.patch</Patch>
+            <!-- APNG support
+                 http://littlesvr.ca/apng/
+                 http://hp.vector.co.jp/authors/VA013651/freeSoftware/apng.html
+                 http://sourceforge.net/projects/libpng-apng/ <- use this one
+            -->
             <Patch level="1">apng.patch</Patch>
             <Patch level="1">constantize.patch</Patch>
+            <Patch>libpng-1.2.44-CVE-2008-6218.diff</Patch>
         </Patches>
     </Source>
 
@@ -29,15 +35,36 @@
             <Dependency>zlib</Dependency>
         </RuntimeDependencies>
         <Files>
-            <Path fileType="executable">/usr/bin</Path>
             <Path fileType="library">/usr/lib</Path>
             <Path fileType="doc">/usr/share/doc</Path>
-            <Path fileType="man">/usr/share/man</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>libpng-devel</Name>
+        <Summary>Development files for lipng</Summary>
+        <RuntimeDependencies>
+            <Dependency release="24">libpng</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="executable">/usr/bin</Path>
             <Path fileType="header">/usr/include</Path>
+            <Path fileType="data">/usr/lib/pkgconfig</Path>
+            <Path fileType="man">/usr/share/man</Path>
         </Files>
     </Package>
 
     <History>
+        <Update release="24">
+            <Date>2010-08-16</Date>
+            <Version>1.2.44</Version>
+            <Comment>
+                Split devel package
+                Add a CVE from past
+            </Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
         <Update release="23" type="security">
             <Date>2010-06-28</Date>
             <Version>1.2.44</Version>

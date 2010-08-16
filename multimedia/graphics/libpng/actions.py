@@ -20,6 +20,6 @@ def check():
 def install():
     autotools.install()
 
-    # remove la symlink
+    # remove la symlink, it is not detected correctly
     pisitools.remove("/usr/lib/libpng.la")
     pisitools.dodoc("ANNOUNCE", "CHANGES", "KNOWNBUG", "README", "TODO")
