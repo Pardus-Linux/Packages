@@ -12,17 +12,18 @@
         <IsA>library</IsA>
         <Summary>Library to load, handle and manipulate images in the JPEG format</Summary>
         <Description>jpeg is the library to load, handle and manipulate images in the JPEG format. It is used by many programs that operates on JPEG files.</Description>
-        <Archive sha1sum="7079f0d6c42fad0cfba382cf6ad322add1ace8f9" type="targz">ftp://ftp.uu.net/graphics/jpeg/jpegsrc.v6b.tar.gz</Archive>
+        <Archive sha1sum="15dc1939ea1a5b9d09baea11cceb13ca59e4f9df" type="targz">http://www.ijg.org/files/jpegsrc.v8b.tar.gz</Archive>
+        <AdditionalFiles>
+            <AdditionalFile owner="root" permission="0644" target="debian/extra/Makefile.in">Makefile.in.extra</AdditionalFile>
+        </AdditionalFiles>
         <Patches>
-            <Patch level="1">05_all_jpeg-Makefile.patch</Patch>
-            <Patch level="1">06_all_jpeg-libtool.patch</Patch>
-            <Patch level="1">07_all_jpeg-LANG.patch</Patch>
-            <Patch level="1">30_all_jpeg-crop.patch</Patch>
-            <Patch level="1">50_all_jpeg-Debian-rdjpgcom_locale.patch</Patch>
-            <Patch level="1">51_all_jpeg-Debian-jpeglib.h_c++.patch</Patch>
-            <Patch level="1">52_all_jpeg-Debian-rdppm.patch</Patch>
-            <Patch level="1">libjpeg-buf-oflo.patch</Patch>
+            <!-- From Debian -->
+            <Patch level="1">libjpeg7_7-2.diff</Patch>
             <Patch level="1">maxmem-sysconf.patch</Patch>
+            <Patch level="1">makefile.patch</Patch>
+
+            <!-- probably not needed but since it is non-UNIX I am keeping it for now -->
+            <Patch level="1">libjpeg-buf-oflo.patch</Patch>
         </Patches>
     </Source>
 
@@ -33,11 +34,30 @@
             <Path fileType="library">/usr/lib</Path>
             <Path fileType="doc">/usr/share/doc</Path>
             <Path fileType="man">/usr/share/man</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>jpeg-devel</Name>
+        <RuntimeDependencies>
+            <Dependency release="11">jpeg</Dependency>
+        </RuntimeDependencies>
+        <Files>
             <Path fileType="header">/usr/include</Path>
         </Files>
     </Package>
 
     <History>
+        <Update release="11">
+            <Date>2010-08-16</Date>
+            <Version>8b</Version>
+            <Comment>
+                Major version bump
+                Split devel package
+            </Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
         <Update release="10">
             <Date>2009-02-19</Date>
             <Version>6b</Version>

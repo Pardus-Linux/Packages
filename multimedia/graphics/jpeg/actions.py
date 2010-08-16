@@ -7,26 +7,25 @@
 
 from pisi.actionsapi import autotools
 from pisi.actionsapi import pisitools
+from pisi.actionsapi import libtools
 from pisi.actionsapi import get
 
 def setup():
+    autotools.autoreconf("-vfi")
     autotools.configure("--enable-shared \
                          --disable-static \
-                         --enable-maxmem=64")
+                         --enable-maxmem=64 \
+                         --disable-dependency-tracking")
 
 def build():
     autotools.make()
 
 def install():
-    # create needed diretories for install
-    pisitools.dodir("/usr/include")
-    pisitools.dodir("/usr/lib")
-    pisitools.dodir("/usr/bin")
-    pisitools.dodir("/usr/share/man/man1")
+    autotools.rawInstall('DESTDIR="%s"' % get.installDIR())
 
-    autotools.rawInstall("prefix=%s/usr libdir=%s/usr/lib mandir=%s/usr/share/man/man1" % (get.installDIR(), get.installDIR(), get.installDIR()))
-
+    # they say some programs use this
     pisitools.insinto("/usr/include", "jpegint.h")
     pisitools.insinto("/usr/include", "jinclude.h")
 
-    pisitools.dodoc("README", "install.doc", "usage.doc", "wizard.doc", "change.log", "libjpeg.doc", "example.c", "structure.doc", "filelist.doc", "coderules.doc")
+    pisitools.dodoc("change.log", "example.c", "README","*.txt")
+
