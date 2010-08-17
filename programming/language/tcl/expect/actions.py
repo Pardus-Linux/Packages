@@ -40,6 +40,7 @@ def install():
     pisitools.rename("/usr/lib/expect%s" % get.srcVERSION(), "expect%s.%s" % majorVersion)
 
     pisitools.dosym(libname, "/usr/lib/libexpect.so.%s.%s" % majorVersion)
+    pisitools.dosym(libname, "/usr/lib/libexpect%s.so" % get.srcVERSION())
     pisitools.dosym(libname, "/usr/lib/libexpect.so.%s" % majorVersion[0])
     pisitools.dosym(libname, "/usr/lib/libexpect.so")
 
