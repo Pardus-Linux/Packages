@@ -1,0 +1,129 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>xinit</Name>
+        <Homepage>http://www.x.org</Homepage>
+        <Packager>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Packager>
+        <License>MIT</License>
+        <IsA>app:console</IsA>
+        <Summary>X Window System session initializer</Summary>
+        <Description>xinit initializes X Window System server and runs the first client application.</Description>
+        <Archive sha1sum="baf36374aa1632054816a8281e55e1539459664b" type="tarbz2">mirrors://xorg/individual/app/xinit-1.2.1.tar.bz2</Archive>
+        <Patches>
+            <Patch level="1">xinit-1.0.2-client-session.patch</Patch>
+            <Patch level="1">unset-session-cookie.patch</Patch>
+        </Patches>
+    </Source>
+
+    <Package>
+        <Name>xinit</Name>
+        <RuntimeDependencies>
+            <Dependency releaseFrom="32">xorg-app</Dependency>
+        </RuntimeDependencies>
+        <Conflicts>
+            <Package releaseTo="31">xorg-app</Package>
+        </Conflicts>
+        <Files>
+            <Path fileType="config">/etc/X11/Xresources</Path>
+            <Path fileType="data">/etc/X11/Xsession.d</Path>
+            <Path fileType="executable">/usr/bin</Path>
+            <Path fileType="executable">/usr/lib/X11/xinit</Path>
+            <Path fileType="doc">/usr/share/doc</Path>
+            <Path fileType="man">/usr/share/man</Path>
+        </Files>
+        <AdditionalFiles>
+            <AdditionalFile owner="root" permission="0755" target="/usr/lib/X11/xinit/Xsession">Xsession</AdditionalFile>
+            <AdditionalFile owner="root" permission="0644" target="/usr/lib/X11/xinit/xinitrc">xinitrc</AdditionalFile>
+            <AdditionalFile owner="root" permission="0644" target="/etc/X11/Xresources" >Xresources</AdditionalFile>
+            <AdditionalFile owner="root" permission="0644" target="/etc/X11/Xsession.d/10-localuser.sh">Xsession.d/localuser.sh</AdditionalFile>
+            <AdditionalFile owner="root" permission="0644" target="/etc/X11/Xsession.d/10-Xresources.sh">Xsession.d/Xresources.sh</AdditionalFile>
+            <AdditionalFile owner="root" permission="0644" target="/etc/X11/Xsession.d/10-xkb.sh">Xsession.d/xkb.sh</AdditionalFile>
+            <AdditionalFile owner="root" permission="0644" target="/etc/X11/Xsession.d/20-startup.sh">Xsession.d/startup.sh</AdditionalFile>
+            <AdditionalFile owner="root" permission="0644" target="/etc/X11/Xsession.d/25-environment.sh">Xsession.d/environment.sh</AdditionalFile>
+            <AdditionalFile owner="root" permission="0644" target="/etc/X11/Xsession.d/50-dbus.sh">Xsession.d/dbus.sh</AdditionalFile>
+            <AdditionalFile owner="root" permission="0644" target="/etc/X11/Xsession.d/90-ssh-agent.sh">Xsession.d/ssh-agent.sh</AdditionalFile>
+            <AdditionalFile owner="root" permission="0644" target="/etc/X11/Xsession.d/90-consolekit.sh">Xsession.d/consolekit.sh</AdditionalFile>
+        </AdditionalFiles>
+    </Package>
+
+    <History>
+        <Update release="10">
+            <Date>2010-05-20</Date>
+            <Version>1.2.1</Version>
+            <Comment>startup.sh: Use $DESKTOP_SESSION as an initial value for $SESSION</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="9">
+            <Date>2010-03-19</Date>
+            <Version>1.2.1</Version>
+            <Comment>New stable release</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="8">
+            <Date>2009-12-09</Date>
+            <Version>1.2.0</Version>
+            <Comment>New stable release</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="7">
+            <Date>2009-10-28</Date>
+            <Version>1.1.1</Version>
+            <Comment>Use ~/.xkb/keymap/default file if exists</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="6">
+            <Date>2009-10-19</Date>
+            <Version>1.1.1</Version>
+            <Comment>Set the default DPI value to 96</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="5">
+            <Date>2009-06-12</Date>
+            <Version>1.1.1</Version>
+            <Comment>Set PATH correctly</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="4">
+            <Date>2009-06-08</Date>
+            <Version>1.1.1</Version>
+            <Comment>
+                - Do not wrap with dbus
+                - Add script to export environment
+                - Remove Xft.dpi option from default resources
+            </Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="3">
+            <Date>2009-05-08</Date>
+            <Version>1.1.1</Version>
+            <Comment>Start session wrapped with dbus-launch and reorder scripts</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="2">
+            <Date>2009-04-30</Date>
+            <Version>1.1.1</Version>
+            <Comment>Add Xresources file</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="1">
+            <Date>2009-03-22</Date>
+            <Version>1.1.1</Version>
+            <Comment>First release</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+    </History>
+</PISI>
