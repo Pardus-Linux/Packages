@@ -1,0 +1,51 @@
+From 90f69d758dee4e3b6c1f8955642682a28da3b153 Mon Sep 17 00:00:00 2001
+From: Arvind Umrao <arvind.umrao@sun.com>
+Date: Wed, 7 Apr 2010 22:12:07 +0530
+
+Subject: [PATCH] [PATCH] Xext: "xauth generate" with large timeout crashes Xorg #27134
+ Signed-off-by: Arvind Umrao <arvind.umrao@sun.com>
+
+Description of the change:
+
+bug https://bugs.freedesktop.org/show_bug.cgi?id=27134 
+
+This coredump is happening because of assertion at  ( Xext/security.c line:325	 assert(pAuth->timer == timer)
+
+Overflow of CARD32 happens at ( os/WaitFor.c line:458  millis += now )
+
+This bug could be fixed in couple of ways.
+a) Using CARD64 for variable millis.  But even after storing millisec time in 64 bits variable, we can get coredump when timeout is very large.
+b) Removing assert statement, but it is not a good fix.
+c) By checking maximum possible value of timeout, so that overflow of variable millis does not happen.
+
+I have fixed this problem by checking maximum possible value of timeout, so that overflow of variable millis(size CARD32) doees not happen. Maximum timeout is possible only between range 0 to ( MAX_Value(CARD32) - CurrentTime)
+
+---
+ Xext/security.c |   10 ++++++----
+ 1 files changed, 6 insertions(+), 4 deletions(-)
+
+diff --git a/Xext/security.c b/Xext/security.c
+index af8d205..6d2e36e 100644
+--- a/Xext/security.c
++++ b/Xext/security.c
+@@ -280,11 +280,13 @@ SecurityComputeAuthorizationTimeout(
+      * 32 bits worth of milliseconds
+      */
+     CARD32 maxSecs = (CARD32)(~0) / (CARD32)MILLI_PER_SECOND;
++    CARD32 nowSec = GetTimeInMillis()/ (CARD32)MILLI_PER_SECOND;
+ 
+-    if (seconds > maxSecs)
+-    { /* only come here if we want to wait more than 49 days */
+-	pAuth->secondsRemaining = seconds - maxSecs;
+-	return maxSecs * MILLI_PER_SECOND;
++    CARD32 maxPossibleSec = maxSecs - nowSec;
++    if (seconds > maxPossibleSec -1 )
++    {
++	pAuth->secondsRemaining = seconds - maxPossibleSec;
++	return maxPossibleSec * MILLI_PER_SECOND;
+     }
+     else
+     { /* by far the common case */
+-- 
+1.5.6.5
+

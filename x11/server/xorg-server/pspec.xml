@@ -1,0 +1,848 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>xorg-server</Name>
+        <Homepage>http://www.x.org</Homepage>
+        <Packager>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Packager>
+        <License>MIT</License>
+        <Summary>X.Org X Server</Summary>
+        <Description>X server is the main application that allows a graphical interface.</Description>
+        <Archive sha1sum="2d84e541609f444de0cc9ce1a0b2ee392a4ba886" type="tarbz2">mirrors://xorg/individual/xserver/xorg-server-1.8.99.906.tar.bz2</Archive>
+        <BuildDependencies>
+            <Dependency>font-util</Dependency>
+            <Dependency>jpeg-devel</Dependency>
+            <Dependency>libdmx-devel</Dependency>
+            <Dependency>libdrm-devel</Dependency>
+            <Dependency>libgcrypt-devel</Dependency>
+            <Dependency>libpciaccess-devel</Dependency>
+            <Dependency>libX11-devel</Dependency>
+            <Dependency>libXaw-devel</Dependency>
+            <Dependency>libXext-devel</Dependency>
+            <Dependency>libXfixes-devel</Dependency>
+            <Dependency>libXfont-devel</Dependency>
+            <Dependency>libXi-devel</Dependency>
+            <Dependency>libXmu-devel</Dependency>
+            <Dependency>libXrender-devel</Dependency>
+            <Dependency>libXres-devel</Dependency>
+            <Dependency>libXt-devel</Dependency>
+            <Dependency>libXv-devel</Dependency>
+            <Dependency>mesa-devel</Dependency>
+            <Dependency>pixman-devel</Dependency>
+            <Dependency>xorg-app</Dependency>
+        </BuildDependencies>
+        <Patches>
+            <Patch level="1">fedora/xserver-1.4.99-pic-libxf86config.patch</Patch>
+            <Patch level="1">fedora/xserver-1.4.99-ssh-isnt-local.patch</Patch>
+            <Patch level="1">fedora/xserver-1.5.0-bg-none-root.patch</Patch>
+            <Patch level="1">fedora/xserver-1.5.0-projector-fb-size.patch</Patch>
+            <Patch level="1">fedora/xserver-1.5.1-mode-debug.patch</Patch>
+            <Patch level="1">fedora/xserver-1.6.0-displayfd.patch</Patch>
+            <Patch level="1">fedora/xserver-1.6.0-less-acpi-brokenness.patch</Patch>
+            <Patch level="1">fedora/xserver-1.6.1-nouveau.patch</Patch>
+            <Patch level="1">fedora/xserver-1.6.99-default-modes.patch</Patch>
+            <!--
+            <Patch level="1">fedora/xserver-1.6.99-hush-prerelease-warning.patch</Patch>
+            -->
+            <Patch level="1">fedora/xserver-1.6.99-right-of.patch</Patch>
+            <Patch level="1">fedora/xserver-1.7.0-randr-gamma-restore.patch</Patch>
+            <Patch level="1">fedora/xserver-1.7.1-gamma-kdm-fix.patch</Patch>
+            <Patch level="1">fedora/xserver-1.8-disable-vboxvideo.patch</Patch>
+            <Patch level="1">fedora/xserver-1.9-reset-root-null.patch</Patch>
+
+            <Patch level="1">suse/bug534768-prefer_local_symbols.patch</Patch>
+            <!--
+            <Patch level="0">suse/p_default-module-path.diff</Patch>
+            -->
+            <Patch level="1">suse/xorg-server-xf4vnc.patch</Patch>
+            <Patch level="0">suse/xorg-server-xf4vnc-disable-dmxvnc.diff</Patch>
+            <Patch level="1">suse/xorg-server-xf4vnc-TranslateNone.diff</Patch>
+            <Patch level="0">suse/xorg-server-xf4vnc-abi-version.diff</Patch>
+            <Patch level="0">suse/xorg-server-xf4vnc-cutpaste.diff</Patch>
+            <Patch level="1">suse/xorg-server-xf4vnc-busyloop.diff</Patch>
+            <Patch level="1">suse/xorg-server-xf4vnc-clientTimeout.diff</Patch>
+            <Patch level="1">suse/xorg-server-xf4vnc-fix.diff</Patch>
+
+            <Patch level="1">ubuntu/111_armel-drv-fallbacks.patch</Patch>
+            <!--
+            <Patch level="1">ubuntu/112_xaa-fbcomposite-fix-negative-size.patch</Patch>
+            <Patch level="1">ubuntu/184_virtual_devices_autodetect.patch</Patch>
+            <Patch level="1">ubuntu/196_xvfb-fbscreeninit-handling.patch</Patch>
+            <Patch level="1">ubuntu/199_xfvb-help-typo.patch</Patch>
+            -->
+            <Patch level="1">ubuntu/121_only_switch_vt_when_active.diff</Patch>
+            <Patch level="1">ubuntu/122_xext_fix_card32_overflow_in_xauth.patch</Patch>
+            <Patch level="1">ubuntu/157_check_null_modes.patch</Patch>
+            <Patch level="1">ubuntu/162_null_crtc_in_rotation.patch</Patch>
+            <Patch level="1">ubuntu/166_nullptr_xinerama_keyrepeat.patch</Patch>
+            <Patch level="1">ubuntu/167_nullptr_xisbread.patch</Patch>
+            <Patch level="1">ubuntu/169_mipointer_nullptr_checks.patch</Patch>
+            <Patch level="1">ubuntu/172_cwgetbackingpicture_nullptr_check.patch</Patch>
+            <Patch level="1">ubuntu/187_edid_quirk_hp_nc8430.patch</Patch>
+            <Patch level="1">ubuntu/188_default_primary_to_first_busid.patch</Patch>
+            <Patch level="1">ubuntu/197_xvfb-randr.patch</Patch>
+            <Patch level="1">ubuntu/200_randr-null.patch</Patch>
+
+            <Patch level="1">edid-quirk-for-apple-lcd.patch</Patch>
+
+            <!-- xserver 1.9 ABI/API changes for xf4vnc -->
+            <Patch level="1">xf4vnc-xserver19-abi.patch</Patch>
+        </Patches>
+    </Source>
+
+    <Package>
+        <Name>xorg-server-common</Name>
+        <IsA>data</IsA>
+        <Summary>Common files for X servers</Summary>
+        <Conflicts>
+            <Package releaseTo="48">xorg-server</Package>
+        </Conflicts>
+        <Files>
+            <Path fileType="data">/etc/X11/fontpath.d</Path>
+            <Path fileType="data">/etc/dbus-1</Path>
+            <Path fileType="data">/usr/lib/xorg/protocol.txt</Path>
+            <Path fileType="data">/var/lib/xkb</Path>
+            <Path fileType="doc">/usr/share/doc</Path>
+            <Path fileType="man">/usr/share/man/man1/Xserver.1</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>xorg-server</Name>
+        <IsA>app:console</IsA>
+        <RuntimeDependencies>
+            <Dependency>xorg-server-common</Dependency>
+            <Dependency>jpeg</Dependency>
+            <Dependency>libdrm</Dependency>
+            <Dependency>libgcrypt</Dependency>
+            <Dependency>libpciaccess</Dependency>
+            <Dependency>libXfont</Dependency>
+            <Dependency versionFrom="0.16.4">pixman</Dependency>
+            <Dependency>xorg-app</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="executable">/usr/bin/X</Path>
+            <Path fileType="executable">/usr/bin/Xorg</Path>
+            <Path fileType="executable">/usr/bin/cvt</Path>
+            <Path fileType="executable">/usr/bin/gtf</Path>
+            <Path fileType="library">/usr/lib/xorg</Path>
+            <Path fileType="data">/usr/share/X11/pci</Path>
+            <Path fileType="data">/usr/share/X11/xorg.conf.d</Path>
+            <Path fileType="man">/usr/share/man/man1/Xorg.1</Path>
+            <Path fileType="man">/usr/share/man/man1/cvt.1</Path>
+            <Path fileType="man">/usr/share/man/man1/gtf.1</Path>
+            <Path fileType="man">/usr/share/man/man4/exa.4</Path>
+            <Path fileType="man">/usr/share/man/man4/fbdevhw.4</Path>
+            <Path fileType="man">/usr/share/man/man5/xorg.conf.5</Path>
+        </Files>
+        <Provides>
+            <COMAR script="package.py">System.Package</COMAR>
+        </Provides>
+    </Package>
+
+    <Package>
+        <Name>xorg-server-xdmx</Name>
+        <IsA>app:console</IsA>
+        <Summary>Distributed Multihead X Server</Summary>
+        <RuntimeDependencies>
+            <Dependency>xorg-server-common</Dependency>
+            <Dependency versionFrom="1.1.0">libdmx</Dependency>
+            <Dependency>libgcrypt</Dependency>
+            <Dependency>libXaw</Dependency>
+            <Dependency versionFrom="1.1.1">libXext</Dependency>
+            <Dependency>libXfixes</Dependency>
+            <Dependency>libXfont</Dependency>
+            <Dependency versionFrom="1.3">libXi</Dependency>
+            <Dependency>libXmu</Dependency>
+            <Dependency>libXrender</Dependency>
+            <Dependency>libXt</Dependency>
+            <Dependency versionFrom="0.16.4">pixman</Dependency>
+            <Dependency>xorg-app</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="executable">/usr/bin/*dmx*</Path>
+            <Path fileType="man">/usr/share/man/man1/*dmx*</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>xorg-server-xephyr</Name>
+        <IsA>app:console</IsA>
+        <Summary>Nested X Server</Summary>
+        <RuntimeDependencies>
+            <Dependency>xorg-server-common</Dependency>
+            <Dependency>libgcrypt</Dependency>
+            <Dependency versionFrom="1.1.1">libXext</Dependency>
+            <Dependency>libXfont</Dependency>
+            <Dependency>libXv</Dependency>
+            <Dependency>mesa</Dependency>
+            <Dependency versionFrom="0.16.4">pixman</Dependency>
+            <Dependency>xorg-app</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="executable">/usr/bin/Xephyr</Path>
+            <Path fileType="man">/usr/share/man/man1/Xephyr.1</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>xorg-server-xvfb</Name>
+        <!-- xvfb-run is GPLv2 -->
+        <License>GPLv2</License>
+        <IsA>app:console</IsA>
+        <Summary>Virtual Framebuffer X Server</Summary>
+        <RuntimeDependencies>
+            <Dependency>xorg-server-common</Dependency>
+            <Dependency>libgcrypt</Dependency>
+            <Dependency>libXfont</Dependency>
+            <Dependency versionFrom="0.16.4">pixman</Dependency>
+            <Dependency>xorg-app</Dependency>
+        </RuntimeDependencies>
+        <Conflicts>
+            <Package releaseTo="48">xorg-server</Package>
+        </Conflicts>
+        <Files>
+            <Path fileType="executable">/usr/bin/[Xx]vfb*</Path>
+            <Path fileType="man">/usr/share/man/man1/Xvfb.1</Path>
+        </Files>
+        <AdditionalFiles>
+            <!-- xvfb-run script from http://svn.exactcode.de/t2/trunk/package/xorg/xorg-server/xvfb-run.sh -->
+            <AdditionalFile owner="root" permission="0755" target="/usr/bin/xvfb-run">xvfb-run.sh</AdditionalFile>
+        </AdditionalFiles>  
+    </Package>
+
+    <Package>
+        <Name>xorg-server-xvnc</Name>
+        <Summary>VNC Server for the X Window System</Summary>
+        <RuntimeDependencies>
+            <Dependency>xorg-server-common</Dependency>
+            <Dependency>jpeg</Dependency>
+            <Dependency>libgcrypt</Dependency>
+            <Dependency>libXfont</Dependency>
+            <Dependency versionFrom="0.16.4">pixman</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="executable">/usr/bin/Xvnc</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>xorg-server-devel</Name>
+        <IsA>data</IsA>
+        <IsA>library</IsA>
+        <Summary>Headers and libraries for X server driver development</Summary>
+        <RuntimeDependencies>
+            <Dependency>libpciaccess-devel</Dependency>
+            <Dependency>pixman-devel</Dependency>
+            <Dependency>xorg-app</Dependency>
+        </RuntimeDependencies>
+        <Conflicts>
+            <Package releaseTo="48">xorg-server</Package>
+        </Conflicts>
+        <Files>
+            <Path fileType="header">/usr/include/xorg</Path>
+            <Path fileType="library">/usr/lib/libxf86config.a</Path>
+            <Path fileType="data">/usr/lib/pkgconfig</Path>
+            <Path fileType="data">/usr/share/aclocal</Path>
+        </Files>
+    </Package>
+
+    <History>
+        <Update release="75">
+            <Date>2010-08-17</Date>
+            <Version>1.8.99.906</Version>
+            <Comment>New development release</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="74">
+            <Date>2010-05-31</Date>
+            <Version>1.7.7</Version>
+            <Comment>Disable sigaction patch which breaks fglrx and update xvfb-run.sh</Comment>
+            <Type package="xorg-server">critical</Type>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="73">
+            <Date>2010-05-10</Date>
+            <Version>1.7.7</Version>
+            <Comment>New stable release</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="72">
+            <Date>2010-03-17</Date>
+            <Version>1.7.6</Version>
+            <Comment>New stable release</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="71">
+            <Date>2010-03-12</Date>
+            <Version>1.7.5.902</Version>
+            <Comment>
+                - Bump to the second release candidate for 1.7.6
+                - Drop upstreamed patches
+                - autoconfig: Use nv if nouveau fails
+            </Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="70">
+            <Date>2010-03-01</Date>
+            <Version>1.7.5</Version>
+            <Comment>
+                - Add -nr option for none background
+                - Improve right-of patch
+                - Inherit the DPMS timeouts from -s
+                - Update owner-events patch from upstream
+                - Add pci id for qxl driver
+                - EXA updates from upstream
+                - Update record extension patch from upstream
+                - Do not use vboxvideo by default
+                - Remove empty /var/log dir
+            </Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="69">
+            <Date>2010-02-16</Date>
+            <Version>1.7.5</Version>
+            <Comment>New stable release</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="68">
+            <Date>2010-02-08</Date>
+            <Version>1.7.4.902</Version>
+            <Comment>
+                - Bump to 1.7.4 RC2
+                - Update xf4vnc patches
+                - Add "updates" subdir to the default module path
+            </Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="67">
+            <Date>2010-01-11</Date>
+            <Version>1.7.4</Version>
+            <Comment>New stable release</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="66">
+            <Date>2009-12-16</Date>
+            <Version>1.7.3.901</Version>
+            <Comment>Fix and enable RECORD extension</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="65">
+            <Date>2009-12-14</Date>
+            <Version>1.7.3.901</Version>
+            <Comment>
+                - Bump to 1.7 series.
+                - Add recent Fedora/Ubuntu patches. Update existing ones.
+                - Add fixes for xf4vnc to build with xserver 1.7.x.
+            </Comment>
+            <Requires>
+                <Action>reverseDependencyUpdate</Action>
+            </Requires>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="64">
+            <Date>2009-10-13</Date>
+            <Version>1.6.5</Version>
+            <Comment>
+                - Bump to latest stable.
+                - Add more fixes from Ubuntu.
+                - Grab xf4vnc patches from Suse.
+            </Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="63">
+            <Date>2009-09-13</Date>
+            <Version>1.6.3.901</Version>
+            <Comment>First release candidate for the next bugfix release</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="62">
+            <Date>2009-08-24</Date>
+            <Version>1.6.3</Version>
+            <Comment>
+                - Drop dont-backfill-bg-none patch as it causes
+                  black or distorted backgrounds.
+                - Grab various fixes from Fedora and Ubuntu.
+            </Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="61">
+            <Date>2009-08-01</Date>
+            <Version>1.6.3</Version>
+            <Comment>
+                - New stable release
+                - Remove buggy randr-gamma patch
+                - Remove upstreamed PEA quirk
+            </Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="60">
+            <Date>2009-07-08</Date>
+            <Version>1.6.2</Version>
+            <Comment>New stable release</Comment>
+            <Requires>
+                <Action>reverseDependencyUpdate</Action>
+            </Requires>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="59">
+            <Date>2009-07-01</Date>
+            <Version>1.6.1.902</Version>
+            <Comment>
+                - Bump to 1.6 RC2
+                - Add quirk for Samsung Syncmaster 2333HD
+                - Sync nouveau patch with Fedora
+                - Drop upstreamed patches
+            </Comment>
+            <Requires>
+                <Action>reverseDependencyUpdate</Action>
+            </Requires>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="58">
+            <Date>2009-06-09</Date>
+            <Version>1.6.1.901</Version>
+            <Comment>
+                Add Fedora patches:
+                 - EDID quirk for PEA prod 9003 (rh#492359)
+                 - GLX drawable fixes
+            </Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="57">
+            <Date>2009-05-26</Date>
+            <Version>1.6.1.901</Version>
+            <Comment>
+                - Add upstream fix for xkb crash
+                - Disable acpid again
+                - Add Fedora patch to treat all pointer drivers
+                  as mouse drivers when parsing the config file
+            </Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="56">
+            <Date>2009-05-19</Date>
+            <Version>1.6.1.901</Version>
+            <Comment>
+                - Fix a crash caused by xkb
+                - Add edid quirk for an Apple monitor
+            </Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="55">
+            <Date>2009-05-19</Date>
+            <Version>1.6.1.901</Version>
+            <Comment>
+                - Bump to 1.6.2 pre-release
+                - Enable acpid support again
+            </Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="54">
+            <Date>2009-04-23</Date>
+            <Version>1.6.1</Version>
+            <Comment>Dependency fixes</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="53">
+            <Date>2009-04-15</Date>
+            <Version>1.6.1</Version>
+            <Comment>Bump to latest stable</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="52">
+            <Date>2009-04-04</Date>
+            <Version>1.6.0</Version>
+            <Comment>
+                * Bump to latest stable relase
+                * Do not ship mesa libs with this package
+                * Split servers into separate sub-packages
+            </Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="51">
+            <Date>2009-03-30</Date>
+            <Version>7.3</Version>
+            <Comment>Do not FatalError on too many input devices</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="50">
+            <Date>2009-03-18</Date>
+            <Version>7.3</Version>
+            <Comment>Remove the patch added in previous release as the issue was caused by vboxmouse driver which calls setlocale</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="49">
+            <Date>2009-03-15</Date>
+            <Version>7.3</Version>
+            <Comment>Add patch to remove some locale-aware functions</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="48">
+            <Date>2008-09-19</Date>
+            <Version>7.3</Version>
+            <Comment>Use symbolic links for libdri.so as it is also provided by the new ati-drivers</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="47">
+            <Date>2008-09-19</Date>
+            <Version>7.3</Version>
+            <Comment>Sync Mesa with stable branch</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="46">
+            <Date>2008-08-25</Date>
+            <Version>7.3</Version>
+            <Comment>Bump to Mesa 7.0.4. Grab xserver stable branch patches.</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="45">
+            <Date>2008-07-22</Date>
+            <Version>7.3</Version>
+            <Comment>Drop AIGLX patches as they are not necessary for new server and they cause some performance issues</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="44">
+            <Date>2008-07-05</Date>
+            <Version>7.3</Version>
+            <Comment>Update edid quirks patch for more DPI fixes</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="43">
+            <Date>2008-06-26</Date>
+            <Version>7.3</Version>
+            <Comment>Make mode checking more tolerant like in pre-RandR times</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="42" type="security">
+            <Date>2008-06-12</Date>
+            <Version>7.3</Version>
+            <Comment>Bump xorg-server to 1.4.2 which fixes fixes CVE-2008-{1377,1379,2360,2361,2362}</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="41">
+            <Date>2008-06-10</Date>
+            <Version>7.3</Version>
+            <Comment>Bump xorg server to latest stable (1.4.1).</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="40">
+            <Date>2008-04-27</Date>
+            <Version>7.3</Version>
+            <Comment>Support to pass arbitrary options via HAL hotplugging.</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="39">
+            <Date>2008-04-14</Date>
+            <Version>7.3</Version>
+            <Comment>Really disable XAA offscreen pixmaps.</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="38">
+            <Date>2008-04-13</Date>
+            <Version>7.3</Version>
+            <Comment>Bump Mesa to 7.0.3, add lots of fixes including one for the new intel driver to work with some cards.</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="37">
+            <Date>2008-03-26</Date>
+            <Version>7.3</Version>
+            <Comment>Add missing xorg-app dependency.</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="36">
+            <Date>2008-03-23</Date>
+            <Version>7.3</Version>
+            <Comment>Switch also libGL.la file dynamically as nvidia driver has a .la file.</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="35">
+            <Date>2008-03-22</Date>
+            <Version>7.3</Version>
+            <Comment>Create libGL symlinks if needed. Apply cherry-picked EDID patches from 1.5 branch.</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="34">
+            <Date>2008-03-03</Date>
+            <Version>7.3</Version>
+            <Comment>Sync with server-1.4-branch, add some patches from Ubuntu and bump Mesa to 7.0.3-rc2</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="33">
+            <Date>2008-01-30</Date>
+            <Version>7.3</Version>
+            <Comment>xorg-data dependency replaced with xkeyboard-config</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="32">
+            <Date>2008-01-21</Date>
+            <Version>7.3</Version>
+            <Comment>Get synaptics options from HAL and fix some leaks</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="31" type="security">
+            <Date>2008-01-19</Date>
+            <Version>7.3</Version>
+            <Comment>Fix regressions due to CVE-2007-6429 fix</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="30" type="security">
+            <Date>2008-01-17</Date>
+            <Version>7.3</Version>
+            <Comment>Fix CVE-2007-{5760,5958,6427,6428,6429}</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="29">
+            <Date>2007-12-28</Date>
+            <Version>7.3</Version>
+            <Comment>Use /var/lib/xkb for compiled maps + some package fixes</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="28">
+            <Date>2007-12-14</Date>
+            <Version>7.3</Version>
+            <Comment>Bump to xorg-server-1.4.0.90 and Mesa-7.0.2</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="27">
+            <Date>2007-09-17</Date>
+            <Version>7.3</Version>
+            <Comment>Bump to xorg-server-1.4</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="26">
+            <Date>2007-08-08</Date>
+            <Version>7.2</Version>
+            <Comment>Bump to Mesa-7.0.1</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="25">
+            <Date>2007-06-24</Date>
+            <Version>7.2</Version>
+            <Comment>Bump to Mesa-7.0</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="24">
+            <Date>2007-06-22</Date>
+            <Version>7.2</Version>
+            <Comment>Bump to Mesa-7.0rc1</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="23" type="security">
+            <Date>2007-05-02</Date>
+            <Version>7.2</Version>
+            <Comment>Fix CVE-2007-2437</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="22">
+            <Date>2007-04-29</Date>
+            <Version>7.2</Version>
+            <Comment>Bump to Mesa-6.5.3</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="21">
+            <Date>2007-04-25</Date>
+            <Version>7.2</Version>
+            <Comment>Bump to Mesa-6.5.3rc4</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="20">
+            <Date>2007-04-22</Date>
+            <Version>7.2</Version>
+            <Comment>Bump to Mesa-6.5.3rc2</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="19">
+            <Date>2007-04-20</Date>
+            <Version>7.2</Version>
+            <Comment>Bump to Server13Branch which includes randr1.2 and EXA damage track (xserver 1.3 Final)</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="18">
+            <Date>2007-04-06</Date>
+            <Version>7.2</Version>
+            <Comment>Bump to Server13Branch which includes randr1.2 and EXA damage track (xserver 1.3 RC5)</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="17" type="security">
+            <Date>2007-04-04</Date>
+            <Version>7.2</Version>
+            <Comment>Fix CVE-2007-1003</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="16">
+            <Date>2007-03-27</Date>
+            <Version>7.2</Version>
+            <Comment>Bump to Server13Branch which includes randr1.2 and EXA damage track (xserver 1.3 RC3)</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="15">
+            <Date>2007-03-14</Date>
+            <Version>7.2</Version>
+            <Comment>Bump to Server13Branch which includes randr1.2 and EXA damage track (xserver 1.3 RC2)</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="14">
+            <Date>2007-03-05</Date>
+            <Version>7.2</Version>
+            <Comment>Bump to Server13Branch which includes randr1.2 and EXA damage track (xserver 1.3 RC1)</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="13">
+            <Date>2007-01-23</Date>
+            <Version>7.2</Version>
+            <Comment>Version bump</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="12" type="security">
+            <Date>2007-01-09</Date>
+            <Version>7.2_rc3</Version>
+            <Comment>Fix multiple integer overflows in dbe and render extensions, CVE-2006-6101 CVE-2006-6102 CVE-2006-6103</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="11">
+            <Date>2006-12-18</Date>
+            <Version>7.2_rc3</Version>
+            <Comment>Grab real fix for i945GM problem from xorg-git-tree, use SUSE's patch to enable fglrx until its next release</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="10">
+            <Date>2006-12-08</Date>
+            <Version>7.2_rc3</Version>
+            <Comment>Fixes i945GM problems, thanks to Gabriel C</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="9">
+            <Date>2006-12-08</Date>
+            <Version>7.2_rc3</Version>
+            <Comment>Version bump</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="8">
+            <Date>2006-11-03</Date>
+            <Version>7.1</Version>
+            <Comment>Fix #3904</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="7">
+            <Date>2006-11-01</Date>
+            <Version>7.1</Version>
+            <Comment>Move opengl-update to zorg</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="6">
+            <Date>2006-10-21</Date>
+            <Version>7.1</Version>
+            <Comment>fix #3807</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="5">
+            <Date>2006-10-19</Date>
+            <Version>7.1</Version>
+            <Comment>Add zorg dependency</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="4">
+            <Date>2006-10-13</Date>
+            <Version>7.1</Version>
+            <Comment>fix libGL.* issues</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="3">
+            <Date>2006-10-12</Date>
+            <Version>7.1</Version>
+            <Comment>liveCD workarounds</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="2">
+            <Date>2006-10-12</Date>
+            <Version>7.1</Version>
+            <Comment>Add GLX texture crossbar support</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="1">
+            <Date>2006-09-19</Date>
+            <Version>7.1</Version>
+            <Comment>First release.</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+    </History>
+</PISI>
