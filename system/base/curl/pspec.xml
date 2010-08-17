@@ -11,8 +11,10 @@
         <License>MIT</License>
         <License>X11</License>
         <IsA>app:console</IsA>
-        <Summary>A Client that groks URLs</Summary>
-        <Archive sha1sum="5cb1213187fb25d1b4392ddaca3a7945c749d083" type="tarbz2">http://curl.haxx.se/download/curl-7.21.0.tar.bz2</Archive>
+        <IsA>library</IsA>
+        <Summary>A utility for getting files from remote servers</Summary>
+        <Description>curl is a command line tool for transferring data with URL syntax, supporting various protocols.</Description>
+        <Archive sha1sum="d6ad8d7caf6e15f318e7b9f69dee8f67c807b1a0" type="tarbz2">http://curl.haxx.se/download/curl-7.21.1.tar.bz2</Archive>
         <BuildDependencies>
             <Dependency>zlib</Dependency>
             <Dependency>openssl</Dependency>
@@ -21,6 +23,13 @@
         </BuildDependencies>
         <Patches>
             <Patch level="1">fix-anonymous-ftp-login.patch</Patch>
+
+            <!-- Fedora patches -->
+            <Patch level="1">0102-curl-7.20.0-lrt.patch</Patch>
+            <Patch level="1">0103-curl-7.19.4-debug.patch</Patch>
+            <Patch level="1">0104-curl-7.19.7-localhost6.patch</Patch>
+            <Patch level="1">0105-curl-7.20.0-disable-test1112.patch</Patch>
+            <Patch level="1">0106-curl-7.21.0-libssh2-valgrind.patch</Patch>
         </Patches>
     </Source>
 
@@ -34,7 +43,6 @@
         </RuntimeDependencies>
         <Files>
             <Path fileType="executable">/usr/bin</Path>
-            <Path fileType="header">/usr/include/curl</Path>
             <Path fileType="library">/usr/lib</Path>
             <Path fileType="doc">/usr/share/doc/</Path>
             <Path fileType="man">/usr/share/man/</Path>
@@ -42,8 +50,31 @@
         </Files>
     </Package>
 
+    <Package>
+        <Name>curl-devel</Name>
+        <PartOf>system.devel</PartOf>
+        <Summary>Development files for curl</Summary>
+        <RuntimeDependencies>
+            <Dependency release="22">curl</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="data">/usr/lib/pkgconfig</Path>
+            <Path fileType="executable">/usr/bin/curl-config</Path>
+            <Path fileType="header">/usr/include/curl</Path>
+            <Path fileType="man">/usr/share/man/man3</Path>
+            <Path fileType="man">/usr/share/man/man1/curl-config.1</Path>
+        </Files>
+    </Package>
+
     <History>
-        <Update release="21">
+        <Update release="22">
+            <Date>2010-08-17</Date>
+            <Version>7.21.1</Version>
+            <Comment>Split devel package, add fedora patches.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+            <Update release="21">
             <Date>2010-08-15</Date>
             <Version>7.21.0</Version>
             <Comment>Change dependency name</Comment>

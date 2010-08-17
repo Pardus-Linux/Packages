@@ -5,6 +5,7 @@
 # Licensed under the GNU General Public License, version 2.
 # See the file http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
 
+from pisi.actionsapi import shelltools
 from pisi.actionsapi import autotools
 from pisi.actionsapi import pisitools
 from pisi.actionsapi import get
@@ -12,9 +13,11 @@ from pisi.actionsapi import get
 def setup():
     autotools.configure("--disable-static \
                          --disable-ldap \
-                         --enable-ipv6 \
                          --with-ssl \
+                         --with-libidn \
                          --with-libssh2 \
+                         --enable-threaded-resolver \
+                         --enable-ipv6 \
                          --enable-http \
                          --enable-ftp \
                          --enable-gopher \
@@ -28,6 +31,10 @@ def setup():
 
 def build():
     autotools.make()
+
+def check():
+    shelltools.export("LD_LIBRARY_PATH", "%s/lib" % get.curDIR())
+    autotools.make("-C tests test")
 
 def install():
     autotools.rawInstall("DESTDIR=%s" % get.installDIR())
