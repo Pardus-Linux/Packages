@@ -31,4 +31,5 @@ def install():
 
     # Unneeded stuff
     pisitools.remove("/usr/lib/*.a")
+
     pisitools.dodoc("README", "RELEASE-NOTES")
