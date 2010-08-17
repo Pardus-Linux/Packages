@@ -1,0 +1,182 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>firebird</Name>
+        <Homepage>http://www.firebirdsql.org/</Homepage>
+        <Packager>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Packager>
+        <License>IPL-1</License>
+        <License>IDPL-1</License>
+        <License>LGPLv2.1</License>
+        <IsA>service</IsA>
+        <IsA>library</IsA>
+        <Summary>A relational database offering many ANSI SQL-99 features</Summary>
+        <Archive sha1sum="1504e4a579d9020bd47470ae54c67490ad13f032" type="tarbz2">mirrors://sourceforge/firebird/Firebird-2.1.3.18185-0.tar.bz2</Archive>
+        <BuildDependencies>
+            <Dependency versionFrom="4.2">icu4c</Dependency>
+        </BuildDependencies>
+        <Patches>
+            <Patch>hosts_equiv.patch</Patch>
+            <Patch level="1">editline-dumb-tr.patch</Patch>
+            <Patch>firebird-gcc-icu.patch</Patch>
+            <Patch>firebird-mcpu-to-mtune.patch</Patch>
+            <Patch level="1">fix-lib64-dir.diff</Patch>
+        </Patches>
+    </Source>
+
+    <Package>
+        <Name>firebird-client</Name>
+        <Summary>Firebird database client library</Summary>
+        <Description>Firebird relational database client library</Description>
+        <Files>
+            <Path fileType="library">/usr/lib/libfbclient.*</Path>
+            <Path fileType="library">/usr/lib/libgds.*</Path>
+            <Path fileType="library">/usr/lib/libib_util.*</Path>
+            <Path fileType="library">/opt/firebird/lib/libfbclient.*</Path>
+            <Path fileType="library">/opt/firebird/lib/libgds.*</Path>
+            <Path fileType="library">/opt/firebird/lib/libib_util.*</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>firebird-superserver</Name>
+        <Summary>Firebird super server</Summary>
+        <RuntimeDependencies>
+            <Dependency>firebird-client</Dependency>
+            <Dependency versionFrom="4.2">icu4c</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="config">/etc/firebird</Path>
+            <Path fileType="config">/etc/env.d/50firebird</Path>
+            <Path fileType="config">/opt/firebird/*.conf</Path>
+            <Path fileType="localedata">/opt/firebird/*.msg</Path>
+            <Path fileType="data">/opt/firebird/security2.fdb</Path>
+            <Path fileType="doc">/opt/firebird/README</Path>
+            <Path fileType="doc">/opt/firebird/WhatsNew</Path>
+            <Path fileType="library">/opt/firebird/UDF</Path>
+            <Path fileType="executable">/opt/firebird/bin</Path>
+            <Path fileType="doc">/opt/firebird/doc</Path>
+            <Path fileType="doc">/opt/firebird/examples</Path>
+            <Path fileType="data">/opt/firebird/help</Path>
+            <Path fileType="data">/opt/firebird/intl</Path>
+            <Path fileType="library">/opt/firebird/lib/libicu*</Path>
+            <Path fileType="doc">/opt/firebird/upgrade</Path>
+            <Path fileType="data">/opt/firebird/firebird.log</Path>
+            <Path fileType="data">/var/run/firebird</Path>
+        </Files>
+        <AdditionalFiles>
+            <AdditionalFile owner="root" permission="0644" target="/etc/firebird/hosts.equiv">hosts.equiv</AdditionalFile>
+            <AdditionalFile owner="root" permission="0644" target="/etc/env.d/50firebird">50firebird</AdditionalFile>
+        </AdditionalFiles>
+        <Provides>
+            <COMAR script="service.py">System.Service</COMAR>
+            <COMAR script="package.py">System.Package</COMAR>
+        </Provides>
+    </Package>
+
+    <Package>
+        <Name>firebird-devel</Name>
+        <Summary>Development files for firebird</Summary>
+        <RuntimeDependencies>
+            <Dependency release="12">firebird-client</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="header">/usr/include/firebird</Path>
+        </Files>
+    </Package>
+
+    <History>
+        <Update release="12">
+            <Date>2010-08-17</Date>
+            <Version>2.1.3.18185</Version>
+            <Comment>Version bump to 2.1.3.18185</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="11" type="security">
+            <Date>2009-08-16</Date>
+            <Version>2.1.2.18118</Version>
+            <Comment>
+                Remove firebird_lock-file-location.patch which requires new package layout
+                Change symbolic linking method to /usr/lib in build script
+                Add env.d file for accessing executables via PATH (isql renamed to fb_isql which conflicts with unixODBC)
+                Move libib_util to the client package
+            </Comment>
+            <Name>Taner Taş</Name>
+            <Email>taner@pardus.org.tr</Email>
+        </Update>
+        <Update release="10" type="security">
+            <Date>2009-08-04</Date>
+            <Version>2.1.2.18118</Version>
+            <Comment>Fix Denial of Service vulnerability (CVE-2009-2620, #10768)</Comment>
+            <Name>Pınar Yanardağ</Name>
+            <Email>pinar@pardus.org.tr</Email>
+        </Update>
+        <Update release="9">
+            <Date>2008-10-08</Date>
+            <Version>2.1.2.18118</Version>
+            <Comment>Version bump to 2.1.2</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@gmail.com</Email>
+        </Update>
+        <Update release="8">
+            <Date>2008-10-08</Date>
+            <Version>2.1.1.17910</Version>
+            <Comment>Version bump to 2.1.1. Use system's icu4c library.</Comment>
+            <Name>Furkan Duman</Name>
+            <Email>coderlord@gmail.com</Email>
+        </Update>
+        <Update release="7">
+            <Date>2008-07-12</Date>
+            <Version>2.1.0.17798</Version>
+            <Comment>Stable Update to 2.1 branch, fix service script, fix build with editline.</Comment>
+            <Name>Ekin Meroğlu</Name>
+            <Email>ekin@pardus.org.tr</Email>
+        </Update>
+        <Update release="6" type="security">
+            <Date>2008-03-28</Date>
+            <Version>2.0.3.12981</Version>
+            <Comment>Fix CVE-2008-0467-0387</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="5" type="security">
+            <Date>2007-10-04</Date>
+            <Version>2.0.3.12981</Version>
+            <Comment>Stable update to fix CVE-2007-4992</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="4" type="security">
+            <Date>2007-08-31</Date>
+            <Version>2.0.2.12964</Version>
+            <Comment>Stable update to fix http://secunia.com/advisories/26615/</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="3" type="security">
+            <Date>2007-08-08</Date>
+            <Version>2.0.1.12855</Version>
+            <Comment>Stable update to fix CVE-2007-3181</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="2">
+            <Date>2007-05-23</Date>
+            <Version>2.0.0.12748</Version>
+            <Comment>Updated Service script.</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="1">
+            <Date>2006-12-24</Date>
+            <Version>2.0.0.12748</Version>
+            <Comment>First release.</Comment>
+            <Name>Furkan Duman</Name>
+            <Email>coderlord@gmail.com</Email>
+        </Update>
+    </History>
+</PISI>
