@@ -1,0 +1,304 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>nss</Name>
+        <Homepage>http://www.mozilla.org/projects/security/pki/nss/</Homepage>
+        <Packager>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Packager>
+        <License>GPLv2</License>
+        <IsA>library</IsA>
+        <Summary>Network Security Services</Summary>
+        <Description>Network Security Services (NSS) is a set of libraries designed to support cross-platform development of security-enabled client and server applications. Applications built with NSS can support SSL v2 and v3, TLS, PKCS #5, PKCS #7, PKCS #11, PKCS #12, S/MIME, X.509 v3 certificates, and other security standards.</Description>
+        <Archive sha1sum="d7d804f74d63a6ed74aef96ed07f29ec81011969" type="targz">ftp://ftp.mozilla.org/pub/mozilla.org/security/nss/releases/NSS_3_12_7_RTM/src/nss-3.12.7.tar.gz</Archive>
+        <AdditionalFiles>
+            <AdditionalFile target="dist/pkgconfig/nss.pc.in">nss.pc.in</AdditionalFile>
+            <AdditionalFile target="dist/pkgconfig/nss-config.in">nss-config.in</AdditionalFile>
+            <AdditionalFile permission="0755" target="generate-pc-config.sh">generate-pc-config.sh</AdditionalFile>
+        </AdditionalFiles>
+        <BuildDependencies>
+            <Dependency releaseFrom="24">nspr</Dependency>
+        </BuildDependencies>
+        <Patches>
+            <Patch level="1">include-fix.patch</Patch>
+            <Patch>cflags.patch</Patch>
+            <Patch>char.patch</Patch>
+            <Patch>system-nspr.patch</Patch>
+
+            <!-- Patches from Fedora -->
+            <Patch>nss-no-rpath.patch</Patch>
+            <Patch level="2">nss-nolocalsql.patch</Patch>
+        </Patches>
+    </Source>
+
+    <Package>
+        <Name>nss</Name>
+        <RuntimeDependencies>
+            <Dependency releaseFrom="24">nspr</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="header">/usr/include</Path>
+            <Path fileType="library">/usr/lib</Path>
+            <Path fileType="executable">/usr/bin</Path>
+            <Path fileType="config">/etc</Path>
+        </Files>
+        <AdditionalFiles>
+            <AdditionalFile owner="root" permission="0644" target="/etc/env.d/50nss">50nss</AdditionalFile>
+
+            <!-- legacy blank NSS db files from Fedora -->
+            <AdditionalFile owner="root" target="/etc/ssl/nssdb/cert8.db" permission="0644">nssdb/cert8.db</AdditionalFile>
+            <AdditionalFile owner="root" target="/etc/ssl/nssdb/key3.db" permission="0644">nssdb/key3.db</AdditionalFile>
+            <AdditionalFile owner="root" target="/etc/ssl/nssdb/secmod.db" permission="0644">nssdb/secmod.db</AdditionalFile>
+        </AdditionalFiles>
+    </Package>
+
+    <Package>
+        <Name>nss-devel</Name>
+        <Summary>Development files for nss</Summary>
+        <RuntimeDependencies>
+            <Dependency release="33">nss</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="executable">/usr/bin/nss-config</Path>
+            <Path fileType="header">/usr/include</Path>
+            <Path fileType="data">/usr/lib/pkgconfig</Path>
+            <Path fileType="library">/usr/lib/nss/*.a</Path>
+        </Files>
+    </Package>
+
+    <History>
+        <Update release="33">
+            <Date>2010-08-17</Date>
+            <Version>3.12.7</Version>
+            <Comment>Version bump to 3.12.7</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="32">
+            <Date>2010-04-13</Date>
+            <Version>3.12.6.0</Version>
+            <Comment>Dynamically create nss.pc and nss-config to reflect the real versions</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="31">
+            <Date>2010-03-19</Date>
+            <Version>3.12.6.0</Version>
+            <Comment>Version bump to 3.12.6 version. Also add blank NSS DB files.</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="30">
+            <Date>2010-02-23</Date>
+            <Version>3.12.5.0</Version>
+            <Comment>Fix build on 64-bit</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="29" type="security">
+            <Date>2010-01-27</Date>
+            <Version>3.12.5.0</Version>
+            <Comment>Fix CVE-2009-3555 TLS Renegotiation Attack, #12147</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="28">
+            <Date>2009-09-22</Date>
+            <Version>3.12.3.0</Version>
+            <Comment>Drop executable bits from nss headers.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="27">
+            <Date>2009-09-02</Date>
+            <Version>3.12.3.0</Version>
+            <Comment>Add new certificate formats for new certificate list in openssl. This is needed to use new KAMUSM root certificate.</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="26">
+            <Date>2009-07-17</Date>
+            <Version>3.12.3.0</Version>
+            <Comment>Version bump to nss of Firefox 3.5.1</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="25">
+            <Date>2009-06-13</Date>
+            <Version>3.12.3.0</Version>
+            <Comment>Version bump to nss of Firefox 3.5RC1</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="24">
+            <Date>2009-05-04</Date>
+            <Version>3.12.3.0</Version>
+            <Comment>Version bump to nss of Firefox 3.5_beta4</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="23">
+            <Date>2009-03-31</Date>
+            <Version>3.12.2.0</Version>
+            <Comment>Version bump to nss of Firefox 3.0.8</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="22">
+            <Date>2008-09-27</Date>
+            <Version>3.12.1_rc2</Version>
+            <Comment>Version bump</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="21">
+            <Date>2008-06-24</Date>
+            <Version>3.12.0.3</Version>
+            <Comment>Version bump to stable release</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="20">
+            <Date>2008-06-05</Date>
+            <Version>3.12.0.2_pre20080605</Version>
+            <Comment>Version bump to Firefox 3rc2 branch also fix version</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="19">
+            <Date>2008-05-31</Date>
+            <Version>3.12_pre20080531</Version>
+            <Comment>Version bump to Firefox 3rc1 branch</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="18">
+            <Date>2008-04-03</Date>
+            <Version>3.12_pre20080403</Version>
+            <Comment>Version bump to Firefox 3b5 branch</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="17">
+            <Date>2008-03-21</Date>
+            <Version>3.12_pre20080321</Version>
+            <Comment>Version bump to Firefox 3b4 branch</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="16">
+            <Date>2008-01-18</Date>
+            <Version>3.12_beta1</Version>
+            <Comment>Version bump</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="15">
+            <Date>2008-01-02</Date>
+            <Version>3.12_alpha2</Version>
+            <Comment>Version bump</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="14">
+            <Date>2007-12-26</Date>
+            <Version>3.11.8</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="13">
+            <Date>2007-07-12</Date>
+            <Version>3.11.7</Version>
+            <Comment>Fix Mozilla bug #51429</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="12">
+            <Date>2007-07-09</Date>
+            <Version>3.11.7</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="11">
+            <Date>2007-06-14</Date>
+            <Version>3.11.6</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="10" type="security">
+            <Date>2007-02-22</Date>
+            <Version>3.11.5</Version>
+            <Comment>Stable update to fix CVE-2007-000{8,9}</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="9">
+            <Date>2007-01-22</Date>
+            <Version>3.11.4</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="8">
+            <Date>2006-10-21</Date>
+            <Version>3.11.3</Version>
+            <Comment>Fix pkgconfig file</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="7">
+            <Date>2006-09-15</Date>
+            <Version>3.11.3</Version>
+            <Comment>Update to stable release</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="6" type="security">
+            <Date>2006-09-07</Date>
+            <Version>3.11.2_20060905</Version>
+            <Comment>Update to NSS_3_11_20060905_TAG to fix recent RSA flaw</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="5">
+            <Date>2006-08-08</Date>
+            <Version>3.11.2</Version>
+            <Comment>Update to NSS_3_11_20060731_TAG and enable ECC</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="4">
+            <Date>2006-07-03</Date>
+            <Version>3.11.2</Version>
+            <Comment>Bugfix release</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="3">
+            <Date>2006-06-22</Date>
+            <Version>3.11.1</Version>
+            <Comment>Updated release tarballs</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="2">
+            <Date>2006-05-17</Date>
+            <Version>3.11.1</Version>
+            <Comment>Bugfix release.</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="1">
+            <Date>2005-12-31</Date>
+            <Version>3.11</Version>
+            <Comment>First release.</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+    </History>
+</PISI>
