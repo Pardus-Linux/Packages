@@ -1,0 +1,17 @@
+Index: xdg-utils-1.0.2/scripts/xdg-su
+===================================================================
+--- xdg-utils-1.0.2.orig/scripts/xdg-su
++++ xdg-utils-1.0.2/scripts/xdg-su
+@@ -310,7 +310,11 @@ detectDE()
+ 
+ su_kde()
+ {
+-    KDESU=`which kdesu 2>/dev/null`
++    if [ x"$KDE_SESSION_VERSION" = x"4" ]; then
++        KDESU=`kde4-config --locate kdesu --path exe 2>/dev/null`
++    else
++        KDESU=`which kdesu 2>/dev/null`
++    fi
+     if [ $? -eq 0 ] ; then
+         if [ -z "$user" ] ; then
+              $KDESU -c "$cmd"

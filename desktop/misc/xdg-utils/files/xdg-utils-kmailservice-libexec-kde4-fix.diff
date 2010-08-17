@@ -1,0 +1,27 @@
+diff -Naur xdg-utils.orig/scripts/xdg-email xdg-utils/scripts/xdg-email
+--- xdg-utils.orig/scripts/xdg-email	2008-08-11 13:04:09.000000000 +0200
++++ xdg-utils/scripts/xdg-email	2008-08-22 11:26:24.000000000 +0200
+@@ -393,9 +393,20 @@
+         fi
+     fi
+     DEBUG 1 "Running kmailservice \"$1\""
+-    # KDE uses locale's encoding when decoding the URI, so set it to UTF-8
+-    LC_ALL=C.UTF-8 kmailservice "$1"
+-    kfmclient_fix_exit_code $?
++    
++    # in KDE4, kmailservice is in KDE libexec, and KDE libexec is not in the path
++    if [ x"$KDE_SESSION_VERSION" = x"4" ]; then    # KDE4
++        libexec=`kde4-config --path libexec 2>/dev/null`
++        if [ -x $libexec/kmailservice ]; then
++            LC_ALL=C.UTF-8 $libexec/kmailservice "$1"
++        else
++            LC_ALL=C.UTF-8 kmailservice "$1"
++        fi
++    else     # KDE3
++        # KDE uses locale's encoding when decoding the URI, so set it to UTF-8
++        LC_ALL=C.UTF-8 kmailservice "$1"
++        kfmclient_fix_exit_code $?
++    fi
+ 
+     if [ $? -eq 0 ]; then
+         exit_success
