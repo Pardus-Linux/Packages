@@ -13,9 +13,11 @@ from pisi.actionsapi import get
 def setup():
     shelltools.system("./config \
                        --prefix=/usr \
-                       --openssldir=/etc/ssl \
+                       --libdir=lib \
+                       --openssldir=/etc/pki/tls \
+                       --enginesdir=/usr/lib/openssl/engines \
                        zlib enable-camellia enable-seed enable-tlsext enable-rfc3779 \
-                       threads shared -Wa,--noexecstack")
+                       enable-cms enable-md2 threads shared -Wa,--noexecstack")
 
     pisitools.dosed("Makefile", "^(SHARED_LDFLAGS=).*", "\\1 ${LDFLAGS}")
     pisitools.dosed("Makefile", "^(CFLAG=.*)", "\\1 ${CFLAGS}")
@@ -26,6 +28,9 @@ def build():
     autotools.make("rehash")
 
 def check():
+    #FIXME: Some tests write into /etc/pki directory which violates
+    # sandbox rules. It is not important for now. However, we will
+    # need to fix it later. (08/17/2010 --Eren)
     homeDir = "%s/test-home" % get.workDIR()
     shelltools.export("HOME", homeDir)
     shelltools.makedirs(homeDir)
@@ -35,16 +40,22 @@ def check():
 def install():
     autotools.rawInstall("INSTALL_PREFIX=%s MANDIR=/usr/share/man" % get.installDIR())
 
+    # Move engines to /usr/lib/openssl/engines
+    pisitools.dodir("/usr/lib/openssl")
+    pisitools.domove("/usr/lib/engines", "/usr/lib/openssl")
+
     # Certificate stuff
     pisitools.dobin("tools/c_rehash")
-    pisitools.dosym("/etc/ssl/certs/ca-bundle.crt","/etc/ssl/cert.pem")
-    pisitools.dodir("/etc/pki/tls")
-    pisitools.dosym("/etc/ssl/certs", "/etc/pki/tls/certs")
+    pisitools.dosym("/etc/pki/tls/certs/ca-bundle.crt","/etc/pki/tls/cert.pem")
 
     # Rename conflicting manpages
     pisitools.rename("/usr/share/man/man1/passwd.1", "ssl-passwd.1")
     pisitools.rename("/usr/share/man/man3/rand.3", "ssl-rand.3")
     pisitools.rename("/usr/share/man/man3/err.3", "ssl-err.3")
+
+    # Create CA dirs
+    for cadir in ["CA", "CA/private", "CA/certs", "CA/crl", "CA/newcerts"]:
+        pisitools.dodir("/etc/pki/%s" % cadir)
 
     # No static libs
     pisitools.remove("/usr/lib/*.a")
