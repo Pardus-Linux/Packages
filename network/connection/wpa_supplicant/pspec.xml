@@ -1,0 +1,309 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>wpa_supplicant</Name>
+        <Homepage>http://hostap.epitest.fi/wpa_supplicant/</Homepage>
+        <Packager>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Packager>
+        <License>GPLv2</License>
+        <License>BSD</License>
+        <IsA>service</IsA>
+        <Summary>IEEE 802.1X/WPA supplicant for secure wireless transfers</Summary>
+        <Description>wpa_supplicant is a WPA supplicant with support for WPA and WPA2.</Description>
+        <Archive sha1sum="d2c93758607de250a8dda7adc8f8b304d0a074ce" type="targz">http://hostap.epitest.fi/releases/wpa_supplicant-0.6.10.tar.gz</Archive>
+        <AdditionalFiles>
+            <AdditionalFile target="wpa_supplicant/.config">wpa_supplicant.config</AdditionalFile>
+        </AdditionalFiles>
+        <Patches>
+            <Patch level="1">fedora/wpa_supplicant-assoc-timeout.patch</Patch>
+            <Patch level="1">fedora/wpa_supplicant-0.5.7-qmake-location.patch</Patch>
+            <Patch level="1">fedora/wpa_supplicant-0.5.7-flush-debug-output.patch</Patch>
+            <Patch level="1">fedora/wpa_supplicant-0.5.10-dbus-service-file.patch</Patch>
+            <Patch level="1">fedora/wpa_supplicant-0.6.8-handle-driver-disconnect-spam.patch</Patch>
+            <Patch level="1">fedora/wpa_supplicant-0.6.8-ap-stability.patch</Patch>
+            <Patch level="1">fedora/wpa_supplicant-0.6.9-scan-faster.patch</Patch>
+            <Patch level="1">fedora/wpa_supplicant-0.6.8-openssl-init.patch</Patch>
+        </Patches>
+    </Source>
+
+    <Package>
+        <Name>wpa_supplicant</Name>
+        <Files>
+            <Path fileType="config">/etc</Path>
+            <Path fileType="data">/etc/dbus-1</Path>
+            <Path fileType="executable">/usr/sbin</Path>
+            <Path fileType="executable">/usr/bin</Path>
+            <Path fileType="library">/usr/lib</Path>
+            <Path fileType="doc">/usr/share/doc</Path>
+            <Path fileType="man">/usr/share/man</Path>
+            <Path fileType="data">/usr/share/dbus-1/system-services</Path>
+            <Path fileType="data">/var/run/wpa_supplicant</Path>
+        </Files>
+        <AdditionalFiles>
+            <AdditionalFile owner="root" permission="0600" target="/etc/wpa_supplicant.conf">wpa_supplicant.conf</AdditionalFile>
+            <!-- This is the fedora one
+            <AdditionalFile owner="root" permission="0600" target="/etc/wpa_supplicant.conf">wpa_supplicant.conf.fedora</AdditionalFile>
+            -->
+            <AdditionalFile owner="root" permission="0644" target="/etc/conf.d/wpa_supplicant">wpa_supplicant.confd</AdditionalFile>
+            <AdditionalFile owner="root" permission="0644" target="/etc/logrotate.d/wpa_supplicant">wpa_supplicant.logrotate</AdditionalFile>
+            <AdditionalFile owner="root" permission="0644" target="/usr/lib/python2.7/site-packages/wpa_supplicant.py">wpa_supplicant.py</AdditionalFile>
+        </AdditionalFiles>
+        <Provides>
+            <COMAR script="service.py">System.Service</COMAR>
+        </Provides>
+    </Package>
+
+    <History>
+        <Update release="35">
+            <Date>2010-08-18</Date>
+            <Version>0.6.10</Version>
+            <Comment>
+                - Bump to the new stable release
+                - Disable Qt3 interface
+            </Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="34">
+            <Date>2010-02-22</Date>
+            <Version>0.6.8</Version>
+            <Comment>Version bump</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="33">
+            <Date>2008-11-30</Date>
+            <Version>0.6.4</Version>
+            <Comment>Default timeout for authentication increased.</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="32">
+            <Date>2008-09-10</Date>
+            <Version>0.6.4</Version>
+            <Comment>Necessary changes for certificates</Comment>
+            <Name>İşbaran Akçayır</Name>
+            <Email>isbaran@comu.edu.tr</Email>
+        </Update>
+        <Update release="31">
+            <Date>2008-08-27</Date>
+            <Version>0.6.4</Version>
+            <Comment>Make the python wrapper flexible (aka 802.1x changes)</Comment>
+            <Name>İşbaran Akçayır</Name>
+            <Email>isbaran@comu.edu.tr</Email>
+        </Update>
+        <Update release="30">
+            <Date>2008-08-20</Date>
+            <Version>0.6.4</Version>
+            <Comment>Version bump</Comment>
+            <Name>Faik Uygur</Name>
+            <Email>faik@pardus.org.tr</Email>
+        </Update>
+        <Update release="29">
+            <Date>2008-08-01</Date>
+            <Version>0.6.3</Version>
+            <Comment>Include eapol_test.</Comment>
+            <Name>İşbaran Akçayır</Name>
+            <Email>isbaran@comu.edu.tr</Email>
+        </Update>
+        <Update release="28">
+            <Date>2008-06-25</Date>
+            <Version>0.6.3</Version>
+            <Comment>Wait until D-Bus interface goes up.</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="27">
+            <Date>2008-04-10</Date>
+            <Version>0.6.3</Version>
+            <Comment>Fix comar connection and service script parameters</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="26">
+            <Date>2008-04-08</Date>
+            <Version>0.6.3</Version>
+            <Comment>Version bump</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="25">
+            <Date>2008-01-21</Date>
+            <Version>0.5.8</Version>
+            <Comment>Stop wpa_supplicant service after disabling WPA authentication</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="24">
+            <Date>2007-12-19</Date>
+            <Version>0.5.8</Version>
+            <Comment>Stop leaking 100kb every hour</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="23">
+            <Date>2007-06-18</Date>
+            <Version>0.5.8</Version>
+            <Comment>Version bump. Madwifi supports wext interface with kernel 2.6.14. Remove madwifi dependency.</Comment>
+            <Name>Furkan Duman</Name>
+            <Email>coderlord@gmail.com</Email>
+        </Update>
+        <Update release="22">
+            <Date>2007-05-29</Date>
+            <Version>0.5.7</Version>
+            <Comment>PEAP-MSCHAPv2 support for python script. Auth. timeout increased a little for wpa-psk.</Comment>
+            <Name>Furkan Duman</Name>
+            <Email>coderlord@gmail.com</Email>
+        </Update>
+        <Update release="21">
+            <Date>2007-05-23</Date>
+            <Version>0.5.7</Version>
+            <Comment>Updated Service script.</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="20">
+            <Date>2007-03-25</Date>
+            <Version>0.5.7</Version>
+            <Comment>Start dbus service before starting wpa_supplicant service.</Comment>
+            <Name>Furkan Duman</Name>
+            <Email>coderlord@gmail.com</Email>
+        </Update>
+        <Update release="19">
+            <Date>2007-03-16</Date>
+            <Version>0.5.7</Version>
+            <Comment>Use correct wpa_supplicant driver for ndiswrapper. For ndiswrapper > 1.12 wpa_driver should be wext. http://ndiswrapper.sourceforge.net/mediawiki/index.php/WPA</Comment>
+            <Name>Furkan Duman</Name>
+            <Email>coderlord@gmail.com</Email>
+        </Update>
+        <Update release="18">
+            <Date>2007-03-03</Date>
+            <Version>0.5.7</Version>
+            <Comment>Check Wpa service state before try to disable authentication.</Comment>
+            <Name>Furkan Duman</Name>
+            <Email>coderlord@gmail.com</Email>
+        </Update>
+        <Update release="17">
+            <Date>2007-03-02</Date>
+            <Version>0.5.7</Version>
+            <Comment>DBus 1.0 support for "wpa_supplicant.py".</Comment>
+            <Name>Furkan Duman</Name>
+            <Email>coderlord@gmail.com</Email>
+        </Update>
+        <Update release="16">
+            <Date>2007-02-27</Date>
+            <Version>0.5.7</Version>
+            <Comment>802.1X authentication "wpa_supplicant.py" script added.</Comment>
+            <Name>Furkan Duman</Name>
+            <Email>coderlord@gmail.com</Email>
+        </Update>
+        <Update release="15">
+            <Date>2007-01-11</Date>
+            <Version>0.5.7</Version>
+            <Comment>Version bump to stable.</Comment>
+            <Name>Furkan Duman</Name>
+            <Email>coderlord@gmail.com</Email>
+        </Update>
+        <Update release="14">
+            <Date>2006-11-26</Date>
+            <Version>0.5.6</Version>
+            <Comment>Version bump. Dbus policy configuration file added.</Comment>
+            <Name>Furkan Duman</Name>
+            <Email>coderlord@gmail.com</Email>
+        </Update>
+        <Update release="13">
+            <Date>2006-10-09</Date>
+            <Version>0.5.5</Version>
+            <Comment>Service script updated.</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="12">
+            <Date>2006-09-14</Date>
+            <Version>0.5.5</Version>
+            <Comment>Version bump. Enable DBUS communication.</Comment>
+            <Name>Furkan Duman</Name>
+            <Email>coderlord@gmail.com</Email>
+        </Update>
+        <Update release="11">
+            <Date>2006-07-12</Date>
+            <Version>0.5.4</Version>
+            <Comment>Fix compile problem and bump bugfix version</Comment>
+            <Name>Furkan Duman</Name>
+            <Email>coderlord@gmail.com</Email>
+        </Update>
+        <Update release="10">
+            <Date>2006-07-11</Date>
+            <Version>0.5.2</Version>
+            <Comment>Fixed config file using in service script</Comment>
+            <Name>Furkan Duman</Name>
+            <Email>coderlord@gmail.com</Email>
+        </Update>
+        <Update release="9">
+            <Date>2006-04-29</Date>
+            <Version>0.5.2</Version>
+            <Comment>Added mudur script and confd file</Comment>
+            <Name>Furkan Duman</Name>
+            <Email>coderlord@gmail.com</Email>
+        </Update>
+        <Update release="8">
+            <Date>2006-04-08</Date>
+            <Version>0.5.2</Version>
+            <Comment>Version bump and configuration file update</Comment>
+            <Name>Furkan Duman</Name>
+            <Email>coderlord@gmail.com</Email>
+        </Update>
+        <Update release="7">
+            <Date>2006-02-02</Date>
+            <Version>0.5.1</Version>
+            <Comment>Madwifi driver support.</Comment>
+            <Name>Furkan Duman</Name>
+            <Email>coderlord@gmail.com</Email>
+        </Update>
+        <Update release="6">
+            <Date>2006-02-01</Date>
+            <Version>0.5.1</Version>
+            <Comment>Version bump.</Comment>
+            <Name>Furkan Duman</Name>
+            <Email>coderlord@gmail.com</Email>
+        </Update>
+        <Update release="5">
+            <Date>2006-01-14</Date>
+            <Version>0.5.0</Version>
+            <Comment>Added StaKey and SMARTCARD authentication support</Comment>
+            <Name>Furkan Duman</Name>
+            <Email>coderlord@gmail.com</Email>
+        </Update>
+        <Update release="4">
+            <Date>2006-01-14</Date>
+            <Version>0.5.0</Version>
+            <Comment>Version bump</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="3">
+            <Date>2005-11-24</Date>
+            <Version>0.4.7</Version>
+            <Comment>Bağımlılık, lisans ve ayar dosyası güncellemesi, kablolu ağ desteği.</Comment>
+            <Name>Furkan Duman</Name>
+            <Email>coderlord@gmail.com</Email>
+        </Update>
+        <Update release="2">
+            <Date>2005-11-23</Date>
+            <Version>0.4.7</Version>
+            <Comment>0.3.9 to 0.4.7</Comment>
+            <Name>Furkan Duman</Name>
+            <Email>coderlord@gmail.com</Email>
+        </Update>
+        <Update release="1">
+            <Date>2005-11-10</Date>
+            <Version>0.3.9</Version>
+            <Comment>First release</Comment>
+            <Name>Furkan Duman</Name>
+            <Email>coderlord@gmail.com</Email>
+        </Update>
+    </History>
+</PISI>

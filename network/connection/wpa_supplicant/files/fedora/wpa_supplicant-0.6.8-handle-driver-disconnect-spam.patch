@@ -1,0 +1,88 @@
+Index: wpa_supplicant-0.6.10/wpa_supplicant/events.c
+===================================================================
+--- wpa_supplicant-0.6.10.orig/wpa_supplicant/events.c
++++ wpa_supplicant-0.6.10/wpa_supplicant/events.c
+@@ -949,6 +949,15 @@ static void wpa_supplicant_event_disasso
+ 		wpa_s->keys_cleared = 0;
+ 		wpa_clear_keys(wpa_s, wpa_s->bssid);
+ 	}
++
++	if (wpa_s->wpa_state == WPA_DISCONNECTED) {
++		wpa_s->disconnect_count++;
++		if (!eloop_is_timeout_registered(wpa_disconnect_spam_handle, wpa_s, NULL)) {
++			eloop_register_timeout(6, 0, wpa_disconnect_spam_handle, wpa_s, NULL);
++			wpa_printf(MSG_DEBUG, "%s: scheduled DISCONNECT spam handler", __FUNCTION__);
++		}
++	}
++
+ 	wpa_supplicant_mark_disassoc(wpa_s);
+ }
+ 
+Index: wpa_supplicant-0.6.10/wpa_supplicant/wpa_supplicant.c
+===================================================================
+--- wpa_supplicant-0.6.10.orig/wpa_supplicant/wpa_supplicant.c
++++ wpa_supplicant-0.6.10/wpa_supplicant/wpa_supplicant.c
+@@ -468,6 +468,23 @@ const char * wpa_supplicant_state_txt(in
+ }
+ 
+ 
++void wpa_disconnect_spam_handle(void *eloop_ctx, void *timeout_ctx)
++{
++	struct wpa_supplicant *wpa_s = eloop_ctx;
++	const u8 bssid[ETH_ALEN] = { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
++
++	wpa_printf(MSG_DEBUG, "%s: %d disconnect events in 6 seconds",
++		   __FUNCTION__, wpa_s->disconnect_count);
++
++	if (wpa_s->disconnect_count >= 3) {
++		wpa_printf(MSG_DEBUG, "%s: forcing SSID/BSSID reset", __FUNCTION__);
++		wpa_drv_disassociate(wpa_s, bssid, WLAN_REASON_DEAUTH_LEAVING);
++		wpa_supplicant_req_scan(wpa_s, 1, 0);
++	}
++	wpa_s->disconnect_count = 0;
++}
++
++
+ /**
+  * wpa_supplicant_set_state - Set current connection state
+  * @wpa_s: Pointer to wpa_supplicant data
+@@ -488,6 +505,18 @@ void wpa_supplicant_set_state(struct wpa
+ 	wpa_supplicant_dbus_notify_state_change(wpa_s, state,
+ 						wpa_s->wpa_state);
+ 
++	if (state != WPA_DISCONNECTED && state != WPA_SCANNING) {
++		/* If the state isn't disconnected, cancel any registered
++		 * disconnect spam handler, which should only live while
++		 * disconnect events are coming in quickly.
++		 */
++		wpa_s->disconnect_count = 0;
++		if (eloop_is_timeout_registered(wpa_disconnect_spam_handle, wpa_s, NULL)) {
++			wpa_printf(MSG_DEBUG, "%s: canceling DISCONNECT spam handler", __FUNCTION__);
++			eloop_cancel_timeout(wpa_disconnect_spam_handle, wpa_s, NULL);
++		}
++	}
++
+ 	if (state == WPA_COMPLETED && wpa_s->new_connection) {
+ #if defined(CONFIG_CTRL_IFACE) || !defined(CONFIG_NO_STDOUT_DEBUG)
+ 		struct wpa_ssid *ssid = wpa_s->current_ssid;
+Index: wpa_supplicant-0.6.10/wpa_supplicant/wpa_supplicant_i.h
+===================================================================
+--- wpa_supplicant-0.6.10.orig/wpa_supplicant/wpa_supplicant_i.h
++++ wpa_supplicant-0.6.10/wpa_supplicant/wpa_supplicant_i.h
+@@ -361,6 +361,8 @@ struct wpa_supplicant {
+ 	int wps_success; /* WPS success event received */
+ 	int blacklist_cleared;
+ 
++	int disconnect_count;
++
+ 	struct wpabuf *pending_eapol_rx;
+ 	struct os_time pending_eapol_rx_time;
+ 	u8 pending_eapol_rx_src[ETH_ALEN];
+@@ -387,6 +389,7 @@ void wpa_clear_keys(struct wpa_supplican
+ void wpa_supplicant_req_auth_timeout(struct wpa_supplicant *wpa_s,
+ 				     int sec, int usec);
+ void wpa_supplicant_set_state(struct wpa_supplicant *wpa_s, wpa_states state);
++void wpa_disconnect_spam_handle(void *eloop_ctx, void *timeout_ctx);
+ struct wpa_ssid * wpa_supplicant_get_ssid(struct wpa_supplicant *wpa_s);
+ void wpa_supplicant_cancel_auth_timeout(struct wpa_supplicant *wpa_s);
+ void wpa_supplicant_deauthenticate(struct wpa_supplicant *wpa_s,
