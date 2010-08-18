@@ -28,7 +28,7 @@ def setup():
                          --enable-telnet \
                          --enable-nonblocking \
                          --enable-largefile \
-                         --with-ca-bundle=/etc/ssl/certs/ca-bundle.crt")
+                         --with-ca-bundle=/etc/pki/tls/certs/ca-bundle.crt")
 
 def build():
     autotools.make()
