@@ -1,0 +1,25 @@
+--- dmidecode/dmidecode.c~	2008/11/14 10:27:31	1.140
++++ dmidecode/dmidecode.c	2009/04/30 08:19:37	1.141
+@@ -66,6 +66,8 @@
+ #define out_of_spec "<OUT OF SPEC>"
+ static const char *bad_index = "<BAD INDEX>";
+ 
++#define SUPPORTED_SMBIOS_VER 0x0206
++
+ /*
+  * Type-independant Stuff
+  */
+@@ -4005,6 +4007,13 @@
+ 	u8 *data;
+ 	int i = 0;
+ 
++	if (ver > SUPPORTED_SMBIOS_VER)
++	{
++		printf("# SMBIOS implementations newer than version %u.%u are not\n"
++		       "# fully supported by this version of dmidecode.\n",
++		       SUPPORTED_SMBIOS_VER >> 8, SUPPORTED_SMBIOS_VER & 0xFF);
++	}
++
+ 	if (opt.flags & FLAG_DUMP_BIN)
+ 	{
+ 		dmi_table_dump(base, len, devmem);
