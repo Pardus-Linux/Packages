@@ -1,0 +1,167 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>pm-utils</Name>
+        <Homepage>http://pm-utils.freedesktop.org/wiki/</Homepage>
+        <Packager>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Packager>
+        <License>GPLv2</License>
+        <IsA>app:console</IsA>
+        <Summary>A toolset to suspend and hibernate computers</Summary>
+        <Description>pm-utils provides simple shell command line tools to suspend and hibernate computers, and it that can be used to run vendor, distribution, or user supplied scripts on suspend and resume.</Description>
+        <Archive sha1sum="9aacb9b4a5f11f751d94f5257c6c54460f106197" type="targz">http://pm-utils.freedesktop.org/releases/pm-utils-1.4.1.tar.gz</Archive>
+        <Archive sha1sum="01aab63e2bb8c0f8d81d325ffce1fa49af0e2f3a" type="targz" target="video-quirks">http://pm-utils.freedesktop.org/releases/pm-quirks-20100619.tar.gz</Archive>
+        <BuildDependencies>
+            <Dependency>xmlto</Dependency>
+        </BuildDependencies>
+    </Source>
+
+    <Package>
+        <Name>pm-utils</Name>
+        <RuntimeDependencies>
+            <!-- hal is only needed for on_ac_power when upower is not available and it introduces
+                 a circular dep so let's keep it commented.
+                 <Dependency>hal</Dependency>
+                 -->
+            <Dependency>hdparm</Dependency>
+            <Dependency>vbetool</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="config">/etc/pm</Path>
+            <Path fileType="executable">/usr/bin</Path>
+            <Path fileType="executable">/usr/sbin</Path>
+            <Path fileType="library">/usr/lib</Path>
+            <Path fileType="data">/usr/lib/pm-utils/video-quirks</Path>
+            <Path fileType="data">/usr/lib/pkgconfig</Path>
+            <Path fileType="data">/var/run/pm-utils</Path>
+            <Path fileType="doc">/usr/share/doc</Path>
+            <Path fileType="man">/usr/share/man</Path>
+        </Files>
+        <AdditionalFiles>
+            <!-- not implemented in our kernel yet
+            <AdditionalFile owner="root" permission="0755" target="/usr/lib/pm-utils/sleep.d/000kernel-change">000kernel-change</AdditionalFile>
+            -->
+            <AdditionalFile owner="root" permission="0755" target="/usr/lib/pm-utils/sleep.d/99Zgrub">99Zgrub</AdditionalFile>
+            <AdditionalFile owner="root" permission="0755" target="/usr/lib/pm-utils/sleep.d/99hd-apm-restore">pm-utils-99hd-apm-restore</AdditionalFile>
+            <AdditionalFile owner="root" permission="0644" target="/etc/pm/config.d/hd-apm-restore.conf">pm-utils-hd-apm-restore.conf</AdditionalFile>
+        </AdditionalFiles>
+    </Package>
+
+    <History>
+        <Update release="16">
+            <Date>2010-08-18</Date>
+            <Version>1.4.1</Version>
+            <Comment>Version bump</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="15">
+            <Date>2010-07-02</Date>
+            <Version>1.4.0</Version>
+            <Comment>Version bump</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="14">
+            <Date>2010-03-31</Date>
+            <Version>1.3.0</Version>
+            <Comment>Version bump.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="13">
+            <Date>2009-04-20</Date>
+            <Version>1.2.5</Version>
+            <Comment>Version bump to 1.2.5 which supports kernel mode setting, remove hal dependency.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="12">
+            <Date>2009-04-10</Date>
+            <Version>1.2.4</Version>
+            <Comment>Version bump.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="11">
+            <Date>2008-12-22</Date>
+            <Version>1.2.3</Version>
+            <Comment>Version bump.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="10">
+            <Date>2008-05-29</Date>
+            <Version>1.1.2.2</Version>
+            <Comment>Bugfix release</Comment>
+            <Name>Ekin Meroğlu</Name>
+            <Email>ekin@pardus.org.tr</Email>
+        </Update>
+        <Update release="9">
+            <Date>2008-05-26</Date>
+            <Version>1.1.2</Version>
+            <Comment>Version bump</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="8">
+            <Date>2008-05-14</Date>
+            <Version>1.1.1</Version>
+            <Comment>Version bump</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="7">
+            <Date>2008-04-01</Date>
+            <Version>1.1.0</Version>
+            <Comment>Version bump</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="6">
+            <Date>2007-12-26</Date>
+            <Version>0.99.4</Version>
+            <Comment>Version bump</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="5">
+            <Date>2007-06-08</Date>
+            <Version>0.99.3</Version>
+            <Comment>Version bump</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="4">
+            <Date>2007-03-15</Date>
+            <Version>0.99.2.20070315</Version>
+            <Comment>Sync with CVS</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="3">
+            <Date>2007-01-30</Date>
+            <Version>0.20.0.20070305</Version>
+            <Comment>Sync with CVS</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="2">
+            <Date>2007-01-30</Date>
+            <Version>0.20.0.20061031</Version>
+            <Comment>Fix wrong check</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="1">
+            <Date>2006-11-28</Date>
+            <Version>0.20.0.20061031</Version>
+            <Comment>First release.</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+    </History>
+</PISI>
