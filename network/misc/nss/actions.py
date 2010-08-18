@@ -51,8 +51,8 @@ def install():
     pisitools.insinto("/usr/bin", "dist/pkgconfig/nss-config")
 
     # create empty NSS database
-    pisitools.dodir("/etc/ssl/nssdb")
+    pisitools.dodir("/etc/pki/nssdb")
     shelltools.export("LD_LIBRARY_PATH", "%s/usr/lib/nss" % get.installDIR())
-    shelltools.system("%s/usr/bin/modutil -force -dbdir \"sql:%s/etc/ssl/nssdb\" -create" % (get.installDIR(), get.installDIR()))
-    shelltools.chmod("%s/etc/ssl/nssdb/*" % get.installDIR(), 0644)
-    pisitools.dosed("%s/etc/ssl/nssdb/*" % get.installDIR(), get.installDIR(), "")
+    shelltools.system("%s/usr/bin/modutil -force -dbdir \"sql:%s/etc/pki/nssdb\" -create" % (get.installDIR(), get.installDIR()))
+    shelltools.chmod("%s/etc/pki/nssdb/*" % get.installDIR(), 0644)
+    pisitools.dosed("%s/etc/pki/nssdb/*" % get.installDIR(), get.installDIR(), "")
