@@ -1,0 +1,84 @@
+diff -urN -x '*.orig' -x '*.rej' -x '*~' -x '.*' OpenJPEG.orig/libopenjpeg/t1.c OpenJPEG.patched/libopenjpeg/t1.c
+--- OpenJPEG.orig/libopenjpeg/t1.c	2007-08-23 05:53:17.000000000 -0500
++++ OpenJPEG.patched/libopenjpeg/t1.c	2007-08-23 05:56:33.000000000 -0500
+@@ -45,7 +45,11 @@
+ static char t1_getspb(int f);
+ static short t1_getnmsedec_sig(int x, int bitpos);
+ static short t1_getnmsedec_ref(int x, int bitpos);
++#ifdef __amd64__
++static INLINE void t1_updateflags(flag_t *flagsp, int s, int stride);
++#else
+ static void t1_updateflags(flag_t *flagsp, int s, int stride);
++#endif
+ /**
+ Encode significant pass
+ */
+@@ -258,6 +262,38 @@
+     return lut_nmsedec_ref0[x & ((1 << T1_NMSEDEC_BITS) - 1)];
+ }
+ 
++#ifdef __amd64__
++
++/* On 64 bit platforms we can set three flags at a time. (SWAR) */
++/* FIXME: Assumes little endian? */
++
++#define VEC(x,y,z) (int64)(x)|((int64)(y)<<16)|((int64)(z)<<32)
++
++static void t1_updateflags(flag_t *flagsp, int s, int stride) {
++	static const int64 mod[] = {
++		VEC(T1_SIG_SE,         T1_SIG_E,          T1_SIG_NE),
++		VEC(T1_SIG_SE,         T1_SIG_E|T1_SGN_E, T1_SIG_NE),
++		VEC(T1_SIG_S,          T1_SIG,            T1_SIG_N),
++		VEC(T1_SIG_S|T1_SGN_S, T1_SIG,            T1_SIG_N|T1_SGN_N),
++		VEC(T1_SIG_SW,         T1_SIG_W,          T1_SIG_NW),
++		VEC(T1_SIG_SW,         T1_SIG_W|T1_SGN_W, T1_SIG_NW)
++	};
++
++	int64 tmp1 = *(int64*)((void*)&flagsp[-1 - stride]);
++	int64 tmp2 = *(int64*)((void*)&flagsp[-1         ]);
++	int64 tmp3 = *(int64*)((void*)&flagsp[-1 + stride]);
++
++	tmp1 |= mod[s];
++	tmp2 |= mod[s+2];
++	tmp3 |= mod[s+4];
++
++	*(int64*)((void*)&flagsp[-1 - stride]) = tmp1;
++	*(int64*)((void*)&flagsp[-1         ]) = tmp2;
++	*(int64*)((void*)&flagsp[-1 + stride]) = tmp3;
++}
++
++#else
++
+ static void t1_updateflags(flag_t *flagsp, int s, int stride) {
+ 	static const flag_t mod[] = {
+ 		T1_SIG_E, T1_SIG_E|T1_SGN_E,
+@@ -279,6 +315,8 @@
+ 	flagsp[ 1 + stride] |= T1_SIG_NW;
+ }
+ 
++#endif
++
+ static void t1_enc_sigpass_step(
+ 		opj_t1_t *t1,
+ 		flag_t *flagsp,
+@@ -670,6 +708,8 @@
+ 		for (i = 0; i < t1->w; ++i) {
+ 			if (k + 3 < t1->h) {
+ #ifdef __amd64__
++				/* 64 bit SWAR */
++				/* FIXME: Assumes little endian? */
+ 				int64 tmp = *((int64*)&t1->flags[(k+1) + (i+1)*(t1->h+2)]);
+ 				if (cblksty & J2K_CCP_CBLKSTY_VSC) {
+ 					tmp &= ~((int64)(T1_SIG_S | T1_SIG_SE | T1_SIG_SW | T1_SGN_S)<<48);
+@@ -780,6 +820,11 @@
+ 	memset(t1->data,0,datasize * sizeof(int));
+ 
+ 	flagssize=(h+2) * (w+2);
++#ifdef __amd64__
++	/* 64 bit SIMD/SWAR in t1_updateflags requires one short of headroom
++	   because three shorts = 48 bits. */
++	++flagssize;
++#endif
+ 
+ 	if(flagssize > t1->flagssize){
+ 		opj_aligned_free(t1->flags);

@@ -1,0 +1,28 @@
+diff -urN -x '*.orig' -x '*.rej' -x '*~' -x '.*' OpenJPEG.orig/libopenjpeg/t1.c OpenJPEG.patched/libopenjpeg/t1.c
+--- OpenJPEG.orig/libopenjpeg/t1.c	2007-08-09 19:26:57.000000000 -0500
++++ OpenJPEG.patched/libopenjpeg/t1.c	2007-08-09 19:44:25.000000000 -0500
+@@ -40,7 +40,7 @@
+ /*@{*/
+ 
+ static INLINE char t1_getctxno_zc(int f, int orient);
+-static char t1_getctxno_sc(int f);
++static INLINE char t1_getctxno_sc(int f);
+ static INLINE int t1_getctxno_mag(int f);
+ static char t1_getspb(int f);
+ static short t1_getnmsedec_sig(int x, int bitpos);
+@@ -334,6 +334,7 @@
+ 	
+ 	flag = vsc ? ((*flagsp) & (~(T1_SIG_S | T1_SIG_SE | T1_SIG_SW | T1_SGN_S))) : (*flagsp);
+ 	if ((flag & T1_SIG_OTH) && !(flag & (T1_SIG | T1_VISIT))) {
++		*flagsp |= T1_VISIT;
+ 		if (type == T1_TYPE_RAW) {
+ 			if (raw_decode(raw)) {
+ 				v = raw_decode(raw);	/* ESSAI */
+@@ -349,7 +350,6 @@
+ 				t1_updateflags(flagsp, v, t1->flags_stride);
+ 			}
+ 		}
+-		*flagsp |= T1_VISIT;
+ 	}
+ }				/* VSC and  BYPASS by Antonin */
+ 

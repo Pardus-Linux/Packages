@@ -1,0 +1,29 @@
+diff -urN -x '*.orig' -x '*.rej' -x '*~' -x '.*' OpenJPEG.orig/libopenjpeg/t1.c OpenJPEG.patched/libopenjpeg/t1.c
+--- OpenJPEG.orig/libopenjpeg/t1.c	2007-08-06 14:07:59.000000000 -0500
++++ OpenJPEG.patched/libopenjpeg/t1.c	2007-08-06 15:54:31.000000000 -0500
+@@ -669,6 +669,17 @@
+ 	for (k = 0; k < t1->h; k += 4) {
+ 		for (i = 0; i < t1->w; ++i) {
+ 			if (k + 3 < t1->h) {
++#ifdef __amd64__
++				int64 tmp = *((int64*)&t1->flags[(k+1) + (i+1)*t1->flags_stride]);
++				if (cblksty & J2K_CCP_CBLKSTY_VSC) {
++					tmp &= ~((int64)(T1_SIG_S | T1_SIG_SE | T1_SIG_SW | T1_SGN_S)<<48);
++				}
++				tmp &= (int64)(T1_SIG | T1_VISIT | T1_SIG_OTH)
++				    | ((int64)(T1_SIG | T1_VISIT | T1_SIG_OTH)<<16)
++				    | ((int64)(T1_SIG | T1_VISIT | T1_SIG_OTH)<<32)
++				    | ((int64)(T1_SIG | T1_VISIT | T1_SIG_OTH)<<48);
++				agg = !tmp;
++#else
+ 				if (cblksty & J2K_CCP_CBLKSTY_VSC) {
+ 					agg = !(t1->flags[(k+1) + (i+1)*t1->flags_stride] & (T1_SIG | T1_VISIT | T1_SIG_OTH)
+ 					    ||  t1->flags[(k+2) + (i+1)*t1->flags_stride] & (T1_SIG | T1_VISIT | T1_SIG_OTH)
+@@ -681,6 +692,7 @@
+ 					     || t1->flags[(k+3) + (i+1)*t1->flags_stride] & (T1_SIG | T1_VISIT | T1_SIG_OTH)
+ 					     || t1->flags[(k+4) + (i+1)*t1->flags_stride] & (T1_SIG | T1_VISIT | T1_SIG_OTH));
+ 				}
++#endif
+ 			} else {
+ 				agg = 0;
+ 			}

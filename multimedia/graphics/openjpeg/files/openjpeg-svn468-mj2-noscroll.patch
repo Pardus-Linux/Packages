@@ -1,0 +1,42 @@
+diff -urN -x '*.orig' -x '*.rej' -x '*~' -x '.*' OpenJPEG.patched/mj2/frames_to_mj2.c OpenJPEG.foo/mj2/frames_to_mj2.c
+--- OpenJPEG.patched/mj2/frames_to_mj2.c	2007-10-18 07:26:11.000000000 -0500
++++ OpenJPEG.foo/mj2/frames_to_mj2.c	2007-11-03 22:48:45.000000000 -0500
+@@ -758,7 +758,7 @@
+ 				fwrite(buf, 1, len+8, mj2file);				
+ 				offset += len+8;				
+ 				elapsed_time = opj_clock()-init_time;
+-				fprintf(stderr, "Frame number %d/%d encoded in %.2f mseconds\n", sampleno + 1, numframes, elapsed_time*1000);
++				fprintf(stderr, "Frame number %d/%d encoded in %.2f mseconds \r", sampleno + 1, numframes, elapsed_time*1000);
+ 				total_time += elapsed_time;
+ 
+       }
+@@ -787,7 +787,7 @@
+   fwrite(buf,cio_tell(cio),1,mj2file);
+   free(buf);
+ 
+-	fprintf(stdout,"Total encoding time: %.2f s for %d frames (%.1f fps)\n", total_time, numframes, (float)numframes/total_time);
++	fprintf(stdout,"\nTotal encoding time: %.2f s for %d frames (%.1f fps)\n", total_time, numframes, (float)numframes/total_time);
+   
+   // Ending program 
+   
+diff -urN -x '*.orig' -x '*.rej' -x '*~' -x '.*' OpenJPEG.patched/mj2/mj2_to_frames.c OpenJPEG.foo/mj2/mj2_to_frames.c
+--- OpenJPEG.patched/mj2/mj2_to_frames.c	2007-10-18 07:26:11.000000000 -0500
++++ OpenJPEG.foo/mj2/mj2_to_frames.c	2007-11-03 22:48:45.000000000 -0500
+@@ -204,7 +204,7 @@
+ 		/* free image data structure */
+ 		opj_image_destroy(img);
+ 		elapsed_time = opj_clock()-init_time;
+-		fprintf(stderr, "Frame number %d/%d decoded in %.2f mseconds\n", snum + 1, numframes, elapsed_time*1000);
++		fprintf(stderr, "Frame number %d/%d decoded in %.2f mseconds \r", snum + 1, numframes, elapsed_time*1000);
+ 		total_time += elapsed_time;
+ 
+   }
+@@ -218,7 +218,7 @@
+ 	}
+ 	free(dinfo);
+ 	
+-	fprintf(stdout, "%d frame(s) correctly decompressed\n", snum);
++	fprintf(stdout, "\n%d frame(s) correctly decompressed\n", snum);
+ 	fprintf(stdout,"Total decoding time: %.2f seconds (%.1f fps)\n", total_time, (float)numframes/total_time);
+ 		
+   return 0;

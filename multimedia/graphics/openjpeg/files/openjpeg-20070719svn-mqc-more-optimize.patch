@@ -1,0 +1,100 @@
+diff -urN -x '*.orig' -x '*.rej' -x '*~' -x '.*' OpenJPEG.orig/libopenjpeg/mqc.c OpenJPEG.patched/libopenjpeg/mqc.c
+--- OpenJPEG.orig/libopenjpeg/mqc.c	2007-08-06 16:16:00.000000000 -0500
++++ OpenJPEG.patched/libopenjpeg/mqc.c	2007-08-06 19:07:28.000000000 -0500
+@@ -68,13 +68,13 @@
+ @param mqc MQC handle
+ @return 
+ */
+-static int mqc_mpsexchange(opj_mqc_t *mqc);
++//static int mqc_mpsexchange(opj_mqc_t *mqc);
+ /**
+ FIXME: documentation ???
+ @param mqc MQC handle
+ @return 
+ */
+-static int mqc_lpsexchange(opj_mqc_t *mqc);
++//static int mqc_lpsexchange(opj_mqc_t *mqc);
+ /**
+ Input a byte
+ @param mqc MQC handle
+@@ -271,33 +271,22 @@
+ 	}
+ }
+ 
++/*
+ static int mqc_mpsexchange(opj_mqc_t *mqc) {
+-	int d;
+-	if (mqc->a < (*mqc->curctx)->qeval) {
+-		d = 1 - (*mqc->curctx)->mps;
+-		*mqc->curctx = (*mqc->curctx)->nlps;
+-	} else {
+-		d = (*mqc->curctx)->mps;
+-		*mqc->curctx = (*mqc->curctx)->nmps;
+-	}
+-	
+-	return d;
++	int d = (*mqc->curctx)->mps;
++	int tmp = (mqc->a < (*mqc->curctx)->qeval);
++	*mqc->curctx = tmp ? (*mqc->curctx)->nlps : (*mqc->curctx)->nmps;
++	return tmp ^ d;
+ }
+ 
+ static int mqc_lpsexchange(opj_mqc_t *mqc) {
+-	int d;
+-	if (mqc->a < (*mqc->curctx)->qeval) {
+-		mqc->a = (*mqc->curctx)->qeval;
+-		d = (*mqc->curctx)->mps;
+-		*mqc->curctx = (*mqc->curctx)->nmps;
+-	} else {
+-		mqc->a = (*mqc->curctx)->qeval;
+-		d = 1 - (*mqc->curctx)->mps;
+-		*mqc->curctx = (*mqc->curctx)->nlps;
+-	}
+-	
+-	return d;
++	int d = (*mqc->curctx)->mps;
++	int tmp = !(mqc->a < (*mqc->curctx)->qeval);
++	mqc->a = (*mqc->curctx)->qeval;
++	*mqc->curctx = tmp ? (*mqc->curctx)->nlps : (*mqc->curctx)->nmps;
++	return tmp ^ d;
+ }
++*/
+ 
+ static void mqc_bytein(opj_mqc_t *mqc) {
+ 	if (mqc->bp != mqc->end) {
+@@ -506,22 +495,27 @@
+ }
+ 
+ int mqc_decode(opj_mqc_t *mqc) {
+-	int d;
+ 	unsigned int qeval = (*mqc->curctx)->qeval;
+ 	mqc->a -= qeval;
++	bool tmp = (mqc->a < qeval);
+ 	qeval <<= 16;
+-	if (mqc->c < qeval) {
+-		d = mqc_lpsexchange(mqc);
+-	} else {
++	if (mqc->c >= qeval) {
+ 		mqc->c -= qeval;
+-		if ((mqc->a & 0x8000) == 0) {
+-			d = mqc_mpsexchange(mqc);
+-		} else {
++		if (mqc->a & 0x8000) {
+ 			return (*mqc->curctx)->mps;
+ 		}
++	}else{
++		tmp = !tmp;
++		mqc->a = (*mqc->curctx)->qeval;
+ 	}
++
++	opj_mqc_state_t* nmps = (*mqc->curctx)->nmps;
++	opj_mqc_state_t* nlps = (*mqc->curctx)->nlps;
++	int mps = (*mqc->curctx)->mps ^ tmp;
++	*mqc->curctx = tmp ? nlps : nmps;
++
+ 	mqc_renormd(mqc);
+-	return d;
++	return mps;
+ }
+ 
+ void mqc_resetstates(opj_mqc_t *mqc) {

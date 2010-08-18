@@ -1,0 +1,57 @@
+Index: OpenJPEG_v1_3/Makefile
+===================================================================
+--- OpenJPEG_v1_3.orig/Makefile
++++ OpenJPEG_v1_3/Makefile
+@@ -25,8 +25,7 @@ MODULES = $(SRCS:.c=.o)
+ CFLAGS = $(COMPILERFLAGS) $(INCLUDE)
+ 
+ TARGET  = openjpeg
+-STATICLIB = lib$(TARGET).a
+-SHAREDLIB = lib$(TARGET)-$(VER_MAJOR).$(VER_MINOR).so
++SHAREDLIB = lib$(TARGET).so.$(VER_MAJOR).$(VER_MINOR)
+ LIBNAME = lib$(TARGET).so.$(VER_MAJOR)
+ 
+ 
+@@ -37,7 +36,6 @@ all: OpenJPEG
+ 
+ dist: OpenJPEG
+ 	install -d dist
+-	install -m 644 $(STATICLIB) dist
+ 	install -m 755 $(SHAREDLIB) dist
+ 	ln -sf $(SHAREDLIB) dist/$(LIBNAME)
+ 	install libopenjpeg/openjpeg.h dist
+@@ -45,28 +43,23 @@ dist: OpenJPEG
+ dos2unix:
+ 	@$(DOS2UNIX) $(SRCS) $(INCLS)
+ 
+-OpenJPEG: $(STATICLIB) $(SHAREDLIB)
++OpenJPEG: $(SHAREDLIB)
+ 
+ .c.o:
+ 	$(CC) $(CFLAGS) -c $< -o $@
+ 
+-$(STATICLIB): $(MODULES)
+-	$(AR) r $@ $(MODULES)
+-
+ $(SHAREDLIB): $(MODULES)
+-	$(CC) -s -shared -Wl,-soname,$(LIBNAME) -o $@ $(MODULES) $(LIBRARIES)
++	$(CC) $(LDFLAGS) -shared -Wl,-soname,$(LIBNAME) -o $@ $(MODULES) $(LIBRARIES)
+ 
+ install: OpenJPEG
+ 	install -d '$(DESTDIR)$(INSTALL_LIBDIR)' '$(DESTDIR)$(INSTALL_INCLUDE)'
+-	install -m 644 -o root -g root $(STATICLIB) '$(DESTDIR)$(INSTALL_LIBDIR)'
+-	ranlib '$(DESTDIR)$(INSTALL_LIBDIR)/$(STATICLIB)'
+-	install -m 755 -o root -g root $(SHAREDLIB) '$(DESTDIR)$(INSTALL_LIBDIR)'
++	install -m 755 $(SHAREDLIB) '$(DESTDIR)$(INSTALL_LIBDIR)'
+ 	ln -sf $(SHAREDLIB) '$(DESTDIR)$(INSTALL_LIBDIR)/$(LIBNAME)'
+-	install -m 644 -o root -g root libopenjpeg/openjpeg.h '$(DESTDIR)$(INSTALL_INCLUDE)'
+-	-ldconfig
++	ln -sf $(LIBNAME) '$(DESTDIR)$(INSTALL_LIBDIR)/lib$(TARGET).so'
++	install -m 644 libopenjpeg/openjpeg.h '$(DESTDIR)$(INSTALL_INCLUDE)'
+ 
+ clean:
+-	rm -rf core dist/ u2dtmp* $(MODULES) $(STATICLIB) $(SHAREDLIB) $(LIBNAME)
++	rm -rf core dist/ u2dtmp* $(MODULES) $(SHAREDLIB) $(LIBNAME)
+ 
+ osx:
+ 	make -f Makefile.osx

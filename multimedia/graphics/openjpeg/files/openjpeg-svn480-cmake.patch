@@ -1,0 +1,45 @@
+diff -urN -x '*.orig' -x '*.rej' -x '*~' -x '.*' OpenJPEG.orig/CMakeLists.txt OpenJPEG.patched/CMakeLists.txt
+--- OpenJPEG.orig/CMakeLists.txt	2007-09-25 09:54:49.000000000 -0500
++++ OpenJPEG.patched/CMakeLists.txt	2007-09-26 00:34:22.000000000 -0500
+@@ -24,6 +24,7 @@
+ 
+ #-----------------------------------------------------------------------------
+ # OPENJPEG version number, useful for packaging and doxygen doc:
++SET(OPENJPEG_SOVERSION 2)
+ SET(OPENJPEG_VERSION_MAJOR 1)
+ SET(OPENJPEG_VERSION_MINOR 2)
+ SET(OPENJPEG_VERSION_BUILD 0)
+@@ -33,8 +34,8 @@
+ # This setting of SOVERSION assumes that any API change
+ # will increment either the minor or major version number of openjpeg
+ SET(OPENJPEG_LIBRARY_PROPERTIES
+-  VERSION   "${OPENJPEG_VERSION_MAJOR}.${OPENJPEG_VERSION_MINOR}.${OPENJPEG_VERSION_BUILD}"
+-  SOVERSION "${OPENJPEG_VERSION_MAJOR}.${OPENJPEG_VERSION_MINOR}"
++  VERSION   "${OPENJPEG_SOVERSION}.${OPENJPEG_VERSION_MAJOR}.${OPENJPEG_VERSION_MINOR}.${OPENJPEG_VERSION_BUILD}"
++  SOVERSION ${OPENJPEG_SOVERSION}
+ )
+ 
+ 
+@@ -116,6 +117,10 @@
+   $ENV{JPEG2000_CONFORMANCE_DATA_ROOT}
+ )
+ 
++IF(NOT CMAKE_INSTALL_LIBDIR)
++SET(CMAKE_INSTALL_LIBDIR lib)
++ENDIF(NOT CMAKE_INSTALL_LIBDIR)
++
+ #-----------------------------------------------------------------------------
+ # Compiler specific flags:
+ IF(CMAKE_COMPILER_IS_GNUCC)
+diff -urN -x '*.orig' -x '*.rej' -x '*~' -x '.*' OpenJPEG.orig/libopenjpeg/CMakeLists.txt OpenJPEG.patched/libopenjpeg/CMakeLists.txt
+--- OpenJPEG.orig/libopenjpeg/CMakeLists.txt	2007-09-25 09:54:49.000000000 -0500
++++ OpenJPEG.patched/libopenjpeg/CMakeLists.txt	2007-09-26 00:31:12.000000000 -0500
+@@ -37,7 +37,7 @@
+ 
+ # Install library
+ INSTALL(TARGETS ${OPENJPEG_LIBRARY_NAME}
+-	DESTINATION lib)
++	DESTINATION ${CMAKE_INSTALL_LIBDIR})
+ 
+ # Install includes files
+ INSTALL(FILES openjpeg.h

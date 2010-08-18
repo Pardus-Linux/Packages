@@ -1,0 +1,145 @@
+diff -urN -x '*.orig' -x '*.rej' -x '*~' -x '.*' OpenJPEG.orig/libopenjpeg/t1.c OpenJPEG.patched/libopenjpeg/t1.c
+--- OpenJPEG.orig/libopenjpeg/t1.c	2007-11-13 13:52:05.000000000 -0600
++++ OpenJPEG.patched/libopenjpeg/t1.c	2007-11-14 01:09:40.000000000 -0600
+@@ -33,6 +33,17 @@
+ #include "opj_includes.h"
+ #include "t1_luts.h"
+ 
++/* Don't use MMX on amd64 */
++/* Note that merely including mmintrin.h, even if we don't use it, changes the code gcc */
++/* outputs on amd64, and it is measurably slower. A bug in gcc? */
++#ifdef __amd64__
++#undef __MMX__
++#endif
++
++#ifdef __MMX__
++#include <mmintrin.h>
++#endif
++
+ /** @defgroup T1 T1 - Implementation of the tier-1 coding */
+ /*@{*/
+ 
+@@ -45,7 +56,7 @@
+ static char t1_getspb(int f);
+ static short t1_getnmsedec_sig(int x, int bitpos);
+ static short t1_getnmsedec_ref(int x, int bitpos);
+-#ifdef __amd64__
++#if defined(__amd64__) || defined(__MMX__)
+ static INLINE void t1_updateflags(flag_t *flagsp, int s, int stride);
+ #else
+ static void t1_updateflags(flag_t *flagsp, int s, int stride);
+@@ -293,6 +304,32 @@
+ }
+ 
+ #else
++#ifdef __MMX__
++
++static void t1_updateflags(flag_t *flagsp, int s, int stride) {
++	static const __v4hi mod[] = {
++		{T1_SIG_SE,         T1_SIG_E,          T1_SIG_NE,         0},
++		{T1_SIG_SE,         T1_SIG_E|T1_SGN_E, T1_SIG_NE,         0},
++		{T1_SIG_S,          T1_SIG,            T1_SIG_N,          0},
++		{T1_SIG_S|T1_SGN_S, T1_SIG,            T1_SIG_N|T1_SGN_N, 0},
++		{T1_SIG_SW,         T1_SIG_W,          T1_SIG_NW,         0},
++		{T1_SIG_SW,         T1_SIG_W|T1_SGN_W, T1_SIG_NW,         0}
++	};
++
++	__m64 tmp1 = *(__m64*)((void*)&flagsp[-1 - stride]);
++	__m64 tmp2 = *(__m64*)((void*)&flagsp[-1         ]);
++	__m64 tmp3 = *(__m64*)((void*)&flagsp[-1 + stride]);
++
++	tmp1 = _mm_or_si64(tmp1, mod[s]);
++	tmp2 = _mm_or_si64(tmp2, mod[s+2]);
++	tmp3 = _mm_or_si64(tmp3, mod[s+4]);
++
++	*(__m64*)((void*)&flagsp[-1 - stride]) = tmp1;
++	*(__m64*)((void*)&flagsp[-1         ]) = tmp2;
++	*(__m64*)((void*)&flagsp[-1 + stride]) = tmp3;
++}
++
++#else
+ 
+ static void t1_updateflags(flag_t *flagsp, int s, int stride) {
+ 	static const flag_t mod[] = {
+@@ -316,6 +353,7 @@
+ }
+ 
+ #endif
++#endif
+ 
+ static void t1_enc_sigpass_step(
+ 		opj_t1_t *t1,
+@@ -720,18 +758,14 @@
+ 				    | ((int64)(T1_SIG | T1_VISIT | T1_SIG_OTH)<<48);
+ 				agg = !tmp;
+ #else
++				int* flagsp = (int*)&t1->flags[(k+1) + (i+1)*(t1->h+2)];
++				agg = flagsp[1];
+ 				if (cblksty & J2K_CCP_CBLKSTY_VSC) {
+-					agg = !(t1->flags[(k+1) + (i+1)*(t1->h+2)] & (T1_SIG | T1_VISIT | T1_SIG_OTH)
+-					    ||  t1->flags[(k+2) + (i+1)*(t1->h+2)] & (T1_SIG | T1_VISIT | T1_SIG_OTH)
+-					    ||  t1->flags[(k+3) + (i+1)*(t1->h+2)] & (T1_SIG | T1_VISIT | T1_SIG_OTH)
+-					    || (t1->flags[(k+4) + (i+1)*(t1->h+2)] 
+-					   & (~(T1_SIG_S | T1_SIG_SE | T1_SIG_SW | T1_SGN_S))) & (T1_SIG | T1_VISIT | T1_SIG_OTH));
+-				} else {
+-					agg = !(t1->flags[(k+1) + (i+1)*(t1->h+2)] & (T1_SIG | T1_VISIT | T1_SIG_OTH)
+-					     || t1->flags[(k+2) + (i+1)*(t1->h+2)] & (T1_SIG | T1_VISIT | T1_SIG_OTH)
+-					     || t1->flags[(k+3) + (i+1)*(t1->h+2)] & (T1_SIG | T1_VISIT | T1_SIG_OTH)
+-					     || t1->flags[(k+4) + (i+1)*(t1->h+2)] & (T1_SIG | T1_VISIT | T1_SIG_OTH));
++					agg &= ~((T1_SIG_S|T1_SIG_SE|T1_SIG_SW|T1_SGN_S)<<16);
+ 				}
++				agg |= flagsp[0];
++				agg &= (T1_SIG|T1_VISIT|T1_SIG_OTH)|(T1_SIG|T1_VISIT|T1_SIG_OTH)<<16;
++				agg = !agg;
+ #endif
+ 			} else {
+ 				agg = 0;
+@@ -820,7 +854,7 @@
+ 	memset(t1->data,0,datasize * sizeof(int));
+ 
+ 	flagssize=(h+2) * (w+2);
+-#ifdef __amd64__
++#if defined(__amd64__) || defined(__MMX__)
+ 	/* 64 bit SIMD/SWAR in t1_updateflags requires one short of headroom
+ 	   because three shorts = 48 bits. */
+ 	++flagssize;
+@@ -886,6 +920,9 @@
+ 		int correction = 3;
+ 		type = ((bpno < (cblk->numbps - 4)) && (passtype < 2) && (cblksty & J2K_CCP_CBLKSTY_LAZY)) ? T1_TYPE_RAW : T1_TYPE_MQ;
+ 		
++#if !defined(__amd64__) && defined(__MMX__)
++	_mm_empty();
++#endif
+ 		switch (passtype) {
+ 			case 0:
+ 				t1_enc_sigpass(t1, bpno, orient, &nmsedec, type, cblksty);
+@@ -900,6 +937,9 @@
+ 					mqc_segmark_enc(mqc);
+ 				break;
+ 		}
++#if !defined(__amd64__) && defined(__MMX__)
++	_mm_empty();
++#endif
+ 		
+ 		/* fixed_quality */
+ 		cumwmsedec += t1_getwmsedec(nmsedec, compno, level, orient, bpno, qmfbid, stepsize, numcomps);
+@@ -1004,6 +1044,9 @@
+ 	mqc_setstate(mqc, T1_CTXNO_AGG, 0, 3);
+ 	mqc_setstate(mqc, T1_CTXNO_ZC, 0, 4);
+ 	
++#if !defined(__amd64__) && defined(__MMX__)
++	_mm_empty();
++#endif
+ 	for (segno = 0; segno < cblk->numsegs; ++segno) {
+ 		opj_tcd_seg_t *seg = &cblk->segs[segno];
+ 		
+@@ -1044,6 +1087,9 @@
+ 			}
+ 		}
+ 	}
++#if !defined(__amd64__) && defined(__MMX__)
++	_mm_empty();
++#endif
+ }
+ 
+ /* ----------------------------------------------------------------------- */

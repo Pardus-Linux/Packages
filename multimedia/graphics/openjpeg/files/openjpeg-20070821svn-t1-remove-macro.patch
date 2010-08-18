@@ -1,0 +1,171 @@
+diff -urN -x '*.orig' -x '*.rej' -x '*~' -x '.*' OpenJPEG.orig/libopenjpeg/t1.c OpenJPEG.patched/libopenjpeg/t1.c
+--- OpenJPEG.orig/libopenjpeg/t1.c	2007-08-23 05:43:10.000000000 -0500
++++ OpenJPEG.patched/libopenjpeg/t1.c	2007-08-23 05:46:31.000000000 -0500
+@@ -259,27 +259,24 @@
+ }
+ 
+ static void t1_updateflags(flag_t *flagsp, int s, int stride) {
+-	flag_t *np = flagsp - stride;
+-	flag_t *sp = flagsp + stride;
+-
+ 	static const flag_t mod[] = {
+-		T1_SIG_S, T1_SIG_S|T1_SGN_S,
+ 		T1_SIG_E, T1_SIG_E|T1_SGN_E,
+-		T1_SIG_W, T1_SIG_W|T1_SGN_W,
+-		T1_SIG_N, T1_SIG_N|T1_SGN_N
++		T1_SIG_S, T1_SIG_S|T1_SGN_S,
++		T1_SIG_N, T1_SIG_N|T1_SGN_N,
++		T1_SIG_W, T1_SIG_W|T1_SGN_W
+ 	};
+ 
+-	np[-1] |= T1_SIG_SE;
+-	np[0]  |= mod[s];
+-	np[1]  |= T1_SIG_SW;
++	flagsp[-1 - stride] |= T1_SIG_SE;
++	flagsp[ 0 - stride] |= mod[s];
++	flagsp[ 1 - stride] |= T1_SIG_NE;
+ 
+ 	flagsp[-1] |= mod[s+2];
+-	flagsp[0]  |= T1_SIG;
+-	flagsp[1]  |= mod[s+4];
++	flagsp[ 0] |= T1_SIG;
++	flagsp[ 1] |= mod[s+4];
+ 
+-	sp[-1] |= T1_SIG_NE;
+-	sp[0]  |= mod[s+6];
+-	sp[1]  |= T1_SIG_NW;
++	flagsp[-1 + stride] |= T1_SIG_SW;
++	flagsp[ 0 + stride] |= mod[s+6];
++	flagsp[ 1 + stride] |= T1_SIG_NW;
+ }
+ 
+ static void t1_enc_sigpass_step(
+@@ -373,7 +370,7 @@
+ 				vsc = ((cblksty & J2K_CCP_CBLKSTY_VSC) && (j == k + 3 || j == t1->h - 1)) ? 1 : 0;
+ 				t1_enc_sigpass_step(
+ 						t1,
+-						&t1->flags[((j+1) * t1->flags_stride) + i + 1],
++						&t1->flags[(j+1) + (i+1)*t1->flags_stride],
+ 						&t1->data[(j * t1->w) + i],
+ 						orient,
+ 						bpno,
+@@ -403,7 +400,7 @@
+ 				vsc = ((cblksty & J2K_CCP_CBLKSTY_VSC) && (j == k + 3 || j == t1->h - 1)) ? 1 : 0;
+ 				t1_dec_sigpass_step(
+ 						t1,
+-						&t1->flags[((j+1) * t1->flags_stride) + i + 1],
++						&t1->flags[(j+1) + (i+1)*t1->flags_stride],
+ 						&t1->data[(j * t1->w) + i],
+ 						orient,
+ 						oneplushalf,
+@@ -486,7 +483,7 @@
+ 				vsc = ((cblksty & J2K_CCP_CBLKSTY_VSC) && (j == k + 3 || j == t1->h - 1)) ? 1 : 0;
+ 				t1_enc_refpass_step(
+ 						t1,
+-						&t1->flags[((j+1) * t1->flags_stride) + i + 1],
++						&t1->flags[(j+1) + (i+1)*t1->flags_stride],
+ 						&t1->data[(j * t1->w) + i],
+ 						bpno,
+ 						one,
+@@ -515,7 +512,7 @@
+ 				vsc = ((cblksty & J2K_CCP_CBLKSTY_VSC) && (j == k + 3 || j == t1->h - 1)) ? 1 : 0;
+ 				t1_dec_refpass_step(
+ 						t1,
+-						&t1->flags[((j+1) * t1->flags_stride) + i + 1],
++						&t1->flags[(j+1) + (i+1)*t1->flags_stride],
+ 						&t1->data[(j * t1->w) + i],
+ 						poshalf,
+ 						neghalf,
+@@ -608,16 +605,16 @@
+ 		for (i = 0; i < t1->w; ++i) {
+ 			if (k + 3 < t1->h) {
+ 				if (cblksty & J2K_CCP_CBLKSTY_VSC) {
+-					agg = !(MACRO_t1_flags(1 + k,1 + i) & (T1_SIG | T1_VISIT | T1_SIG_OTH)
+-						|| MACRO_t1_flags(1 + k + 1,1 + i) & (T1_SIG | T1_VISIT | T1_SIG_OTH)
+-						|| MACRO_t1_flags(1 + k + 2,1 + i) & (T1_SIG | T1_VISIT | T1_SIG_OTH)
+-						|| (MACRO_t1_flags(1 + k + 3,1 + i) 
+-						& (~(T1_SIG_S | T1_SIG_SE | T1_SIG_SW |	T1_SGN_S))) & (T1_SIG | T1_VISIT | T1_SIG_OTH));
++					agg = !(t1->flags[(k+1) + (i+1)*t1->flags_stride] & (T1_SIG | T1_VISIT | T1_SIG_OTH)
++					    ||  t1->flags[(k+2) + (i+1)*t1->flags_stride] & (T1_SIG | T1_VISIT | T1_SIG_OTH)
++					    ||  t1->flags[(k+3) + (i+1)*t1->flags_stride] & (T1_SIG | T1_VISIT | T1_SIG_OTH)
++					    || (t1->flags[(k+4) + (i+1)*t1->flags_stride] 
++					   & (~(T1_SIG_S | T1_SIG_SE | T1_SIG_SW | T1_SGN_S))) & (T1_SIG | T1_VISIT | T1_SIG_OTH));
+ 				} else {
+-					agg = !(MACRO_t1_flags(1 + k,1 + i) & (T1_SIG | T1_VISIT | T1_SIG_OTH)
+-						|| MACRO_t1_flags(1 + k + 1,1 + i) & (T1_SIG | T1_VISIT | T1_SIG_OTH)
+-						|| MACRO_t1_flags(1 + k + 2,1 + i) & (T1_SIG | T1_VISIT | T1_SIG_OTH)
+-						|| MACRO_t1_flags(1 + k + 3,1 + i) & (T1_SIG | T1_VISIT | T1_SIG_OTH));
++					agg = !(t1->flags[(k+1) + (i+1)*t1->flags_stride] & (T1_SIG | T1_VISIT | T1_SIG_OTH)
++					     || t1->flags[(k+2) + (i+1)*t1->flags_stride] & (T1_SIG | T1_VISIT | T1_SIG_OTH)
++					     || t1->flags[(k+3) + (i+1)*t1->flags_stride] & (T1_SIG | T1_VISIT | T1_SIG_OTH)
++					     || t1->flags[(k+4) + (i+1)*t1->flags_stride] & (T1_SIG | T1_VISIT | T1_SIG_OTH));
+ 				}
+ 			} else {
+ 				agg = 0;
+@@ -642,7 +639,7 @@
+ 				vsc = ((cblksty & J2K_CCP_CBLKSTY_VSC) && (j == k + 3 || j == t1->h - 1)) ? 1 : 0;
+ 				t1_enc_clnpass_step(
+ 						t1,
+-						&t1->flags[((j+1) * t1->flags_stride) + i + 1],
++						&t1->flags[(j+1) + (i+1)*t1->flags_stride],
+ 						&t1->data[(j * t1->w) + i],
+ 						orient,
+ 						bpno,
+@@ -673,16 +670,16 @@
+ 		for (i = 0; i < t1->w; ++i) {
+ 			if (k + 3 < t1->h) {
+ 				if (cblksty & J2K_CCP_CBLKSTY_VSC) {
+-					agg = !(MACRO_t1_flags(1 + k,1 + i) & (T1_SIG | T1_VISIT | T1_SIG_OTH)
+-						|| MACRO_t1_flags(1 + k + 1,1 + i) & (T1_SIG | T1_VISIT | T1_SIG_OTH)
+-						|| MACRO_t1_flags(1 + k + 2,1 + i) & (T1_SIG | T1_VISIT | T1_SIG_OTH)
+-						|| (MACRO_t1_flags(1 + k + 3,1 + i) 
+-						& (~(T1_SIG_S | T1_SIG_SE | T1_SIG_SW |	T1_SGN_S))) & (T1_SIG | T1_VISIT | T1_SIG_OTH));
++					agg = !(t1->flags[(k+1) + (i+1)*t1->flags_stride] & (T1_SIG | T1_VISIT | T1_SIG_OTH)
++					    ||  t1->flags[(k+2) + (i+1)*t1->flags_stride] & (T1_SIG | T1_VISIT | T1_SIG_OTH)
++					    ||  t1->flags[(k+3) + (i+1)*t1->flags_stride] & (T1_SIG | T1_VISIT | T1_SIG_OTH)
++					    || (t1->flags[(k+4) + (i+1)*t1->flags_stride] 
++					   & (~(T1_SIG_S | T1_SIG_SE | T1_SIG_SW | T1_SGN_S))) & (T1_SIG | T1_VISIT | T1_SIG_OTH));
+ 				} else {
+-					agg = !(MACRO_t1_flags(1 + k,1 + i) & (T1_SIG | T1_VISIT | T1_SIG_OTH)
+-						|| MACRO_t1_flags(1 + k + 1,1 + i) & (T1_SIG | T1_VISIT | T1_SIG_OTH)
+-						|| MACRO_t1_flags(1 + k + 2,1 + i) & (T1_SIG | T1_VISIT | T1_SIG_OTH)
+-						|| MACRO_t1_flags(1 + k + 3,1 + i) & (T1_SIG | T1_VISIT | T1_SIG_OTH));
++					agg = !(t1->flags[(k+1) + (i+1)*t1->flags_stride] & (T1_SIG | T1_VISIT | T1_SIG_OTH)
++					     || t1->flags[(k+2) + (i+1)*t1->flags_stride] & (T1_SIG | T1_VISIT | T1_SIG_OTH)
++					     || t1->flags[(k+3) + (i+1)*t1->flags_stride] & (T1_SIG | T1_VISIT | T1_SIG_OTH)
++					     || t1->flags[(k+4) + (i+1)*t1->flags_stride] & (T1_SIG | T1_VISIT | T1_SIG_OTH));
+ 				}
+ 			} else {
+ 				agg = 0;
+@@ -702,7 +699,7 @@
+ 				vsc = ((cblksty & J2K_CCP_CBLKSTY_VSC) && (j == k + 3 || j == t1->h - 1)) ? 1 : 0;
+ 				t1_dec_clnpass_step(
+ 						t1,
+-						&t1->flags[((j+1) * t1->flags_stride) + i + 1],
++						&t1->flags[(j+1) + (i+1)*t1->flags_stride],
+ 						&t1->data[(j * t1->w) + i],
+ 						orient,
+ 						oneplushalf,
+@@ -770,8 +767,8 @@
+ 	}
+ 	memset(t1->data,0,datasize * sizeof(int));
+ 
+-	t1->flags_stride=w+2;
+-	flagssize=t1->flags_stride * (h+2);
++	t1->flags_stride=h+2;
++	flagssize=t1->flags_stride * (w+2);
+ 
+ 	if(flagssize > t1->flagssize){
+ 		opj_aligned_free(t1->flags);
+diff -urN -x '*.orig' -x '*.rej' -x '*~' -x '.*' OpenJPEG.orig/libopenjpeg/t1.h OpenJPEG.patched/libopenjpeg/t1.h
+--- OpenJPEG.orig/libopenjpeg/t1.h	2007-05-22 08:14:13.000000000 -0500
++++ OpenJPEG.patched/libopenjpeg/t1.h	2007-08-23 05:44:00.000000000 -0500
+@@ -108,8 +108,6 @@
+ 	int flags_stride;
+ } opj_t1_t;
+ 
+-#define MACRO_t1_flags(x,y) t1->flags[((x)*(t1->flags_stride))+(y)]
+-
+ /** @name Exported functions */
+ /*@{*/
+ /* ----------------------------------------------------------------------- */

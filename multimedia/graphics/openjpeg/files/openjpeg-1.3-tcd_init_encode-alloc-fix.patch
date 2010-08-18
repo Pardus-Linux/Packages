@@ -1,0 +1,14 @@
+diff -urN -x '*.orig' -x '*.rej' -x '*~' -x '.*' OpenJPEG.orig/libopenjpeg/tcd.c OpenJPEG.patched/libopenjpeg/tcd.c
+--- OpenJPEG.orig/libopenjpeg/tcd.c	2007-12-19 06:28:40.000000000 -0600
++++ OpenJPEG.patched/libopenjpeg/tcd.c	2007-12-27 21:58:57.000000000 -0600
+@@ -584,7 +584,9 @@
+ 							cblk->y0 = int_max(cblkystart, prc->y0);
+ 							cblk->x1 = int_min(cblkxend, prc->x1);
+ 							cblk->y1 = int_min(cblkyend, prc->y1);
+-							cblk->data = (unsigned char*) opj_calloc(8192, sizeof(unsigned char));
++							cblk->data = (unsigned char*) opj_calloc(8192+2, sizeof(unsigned char));
++							/* FIXME: mqc_init_enc and mqc_byteout underrun the buffer if we don't do this. Why? */
++							cblk->data += 2;
+ 							cblk->layers = (opj_tcd_layer_t*) opj_calloc(100, sizeof(opj_tcd_layer_t));
+ 							cblk->passes = (opj_tcd_pass_t*) opj_calloc(100, sizeof(opj_tcd_pass_t));
+ 						}
