@@ -37,7 +37,8 @@ def build():
     autotools.make("swig-py")
 
     # perl bindings (needed by git-svn*)
-    autotools.make("swig-pl")
+    # Sometimes parallel build breaks perl bindings
+    autotools.make("-j1 swig-pl")
 
     # java bindings
     autotools.make("-j1 javahl")
