@@ -1,0 +1,158 @@
+diff -uNr zd1211-firmware/create_fw_files.c zd1211rw_fw_2007-03-19_snap/create_fw_files.c
+--- zd1211-firmware/create_fw_files.c	1970-01-01 01:00:00.000000000 +0100
++++ zd1211rw_fw_2007-03-19_snap/create_fw_files.c	2006-12-25 11:02:17.000000000 +0100
+@@ -0,0 +1,116 @@
++#include <errno.h>
++#include <stdint.h>
++#include <stdio.h>
++#include <string.h>
++
++#define ZD1211 1
++
++const uint8_t ws11uph[]
++#include "WS11UPh.h"
++
++const uint8_t ws11uphr[]
++#include "WS11UPhR.h"
++
++const uint8_t ws11uphm[]
++#include "WS11UPhm.h"
++
++const uint8_t ws11ub[]
++#include "WS11Ub.h"
++
++const uint8_t ws11ur[]
++#include "WS11Ur.h"
++
++#undef ZD1211
++
++#define ZD1211B 1
++
++const uint8_t zd1211b_ws11uph[]
++#include "WS11UPh.h"
++
++const uint8_t zd1211b_ws11uphr[]
++#include "WS11UPhR.h"
++
++const uint8_t zd1211b_ws11uphm[]
++#include "WS11UPhm.h"
++
++const uint8_t zd1211b_ws11ub[]
++#include "WS11Ub.h"
++
++const uint8_t zd1211b_ws11ur[]
++#include "WS11Ur.h"
++
++#undef ZD1211B
++
++
++static int write_fw_file(const char *path, const uint8_t *bytes, size_t size)
++{
++	FILE *f = NULL;
++
++	fprintf(stderr,"Write file %s (%zu bytes) ... ", path, size);
++	fflush(stderr);
++	f = fopen(path, "w");
++	if (!f) {
++		fprintf(stderr, "couldn't open %s - error %s (%d)\n",
++			path, strerror(errno), errno);
++		goto error;
++	}
++
++	size_t s = fwrite(bytes, 1, size, f);
++	if (s != size) {
++		fprintf(stderr, "Error while writing.\n");
++		goto error;
++	}
++
++	fclose(f);
++	fprintf(stderr, "done\n");
++	return 0;
++error:
++	if (f)
++		fclose(f);
++	return 1;
++}
++
++int main (void)
++{
++	int r;
++
++	r = write_fw_file("zd1211_uph",  ws11uph,  sizeof(ws11uph));
++	if (r)
++		goto error;
++	r = write_fw_file("zd1211_uphr", ws11uphr, sizeof(ws11uphr));
++	if (r)
++		goto error;
++	r = write_fw_file("zd1211_uphm", ws11uphm, sizeof(ws11uphm));
++	if (r)
++		goto error;
++	r = write_fw_file("zd1211_ub",   ws11ub,   sizeof(ws11ub));
++	if (r)
++		goto error;
++	r = write_fw_file("zd1211_ur",   ws11ur,   sizeof(ws11ur));
++	if (r)
++		goto error;
++	r = write_fw_file("zd1211b_uph",  zd1211b_ws11uph,
++		                          sizeof(zd1211b_ws11uph));
++	if (r)
++		goto error;
++	r = write_fw_file("zd1211b_uphr", zd1211b_ws11uphr,
++		                          sizeof(zd1211b_ws11uphr));
++	if (r)
++		goto error;
++	r = write_fw_file("zd1211b_uphm", zd1211b_ws11uphm,
++		                          sizeof(zd1211b_ws11uphm));
++	if (r)
++		goto error;
++	r = write_fw_file("zd1211b_ub",   zd1211b_ws11ub,
++		                          sizeof(zd1211b_ws11ub));
++	if (r)
++		goto error;
++	r = write_fw_file("zd1211b_ur",   zd1211b_ws11ur,
++		                          sizeof(zd1211b_ws11ur));
++	if (r)
++		goto error;
++
++	return 0;
++error:
++	return 1;
++}
+diff -uNr zd1211-firmware/Makefile zd1211rw_fw_2007-03-19_snap/Makefile
+--- zd1211-firmware/Makefile	1970-01-01 01:00:00.000000000 +0100
++++ zd1211rw_fw_2007-03-19_snap/Makefile	2007-10-12 12:44:58.000000000 +0200
+@@ -0,0 +1,33 @@
++CC := gcc
++CFLAGS := -Wall
++
++ifneq ($(USER),root) 
++SUDO := 
++endif
++
++FW_DIR := /lib/firmware/zd1211
++
++FILES := zd1211_ub zd1211_uph zd1211_uphm zd1211_uphr zd1211_ur \
++                 zd1211b_ub zd1211b_uph zd1211b_uphm zd1211b_uphr zd1211b_ur
++
++all:: files
++
++create_fw_files:: create_fw_files.c WS11UPh.h WS11UPhR.h WS11UPhm.h WS11Ub.h \
++		 WS11Ur.h
++		 $(CC) $(CFLAGS) $< -o $@
++
++.PHONY: files clean tar
++files:: $(FILES)
++
++$(FILES):: create_fw_files
++	./create_fw_files
++
++clean::
++	rm -f create_fw_files *.o zd1211_u* zd1211b_u*
++
++distclean:: clean
++	rm -f WS11*.h
++
++install:: $(FILES)
++	test -d $(FW_DIR) || $(SUDO) mkdir -p $(FW_DIR)
++	$(SUDO) cp $(FILES) $(FW_DIR)
+
