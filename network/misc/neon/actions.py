@@ -15,7 +15,7 @@ def setup():
                          --without-gssapi \
                          --without-libproxy \
                          --with-ssl=openssl \
-                         --with-ca-bundle=/etc/ssl/certs/ca-bundle.crt \
+                         --with-ca-bundle=/etc/pki/tls/certs/ca-bundle.crt \
                          --enable-threadsafe-ssl=posix \
                          --enable-shared \
                          --disable-static")
