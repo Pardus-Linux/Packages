@@ -13,8 +13,6 @@ from pisi.actionsapi import get
 WorkDir = "tdb-%s" % get.srcVERSION()
 
 def setup():
-    #autotools.autoreconf("-fi")
-    #autotools.autoconf()
     shelltools.system("./autogen.sh")
     autotools.configure("--enable-python")
 
