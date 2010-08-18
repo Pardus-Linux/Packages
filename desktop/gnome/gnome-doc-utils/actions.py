@@ -7,8 +7,10 @@
 
 from pisi.actionsapi import autotools
 from pisi.actionsapi import pisitools
+from pisi.actionsapi import shelltools
 
 def setup():
+    shelltools.copy("tools/gnome-doc-utils.m4", "m4/")
     autotools.autoreconf("-fiv")
     autotools.configure()
 
