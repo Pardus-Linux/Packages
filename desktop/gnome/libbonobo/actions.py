@@ -10,8 +10,8 @@ from pisi.actionsapi import get
 from pisi.actionsapi import shelltools
 
 def setup():
-    autotools.configure("--enable-bonobo-activation-debug=yes \
-                         --disable-static")
+    autotools.configure("--disable-static \
+                         --enable-bonobo-activation-debug=no")
     pisitools.dosed("libtool"," -shared "," -Wl,--as-needed -shared ")
 
 def build():
