@@ -24,7 +24,6 @@ def setup():
                        --libdir=/usr/lib \
                        --enable-compat185 \
                        --with-uniquename \
-                       --enable-rpc \
                        --enable-cxx \
                        --disable-tcl \
                        --disable-java \
