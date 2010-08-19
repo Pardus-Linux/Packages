@@ -1,0 +1,355 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>poppler</Name>
+        <Homepage>http://poppler.freedesktop.org/</Homepage>
+        <Packager>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Packager>
+        <License>GPLv2</License>
+        <IsA>library</IsA>
+        <Summary>PDF rendering library</Summary>
+        <Description>poppler is a PDF rendering library based on xpdf.</Description>
+        <Archive sha1sum="a93e85c322ce36da4e9b4e9e52c9fd12ea5f4d6f" type="targz">http://poppler.freedesktop.org/poppler-0.14.2.tar.gz</Archive>
+        <BuildDependencies>
+            <Dependency>lcms-devel</Dependency>
+            <Dependency>jpeg-devel</Dependency>
+            <Dependency>cairo-devel</Dependency>
+            <Dependency>libpng-devel</Dependency>
+            <Dependency>openjpeg-devel</Dependency>
+            <Dependency>freetype-devel</Dependency>
+            <Dependency>fontconfig-devel</Dependency>
+        </BuildDependencies>
+        <Patches>
+            <Patch level="1">poppler-0.12.4-annot-appearance.patch</Patch>
+        </Patches>
+    </Source>
+
+    <Package>
+        <Name>poppler</Name>
+        <RuntimeDependencies>
+            <Dependency>lcms</Dependency>
+            <Dependency>jpeg</Dependency>
+            <Dependency>libpng</Dependency>
+            <Dependency>openjpeg</Dependency>
+            <Dependency>freetype</Dependency>
+            <Dependency>fontconfig</Dependency>
+            <Dependency>poppler-data</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="library">/usr/lib</Path>
+            <Path fileType="doc">/usr/share/doc</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>poppler-utils</Name>
+        <Summary>Command line utilities for converting PDF files</Summary>
+        <RuntimeDependencies>
+            <Dependency release="33">poppler</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="executable">/usr/bin</Path>
+            <Path fileType="man">/usr/share/man/man1</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>poppler-cpp</Name>
+        <Summary>Pure C++ wrapper for poppler</Summary>
+        <RuntimeDependencies>
+            <Dependency release="33">poppler</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="library">/usr/lib/libpoppler-cpp.so*</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>poppler-cpp-devel</Name>
+        <Summary>Development files for poppler-cpp</Summary>
+        <RuntimeDependencies>
+            <Dependency release="33">poppler-cpp</Dependency>
+            <Dependency release="33">poppler-devel</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="library">/usr/lib/pkgconfig/poppler-cpp.pc</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>poppler-glib</Name>
+        <Summary>Glib wrapper for poppler</Summary>
+        <RuntimeDependencies>
+            <Dependency>cairo</Dependency>
+            <Dependency release="33">poppler</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="library">/usr/lib/libpoppler-glib.so*</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>poppler-glib-devel</Name>
+        <Summary>Development files for poppler-glib</Summary>
+        <RuntimeDependencies>
+            <Dependency release="33">poppler-glib</Dependency>
+            <Dependency release="33">poppler-devel</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="library">/usr/lib/pkgconfig/poppler-glib.pc</Path>
+            <Path fileType="library">/usr/lib/pkgconfig/poppler-cairo.pc</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>poppler-devel</Name>
+        <Summary>Development files for poppler</Summary>
+        <RuntimeDependencies>
+            <Dependency release="33">poppler</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="header">/usr/include</Path>
+            <Path fileType="data">/usr/lib/pkgconfig</Path>
+        </Files>
+    </Package>
+
+    <History>
+        <Update release="33">
+            <Date>2010-08-19</Date>
+            <Version>0.14.2</Version>
+            <Comment>
+                - Version bump,
+                - Split devel packages, ship glib bindings through this package.
+            </Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="32">
+            <Date>2010-02-26</Date>
+            <Version>0.12.4</Version>
+            <Comment>Version bump</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="31">
+            <Date>2009-11-10</Date>
+            <Version>0.12.1</Version>
+            <Comment>Version bump to 0.12.1 and add poppler-data dependency.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="30">
+            <Date>2009-06-27</Date>
+            <Version>0.10.7</Version>
+            <Comment>Version bump to the latest stable, grab pstopdf fixes from Ubuntu to improve CUPS pstopdf wrapper.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="29">
+            <Date>2009-04-21</Date>
+            <Version>0.10.6</Version>
+            <Comment>Version bump</Comment>
+            <Name>Faik Uygur</Name>
+            <Email>faik@pardus.org.tr</Email>
+        </Update>
+        <Update release="28" type="security">
+            <Date>2009-02-12</Date>
+            <Version>0.8.7</Version>
+            <Comment>Fix Denial of Service Vulnerabilities in "FormWidgetChoice::loadDefaults() and "JBIG2Stream::readSymbolDictSeg()" functions (bug#9222).</Comment>
+            <Name>Pınar Yanardağ</Name>
+            <Email>pinar@pardus.org.tr</Email>
+        </Update>
+        <Update release="27">
+            <Date>2008-09-04</Date>
+            <Version>0.8.7</Version>
+            <Comment>Version bump</Comment>
+            <Name>Faik Uygur</Name>
+            <Email>faik@pardus.org.tr</Email>
+        </Update>
+        <Update release="26">
+            <Date>2008-08-25</Date>
+            <Version>0.8.6</Version>
+            <Comment>Version bump</Comment>
+            <Name>Faik Uygur</Name>
+            <Email>faik@pardus.org.tr</Email>
+        </Update>
+        <Update release="25">
+            <Date>2008-08-19</Date>
+            <Version>0.8.5</Version>
+            <Comment>Version bump</Comment>
+            <Name>Faik Uygur</Name>
+            <Email>faik@pardus.org.tr</Email>
+        </Update>
+        <Update release="24" type="security">
+            <Date>2008-07-08</Date>
+            <Version>0.8.3</Version>
+            <Comment>Add patch to fix CVE-2008-2950, uninitialized memory access.</Comment>
+            <Name>Eren Türkay</Name>
+            <Email>turkay.eren@gmail.com</Email>
+        </Update>
+        <Update release="23">
+            <Date>2008-06-04</Date>
+            <Version>0.8.3</Version>
+            <Comment>Version bump</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="22">
+            <Date>2008-04-26</Date>
+            <Version>0.8.1</Version>
+            <Comment>Version bump</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="21" type="security">
+            <Date>2008-04-18</Date>
+            <Version>0.8.0</Version>
+            <Comment>Fix CVE-2008-1693</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="20">
+            <Date>2008-03-11</Date>
+            <Version>0.6.4</Version>
+            <Comment>Split to a different pspec.xml to resolve fontconfig->...->poppler->qt4->fontconfig circular dep</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="19">
+            <Date>2008-01-26</Date>
+            <Version>0.6.4</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="18">
+            <Date>2008-01-06</Date>
+            <Version>0.6.3</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="17">
+            <Date>2007-11-10</Date>
+            <Version>0.6.2</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="16" type="security">
+            <Date>2007-11-07</Date>
+            <Version>0.6.1</Version>
+            <Comment>Fix CVE-2007-{4352,5392,5393}</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="15">
+            <Date>2007-10-12</Date>
+            <Version>0.6.1</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="14" type="security">
+            <Date>2007-07-30</Date>
+            <Version>0.5.9</Version>
+            <Comment>Fix CVE-2007-3387</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="13">
+            <Date>2007-06-21</Date>
+            <Version>0.5.9</Version>
+            <Comment>Create poppler-glib and poppler-qt packages</Comment>
+            <Name>Eren Türkay</Name>
+            <Email>turkay.eren@gmail.com</Email>
+        </Update>
+        <Update release="12">
+            <Date>2007-05-30</Date>
+            <Version>0.5.9</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="11">
+            <Date>2007-02-24</Date>
+            <Version>0.5.4</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="10" type="security">
+            <Date>2007-01-16</Date>
+            <Version>0.5.3</Version>
+            <Comment>Fix CVE-2007-0104</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="9">
+            <Date>2006-12-31</Date>
+            <Version>0.5.3</Version>
+            <Comment>Disable static libs</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="8">
+            <Date>2006-09-02</Date>
+            <Version>0.5.3</Version>
+            <Comment>Version bump</Comment>
+            <Name>Murat Şenel</Name>
+            <Email>muratasenel@gmail.com</Email>
+        </Update>
+        <Update release="7">
+            <Date>2006-04-08</Date>
+            <Version>0.5.1</Version>
+            <Comment>Fix freedesktop bug #6454 and #6500</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="6">
+            <Date>2006-03-19</Date>
+            <Version>0.5.1</Version>
+            <Comment>New stable release</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="5" type="security">
+            <Date>2006-02-16</Date>
+            <Version>0.5.0</Version>
+            <Comment>Version bump to fix CVE-2006-0301</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="4" type="security">
+            <Date>2006-02-15</Date>
+            <Version>0.4.4</Version>
+            <Comment>Fix CVE-2006-0301</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="3" type="security">
+            <Date>2006-02-03</Date>
+            <Version>0.4.4</Version>
+            <Comment>Version bump and fix multiple vulnerabilities</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="2" type="security">
+            <Date>2005-12-22</Date>
+            <Version>0.4.2</Version>
+            <Comment>Fix CVE-2005-3191</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="1">
+            <Date>2005-10-15</Date>
+            <Version>0.4.2</Version>
+            <Comment>First release.</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+    </History>
+</PISI>
