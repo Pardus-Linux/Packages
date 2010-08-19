@@ -21,7 +21,8 @@ def setup():
         print "Configuring %s..." % package
         shelltools.cd(package)
 
-        if package.startswith("xsm") or not shelltools.isFile("configure"):
+        if package.startswith(("xcursorgen", "xsm")) or \
+                not shelltools.isFile("configure"):
             autotools.autoreconf("-vif")
 
         autotools.configure("--disable-dependency-tracking \
