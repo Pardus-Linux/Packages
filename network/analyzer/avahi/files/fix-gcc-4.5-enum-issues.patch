@@ -1,0 +1,62 @@
+From 2462c966a241720518f612a62a56f55bb8e4b1d6 Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Tue, 13 Jul 2010 05:42:52 +0200
+Subject: [PATCH] gcc: minor enum issues gcc 4.5 discovered
+
+---
+ avahi-autoipd/main.c           |    2 +-
+ avahi-client/client.c          |    4 ++--
+ avahi-gobject/ga-entry-group.c |    2 +-
+ 3 files changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/avahi-autoipd/main.c b/avahi-autoipd/main.c
+index 4b35f7c..a1bddb2 100644
+--- a/avahi-autoipd/main.c
++++ b/avahi-autoipd/main.c
+@@ -1060,7 +1060,7 @@ static int loop(int iface, uint32_t addr) {
+     int next_wakeup_valid = 0;
+     char buf[64];
+     ArpPacket *in_packet = NULL;
+-    size_t in_packet_len;
++    size_t in_packet_len = 0;
+     ArpPacket *out_packet = NULL;
+     size_t out_packet_len;
+     uint8_t hw_address[ETHER_ADDRLEN];
+diff --git a/avahi-client/client.c b/avahi-client/client.c
+index 2b29480..be675ad 100644
+--- a/avahi-client/client.c
++++ b/avahi-client/client.c
+@@ -55,7 +55,7 @@ int avahi_client_set_dbus_error(AvahiClient *client, DBusError *error) {
+     return avahi_client_set_errno(client, avahi_error_dbus_to_number(error->name));
+ }
+ 
+-static void client_set_state (AvahiClient *client, AvahiServerState state) {
++static void client_set_state(AvahiClient *client, AvahiClientState state) {
+     assert(client);
+ 
+     if (client->state == state)
+@@ -324,7 +324,7 @@ static int get_server_state(AvahiClient *client, int *ret_error) {
+         dbus_error_is_set (&error))
+         goto fail;
+ 
+-    client_set_state(client, (AvahiServerState) state);
++    client_set_state(client, (AvahiClientState) state);
+ 
+     dbus_message_unref(message);
+     dbus_message_unref(reply);
+diff --git a/avahi-gobject/ga-entry-group.c b/avahi-gobject/ga-entry-group.c
+index 23e8ec3..101acbf 100644
+--- a/avahi-gobject/ga-entry-group.c
++++ b/avahi-gobject/ga-entry-group.c
+@@ -185,7 +185,7 @@ static void _free_service(gpointer data) {
+ 
+ static GQuark detail_for_state(AvahiEntryGroupState state) {
+     static struct {
+-        AvahiClientState state;
++        AvahiEntryGroupState state;
+         const gchar *name;
+         GQuark quark;
+     } states[] = {
+-- 
+1.6.3.3
+
