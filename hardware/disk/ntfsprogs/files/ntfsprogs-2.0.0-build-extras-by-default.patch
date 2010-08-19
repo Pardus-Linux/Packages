@@ -1,0 +1,36 @@
+diff -up ntfsprogs-2.0.0/ntfsprogs/Makefile.am.orig ntfsprogs-2.0.0/ntfsprogs/Makefile.am
+--- ntfsprogs-2.0.0/ntfsprogs/Makefile.am.orig	2007-09-24 12:05:58.000000000 -0400
++++ ntfsprogs-2.0.0/ntfsprogs/Makefile.am	2008-09-12 12:17:13.000000000 -0400
+@@ -11,7 +11,9 @@ endif
+ # Workaround to make REALLYSTATIC work with automake 1.5.
+ LINK=$(STATIC_LINK) $(LIBTOOL_LINK)
+ 
+-bin_PROGRAMS		= ntfsfix ntfsinfo ntfscluster ntfsls ntfscat ntfscmp
++bin_PROGRAMS		= ntfsfix ntfsinfo ntfscluster ntfsls ntfscat ntfscmp \
++			  ntfsdump_logfile ntfswipe ntfstruncate ntfsmove \
++			  ntfsmftalloc ntfsck
+ sbin_PROGRAMS		= mkntfs ntfslabel ntfsundelete ntfsresize ntfsclone \
+ 			  ntfscp
+ EXTRA_PROGRAMS		= ntfsdump_logfile ntfswipe ntfstruncate ntfsmove \
+@@ -35,6 +37,7 @@ endif
+ 
+ if ENABLE_CRYPTO
+ EXTRA_PROGRAMS		+= ntfsdecrypt
++bin_PROGRAMS		+= ntfsdecrypt
+ endif
+ 
+ # Set the include path.
+diff -up ntfsprogs-2.0.0/ntfsprogs/Makefile.in.orig ntfsprogs-2.0.0/ntfsprogs/Makefile.in
+--- ntfsprogs-2.0.0/ntfsprogs/Makefile.in.orig	2008-09-12 12:18:10.000000000 -0400
++++ ntfsprogs-2.0.0/ntfsprogs/Makefile.in	2008-09-12 12:15:16.000000000 -0400
+@@ -35,7 +35,9 @@ host_triplet = @host@
+ target_triplet = @target@
+ bin_PROGRAMS = ntfsfix$(EXEEXT) ntfsinfo$(EXEEXT) ntfscluster$(EXEEXT) \
+ 	ntfsls$(EXEEXT) ntfscat$(EXEEXT) ntfscmp$(EXEEXT) \
+-	$(am__EXEEXT_2)
++	ntfsdump_logfile$(EXEEXT) ntfswipe$(EXEEXT) \
++	ntfstruncate$(EXEEXT) ntfsmove$(EXEEXT) ntfsmftalloc$(EXEEXT) \
++	ntfsck$(EXEEXT) $(am__EXEEXT_1) $(am__EXEEXT_2)
+ sbin_PROGRAMS = mkntfs$(EXEEXT) ntfslabel$(EXEEXT) \
+ 	ntfsundelete$(EXEEXT) ntfsresize$(EXEEXT) ntfsclone$(EXEEXT) \
+ 	ntfscp$(EXEEXT)

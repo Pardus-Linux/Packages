@@ -1,0 +1,16 @@
+diff -up ntfsprogs-2.0.0/libntfs/volume.c.BAD ntfsprogs-2.0.0/libntfs/volume.c
+--- ntfsprogs-2.0.0/libntfs/volume.c.BAD	2008-09-12 12:21:01.000000000 -0400
++++ ntfsprogs-2.0.0/libntfs/volume.c	2008-09-12 12:21:40.000000000 -0400
+@@ -258,8 +258,10 @@ mft_has_no_attr_list:
+ 	/* Receive attributes from STANDARD_INFORMATION. */
+ 	std_info = ntfs_attr_readall(vol->mft_ni, AT_STANDARD_INFORMATION,
+ 				     AT_UNNAMED, 0, NULL);
+-	vol->mft_ni->flags = std_info->file_attributes;
+-	free(std_info);
++	if(std_info!=NULL) {
++		vol->mft_ni->flags = std_info->file_attributes;
++		free(std_info);
++	}
+ 
+ 	/* We now have a fully setup ntfs inode for $MFT in vol->mft_ni. */
+ 

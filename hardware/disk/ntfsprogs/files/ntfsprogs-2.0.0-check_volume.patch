@@ -1,0 +1,151 @@
+diff -up ntfsprogs-2.0.0/ntfsprogs/ntfsresize.8.in.check_volume ntfsprogs-2.0.0/ntfsprogs/ntfsresize.8.in
+--- ntfsprogs-2.0.0/ntfsprogs/ntfsresize.8.in.check_volume	2008-04-24 11:58:19.000000000 -0400
++++ ntfsprogs-2.0.0/ntfsprogs/ntfsresize.8.in	2008-04-24 11:58:19.000000000 -0400
+@@ -116,6 +116,11 @@ is equivalent to
+ .BR "\-f \-v" .
+ Long named options can be abbreviated to any unique prefix of their name.
+ .TP
++\fB\-c\fR, \fB\-\-check\fR
++By using this option ntfsresize will only check the device to ensure that it
++is ready to be resized. If not, it will print any errors detected. 
++If the device is fine, nothing will be printed.
++.TP
+ \fB\-i\fR, \fB\-\-info\fR
+ By using this option ntfsresize will determine the theoretically smallest
+ shrunken filesystem size supported. Most of the time the result is the space
+diff -up ntfsprogs-2.0.0/ntfsprogs/ntfsresize.c.check_volume ntfsprogs-2.0.0/ntfsprogs/ntfsresize.c
+--- ntfsprogs-2.0.0/ntfsprogs/ntfsresize.c.check_volume	2008-04-24 11:58:19.000000000 -0400
++++ ntfsprogs-2.0.0/ntfsprogs/ntfsresize.c	2008-04-24 12:24:07.000000000 -0400
+@@ -135,6 +135,7 @@ static struct {
+ 	int infombonly;
+ 	int show_progress;
+ 	int badsectors;
++	int check;
+ 	s64 bytes;
+ 	char *volume;
+ } opt;
+@@ -311,6 +312,7 @@ static void usage(void)
+ 	printf("\nUsage: %s [OPTIONS] DEVICE\n"
+ 		"    Resize an NTFS volume non-destructively, safely move any data if needed.\n"
+ 		"\n"
++		"    -c, --check            Check to ensure that the device is ready for resize\n"
+ 		"    -i, --info             Estimate the smallest shrunken size possible\n"
+ 		"    -m, --info-mb-only     Estimate the smallest shrunken size possible, output size in MB only\n"
+ 		"    -s, --size SIZE        Resize volume to SIZE[k|M|G] bytes\n"
+@@ -438,9 +440,10 @@ static s64 get_new_volume_size(char *s)
+  */
+ static int parse_options(int argc, char **argv)
+ {
+-	static const char *sopt = "-bdfhimnPs:vV";
++	static const char *sopt = "-bcdfhimnPs:vV";
+ 	static const struct option lopt[] = {
+ 		{ "bad-sectors",no_argument,		NULL, 'b' },
++		{ "check",	no_argument,		NULL, 'c' },
+ #ifdef DEBUG
+ 		{ "debug",	no_argument,		NULL, 'd' },
+ #endif
+@@ -475,6 +478,9 @@ static int parse_options(int argc, char 
+ 		case 'b':
+ 			opt.badsectors++;
+ 			break;
++		case 'c':
++			opt.check++;
++			break;
+ 		case 'd':
+ 			opt.debug++;
+ 			break;
+@@ -2233,6 +2239,35 @@ static void print_num_of_relocations(ntf
+ 			rounded_up_division(relocations, NTFS_MBYTE));
+ }
+ 
++static ntfs_volume *check_volume()
++{
++	ntfs_volume *myvol = NULL;
++
++	/*
++	 * Pass NTFS_MNT_FORENSIC so that the mount process does not modify the
++	 * volume at all.  We will do the logfile emptying and dirty setting
++	 * later if needed.
++	 */
++	if (!(myvol = ntfs_mount(opt.volume, opt.ro_flag | NTFS_MNT_FORENSIC))) {
++		int err = errno;
++
++		perr_printf("Opening '%s' as NTFS failed", opt.volume);
++		if (err == EINVAL)
++			printf(invalid_ntfs_msg, opt.volume);
++		else if (err == EIO)
++			printf("%s", corrupt_volume_msg);
++		else if (err == EPERM)
++			printf("%s", hibernated_volume_msg);
++		else if (err == EOPNOTSUPP)
++			printf("%s", unclean_journal_msg);
++		else if (err == EBUSY)
++			printf("%s", opened_volume_msg);
++		exit(1);
++	}
++	return myvol;
++}
++
++
+ /**
+  * mount_volume
+  *
+@@ -2259,27 +2294,8 @@ static ntfs_volume *mount_volume(void)
+ 			err_exit("Device '%s' is mounted. "
+ 				 "You must 'umount' it first.\n", opt.volume);
+ 	}
+-	/*
+-	 * Pass NTFS_MNT_FORENSIC so that the mount process does not modify the
+-	 * volume at all.  We will do the logfile emptying and dirty setting
+-	 * later if needed.
+-	 */
+-	if (!(vol = ntfs_mount(opt.volume, opt.ro_flag | NTFS_MNT_FORENSIC))) {
+-		int err = errno;
+ 
+-		perr_printf("Opening '%s' as NTFS failed", opt.volume);
+-		if (err == EINVAL)
+-			printf(invalid_ntfs_msg, opt.volume);
+-		else if (err == EIO)
+-			printf("%s", corrupt_volume_msg);
+-		else if (err == EPERM)
+-			printf("%s", hibernated_volume_msg);
+-		else if (err == EOPNOTSUPP)
+-			printf("%s", unclean_journal_msg);
+-		else if (err == EBUSY)
+-			printf("%s", opened_volume_msg);
+-		exit(1);
+-	}
++	vol = check_volume();
+ 
+ 	if (NVolWasDirty(vol))
+ 		if (opt.force-- <= 0)
+@@ -2289,7 +2305,6 @@ static ntfs_volume *mount_volume(void)
+ 	if (NTFS_MAX_CLUSTER_SIZE < vol->cluster_size)
+ 		err_exit("Cluster size %u is too large!\n",
+ 			(unsigned int)vol->cluster_size);
+-
+ 	if (!opt.infombonly) {
+ 	    printf("Device name        : %s\n", opt.volume);
+ 	    printf("NTFS volume version: %d.%d\n", vol->major_ver, vol->minor_ver);
+@@ -2401,7 +2416,7 @@ int main(int argc, char **argv)
+ 	ntfs_resize_t resize;
+ 	s64 new_size = 0;	/* in clusters; 0 = --info w/o --size */
+ 	s64 device_size;        /* in bytes */
+-	ntfs_volume *vol;
++	ntfs_volume *vol = NULL;
+ 
+ 	ntfs_log_set_handler(ntfs_log_handler_outerr);
+ 
+@@ -2413,6 +2428,12 @@ int main(int argc, char **argv)
+ 
+ 	utils_set_locale();
+ 
++	/* If we're just checking the device, we'll do it first, and exit out, no matter what we find. */
++	if (opt.check) {
++		vol = check_volume();
++		exit(0);
++	}
++
+ 	if (!(vol = mount_volume()))
+ 		err_exit("Couldn't open volume '%s'!\n", opt.volume);
+ 
