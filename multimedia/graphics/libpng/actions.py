@@ -22,4 +22,4 @@ def install():
 
     # remove la symlink, it is not detected correctly
     pisitools.remove("/usr/lib/libpng.la")
-    pisitools.dodoc("ANNOUNCE", "CHANGES", "KNOWNBUG", "README", "TODO")
+    pisitools.dodoc("ANNOUNCE", "CHANGES", "README", "TODO")
