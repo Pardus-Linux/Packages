@@ -1,0 +1,531 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>module-alsa-driver</Name>
+        <Homepage>http://www.alsa-project.org/</Homepage>
+        <Packager>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Packager>
+        <License>GPLv2</License>
+        <License>LGPLv2.1</License>
+        <IsA>driver</IsA>
+        <Summary>Advanced Linux Sound Architecture kernel modules</Summary>
+        <Description>The Advanced Linux Sound Architecture (ALSA) provides audio and MIDI functionality to the Linux operating system. ALSA has significant features like efficient support for all types of audio interfaces, fully modularized sound drivers, SMP and thread-safe design, user space library and support for the older OSS API.</Description>
+        <Archive sha1sum="fb72f878bbba817a73b4324995f57a23c7f26825" type="tarbz2">http://kernel.org/pub/linux/kernel/people/tiwai/snapshot/alsa-driver-20100819.tar.bz2</Archive>
+        <BuildDependencies>
+            <Dependency release="141">kernel-module-headers</Dependency>
+        </BuildDependencies>
+        <Patches>
+            <!-- Assign the USB audio devices to secondary slots as default, solves some problems mentioned in bugzilla -->
+            <Patch level="1">alsa-usb-exclude-1st-slot.patch</Patch>
+
+            <!-- http://bugs.pardus.org.tr/show_bug.cgi?id=4664 -->
+            <Patch level="1">disable-DXS.patch</Patch>
+
+            <!-- Disable beep on HDA devices -->
+            <Patch level="1">hda-intel-disable-beep.patch</Patch>
+
+            <!-- Fix version detection in alsa-info -->
+            <Patch level="1">alsa-info-fix-version-parsing.patch</Patch>
+
+            <!-- Add pisi package names to alsa-info output -->
+            <Patch level="1">alsa-info-get-pisi-versions-of-packages.patch</Patch>
+
+            <!-- Fix sound on Datron TW7 -->
+            <Patch level="1">0001-ALSA-hda-Map-152d-0763-to-ALC268_TOSHIBA.patch</Patch>
+
+            <!-- Patch v4l TV ALSA drivers
+                 Run: sh files/prepare-v4l-alsa-patch.sh /var/pisi/kernel-2.6.x-y/work/linux-2.6.x when
+                 switching to a new major kernel version. -->
+            <Patch>add-v4l-alsa-drivers.patch</Patch>
+        </Patches>
+    </Source>
+
+    <Package>
+        <Name>module-alsa-driver</Name>
+        <RuntimeDependencies>
+            <Dependency release="141">kernel</Dependency>
+            <Dependency>module-alsa-driver-userspace</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="library" permanent="true">/lib/modules</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>module-alsa-driver-userspace</Name>
+        <Summary>Userspace rules and documentations for alsa-driver kernel module</Summary>
+        <Conflicts>
+            <Package releaseTo="46">module-alsa-driver</Package>
+            <Package releaseTo="37">alsa-utils</Package>
+        </Conflicts>
+        <Files>
+            <Path fileType="doc">/usr/share/doc</Path>
+            <Path fileType="executable">/usr/bin/alsa-info</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>alsa-headers</Name>
+        <Summary>Header files for ALSA kernel modules</Summary>
+        <Files>
+            <Path fileType="header">/usr/include/sound</Path>
+        </Files>
+    </Package>
+
+    <History>
+        <Update release="60">
+            <Date>2010-08-19</Date>
+            <Version>1.0.23_20100819</Version>
+            <Comment>Version bump, enable dynamic minors.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="59">
+            <Date>2010-05-21</Date>
+            <Version>1.0.23_20100521</Version>
+            <Comment>Version bump, ship alsa-headers within this source package.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="58">
+            <Date>2010-04-12</Date>
+            <Version>1.0.22_20100412</Version>
+            <Comment>Version bump</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="57">
+            <Date>2010-03-24</Date>
+            <Version>1.0.22_20100324</Version>
+            <Comment>Version bump</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="56">
+            <Date>2010-02-07</Date>
+            <Version>1.0.22_20100206</Version>
+            <Comment>Version bump to the latest snapshot to fix high CPU usage on some AD codecs.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="55">
+            <Date>2009-12-26</Date>
+            <Version>1.0.22_20091224</Version>
+            <Comment>
+                - Bump to post 1.0.22 which contains important bugfixes,
+                - Fix duplicate export of gcd() on 2.6.31,
+                - Fix NULL pointer dereference in sigmatel codecs (e.g. HP dv6).
+            </Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="54">
+            <Date>2009-12-06</Date>
+            <Version>1.0.21_20091206</Version>
+            <Comment>
+                - Version bump to the latest snapshot,
+                - Add pisi package versions to alsa-info output,
+                - Really fix ALSA/V4L drivers (#3478).
+            </Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="53">
+            <Date>2009-09-16</Date>
+            <Version>1.0.21_20090916</Version>
+            <Comment>Bump to the latest snapshot</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="52">
+            <Date>2009-09-15</Date>
+            <Version>1.0.21_20090915</Version>
+            <Comment>
+                - Fix MacBookPro 3,1 and 4,1 silent HP output problems,
+                - Fix HP dv6 sound and auto-mute problems (#10508).
+            </Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="51">
+            <Date>2009-09-02</Date>
+            <Version>1.0.21</Version>
+            <Comment>Fix handling of Oxygen cards without EEPROM (#9927).</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="50">
+            <Date>2009-08-31</Date>
+            <Version>1.0.21</Version>
+            <Comment>
+                - Version bump to the latest release,
+                - Ship alsa-info with userspace package instead of alsa-utils.
+            </Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="49">
+            <Date>2009-08-08</Date>
+            <Version>1.0.20_20090808</Version>
+            <Comment>
+                - Bump to today's snapshot,
+                - Add Module.symvers for being able to build saa7134-alsa and its friends,
+                - Add v4l drivers for TV cards (#3478, #8373),
+                - Fix Oops on sigmatel codecs without digital mic inputs (#9198).
+            </Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="48">
+            <Date>2009-07-15</Date>
+            <Version>1.0.20_20090624</Version>
+            <Comment>Fix sound on Datron TW7A (#9896).</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="47">
+            <Date>2009-07-15</Date>
+            <Version>1.0.20_20090624</Version>
+            <Comment>Split documents.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="46">
+            <Date>2009-06-24</Date>
+            <Version>1.0.20_20090624</Version>
+            <Comment>Version bump to the latest snapshot.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="45">
+            <Date>2009-06-01</Date>
+            <Version>1.0.20_20090519</Version>
+            <Comment>Add patch to make LG R510 use model ALC268_DELL (#9841).</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="44">
+            <Date>2009-05-23</Date>
+            <Version>1.0.20_20090519</Version>
+            <Comment>Fix BIOS probing of ASUS W5Fm to make it work, patch sent upstream.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="43">
+            <Date>2009-05-19</Date>
+            <Version>1.0.20_20090519</Version>
+            <Comment>Version bump to the latest snapshot which enhances MacBook(Pro) support. It also now supports the Creative X-FI PCI cards.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="42">
+            <Date>2009-05-06</Date>
+            <Version>1.0.20</Version>
+            <Comment>Version bump.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="41">
+            <Date>2009-04-29</Date>
+            <Version>1.0.19_20090421</Version>
+            <Comment>Disable digital beep interface on HDA devices.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="40">
+            <Date>2009-04-21</Date>
+            <Version>1.0.19_20090421</Version>
+            <Comment>
+                Version bump to the latest snapshot to fix the following bugs:
+                    - Noisy sound output on Sony VAIO (#9198),
+                    - No sound on HP 6730B (#9282),
+                    - No sound on HP Pavilion DV5 (#9187).
+            </Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="39">
+            <Date>2008-12-19</Date>
+            <Version>1.0.18a_20081203</Version>
+            <Comment>
+                - Blacklist snd-aw2 module because it conflicts with saa7146-based DVB cards (Fixes #8735),
+                - Add Takashi's patch for being able to build snd-fm801 correctly.
+            </Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="38">
+            <Date>2008-12-03</Date>
+            <Version>1.0.18a_20081203</Version>
+            <Comment>Version bump to latest nightly snapshot which fixes some Dell laptop regressions.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="37">
+            <Date>2008-11-12</Date>
+            <Version>1.0.18a</Version>
+            <Comment>
+                - Version bump to the latest stable 1.0.18,
+                - Fixes eeepcs shutdown problem (Fixes #7989),
+                - Fixes distortioned sound problem of Compaq Presario, (Fixes #8306).
+            </Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="36">
+            <Date>2008-07-16</Date>
+            <Version>1.0.17</Version>
+            <Comment>Let pulse work with MCP chipsets</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="35">
+            <Date>2008-07-15</Date>
+            <Version>1.0.17</Version>
+            <Comment>Version bump</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="34">
+            <Date>2008-07-01</Date>
+            <Version>1.0.17_rc3</Version>
+            <Comment>Version bump</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="33">
+            <Date>2008-06-23</Date>
+            <Version>1.0.17_rc2</Version>
+            <Comment>Version bump</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="32">
+            <Date>2008-02-06</Date>
+            <Version>1.0.16</Version>
+            <Comment>Bump</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="31">
+            <Date>2008-02-01</Date>
+            <Version>1.0.16_rc2</Version>
+            <Comment>Bump</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="30">
+            <Date>2008-01-28</Date>
+            <Version>1.0.16_rc1</Version>
+            <Comment>Bump</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="29">
+            <Date>2007-12-16</Date>
+            <Version>1.0.15</Version>
+            <Comment>Backport sigmatel patches, fixes for many new Dell laptops</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="28">
+            <Date>2007-10-31</Date>
+            <Version>1.0.15</Version>
+            <Comment>Add fix for Lenovo N100 HP jack-sensing</Comment>
+            <Name>Faik Uygur</Name>
+            <Email>faik@pardus.org.tr</Email>
+        </Update>
+        <Update release="27">
+            <Date>2007-10-16</Date>
+            <Version>1.0.15</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="26">
+            <Date>2007-09-25</Date>
+            <Version>1.0.15_rc3</Version>
+            <Comment>Version bump</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="25" type="security">
+            <Date>2007-09-25</Date>
+            <Version>1.0.15_rc2</Version>
+            <Comment>Fix CVE-2007-4571</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="24">
+            <Date>2007-09-17</Date>
+            <Version>1.0.15_rc2</Version>
+            <Comment>Version bump</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="23">
+            <Date>2007-09-02</Date>
+            <Version>1.0.15_rc1</Version>
+            <Comment>Version bump</Comment>
+            <Name>Ali Erdinç Köroğlu</Name>
+            <Email>erdinc@pardus.org.tr</Email>
+        </Update>
+        <Update release="22">
+            <Date>2007-07-06</Date>
+            <Version>1.0.14</Version>
+            <Comment>Sigmatel DAC assignment fix</Comment>
+            <Name>Faik Uygur</Name>
+            <Email>faik@pardus.org.tr</Email>
+        </Update>
+        <Update release="21">
+            <Date>2007-06-04</Date>
+            <Version>1.0.14</Version>
+            <Comment>Version bump</Comment>
+            <Name>Ali Erdinç Köroğlu</Name>
+            <Email>erdinc@pardus.org.tr</Email>
+        </Update>
+        <Update release="20">
+            <Date>2007-05-04</Date>
+            <Version>1.0.14_rc4</Version>
+            <Comment>Version bump</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="19">
+            <Date>2007-03-12</Date>
+            <Version>1.0.14_rc3</Version>
+            <Comment>Version bump</Comment>
+            <Name>Gökmen Göksel</Name>
+            <Email>gokmen@pardus.org.tr</Email>
+        </Update>
+        <Update release="18">
+            <Date>2007-01-25</Date>
+            <Version>1.0.14_rc2</Version>
+            <Comment>Version bump</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="17">
+            <Date>2006-11-18</Date>
+            <Version>1.0.13</Version>
+            <Comment>fix #3640</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="16">
+            <Date>2006-11-07</Date>
+            <Version>1.0.13</Version>
+            <Comment>Add docs</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="15">
+            <Date>2006-11-03</Date>
+            <Version>1.0.13</Version>
+            <Comment>Revert msi patch</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="14">
+            <Date>2006-10-27</Date>
+            <Version>1.0.13</Version>
+            <Comment>fix #3640</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="13">
+            <Date>2006-10-10</Date>
+            <Version>1.0.13</Version>
+            <Comment>Silicon Labs 3054 hda interface patch fix</Comment>
+            <Name>Faik Uygur</Name>
+            <Email>faik@pardus.org.tr</Email>
+        </Update>
+        <Update release="12">
+            <Date>2006-10-02</Date>
+            <Version>1.0.13</Version>
+            <Comment>Version bump</Comment>
+            <Name>Ali Erdinç Köroğlu</Name>
+            <Email>erdinc@pardus.org.tr</Email>
+        </Update>
+        <Update release="11">
+            <Date>2006-09-27</Date>
+            <Version>1.0.13_rc3</Version>
+            <Comment>Version bump</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="10">
+            <Date>2006-08-25</Date>
+            <Version>1.0.12</Version>
+            <Comment>Version bump</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="9">
+            <Date>2006-07-15</Date>
+            <Version>1.0.12_rc1</Version>
+            <Comment>Version bump</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="8">
+            <Date>2006-07-04</Date>
+            <Version>1.0.11</Version>
+            <Comment>Remove package.py</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="7">
+            <Date>2006-06-02</Date>
+            <Version>1.0.11</Version>
+            <Comment>Dont include modules.*map files in the package</Comment>
+            <Name>Gürer Özen</Name>
+            <Email>gurer@pardus.org.tr</Email>
+        </Update>
+        <Update release="6">
+            <Date>2006-04-24</Date>
+            <Version>1.0.11</Version>
+            <Comment>Version bump</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="5">
+            <Date>2006-03-28</Date>
+            <Version>1.0.11_rc4</Version>
+            <Comment>Version bump</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="4">
+            <Date>2006-01-18</Date>
+            <Version>1.0.11_rc2</Version>
+            <Comment>Use POS_FIX_NONE for position_fix</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="3">
+            <Date>2006-01-11</Date>
+            <Version>1.0.11_rc2</Version>
+            <Comment>Version bump</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="2">
+            <Date>2005-12-07</Date>
+            <Version>1.0.10</Version>
+            <Comment>Fix kernel oops when modprobing snd_mpu401 module</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="1">
+            <Date>2005-11-18</Date>
+            <Version>1.0.10</Version>
+            <Comment>First release.</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+    </History>
+</PISI>

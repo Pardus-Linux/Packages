@@ -1,0 +1,48 @@
+Index: alsa-driver/configure
+===================================================================
+--- alsa-driver.orig/configure
++++ alsa-driver/configure
+@@ -15945,7 +15945,7 @@ alsa_check_kconfig_option () {
+     if ( test "$CONFIG_SND_PCI" = "y" -o "$CONFIG_SND_PCI" = "m" ) &&
+       ( test "$CONFIG_SND_HDA_INTEL" = "y" -o "$CONFIG_SND_HDA_INTEL" = "m" ) &&
+       ( test "$CONFIG_SND_HDA_INPUT_BEEP" = "y" -o "$CONFIG_SND_HDA_INPUT_BEEP" = "m" ); then
+-      CONFIG_SND_HDA_INPUT_BEEP_MODE="1"
++      CONFIG_SND_HDA_INPUT_BEEP_MODE="0"
+     fi
+   if alsa_check_kconfig_option "hda-input-jack"; then
+     if ( test "$CONFIG_SND_PCI" = "y" -o "$CONFIG_SND_PCI" = "m" ) &&
+@@ -18366,7 +18366,7 @@ _ACEOF
+ fi
+ if test -n "$CONFIG_SND_HDA_INPUT_BEEP_MODE"; then
+   cat >>confdefs.h <<_ACEOF
+-#define CONFIG_SND_HDA_INPUT_BEEP_MODE 1
++#define CONFIG_SND_HDA_INPUT_BEEP_MODE 0
+ _ACEOF
+ 
+ fi
+Index: alsa-driver/sound/pci/hda/Kconfig
+===================================================================
+--- alsa-driver.orig/sound/pci/hda/Kconfig
++++ alsa-driver/sound/pci/hda/Kconfig
+@@ -41,7 +41,7 @@ config SND_HDA_INPUT_BEEP
+ config SND_HDA_INPUT_BEEP_MODE
+ 	int "Digital beep registration mode (0=off, 1=on, 2=mute sw on/off)"
+ 	depends on SND_HDA_INPUT_BEEP=y
+-	default "1"
++	default "0"
+ 	range 0 2
+ 	help
+ 	  Set 0 to disable the digital beep interface for HD-audio by default.
+Index: alsa-driver/sound/pci/hda/hda_intel.c
+===================================================================
+--- alsa-driver.orig/sound/pci/hda/hda_intel.c
++++ alsa-driver/sound/pci/hda/hda_intel.c
+@@ -98,7 +98,7 @@ MODULE_PARM_DESC(patch, "Patch file for 
+ #ifdef CONFIG_SND_HDA_INPUT_BEEP
+ module_param_array(beep_mode, int, NULL, 0444);
+ MODULE_PARM_DESC(beep_mode, "Select HDA Beep registration mode "
+-			    "(0=off, 1=on, 2=mute switch on/off) (default=1).");
++			    "(0=off, 1=on, 2=mute switch on/off) (default=0).");
+ #endif
+ 
+ #ifdef CONFIG_SND_HDA_POWER_SAVE

@@ -1,0 +1,35 @@
+From 48d641ba1cd54161d945b0d47771280a178c9519 Mon Sep 17 00:00:00 2001
+From: =?utf-8?q?Ozan=20=C3=87a=C4=9Flayan?= <ozan@pardus.org.tr>
+Date: Thu, 16 Jul 2009 23:07:21 +0300
+Subject: [PATCH] ALSA: hda - Map 152d:0763 to ALC268_TOSHIBA
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+
+One of our users reported that its Datron TW7A doesn't have sound unless
+model=toshiba is explicitly given to the driver. The same ID was mapped
+against acer model 2 years ago. Both laptops are local brands and the
+codecs are certainly the same, so unless any other user complains, it
+would be harmless to re-map this against ALC268_TOSHIBA.
+
+Signed-off-by: Ozan Çağlayan <ozan@pardus.org.tr>
+---
+ sound/pci/hda/patch_realtek.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
+index bbb9b42..d1ca001 100644
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -12519,7 +12519,7 @@ static struct snd_pci_quirk alc268_cfg_tbl[] = {
+ 	SND_PCI_QUIRK_MASK(0x1179, 0xff00, 0xff00, "TOSHIBA A/Lx05",
+ 			   ALC268_TOSHIBA),
+ 	SND_PCI_QUIRK(0x14c0, 0x0025, "COMPAL IFL90/JFL-92", ALC268_TOSHIBA),
+-	SND_PCI_QUIRK(0x152d, 0x0763, "Diverse (CPR2000)", ALC268_ACER),
++	SND_PCI_QUIRK(0x152d, 0x0763, "Datron TW7A", ALC268_TOSHIBA),
+ 	SND_PCI_QUIRK(0x152d, 0x0771, "Quanta IL1", ALC267_QUANTA_IL1),
+ 	SND_PCI_QUIRK(0x1854, 0x1775, "LG R510", ALC268_DELL),
+ 	{}
+-- 
+1.6.3.3
+
