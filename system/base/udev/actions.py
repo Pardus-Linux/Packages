@@ -49,8 +49,5 @@ def install():
     # Create /etc/udev/rules.d for backward compatibility
     pisitools.dodir("/etc/udev/rules.d")
 
-    # Remove gtk-doc
-    pisitools.removeDir("/usr/share/gtk-doc")
-
     # Install docs
-    pisitools.dodoc("COPYING", "ChangeLog", "README", "TODO")
+    pisitools.dodoc("COPYING", "ChangeLog", "README", "TODO", "extras/keymap/README.keymap.txt")
