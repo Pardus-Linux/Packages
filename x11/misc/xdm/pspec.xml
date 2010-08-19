@@ -1,0 +1,136 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>xdm</Name>
+        <Homepage>http://www.x.org</Homepage>
+        <Packager>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Packager>
+        <License>MIT</License>
+        <Icon>xorg</Icon>
+        <IsA>app:gui</IsA>
+        <Summary>X Display Manager</Summary>
+        <Description>X Display Manager provides a login screen, session management, and support for XDMCP.</Description>
+        <Archive sha1sum="45eb013aa14ddd8d385b200b94fb0fbcbe09b860" type="tarbz2">mirrors://xorg/individual/app/xdm-1.1.10.tar.bz2</Archive>
+        <BuildDependencies>
+            <Dependency>libXaw-devel</Dependency>
+            <Dependency>libXext-devel</Dependency>
+            <Dependency>libXft-devel</Dependency>
+            <Dependency>libXinerama-devel</Dependency>
+            <Dependency>libXmu-devel</Dependency>
+            <Dependency>libXpm-devel</Dependency>
+            <Dependency>libXrender-devel</Dependency>
+            <Dependency>libXt-devel</Dependency>
+        </BuildDependencies>
+        <Patches>
+            <Patch level="1">xsession.patch</Patch>
+            <Patch level="1">no-xconsole.patch</Patch>
+            <Patch level="1">resources.patch</Patch>
+        </Patches>
+    </Source>
+
+    <Package>
+        <Name>xdm</Name>
+        <RuntimeDependencies>
+            <Dependency>libXaw</Dependency>
+            <Dependency>libXext</Dependency>
+            <Dependency>libXft</Dependency>
+            <Dependency>libXinerama</Dependency>
+            <Dependency>libXmu</Dependency>
+            <Dependency>libXpm</Dependency>
+            <Dependency>libXrender</Dependency>
+            <Dependency>libXt</Dependency>
+            <Dependency>xinit</Dependency>
+            <Dependency>zorg</Dependency>
+        </RuntimeDependencies>
+        <Conflicts>
+            <Package releaseTo="31">xorg-app</Package>
+        </Conflicts>
+        <Files>
+            <Path fileType="config">/etc</Path>
+            <Path fileType="executable">/usr/bin</Path>
+            <Path fileType="library">/usr/lib/X11/xdm</Path>
+            <Path fileType="data">/usr/share/X11</Path>
+            <Path fileType="data">/usr/share/display-managers</Path>
+            <Path fileType="data">/var/lib/xdm</Path>
+            <Path fileType="doc">/usr/share/doc</Path>
+            <Path fileType="man">/usr/share/man</Path>
+        </Files>
+        <AdditionalFiles>
+            <AdditionalFile owner="root" permission="0644" target="/etc/conf.d/xdm">xdm.conf.d</AdditionalFile>
+            <AdditionalFile owner="root" permission="0644" target="/etc/pam.d/xdm">xdm.pam.d</AdditionalFile>
+            <AdditionalFile owner="root" permission="0755" target="/usr/bin/start-dm">start-dm.py</AdditionalFile>
+            <AdditionalFile owner="root" permission="0644" target="/usr/share/display-managers/xdm.desktop">xdm.desktop</AdditionalFile>
+        </AdditionalFiles>
+        <Provides>
+            <COMAR script="service.py">System.Service</COMAR>
+        </Provides>
+    </Package>
+
+    <History>
+        <Update release="8">
+            <Date>2010-04-13</Date>
+            <Version>1.1.10</Version>
+            <Comment>New stable release</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="7">
+            <Date>2009-12-18</Date>
+            <Version>1.1.9</Version>
+            <Comment>Revert "Setup keymap on live media" as zorg handles this now</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="6">
+            <Date>2009-12-10</Date>
+            <Version>1.1.9</Version>
+            <Comment>Setup keymap on live media</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="5">
+            <Date>2009-10-19</Date>
+            <Version>1.1.9</Version>
+            <Comment>Fix resources patch to include system resources</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="4">
+            <Date>2009-10-19</Date>
+            <Version>1.1.9</Version>
+            <Comment>
+                - Bump to new stable release
+                - Include /etc/X11/Xresources in xdm's Xresources file.
+            </Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="3">
+            <Date>2009-05-16</Date>
+            <Version>1.1.8_20090308</Version>
+            <Comment>
+                - Export LC_ALL in start-dm script
+                - Do not look for /etc/conf.d/installer as it is not used
+            </Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="2">
+            <Date>2009-04-23</Date>
+            <Version>1.1.8_20090308</Version>
+            <Comment>Dependency fixes</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="1">
+            <Date>2009-03-08</Date>
+            <Version>1.1.8_20090308</Version>
+            <Comment>First release</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+    </History>
+</PISI>
