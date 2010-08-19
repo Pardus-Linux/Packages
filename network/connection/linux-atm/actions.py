@@ -13,7 +13,7 @@ def setup():
     autotools.configure("--disable-static")
 
 def build():
-    autotools.make()
+    autotools.make("-j1")
 
 def install():
     autotools.rawInstall("DESTDIR=%s man_prefix=/usr/share/man" % get.installDIR())
