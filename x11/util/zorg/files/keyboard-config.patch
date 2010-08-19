@@ -1,0 +1,125 @@
+Index: zorg-2.0.4/zorg/config.py
+===================================================================
+--- zorg-2.0.4.orig/zorg/config.py
++++ zorg-2.0.4/zorg/config.py
+@@ -265,7 +265,7 @@ def saveDeviceInfo(card):
+     f = open(consts.config_file, "w")
+     f.write(doc.toPrettyString().replace("\n\n", ""))
+ 
+-def getKeymap():
++def getKeymapOld():
+     layout = None
+     variant = ""
+ 
+@@ -297,24 +297,85 @@ def getKeymap():
+ 
+     return layout, variant
+ 
+-def saveKeymap(layout, variant=""):
+-    if not os.path.exists(consts.config_dir):
+-        os.mkdir(consts.config_dir, 0755)
++def getKeymap():
++    layout = None
++    variant = ""
+ 
+     try:
+-        doc = piksemel.parse(consts.config_file)
++        p = XorgParser()
++        p.parseFile(consts.keyboard_conf)
++        section = p.getSections("InputClass")[0]
++        layout = section.get("XkbLayout")
++        variant = section.get("XkbVariant", "")
++
+     except OSError:
+-        doc = piksemel.newDocument("ZORG")
++        pass
+ 
+-    keyboardTag = doc.getTag("Keyboard")
++    if not layout:
++        from pardus.localedata import languages
+ 
+-    if keyboardTag:
+-        keyboardTag.hide()
++        try:
++            language = file("/etc/mudur/language").read().strip()
++        except IOError:
++            language = "en"
+ 
+-    keyboardTag = doc.insertTag("Keyboard")
+-    keyboardTag.insertTag("Layout").insertData(layout)
+-    if variant:
+-        keyboardTag.insertTag("Variant").insertData(variant)
++        if not languages.has_key(language):
++            language = "en"
+ 
+-    f = file(consts.config_file, "w")
+-    f.write(doc.toPrettyString().replace("\n\n", ""))
++        keymap = languages[language].keymaps[0]
++        layout = keymap.xkb_layout
++        variant = keymap.xkb_variant
++
++    return layout, variant
++
++def update_keyboard_config(config_path, options):
++    import re
++
++    section_start = re.compile('Section *"InputClass".*', re.I)
++    option_line = re.compile('Option *"(.*)" *"(.*)".*', re.I)
++
++    zorg_sign = "  # Added by zorg\n"
++
++    def comment(line):
++        return re.sub("^(\s*)", r"\1#", line, 1)
++
++    def mkoption(key, value):
++        return '    Option "%s" "%s"%s' % (key, value, zorg_sign)
++
++    lines = []
++    section_found = False
++
++    for line in open(config_path):
++        sline = line.lstrip()
++
++        if section_found:
++            matched = option_line.match(sline)
++            if matched:
++                key, value = matched.groups()
++                if key in options:
++                    if value == options[key]:
++                        del options[key]
++
++                    else:
++                        if not line.endswith(zorg_sign):
++                            lines.append(comment(line))
++                        continue
++
++            elif sline.lower().startswith("endsection"):
++                for key, value in options.items():
++                    lines.append(mkoption(key, value))
++
++        if section_start.match(sline):
++            section_found = True
++
++        lines.append(line)
++
++    with open(config_path, "w") as f:
++        f.writelines(lines)
++        f.flush()
++        os.fsync(f.fileno())
++
++def saveKeymap(layout, variant=""):
++    options = {"XkbLayout": layout,
++               "XkbVariant": variant}
++    update_keyboard_config(consts.keyboard_conf, options)
+Index: zorg-2.0.4/zorg/consts.py
+===================================================================
+--- zorg-2.0.4.orig/zorg/consts.py
++++ zorg-2.0.4/zorg/consts.py
+@@ -8,6 +8,7 @@ data_dir    = "/usr/share/X11"
+ modules_dir = "/usr/lib/xorg/modules"
+ 
+ xorg_conf_file      = "/etc/X11/xorg.conf"
++keyboard_conf       = "/etc/X11/xorg.conf.d/00-keyboard.conf"
+ config_file         = join(config_dir,  "config.xml")
+ configured_bus_file = join(config_dir,  "configured_bus")
+ drivers_file        = join(data_dir,    "DriversDB")
