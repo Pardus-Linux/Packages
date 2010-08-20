@@ -13,21 +13,24 @@
         <Description>GTK+ is a multi-platform toolkit for creating graphical user interfaces. Offering a complete set of widgets, GTK+ is suitable for projects ranging from small one-off projects to complete application suites.</Description>
         <Archive sha1sum="a80953b4e81c6a5bc2a986852f7fe60c8704cc02" type="tarbz2">mirrors://gnome/gtk+/2.20/gtk+-2.20.1.tar.bz2</Archive>
         <BuildDependencies>
-            <Dependency versionFrom="1.29.2">atk</Dependency>
-            <Dependency>cups</Dependency>
-            <Dependency>libXi</Dependency>
-            <Dependency versionFrom="1.28.0">pango</Dependency>
-            <Dependency>jasper</Dependency>
-            <Dependency>libXext</Dependency>
-            <Dependency>libXrandr</Dependency>
-            <Dependency>libXfixes</Dependency>
-            <Dependency>libXrender</Dependency>
-            <Dependency>libXdamage</Dependency>
-            <Dependency>libXcursor</Dependency>
-            <Dependency>fontconfig</Dependency>
-            <Dependency>libXinerama</Dependency>
-            <Dependency>libXcomposite</Dependency>
-            <Dependency versionFrom="1.8.8">cairo</Dependency>
+            <Dependency>atk-devel</Dependency>
+            <Dependency>cups-devel</Dependency>
+            <Dependency>libXi-devel</Dependency>
+            <Dependency>pango-devel</Dependency>
+            <Dependency>jasper-devel</Dependency>
+            <Dependency>libXext-devel</Dependency>
+            <Dependency>libXrandr-devel</Dependency>
+            <Dependency>libXfixes-devel</Dependency>
+            <Dependency>libXrender-devel</Dependency>
+            <Dependency>libXdamage-devel</Dependency>
+            <Dependency>libXcursor-devel</Dependency>
+            <Dependency>fontconfig-devel</Dependency>
+            <Dependency>libXinerama-devel</Dependency>
+            <Dependency>libXcomposite-devel</Dependency>
+            <Dependency>cairo-devel</Dependency>
+            <Dependency>libpng-devel</Dependency>
+            <Dependency>tiff-devel</Dependency>
+            <Dependency>jpeg-devel</Dependency>
         </BuildDependencies>
         <Patches>
             <!-- Upstream added a warning message for XID collisions for being able
@@ -39,16 +42,17 @@
 
             <!-- Fix wrong 'may not be connected' warnings for a printer -->
             <Patch>gtk2-remove-connecting-reason.patch</Patch>
+            <Patch level="1">gtk+-2.20.1-libpng-fix.patch</Patch>
         </Patches>
     </Source>
 
     <Package>
         <Name>gtk2</Name>
         <RuntimeDependencies>
-            <Dependency versionFrom="1.29.2">atk</Dependency>
+            <Dependency>atk</Dependency>
             <Dependency>cups</Dependency>
             <Dependency>libXi</Dependency>
-            <Dependency versionFrom="1.28.0">pango</Dependency>
+            <Dependency>pango</Dependency>
             <Dependency>jasper</Dependency>
             <Dependency>libXext</Dependency>
             <Dependency>libXrandr</Dependency>
@@ -59,13 +63,14 @@
             <Dependency>fontconfig</Dependency>
             <Dependency>libXinerama</Dependency>
             <Dependency>libXcomposite</Dependency>
-            <Dependency versionFrom="1.8.8">cairo</Dependency>
+            <Dependency>cairo</Dependency>
+            <Dependency>libpng</Dependency>
+            <Dependency>tiff</Dependency>
+            <Dependency>jpeg</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="config">/etc</Path>
             <Path fileType="executable">/usr/bin</Path>
-            <Path fileType="header">/usr/include</Path>
-            <Path fileType="data">/usr/share/aclocal</Path>
             <Path fileType="data">/usr/share/themes</Path>
             <Path fileType="man">/usr/share/man</Path>
             <Path fileType="doc">/usr/share/doc</Path>
@@ -103,7 +108,30 @@
         </Files>
     </Package>
 
+    <Package>
+        <Name>gtk2-devel</Name>
+        <Summary>Development files for gtk2</Summary>
+        <RuntimeDependencies>
+            <Dependency release="65">gtk2</Dependency>
+            <Dependency>atk-devel</Dependency>
+            <Dependency>pango-devel</Dependency>
+            <Dependency>cairo-devel</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="header">/usr/include</Path>
+            <Path fileType="library">/usr/lib/pkgconfig</Path>
+            <Path fileType="data">/usr/share/aclocal</Path>
+        </Files>
+    </Package>
+
     <History>
+        <Update release="65">
+            <Date>2010-08-20</Date>
+            <Version>2.20.1</Version>
+            <Comment>Split devel package</Comment>
+            <Name>Burak Çalışkan</Name>
+            <Email>burakclskn@gmail.com</Email>
+        </Update>
         <Update release="64">
             <Date>2010-05-08</Date>
             <Version>2.20.1</Version>
