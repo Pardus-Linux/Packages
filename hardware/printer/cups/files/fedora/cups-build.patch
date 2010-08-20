@@ -1,0 +1,42 @@
+diff -up cups-1.4rc1/Makedefs.in.build cups-1.4rc1/Makedefs.in
+--- cups-1.4rc1/Makedefs.in.build	2009-05-27 00:27:06.000000000 +0100
++++ cups-1.4rc1/Makedefs.in	2009-06-17 11:18:27.185443255 +0100
+@@ -124,7 +124,7 @@ ARFLAGS		=	@ARFLAGS@
+ BACKLIBS	=	@BACKLIBS@
+ BANNERTOPS	=	@BANNERTOPS@
+ CFLAGS		=	@CPPFLAGS@ @CFLAGS@
+-COMMONLIBS	=	@LIBS@
++COMMONLIBS	=	@LIBS@ $(DNSSDLIBS)
+ CUPSDLIBS	=	@CUPSDLIBS@
+ CXXFLAGS	=	@CPPFLAGS@ @CXXFLAGS@
+ CXXLIBS		=	@CXXLIBS@
+diff -up cups-1.4rc1/scheduler/dirsvc.c.build cups-1.4rc1/scheduler/dirsvc.c
+--- cups-1.4rc1/scheduler/dirsvc.c.build	2009-05-14 18:54:37.000000000 +0100
++++ cups-1.4rc1/scheduler/dirsvc.c	2009-06-17 11:23:23.366318546 +0100
+@@ -2042,7 +2042,7 @@ cupsdUpdateDNSSDName(void)
+ 
+     WebIFRef = DNSSDRef;
+     if ((error = DNSServiceRegister(&WebIFRef,
+-				    kDNSServiceFlagsShareConnection,
++				    0,
+ 				    0, webif, "_http._tcp", NULL,
+ 				    NULL, htons(DNSSDPort), 7,
+ 				    "\006path=/", dnssdRegisterCallback,
+@@ -2765,7 +2765,7 @@ dnssdRegisterPrinter(cupsd_printer_t *p)
+     do
+     {
+       p->ipp_ref = DNSSDRef;
+-      if ((se = DNSServiceRegister(&p->ipp_ref, kDNSServiceFlagsShareConnection,
++      if ((se = DNSServiceRegister(&p->ipp_ref, 0,
+                                    0, name, regtype, NULL, NULL,
+ 				   htons(DNSSDPort), ipp_len, ipp_txt,
+ 				   dnssdRegisterCallback,
+@@ -2854,7 +2854,7 @@ dnssdRegisterPrinter(cupsd_printer_t *p)
+ 
+       p->printer_ref = DNSSDRef;
+       if ((se = DNSServiceRegister(&p->printer_ref,
+-                                   kDNSServiceFlagsShareConnection,
++                                   0,
+ 				   0, name, "_printer._tcp", NULL, NULL,
+ 				   htons(515), printer_len, printer_txt,
+ 				   dnssdRegisterCallback,

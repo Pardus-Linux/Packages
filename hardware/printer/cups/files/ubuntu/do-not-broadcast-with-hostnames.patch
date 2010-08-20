@@ -1,0 +1,48 @@
+Index: cups-1.4.4/scheduler/client.c
+===================================================================
+--- cups-1.4.4.orig/scheduler/client.c
++++ cups-1.4.4/scheduler/client.c
+@@ -422,7 +422,7 @@ cupsdAcceptClient(cupsd_listener_t *lis)
+     {
+       if (httpAddrLocalhost(&temp))
+         strlcpy(con->servername, "localhost", sizeof(con->servername));
+-      else if (HostNameLookups || RemotePort)
++      else if (HostNameLookups)
+         httpAddrLookup(&temp, con->servername, sizeof(con->servername));
+       else
+         httpAddrString(&temp, con->servername, sizeof(con->servername));
+@@ -435,7 +435,7 @@ cupsdAcceptClient(cupsd_listener_t *lis)
+     {
+       if (httpAddrLocalhost(&temp))
+         strlcpy(con->servername, "localhost", sizeof(con->servername));
+-      else if (HostNameLookups || RemotePort)
++      else if (HostNameLookups)
+         httpAddrLookup(&temp, con->servername, sizeof(con->servername));
+       else
+         httpAddrString(&temp, con->servername, sizeof(con->servername));
+Index: cups-1.4.4/scheduler/conf.c
+===================================================================
+--- cups-1.4.4.orig/scheduler/conf.c
++++ cups-1.4.4/scheduler/conf.c
+@@ -744,7 +744,7 @@ cupsdReadConfiguration(void)
+     cupsdAddAlias(ServerAlias, temp);
+     cupsdLogMessage(CUPSD_LOG_DEBUG, "Added auto ServerAlias %s", temp);
+ 
+-    if (HostNameLookups || RemotePort)
++    if (HostNameLookups)
+     {
+       struct hostent	*host;		/* Host entry to get FQDN */
+ 
+Index: cups-1.4.4/scheduler/network.c
+===================================================================
+--- cups-1.4.4.orig/scheduler/network.c
++++ cups-1.4.4/scheduler/network.c
+@@ -157,7 +157,7 @@ cupsdNetIFUpdate(void)
+ #ifdef __APPLE__
+     if (HostNameLookups)
+ #else
+-    if (HostNameLookups || RemotePort)
++    if (HostNameLookups)/* || RemotePort)*/
+ #endif /* __APPLE__ */
+       httpAddrLookup((http_addr_t *)(addr->ifa_addr), hostname,
+                      sizeof(hostname));

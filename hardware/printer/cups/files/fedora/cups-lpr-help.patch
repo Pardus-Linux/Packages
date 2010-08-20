@@ -1,0 +1,56 @@
+diff -up cups-1.4b1/berkeley/lpr.c.lpr-help cups-1.4b1/berkeley/lpr.c
+--- cups-1.4b1/berkeley/lpr.c.lpr-help	2008-07-11 23:46:21.000000000 +0100
++++ cups-1.4b1/berkeley/lpr.c	2008-11-11 16:20:32.000000000 +0000
+@@ -30,6 +30,31 @@
+ #include <cups/i18n.h>
+ 
+ 
++static void
++usage (const char *name)
++{
++  _cupsLangPrintf(stdout,
++"Usage: %s [OPTION] [ file(s) ]\n"
++"Print files.\n\n"
++"  -E                       force encryption\n"
++"  -H server[:port]         specify alternate server\n"
++"  -C title, -J title, -T title\n"
++"                           set the job name\n\n"
++"  -P destination/instance  print to named printer\n"
++"  -U username              specify alternate username\n"
++"  -# num-copies            set number of copies\n"
++"  -h                       disable banner printing\n"
++"  -l                       print without filtering\n"
++"  -m                       send email on completion\n"
++"  -o option[=value]        set a job option\n"
++"  -p                       format text file with header\n"
++"  -q                       hold job for printing\n"
++"  -r                       delete files after printing\n"
++"\nWith no file given, read standard input.\n"
++, name);
++}
++
++
+ /*
+  * 'main()' - Parse options and send files for printing.
+  */
+@@ -54,7 +79,6 @@ main(int  argc,				/* I - Number of comm
+   int		deletefile;		/* Delete file after print? */
+   char		buffer[8192];		/* Copy buffer */
+ 
+-
+   _cupsSetLocale(argv);
+ 
+   deletefile  = 0;
+@@ -282,6 +306,12 @@ main(int  argc,				/* I - Number of comm
+ 	    break;
+ 
+ 	default :
++	    if (!strcmp (argv[i], "--help"))
++	    {
++	      usage (argv[0]);
++	      return (0);
++	    }
++
+ 	    _cupsLangPrintf(stderr,
+ 	                    _("%s: Error - unknown option \'%c\'!\n"),
+ 			    argv[0], argv[i][1]);

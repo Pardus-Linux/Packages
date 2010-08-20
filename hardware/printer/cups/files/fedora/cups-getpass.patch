@@ -1,0 +1,43 @@
+diff -up cups-1.4.4/cups/usersys.c.getpass cups-1.4.4/cups/usersys.c
+--- cups-1.4.4/cups/usersys.c.getpass	2010-03-30 23:07:33.000000000 +0100
++++ cups-1.4.4/cups/usersys.c	2010-06-18 09:38:08.368096897 +0100
+@@ -41,6 +41,8 @@
+ #include "globals.h"
+ #include <stdlib.h>
+ #include <sys/stat.h>
++#include <termios.h>
++#include <signal.h>
+ #ifdef WIN32
+ #  include <windows.h>
+ #else
+@@ -406,7 +408,29 @@ _cupsGetPassword(const char *prompt)	/* 
+   * Use the standard getpass function to get a password from the console.
+   */
+ 
+-  return (getpass(prompt));
++  static char password[100];
++  struct termios oldtio, newtio;
++  sigset_t oldset, newset;
++  int nread;
++  sigprocmask (SIG_BLOCK, NULL, &newset);
++  sigaddset (&newset, SIGINT);
++  sigaddset (&newset, SIGTSTP);
++  sigprocmask (SIG_BLOCK, &newset, &oldset);
++  tcgetattr (STDIN_FILENO, &oldtio);
++  newtio = oldtio;
++  newtio.c_lflag &= ~ECHO;
++  tcsetattr (STDIN_FILENO, TCSAFLUSH, &newtio);
++  fputs (prompt, stdout);
++  fflush (stdout);
++  nread = read (STDIN_FILENO, password, sizeof (password));
++  tcsetattr (STDIN_FILENO, TCSAFLUSH, &oldtio);
++  fputc ('\n', stdout);
++  sigprocmask (SIG_SETMASK, &oldset, NULL);
++  if (nread > 0)
++    password[nread - 1] = '\0';
++  else
++    password[0] ='\0';
++  return password;
+ #endif /* WIN32 */
+ }
+ 

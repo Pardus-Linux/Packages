@@ -1,0 +1,848 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>cups</Name>
+        <Homepage>http://www.cups.org/</Homepage>
+        <Packager>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Packager>
+        <License>GPLv2</License>
+        <IsA>service</IsA>
+        <Summary>Common Unix Printing System</Summary>
+        <Description>cups provides a portable printing layer for *nix-based operating systems.</Description>
+        <Archive sha1sum="3e179c007fa6cd6874b60ff18a6f48070547a00a" type="tarbz2">ftp://ftp.easysw.com/pub/cups/1.4.4/cups-1.4.4-source.tar.bz2</Archive>
+        <BuildDependencies>
+            <Dependency>cyrus-sasl-devel</Dependency>
+            <Dependency>openldap-client</Dependency>
+            <Dependency>libtasn1-devel</Dependency>
+            <Dependency>libpaper-devel</Dependency>
+            <Dependency>openslp-devel</Dependency>
+            <Dependency>poppler-utils</Dependency>
+            <Dependency>gnutls-devel</Dependency>
+            <Dependency>libpng-devel</Dependency>
+            <Dependency>mit-kerberos</Dependency>
+            <Dependency>avahi-devel</Dependency>
+            <Dependency>jpeg-devel</Dependency>
+            <Dependency>tiff-devel</Dependency>
+            <Dependency>php-devel</Dependency>
+        </BuildDependencies>
+        <Patches>
+            <!-- Fedora patches -->
+
+            <!-- Don't gzip man pages in the Makefile, let rpmbuild do it. -->
+            <Patch level="1">fedora/cups-no-gzip-man.patch</Patch>
+
+            <!-- Use the system pam configuration. -->
+            <Patch level="1">fedora/cups-1.1.16-system-auth.patch</Patch>
+
+            <!-- Fix compilation of serial backend. -->
+            <Patch level="1">fedora/cups-serial.patch</Patch>
+
+            <!-- Don't export SSLLIBS to cups-config. -->
+            <Patch level="1">fedora/cups-no-export-ssllibs.patch</Patch>
+
+            <!-- Allow file-based usb device URIs. -->
+            <Patch level="1">fedora/cups-direct-usb.patch</Patch>
+
+            <!-- Add help option to lpr. -->
+            <Patch level="1">fedora/cups-lpr-help.patch</Patch>
+
+            <!-- Fix compilation of peer credentials support. -->
+            <Patch level="1">fedora/cups-peercred.patch</Patch>
+
+            <!-- Maintain a cupsd.pid file. -->
+            <Patch level="1">fedora/cups-pid.patch</Patch>
+
+            <!-- Fix orientation of page labels. -->
+            <Patch level="1">fedora/cups-page-label.patch</Patch>
+
+            <!-- Fix implementation of com.redhat.PrinterSpooler D-Bus object. -->
+            <Patch level="1">fedora/cups-eggcups.patch</Patch>
+
+            <!-- More sophisticated implementation of cupsGetPassword than getpass. -->
+            <Patch level="1">fedora/cups-getpass.patch</Patch>
+
+            <!-- Increase driverd timeout to 70s to accommodate foomatic. -->
+            <Patch level="1">fedora/cups-driverd-timeout.patch</Patch>
+
+            <!-- Only enforce maximum PPD line length when in strict mode. -->
+            <Patch level="1">fedora/cups-strict-ppd-line-length.patch</Patch>
+
+            <!-- Re-open the log if it has been logrotated under us. -->
+            <Patch level="1">fedora/cups-logrotate.patch</Patch>
+
+            <!-- Support for errno==ENOSPACE-based USB paper-out reporting. -->
+            <Patch level="1">fedora/cups-usb-paperout.patch</Patch>
+
+            <!-- Simplify the DNSSD parts so they can build using the compat library. -->
+            <Patch level="1">fedora/cups-build.patch</Patch>
+
+            <!-- Re-initialise the resolver on failure in httpAddrGetList(). -->
+            <Patch level="1">fedora/cups-res_init.patch</Patch>
+
+            <!-- Log extra debugging information if no filters are available. -->
+            <Patch level="1">fedora/cups-filter-debug.patch</Patch>
+
+            <!-- Allow the usb backend to understand old-style URI formats. -->
+            <Patch level="1">fedora/cups-uri-compat.patch</Patch>
+
+            <!-- Fix support for older CUPS servers in cupsGetDests. -->
+            <Patch level="1">fedora/cups-cups-get-classes.patch</Patch>
+
+            <!-- Avahi support in the dnssd backend. -->
+            <Patch level="1">fedora/cups-avahi.patch</Patch>
+
+            <!-- Fix temporary filename creation. -->
+            <Patch level="1">fedora/cups-str3382.patch</Patch>
+
+            <!-- Use mode 0755 for binaries and libraries where appropriate. -->
+            <Patch level="1">fedora/cups-0755.patch</Patch>
+
+            <!-- Re-initialise the resolver on failure in httpAddrLookup(). -->
+            <Patch level="1">fedora/cups-EAI_AGAIN.patch</Patch>
+
+            <!-- Handle SNMP supply level quirks -->
+            <Patch level="1">fedora/cups-snmp-quirks.patch</Patch>
+
+            <!-- Add an SNMP query for HP's device ID OID -->
+            <Patch level="1">fedora/cups-hp-deviceid-oid.patch</Patch>
+
+            <!-- Mark DNS-SD Device IDs that have been guessed at with "FZY:1;" -->
+            <Patch level="1">fedora/cups-dnssd-deviceid.patch</Patch>
+
+            <!-- Add an SNMP query for Ricoh's device ID OID -->
+            <Patch level="1">fedora/cups-ricoh-deviceid-oid.patch</Patch>
+
+            <!-- Adjust texttops output to be in natural orientation -->
+            <Patch level="1">fedora/cups-texttops-rotate-page.patch</Patch>
+
+            <!-- Avoid empty notify-subscribed-event attributes -->
+            <Patch level="1">fedora/cups-str3608.patch</Patch>
+
+            <!-- Accept "Host: ::1" (bzrh: #497393) -->
+            <Patch level="1">fedora/cups-localhost-ipv6.patch</Patch>
+
+
+            <!-- Ubuntu patches -->
+
+            <!-- One USB backend for both libusb-based and usblp-based accesses -->
+            <Patch level="1">ubuntu/usb-backend-both-usblp-and-libusb.patch</Patch>
+
+            <!-- Retry job when it's failed instead of stopping -->
+            <Patch level="1">ubuntu/ubuntu-default-error-policy-retry-job.patch</Patch>
+
+            <!-- Poppler fixes -->
+            <Patch level="1">ubuntu/poppler-based-pdftops-fixes.patch</Patch>
+            <Patch level="1">ubuntu/read-embedded-options-from-incoming-postscript-and-add-to-ipp-attrs.patch</Patch>
+
+            <!-- Suppress bonjour warnings -->
+            <Patch level="1">ubuntu/quiesce-bonjour-warning.patch</Patch>
+
+            <!-- Don't mess with cupsd.conf permission -->
+            <Patch level="1">ubuntu/confdirperms.patch</Patch>
+
+            <!-- Deactivate CUPS' internal logrotating -->
+            <Patch level="1">ubuntu/default-log-settings.patch</Patch>
+
+            <!-- Change 200 to 99999 to keep failed print job logging unlimited -->
+            <Patch level="1">ubuntu/log-debug-history-nearly-unlimited.patch</Patch>
+
+            <!-- Do not use host names for broadcasting print queues and managing print queues
+                 broadcasted from other servers by default. Many networks do not have valid host
+                 name for all machines -->
+            <Patch level="1">ubuntu/do-not-broadcast-with-hostnames.patch</Patch>
+
+            <!-- Set RIP cache size to available memory/4 -->
+            <Patch level="1">ubuntu/dynamic-default-ripcache-size.patch</Patch>
+
+            <!-- Don't write timestamps in conf files to keep them unchanged between releases -->
+            <Patch level="1">ubuntu/no-conffile-timestamp.patch</Patch>
+
+
+            <!-- Other patches -->
+
+            <!-- Create symbolic link backend/https -->
+            <Patch level="1">pardus/backend-https.patch</Patch>
+
+            <!-- Don't install desktop file -->
+            <Patch level="1">pardus/remove-desktop-file-install.patch</Patch>
+
+            <!-- Don't strip debugging symbols -->
+            <Patch level="1">pardus/nostrip.patch</Patch>
+        </Patches>
+    </Source>
+
+    <Package>
+        <Name>cups</Name>
+        <RuntimeDependencies>
+            <Dependency>openldap-client</Dependency>
+            <Dependency>poppler-utils</Dependency>
+            <Dependency>mit-kerberos</Dependency>
+            <Dependency>cyrus-sasl</Dependency>
+            <Dependency>libtasn1</Dependency>
+            <Dependency>libpaper</Dependency>
+            <Dependency>openslp</Dependency>
+            <Dependency>gnutls</Dependency>
+            <Dependency>libpng</Dependency>
+            <Dependency>avahi</Dependency>
+            <Dependency>jpeg</Dependency>
+            <Dependency>tiff</Dependency>
+        </RuntimeDependencies>
+        <Replaces>
+            <Package>cupsddk</Package>
+        </Replaces>
+        <Files>
+            <Path fileType="config">/etc/cups/*conf</Path>
+            <Path fileType="library">/usr/lib</Path>
+            <Path fileType="executable">/usr/sbin</Path>
+            <Path fileType="executable">/usr/bin</Path>
+            <Path fileType="data">/var/cache/cups/rss</Path>
+            <Path fileType="data">/var/spool/cups/tmp</Path>
+            <Path fileType="data">/var/run/cups/certs</Path>
+            <Path fileType="data">/var/log/cups</Path>
+            <Path fileType="data">/etc</Path>
+            <Path fileType="data">/lib/udev/rules.d</Path>
+            <Path fileType="data">/usr/share/cups</Path>
+            <Path fileType="data">/usr/share/icons</Path>
+            <Path fileType="doc">/usr/share/doc</Path>
+            <Path fileType="man">/usr/share/man</Path>
+            <Path fileType="localedata">/usr/share/locale</Path>
+        </Files>
+        <AdditionalFiles>
+            <AdditionalFile owner="root" permission="0644" target="/etc/pam.d/cups">cups.pam</AdditionalFile>
+
+            <!-- logrotate file for CUPS logs -->
+            <AdditionalFile owner="root" permission="0644" target="/etc/logrotate.d/cups">cups.logrotate</AdditionalFile>
+
+            <!-- conf file for CUPS service for loading parallel port printer driver if desired -->
+            <AdditionalFile owner="root" permission="0644" target="/etc/conf.d/cups">cups.confd</AdditionalFile>
+
+            <!-- Default client.conf file from Ubuntu -->
+            <AdditionalFile owner="root" permission="0644" target="/etc/cups/client.conf">client.conf</AdditionalFile>
+
+            <!-- php extension file -->
+            <AdditionalFile owner="root" permission="0644" target="/etc/php/ext/cups.ini">cups.php.ini</AdditionalFile>
+
+            <!-- Generic textonly ppd from Fedora which is also used by Ubuntu -->
+            <AdditionalFile owner="root" permission="0644" target="/usr/share/cups/model/textonly.ppd">fedora/textonly.ppd</AdditionalFile>
+
+            <!-- textonly filter from Fedora which is also used by Ubuntu -->
+            <AdditionalFile owner="root" permission="0755" target="/usr/lib/cups/filter/textonly">fedora/textonly.filter</AdditionalFile>
+
+            <!-- Generic PS ppd from ubuntu which contains some improvements over the oldest from Fedora -->
+            <AdditionalFile owner="root" permission="0644" target="/usr/share/cups/model/postscript.ppd">ubuntu/postscript.ppd</AdditionalFile>
+
+            <!-- Udev rules for ACL management -->
+            <!-- FIXME: GROUP conversion here (lp->pnp) -->
+            <AdditionalFile owner="root" permission="0644" target="/lib/udev/rules.d/70-cups-libusb.rules">cups-libusb.rules</AdditionalFile>
+        </AdditionalFiles>
+        <Provides>
+            <COMAR script="service.py">System.Service</COMAR>
+            <COMAR script="package.py">System.Package</COMAR>
+        </Provides>
+    </Package>
+
+    <Package>
+        <Name>cups-php</Name>
+        <Summary>CUPS API for PHP programming language</Summary>
+        <RuntimeDependencies>
+            <Dependency>cups</Dependency>
+            <Dependency>php-cli</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="library">/usr/lib/php/modules</Path>
+            <Path fileType="data">/etc/php/ext/cups.ini</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>cups-devel</Name>
+        <Summary>Development files for cups</Summary>
+        <RuntimeDependencies>
+            <Dependency release="75">cups</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="header">/usr/include</Path>
+            <Path fileType="executable">/usr/bin/cups-config</Path>
+        </Files>
+    </Package>
+
+    <History>
+        <Update release="75">
+            <Date>2010-08-20</Date>
+            <Version>1.4.4</Version>
+            <Comment>
+                - Split devel package,
+                - Add patch for issue #3608,
+                - Specify trigger action in startup script.
+            </Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="74">
+            <Date>2010-06-25</Date>
+            <Version>1.4.4</Version>
+            <Comment>Reenable gnutls but without thread support</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="73" type="security">
+            <Date>2010-06-24</Date>
+            <Version>1.4.4</Version>
+            <Comment>
+                - Version bump to 1.4.4,
+                - Grab new Fedora patches,
+                - Use openSSL instead of gnutls which doesn't correctly support thread-safe,
+                - Let pisi strip the binaries instead of autotools,
+                - Fix Cross-site Request Forgery Vulnerability in Web Interface (CVE-2010-0540) (#13585),
+                - Fix Null Pointer Dereference in _WriteProlog Function (CVE-2010-0542) (#13588),
+                - Fix Information Disclosure via Web Interface (CVE-2010-1748) (#13591).
+                - Fix Overwrite Arbitrary Files via Symlink Attack (CVE-2010-2431) (#13594),
+                - Fix Denial of Service in cupsDoAuthentication Function (CVE-2010-2432) (#13597).
+            </Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="72">
+            <Date>2010-05-25</Date>
+            <Version>1.4.3</Version>
+            <Comment>Drop php-cli dependency.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="71">
+            <Date>2010-04-01</Date>
+            <Version>1.4.3</Version>
+            <Comment>
+                - Version bump to 1.4.3 bugfix release,
+                - Sync Fedora patches,
+                - Grab some important fixes from Ubuntu,
+                - Enable php to provide a CUPS PHP module,
+                - Don't increase the weight of pstops in mime.convs (#12477).
+            </Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="70" type="security">
+            <Date>2010-03-16</Date>
+            <Version>1.4.2</Version>
+            <Comment>fix lppasswd privilege escalation. (CVE-2010-0393) (#12438)</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="69">
+            <Date>2010-03-11</Date>
+            <Version>1.4.2</Version>
+            <Comment>Sync fedora patches, drop postInstall, handle directories in actions.py</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="68">
+            <Date>2010-02-16</Date>
+            <Version>1.4.2</Version>
+            <Comment>Fix usblp related problems with 1.4.x</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="67">
+            <Date>2010-02-01</Date>
+            <Version>1.4.2</Version>
+            <Comment>Fix service.py</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="66">
+            <Date>2010-01-26</Date>
+            <Version>1.4.2</Version>
+            <Comment>
+                - Switch to 1.4,
+                - Sync fedora patches,
+                - Enable avahi support.
+            </Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="65">
+            <Date>2010-01-03</Date>
+            <Version>1.3.11</Version>
+            <Comment>Enable udev mechanism</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="64" type="security">
+            <Date>2009-12-05</Date>
+            <Version>1.3.11</Version>
+            <Comment>Use-after-free (crash) due improper reference counting in abstract file descriptors handling interface (CVE-2009-3553) (#11663).</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="63">
+            <Date>2009-11-24</Date>
+            <Version>1.3.11</Version>
+            <Comment>Remove desktop file</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="62" type="security">
+            <Date>2009-11-11</Date>
+            <Version>1.3.11</Version>
+            <Comment>Fix several XSS flaws in CUPS (CVE-2009-2820) (#11532).</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="61">
+            <Date>2009-11-05</Date>
+            <Version>1.3.11</Version>
+            <Comment>Remove unneeded directory removal in actions.py.</Comment>
+            <Name>Ekin Meroğlu</Name>
+            <Email>ekin@pardus.org.tr</Email>
+        </Update>
+        <Update release="60">
+            <Date>2009-08-06</Date>
+            <Version>1.3.11</Version>
+            <Comment>
+                - Fix printing of text files beginning with BM,
+                - Replay printer events in service script,
+                - Add udev rule for ACL management.
+            </Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="59">
+            <Date>2009-07-13</Date>
+            <Version>1.3.11</Version>
+            <Comment>Version bump to new bugfix release.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="58">
+            <Date>2009-06-27</Date>
+            <Version>1.3.10</Version>
+            <Comment>
+                - Grab Ubuntu patches,
+                - Strictly depend on the new poppler which contains origpagesizes option in pdftops,
+                - Fixed a bogus whitespace in actions.py avoiding pdftops filter from compiling/installing,
+                - Add logrotate file,
+                - Drop a configuration file into /etc/conf.d to allow loading ppdev and lp drivers,
+                - Only mark *.conf files as configuration in /etc/cups.
+            </Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="57">
+            <Date>2009-05-20</Date>
+            <Version>1.3.10</Version>
+            <Comment>
+                - Fix the behavioral change introduced by the DNS rebinding attack patch,
+                - Add generic postscript and textonly filters and ppds,
+                - Add fedora patches,
+                - Remove obsolete /etc/cups/certs in postInstall,
+            </Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="56">
+            <Date>2009-04-24</Date>
+            <Version>1.3.10</Version>
+            <Comment>
+                - The new release fixes 3 minor security issues as well as several printing and web interface bug fixes,
+                - Grab some fedora and ubuntu patches to improve CUPS,
+                - Remove sedding cupsd.conf for protocol hack since it was silently failing,
+                - Add poppler dependency and use the new internal pdftops wrapper.
+            </Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="55" type="security">
+            <Date>2008-12-02</Date>
+            <Version>1.3.9</Version>
+            <Comment>Fix a potential buffer overflow in _cupsImageReadPNG() (bug#8761).</Comment>
+            <Name>Pınar Yanardağ</Name>
+            <Email>pinar@pardus.org.tr</Email>
+        </Update>
+        <Update release="54">
+            <Date>2008-10-27</Date>
+            <Version>1.3.9</Version>
+            <Comment>
+                - Version bump to 1.3.9,
+                - Fixes 3 integer overflow bugs, an incompatibility with Firefox 3,
+                several printing bugs and several scheduler bugs.
+            </Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="53" type="security">
+            <Date>2008-10-10</Date>
+            <Version>1.3.8</Version>
+            <Comment>Security fixes for CVE-2008-{3639,3640,3641}, (bug#8387)</Comment>
+            <Name>Pınar Yanardağ</Name>
+            <Email>pinar@pardus.org.tr</Email>
+        </Update>
+        <Update release="52" type="security">
+            <Date>2008-08-07</Date>
+            <Version>1.3.8</Version>
+            <Comment>Version bump</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="51">
+            <Date>2008-04-29</Date>
+            <Version>1.3.7</Version>
+            <Comment>Fix https print support, html doc path, ldap, add client.conf to make some apps like java happy</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="50" type="security">
+            <Date>2008-04-11</Date>
+            <Version>1.3.7</Version>
+            <Comment>Fix CVE-2008-1722</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="49" type="security">
+            <Date>2008-04-07</Date>
+            <Version>1.3.7</Version>
+            <Comment>Version bump</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="48" type="security">
+            <Date>2008-04-02</Date>
+            <Version>1.3.6</Version>
+            <Comment>Fix CVE-2008-1373</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="47" type="security">
+            <Date>2008-03-19</Date>
+            <Version>1.3.6</Version>
+            <Comment>Fix CVE-2008-0047</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="46">
+            <Date>2008-03-12</Date>
+            <Version>1.3.6</Version>
+            <Comment>Adapt to new avahi packages</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="45" type="security">
+            <Date>2008-02-28</Date>
+            <Version>1.3.6</Version>
+            <Comment>Bump to fix CVE-2008-0882</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="44">
+            <Date>2007-12-20</Date>
+            <Version>1.3.5</Version>
+            <Comment>Remove wrong service dependency hplip from service script, it is wrong and won't be needed anymore</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="43" type="security">
+            <Date>2007-12-18</Date>
+            <Version>1.3.5</Version>
+            <Comment>Stable update to fix CVE-2007-5849</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="42" type="security">
+            <Date>2007-12-07</Date>
+            <Version>1.3.4</Version>
+            <Comment>Fix CVE-2007-4045</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="41" type="security">
+            <Date>2007-11-07</Date>
+            <Version>1.3.4</Version>
+            <Comment>Fix CVE-2007-{4352,5392,5393}</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="40" type="security">
+            <Date>2007-10-31</Date>
+            <Version>1.3.4</Version>
+            <Comment>Stable update to fix CVE-2007-4351</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="39">
+            <Date>2007-10-04</Date>
+            <Version>1.3.3</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="38">
+            <Date>2007-09-24</Date>
+            <Version>1.3.2</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="37">
+            <Date>2007-08-28</Date>
+            <Version>1.3.0</Version>
+            <Comment>Version bump</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="36" type="security">
+            <Date>2007-07-30</Date>
+            <Version>1.2.11</Version>
+            <Comment>Fix CVE-2007-3387</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="35">
+            <Date>2007-06-12</Date>
+            <Version>1.2.11</Version>
+            <Comment>Remove Java workaround now that Java is fixed</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="34">
+            <Date>2007-05-23</Date>
+            <Version>1.2.11</Version>
+            <Comment>Updated Service script.</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="33">
+            <Date>2007-05-10</Date>
+            <Version>1.2.11</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="32">
+            <Date>2007-03-30</Date>
+            <Version>1.2.10</Version>
+            <Comment>Missing deps added to package</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="31">
+            <Date>2007-03-20</Date>
+            <Version>1.2.10</Version>
+            <Comment>Don't use deprecated pam_stack</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="30">
+            <Date>2007-03-20</Date>
+            <Version>1.2.10</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="29" type="security">
+            <Date>2007-03-15</Date>
+            <Version>1.2.9</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="28" type="security">
+            <Date>2007-03-15</Date>
+            <Version>1.2.8</Version>
+            <Comment>Mark it as a security update for CVE-2007-0720</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="27">
+            <Date>2007-02-27</Date>
+            <Version>1.2.8</Version>
+            <Comment>Enable dbus again, dbus package splitted.</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="26">
+            <Date>2007-02-26</Date>
+            <Version>1.2.8</Version>
+            <Comment>Disable dbus to fix circular dep.</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="25">
+            <Date>2007-02-24</Date>
+            <Version>1.2.8</Version>
+            <Comment>Enable pie and fix bug #5075</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="24">
+            <Date>2007-02-22</Date>
+            <Version>1.2.8</Version>
+            <Comment>Version bump (fixes several web interface, printing, and networking bugs)</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="23" type="security">
+            <Date>2007-01-16</Date>
+            <Version>1.2.7</Version>
+            <Comment>Fix CVE-2007-0104</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="22" type="security">
+            <Date>2006-11-30</Date>
+            <Version>1.2.7</Version>
+            <Comment>Fixes an information leak</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="21">
+            <Date>2006-11-20</Date>
+            <Version>1.2.5</Version>
+            <Comment>Service script localized</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="20">
+            <Date>2006-11-16</Date>
+            <Version>1.2.5</Version>
+            <Comment>Introduce pnpadmin, let the printers work</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="19">
+            <Date>2006-10-26</Date>
+            <Version>1.2.5</Version>
+            <Comment>Version bump</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="18">
+            <Date>2006-10-18</Date>
+            <Version>1.2.4</Version>
+            <Comment>Put system-group=pnp back so /var/run/cups/certs has the right owner</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="17">
+            <Date>2006-10-13</Date>
+            <Version>1.2.4</Version>
+            <Comment>Fix service script, system-groups, etc.</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="16">
+            <Date>2006-10-09</Date>
+            <Version>1.2.4</Version>
+            <Comment>Service script updated.</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="15">
+            <Date>2006-10-09</Date>
+            <Version>1.2.4</Version>
+            <Comment>Version bump</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="14">
+            <Date>2006-09-03</Date>
+            <Version>1.1.23</Version>
+            <Comment>Use pnp group</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="13">
+            <Date>2006-08-11</Date>
+            <Version>1.1.23</Version>
+            <Comment>Compile with new libpng</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="12">
+            <Date>2006-04-15</Date>
+            <Version>1.1.23</Version>
+            <Comment>Comar init script</Comment>
+            <Name>Gürer Özen</Name>
+            <Email>gurer@pardus.org.tr</Email>
+        </Update>
+        <Update release="11">
+            <Date>2006-01-26</Date>
+            <Version>1.1.23</Version>
+            <Comment>Change browse method to all</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="10">
+            <Date>2006-01-25</Date>
+            <Version>1.1.23</Version>
+            <Comment>Fix cups drivername for SMB connections and allow raw printing really</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="9" type="security">
+            <Date>2005-12-22</Date>
+            <Version>1.1.23</Version>
+            <Comment>Fix CVE-2005-3191/2/3</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="8">
+            <Date>2005-12-17</Date>
+            <Version>1.1.23</Version>
+            <Comment>real fix for #691</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="7">
+            <Date>2005-12-06</Date>
+            <Version>1.1.23</Version>
+            <Comment>fix #691</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="6">
+            <Date>2005-12-05</Date>
+            <Version>1.1.23</Version>
+            <Comment>fix #947</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="5">
+            <Date>2005-12-05</Date>
+            <Version>1.1.23</Version>
+            <Comment>Add dependency to foomatic-db. If user wants a printings system, tho shall have the drivers</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="4">
+            <Date>2005-11-18</Date>
+            <Version>1.1.23</Version>
+            <Comment>Bug fix and some tweak</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="3">
+            <Date>2005-10-14</Date>
+            <Version>1.1.23</Version>
+            <Comment>Postinstall script added</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="2">
+            <Date>2005-10-11</Date>
+            <Version>1.1.23</Version>
+            <Comment>dosed function in actions.py and a typo in pspec.xml fixed</Comment>
+            <Name>A. Murat Eren</Name>
+            <Email>meren@pardus.org.tr</Email>
+        </Update>
+        <Update release="1">
+            <Date>2005-08-25</Date>
+            <Version>1.1.23</Version>
+            <Comment>First release.</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+    </History>
+</PISI>
