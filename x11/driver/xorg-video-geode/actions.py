@@ -1,4 +1,3 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
 # Licensed under the GNU General Public License, version 2.
@@ -10,6 +9,7 @@ from pisi.actionsapi import get
 WorkDir = "xf86-video-geode-%s" % get.srcVERSION()
 
 def setup():
+    autotools.autoreconf("-vif")
     autotools.configure()
 
 def build():
