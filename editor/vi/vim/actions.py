@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright 2005-2008 TUBITAK/UEKAE
+# Copyright 2005-2011 TUBITAK/UEKAE
 # Licensed under the GNU General Public License, version 2.
 # See the file http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
 
@@ -10,7 +10,7 @@ from pisi.actionsapi import pisitools
 from pisi.actionsapi import shelltools
 from pisi.actionsapi import get
 
-WorkDir = "vim72"
+WorkDir = "vim73"
 
 def setup():
     shelltools.export("CXXFLAGS", get.CXXFLAGS().replace("-D_FORTIFY_SOURCE=2", ""))
@@ -25,7 +25,7 @@ def setup():
     pisitools.dosed("runtime/menu.vim", "(ctags(\"| [-*.]|\\s+/))", "exuberant-\\1")
     pisitools.dosed("src/configure.in", "(ctags(\"| [-*.]|\\s+/))", "exuberant-\\1")
 
-    pisitools.dosed("src/configure.in", " libc\.h ", " ")
+    pisitools.dosed("src/configure.in", "libc.h", "")
     pisitools.dosed("src/Makefile", " auto.config.mk:", ":")
 
     autotools.make("-C src autoconf")
@@ -42,7 +42,7 @@ def setup():
                     --with-compiledby=http://bugs.pardus.org.tr \
                     --with-modified-by=http://bugs.pardus.org.tr"
 
-    shelltools.copytree("%s/vim72" % get.workDIR(),"build-gui")
+    shelltools.copytree("%s/vim73" % get.workDIR(),"build-gui")
 
     autotools.configure("%s\
                          --enable-gui=no" % configure_args)
