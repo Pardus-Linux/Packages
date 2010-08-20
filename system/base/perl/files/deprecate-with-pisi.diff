@@ -1,0 +1,57 @@
+Class::ISA, Switch, Pod::Plainer, and (partially) Shell were
+deprecated from the Perl core in 5.12.0.
+
+To get a clean transition, perl-modules is going to recommend the separate
+Pardus packages of these for one release cycle so that they will be
+pulled in by default on upgrades.
+
+However, on systems configured to ignore recommendations the deprecation
+warnings will still be useful, so modify them slightly to point to the
+separate packages instead.
+
+When missing packages are ready, this patch should be applied to perl PiSi package.
+
+---
+ lib/deprecate.pm |   18 +++++++++++++++++-
+ 1 files changed, 17 insertions(+), 1 deletions(-)
+
+diff --git a/lib/deprecate.pm b/lib/deprecate.pm
+index 7b92e0b..9db7330 100644
+--- a/lib/deprecate.pm
++++ b/lib/deprecate.pm
+@@ -7,6 +7,16 @@ our $VERSION = 0.01;
+ our %Config;
+ unless (%Config) { require Config; *Config = \%Config::Config; }
+ 
++# Pardus-specific change: recommend the separate Pardus packages of
++# deprecated modules where available
++
++my %PARDUS_PACKAGES = (
++    "Class::ISA"	=> "perl-Class-ISA",
++    #"Pod::Plainer"	=> "libpod-plainer-perl",
++    #"Switch"		=> "libswitch-perl",
++    #"Shell"		=> "libshell-perl",
++);
++
+ sub import {
+     my ($package, $file, $line) = caller;
+     my $expect_leaf = "$package.pm";
+@@ -44,9 +54,15 @@ EOM
+ 	    if (defined $callers_bitmask
+             	&& (vec($callers_bitmask, $warnings::Offsets{deprecated}, 1)
+ 		    || vec($callers_bitmask, $warnings::Offsets{all}, 1))) {
+-		warn <<"EOM";
++		if (my $pisi = $PARDUS_PACKAGES{$package}) {
++		    warn <<"EOM";
++$package will be removed from the Perl core distribution in the next major release. Please install the separate $pisi package. It is being used at $call_file, line $call_line.
++EOM
++		} else {
++		    warn <<"EOM";
+ $package will be removed from the Perl core distribution in the next major release. Please install it from CPAN. It is being used at $call_file, line $call_line.
+ EOM
++		}
+ 	    }
+ 	    return;
+ 	}
+-- 
+tg: (94e17c7..) deprecate-with-pisi (depends on: upstream)

@@ -12,45 +12,37 @@
         <License>GPLv2</License>
         <IsA>app:console</IsA>
         <Summary>Larry Wall's Practical Extraction and Reporting Language</Summary>
-        <Archive sha1sum="8536ed1c14444d1efea069525a816fbc7be7109f" type="targz">mirrors://cpan/authors/id/D/DA/DAPM/perl-5.10.1.tar.gz</Archive>
+        <Archive sha1sum="83b99f08379782dc06594a85eeb279edc5b0ca44" type="targz">mirrors://cpan/authors/id/J/JE/JESSE/perl-5.12.1.tar.gz</Archive>
         <BuildDependencies>
             <Dependency>groff</Dependency>
-            <Dependency>db4</Dependency>
+            <Dependency>db4-devel</Dependency>
+            <!-- Ping Ozan for splitting gdbm package -->
             <Dependency>gdbm</Dependency>
         </BuildDependencies>
         <Patches>
-          <Patch level="1">07_fix_nullok.patch</Patch>
-          <Patch level="1">09_fix_memory_debugging.patch</Patch>
-          <Patch level="1">10_fix_h2ph_include_quote.patch</Patch>
-          <Patch level="1">15_fix_local_symtab.patch</Patch>
-          <Patch level="1">17_fix_getopt_long_callback.patch</Patch>
-          <Patch level="1">18_fix_bigint_floats.patch</Patch>
-          <Patch level="1">23_fix_isa_fiddling.patch</Patch>
-          <Patch level="1">28_fix_inplace_sort.patch</Patch>
-          <Patch level="1">30_fix_freetmps.patch</Patch>
-          <Patch level="1">32_fix_fork_rand.patch</Patch>
-          <Patch level="1">33_fix_qr-memory-leak-1.patch</Patch>
-          <Patch level="1">34_fix_qr-memory-leak-2.patch</Patch>
-          <Patch level="1">36_fix_file_temp_cleanup.patch</Patch>
-          <Patch level="1">37_fix_coredump_indicator.patch</Patch>
-          <Patch level="1">38_fix_weaken_memleak.patch</Patch>
-          <Patch level="1">perl-5.10.0-reorderINC.patch</Patch>
-          <Patch level="1">disable-syslog-test.patch</Patch>
-          <Patch level="1">skip-compat-test.patch</Patch>
+            <!-- disable for Sandbox -->
+          <Patch level="1">perl-5.12.1-disable-syslog-test.patch</Patch>
+          <Patch level="1">perl-5.12.1-skip-compat-test.patch</Patch>
+
+          <Patch level="1">perl-5.12.1-gracefull-net-ftp.diff</Patch>
           <Patch>perl-5.8.5-prelink-lpthread.patch</Patch>
           <Patch>pod-disable-locale.patch</Patch>
-          <Patch>perl-gracefull-net-ftp.diff</Patch>
           <Patch>perl-fix_dbmclose_call.patch</Patch>
           <Patch>perl-regexp-refoverflow.diff</Patch>
-          <Patch>perl-nroff.diff</Patch>
-          <Patch>perl-netcmdutf8.diff</Patch>
-          <Patch>perl-threads.diff</Patch>
-          <!-- add missing symbols that are only available when debugging is enabled. -->
-          <Patch level="1">perl-add-symbols.patch</Patch>
-          <!-- http://rt.perl.org/rt3//Public/Bug/Display.html?id=69973 -->
-          <Patch level="1">CVE-2009-3626.patch</Patch>
-          <!-- Update Safe.pm to 2.27 which fixes CVE-2010-1974 and a number of bug fixes, #13080 -->
-          <Patch>perl-5.10.1-Safe-2.27-CVE-2010-1974.patch</Patch>
+          <Patch level="1">perl-5.12.1-netcmdutf8.diff</Patch>
+          <Patch>perl-5.12.1-nroff.diff</Patch>
+
+          <!-- Use system zlib library-->
+          <Patch level="1">disable-zlib-bundling.diff</Patch>
+
+          <!-- When missing packages are ready, this patch should be applied!
+          <Patch>deprecate-with-pisi.patch</Patch>
+          -->
+          <!-- Don't install .packlist or perllocal.pod for perl or vendor -->
+          <Patch level="1">gentoo/0006-gentoo_MakeMaker-delete__packlist.diff</Patch>
+
+          <Patch level="1">gentoo/0009-fixes_e3d01d03__Naif__calls__segfault__T__PRTOBJ__of__the__stock__typemap.diff</Patch>
+
         </Patches>
     </Source>
 
@@ -78,11 +70,21 @@
             <Path fileType="library">/usr/lib</Path>
         </Files>
         <AdditionalFiles>
-            <AdditionalFile owner="root" permission="0644" target="/usr/lib/perl5/vendor_perl/5.10.1/Turkish.pm">Turkish.pm</AdditionalFile>
+            <AdditionalFile owner="root" permission="0644" target="/usr/lib/perl5/vendor_perl/5.12.1/Turkish.pm">Turkish.pm</AdditionalFile>
         </AdditionalFiles>
+        <Provides>
+            <COMAR script="package.py">System.Package</COMAR>
+        </Provides>
     </Package>
 
     <History>
+        <Update release="31">
+            <Date>2010-08-18</Date>
+            <Version>5.12.1</Version>
+            <Comment>Version bump, reorganize patches, add Comar script and make the package ready for 2011.</Comment>
+            <Name>Serdar Dalgıç</Name>
+            <Email>serdar@pardus.org.tr</Email>
+        </Update>
         <Update release="30" type="security">
             <Date>2010-06-16</Date>
             <Version>5.10.1</Version>

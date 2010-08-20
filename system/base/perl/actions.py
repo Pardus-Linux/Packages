@@ -26,7 +26,6 @@ def setup():
                       -Ulocincpth=  \
                       -Doptimize="%s" \
                       -Duselargefiles \
-                      -Dd_dosuid \
                       -Dusethreads \
                       -Duseithreads \
                       -Dd_semctl_semun \
@@ -35,7 +34,7 @@ def setup():
                       -Dman3dir=/usr/share/man/man3 \
                       -Dinstallman1dir=%s/usr/share/man/man1 \
                       -Dinstallman3dir=%s/usr/share/man/man3 \
-                      -Dlibperl=libperl.so.1.5.8 \
+                      -Dlibperl=libperl.so.%s \
                       -Duseshrplib \
                       -Dman1ext=1 \
                       -Dman3ext=3pm \
@@ -50,7 +49,7 @@ def setup():
                       -Dd_gethostent_r_proto -Ud_endhostent_r_proto -Ud_sethostent_r_proto \
                       -Ud_endprotoent_r_proto -Ud_setprotoent_r_proto \
                       -Ud_endservent_r_proto -Ud_setservent_r_proto \
-                      ' %(get.ARCH(), get.CC(), get.CFLAGS(), get.installDIR(), get.installDIR()))
+                      ' %(get.ARCH(), get.CC(), get.CFLAGS(), get.installDIR(), get.installDIR(), get.srcVERSION()))
 
 def build():
     # colorgcc uses Term::ANSIColor
@@ -68,45 +67,16 @@ def install():
     autotools.rawInstall("DESTDIR=%s" % get.installDIR())
 
     pisitools.remove("/usr/bin/perl")
-    pisitools.remove("/usr/bin/suidperl")
     # Conflicts with perl-Module-Build
     pisitools.remove("/usr/bin/config_data")
 
-    pisitools.dosym("/usr/bin/perl5.10.1", "/usr/bin/perl")
-    pisitools.dosym("/usr/bin/sperl5.10.1", "/usr/bin/suidperl")
+    pisitools.dosym("/usr/bin/perl%s" % get.srcVERSION(), "/usr/bin/perl")
 
     # Perl5 library
-    pisitools.dosym("/usr/lib/perl5/5.10.1/%s-linux-thread-multi/CORE/libperl.so.1.5.8" % get.ARCH(), "/usr/lib/libperl.so")
-    pisitools.dosym("/usr/lib/perl5/5.10.1/%s-linux-thread-multi/CORE/libperl.so.1.5.8" % get.ARCH(), "/usr/lib/libperl.so.1")
-    pisitools.dosym("/usr/lib/perl5/5.10.1/%s-linux-thread-multi/CORE/libperl.so.1.5.8" % get.ARCH(), "/usr/lib/libperl.so.1.5")
-    pisitools.dosym("/usr/lib/perl5/5.10.1/%s-linux-thread-multi/CORE/libperl.so.1.5.8" % get.ARCH(), "/usr/lib/libperl.so.1.5.8")
-
-    # Remove duplicated docs
-    pisitools.remove("/usr/share/man/man3/Digest::MD5.3pm")
-    pisitools.remove("/usr/share/man/man3/Digest.3pm")
-    pisitools.remove("/usr/share/man/man3/Digest::base.3pm")
-    pisitools.remove("/usr/share/man/man3/Digest::file.3pm")
-    pisitools.remove("/usr/share/man/man3/Net::Netrc.3pm")
-    pisitools.remove("/usr/share/man/man3/Net::libnetFAQ.3pm")
-    pisitools.remove("/usr/share/man/man3/Net::Config.3pm")
-    pisitools.remove("/usr/share/man/man3/Net::FTP.3pm")
-    pisitools.remove("/usr/share/man/man3/Net::NNTP.3pm")
-    pisitools.remove("/usr/share/man/man3/Net::Time.3pm")
-    pisitools.remove("/usr/share/man/man3/Net::Domain.3pm")
-    pisitools.remove("/usr/share/man/man3/Net::POP3.3pm")
-    pisitools.remove("/usr/share/man/man3/Net::SMTP.3pm")
-    pisitools.remove("/usr/share/man/man3/Net::Cmd.3pm")
-    pisitools.remove("/usr/share/man/man3/MIME::Base64.3pm")
-    pisitools.remove("/usr/share/man/man3/MIME::QuotedPrint.3pm")
-    pisitools.remove("/usr/share/man/man3/Time::HiRes.3pm")
-    pisitools.remove("/usr/share/man/man3/Getopt::Long.3pm")
-    pisitools.remove("/usr/share/man/man3/IO::Zlib.3pm")
-
-    # perl-Archive-Tar
-    pisitools.remove("/usr/share/man/man3/Archive::Tar.3pm")
-    pisitools.remove("/usr/share/man/man3/Archive::Tar::File.3pm")
-    pisitools.remove("/usr/share/man/man1/ptar.1")
-    pisitools.remove("/usr/share/man/man1/ptardiff.1")
+    pisitools.dosym("/usr/lib/perl5/%s/%s-linux-thread-multi/CORE/libperl.so.%s" % (get.srcVERSION(), get.ARCH(), get.srcVERSION()), "/usr/lib/libperl.so")
+    pisitools.dosym("/usr/lib/perl5/%s/%s-linux-thread-multi/CORE/libperl.so.%s" % (get.srcVERSION(), get.ARCH(), get.srcVERSION()), "/usr/lib/libperl.so.5")
+    pisitools.dosym("/usr/lib/perl5/%s/%s-linux-thread-multi/CORE/libperl.so.%s" % (get.srcVERSION(), get.ARCH(), get.srcVERSION()), "/usr/lib/libperl.so.5.12")
+    pisitools.dosym("/usr/lib/perl5/%s/%s-linux-thread-multi/CORE/libperl.so.%s" % (get.srcVERSION(), get.ARCH(), get.srcVERSION()), "/usr/lib/libperl.so.5.12.1")
 
     # Docs
     pisitools.dodir("/usr/share/doc/%s/html" % get.srcNAME())
