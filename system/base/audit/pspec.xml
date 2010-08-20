@@ -17,7 +17,7 @@
         <Archive sha1sum="fc38a406c12a5f0d911451759caf349ceb536dbd" type="targz">http://people.redhat.com/sgrubb/audit/audit-2.0.4.tar.gz</Archive>
         <BuildDependencies>
             <Dependency>kernel-headers</Dependency>
-            <Dependency>tcp-wrappers</Dependency>
+            <Dependency>tcp-wrappers-devel</Dependency>
         </BuildDependencies>
         <Patches>
             <!-- disable redhat specific system-config-audit and zos-remote plugin -->
@@ -42,7 +42,6 @@
         </RuntimeDependencies>
         <Files>
             <Path fileType="config">/etc</Path>
-            <Path fileType="header">/usr/include</Path>
             <Path fileType="doc">/usr/share/doc</Path>
             <Path fileType="library">/usr/lib</Path>
             <Path fileType="executable">/sbin</Path>
@@ -55,7 +54,27 @@
         </Provides>
     </Package>
 
+    <Package>
+        <Name>audit-devel</Name>
+        <PartOf>system.devel</PartOf>
+        <Summary>Development files for audit</Summary>
+        <RuntimeDependencies>
+            <Dependency release="17">audit</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="header">/usr/include</Path>
+            <Path fileType="man">/usr/share/man/man3</Path>
+        </Files>
+    </Package>
+
     <History>
+        <Update release="17">
+            <Date>2010-08-20</Date>
+            <Version>2.0.4</Version>
+            <Comment>Split devel package.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
         <Update release="16">
             <Date>2010-08-06</Date>
             <Version>2.0.4</Version>
