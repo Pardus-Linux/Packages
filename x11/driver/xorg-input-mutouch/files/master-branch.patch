@@ -1,0 +1,111 @@
+diff --git a/README b/README
+new file mode 100644
+index 0000000..dd37aad
+--- /dev/null
++++ b/README
+@@ -0,0 +1,20 @@
++xf86-input-mutouch - Microtouch input driver for the Xorg X server
++
++Please submit bugs & patches to the Xorg bugzilla:
++
++        https://bugs.freedesktop.org/enter_bug.cgi?product=xorg
++
++All questions regarding this software should be directed at the
++Xorg mailing list:
++
++        http://lists.freedesktop.org/mailman/listinfo/xorg
++
++The master development code repository can be found at:
++
++        git://anongit.freedesktop.org/git/xorg/driver/xf86-input-mutouch
++
++        http://cgit.freedesktop.org/xorg/driver/xf86-input-mutouch
++
++For more information on the git code manager, see:
++
++        http://wiki.x.org/wiki/GitPage
+diff --git a/man/mutouch.man b/man/mutouch.man
+index 0b1fe6c..1c1182d 100644
+--- a/man/mutouch.man
++++ b/man/mutouch.man
+@@ -34,7 +34,7 @@ section only covers configuration details specific to this driver.
+ .PP
+ Config details...
+ .SH "SEE ALSO"
+-__xservername__(__appmansuffix__), __xconfigfile__(__filemansuffix__), xorgconfig(__appmansuffix__), Xserver(__appmansuffix__), X(__miscmansuffix__).
++__xservername__(__appmansuffix__), __xconfigfile__(__filemansuffix__), Xserver(__appmansuffix__), X(__miscmansuffix__).
+ .SH AUTHORS
+ Authors include...
+  Patrick Lecoanet
+diff --git a/src/xf86MuTouch.c b/src/xf86MuTouch.c
+index 82c2a25..de319fc 100644
+--- a/src/xf86MuTouch.c
++++ b/src/xf86MuTouch.c
+@@ -426,9 +426,9 @@ xf86MuTReadInput(LocalDevicePtr	local)
+ 	 * or we will feed X with quite bogus event positions.
+ 	 */
+         if (priv->x_inverted)
+-          cur_x = priv->max_x - cur_x;
++          cur_x = priv->max_x - cur_x + priv->min_x;
+         if (priv->y_inverted)
+-          cur_y = priv->max_y - cur_y;
++          cur_y = priv->max_y - cur_y + priv->min_y;
+ 	xf86PostMotionEvent(local_to_use->dev, TRUE, 0, 2, cur_x, cur_y);
+ 
+ 	/*
+@@ -749,6 +749,10 @@ xf86MuTControl(DeviceIntPtr	dev,
+   unsigned char		req[MuT_PACKET_SIZE];
+   unsigned char		reply[MuT_BUFFER_SIZE];
+   char			*id_string = DEVICE_ID(local->private_flags) == FINGER_ID ? "finger" : "stylus";
++#if GET_ABI_MAJOR(ABI_XINPUT_VERSION) >= 7
++  Atom btn_label;
++  Atom axis_labels[2] = { 0, 0 };
++#endif
+ 
+   switch(mode) {
+ 
+@@ -766,7 +770,11 @@ xf86MuTControl(DeviceIntPtr	dev,
+       /*
+        * Device reports button press for up to 1 button.
+        */
+-      if (InitButtonClassDeviceStruct(dev, 1, map) == FALSE) {
++      if (InitButtonClassDeviceStruct(dev, 1,
++#if GET_ABI_MAJOR(ABI_XINPUT_VERSION) >= 7
++				      &btn_label,
++#endif
++				      map) == FALSE) {
+ 	ErrorF("Unable to allocate ButtonClassDeviceStruct\n");
+ 	return !Success;
+       }
+@@ -779,6 +787,9 @@ xf86MuTControl(DeviceIntPtr	dev,
+        * screen to fit one meter.
+        */
+       if (InitValuatorClassDeviceStruct(dev, 2,
++#if GET_ABI_MAJOR(ABI_XINPUT_VERSION) >= 7
++				      axis_labels,
++#endif
+ #if GET_ABI_MAJOR(ABI_XINPUT_VERSION) < 3
+ 					xf86GetMotionEvents,
+ #endif
+@@ -787,11 +798,19 @@ xf86MuTControl(DeviceIntPtr	dev,
+ 	return !Success;
+       }
+       else {
+-	InitValuatorAxisStruct(dev, 0, priv->min_x, priv->max_x,
++	InitValuatorAxisStruct(dev, 0,
++#if GET_ABI_MAJOR(ABI_XINPUT_VERSION) >= 7
++			       axis_labels[0],
++#endif
++			       priv->min_x, priv->max_x,
+ 			       9500,
+ 			       0     /* min_res */,
+ 			       9500  /* max_res */);
+-	InitValuatorAxisStruct(dev, 1, priv->min_y, priv->max_y,
++	InitValuatorAxisStruct(dev, 1,
++#if GET_ABI_MAJOR(ABI_XINPUT_VERSION) >= 7
++			       axis_labels[1],
++#endif
++			       priv->min_y, priv->max_y,
+ 			       10500,
+ 			       0     /* min_res */,
+ 			       10500 /* max_res */);
