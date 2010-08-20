@@ -1,0 +1,973 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>qt</Name>
+        <Homepage>http://www.trolltech.com/</Homepage>
+        <Packager>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Packager>
+        <License>LGPLv2.1</License>
+        <License>GPLv3</License>
+        <IsA>library</IsA>
+        <Summary>Qt toolkit version 4</Summary>
+        <Description>Qt is a cross platform GUI toolkit.</Description>
+        <Archive sha1sum="7906280feafd7c4bb4a9653e4f5988dcd3be9b54" type="targz">http://get.qt.nokia.com/qt/source/qt-everywhere-opensource-src-4.7.0-beta2.tar.gz</Archive>
+        <BuildDependencies>
+            <Dependency versionFrom="3.4.1">sqlite-devel</Dependency>
+            <Dependency>firebird-superserver</Dependency>
+            <Dependency>firebird-devel</Dependency>
+            <Dependency>postgresql-server</Dependency>
+            <Dependency>fontconfig-devel</Dependency>
+            <Dependency>libXrender-devel</Dependency>
+            <Dependency>mysql-lib</Dependency>
+            <Dependency>libXrandr-devel</Dependency>
+            <Dependency>unixODBC</Dependency>
+            <Dependency>libXext-devel</Dependency>
+            <Dependency>cups-devel</Dependency>
+            <Dependency>mesa-devel</Dependency>
+
+            <!-- Phonon build deps
+            <Dependency>gstreamer</Dependency>
+            <Dependency>alsa-lib</Dependency>
+            <Dependency>automoc4</Dependency>
+            <Dependency>xine-lib</Dependency>
+            <Dependency>gst-plugins-base</Dependency>
+            -->
+        </BuildDependencies>
+        <Patches>
+            <!-- Fedora Patches -->
+            <Patch level="1">fedora/qt-all-opensource-src-4.4.0-rc1-as_IN-437440.patch</Patch>
+            <Patch level="1">fedora/qt-x11-opensource-src-4.5.0-fix-qatomic-inline-asm.patch</Patch>
+            <Patch level="1">fedora/qt-x11-opensource-src-4.5.1-enable_ft_lcdfilter.patch</Patch>
+            <Patch level="1">fedora/qt-x11-opensource-src-4.5.3-system_ca_certificates.patch</Patch>
+            <Patch level="1">fedora/qt-everywhere-opensource-src-4.6.2-cups.patch</Patch>
+            <Patch level="1">fedora/qt-everywhere-opensource-src-4.6.3-glib_eventloop_nullcheck.patch</Patch>
+            <Patch level="1">fedora/qt-everywhere-opensource-src-4.7.0-beta1-uic_multilib.patch</Patch>
+            <Patch level="1">fedora/qt-everywhere-opensource-src-4.7.0-beta1-s390x.patch</Patch>
+            <Patch level="1">fedora/qt-everywhere-opensource-src-4.7.0-beta1-qtwebkit_pluginpath.patch</Patch>
+            <Patch level="1">fedora/qt-everywhere-opensource-src-4.7.0-beta1-qtwebkit_gtk_init.patch</Patch>
+            <Patch level="1">fedora/qt-everywhere-opensource-src-4.7.0-beta2-phonon_servicesfile.patch</Patch>
+            <Patch level="1">fedora/qt-everywhere-opensource-src-4.7.0-beta2-mysql_config.patch</Patch>
+            <Patch level="1">fedora/9a1b0695277a3864b42d082095962f8742cdcf04.patch</Patch>
+            <!--<Patch level="1">fedora/0001-This-patch-uses-object-name-as-a-fallback-for-window.patch</Patch>-->
+            <Patch level="1">fedora/0002-This-patch-makes-override-redirect-windows-popup-men.patch</Patch>
+            <Patch level="1">fedora/0003-This-patch-changes-QObjectPrivateVersion-thus-preven.patch</Patch>
+            <Patch level="1">fedora/0004-This-patch-adds-support-for-using-isystem-to-allow-p.patch</Patch>
+            <Patch level="1">fedora/0005-When-tabs-are-inserted-or-removed-in-a-QTabBar.patch</Patch>
+            <Patch level="1">fedora/0006-Fix-configure.exe-to-do-an-out-of-source-build-on-wi.patch</Patch>
+            <!--<Patch level="1">fedora/0007-When-using-qmake-outside-qt-src-tree-it-sometimes-ge.patch</Patch>
+            <Patch level="1">fedora/0008-This-patch-makes-the-raster-graphics-system-use-shar.patch</Patch>
+            <Patch level="1">fedora/0009-Restore-a-section-of-the-file-that-got-removed-due-t.patch</Patch>
+            -->
+            <Patch level="1">fedora/0012-Add-context-to-tr-calls-in-QShortcut.patch</Patch>
+
+
+            <!-- kde-qt git patches: git format-patch \-\-output-directory kde-qt-patches -M -C v4.6.2..origin/4.6.2-patched 
+            <Patch level="1">git-patches/0001-Import-README.qt-copy-from-the-original-qt-copy.patch</Patch>
+            <Patch level="1">git-patches/0002-Update-this-file-to-reflect-the-workflow-with-Git-as.patch</Patch>
+            <Patch level="1">git-patches/0003-This-patch-makes-override-redirect-windows-popup-men.patch</Patch>
+            <Patch level="1">git-patches/0004-This-patch-uses-object-name-as-a-fallback-for-window.patch</Patch>
+            <Patch level="1">git-patches/0005-This-patch-changes-QObjectPrivateVersion-thus-preven.patch</Patch>
+            <Patch level="1">git-patches/0006-This-patch-adds-support-for-using-isystem-to-allow-p.patch</Patch>
+            <Patch level="1">git-patches/0007-When-tabs-are-inserted-or-removed-in-a-QTabBar.patch</Patch>
+            <Patch level="1">git-patches/0008-When-using-qmake-outside-qt-src-tree-it-sometimes-ge.patch</Patch>
+            <Patch level="1">git-patches/0009-Fix-configure.exe-to-do-an-out-of-source-build-on-wi.patch</Patch>
+            <Patch level="1">git-patches/0010-Update-README-file.patch</Patch>
+            <Patch level="1">git-patches/0011-Update-README-with-instructions-for-patching-after-n.patch</Patch>
+            <Patch level="1">git-patches/0012-Update-README-with-info-on-how-to-update-kde-qt-with.patch</Patch>
+            <Patch level="1">git-patches/0013-Add-environment-variable-switch-for-graphicssystem-s.patch</Patch>
+            -->
+
+            <Patch level="1">uitools-sharedlib.patch</Patch>
+            <Patch level="1">no-hardcoded-font-aliases.patch</Patch>
+
+            <!-- Turkish Translations -->
+            <Patch compressionType="bz2">turkish.patch.bz2</Patch>
+
+            <!-- Kubuntu/Debian patches -->
+
+            <!-- Enable debuginfo for qt3support and qtwebkit -->
+            <Patch level="1">kubuntu/18_enable_qt3support_qtwebkit_debug_info.diff</Patch>
+
+            <!-- Add as-needed to LDFLAGS -->
+            <Patch level="1">kubuntu/09_qmake_lflags_as-needed.diff</Patch>
+
+            <!-- Add PostgreSQL 8.3 support -->
+            <Patch level="1">kubuntu/17_add_postgresql_8.3_support.diff</Patch>
+
+            <!-- Sort QListWidgetItems in locale aware manner #11535 -->
+            <Patch level="1">sort-qlistwidgetitems-in-locale-aware-manner.diff</Patch>
+
+            <!-- SuSE patches -->
+            <Patch>suse/0188-fix-moc-parser-same-name-header.diff</Patch>
+            <Patch>suse/0191-listview-alternate-row-colors.diff</Patch>
+            <!--<Patch>suse/fix-sequence-error.diff</Patch>-->
+            <Patch>suse/konsole-nvidia-font-speed.diff</Patch>
+            <Patch>suse/qfatal-noreturn.diff</Patch>
+            <Patch>suse/qt-debug-timer.diff</Patch>
+            <Patch>suse/use-freetype-default.diff</Patch>
+
+            <Patch level="1">mkspecs.patch</Patch>
+        </Patches>
+    </Source>
+
+    <Package>
+        <Name>qt</Name>
+        <RuntimeDependencies>
+            <Dependency>fontconfig</Dependency>
+            <Dependency>libXrender</Dependency>
+            <Dependency>libXrandr</Dependency>
+            <Dependency>libXext</Dependency>
+            <Dependency>mesa</Dependency>
+            <Dependency>cups</Dependency>
+        </RuntimeDependencies>
+        <Replaces>
+            <Package>qt4</Package>
+        </Replaces>
+        <Files>
+            <Path fileType="executable">/usr/bin</Path>
+            <Path fileType="config">/etc</Path>
+            <Path fileType="executable">/usr/bin/qdbus</Path>
+            <Path fileType="library">/usr/lib</Path>
+            <Path fileType="data">/usr/lib/qt4/plugins</Path>
+            <Path fileType="data">/usr/lib/qt4/imports</Path>
+            <Path fileType="data">/usr/lib/qt4/templates</Path>
+            <Path fileType="localedata">/usr/share/qt4/translations/*_tr.*</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>qt-webkit</Name>
+        <RuntimeDependencies>
+            <Dependency versionFrom="4.7.0_beta2">qt</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="data">/usr/lib/pkgconfig/*WebKit*</Path>
+            <Path fileType="data">/usr/lib/pkgconfig/*WebKit*</Path>
+            <Path fileType="header">/usr/include/Qt/*WebKit*</Path>
+            <Path fileType="header">/usr/include/Qt/*webkit*</Path>
+            <Path fileType="header">/usr/include/QtWebKit</Path>
+            <Path fileType="library">/usr/lib/*WebKit*</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>qt-devel</Name>
+        <Summary>Development files for Qt</Summary>
+        <RuntimeDependencies>
+            <Dependency release="78">qt</Dependency>
+        </RuntimeDependencies>
+        <Conflicts>
+            <Package releaseTo="76">qt</Package>
+        </Conflicts>
+        <Files>
+            <!-- binaries are for development -->
+            <Path fileType="executable">/usr/bin</Path>
+            <Path fileType="data">/usr/share/qt4/mkspecs</Path>
+            <Path fileType="data">/usr/lib/pkgconfig</Path>
+            <Path fileType="header">/usr/include</Path>
+            <Path fileType="data">/usr/share/qt4/q3porting.xml</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>qt-l10n</Name>
+        <IsA>locale</IsA>
+        <Summary>Translation files for Qt library and tools. Supported languages are: da, de, fr, ja, pl, ru, zh_CN, zh_TW</Summary>
+        <Conflicts>
+            <Package releaseTo="76">qt</Package>
+        </Conflicts>
+        <Files>
+            <Path fileType="localedata">/usr/share/qt4/translations</Path>
+        </Files>
+    </Package>
+
+
+    <Package>
+        <Name>qt-designer</Name>
+        <RuntimeDependencies>
+            <Dependency versionFrom="4.7.0_beta2">qt</Dependency>
+        </RuntimeDependencies>
+        <Replaces>
+            <Package>qt4-designer</Package>
+        </Replaces>
+        <Files>
+            <Path fileType="executable">/usr/bin/designer</Path>
+            <Path fileType="library">/usr/lib/qt4/plugins/designer</Path>
+            <Path fileType="data">/usr/share/applications/designer-qt4.desktop</Path>
+            <Path fileType="data">/usr/share/pixmaps/designer-qt4.png</Path>
+        </Files>
+        <AdditionalFiles>
+            <AdditionalFile owner="root" permission="0644" target="/usr/share/applications/designer-qt4.desktop">data/designer.desktop</AdditionalFile>
+            <AdditionalFile owner="root" permission="0644" target="/usr/share/pixmaps/designer-qt4.png">data/designer.png</AdditionalFile>
+        </AdditionalFiles>
+    </Package>
+
+    <Package>
+        <Name>qt-linguist</Name>
+        <RuntimeDependencies>
+            <Dependency versionFrom="4.7.0_beta2">qt</Dependency>
+        </RuntimeDependencies>
+        <Replaces>
+            <Package>qt4-linguist</Package>
+        </Replaces>
+        <Files>
+            <Path fileType="executable">/usr/bin/linguist</Path>
+            <Path fileType="data">/usr/share/qt4/phrasebooks</Path>
+            <Path fileType="data">/usr/share/applications/linguist-qt4.desktop</Path>
+            <Path fileType="data">/usr/share/pixmaps/linguist-qt4.png</Path>
+        </Files>
+        <AdditionalFiles>
+            <AdditionalFile owner="root" permission="0644" target="/usr/share/applications/linguist-qt4.desktop">data/linguist.desktop</AdditionalFile>
+            <AdditionalFile owner="root" permission="0644" target="/usr/share/pixmaps/linguist-qt4.png">data/linguist.png</AdditionalFile>
+        </AdditionalFiles>
+    </Package>
+
+    <Package>
+        <Name>qt-docs</Name>
+        <Summary>Development documents of Qt and Qt Assistant tool</Summary>
+        <RuntimeDependencies>
+            <Dependency versionFrom="4.7.0_beta2">qt</Dependency>
+            <Dependency versionFrom="4.7.0_beta2">qt-sql-sqlite</Dependency>
+        </RuntimeDependencies>
+        <Replaces>
+            <Package>qt4-doc</Package>
+            <Package>qt-doc</Package>
+        </Replaces>
+        <Files>
+            <Path fileType="executable">/usr/bin/assistant</Path>
+            <Path fileType="doc">/usr/share/doc/qt4/qch</Path>
+            <Path fileType="data">/usr/share/applications/assistant-qt4.desktop</Path>
+            <Path fileType="data">/usr/share/pixmaps/assistant-qt4.png</Path>
+            <Path fileType="data">/usr/share/icons</Path>
+        </Files>
+        <AdditionalFiles>
+            <AdditionalFile owner="root" permission="0644" target="/usr/share/applications/assistant-qt4.desktop">data/assistant.desktop</AdditionalFile>
+            <AdditionalFile owner="root" permission="0644" target="/usr/share/pixmaps/assistant-qt4.png">data/assistant.png</AdditionalFile>
+            <AdditionalFile owner="root" permission="0644" target="/usr/share/icons/hicolor/128x128/apps/qt4-logo.png">data/hi128-app-qt4-logo.png</AdditionalFile>
+            <AdditionalFile owner="root" permission="0644" target="/usr/share/icons/hicolor/48x48/apps/qt4-logo.png">data/hi48-app-qt4-logo.png</AdditionalFile>
+        </AdditionalFiles>
+    </Package>
+
+    <!--
+    <Package>
+        <Name>qt-docs-html</Name>
+        <Conflicts>
+            <Package versionTo="4.5.3">qt-doc</Package>
+        </Conflicts>
+        <Replaces>
+            <Package>qt-doc-html</Package>
+        </Replaces>
+        <Files>
+            <Path fileType="doc">/usr/qt/4/doc</Path>
+        </Files>
+    </Package>
+    -->
+
+    <Package>
+        <Name>qt-demos</Name>
+        <RuntimeDependencies>
+            <Dependency versionFrom="4.7.0_beta2">qt</Dependency>
+        </RuntimeDependencies>
+        <Conflicts>
+            <Package versionTo="4.5.3">qt-doc</Package>
+        </Conflicts>
+        <Files>
+            <Path fileType="executable">/usr/bin/qtdemo</Path>
+            <Path fileType="library">/usr/lib/qt4/demos</Path>
+            <Path fileType="library">/usr/lib/qt4/examples</Path>
+            <Path fileType="library">/usr/lib/qt4/plugins/designer/libarthurplugin.so</Path>
+            <Path fileType="data">/usr/share/applications/qtdemo.desktop</Path>
+        </Files>
+        <AdditionalFiles>
+            <AdditionalFile owner="root" permission="0644" target="/usr/share/applications/qtdemo.desktop">data/qtdemo.desktop</AdditionalFile>
+        </AdditionalFiles>
+    </Package>
+
+    <Package>
+        <Name>qt-sql-mysql</Name>
+        <RuntimeDependencies>
+            <Dependency versionFrom="4.7.0_beta2">qt</Dependency>
+            <Dependency>mysql-lib</Dependency>
+        </RuntimeDependencies>
+        <Replaces>
+            <Package>qt4-sql-mysql</Package>
+        </Replaces>
+        <Files>
+            <Path fileType="library">/usr/lib/qt4/plugins/sqldrivers/libqsqlmysql.so</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>qt-sql-postgresql</Name>
+        <RuntimeDependencies>
+            <Dependency versionFrom="4.7.0_beta2">qt</Dependency>
+            <Dependency>postgresql-lib</Dependency>
+        </RuntimeDependencies>
+        <Replaces>
+            <Package>qt4-sql-postgresql</Package>
+        </Replaces>
+        <Files>
+            <Path fileType="library">/usr/lib/qt4/plugins/sqldrivers/libqsqlpsql.so</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>qt-sql-sqlite</Name>
+        <RuntimeDependencies>
+            <Dependency versionFrom="4.7.0_beta2">qt</Dependency>
+            <Dependency versionFrom="3.4.1">sqlite</Dependency>
+        </RuntimeDependencies>
+        <Replaces>
+            <Package>qt4-sql-sqlite</Package>
+        </Replaces>
+        <Files>
+            <Path fileType="library">/usr/lib/qt4/plugins/sqldrivers/libqsqlite.so</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>qt-sql-odbc</Name>
+        <RuntimeDependencies>
+            <Dependency versionFrom="4.7.0_beta2">qt</Dependency>
+            <Dependency>unixODBC</Dependency>
+        </RuntimeDependencies>
+        <Replaces>
+            <Package>qt4-sql-odbc</Package>
+        </Replaces>
+        <Files>
+            <Path fileType="library">/usr/lib/qt4/plugins/sqldrivers/libqsqlodbc.so</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>qt-sql-ibase</Name>
+        <RuntimeDependencies>
+            <Dependency versionFrom="4.7.0_beta2">qt</Dependency>
+            <Dependency>firebird-client</Dependency>
+            <Dependency>firebird-superserver</Dependency>
+        </RuntimeDependencies>
+        <Replaces>
+            <Package>qt4-sql-ibase</Package>
+        </Replaces>
+        <Files>
+            <Path fileType="library">/usr/lib/qt4/plugins/sqldrivers/libqsqlibase.so</Path>
+        </Files>
+    </Package>
+
+    <!--
+    <Package>
+        <Name>phonon</Name>
+        <RuntimeDependencies>
+            <Dependency>qt</Dependency>
+            <Dependency>alsa-lib</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="data">/usr/share/dbus-1/interfaces/org.kde.Phonon.AudioOutput.xml</Path>
+            <Path fileType="data">/usr/lib/pkgconfig/phonon*</Path>
+            <Path fileType="data">/usr/qt/4/lib/pkgconfig/phonon*</Path>
+            <Path fileType="header">/usr/qt/4/include/Qt/phonon*</Path>
+            <Path fileType="header">/usr/qt/4/include/phonon</Path>
+            <Path fileType="library">/usr/qt/4/lib/libphonon*</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>phonon-gstreamer</Name>
+        <RuntimeDependencies>
+            <Dependency>phonon</Dependency>
+            <Dependency>gstreamer</Dependency>
+            <Dependency>gst-plugins-base</Dependency>
+            <Dependency>gst-plugins-good</Dependency>
+            <Dependency>gst-ffmpeg</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="data">/usr/kde/4/share/kde4/services/phononbackends</Path>
+            <Path fileType="library">/usr/qt/4/plugins/phonon_backend</Path>
+            <Path fileType="data">/usr/share/icons/hicolor/*/*/*gstreamer*</Path>
+        </Files>
+        <AdditionalFiles>
+            <AdditionalFile owner="root" permission="0644" target="/usr/share/icons/hicolor/scalable/apps/phonon-gstreamer.svg">data/phonon-gstreamer.svg</AdditionalFile>
+        </AdditionalFiles>
+    </Package>
+    -->
+
+    <History>
+        <Update release="78">
+            <Date>2010-06-16</Date>
+            <Version>4.7.0_beta2</Version>
+            <Comment>Version bump to 4.7 beta2</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="77">
+            <Date>2010-05-24</Date>
+            <Version>4.6.2</Version>
+            <Comment>Split translation and headers into different packages.</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="76">
+            <Date>2010-05-18</Date>
+            <Version>4.6.2</Version>
+            <Comment>Fix ugly cursors during drag'n'drop mentioned in http://bugreports.qt.nokia.com/browse/QTBUG-6669 and https://bugs.kde.org/show_bug.cgi?id=173718</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="75">
+            <Date>2010-04-05</Date>
+            <Version>4.6.2</Version>
+            <Comment>Version bump to latest Qt version.</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="74">
+            <Date>2010-02-12</Date>
+            <Version>4.5.3</Version>
+            <Comment>Sort QListWidgetItems in locale aware manner #11535</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="73">
+            <Date>2009-12-07</Date>
+            <Version>4.5.3</Version>
+            <Comment>Split out kde-qt git patches.</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="72" type="security">
+            <Date>2009-11-14</Date>
+            <Version>4.5.3</Version>
+            <Comment>
+                * Webkit: Add patch to fix multiple security flaws while handling FTP directory listing (CVE-2009-3384, #11545)
+                * Webkit: Add patch to fix MITM Cross-Origin Resource Sharing vulnerability (CVE-2009-2816, #11546)
+            </Comment>
+            <Name>Eren Türkay</Name>
+            <Email>eren@pardus.org.tr</Email>
+        </Update>
+        <Update release="71">
+            <Date>2009-10-30</Date>
+            <Version>4.5.3</Version>
+            <Comment>Fix a serious bug in qeventdispatcher_glib, kde#211250.</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="70">
+            <Date>2009-10-26</Date>
+            <Version>4.5.3</Version>
+            <Comment>Create symlink of lconvert to /usr/bin as lconvert-qt4</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="69">
+            <Date>2009-10-02</Date>
+            <Version>4.5.3</Version>
+            <Comment>Version bump to latest bugfix release.</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="68" type="security">
+            <Date>2009-09-02</Date>
+            <Version>4.5.2</Version>
+            <Comment>Fix for CVE-2009-2700 which is a potential vulnerability in the QSslCertificate class parsing of Subject Alternate Names (SAN) of X.509 certificates that contain embedded NUL characters, #11005</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="67" type="security">
+            <Date>2009-08-20</Date>
+            <Version>4.5.2</Version>
+            <Comment>Fix for WebKit security vulnerability which allows remote attackers to execute arbitrary code or cause a denial of service (memory corruption and application crash) via a crafted HTML document CVE-2009-1725, #10929.</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="66">
+            <Date>2009-08-12</Date>
+            <Version>4.5.2</Version>
+            <Comment>
+                - Drop patch introduced by the previous release as the issue is now fixed in KDE part,
+                - Create separate directories for data files, kubuntu patches and unapplied patches,
+                - Fix the ugly Plasma task manager context menus,
+                - Add support for more X keycodes to Qt,
+                - Enable debuginfo for qt3support and qtwebkit libraries,
+                - Fix some QtWebkit crashes triggered through Arora,
+                - Add as-needed to compilation LDFLAGS,
+                - Add support for PostgreSQL 8.3.
+            </Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="65">
+            <Date>2009-07-20</Date>
+            <Version>4.5.2</Version>
+            <Comment>Fix for wrong tolower behaviour in QTextCodec.codecForName. General solution for #9951.</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="64">
+            <Date>2009-07-03</Date>
+            <Version>4.5.2</Version>
+            <Comment>Fix the translation of OK from TAMAM to Tamam.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="63">
+            <Date>2009-07-02</Date>
+            <Version>4.5.2</Version>
+            <Comment>Really filter out -g3 flag.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="62">
+            <Date>2009-06-26</Date>
+            <Version>4.5.2</Version>
+            <Comment>Stable update</Comment>
+            <Name>Gökmen Göksel</Name>
+            <Email>gokmen@pardus.org.tr</Email>
+        </Update>
+        <Update release="61">
+            <Date>2009-06-04</Date>
+            <Version>4.5.1</Version>
+            <Comment>Sync QtCopy patches of KDE Upstream</Comment>
+            <Name>Gökmen Göksel</Name>
+            <Email>gokmen@pardus.org.tr</Email>
+        </Update>
+        <Update release="60">
+            <Date>2009-05-24</Date>
+            <Version>4.5.1</Version>
+            <Comment>Add some patches from git about QGtkStyle. 327d94ce8054718d0ce157604594e470e90d6cb4.patch fixes a very painful crash when GTK+ style is selected as Widget style in systemsettings.</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="59">
+            <Date>2009-05-14</Date>
+            <Version>4.5.1</Version>
+            <Comment>
+                - Fix mkspecs file to use correct compiler commands
+                - Do not use strip in order to create useful debug packages
+                - Add missing dependencies: libXext, libXrender and mesa
+            </Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="58">
+            <Date>2009-04-24</Date>
+            <Version>4.5.1</Version>
+            <Comment>
+                - Added svg regression patch
+            </Comment>
+            <Name>İşbaran Akçayır</Name>
+            <Email>isbaran@comu.edu.tr</Email>
+        </Update>
+        <Update release="57">
+            <Date>2009-04-23</Date>
+            <Version>4.5.1</Version>
+            <Comment>
+                - Stable update to 4.5.1
+            </Comment>
+            <Name>Gökmen Göksel</Name>
+            <Email>gokmen@pardus.org.tr</Email>
+        </Update>
+        <Update release="56">
+            <Date>2009-03-23</Date>
+            <Version>4.5.0</Version>
+            <Comment>
+                - Merge KDE Qt-Copy patches
+                - Remove unnecessary spec files
+            </Comment>
+            <Name>Gökmen Göksel</Name>
+            <Email>gokmen@pardus.org.tr</Email>
+        </Update>
+        <Update release="55">
+            <Date>2009-03-03</Date>
+            <Version>4.5.0</Version>
+            <Comment>Stable update to 4.5.0</Comment>
+            <Name>Gökmen Göksel</Name>
+            <Email>gokmen@pardus.org.tr</Email>
+        </Update>
+        <Update release="54">
+            <Date>2009-03-03</Date>
+            <Version>4.5.0_rc1</Version>
+            <Comment>Use Pardus Flags in mkspec/common/g++.conf</Comment>
+            <Name>Gökmen Göksel</Name>
+            <Email>gokmen@pardus.org.tr</Email>
+        </Update>
+        <Update release="53">
+            <Date>2009-02-06</Date>
+            <Version>4.5.0_rc1</Version>
+            <Comment>4.5.0 Rc1</Comment>
+            <Name>Gökmen Göksel</Name>
+            <Email>gokmen@pardus.org.tr</Email>
+        </Update>
+        <Update release="52">
+            <Date>2009-02-02</Date>
+            <Version>4.5.0_20090202</Version>
+            <Comment>Switch to 4.5 snapshot</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="51">
+            <Date>2009-01-30</Date>
+            <Version>4.4.3</Version>
+            <Comment>
+                * Sync with kde-qt-copy patches
+            </Comment>
+            <Name>Gökmen Göksel</Name>
+            <Email>gokmen@pardus.org.tr</Email>
+        </Update>
+        <Update release="50">
+            <Date>2008-12-19</Date>
+            <Version>4.4.3</Version>
+            <Comment>Remove unnecessary build dir variable from prl files</Comment>
+            <Name>Gökmen Göksel</Name>
+            <Email>gokmen@pardus.org.tr</Email>
+        </Update>
+        <Update release="49">
+            <Date>2008-11-10</Date>
+            <Version>4.4.3</Version>
+            <Comment>Add PKG_CONFIG_PATH variable to 45qt4 file to use qt4 pc files with pkg-config tool</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="48">
+            <Date>2008-11-10</Date>
+            <Version>4.4.3</Version>
+            <Comment>
+                - Sync qt-copy patches from KDE svn,
+                - Fix desktop files to make them compliant with XDG.
+            </Comment>
+            <Name>Gökmen Göksel</Name>
+            <Email>gokmen@pardus.org.tr</Email>
+        </Update>
+        <Update release="47">
+            <Date>2008-09-29</Date>
+            <Version>4.4.3</Version>
+            <Comment>Stable Update</Comment>
+            <Name>Gökmen Göksel</Name>
+            <Email>gokmen@pardus.org.tr</Email>
+        </Update>
+        <Update release="46">
+            <Date>2008-09-23</Date>
+            <Version>4.4.2</Version>
+            <Comment>Stable Update</Comment>
+            <Name>Gökmen Göksel</Name>
+            <Email>gokmen@pardus.org.tr</Email>
+        </Update>
+        <Update release="45">
+            <Date>2008-09-23</Date>
+            <Version>4.4.1</Version>
+            <Comment>Do not use hardcoded font aliases</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="44">
+            <Date>2008-08-08</Date>
+            <Version>4.4.1</Version>
+            <Comment>Systray patch from Kubuntu</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="43">
+            <Date>2008-07-31</Date>
+            <Version>4.4.1</Version>
+            <Comment>Version bump to stable release</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="42">
+            <Date>2008-07-27</Date>
+            <Version>4.4.0</Version>
+            <Comment>Add more patches from qt-copy of KDE</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="41">
+            <Date>2008-07-12</Date>
+            <Version>4.4.0</Version>
+            <Comment>Phonon is disabled, because it's been packaged from KDE SVN to compile KDE 4.1 packages</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="40">
+            <Date>2008-07-01</Date>
+            <Version>4.4.0</Version>
+            <Comment>Add missing dependency of qt-doc</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="39">
+            <Date>2008-05-14</Date>
+            <Version>4.4.0</Version>
+            <Comment>Stable update</Comment>
+            <Name>Gökmen Göksel</Name>
+            <Email>gokmen@pardus.org.tr</Email>
+        </Update>
+        <Update release="38">
+            <Date>2008-03-04</Date>
+            <Version>4.3.4</Version>
+            <Comment>Stable update</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="37" type="security">
+            <Date>2007-12-06</Date>
+            <Version>4.3.3</Version>
+            <Comment>Stable update to fix CVE-2007-5965</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="36">
+            <Date>2007-11-09</Date>
+            <Version>4.3.2</Version>
+            <Comment>Sync with qt-copy</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="35">
+            <Date>2007-10-11</Date>
+            <Version>4.3.2</Version>
+            <Comment>Add Turkish translations from Serdar Soytetir</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="34">
+            <Date>2007-10-03</Date>
+            <Version>4.3.2</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="33" type="security">
+            <Date>2007-09-14</Date>
+            <Version>4.3.1</Version>
+            <Comment>Fix CVE-2007-4137</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="32">
+            <Date>2007-08-08</Date>
+            <Version>4.3.1</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="31">
+            <Date>2007-08-02</Date>
+            <Version>4.3.0</Version>
+            <Comment>Sync with qt-copy</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="30" type="security">
+            <Date>2007-07-16</Date>
+            <Version>4.3.0</Version>
+            <Comment>Protect against format string problems</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="29">
+            <Date>2007-06-29</Date>
+            <Version>4.3.0</Version>
+            <Comment>Sync with qt-copy</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="28">
+            <Date>2007-05-30</Date>
+            <Version>4.3.0</Version>
+            <Comment>Version bump</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="27">
+            <Date>2007-05-08</Date>
+            <Version>4.3.0_rc1</Version>
+            <Comment>Version bump</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="26">
+            <Date>2007-04-23</Date>
+            <Version>4.2.3</Version>
+            <Comment>Prevent miscompilation of qlocale.cpp</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="25" type="security">
+            <Date>2007-03-31</Date>
+            <Version>4.2.3</Version>
+            <Comment>Fix UTF-8 overlong sequence decoding vulnerability</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="24">
+            <Date>2007-03-27</Date>
+            <Version>4.2.3</Version>
+            <Comment>Remove cursor char format patch</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="23">
+            <Date>2007-03-18</Date>
+            <Version>4.2.3</Version>
+            <Comment>Fix http://www.trolltech.com/developer/task-tracker/index_html?method=entry&amp;id=153635</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="22">
+            <Date>2007-03-12</Date>
+            <Version>4.2.3</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="21">
+            <Date>2007-03-08</Date>
+            <Version>4.2.2</Version>
+            <Comment>Split designer/linguist</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="20">
+            <Date>2007-02-24</Date>
+            <Version>4.2.2</Version>
+            <Comment>Sync with qt-copy</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="19">
+            <Date>2007-02-23</Date>
+            <Version>4.2.2</Version>
+            <Comment>Add /usr/qt/4/lib to LDPATH</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="18">
+            <Date>2006-12-03</Date>
+            <Version>4.2.2</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="17">
+            <Date>2006-11-09</Date>
+            <Version>4.2.1</Version>
+            <Comment>Sync with qt-copy</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="16">
+            <Date>2006-10-25</Date>
+            <Version>4.2.1</Version>
+            <Comment>Sync with qt-copy</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="15">
+            <Date>2006-10-24</Date>
+            <Version>4.2.1</Version>
+            <Comment>Remove temp paths from prl files</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="14">
+            <Date>2006-10-24</Date>
+            <Version>4.2.1</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="13" type="security">
+            <Date>2006-10-20</Date>
+            <Version>4.2.0</Version>
+            <Comment>Fixup last patch</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="12" type="security">
+            <Date>2006-10-19</Date>
+            <Version>4.2.0</Version>
+            <Comment>Fix CVE-2006-4811</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="11">
+            <Date>2006-10-17</Date>
+            <Version>4.2.0</Version>
+            <Comment>Provide symlinks for dbus tools and more</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="10">
+            <Date>2006-10-08</Date>
+            <Version>4.2.0</Version>
+            <Comment>Put examples and demos under qt4-doc package</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="9">
+            <Date>2006-10-07</Date>
+            <Version>4.2.0</Version>
+            <Comment>Where is the love? release</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="8">
+            <Date>2006-10-06</Date>
+            <Version>4.2.0</Version>
+            <Comment>Sync with qt-copy</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="7">
+            <Date>2006-10-04</Date>
+            <Version>4.2.0</Version>
+            <Comment>Version bump</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="6">
+            <Date>2006-07-14</Date>
+            <Version>4.1.4</Version>
+            <Comment>Split odbc package</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="5">
+            <Date>2006-06-23</Date>
+            <Version>4.1.4</Version>
+            <Comment>New stable release</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="4">
+            <Date>2006-05-21</Date>
+            <Version>4.1.3</Version>
+            <Comment>New stable release</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="3">
+            <Date>2006-03-30</Date>
+            <Version>4.1.2</Version>
+            <Comment>New stable release</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="2">
+            <Date>2006-02-17</Date>
+            <Version>4.1.1</Version>
+            <Comment>New stable release</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="1">
+            <Date>2005-12-29</Date>
+            <Version>4.1.0</Version>
+            <Comment>First release.</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+    </History>
+</PISI>
