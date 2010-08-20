@@ -118,4 +118,3 @@ def install():
 
     # Remove useless image directory, images of HTML docs are in doc/html/images
     pisitools.removeDir("%s/src" % qt4.docdir)
-    os.removedirs("%s/%s" % (get.installDIR(), qt4.docdir))
