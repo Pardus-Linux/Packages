@@ -1,0 +1,23 @@
+diff --git a/src/drmmode_display.c b/src/drmmode_display.c
+index d50e640..d6c7cd3 100644
+--- a/src/drmmode_display.c
++++ b/src/drmmode_display.c
+@@ -412,6 +412,18 @@ drmmode_output_detect(xf86OutputPtr output)
+ 	drmmode_output->mode_output =
+ 		drmModeGetConnector(drmmode->fd, drmmode_output->output_id);
+ 
++	switch (drmmode_output->mode_output->connector_type) {
++	case DRM_MODE_CONNECTOR_SVIDEO:
++		/* FIXME: KMS svideo detection is flaky an causes X to
++		 * come up in 1024x768 when it tries to pick a clone
++		 * mode that fits both the panel and the tv out.  Once
++		 * KMS learns how to detect svideo better we can
++		 * remove this. */
++		return DRM_MODE_UNKNOWNCONNECTION;
++	default:
++		break;
++	}
++
+ 	switch (drmmode_output->mode_output->connection) {
+ 	case DRM_MODE_CONNECTED:
+ 		status = XF86OutputStatusConnected;
