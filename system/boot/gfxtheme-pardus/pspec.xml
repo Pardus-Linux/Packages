@@ -1,0 +1,279 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>gfxtheme-pardus</Name>
+        <Homepage>http://www.pardus.org.tr</Homepage>
+        <Packager>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Packager>
+        <License>GPLv2</License>
+        <IsA>data</IsA>
+        <Summary>Pardus gfxboot theme</Summary>
+        <Description>Gfxtheme boot and install packages for Pardus</Description>
+        <Archive sha1sum="56ada9d4aaad15baba516f79e02b0ad41e71dde0" type="tarbz2">http://cekirdek.pardus.org.tr/~onur/distfiles/gfxtheme-pardus-2011-0.11.1.tar.bz2</Archive>
+        <BuildDependencies>
+            <Dependency>gfxboot</Dependency>
+            <Dependency>fribidi-devel</Dependency>
+        </BuildDependencies>
+        <Patches>
+            <!-- these did not make into uludag trunk, to make svn usable without hassle -->
+            <Patch level="1">pardusman.patch</Patch>
+            <!-- enable pl_PL and keep the patch for now, just in case
+            <Patch level="1">nopols.patch</Patch>
+            -->
+            <Patch>nomodeset.patch</Patch>
+            <Patch>fsckmsg.patch</Patch>
+        </Patches>
+    </Source>
+
+    <Package>
+        <Name>gfxtheme-base</Name>
+        <Files>
+            <Path fileType="config">/etc/conf.d</Path>
+            <Path fileType="executable">/sbin</Path>
+        </Files>
+        <AdditionalFiles>
+            <AdditionalFile owner="root" permission="0755" target="/sbin/update-grub-theme">update-grub-theme</AdditionalFile>
+            <AdditionalFile owner="root" permission="0644" target="/etc/conf.d/gfxtheme">gfxtheme</AdditionalFile>
+        </AdditionalFiles>
+    </Package>
+
+    <Package>
+        <Name>gfxtheme-pardus-install</Name>
+        <Files>
+            <Path fileType="data">/usr/share/gfxtheme/pardus/install</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>gfxtheme-pardus-boot</Name>
+        <RuntimeDependencies>
+            <Dependency>gfxtheme-base</Dependency>
+            <!-- make sure these packages are installed before we are -->
+            <Dependency>grub</Dependency>
+            <Dependency>cpio</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="data">/usr/share/gfxtheme/pardus/boot</Path>
+        </Files>
+        <Provides>
+            <COMAR script="package.py">System.Package</COMAR>
+        </Provides>
+    </Package>
+
+    <History>
+        <Update release="28">
+            <Date>2010-08-20</Date>
+            <Version>0.11.1</Version>
+            <Comment>Convert to Pardus 2011</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="27">
+            <Date>2010-06-01</Date>
+            <Version>0.11.1</Version>
+            <Comment>Correct fsck Turkish message</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="26">
+            <Date>2010-03-04</Date>
+            <Version>0.11.1</Version>
+            <Comment>
+                Update gfxboot code to 2009 0.11.1 version
+                Add nomodeset to zorg failsafe
+            </Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="25">
+            <Date>2009-12-23</Date>
+            <Version>0.20</Version>
+            <Comment>Switch to Corporate2 branch</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="24">
+            <Date>2009-12-16</Date>
+            <Version>0.10</Version>
+            <Comment>
+                Add mainmenu and otheroptions support
+                Update translations
+            </Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="23">
+            <Date>2009-10-18</Date>
+            <Version>0.10</Version>
+            <Comment>Make sure /boot/grub/message is created before message file is written, thanks to Ali E. İmrek for catching the race condition</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="22">
+            <Date>2009-10-15</Date>
+            <Version>0.10</Version>
+            <Comment>
+                Add mudur options to grub menu
+                Remove Cebit images
+            </Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="21">
+            <Date>2009-10-02</Date>
+            <Version>0.9</Version>
+            <Comment>Temporarily add Cebit images</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="20">
+            <Date>2009-07-15</Date>
+            <Version>0.9</Version>
+            <Comment>
+                Add only available languages to grub menu
+                Make language selection in grub work
+            </Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="19">
+            <Date>2009-07-10</Date>
+            <Version>0.9</Version>
+            <Comment>Update images</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="18">
+            <Date>2009-05-27</Date>
+            <Version>0.8</Version>
+            <Comment>Update gfx and sync with revision 23134</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="17">
+            <Date>2009-05-22</Date>
+            <Version>0.7</Version>
+            <Comment>
+                Add hdt support
+                Unify zorg shortcut
+            </Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="16">
+            <Date>2009-05-04</Date>
+            <Version>0.7</Version>
+            <Comment>Fix images</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="15">
+            <Date>2009-05-03</Date>
+            <Version>0.6</Version>
+            <Comment>Update tarball with patches merged</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="14">
+            <Date>2009-01-27</Date>
+            <Version>0.5</Version>
+            <Comment>Extend menu bar width for long release names</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="13">
+            <Date>2008-09-09</Date>
+            <Version>0.5</Version>
+            <Comment>Update Turkish and French translations</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="12">
+            <Date>2008-08-27</Date>
+            <Version>0.5</Version>
+            <Comment>Enable sv_SE</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="11">
+            <Date>2008-06-27</Date>
+            <Version>0.5</Version>
+            <Comment>Enable pl_PL</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="10">
+            <Date>2008-06-18</Date>
+            <Version>0.5</Version>
+            <Comment>Update translations</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="9">
+            <Date>2008-06-17</Date>
+            <Version>0.4</Version>
+            <Comment>Make sure \n is written in default lang option</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="8">
+            <Date>2008-06-17</Date>
+            <Version>0.4</Version>
+            <Comment>Fix install with Catalan</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="7">
+            <Date>2008-06-15</Date>
+            <Version>0.4</Version>
+            <Comment>Fix hardlock on some languages, fix PL patch, use Language for F2 in all languages, add grub theme updater, fix "No Text" error of zorg panel entries, fix bug #7397 and #7403</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="6">
+            <Date>2008-06-09</Date>
+            <Version>0.3</Version>
+            <Comment>Make pardusman work, revert 18563 for now</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="5">
+            <Date>2008-06-09</Date>
+            <Version>0.3</Version>
+            <Comment>Workaround isolinux space limitation</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="4">
+            <Date>2008-06-09</Date>
+            <Version>0.2</Version>
+            <Comment>Fix menu moving on panel entry selection, add i18n updates</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="3">
+            <Date>2008-06-03</Date>
+            <Version>0.1</Version>
+            <Comment>Use long name for default locale, disable pl for now</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="2">
+            <Date>2008-06-03</Date>
+            <Version>0.1</Version>
+            <Comment>Match localenames with mudur</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="1">
+            <Date>2008-06-03</Date>
+            <Version>0.1</Version>
+            <Comment>First release</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+    </History>
+</PISI>
