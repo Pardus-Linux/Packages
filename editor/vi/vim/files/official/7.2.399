@@ -1,0 +1,63 @@
+To: vim-dev@vim.org
+Subject: Patch 7.2.399 (extra)
+Fcc: outbox
+From: Bram Moolenaar <Bram@moolenaar.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+------------
+
+Patch 7.2.399 (extra, after 7.2.388)
+Problem:    Cannot compile on MingW.
+Solution:   Move ifneq to separate line. (Vlad Sandrini, Dominique Pelle)
+Files:	    src/Make_ming.mak
+
+
+*** ../vim-7.2.398/src/Make_ming.mak	2010-03-10 13:19:28.000000000 +0100
+--- src/Make_ming.mak	2010-03-17 17:23:31.000000000 +0100
+***************
+*** 215,226 ****
+  ifndef RUBY_PLATFORM
+  ifeq ($(RUBY_VER), 16)
+  RUBY_PLATFORM = i586-mswin32
+! else ifneq ("X$(wildcard, $(RUBY)/lib/ruby/$(RUBY_VER_LONG)/i386-mingw32)", X)
+  RUBY_PLATFORM = i386-mingw32
+  else
+  RUBY_PLATFORM = i386-mswin32
+  endif
+  endif
+  
+  ifndef RUBY_INSTALL_NAME
+  ifeq ($(RUBY_VER), 16)
+--- 215,228 ----
+  ifndef RUBY_PLATFORM
+  ifeq ($(RUBY_VER), 16)
+  RUBY_PLATFORM = i586-mswin32
+! else
+! ifneq ($(wildcard $(RUBY)/lib/ruby/$(RUBY_VER_LONG)/i386-mingw32),)
+  RUBY_PLATFORM = i386-mingw32
+  else
+  RUBY_PLATFORM = i386-mswin32
+  endif
+  endif
++ endif
+  
+  ifndef RUBY_INSTALL_NAME
+  ifeq ($(RUBY_VER), 16)
+*** ../vim-7.2.398/src/version.c	2010-03-17 16:54:51.000000000 +0100
+--- src/version.c	2010-03-17 17:23:40.000000000 +0100
+***************
+*** 683,684 ****
+--- 683,686 ----
+  {   /* Add new patch number below this line */
++ /**/
++     399,
+  /**/
+
+-- 
+Life is a gift, living is an art.		(Bram Moolenaar)
+
+ /// Bram Moolenaar -- Bram@Moolenaar.net -- http://www.Moolenaar.net   \\\
+///        sponsor Vim, vote for features -- http://www.Vim.org/sponsor/ \\\
+\\\        download, build and distribute -- http://www.A-A-P.org        ///
+ \\\            help me help AIDS victims -- http://ICCF-Holland.org    ///

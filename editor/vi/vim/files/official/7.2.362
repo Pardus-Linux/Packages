@@ -1,0 +1,95 @@
+To: vim-dev@vim.org
+Subject: Patch 7.2.362 (extra)
+Fcc: outbox
+From: Bram Moolenaar <Bram@moolenaar.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+------------
+
+Patch 7.2.362 (extra, after 7.2.352)
+Problem:    Win64: Vim doesn't work when cross-compiled with MingW libraries.
+Solution:   Instead of handling WM_NCCREATE, create wide text area window
+            class if the parent window iw side. (Sergey Khorev)
+Files:      src/gui_w32.c, src/gui_w48.c
+
+
+*** ../vim-7.2.361/src/gui_w32.c	2009-12-24 16:11:24.000000000 +0100
+--- src/gui_w32.c	2010-02-17 16:26:58.000000000 +0100
+***************
+*** 1329,1334 ****
+--- 1329,1335 ----
+      WNDCLASS wndclass;
+  #ifdef FEAT_MBYTE
+      const WCHAR szVimWndClassW[] = VIM_CLASSW;
++     const WCHAR szTextAreaClassW[] = L"VimTextArea";
+      WNDCLASSW wndclassw;
+  #endif
+  #ifdef GLOBAL_IME
+***************
+*** 1479,1484 ****
+--- 1480,1507 ----
+  #endif
+  
+      /* Create the text area window */
++ #ifdef FEAT_MBYTE
++     if (wide_WindowProc)
++     {
++ 	if (GetClassInfoW(s_hinst, szTextAreaClassW, &wndclassw) == 0)
++ 	{
++ 	    wndclassw.style = CS_OWNDC;
++ 	    wndclassw.lpfnWndProc = _TextAreaWndProc;
++ 	    wndclassw.cbClsExtra = 0;
++ 	    wndclassw.cbWndExtra = 0;
++ 	    wndclassw.hInstance = s_hinst;
++ 	    wndclassw.hIcon = NULL;
++ 	    wndclassw.hCursor = LoadCursor(NULL, IDC_ARROW);
++ 	    wndclassw.hbrBackground = NULL;
++ 	    wndclassw.lpszMenuName = NULL;
++ 	    wndclassw.lpszClassName = szTextAreaClassW;
++ 
++ 	    if (RegisterClassW(&wndclassw) == 0)
++ 		return FAIL;
++ 	}
++     }
++     else
++ #endif
+      if (GetClassInfo(s_hinst, szTextAreaClass, &wndclass) == 0)
+      {
+  	wndclass.style = CS_OWNDC;
+*** ../vim-7.2.361/src/gui_w48.c	2010-02-03 12:23:16.000000000 +0100
+--- src/gui_w48.c	2010-02-17 16:27:21.000000000 +0100
+***************
+*** 1084,1096 ****
+  	case WM_NOTIFY: Handle_WM_Notify(hwnd, (LPNMHDR)lParam);
+  	    return TRUE;
+  #endif
+- 	/* Workaround for the problem that MyWindowProc() returns FALSE on 64
+- 	 * bit windows when cross-compiled using Mingw libraries. (Andy
+- 	 * Kittner) */
+- 	case WM_NCCREATE:
+- 	    MyWindowProc(hwnd, uMsg, wParam, lParam);
+- 	    return TRUE;
+- 
+  	default:
+  	    return MyWindowProc(hwnd, uMsg, wParam, lParam);
+      }
+--- 1084,1089 ----
+*** ../vim-7.2.361/src/version.c	2010-02-17 16:23:03.000000000 +0100
+--- src/version.c	2010-02-17 16:30:52.000000000 +0100
+***************
+*** 683,684 ****
+--- 683,686 ----
+  {   /* Add new patch number below this line */
++ /**/
++     362,
+  /**/
+
+-- 
+"Marriage is the process of finding out what kind of man your wife
+would have preferred"
+
+ /// Bram Moolenaar -- Bram@Moolenaar.net -- http://www.Moolenaar.net   \\\
+///        sponsor Vim, vote for features -- http://www.Vim.org/sponsor/ \\\
+\\\        download, build and distribute -- http://www.A-A-P.org        ///
+ \\\            help me help AIDS victims -- http://ICCF-Holland.org    ///

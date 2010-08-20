@@ -1,0 +1,303 @@
+To: vim-dev@vim.org
+Subject: Patch 7.2.372 (extra)
+Fcc: outbox
+From: Bram Moolenaar <Bram@moolenaar.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+------------
+
+Patch 7.2.372 (extra)
+Problem:    Cross-compiling GvimExt and xxd doesn't work.
+Solution:   Change the build files. (Markus Heidelberg)
+Files:	    src/INSTALLpc.txt, src/GvimExt/Make_ming.mak, src/Make_cyg.mak,
+	    src/Make_ming.mak, src/xxd/Make_cyg.mak
+
+
+*** ../vim-7.2.371/src/INSTALLpc.txt	2008-07-13 19:20:53.000000000 +0200
+--- src/INSTALLpc.txt	2010-01-19 12:37:03.000000000 +0100
+***************
+*** 215,222 ****
+  
+  You should not need to do *any* editing of any files to get vim compiled this
+  way.  If, for some reason, you want the console-mode-only version of vim (this
+! is NOT recommended on Win32, especially on '95/'98!!!), you need only change
+! the 'gvim.exe' to 'vim.exe' in the 'make' commands given above.
+  
+  If you are dismayed by how big the EXE is, I strongly recommend you get 'UPX'
+  (also free!) and compress the file (typical compression is 50%). UPX can be
+--- 215,223 ----
+  
+  You should not need to do *any* editing of any files to get vim compiled this
+  way.  If, for some reason, you want the console-mode-only version of vim (this
+! is NOT recommended on Win32, especially on '95/'98!!!), you can use:
+! 
+!     make -f Make_ming.mak GUI=no vim.exe
+  
+  If you are dismayed by how big the EXE is, I strongly recommend you get 'UPX'
+  (also free!) and compress the file (typical compression is 50%). UPX can be
+***************
+*** 240,246 ****
+  The Cygnus one many not fully work yet.
+  With Cygnus gcc you can use the Unix Makefile instead (you need to get the
+  Unix archive then).  Then you get a Cygwin application (feels like Vim is
+! runnin on Unix), while with Make_cyg.mak you get a Windows application (like
+  with the other makefiles).
+  
+  
+--- 241,247 ----
+  The Cygnus one many not fully work yet.
+  With Cygnus gcc you can use the Unix Makefile instead (you need to get the
+  Unix archive then).  Then you get a Cygwin application (feels like Vim is
+! running on Unix), while with Make_cyg.mak you get a Windows application (like
+  with the other makefiles).
+  
+  
+***************
+*** 259,268 ****
+--- 260,272 ----
+  If you like, you can compile the 'mingw' Win32 version from the comfort of
+  your Linux (or other unix) box.  To do this, you need to follow a few steps:
+      1) Install the mingw32 cross-compiler. See
++ 	http://www.mingw.org/wiki/LinuxCrossMinGW
+  	http://www.libsdl.org/extras/win32/cross/README.txt
+      2) Get and unpack both the Unix sources and the extra archive
+      3) in 'Make_ming.mak', set 'CROSS' to 'yes' instead of 'no'.
+         Make further changes to 'Make_ming.mak' as you wish.
++        If your cross-compiler prefix differs from the predefined value,
++        set 'CROSS_COMPILE' corresponding.
+      4) make -f Make_ming.mak gvim.exe
+  
+  Now you have created the Windows binary from your Linux box!  Have fun...
+*** ../vim-7.2.371/src/GvimExt/Make_ming.mak	2005-01-09 22:15:44.000000000 +0100
+--- src/GvimExt/Make_ming.mak	2010-02-24 14:56:37.000000000 +0100
+***************
+*** 20,36 ****
+  ifeq ($(CROSS),yes)
+  DEL = rm
+  ifeq ($(MINGWOLD),yes)
+- CXX = i586-mingw32msvc-g++
+  CXXFLAGS := -O2 -mno-cygwin -fvtable-thunks
+- WINDRES = i586-mingw32msvc-windres
+  else
+- CXX = i386-mingw32msvc-g++
+  CXXFLAGS := -O2 -mno-cygwin
+- WINDRES = i386-mingw32msvc-windres
+  endif
+  else
+- CXX := g++
+- WINDRES := windres
+  CXXFLAGS := -O2 -mno-cygwin
+  ifneq (sh.exe, $(SHELL))
+  DEL = rm
+--- 20,30 ----
+***************
+*** 38,43 ****
+--- 32,39 ----
+  DEL = del
+  endif
+  endif
++ CXX := $(CROSS_COMPILE)g++
++ WINDRES := $(CROSS_COMPILE)windres
+  LIBS :=  -luuid
+  RES  := gvimext.res
+  DEFFILE = gvimext_ming.def
+*** ../vim-7.2.371/src/Make_cyg.mak	2009-09-11 12:48:56.000000000 +0200
+--- src/Make_cyg.mak	2010-02-24 14:59:02.000000000 +0100
+***************
+*** 1,6 ****
+  #
+  # Makefile for VIM on Win32, using Cygnus gcc
+! # Last updated by Dan Sharp.  Last Change: 2007 Sep 29
+  #
+  # Also read INSTALLpc.txt!
+  #
+--- 1,6 ----
+  #
+  # Makefile for VIM on Win32, using Cygnus gcc
+! # Last updated by Dan Sharp.  Last Change: 2010 Feb 24
+  #
+  # Also read INSTALLpc.txt!
+  #
+***************
+*** 32,40 ****
+  # OLE		no or yes: set to yes to make OLE gvim (no)
+  # DEBUG		no or yes: set to yes if you wish a DEBUGging build (no)
+  # CPUNR		No longer supported, use ARCH.
+! # ARCH		i386 through pentium4: select -march argument to compile with (i386)
+  # USEDLL	no or yes: set to yes to use the Runtime library DLL (no)
+  #		For USEDLL=yes the cygwin1.dll is required to run Vim.
+  # POSTSCRIPT	no or yes: set to yes for PostScript printing (no)
+  # FEATURES	TINY, SMALL, NORMAL, BIG or HUGE (BIG)
+  # WINVER	Lowest Win32 version to support.  (0x0400)
+--- 32,43 ----
+  # OLE		no or yes: set to yes to make OLE gvim (no)
+  # DEBUG		no or yes: set to yes if you wish a DEBUGging build (no)
+  # CPUNR		No longer supported, use ARCH.
+! # ARCH		i386 through pentium4: select -march argument to compile with
+! #               (i386)
+  # USEDLL	no or yes: set to yes to use the Runtime library DLL (no)
+  #		For USEDLL=yes the cygwin1.dll is required to run Vim.
++ #		"no" does not work with latest version of Cygwin, use
++ #		Make_ming.mak instead.  Or set CC to gcc-3.
+  # POSTSCRIPT	no or yes: set to yes for PostScript printing (no)
+  # FEATURES	TINY, SMALL, NORMAL, BIG or HUGE (BIG)
+  # WINVER	Lowest Win32 version to support.  (0x0400)
+***************
+*** 99,104 ****
+--- 102,108 ----
+  INCLUDES = -march=$(ARCH) -Iproto
+  
+  #>>>>> name of the compiler and linker, name of lib directory
++ CROSS_COMPILE =
+  CC = gcc
+  RC = windres
+  
+***************
+*** 467,476 ****
+  	$(CC) $(CFLAGS) -o $(EXE) $(OBJ) $(LIBS) -luuid -lole32 $(EXTRA_LIBS)
+  
+  xxd/xxd.exe: xxd/xxd.c
+! 	$(MAKE) -C xxd -f Make_cyg.mak USEDLL=$(USEDLL)
+  
+  GvimExt/gvimext.dll: GvimExt/gvimext.cpp GvimExt/gvimext.rc GvimExt/gvimext.h
+! 	$(MAKE) -C GvimExt -f Make_ming.mak
+  
+  vimrun.exe: vimrun.c
+  	$(CC) $(CFLAGS) -o vimrun.exe vimrun.c  $(LIBS)
+--- 471,480 ----
+  	$(CC) $(CFLAGS) -o $(EXE) $(OBJ) $(LIBS) -luuid -lole32 $(EXTRA_LIBS)
+  
+  xxd/xxd.exe: xxd/xxd.c
+! 	$(MAKE) -C xxd -f Make_cyg.mak CC=$(CC) USEDLL=$(USEDLL)
+  
+  GvimExt/gvimext.dll: GvimExt/gvimext.cpp GvimExt/gvimext.rc GvimExt/gvimext.h
+! 	$(MAKE) -C GvimExt -f Make_ming.mak CROSS_COMPILE=$(CROSS_COMPILE)
+  
+  vimrun.exe: vimrun.c
+  	$(CC) $(CFLAGS) -o vimrun.exe vimrun.c  $(LIBS)
+*** ../vim-7.2.371/src/Make_ming.mak	2009-09-11 12:48:56.000000000 +0200
+--- src/Make_ming.mak	2010-02-24 15:01:31.000000000 +0100
+***************
+*** 241,255 ****
+  DEFINES=-DWIN32 -DWINVER=$(WINVER) -D_WIN32_WINNT=$(WINVER) \
+  	-DHAVE_PATHDEF -DFEAT_$(FEATURES)
+  ifeq ($(CROSS),yes)
+! # cross-compiler:
+! CC = i586-pc-mingw32msvc-gcc
+  DEL = rm
+  MKDIR = mkdir -p
+! WINDRES = i586-pc-mingw32msvc-windres
+  else
+  # normal (Windows) compilation:
+- CC = gcc
+  ifneq (sh.exe, $(SHELL))
+  DEL = rm
+  MKDIR = mkdir -p
+  DIRSLASH = /
+--- 241,255 ----
+  DEFINES=-DWIN32 -DWINVER=$(WINVER) -D_WIN32_WINNT=$(WINVER) \
+  	-DHAVE_PATHDEF -DFEAT_$(FEATURES)
+  ifeq ($(CROSS),yes)
+! # cross-compiler prefix:
+! CROSS_COMPILE = i586-pc-mingw32msvc-
+  DEL = rm
+  MKDIR = mkdir -p
+! DIRSLASH = /
+  else
+  # normal (Windows) compilation:
+  ifneq (sh.exe, $(SHELL))
++ CROSS_COMPILE =
+  DEL = rm
+  MKDIR = mkdir -p
+  DIRSLASH = /
+***************
+*** 258,265 ****
+  MKDIR = mkdir
+  DIRSLASH = \\
+  endif
+- WINDRES = windres
+  endif
+  
+  #>>>>> end of choices
+  ###########################################################################
+--- 258,266 ----
+  MKDIR = mkdir
+  DIRSLASH = \\
+  endif
+  endif
++ CC := $(CROSS_COMPILE)gcc
++ WINDRES := $(CROSS_COMPILE)windres
+  
+  #>>>>> end of choices
+  ###########################################################################
+***************
+*** 549,558 ****
+  	upx vim.exe
+  
+  xxd/xxd.exe: xxd/xxd.c
+! 	$(MAKE) -C xxd -f Make_cyg.mak
+  
+  GvimExt/gvimext.dll: GvimExt/gvimext.cpp GvimExt/gvimext.rc GvimExt/gvimext.h
+  	$(MAKE) -C GvimExt -f Make_ming.mak
+  
+  clean:
+  	-$(DEL) $(OUTDIR)$(DIRSLASH)*.o
+--- 550,560 ----
+  	upx vim.exe
+  
+  xxd/xxd.exe: xxd/xxd.c
+! 	$(MAKE) -C xxd -f Make_cyg.mak CC=$(CC)
+  
+  GvimExt/gvimext.dll: GvimExt/gvimext.cpp GvimExt/gvimext.rc GvimExt/gvimext.h
+  	$(MAKE) -C GvimExt -f Make_ming.mak
++ 	$(MAKE) -C GvimExt -f Make_ming.mak CROSS=$(CROSS) CROSS_COMPILE=$(CROSS_COMPILE)
+  
+  clean:
+  	-$(DEL) $(OUTDIR)$(DIRSLASH)*.o
+*** ../vim-7.2.371/src/xxd/Make_cyg.mak	2004-06-13 17:48:52.000000000 +0200
+--- src/xxd/Make_cyg.mak	2010-02-24 15:05:24.000000000 +0100
+***************
+*** 12,17 ****
+--- 12,18 ----
+  LIBS    =
+  endif
+  
++ CC = gcc
+  CFLAGS = -O2 -Wall -DWIN32 $(DEFINES)
+  
+  ifneq (sh.exe, $(SHELL))
+***************
+*** 21,27 ****
+  endif
+  
+  xxd.exe: xxd.c
+! 	gcc $(CFLAGS) -s -o xxd.exe xxd.c $(LIBS)
+  
+  clean:
+  	-$(DEL) xxd.exe
+--- 22,28 ----
+  endif
+  
+  xxd.exe: xxd.c
+! 	$(CC) $(CFLAGS) -s -o xxd.exe xxd.c $(LIBS)
+  
+  clean:
+  	-$(DEL) xxd.exe
+*** ../vim-7.2.371/src/version.c	2010-02-24 14:46:58.000000000 +0100
+--- src/version.c	2010-02-24 15:05:48.000000000 +0100
+***************
+*** 683,684 ****
+--- 683,686 ----
+  {   /* Add new patch number below this line */
++ /**/
++     372,
+  /**/
+
+-- 
+Ten bugs in the hand is better than one as yet undetected.
+
+ /// Bram Moolenaar -- Bram@Moolenaar.net -- http://www.Moolenaar.net   \\\
+///        sponsor Vim, vote for features -- http://www.Vim.org/sponsor/ \\\
+\\\        download, build and distribute -- http://www.A-A-P.org        ///
+ \\\            help me help AIDS victims -- http://ICCF-Holland.org    ///

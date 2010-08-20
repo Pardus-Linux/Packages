@@ -1,0 +1,59 @@
+To: vim-dev@vim.org
+Subject: Patch 7.2.384 (extra)
+Fcc: outbox
+From: Bram Moolenaar <Bram@moolenaar.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+------------
+
+Patch 7.2.384 (extra)
+Problem:    Vim doesn't build properly with MSVC 2010.
+Solution:   Add the nmake version to the build file. (George Reilly)
+Files:	    src/Make_mvc.mak, src/testdir/Make_dos.mak
+
+
+*** ../vim-7.2.383/src/Make_mvc.mak	2009-09-11 12:48:56.000000000 +0200
+--- src/Make_mvc.mak	2010-03-02 17:44:22.000000000 +0100
+***************
+*** 361,366 ****
+--- 361,369 ----
+  !if "$(_NMAKE_VER)" == "10.00.20506.01"
+  MSVCVER = 10.0
+  !endif
++ !if "$(_NMAKE_VER)" == "10.00.30128.01"
++ MSVCVER = 10.0
++ !endif
+  !endif
+  
+  # Abort bulding VIM if version of VC is unrecognised.
+*** ../vim-7.2.383/src/testdir/Make_dos.mak	2010-01-19 15:51:29.000000000 +0100
+--- src/testdir/Make_dos.mak	2010-03-02 17:45:48.000000000 +0100
+***************
+*** 56,61 ****
+--- 56,62 ----
+  	-if exist small.vim del small.vim
+  	-if exist tiny.vim del tiny.vim
+  	-if exist mbyte.vim del mbyte.vim
++ 	-if exist mzscheme.vim del mzscheme.vim
+  	-del X*
+  	-if exist viminfo del viminfo
+  
+*** ../vim-7.2.383/src/version.c	2010-03-02 17:50:30.000000000 +0100
+--- src/version.c	2010-03-02 17:59:09.000000000 +0100
+***************
+*** 683,684 ****
+--- 683,686 ----
+  {   /* Add new patch number below this line */
++ /**/
++     384,
+  /**/
+
+-- 
+Yah, well, we had to carve our electrons out of driftwood we'd
+find.  In the winter.  Uphill.  Both ways.
+
+ /// Bram Moolenaar -- Bram@Moolenaar.net -- http://www.Moolenaar.net   \\\
+///        sponsor Vim, vote for features -- http://www.Vim.org/sponsor/ \\\
+\\\        download, build and distribute -- http://www.A-A-P.org        ///
+ \\\            help me help AIDS victims -- http://ICCF-Holland.org    ///

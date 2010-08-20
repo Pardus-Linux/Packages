@@ -1,0 +1,86 @@
+To: vim-dev@vim.org
+Subject: Patch 7.2.388 (extra)
+Fcc: outbox
+From: Bram Moolenaar <Bram@moolenaar.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+------------
+
+Patch 7.2.388 (extra part of 7.2.387)
+Problem:    Ruby with MingW still doesn't build all versions.
+Solution:   Different approach to build file. (Sergey Khorev)
+Files:	    src/Make_ming.mak
+
+
+*** ../vim-7.2.387/src/Make_ming.mak	2010-02-26 22:05:17.000000000 +0100
+--- src/Make_ming.mak	2010-03-10 12:34:25.000000000 +0100
+***************
+*** 212,234 ****
+  RUBY_VER_LONG = 1.6
+  endif
+  
+- ifeq ($(RUBY_VER), 16)
+  ifndef RUBY_PLATFORM
+  RUBY_PLATFORM = i586-mswin32
+! endif
+! ifndef RUBY_INSTALL_NAME
+! RUBY_INSTALL_NAME = mswin32-ruby$(RUBY_VER)
+! endif
+  else
+- ifndef RUBY_PLATFORM
+  RUBY_PLATFORM = i386-mswin32
+  endif
+  ifndef RUBY_INSTALL_NAME
+  RUBY_INSTALL_NAME = msvcrt-ruby$(RUBY_VER)
+  endif
+  endif
+  
+! RUBYINC =-I $(RUBY)/lib/ruby/$(RUBY_VER_LONG)/$(RUBY_PLATFORM)
+  ifeq (no, $(DYNAMIC_RUBY))
+  RUBYLIB = -L$(RUBY)/lib -l$(RUBY_INSTALL_NAME)
+  endif
+--- 212,236 ----
+  RUBY_VER_LONG = 1.6
+  endif
+  
+  ifndef RUBY_PLATFORM
++ ifeq ($(RUBY_VER), 16)
+  RUBY_PLATFORM = i586-mswin32
+! else ifneq ("X$(wildcard, $(RUBY)/lib/ruby/$(RUBY_VER_LONG)/i386-mingw32)", X)
+! RUBY_PLATFORM = i386-mingw32
+  else
+  RUBY_PLATFORM = i386-mswin32
+  endif
++ endif
++ 
+  ifndef RUBY_INSTALL_NAME
++ ifeq ($(RUBY_VER), 16)
++ RUBY_INSTALL_NAME = mswin32-ruby$(RUBY_VER)
++ else
+  RUBY_INSTALL_NAME = msvcrt-ruby$(RUBY_VER)
+  endif
+  endif
+  
+! RUBYINC =-I $(RUBY)/lib/ruby/$(RUBY_VER_LONG)/$(RUBY_PLATFORM) -I $(RUBY)/include/ruby-$(RUBY_VER_LONG) -I $(RUBY)/include/ruby-$(RUBY_VER_LONG)/$(RUBY_PLATFORM)
+  ifeq (no, $(DYNAMIC_RUBY))
+  RUBYLIB = -L$(RUBY)/lib -l$(RUBY_INSTALL_NAME)
+  endif
+*** ../vim-7.2.387/src/version.c	2010-03-10 12:46:38.000000000 +0100
+--- src/version.c	2010-03-10 13:18:38.000000000 +0100
+***************
+*** 683,684 ****
+--- 683,686 ----
+  {   /* Add new patch number below this line */
++ /**/
++     388,
+  /**/
+
+-- 
+Q: Is selling software the same as selling hardware?
+A: No, good hardware is sold new, good software has already been used by many.
+
+ /// Bram Moolenaar -- Bram@Moolenaar.net -- http://www.Moolenaar.net   \\\
+///        sponsor Vim, vote for features -- http://www.Vim.org/sponsor/ \\\
+\\\        download, build and distribute -- http://www.A-A-P.org        ///
+ \\\            help me help AIDS victims -- http://ICCF-Holland.org    ///

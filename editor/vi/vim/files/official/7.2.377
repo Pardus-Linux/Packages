@@ -1,0 +1,66 @@
+To: vim-dev@vim.org
+Subject: Patch 7.2.377 (extra)
+Fcc: outbox
+From: Bram Moolenaar <Bram@moolenaar.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+------------
+
+Patch 7.2.377 (extra, after 7.2.372)
+Problem:    Misplaced assignment.  Duplicate build line for gvimext.dll.
+Solution:   Move setting CROSS_COMPILE to before ifneq.  Remove the wrong
+	    build line. (Markus Heidelberg)
+Files:	    src/Make_ming.mak
+
+
+*** ../vim-7.2.376/src/Make_ming.mak	2010-02-24 15:07:45.000000000 +0100
+--- src/Make_ming.mak	2010-02-26 22:01:07.000000000 +0100
+***************
+*** 248,255 ****
+  DIRSLASH = /
+  else
+  # normal (Windows) compilation:
+- ifneq (sh.exe, $(SHELL))
+  CROSS_COMPILE =
+  DEL = rm
+  MKDIR = mkdir -p
+  DIRSLASH = /
+--- 248,255 ----
+  DIRSLASH = /
+  else
+  # normal (Windows) compilation:
+  CROSS_COMPILE =
++ ifneq (sh.exe, $(SHELL))
+  DEL = rm
+  MKDIR = mkdir -p
+  DIRSLASH = /
+***************
+*** 553,559 ****
+  	$(MAKE) -C xxd -f Make_cyg.mak CC=$(CC)
+  
+  GvimExt/gvimext.dll: GvimExt/gvimext.cpp GvimExt/gvimext.rc GvimExt/gvimext.h
+- 	$(MAKE) -C GvimExt -f Make_ming.mak
+  	$(MAKE) -C GvimExt -f Make_ming.mak CROSS=$(CROSS) CROSS_COMPILE=$(CROSS_COMPILE)
+  
+  clean:
+--- 553,558 ----
+*** ../vim-7.2.376/src/version.c	2010-02-24 17:22:14.000000000 +0100
+--- src/version.c	2010-02-26 22:01:45.000000000 +0100
+***************
+*** 683,684 ****
+--- 683,686 ----
+  {   /* Add new patch number below this line */
++ /**/
++     377,
+  /**/
+
+-- 
+FIRST HEAD: All right! All right! We'll kill him first and then have tea and
+            biscuits.
+                 "Monty Python and the Holy Grail" PYTHON (MONTY) PICTURES LTD
+
+ /// Bram Moolenaar -- Bram@Moolenaar.net -- http://www.Moolenaar.net   \\\
+///        sponsor Vim, vote for features -- http://www.Vim.org/sponsor/ \\\
+\\\        download, build and distribute -- http://www.A-A-P.org        ///
+ \\\            help me help AIDS victims -- http://ICCF-Holland.org    ///

@@ -1,0 +1,91 @@
+To: vim-dev@vim.org
+Subject: Patch 7.2.364 (extra)
+Fcc: outbox
+From: Bram Moolenaar <Bram@moolenaar.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+------------
+
+Patch 7.2.364 (extra)
+Problem:    Can't build gvimext.dll on Win 7 x64 using MinGW (John Marriott)
+Solution:   Check if _MSC_VER is defined. (Andy Kittner)
+Files:	    src/GvimExt/gvimext.h
+
+
+*** ../vim-7.2.363/src/GvimExt/gvimext.h	2006-04-24 21:23:03.000000000 +0200
+--- src/GvimExt/gvimext.h	2010-02-17 17:20:00.000000000 +0100
+***************
+*** 14,22 ****
+  #if !defined(AFX_STDAFX_H__3389658B_AD83_11D3_9C1E_0090278BBD99__INCLUDED_)
+  #define AFX_STDAFX_H__3389658B_AD83_11D3_9C1E_0090278BBD99__INCLUDED_
+  
+! #if _MSC_VER > 1000
+  #pragma once
+! #endif // _MSC_VER > 1000
+  
+  // Insert your headers here
+  // #define WIN32_LEAN_AND_MEAN		// Exclude rarely-used stuff from Windows headers
+--- 14,22 ----
+  #if !defined(AFX_STDAFX_H__3389658B_AD83_11D3_9C1E_0090278BBD99__INCLUDED_)
+  #define AFX_STDAFX_H__3389658B_AD83_11D3_9C1E_0090278BBD99__INCLUDED_
+  
+! #if defined(_MSC_VER) && _MSC_VER > 1000
+  #pragma once
+! #endif
+  
+  // Insert your headers here
+  // #define WIN32_LEAN_AND_MEAN		// Exclude rarely-used stuff from Windows headers
+***************
+*** 34,40 ****
+  #define INC_OLE2	// WIN32, get ole2 from windows.h
+  
+  /* Visual Studio 2005 has 'deprecated' many of the standard CRT functions */
+! #if _MSC_VER >= 1400
+  # define _CRT_SECURE_NO_DEPRECATE
+  # define _CRT_NONSTDC_NO_DEPRECATE
+  #endif
+--- 34,40 ----
+  #define INC_OLE2	// WIN32, get ole2 from windows.h
+  
+  /* Visual Studio 2005 has 'deprecated' many of the standard CRT functions */
+! #if defined(_MSC_VER) && _MSC_VER >= 1400
+  # define _CRT_SECURE_NO_DEPRECATE
+  # define _CRT_NONSTDC_NO_DEPRECATE
+  #endif
+***************
+*** 44,50 ****
+  #include <shlobj.h>
+  
+  /* Accommodate old versions of VC that don't have a modern Platform SDK */
+! #if _MSC_VER < 1300
+  # undef  UINT_PTR
+  # define UINT_PTR UINT
+  #endif
+--- 44,50 ----
+  #include <shlobj.h>
+  
+  /* Accommodate old versions of VC that don't have a modern Platform SDK */
+! #if defined(_MSC_VER) && _MSC_VER < 1300
+  # undef  UINT_PTR
+  # define UINT_PTR UINT
+  #endif
+*** ../vim-7.2.363/src/version.c	2010-02-17 16:40:47.000000000 +0100
+--- src/version.c	2010-02-17 17:23:15.000000000 +0100
+***************
+*** 683,684 ****
+--- 683,686 ----
+  {   /* Add new patch number below this line */
++ /**/
++     364,
+  /**/
+
+-- 
+hundred-and-one symptoms of being an internet addict:
+245. You use Real Audio to listen to a radio station from a distant
+     city rather than turn on your stereo system.
+
+ /// Bram Moolenaar -- Bram@Moolenaar.net -- http://www.Moolenaar.net   \\\
+///        sponsor Vim, vote for features -- http://www.Vim.org/sponsor/ \\\
+\\\        download, build and distribute -- http://www.A-A-P.org        ///
+ \\\            help me help AIDS victims -- http://ICCF-Holland.org    ///
