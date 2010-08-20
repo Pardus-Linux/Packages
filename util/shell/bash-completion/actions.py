@@ -7,6 +7,7 @@
 
 from pisi.actionsapi import pisitools
 from pisi.actionsapi import autotools
+from pisi.actionsapi import get
 
 import os
 
@@ -17,12 +18,10 @@ def build():
     autotools.make("bash_completion.sh")
 
 def install():
-    pisitools.insinto("/etc", "bash_completion")
-
-    pisitools.insinto("/usr/share/bash-completion", "contrib/*")
+    autotools.rawInstall('DESTDIR=%s' % get.installDIR())
 
     blacklist = ["mplayer", "mount"]
     for comp in blacklist:
-        pisitools.remove("/usr/share/bash-completion/%s" % comp)
+        pisitools.remove("/etc/bash_completion.d/%s" % comp)
 
     pisitools.dodoc("AUTHORS", "CHANGES", "COPYING", "README", "TODO")
