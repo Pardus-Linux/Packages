@@ -11,19 +11,12 @@
         <License>ZLIB</License>
         <IsA>library</IsA>
         <Summary>Standard (de)compression library</Summary>
-        <Archive sha1sum="60faeaaf250642db5c0ea36cd6dcc9f99c8f3902" type="targz">http://www.zlib.net/zlib-1.2.3.tar.gz</Archive>
+        <Archive sha1sum="8e8b93fa5eb80df1afe5422309dca42964562d7e" type="targz">http://www.zlib.net/zlib-1.2.5.tar.gz</Archive>
         <Patches>
-            <Patch level="1">zlib-1.2.3-autotools.patch</Patch>
-            <Patch level="1">minizip-1.2.3-malloc.patch</Patch>
-            <Patch level="1">zlib-1.2.3-visibility-support.patch</Patch>
-            <Patch level="1">zlib-1.2.1-glibc.patch</Patch>
-            <Patch level="1">zlib-1.2.1-build-fPIC.patch</Patch>
-            <Patch>zlib-1.2.1-configure.patch</Patch>
-            <Patch level="1">zlib-1.2.1-fPIC.patch</Patch>
-            <Patch level="1">zlib-1.2.1-make-test.patch</Patch>
-            <Patch>zlib-1.2.1-vsnprintf.patch</Patch>
+            <Patch level="1">zlib-1.2.4-autotools.patch</Patch>
+            <Patch level="1">zlib-1.2.5-gentoo.patch</Patch>
+            <Patch level="1">dont-call-ldconfig.patch</Patch>
             <Patch level="1">zlib-1.2.2-format.patch</Patch>
-            <Patch level="1">zlib-1.2.3-LDFLAGS.patch</Patch>
         </Patches>
     </Source>
 
@@ -31,8 +24,23 @@
         <Name>minizip</Name>
         <PartOf>util.archive</PartOf>
         <Summary>Library for manipulating files from a zip archive</Summary>
+        <RuntimeDependencies>
+            <Dependency release="10">zlib</Dependency>
+        </RuntimeDependencies>
         <Files>
             <Path fileType="library">/usr/lib/libminizip.so*</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>minizip-devel</Name>
+        <PartOf>util.archive</PartOf>
+        <Summary>Development files for minizip</Summary>
+        <RuntimeDependencies>
+            <Dependency release="10">minizip</Dependency>
+            <Dependency release="10">zlib-devel</Dependency>
+        </RuntimeDependencies>
+        <Files>
             <Path fileType="header">/usr/include/minizip</Path>
             <Path fileType="data">/usr/lib/pkgconfig/minizip.pc</Path>
         </Files>
@@ -45,11 +53,33 @@
             <Path fileType="library">/usr/lib/libz.so*</Path>
             <Path fileType="doc">/usr/share/doc</Path>
             <Path fileType="man">/usr/share/man</Path>
-            <Path fileType="header">/usr/include</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>zlib-devel</Name>
+        <PartOf>system.devel</PartOf>
+        <Summary>Development files for zlib</Summary>
+        <RuntimeDependencies>
+            <Dependency release="10">zlib</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="data">/usr/lib/pkgconfig/zlib.pc</Path>
+            <Path fileType="header">/usr/include/z*.h</Path>
+            <Path fileType="man">/usr/share/man/man3</Path>
+            <Path fileType="doc">/usr/share/doc/zlib/algorithm.txt</Path>
+            <Path fileType="doc">/usr/share/doc/zlib/example.c</Path>
         </Files>
     </Package>
 
     <History>
+        <Update release="10">
+            <Date>2010-08-20</Date>
+            <Version>1.2.5</Version>
+            <Comment>Version bump and split devel packages.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
         <Update release="9">
             <Date>2010-06-08</Date>
             <Version>1.2.3</Version>
