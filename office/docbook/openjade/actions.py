@@ -19,7 +19,7 @@ def setup():
     shelltools.export("SGML_PREFIX", "/usr/share/sgml")
     autotools.configure("--enable-http \
                          --enable-default-catalog=/etc/sgml/catalog \
-                         --enable-default-search-path=/usr/share/sgml \
+                         --enable-default-search-path=/usr/share/sgml:/usr/share/xml \
                          --disable-static \
                          --enable-splibdir=/usr/lib \
                          --libdir=/usr/lib \
