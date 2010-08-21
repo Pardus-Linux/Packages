@@ -1,0 +1,15 @@
+diff -Naur phonon-4.3.50.orig/gstreamer/mediaobject.cpp phonon-4.3.50/gstreamer/mediaobject.cpp
+--- phonon-4.3.50.orig/gstreamer/mediaobject.cpp    2009-10-11 02:24:30.000000000 +0200
++++ phonon-4.3.50/gstreamer/mediaobject.cpp 2009-10-11 02:28:25.000000000 +0200
+@@ -852,6 +852,10 @@
+         else
+             m_backend->logMessage("Stream is non-seekable", Backend::Info, this);
+     } else {
++        if (m_seekable) {
++            m_seekable = false;
++            emit seekableChanged(m_seekable);
++        }
+         m_backend->logMessage("updateSeekable query failed", Backend::Info, this);
+     }
+     gst_query_unref (query);
+
