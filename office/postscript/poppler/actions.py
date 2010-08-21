@@ -13,9 +13,9 @@ def setup():
     autotools.autoreconf("-fi")
     autotools.configure("--disable-static \
                          --disable-poppler-qt \
-                         --disable-poppler-qt4 \
                          --disable-gtk-doc-html \
                          --disable-zlib \
+                         --enable-poppler-qt4 \
                          --enable-cairo-output \
                          --enable-xpdf-headers \
                          --enable-libjpeg \
