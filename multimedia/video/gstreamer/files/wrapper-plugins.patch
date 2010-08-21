@@ -1,0 +1,181 @@
+Index: gst/gstregistry.c
+===================================================================
+--- gst/gstregistry.c.orig
++++ gst/gstregistry.c
+@@ -108,6 +108,8 @@
+ #include "gstmarshal.h"
+ #include "gstfilter.h"
+ 
++#include <glob.h>
++
+ #define GST_CAT_DEFAULT GST_CAT_REGISTRY
+ 
+ /* the one instance of the default registry and the mutex protecting the
+@@ -876,6 +878,79 @@ gst_registry_scan_path_level (GstRegistr
+ 
+       env_vars_changed = _priv_plugin_deps_env_vars_changed (plugin);
+ 
++      /* Workarounds for all known plugins that might have changed features
++       * although the plugin timestamp didn't change */
++
++      /* GnomeVFS */
++      if (g_str_has_suffix (filename, "/libgstgnomevfs.so")) {
++          struct stat tmp_status;
++
++          if (!g_stat (LIBDIR "/gnome-vfs-2.0/modules", &tmp_status)) {
++              file_status.st_mtime =
++                  MAX (file_status.st_mtime, tmp_status.st_mtime);
++          }
++      }
++
++      /* LADSPA */
++      if (g_str_has_suffix (filename, "/libgstladspa.so")) {
++          struct stat tmp_status;
++
++          if (!g_stat (LIBDIR "/ladspa", &tmp_status)) {
++              file_status.st_mtime =
++                  MAX (file_status.st_mtime, tmp_status.st_mtime);
++          }
++      }
++
++      /* libvisual */
++      if (g_str_has_suffix (filename, "/libgstlibvisual.so")) {
++          struct stat tmp_status;
++
++          if (!g_stat (LIBDIR "/libvisual-0.4", &tmp_status)) {
++              GDir *dir;
++              const gchar *file;
++
++              file_status.st_mtime =
++                  MAX (file_status.st_mtime, tmp_status.st_mtime);
++              dir = g_dir_open (LIBDIR "/libvisual-0.4", 0, NULL);
++              if (dir) {
++                  while ((file = g_dir_read_name (dir))) {
++                      gchar *filename =
++                          g_strdup_printf (LIBDIR "/libvisual-0.4/%s", file);
++
++                      if (!g_stat (filename, &tmp_status)) {
++                          file_status.st_mtime =
++                              MAX (file_status.st_mtime, tmp_status.st_mtime);
++                      }
++                      g_free (filename);
++                  }
++                  g_dir_close (dir);
++              }
++          }
++      }
++
++      /* FFMPEG */
++      if (g_str_has_suffix (filename, "/libgstffmpeg.so") ||
++              g_str_has_suffix (filename, "/libgstpostproc.so")) {
++          struct stat tmp_status;
++          glob_t gl = { 0, };
++          int i;
++
++          glob (LIBDIR "/libavcodec.so.*.*", GLOB_NOSORT, NULL, &gl);
++          glob (LIBDIR "/libavutil.so.*.*", GLOB_APPEND | GLOB_NOSORT, NULL, &gl);
++          glob (LIBDIR "/libavformat.so.*.*", GLOB_APPEND | GLOB_NOSORT, NULL, &gl);
++          glob (LIBDIR "/libpostproc.so.*.*", GLOB_APPEND | GLOB_NOSORT, NULL, &gl);
++          glob (LIBDIR "/libswscale.so.*.*", GLOB_APPEND | GLOB_NOSORT, NULL, &gl);
++
++          for (i = 0; i < gl.gl_pathc; i++) {
++              if (!g_stat (gl.gl_pathv[i], &tmp_status)) {
++                  file_status.st_mtime =
++                      MAX (file_status.st_mtime, tmp_status.st_mtime);
++              }
++          }
++
++          globfree (&gl);
++      }
++
+       if (plugin->file_mtime == file_status.st_mtime &&
+           plugin->file_size == file_status.st_size && !env_vars_changed &&
+           !(deps_changed = _priv_plugin_deps_files_changed (plugin))) {
+Index: gst/gstplugin.c
+===================================================================
+--- gst/gstplugin.c.orig
++++ gst/gstplugin.c
+@@ -65,6 +65,8 @@
+ 
+ #include <gst/gst.h>
+ 
++#include <glob.h>
++
+ #define GST_CAT_DEFAULT GST_CAT_PLUGIN_LOADING
+ 
+ static guint _num_static_plugins;       /* 0    */
+@@ -496,6 +498,74 @@ gst_plugin_load_file (const gchar * file
+     goto return_error;
+   }
+ 
++  /* Workarounds for all known plugins that might have changed features
++   * although the plugin timestamp didn't change */
++
++  /* GnomeVFS */
++  if (g_str_has_suffix (filename, "/libgstgnomevfs.so")) {
++    struct stat tmp_status;
++
++    if (!g_stat (LIBDIR "/gnome-vfs-2.0/modules", &tmp_status)) {
++      file_status.st_mtime = MAX (file_status.st_mtime, tmp_status.st_mtime);
++    }
++  }
++
++  /* LADSPA */
++  if (g_str_has_suffix (filename, "/libgstladspa.so")) {
++    struct stat tmp_status;
++
++    if (!g_stat (LIBDIR "/ladspa", &tmp_status)) {
++      file_status.st_mtime = MAX (file_status.st_mtime, tmp_status.st_mtime);
++    }
++  }
++
++  /* libvisual */
++  if (g_str_has_suffix (filename, "/libgstlibvisual.so")) {
++    struct stat tmp_status;
++
++    if (!g_stat (LIBDIR "/libvisual-0.4", &tmp_status)) {
++      GDir *dir;
++      const gchar *file;
++
++      file_status.st_mtime = MAX (file_status.st_mtime, tmp_status.st_mtime);
++      dir = g_dir_open (LIBDIR "/libvisual-0.4", 0, NULL);
++      if (dir) {
++        while ((file = g_dir_read_name (dir))) {
++          gchar *filename = g_strdup_printf (LIBDIR "/libvisual-0.4/%s", file);
++
++          if (!g_stat (filename, &tmp_status)) {
++            file_status.st_mtime =
++                MAX (file_status.st_mtime, tmp_status.st_mtime);
++          }
++          g_free (filename);
++        }
++        g_dir_close (dir);
++      }
++    }
++  }
++
++  /* FFMPEG */
++  if (g_str_has_suffix (filename, "/libgstffmpeg.so") ||
++      g_str_has_suffix (filename, "/libgstpostproc.so")) {
++    struct stat tmp_status;
++    glob_t gl = { 0, };
++    int i;
++
++    glob (LIBDIR "/libavcodec.so.*.*", GLOB_NOSORT, NULL, &gl);
++    glob (LIBDIR "/libavutil.so.*.*", GLOB_APPEND | GLOB_NOSORT, NULL, &gl);
++    glob (LIBDIR "/libavformat.so.*.*", GLOB_APPEND | GLOB_NOSORT, NULL, &gl);
++    glob (LIBDIR "/libpostproc.so.*.*", GLOB_APPEND | GLOB_NOSORT, NULL, &gl);
++    glob (LIBDIR "/libswscale.so.*.*", GLOB_APPEND | GLOB_NOSORT, NULL, &gl);
++
++    for (i = 0; i < gl.gl_pathc; i++) {
++      if (!g_stat (gl.gl_pathv[i], &tmp_status)) {
++        file_status.st_mtime = MAX (file_status.st_mtime, tmp_status.st_mtime);
++      }
++    }
++
++    globfree (&gl);
++  }
++
+   module = g_module_open (filename, G_MODULE_BIND_LOCAL);
+   if (module == NULL) {
+     GST_CAT_WARNING (GST_CAT_PLUGIN_LOADING, "module_open failed: %s",
