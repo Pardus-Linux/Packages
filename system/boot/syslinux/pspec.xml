@@ -1,0 +1,206 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>syslinux</Name>
+        <Homepage>http://syslinux.zytor.com/</Homepage>
+        <Packager>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Packager>
+        <License>GPLv2</License>
+        <IsA>app:console</IsA>
+        <Summary>SysLinux, IsoLinux and PXELinux bootloader</Summary>
+        <Description>Lightweight bootloaders for floppy media (SYSLINUX), network booting (PXELINUX), and bootable "El Torito" CD-ROMs (ISOLINUX). The project also includes MEMDISK, a tool to boot legacy operating systems (such as DOS) from nontraditional media; it is usually used in conjunction with PXELINUX and ISOLINUX.</Description>
+        <Archive sha1sum="2d41043a3083c26e5e6bac3a5e8f17c3c0d963a1" type="tarbz2">http://www.kernel.org/pub/linux/utils/boot/syslinux/syslinux-3.86.tar.bz2</Archive>
+        <BuildDependencies>
+            <Dependency>nasm</Dependency>
+        </BuildDependencies>
+        <Patches>
+            <!-- see bug #7378 
+            <Patch level="1">a20_sync_with_null.patch</Patch>
+            -->
+            <Patch level="1">remove-win32-from-build.patch</Patch>
+            <!-- FIXME: has partition size mismatch
+            <Patch level="1">syslinux-3.73-fixisohybrid.patch</Patch>
+            -->
+            <Patch level="1">syslinux-3.86-nopie.patch</Patch>
+        </Patches>
+    </Source>
+
+    <Package>
+        <Name>syslinux</Name>
+        <RuntimeDependencies>
+            <Dependency>mtools</Dependency>
+            <Dependency>perl-Crypt-PasswdMD5</Dependency>
+            <Dependency>perl-Digest-SHA1</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="executable">/sbin</Path>
+            <Path fileType="executable">/usr/bin</Path>
+            <Path fileType="library">/usr/lib/syslinux</Path>
+            <Path fileType="doc">/usr/share/doc</Path>
+            <Path fileType="man">/usr/share/man</Path>
+        </Files>
+    </Package>
+
+    <History>
+        <Update release="20">
+            <Date>2010-06-28</Date>
+            <Version>3.86</Version>
+            <Comment>Remove isohybrid fix since it has partition size problem with new version</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="19">
+            <Date>2010-05-19</Date>
+            <Version>3.86</Version>
+            <Comment>
+                Minor version bump to bugfix release
+                Force no-pie for com32 modules
+                Add a workaround for older Xen HVM
+                Update HDT
+                Many chainloader fixes
+                New tool sysdump.c32
+                New mBFT ACPI table
+                Add a few new DOS drivers
+            </Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="18">
+            <Date>2010-01-04</Date>
+            <Version>3.83</Version>
+            <Comment>Fix mkfs.vfat path</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="17">
+            <Date>2010-01-04</Date>
+            <Version>3.83</Version>
+            <Comment>Add support to create a fat partition before ISO one</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="16">
+            <Date>2009-10-16</Date>
+            <Version>3.83</Version>
+            <Comment>
+                Minor version bump
+                Fix localboot after NBP chainloading on certain BIOSes (including ASUS A8N-E)
+                Support chainloaded bootloaders on ISOLINUX
+                PXELINUX allow filenames up to 251 characters
+                Fix problems booting from USB on Thinkpads and possibly other machines or hardware combinations
+                HDT updated to version 0.3.4
+                MEMDISK stack size is now configurable
+            </Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="15">
+            <Date>2009-06-11</Date>
+            <Version>3.82</Version>
+            <Comment>Version bump, fixes bug #9900</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="14">
+            <Date>2009-06-04</Date>
+            <Version>3.81</Version>
+            <Comment>Version bump, fixes bug #9900</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="13">
+            <Date>2009-05-18</Date>
+            <Version>3.80</Version>
+            <Comment>Version bump</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="12">
+            <Date>2009-05-03</Date>
+            <Version>3.75</Version>
+            <Comment>Version bump</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="11">
+            <Date>2009-01-21</Date>
+            <Version>3.63</Version>
+            <Comment>Remove installation of sys2ansi.pl since it is removed, add md5pass script</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="10">
+            <Date>2009-01-21</Date>
+            <Version>3.63</Version>
+            <Comment>Add perl-Crypt-PasswdMD5 and perl-Digest-SHA1 dependency, fixes #9055</Comment>
+            <Name>Ekin Meroğlu</Name>
+            <Email>ekin@pardus.org.tr</Email>
+        </Update>
+        <Update release="9">
+            <Date>2008-07-04</Date>
+            <Version>3.63</Version>
+            <Comment>Send NULL command to KBC to sync A20 flipping, should fix bug #7378</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="8">
+            <Date>2008-06-08</Date>
+            <Version>3.63</Version>
+            <Comment>Give more memory to gfxboot</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="7">
+            <Date>2008-06-08</Date>
+            <Version>3.63</Version>
+            <Comment>Remove additional files since they are merged into pardusman</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="6">
+            <Date>2008-06-02</Date>
+            <Version>3.63</Version>
+            <Comment>Added mtools dependency, thanks to Türker Sezer</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="5">
+            <Date>2008-05-12</Date>
+            <Version>3.63</Version>
+            <Comment>Updated splash</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="4">
+            <Date>2008-05-07</Date>
+            <Version>3.63</Version>
+            <Comment>Change window caption color</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="3">
+            <Date>2008-05-06</Date>
+            <Version>3.63</Version>
+            <Comment>Update splash theme</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="2">
+            <Date>2008-04-21</Date>
+            <Version>3.63</Version>
+            <Comment>Add debug parameters to kernel params, change label</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="1">
+            <Date>2008-01-08</Date>
+            <Version>3.63</Version>
+            <Comment>First release</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+    </History>
+</PISI>
