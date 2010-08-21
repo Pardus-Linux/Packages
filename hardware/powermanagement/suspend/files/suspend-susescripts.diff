@@ -1,0 +1,33 @@
+--- scripts/suse-10.1/do_acpi_sleep.patch
++++ scripts/suse-10.1/do_acpi_sleep.patch
+@@ -4,7 +4,7 @@
+  # where is the s2ram binary installed?
+  S2RAM="/usr/sbin/s2ram"
+  S2RAM_LOG=/var/log/suspend2ram.log
+-+S2DISK="/usr/local/sbin/s2disk"
+++S2DISK="/usr/sbin/s2disk"
+ +S2DISK_LOG=/var/log/suspend2disk.log
+  
+  # blank the "suspend console"
+--- scripts/suse-10.1/mkinitrd.patch
++++ scripts/suse-10.1/mkinitrd.patch
+@@ -4,7 +4,7 @@
+      cp_bin /sbin/udevtrigger $tmp_mnt/sbin/
+      cp_bin /sbin/udevsettle $tmp_mnt/sbin/
+      cp_bin /usr/bin/udevinfo $tmp_mnt/sbin/
+-+    cp_bin /usr/local/sbin/resume $tmp_mnt/sbin/
+++    cp_bin /usr/sbin/resume $tmp_mnt/sbin/
+ +    cp -a /etc/suspend.conf $tmp_mnt/etc/
+  
+      mkdir -p $tmp_mnt/etc/udev/rules.d
+--- scripts/suse-10.1/modify-system-files.sh
++++ scripts/suse-10.1/modify-system-files.sh
+@@ -5,7 +5,7 @@
+ 	exit 1
+ fi
+ 
+-if [ ! -x /usr/local/sbin/resume ]; then
++if [ ! -x /usr/sbin/resume ]; then
+ 	echo "The resume binary not found!"
+ 	exit 2;
+ fi

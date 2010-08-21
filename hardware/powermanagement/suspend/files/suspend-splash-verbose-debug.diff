@@ -1,0 +1,18 @@
+Index: b/resume.c
+===================================================================
+--- a/resume.c
++++ b/resume.c
+@@ -201,6 +201,13 @@ static void pause_resume(int pause)
+ 	splash.set_caption(message);
+ 	printf("%s: %s", my_name, message);
+ 
++	/* hack: disable bootsplash so that we can see the results */
++	FILE * s = fopen("/proc/splash", "w");
++	if (s) {
++		fprintf(s, "verbose\n");
++		fclose(s);
++	}
++	splash.finish();
+ 	if (pause > 0)
+ 		printf("%s: Continuing automatically in %2d seconds",
+ 			my_name, pause);
