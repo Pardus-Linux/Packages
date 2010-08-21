@@ -22,7 +22,7 @@ def setup():
                          --disable-static \
                          --enable-default-catalog=/etc/sgml/catalog \
                          --enable-default-search-path=/usr/share/sgml:/usr/share/xml \
-                         --datadir=/usr/share/sgml/%s" % get.srcTAG())
+                         --datadir=/usr/share/sgml")
 
 def build():
     autotools.make("pkgdocdir=/usr/share/doc/%s" % get.srcNAME())
