@@ -25,7 +25,7 @@ def setup():
     pisitools.dosed("runtime/menu.vim", "(ctags(\"| [-*.]|\\s+/))", "exuberant-\\1")
     pisitools.dosed("src/configure.in", "(ctags(\"| [-*.]|\\s+/))", "exuberant-\\1")
 
-    pisitools.dosed("src/configure.in", "libc.h", "")
+    pisitools.dosed("src/configure.in", r"libc\.h", "")
     pisitools.dosed("src/Makefile", " auto.config.mk:", ":")
 
     autotools.make("-C src autoconf")
