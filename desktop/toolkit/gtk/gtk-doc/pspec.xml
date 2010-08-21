@@ -1,0 +1,149 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>gtk-doc</Name>
+        <Homepage>http://www.gtk.org/gtk-doc</Homepage>
+        <Packager>
+            <Name>Gökmen Görgen</Name>
+            <Email>gkmngrgn@gmail.com</Email>
+        </Packager>
+        <License>GPLv3</License>
+        <License>FDL-1.1</License>
+        <IsA>app:console</IsA>
+        <Summary>GTK+ API documentation generator</Summary>
+        <Description>Gtk-Doc is typically used to document the public API of GTK+ and GNOME libraries, but it can also be used to document application code.</Description>
+        <Archive sha1sum="fc1c593e8107cbe33451e3e938ca14b59104e999" type="tarbz2">mirrors://gnome/gtk-doc/1.15/gtk-doc-1.15.tar.bz2</Archive>
+        <BuildDependencies>
+            <Dependency>openjade</Dependency>
+            <Dependency>rarian</Dependency>
+            <Dependency>gnome-doc-utils</Dependency>
+            <Dependency>docbook-xml4_3</Dependency>
+            <!-- <Dependency>dblatex</Dependency> -->
+        </BuildDependencies>
+    </Source>
+
+    <Package>
+        <Name>gtk-doc</Name>
+        <RuntimeDependencies>
+            <Dependency>rarian</Dependency>
+            <Dependency>gnome-doc-utils</Dependency>
+            <Dependency>docbook-xml4_3</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="executable">/usr/bin</Path>
+            <Path fileType="data">/usr/share</Path>
+            <Path fileType="doc">/usr/share/doc</Path>
+            <Path fileType="doc">/usr/share/omf</Path>
+            <Path fileType="data">/var/lib</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>gtk-doc-devel</Name>
+        <Summary>gtk-doc development files</Summary>
+        <RuntimeDependencies>
+            <Dependency release="3">gtk-doc</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="data">/usr/lib/pkgconfig</Path>
+        </Files>
+    </Package>
+
+    <History>
+        <Update release="3">
+            <Date>2010-08-22</Date>
+            <Version>1.15</Version>
+            <Comment>
+                * Version bump:
+                    - Support for multiple DOC_SOURCE_DIR directories
+                    - gtk-doc fails to recognize (scope ...) and (skip) annotations
+                    - Append &quot; _struct &quot; prefix to every struct name
+                    - sane support for per-page images
+                    - checks fail
+                    - parameter descriptions with annotations truncated at first \n
+                    - add short description to index entries
+                    - gtk-doc fails to parse unions
+                    - gets confused by multiline typedef
+                    - undocumented enum values are not reported
+                    - secondly running gtkdoc-mkdb will generate DOCTYPE missing XML files
+                    - $(DOC_MODULE)-overrides.txt is required by &quot; make dist &quot;·
+                    - Section_Id always embeds a trailing newline
+                    - Fix the use of gtkdocize --flavour option
+                    - gtkdoc-fixxref broken link warning is broken for functions
+                    - Syntax error in gtkdoc-mkman
+                    - Check for syntax errors in the test suite
+                    - put class structs to the generated section file
+                    - Many build failures with gtk-doc 1.13
+                    - Add &quot; Since &quot; and &quot; Deprecated &quot; tag to function example
+                    - Add &lt; keycap &gt; and &lt; keycombo &gt; example
+                    - Some documentation improvements
+                    - Added more info to &quot; Documenting symbols &quot; sectio
+                    - Env var equivalent to --flavour=no-tmpl
+                    - XInclude error while gnerating documentation
+                    - gtk-doc does not support long double as returned value type
+                    - Execute system() calls in subshells to ease debugging
+                    - [All-langs] [gtk-doc] Translated *.po files not available within ~/po directory
+                    - sort interface implementers
+                    - Self-test failure in git as of 2010-02-17: FAIL: gobject.sh
+                    - Patch to make GTK-DOC notice functions/variables with 'signed' prototypes
+                    - gtk-doc produces invalid DocBook markup if the SECTION ends with a tag that cannot be nested inside &lt; para &gt;
+                * Fix license information.
+                * Remove unrequired patch.
+                * Split development files.
+            </Comment>
+            <Name>Gökmen Görgen</Name>
+            <Email>gkmngrgn@gmail.com</Email>
+        </Update>
+        <Update release="2">
+            <Date>2010-01-23</Date>
+            <Version>1.13</Version>
+            <Comment>
+                * Version bump:
+                    - Generate documentation as pdf
+                    - Acronym support
+                    - Inline function parsing problems (e.g. in glib api docs)
+                    - Have syntax highlghted and xrefs source code samples
+                    - Index generation trouble
+                    - Doesn't produce deprecation note for signals
+                    - Linking to struct members
+                    - Three spelling errors in gtk-doc-manual
+                    - Add support for --help and --version to remaining tools
+                    - Take FOO_GET_INTERFACE as standard
+                    - gtkdoc-scan should try not to scan files twice
+                    - Perl errors when syntax highlighting is not available
+                    - Missing long descriptions undetected
+                    - Abbreviation are not expanded at the start of text
+                    - Fix to use shave + gtk-doc + libtool 1.x
+                    - Fix typos.
+                    - --ignore-decorators does not ignore trailing stuff
+                    - Be more friendly for files with a space in their name
+                    - Update FSF address
+                    - Fix elements that are mismatched in highlighted code
+                    - Implicit declarations in testsuite ?
+                    - Gnome-doc support can't be disabled
+                    - Test suite run even when built with --disable-gtk-doc
+                    - gtkdoc-scan picks up _get_type functions it should not
+                    - xml dir is both part of distclean and dist rules
+                    - Return values of function-like macros
+                    - Signed vs. unsigned comparison in gtkdoc-scangobj.in causing compile errors
+                    - autogen.sh doesn't recognize automake-1.11
+                    - Warn if non-existing function gets referenced
+                    - tests/fail.sh and tests/tools.sh.in use bashisms
+                * Remove included patch.
+                * Add patch for making it work again without --module argument.
+                * Set documents file paths as doc.
+                * Fix dependencies. dblatex is not in Pardus repositories for now.
+            </Comment>
+            <Name>Gökmen Görgen</Name>
+            <Email>gkmngrgn@gmail.com</Email>
+        </Update>
+        <Update release="1">
+            <Date>2009-06-07</Date>
+            <Version>1.11</Version>
+            <Comment>First release.</Comment>
+            <Name>Gökmen Görgen</Name>
+            <Email>gkmngrgn@gmail.com</Email>
+        </Update>
+    </History>
+</PISI>
