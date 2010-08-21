@@ -1,0 +1,427 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>PyQt</Name>
+        <Homepage>http://www.riverbankcomputing.co.uk/software/pyqt</Homepage>
+        <Packager>
+            <Name>Gökmen Göksel</Name>
+            <Email>gokmen@pardus.org.tr</Email>
+        </Packager>
+        <License>GPLv2</License>
+        <License>GPLv3</License>
+        <IsA>library</IsA>
+        <Summary>A set of Python bindings for the Qt 4.x Toolkit</Summary>
+        <Description>Qt is a set of C++ libraries and development tools that includes platform independent abstractions for graphical user interfaces, networking, threads, Unicode, regular expressions, SQL databases, SVG, OpenGL, XML, and user and application settings. PyQt implements 440 of these classes as a set of Python modules.</Description>
+        <Archive sha1sum="dd1d9eb22f9780c54e3811c8958512847eacc302" type="targz">http://www.riverbankcomputing.co.uk/static/Downloads/PyQt4/PyQt-x11-gpl-4.7.4.tar.gz</Archive>
+        <BuildDependencies>
+            <Dependency versionFrom="4.7.0_beta2">qt-devel</Dependency>
+            <Dependency versionFrom="4.10.5">sip-devel</Dependency>
+            <Dependency versionFrom="4.7.0_beta2">qt-webkit</Dependency>
+            <Dependency versionFrom="4.4.2">phonon</Dependency>
+        </BuildDependencies>
+        <Patches>
+            <Patch>add_gettext_support.patch</Patch>
+        </Patches>
+    </Source>
+
+    <Package>
+        <Name>PyQt-devel</Name>
+        <Summary>Development files for PyQt</Summary>
+        <RuntimeDependencies>
+            <Dependency release="45">PyQt</Dependency>
+            <Dependency>sip-devel</Dependency>
+            <Dependency>qt-devel</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="executable">/usr/bin</Path>
+            <Path fileType="data">/usr/share/sip</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>PyQt</Name>
+        <RuntimeDependencies>
+            <Dependency versionFrom="4.7.0_beta2">qt</Dependency>
+            <Dependency versionFrom="4.10.5">sip</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="library">/usr/lib</Path>
+            <Path fileType="doc">/usr/share/doc</Path>
+            <Path fileType="data">/usr/qt/4/qsci</Path>
+            <Path fileType="library">/usr/lib/qt4/plugins/designer</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>PyQt-webkit</Name>
+        <Summary>Python bindings for QtWebkit library</Summary>
+        <RuntimeDependencies>
+            <Dependency releaseFrom="43">PyQt</Dependency>
+            <Dependency versionFrom="4.7.0_beta2">qt-webkit</Dependency>
+        </RuntimeDependencies>
+        <Conflicts>
+            <!-- PyQt-webkit is a seperate package -->
+            <Package releaseTo="42">PyQt</Package>
+        </Conflicts>
+        <Files>
+            <Path fileType="library">/usr/lib/python*/site-packages/PyQt4/*WebKit*</Path>
+            <Path fileType="library">/usr/lib/python*/site-packages/PyQt4/uic/widget-plugins/*webkit*</Path>
+            <Path fileType="data">/usr/share/sip/PyQt4/*WebKit*</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>PyQt-phonon</Name>
+        <Summary>Python bindings for Phonon multimedia library</Summary>
+        <RuntimeDependencies>
+            <Dependency releaseFrom="43">PyQt</Dependency>
+            <Dependency versionFrom="4.4.2">phonon</Dependency>
+        </RuntimeDependencies>
+        <Conflicts>
+            <!-- PyQt-phonon is a seperate package -->
+            <Package releaseTo="42">PyQt</Package>
+        </Conflicts>
+        <Files>
+            <Path fileType="library">/usr/lib/python*/site-packages/PyQt4/*phonon*</Path>
+            <Path fileType="library">/usr/lib/python*/site-packages/PyQt4/uic/widget-plugins/*phonon*</Path>
+            <Path fileType="data">/usr/share/sip/PyQt4/*phonon*</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>PyQt-docs</Name>
+        <Summary>Documentation for PyQt bindings</Summary>
+        <RuntimeDependencies>
+            <Dependency>PyQt</Dependency>
+            <Dependency>qt-doc</Dependency>
+        </RuntimeDependencies>
+        <Replaces>
+            <Package>PyQt-doc</Package>
+        </Replaces>
+        <Files>
+            <Path fileType="doc">/usr/share/doc/PyQt*/html</Path>
+        </Files>
+    </Package>
+
+    <History>
+        <Update release="45">
+            <Date>2010-08-21</Date>
+            <Version>4.7.4</Version>
+            <Comment>Split devel package.</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="44">
+            <Date>2010-08-10</Date>
+            <Version>4.7.4</Version>
+            <Comment>Version bump to 4.7.4</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="43">
+            <Date>2010-05-24</Date>
+            <Version>4.7.3</Version>
+            <Comment>Make QtWebKit and phonon python bindings seperate packages.</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="42">
+            <Date>2010-05-24</Date>
+            <Version>4.7.3</Version>
+            <Comment>Bring all the dependencies as this is the true behaviour.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="41">
+            <Date>2010-05-11</Date>
+            <Version>4.7.3</Version>
+            <Comment>
+                - Disable phonon runtime dependency since it brings too much dependencies through pulseaudio,
+                - Revert qt-webkit dependency as it pulls in phonon too.
+            </Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="40">
+            <Date>2010-05-11</Date>
+            <Version>4.7.3</Version>
+            <Comment>Add qt-webkit dependency.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="39">
+            <Date>2010-05-05</Date>
+            <Version>4.7.3</Version>
+            <Comment>Add ability to use gettext for pyuic</Comment>
+            <Name>Gökmen Göksel</Name>
+            <Email>gokmen@pardus.org.tr</Email>
+        </Update>
+        <Update release="38">
+            <Date>2010-04-27</Date>
+            <Version>4.7.3</Version>
+            <Comment>Version bump to 4.7.3</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="37">
+            <Date>2010-04-06</Date>
+            <Version>4.7.2</Version>
+            <Comment>Version bump to latest.</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="36">
+            <Date>2009-11-16</Date>
+            <Version>4.5.4</Version>
+            <Comment>Replace PyQt4 and PyQt4-doc</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="35">
+            <Date>2009-10-02</Date>
+            <Version>4.5.4</Version>
+            <Comment>Version bump to latest bugfix release</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="34">
+            <Date>2009-07-16</Date>
+            <Version>4.5.2</Version>
+            <Comment>Version bump to latest bugfix release</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="33">
+            <Date>2009-06-18</Date>
+            <Version>4.5.1</Version>
+            <Comment>Version bump to latest bugfix release</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="32">
+            <Date>2009-06-15</Date>
+            <Version>4.5</Version>
+            <Comment>Use ascii_upper() instead of upper for avoiding locale issues.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="31">
+            <Date>2009-06-08</Date>
+            <Version>4.5</Version>
+            <Comment>Stable update.</Comment>
+            <Name>Gökmen Göksel</Name>
+            <Email>gokmen@pardus.org.tr</Email>
+        </Update>
+        <Update release="30">
+            <Date>2009-05-05</Date>
+            <Version>4.5_20090504</Version>
+            <Comment>Snapshot update.</Comment>
+            <Name>Gökmen Göksel</Name>
+            <Email>gokmen@pardus.org.tr</Email>
+        </Update>
+        <Update release="29">
+            <Date>2009-04-21</Date>
+            <Version>4.4.4</Version>
+            <Comment>Update Licenses</Comment>
+            <Name>Gökmen Göksel</Name>
+            <Email>gokmen@pardus.org.tr</Email>
+        </Update>
+        <Update release="28">
+            <Date>2008-12-30</Date>
+            <Version>4.4.4</Version>
+            <Comment>Add forgotten /usr/qt/4/qsci/api/python/PyQt4.api to the package.</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="27">
+            <Date>2008-10-11</Date>
+            <Version>4.4.4</Version>
+            <Comment>Version bump to latest stable relase</Comment>
+            <Name>İşbaran Akçayır</Name>
+            <Email>isbaran@comu.edu.tr</Email>
+        </Update>
+        <Update release="26">
+            <Date>2008-08-09</Date>
+            <Version>4.4.3</Version>
+            <Comment>Bugfix release</Comment>
+            <Name>İşbaran Akçayır</Name>
+            <Email>isbaran@comu.edu.tr</Email>
+        </Update>
+        <Update release="25">
+            <Date>2008-05-21</Date>
+            <Version>4.4.2</Version>
+            <Comment>Stable Update</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="24">
+            <Date>2008-05-14</Date>
+            <Version>4.4.0</Version>
+            <Comment>Stable Update</Comment>
+            <Name>Gökmen Göksel</Name>
+            <Email>gokmen@pardus.org.tr</Email>
+        </Update>
+        <Update release="23">
+            <Date>2008-04-22</Date>
+            <Version>4.3.3_20071219</Version>
+            <Comment>Revert to 4.3 Branch,4.3.3_20071219</Comment>
+            <Name>Ekin Meroğlu</Name>
+            <Email>ekin@pardus.org.tr</Email>
+        </Update>
+        <Update release="22">
+            <Date>2008-04-21</Date>
+            <Version>4.4_20080421</Version>
+            <Comment>Snapshot update</Comment>
+            <Name>Kenan Pelit</Name>
+            <Email>kpelit@gmail.com</Email>
+        </Update>
+        <Update release="21">
+            <Date>2008-04-10</Date>
+            <Version>4.3.4_20080409</Version>
+            <Comment>Snapshot update</Comment>
+            <Name>Kenan Pelit</Name>
+            <Email>kpelit@gmail.com</Email>
+        </Update>
+        <Update release="20">
+            <Date>2008-04-07</Date>
+            <Version>4.3.3_20080328</Version>
+            <Comment>Snapshot update</Comment>
+            <Name>Kenan Pelit</Name>
+            <Email>kpelit@gmail.com</Email>
+        </Update>
+        <Update release="19">
+            <Date>2007-12-20</Date>
+            <Version>4.3.3_20071220</Version>
+            <Comment>Snapshot update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="18">
+            <Date>2007-12-06</Date>
+            <Version>4.3.3</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="17">
+            <Date>2007-09-28</Date>
+            <Version>4.3.1</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="16">
+            <Date>2007-08-13</Date>
+            <Version>4.3_20070811</Version>
+            <Comment>Snapshot update to fix Turkish related problems with uic</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="15">
+            <Date>2007-07-30</Date>
+            <Version>4.3</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="14">
+            <Date>2007-06-26</Date>
+            <Version>4.2.0_20070625</Version>
+            <Comment>Update to latest snapshot</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="13">
+            <Date>2007-04-29</Date>
+            <Version>4.2.0</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="12">
+            <Date>2006-12-10</Date>
+            <Version>4.1.1</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="11">
+            <Date>2006-11-05</Date>
+            <Version>4.1</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="10">
+            <Date>2006-10-16</Date>
+            <Version>4.0_20061015</Version>
+            <Comment>Support all Qt4.2 features except QtDbus</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="9">
+            <Date>2006-08-10</Date>
+            <Version>4.0_20061007</Version>
+            <Comment>Update for Qt 4.2.0</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="8">
+            <Date>2006-06-11</Date>
+            <Version>4.0</Version>
+            <Comment>Make documentation similar to Qt</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="7">
+            <Date>2006-06-11</Date>
+            <Version>4.0</Version>
+            <Comment>First stable release</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="6">
+            <Date>2006-04-28</Date>
+            <Version>4.0_beta1</Version>
+            <Comment>First beta release</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="5">
+            <Date>2006-04-26</Date>
+            <Version>20060424</Version>
+            <Comment>New snapshot</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="4">
+            <Date>2006-04-25</Date>
+            <Version>20060421</Version>
+            <Comment>New snapshot</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="3">
+            <Date>2006-01-27</Date>
+            <Version>20060126</Version>
+            <Comment>New snapshot</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="2">
+            <Date>2006-01-20</Date>
+            <Version>20060123</Version>
+            <Comment>Update 20060123 snapshot</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="1">
+            <Date>2006-01-20</Date>
+            <Version>20060119</Version>
+            <Comment>First release</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+    </History>
+</PISI>
