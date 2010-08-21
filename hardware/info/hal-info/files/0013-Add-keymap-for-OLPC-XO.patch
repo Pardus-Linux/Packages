@@ -1,0 +1,133 @@
+From e621b51da9f57c820c3f3dadbd0262b112329a9a Mon Sep 17 00:00:00 2001
+From: Daniel Drake <dsd@laptop.org>
+Date: Mon, 28 Dec 2009 10:58:28 +0000
+Subject: [PATCH 13/33] Add keymap for OLPC XO
+
+This supports both XO-1 and XO-1.5.
+The equivalent keymap has already been added to udev, but we'd also
+like to support platforms which have not caught up with recent udev
+developments.
+
+Signed-off-by: Martin Pitt <martin.pitt@ubuntu.com>
+---
+ fdi/information/10freedesktop/30-keymap-olpc.fdi |   93 ++++++++++++++++++++++
+ fdi/information/10freedesktop/Makefile.am        |    3 +-
+ 2 files changed, 95 insertions(+), 1 deletions(-)
+ create mode 100644 fdi/information/10freedesktop/30-keymap-olpc.fdi
+
+diff --git a/fdi/information/10freedesktop/30-keymap-olpc.fdi b/fdi/information/10freedesktop/30-keymap-olpc.fdi
+new file mode 100644
+index 0000000..3912e66
+--- /dev/null
++++ b/fdi/information/10freedesktop/30-keymap-olpc.fdi
+@@ -0,0 +1,93 @@
++<?xml version="1.0" encoding="ISO-8859-1"?> <!-- -*- SGML -*- -->
++
++<deviceinfo version="0.2">
++  <device>
++
++    <match key="@input.originating_device:info.linux.driver" string="atkbd">
++      <match key="/org/freedesktop/Hal/devices/computer:system.hardware.vendor" string="OLPC">
++      <match key="/org/freedesktop/Hal/devices/computer:system.hardware.product" string="XO">
++        <append key="input.keymap.data" type="strlist">59:fn</append>
++        <append key="input.keymap.data" type="strlist">e001:fn_esc</append>
++
++        <append key="input.keymap.data" type="strlist">e079:camera</append>
++        <!-- FN-CAMERA is 'Mic', KEY_SOUND is as close as I see. -->
++        <append key="input.keymap.data" type="strlist">e078:sound</append>
++
++        <append key="input.keymap.data" type="strlist">e03b:fn_f1</append>
++        <append key="input.keymap.data" type="strlist">e03c:fn_f2</append>
++        <append key="input.keymap.data" type="strlist">e03d:fn_f3</append>
++        <append key="input.keymap.data" type="strlist">e03e:fn_f4</append>
++        <append key="input.keymap.data" type="strlist">e03f:fn_f5</append>
++        <append key="input.keymap.data" type="strlist">e040:fn_f6</append>
++        <append key="input.keymap.data" type="strlist">e041:fn_f7</append>
++        <append key="input.keymap.data" type="strlist">e042:fn_f8</append>
++        <append key="input.keymap.data" type="strlist">e043:fn_f9</append>
++        <append key="input.keymap.data" type="strlist">e044:fn_f10</append>
++        <append key="input.keymap.data" type="strlist">e057:fn_f11</append>
++        <append key="input.keymap.data" type="strlist">e058:fn_f12</append>
++
++        <!-- Using KEY_F13-KEY_F21 for the .5 F keys right now. -->
++        <append key="input.keymap.data" type="strlist">e077:f13</append>
++        <append key="input.keymap.data" type="strlist">e076:f14</append>
++        <append key="input.keymap.data" type="strlist">e075:f15</append>
++        <append key="input.keymap.data" type="strlist">e074:f16</append>
++        <append key="input.keymap.data" type="strlist">e073:f17</append>
++        <append key="input.keymap.data" type="strlist">e072:f18</append>
++        <append key="input.keymap.data" type="strlist">e071:f19</append>
++        <append key="input.keymap.data" type="strlist">e070:f20</append>
++        <append key="input.keymap.data" type="strlist">e06f:f21</append>
++
++        <append key="input.keymap.data" type="strlist">e06e:chat</append>
++        <!-- FIXME: FN-CHAT, just mapping to KEY_CHAT right now -->
++        <append key="input.keymap.data" type="strlist">e064:chat</append>
++
++        <!-- Frame and Fn-frame , which is listed as 'Win App', try -->
++        <append key="input.keymap.data" type="strlist">e05d:menu</append>
++        <append key="input.keymap.data" type="strlist">e05a:prog1</append>
++
++        <!-- The FN of some keys is other keys -->
++        <append key="input.keymap.data" type="strlist">e053:delete</append>
++        <append key="input.keymap.data" type="strlist">e052:insert</append>
++        <append key="input.keymap.data" type="strlist">e049:pageup</append>
++        <append key="input.keymap.data" type="strlist">e051:pagedown</append>
++        <append key="input.keymap.data" type="strlist">e047:home</append>
++        <append key="input.keymap.data" type="strlist">e04f:end</append>
++
++        <!-- FIXME: These should be the language key. Don't ask what they
++             are doing as KEY_HP. It will make your brain hurt. -->
++        <append key="input.keymap.data" type="strlist">73:hp</append>
++        <append key="input.keymap.data" type="strlist">7e:hp</append>
++
++        <!-- L/R grab -->
++        <append key="input.keymap.data" type="strlist">e05b:leftmeta</append>
++        <append key="input.keymap.data" type="strlist">e05c:rightmeta</append>
++        <!-- FIXME: right grab seems to be releasing on a different scancode -->
++        <append key="input.keymap.data" type="strlist">85:rightmeta</append>
++
++        <!-- Fn-space toggles the backlight.
++             At least in a dream I had last night. -->
++        <append key="input.keymap.data" type="strlist">e056:kbdillumtoggle</append>
++
++        <!-- Set the game keys to map to up/down/left/right for now -->
++        <append key="input.keymap.data" type="strlist">65:kp8</append>
++        <append key="input.keymap.data" type="strlist">66:kp2</append>
++        <append key="input.keymap.data" type="strlist">67:kp4</append>
++        <append key="input.keymap.data" type="strlist">68:kp6</append>
++
++        <!-- set the other game keys to map to pgup/pgdn/home/end -->
++        <append key="input.keymap.data" type="strlist">e065:kp9</append>
++        <append key="input.keymap.data" type="strlist">e066:kp3</append>
++        <append key="input.keymap.data" type="strlist">e067:kp7</append>
++        <append key="input.keymap.data" type="strlist">e068:kp1</append>
++
++        <append key="input.keymap.data" type="strlist">69:switchvideomode</append>
++
++        <append key="info.capabilities" type="strlist">input.keymap</append>
++
++      </match>
++      </match>
++
++    </match>
++  </device>
++</deviceinfo>
++
+diff --git a/fdi/information/10freedesktop/Makefile.am b/fdi/information/10freedesktop/Makefile.am
+index 3332609..e2f428c 100644
+--- a/fdi/information/10freedesktop/Makefile.am
++++ b/fdi/information/10freedesktop/Makefile.am
+@@ -86,7 +86,8 @@ dist_fdi_DATA +=					\
+ 		30-keymap-compaq.fdi			\
+ 		30-keymap-lenovo.fdi			\
+ 		30-keymap-dell.fdi			\
+-		30-keymap-acer.fdi 			
++		30-keymap-acer.fdi 			\
++		30-keymap-olpc.fdi
+ endif
+ 
+ check:
+-- 
+1.7.1
+

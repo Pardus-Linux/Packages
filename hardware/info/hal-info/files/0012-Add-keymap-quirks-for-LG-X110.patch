@@ -1,0 +1,51 @@
+From 1a3c7c28d028c0952404d6d45b58138849c09ff1 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Ozan=20=C3=87a=C4=9Flayan?= <ozan@pardus.org.tr>
+Date: Wed, 23 Dec 2009 10:13:26 +0200
+Subject: [PATCH 12/33] Add keymap quirks for LG X110
+
+The patch adds keyboard quirks for LG X110 (An MSI Wind clone) which has
+the following DMI informations:
+
+system.hardware.primary_video.product = 10158  (0x27ae)  (int)
+system.hardware.primary_video.vendor = 32902  (0x8086)  (int)
+system.hardware.product = 'X110-L.A7M3F3'  (string)
+system.hardware.serial = '812MSVJ025279'  (string)
+system.hardware.uuid = '00000000-0000-0000-0000-002185569235' (string)
+system.hardware.vendor = 'LG Electronics'  (string)
+system.hardware.version = 'Ver.001'  (string)
+
+Signed-off-by: Martin Pitt <martin.pitt@ubuntu.com>
+---
+ fdi/information/10freedesktop/30-keymap-misc.fdi |   16 ++++++++++++++++
+ 1 files changed, 16 insertions(+), 0 deletions(-)
+
+diff --git a/fdi/information/10freedesktop/30-keymap-misc.fdi b/fdi/information/10freedesktop/30-keymap-misc.fdi
+index c4e527e..39d71ed 100644
+--- a/fdi/information/10freedesktop/30-keymap-misc.fdi
++++ b/fdi/information/10freedesktop/30-keymap-misc.fdi
+@@ -103,6 +103,22 @@
+         </match>
+       </match>
+ 
++      <match key="/org/freedesktop/Hal/devices/computer:system.hardware.vendor" prefix="LG">
++        <match key="/org/freedesktop/Hal/devices/computer:system.hardware.product" contains="X110">
++          <append key="input.keymap.data" type="strlist">e020:mute</append> <!-- Fn-F9   Sound On/Off -->
++          <append key="input.keymap.data" type="strlist">e02e:volumedown</append> <!-- Fn-Left   Volume down -->
++          <append key="input.keymap.data" type="strlist">e02f:search</append> <!-- Fn-F3   Search -->
++          <append key="input.keymap.data" type="strlist">e030:volumeup</append> <!-- Fn-Right   Volume up -->
++          <append key="input.keymap.data" type="strlist">e031:battery</append> <!-- Fn-F10   Info -->
++          <append key="input.keymap.data" type="strlist">e033:suspend</append> <!-- Fn-F12   Hibernate -->
++          <append key="input.keymap.data" type="strlist">e05f:sleep</append> <!-- Fn-F4   Sleep -->
++          <append key="input.keymap.data" type="strlist">e064:f22</append> <!-- Fn-F5   Touchpad disable -->
++          <append key="input.keymap.data" type="strlist">e076:wlan</append> <!-- Fn-F6   satellite dish1 -->
++          <append key="input.keymap.data" type="strlist">e077:brightnessdown</append> <!-- Fn-Down   Brightness down -->
++          <append key="input.keymap.data" type="strlist">e078:brightnessup</append> <!-- Fn-Up   Brightness up -->
++        </match>
++      </match>
++
+       <match key="/org/freedesktop/Hal/devices/computer:system.hardware.vendor" string="MEDIONNB">
+         <match key="/org/freedesktop/Hal/devices/computer:system.hardware.product" prefix="A555">
+           <append key="input.keymap.data" type="strlist">63:www</append> <!-- N button -->
+-- 
+1.7.1
+

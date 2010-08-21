@@ -1,0 +1,47 @@
+From 1a5e433e77e8d707c5f3d6f1038b7071f8979ef6 Mon Sep 17 00:00:00 2001
+From: Danny Kukawka <danny.kukawka@web.de>
+Date: Mon, 12 Apr 2010 15:14:16 +0200
+Subject: [PATCH 21/33] fix modem detection for a Sierra Wireless AirCard 875U
+
+Fixed modem detection for a Sierra Wireless AirCard 875U.
+This device need to use the device with serial.port=2 as
+modem. (bnc#480964)
+---
+ fdi/information/10freedesktop/10-modem.fdi |   14 ++++++++++++--
+ 1 files changed, 12 insertions(+), 2 deletions(-)
+
+diff --git a/fdi/information/10freedesktop/10-modem.fdi b/fdi/information/10freedesktop/10-modem.fdi
+index 6305e09..621632f 100644
+--- a/fdi/information/10freedesktop/10-modem.fdi
++++ b/fdi/information/10freedesktop/10-modem.fdi
+@@ -235,8 +235,8 @@
+             </match>
+           </match>
+         </match>
+-        <!-- 2x MC8755,MC8765,MC8775 & AC 875U,MC8775,AirCard 875,MC8780,MC8781, AirCard MC8790, AirCard 880,AirCard 881,AirCard 880 E,AirCard 881 E, Aircard 880 U, AirCard 881 U, Aircard 885 E, Aircard 885 E, C885, 0x6890, 0x6891, 0x6892 -->
+-        <match key="@info.parent:usb.product_id" int_outof="0x6802;0x6804;0x6803;0x6812;0x6813;0x6820;0x6832;0x6833;0x683c;0x6850;0x6851;0x6852;0x6853;0x6855;0x6856;0x6859;0x685a;0x6880;0x6890;0x6891;0x6892">
++        <!-- 2x MC8755,MC8765,MC8775 ,MC8775,AirCard 875,MC8780,MC8781, AirCard MC8790, AirCard 880,AirCard 881,AirCard 880 E,AirCard 881 E, Aircard 880 U, AirCard 881 U, Aircard 885 E, Aircard 885 E, C885, 0x6890, 0x6891, 0x6892 -->
++        <match key="@info.parent:usb.product_id" int_outof="0x6802;0x6804;0x6803;0x6813;0x6820;0x6832;0x6833;0x683c;0x6850;0x6851;0x6852;0x6853;0x6855;0x6856;0x6859;0x685a;0x6880;0x6890;0x6891;0x6892">
+           <match key="@info.parent:usb.interface.number" int="0">
+             <match key="serial.port" int="0">
+               <append key="modem.command_sets" type="strlist">GSM-07.07</append>
+@@ -244,6 +244,16 @@
+             </match>
+           </match>
+         </match>
++	<!-- AirCard 875U -->
++	<match key="@info.parent:usb.product_id" int="0x6812">
++	  <match key="@info.parent:usb.interface.number" int="0">
++	    <match key="serial.port" int="2">
++              <append key="modem.command_sets" type="strlist">GSM-07.07</append>
++              <append key="modem.command_sets" type="strlist">GSM-07.05</append>
++            </match>
++          </match>
++        </match>
++
+         <!-- Compass USB modem  -->
+         <match key="@info.parent:usb.product_id" int="0x6880">
+           <match key="@info.parent:usb.interface.number" int="4">
+-- 
+1.7.1
+

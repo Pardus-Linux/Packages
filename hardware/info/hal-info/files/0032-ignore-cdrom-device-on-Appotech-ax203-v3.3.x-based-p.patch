@@ -1,0 +1,49 @@
+From 69e87afc26ef6377956efdb500819b047f28c460 Mon Sep 17 00:00:00 2001
+From: Hans de Goede <j.w.r.degoede@hhs.nl>
+Date: Thu, 22 Apr 2010 16:04:40 +0200
+Subject: [PATCH 32/33] ignore cdrom device on Appotech ax203 v3.3.x based picture frames
+
+Don't probe the cdrom device on Appotech ax203 v3.3.x based picture
+frames, as it does not like being probed. (fd.o#27239)
+---
+ fdi/preprobe/10osvendor/20-broken-usb-sticks.fdi |   10 ++++++++++
+ 1 files changed, 10 insertions(+), 0 deletions(-)
+
+diff --git a/fdi/preprobe/10osvendor/20-broken-usb-sticks.fdi b/fdi/preprobe/10osvendor/20-broken-usb-sticks.fdi
+index e5e8054..81b68d7 100644
+--- a/fdi/preprobe/10osvendor/20-broken-usb-sticks.fdi
++++ b/fdi/preprobe/10osvendor/20-broken-usb-sticks.fdi
+@@ -26,6 +26,7 @@
+           </match>
+ 	</match>
+       </match>
++
+      <!-- some usb sticks don't like polling -->
+      <match key="@storage.originating_device:usb.vendor_id" int="0x054c">
+        <match key="@storage.originating_device:usb.product_id" int="0x008b">
+@@ -37,6 +38,7 @@
+          <merge key="storage.media_check_enabled" type="bool">false</merge>
+        </match>
+      </match>
++
+      <!-- Ignore the Huawei E220 USB HSDPA modem -->
+      <match key="@storage.originating_device:usb.vendor_id" int="0x12d1">
+        <match key="@storage.originating_device:usb.product_id" int="0x1003">
+@@ -46,6 +48,14 @@
+        </match>
+      </match>
+ 
++     <!-- Don't probe the cdrom device on Appotech ax203 v3.3.x based picture  
++          frames, as it does not like being probed -->                         
++     <match key="@storage.originating_device:usb.vendor_id" int="0x1908">
++       <match key="@storage.originating_device:usb.product_id" int="0x1315">
++         <merge key="info.ignore" type="bool">true</merge>
++       </match>
++     </match>  
++
+      <!-- Ignore the system partition on the Samsung YP S5 music player; the
+           first one is the interesting one with the music, etc. LP #332913 -->
+      <match key="@info.parent:storage.vendor" contains="Samsung">
+-- 
+1.7.1
+

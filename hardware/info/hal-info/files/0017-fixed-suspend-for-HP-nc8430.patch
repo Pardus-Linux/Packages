@@ -1,0 +1,31 @@
+From 7e219564dd805ce50c5f1a88168ea06c2eede5a0 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Marin=20Glibi=C4=87?= <zhilla2@gmail.com>
+Date: Mon, 8 Mar 2010 15:12:40 +0100
+Subject: [PATCH 17/33] fixed suspend for HP nc8430
+
+Fixed suspend for HP nc8430 by adding needed quirk. fd.o#26288
+---
+ .../10freedesktop/20-video-quirk-pm-hp.fdi         |    7 +++++++
+ 1 files changed, 7 insertions(+), 0 deletions(-)
+
+diff --git a/fdi/information/10freedesktop/20-video-quirk-pm-hp.fdi b/fdi/information/10freedesktop/20-video-quirk-pm-hp.fdi
+index 37a4a99..73ce4a9 100644
+--- a/fdi/information/10freedesktop/20-video-quirk-pm-hp.fdi
++++ b/fdi/information/10freedesktop/20-video-quirk-pm-hp.fdi
+@@ -311,6 +311,13 @@
+         </match>
+       </match>
+ 
++      <!-- This is Compaq nc8430, at least with F.16 BIOS. Blank system.hardware.product! -->
++      <match key="system.firmware.version" prefix="68YVD">
++        <match key="system.hardware.product" string="">
++          <merge key="power_management.quirk.s3_mode" type="bool">true</merge>
++        </match>
++      </match>
++
+     </match>
+ 
+     <!-- HP Media Center PC m7330n w/ ATI RS480 [Radeon Xpress 200G Series] -->
+-- 
+1.7.1
+

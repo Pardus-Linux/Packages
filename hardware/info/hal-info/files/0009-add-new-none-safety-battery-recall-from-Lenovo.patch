@@ -1,0 +1,57 @@
+From b23c7b4b203436aa89b6e6207023056024b1f741 Mon Sep 17 00:00:00 2001
+From: Danny Kukawka <danny.kukawka@web.de>
+Date: Sat, 15 Aug 2009 16:20:07 +0200
+Subject: [PATCH 09/33] add new (none safety) battery recall from Lenovo
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Added new (none safety) battery recall from Lenovo:
+- http://download.lenovo.com/lenovo/content/batt/082009/LandingPage.html
+- Issue: "ThinkPad battery has low capacity or shows an “Irreparable
+  damage” or “Battery cannot be charged” error message – ThinkPad
+  T60/T61/R60/R61/X60/X61. "
+- Note: This issue is not a safety recall and does not pose a safety hazard.
+---
+ .../10freedesktop/10-recall-battery-lenovo.fdi     |   20 +++++++++++++-------
+ 1 files changed, 13 insertions(+), 7 deletions(-)
+
+diff --git a/fdi/information/10freedesktop/10-recall-battery-lenovo.fdi b/fdi/information/10freedesktop/10-recall-battery-lenovo.fdi
+index 6b57561..207511c 100644
+--- a/fdi/information/10freedesktop/10-recall-battery-lenovo.fdi
++++ b/fdi/information/10freedesktop/10-recall-battery-lenovo.fdi
+@@ -10,18 +10,24 @@
+       * GNOME Power Manager no longer reads these values.
+     -->
+ 
+-    <match key="battery.vendor" string="SANYO">
++    <match key="/org/freedesktop/Hal/devices/computer:system.hardware.vendor" string="LENOVO"> 
+ 
+-      <match key="battery.model" string="92P1131">
+-        <merge key="info.is_recalled" type="bool">true</merge>
++      <match key="battery.vendor" string="SANYO">
++        <match key="battery.model" string="92P1131">
++          <merge key="info.is_recalled" type="bool">true</merge>
++          <merge key="info.recall.website_url" type="string">http://www.lenovo.com/batteryprogram</merge>
++          <merge key="info.recall.vendor" type="string">LENOVO</merge>
++        </match>
+       </match>
+ 
+-      <!-- only matching on specific model and vendor SANYO -->
+-      <match key="info.is_recalled" bool="true">
++      <!-- battery.vendor unknown -->
++      <!-- ThinkPad battery has low capacity or shows an “Irreparable damage” or “Battery cannot be charged” error 
++	   message – ThinkPad T60/T61/R60/R61/X60/X61. Note: This issue is not a safety recall and does not pose a safety hazard. -->
++      <match key="battery.model" string_outof="42T4546;42T4566;92P1141;42T4550;42T4567;42T4568;92P1169;92P1173;93P5028;93P5030">
++        <merge key="info.is_recalled" type="bool">true</merge>
++        <merge key="info.recall.website_url" type="string">http://download.lenovo.com/lenovo/content/batt/082009/LandingPage.html</merge>
+         <merge key="info.recall.vendor" type="string">LENOVO</merge>
+-        <merge key="info.recall.website_url" type="string">http://www.lenovo.com/batteryprogram</merge>
+       </match>
+-
+     </match>
+ 
+   </device>
+-- 
+1.7.1
+

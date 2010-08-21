@@ -1,0 +1,51 @@
+From 960040965743ca698b88b57f1cdbb7337cbc6208 Mon Sep 17 00:00:00 2001
+From: Danny Kukawka <danny.kukawka@web.de>
+Date: Fri, 9 Apr 2010 12:32:56 +0200
+Subject: [PATCH 20/33] added adopted version of a SUSE patch to support HP keymaps
+
+Added adopted version of a SUSE patch to support HP keymaps from
+thoenig@suse.de and hmacht@suse.de. (see bnc#550670, bnc#552532
+and bnc#577998)
+---
+ fdi/information/10freedesktop/30-keymap-hp.fdi |   20 +++++++++++++++++---
+ 1 files changed, 17 insertions(+), 3 deletions(-)
+
+diff --git a/fdi/information/10freedesktop/30-keymap-hp.fdi b/fdi/information/10freedesktop/30-keymap-hp.fdi
+index 3bc4eb1..c49cc47 100644
+--- a/fdi/information/10freedesktop/30-keymap-hp.fdi
++++ b/fdi/information/10freedesktop/30-keymap-hp.fdi
+@@ -13,14 +13,28 @@
+           <append key="input.keymap.data" type="strlist">e00b:camera</append>     <!-- camera -->
+           <append key="input.keymap.data" type="strlist">e00c:media</append>      <!-- music -->
+           <append key="input.keymap.data" type="strlist">e00e:dvd</append>      <!-- dvd -->
++	  <append key="input.keymap.data" type="strlist">e012:brightnessdown</append>	<!-- FnF7 (FnF9 on 6730b) (brightness down) -->
++	  <append key="input.keymap.data" type="strlist">e017:brightnessup</append>	<!-- FnF8 (FnF10 on 6730b) (brightness up) -->
+           <append key="input.keymap.data" type="strlist">e031:help</append>     <!-- FnF1 (help) -->
+           <append key="input.keymap.data" type="strlist">e033:f23</append>      <!-- FIXME: Auto brightness -->
+           <append key="input.keymap.data" type="strlist">e057:wlan</append>     <!-- Wlan -->
+-	  <append key="input.keymap.data" type="strlist">e012:brightnessdown</append>	<!-- FnF7 (FnF9 on 6730b) (brightness down) -->
+-	  <append key="input.keymap.data" type="strlist">e017:brightnessup</append>	<!-- FnF8 (FnF10 on 6730b) (brightness up) -->
+-	  <append key="input.keymap.data" type="strlist">e06e:switchvideomode</append>   <!-- FnF4 (video switch) -->
++	  <append key="input.keymap.data" type="strlist">e06e:switchvideomode</append>   <!-- FnF4 (video switch LCD/CRT) -->
+           <append key="info.capabilities" type="strlist">input.keymap</append>
+ 
++	  <!-- We're so sorry... -->
++          <match key="/org/freedesktop/Hal/devices/computer:system.firmware.release_date" contains_outof="2009;2010;2011;2012;2013;2014;2015">
++            <!-- [make code:kernel define lower case (linux/input.h)]                    comment: description according to HP spec -->
++            <append key="input.keymap.data" type="strlist">e008:presentation</append>    <!-- presentation mode -->
++            <append key="input.keymap.data" type="strlist">e020:mute</append>            <!-- volume mute -->
++            <append key="input.keymap.data" type="strlist">e02e:volumedown</append>      <!-- volume down -->
++            <append key="input.keymap.data" type="strlist">e030:volumeup</append>        <!-- volume up  -->
++            <append key="input.keymap.data" type="strlist">e05f:sleep</append>           <!-- sleep -->
++            <append key="input.keymap.data" type="strlist">e06b:computer</append>        <!-- browser button (cf. bnc#550670 comment 17) -->
++            <append key="input.keymap.data" type="strlist">e06c:mail</append>            <!-- envelope button (cf. bnc#550670 comment 17) -->
++            <append key="input.keymap.data" type="strlist">e075:info</append>            <!-- info center -->
++            <append key="input.keymap.data" type="strlist">e078:wlan</append>            <!-- wireless toggle -->
++	  </match>
++
+ 	  <match key="/org/freedesktop/Hal/devices/computer:system.hardware.product" contains_ncase="Tablet">
+             <append key="input.keymap.data" type="strlist">e002:prog2</append>   <!-- Funny Key -->
+             <append key="input.keymap.data" type="strlist">e003:prog1</append>   <!-- Q -->
+-- 
+1.7.1
+

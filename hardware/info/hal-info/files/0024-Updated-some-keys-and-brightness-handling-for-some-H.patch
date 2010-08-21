@@ -1,0 +1,78 @@
+From 520be8d8fac0845c3c4bad084516f5a4a73cb799 Mon Sep 17 00:00:00 2001
+From: Danny Kukawka <danny.kukawka@web.de>
+Date: Fri, 9 Apr 2010 12:46:20 +0200
+Subject: [PATCH 24/33] Updated some keys and brightness handling for some HP notebooks
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Updated some keys and brightness handling for some HP notebooks
+with a patch from the following authors: Timo Hönig <thoenig@suse.de>,
+Dirk Müller <dmueller@suse.de> and Holger Macht <hmacht@suse.de>.
+(from: bnc#568988, bnc#546539, bnc#491802, bnc#531435, bnc#474079,
+bnc#479262, bnc#474065, bnc#471966, bnc#471978)
+---
+ .../10freedesktop/10-laptop-panel-hardware.fdi     |    6 +++++
+ fdi/information/10freedesktop/30-keymap-hp.fdi     |   22 ++++---------------
+ 2 files changed, 11 insertions(+), 17 deletions(-)
+
+diff --git a/fdi/information/10freedesktop/10-laptop-panel-hardware.fdi b/fdi/information/10freedesktop/10-laptop-panel-hardware.fdi
+index 58d17b4..07fe031 100644
+--- a/fdi/information/10freedesktop/10-laptop-panel-hardware.fdi
++++ b/fdi/information/10freedesktop/10-laptop-panel-hardware.fdi
+@@ -36,6 +36,12 @@
+         </match>
+       </match>
+ 
++      <match key="/org/freedesktop/Hal/devices/computer:system.hardware.vendor" string="Hewlett-Packard">
++        <match key="/org/freedesktop/Hal/devices/computer:system.hardware.product" contains_outof="4310s;4410s;4411s;4415s;4416s;4510s;4515s;4710s;Compaq 5X5;Compaq 515;Compaq 516;Compaq 615;HP Mini 5102">
++          <merge key="laptop_panel.brightness_in_hardware" type="bool">false</merge>
++        </match>
++      </match>
++
+       <match key="linux.sysfs_path" suffix="/backlight/thinkpad_screen">
+         <merge key="laptop_panel.brightness_in_hardware" type="bool">true</merge>
+       </match>
+diff --git a/fdi/information/10freedesktop/30-keymap-hp.fdi b/fdi/information/10freedesktop/30-keymap-hp.fdi
+index c230a2a..fe60671 100644
+--- a/fdi/information/10freedesktop/30-keymap-hp.fdi
++++ b/fdi/information/10freedesktop/30-keymap-hp.fdi
+@@ -22,23 +22,6 @@
+           <append key="info.capabilities" type="strlist">input.keymap</append>
+ 	  
+ 	  <!-- We're so sorry... -->
+- 	  <match key="/org/freedesktop/Hal/devices/computer:system.firmware.release_date" contains_outof="2009;2010;2011;2012;2013;2014;2015">
+-            <!-- [make code:kernel define lower case (linux/input.h)]                    comment: description according to HP spec -->
+-            <append key="input.keymap.data" type="strlist">e008:presentation</append>    <!-- presentation mode -->
+-            <append key="input.keymap.data" type="strlist">e012:brightnessdown</append>  <!-- brightness down -->
+-            <append key="input.keymap.data" type="strlist">e017:brightnessup</append>    <!-- brightness up -->
+-            <append key="input.keymap.data" type="strlist">e020:mute</append>            <!-- volume mute -->
+-            <append key="input.keymap.data" type="strlist">e02e:volumedown</append>      <!-- volume down -->
+-            <append key="input.keymap.data" type="strlist">e030:volumeup</append>        <!-- volume up  -->
+-            <append key="input.keymap.data" type="strlist">e05f:sleep</append>           <!-- sleep -->
+-            <append key="input.keymap.data" type="strlist">e06b:computer</append>        <!-- browser button (cf. bnc#550670 comment 17) -->
+-            <append key="input.keymap.data" type="strlist">e06c:mail</append>	          <!-- envelope button (cf. bnc#550670 comment 17) -->
+-            <append key="input.keymap.data" type="strlist">e06e:switchvideomode</append> <!-- LCD/CRT -->
+-            <append key="input.keymap.data" type="strlist">e075:info</append>            <!-- info center -->
+-            <append key="input.keymap.data" type="strlist">e078:wlan</append>            <!-- wireless toggle -->
+-	  </match>
+-
+-	  <!-- We're so sorry... -->
+           <match key="/org/freedesktop/Hal/devices/computer:system.firmware.release_date" contains_outof="2009;2010;2011;2012;2013;2014;2015">
+             <!-- [make code:kernel define lower case (linux/input.h)]                    comment: description according to HP spec -->
+             <append key="input.keymap.data" type="strlist">e008:presentation</append>    <!-- presentation mode -->
+@@ -87,6 +70,11 @@
+             <append key="input.keymap.data" type="strlist">e059:f23</append>    <!-- touchpad on  -->
+ 	  </match>
+ 
++          <match key="/org/freedesktop/Hal/devices/computer:system.hardware.product" contains_outof="4310s;4410s;4411s;4415s;4416s;4510s;4515s;4710s;6730s;Compaq 5X5;Compaq 515;Compaq 516;Compaq 615;Compaq 6530b;HP Mini 5102">
++            <!-- HP Compaq 4310s, 4410s, 4415s, 4416s, 4510s, 4515s, 4710s, 6730s, Compaq 5X5, Compaq 515, Compaq 516, Compaq 615, Compaq 6530b, HP Mini 5102 -->
++            <append key="input.keymap.data" type="strlist">e003:email</append>	<!-- envelope button -->
++          </match>
++
+ 	  <match key="/org/freedesktop/Hal/devices/computer:system.board.vendor" string="Quanta">
+ 	    <!-- HP Pavillion dv6315ea with empty system.hardware.* keys fd.o#19936 -->
+ 	    <match key="/org/freedesktop/Hal/devices/computer:system.board.product" string="30B7">
+-- 
+1.7.1
+

@@ -1,0 +1,29 @@
+From d7e2b5662abc65d9ef3c302aecaff68ea554a558 Mon Sep 17 00:00:00 2001
+From: Martin Pley <martin@pley.de>
+Date: Mon, 22 Feb 2010 16:57:48 +0100
+Subject: [PATCH 14/33] enable sd-card-reader of huawei's e160 umts-stick
+
+Enable sd-card-reader of huawei's e160 umts-stick by
+set info.ignore only for the cdrom device. (bnc#487593).
+---
+ fdi/preprobe/10osvendor/20-broken-usb-sticks.fdi |    4 +++-
+ 1 files changed, 3 insertions(+), 1 deletions(-)
+
+diff --git a/fdi/preprobe/10osvendor/20-broken-usb-sticks.fdi b/fdi/preprobe/10osvendor/20-broken-usb-sticks.fdi
+index 429cf97..e5e8054 100644
+--- a/fdi/preprobe/10osvendor/20-broken-usb-sticks.fdi
++++ b/fdi/preprobe/10osvendor/20-broken-usb-sticks.fdi
+@@ -40,7 +40,9 @@
+      <!-- Ignore the Huawei E220 USB HSDPA modem -->
+      <match key="@storage.originating_device:usb.vendor_id" int="0x12d1">
+        <match key="@storage.originating_device:usb.product_id" int="0x1003">
+-         <merge key="info.ignore" type="bool">true</merge>
++	 <match key="@info.parent:scsi.type" string="cdrom">
++           <merge key="info.ignore" type="bool">true</merge>
++         </match>
+        </match>
+      </match>
+ 
+-- 
+1.7.1
+

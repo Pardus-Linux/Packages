@@ -1,0 +1,30 @@
+From 16e1c1921e089a4b53940b6b265fc72446d28254 Mon Sep 17 00:00:00 2001
+From: Keng-Yu Lin <keng-yu.lin@canonical.com>
+Date: Wed, 16 Sep 2009 15:08:05 +0800
+Subject: [PATCH 11/33] Add hotkey quirk for Acer Aspire One (AO531h/AO751h)
+
+To prevent the brightness adjustment OSD from showing when disabling the bluetooth.
+
+Signed-off-by: Martin Pitt <martin.pitt@ubuntu.com>
+---
+ fdi/information/10freedesktop/30-keymap-acer.fdi |    4 ++++
+ 1 files changed, 4 insertions(+), 0 deletions(-)
+
+diff --git a/fdi/information/10freedesktop/30-keymap-acer.fdi b/fdi/information/10freedesktop/30-keymap-acer.fdi
+index a2cf8d8..4511bff 100644
+--- a/fdi/information/10freedesktop/30-keymap-acer.fdi
++++ b/fdi/information/10freedesktop/30-keymap-acer.fdi
+@@ -61,6 +61,10 @@
+           <append key="input.keymap.data" type="strlist">e012:prog2</append> 
+           <append key="input.keymap.data" type="strlist">e059:bluetooth</append> <!-- Bluetooth (toggle) on-to-off -->
+         </match>
++        <match key="/org/freedesktop/Hal/devices/computer:system.hardware.product" contains_outof="AO751h;AO531h">
++          <remove key="input.keymap.data" type="strlist">e059:brightnessup</remove>
++          <append key="input.keymap.data" type="strlist">e059:bluetooth</append> <!-- Bluetooth (toggle) on-to-off -->
++        </match>
+       </match>
+     </match>
+   </device>
+-- 
+1.7.1
+
