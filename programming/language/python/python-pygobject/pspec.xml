@@ -12,14 +12,15 @@
         <IsA>library</IsA>
         <Summary>Glib bindings for Python</Summary>
         <Description>pygobject is GLib's GObject library bindings for Python.</Description>
-        <Archive sha1sum="a5954262051f376983bef6cc0e3fd1b0ca1824f7" type="tarbz2">mirrors://gnome/pygobject/2.20/pygobject-2.20.0.tar.bz2</Archive>
+        <Archive sha1sum="8017d5dba28278727501194d45310d3156937c70" type="tarbz2">mirrors://gnome/pygobject/2.21/pygobject-2.21.5.tar.bz2</Archive>
         <BuildDependencies>
+            <Dependency>cairo-devel</Dependency>
+            <Dependency>gobject-introspection-devel</Dependency>
             <Dependency>libffi-devel</Dependency>
         </BuildDependencies>
         <Patches>
             <Patch level="1">pygobject-2.16.1-fixdetection.patch</Patch>
             <Patch level="1">pygobject-2.15.4-fix-codegen-location.patch</Patch>
-            <Patch level="1">pygobject-2.18.0-fix-underlinking.patch</Patch>
             <Patch>pygobject-2.15.4-fix-format_error.diff</Patch>
             <!--
             <Patch level="1">double_defsgen.patch</Patch>
@@ -30,6 +31,8 @@
     <Package>
         <Name>python-pygobject</Name>
         <RuntimeDependencies>
+            <Dependency>cairo</Dependency>
+            <Dependency>gobject-introspection</Dependency>
             <Dependency>libffi</Dependency>
         </RuntimeDependencies>
         <Conflicts>
@@ -39,9 +42,7 @@
             <Package>pygobject</Package>
         </Replaces>
         <Files>
-            <Path fileType="executable">/usr/bin</Path>
             <Path fileType="library">/usr/lib</Path>
-            <Path fileType="data">/usr/share/pygobject</Path>
             <Path fileType="doc">/usr/share/doc</Path>
         </Files>
     </Package>
@@ -50,11 +51,14 @@
         <Name>python-pygobject-devel</Name>
         <Summary>pygobject development files</Summary>
         <RuntimeDependencies>
-            <Dependency release="13">python-pygobject</Dependency>
+            <Dependency release="14">python-pygobject</Dependency>
+            <Dependency>gobject-introspection-devel</Dependency>
         </RuntimeDependencies>
         <Files>
+            <Path fileType="executable">/usr/bin/pygobject-codegen-2.0</Path>
             <Path fileType="header">/usr/include</Path>
             <Path fileType="data">/usr/lib/pkgconfig</Path>
+            <Path fileType="data">/usr/share/pygobject</Path>
         </Files>
     </Package>
 
@@ -68,6 +72,13 @@
     </Package>
 
     <History>
+        <Update release="14">
+            <Date>2010-08-22</Date>
+            <Version>2.21.5</Version>
+            <Comment>Bump to the new development release to build with new gobject-introspection</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
         <Update release="13">
             <Date>2010-08-16</Date>
             <Version>2.20.0</Version>
