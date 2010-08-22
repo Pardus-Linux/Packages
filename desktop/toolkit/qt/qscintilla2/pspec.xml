@@ -1,0 +1,167 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>qscintilla2</Name>
+        <Homepage>http://www.riverbankcomputing.co.uk/qscintilla/</Homepage>
+        <Packager>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Packager>
+        <License>GPLv2</License>
+        <License>GPLv3</License>
+        <IsA>library</IsA>
+        <Summary>Qt4 port of Scintilla</Summary>
+        <Description>QScintilla2 is a port to Qt4 of Neil Hodgson's Scintilla C++ editor class.</Description>
+        <Archive sha1sum="4b6ecb8090a546b14fa4c0ce86ff2c7e97261005" type="targz">http://www.riverbankcomputing.co.uk/static/Downloads/QScintilla2/QScintilla-gpl-2.4.4.tar.gz</Archive>
+        <BuildDependencies>
+            <Dependency versionFrom="4.10.2">sip-devel</Dependency>
+            <Dependency versionFrom="4.7.0_beta2">qt-devel</Dependency>
+            <Dependency versionFrom="4.7.3">PyQt-devel</Dependency>
+        </BuildDependencies>
+        <Patches>
+            <Patch>qscintilla-2.2-qt4.patch</Patch>
+            <Patch>QScintilla-gpl-2.4-fix-linkage.patch</Patch>
+        </Patches>
+    </Source>
+
+    <Package>
+        <Name>qscintilla2</Name>
+        <RuntimeDependencies>
+            <Dependency versionFrom="4.7.0_beta2">qt</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="library">/usr/lib</Path>
+            <Path fileType="doc">/usr/share/doc</Path>
+            <Path fileType="library">/usr/lib/qt4/plugins</Path>
+            <Path fileType="localedata">/usr/share/qt4/translations</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>qscintilla2-python</Name>
+        <Summary>Python bindings for qscintilla2</Summary>
+        <RuntimeDependencies>
+            <Dependency versionFrom="4.7.3">PyQt</Dependency>
+            <Dependency versionFrom="2.4.4">qscintilla2</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="library">/usr/lib/python*</Path>
+            <Path fileType="data">/usr/share/sip</Path>
+            <Path fileType="data">/usr/share/qt4/qsci</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>qscintilla2-doc</Name>
+        <Summary>HTML documentation for qscintilla2</Summary>
+        <Files>
+            <Path fileType="doc">/usr/share/doc/qscintilla2/html</Path>
+            <Path fileType="doc">/usr/share/doc/qscintilla2/Scintilla</Path>
+        </Files>
+    </Package>
+
+
+    <Package>
+        <Name>qscintilla2-devel</Name>
+        <Summary>Development files for qscintilla2</Summary>
+        <RuntimeDependencies>
+            <Dependency release="8">qscintilla2</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="header">/usr/include</Path>
+        </Files>
+    </Package>
+
+    <History>
+        <Update release="8">
+            <Date>2010-08-22</Date>
+            <Version>2.4.4</Version>
+            <Comment>Split devel package.</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="7">
+            <Date>2010-08-22</Date>
+            <Version>2.4.4</Version>
+            <Comment>Version bump to 2.4.4</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="6">
+            <Date>2010-05-04</Date>
+            <Version>2.4.3</Version>
+            <Comment>Version bump to latest release</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="5">
+            <Date>2009-01-09</Date>
+            <Version>2.4</Version>
+            <Comment>Version bump to latest release, now compatible with new PyQt and Sip</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="4">
+            <Date>2009-01-09</Date>
+            <Version>2.3.2</Version>
+            <Comment>C/CXX flags fixed.</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="3">
+            <Date>2008-12-29</Date>
+            <Version>2.3.2</Version>
+            <Comment>Version bump:
+                * Added QsciScintilla::wordAtPoint() based on a patch from Andrea Battisti.
+                * Changing the current lexer while text is displayed should now be handled properly.  (However the XML lexer seems buggy in this regard.)
+                * Fixed a bug in the calculation of character positions when kerning was in effect.  This cause the caret to be displayed too far to the right.
+                * Updated German translations from Detlev.
+                * Applied a patch from Detlev that fixes issues with the document modification  notification and setting different fold margins.
+                * Added the read() and write() methods to QsciScintilla in anticipation of PyQt dropping support for QStrings.  This will allow file to be read and written while keeping the number of conversions to the minimum.
+                * QsciScintilla::setSelection() is now implemented using SCI_SETSEL so that the carat can be left at either the start or the end of the selection.
+                * Exposed QsciScintilla::positionFromLineIndex() and QsciScintilla::lineIndexFromPosition().
+                * The modified status of a document is now maintained on a per document basis rather than a per editor basis.
+                * Added 'with' to the list of keywords in the Python lexer for Python v2.6.
+                * Added QsciScintilla::apiContext() for further open up the auto-completion and call tips support.
+                * Added the API file for Python v2.6rc1.
+                * Fixed a typo in the help for the Python bindings configure.py.
+                * Fixed a regression in the highlighting of call tip arguments.
+                * Added the QsciAbstractAPIs class to allow applications to provide their own implementation of APIs.
+                * Updated German translations from Detlev.
+                * Added the QsciLexerYAML class.
+                * The fold margin can now be specified by an extra argument to QsciScintilla::setFolding().
+                * Implemented autoCompletionWordSeparators() for QsciLexerPerl and QsciLexerLua.
+                * User lists can now handle entries with embedded spaces.
+                * Updated German translations from Detlev.
+                * Added the QsciLexerXML class.
+                * Added the QsciLexerPostScript class.
+                * Updated German translations from Detlev.
+                * Added the QsciLexerPascal class.
+                * Added the QsciLexerFortran77 and QsciLexerFortran classes.
+                * Added support for the new Scintilla 1.76 features and lexers.
+                * Fixed a regression in macro recording.
+                * Fixed the doxygen configuration file for Qt4.
+                * By default build with (possibly over-aggressive) assertions disabled.
+                * Updated the doxygen configuration to remove some warnings.
+                * Added the QsciLexerTCL class.
+            </Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="2">
+            <Date>2008-02-28</Date>
+            <Version>2.2</Version>
+            <Comment>Version bump</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="1">
+            <Date>2008-02-24</Date>
+            <Version>2.1</Version>
+            <Comment>First release.</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+    </History>
+</PISI>
