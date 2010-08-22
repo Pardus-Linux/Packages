@@ -30,7 +30,6 @@ def setup():
     # Change C/XXFLAGS of designer plugin's makefile
     pisitools.dosed("Makefile", "^CFLAGS.*\\$\\(DEFINES\\)", "CFLAGS   = %s -fPIC $(DEFINES)" % get.CFLAGS())
     pisitools.dosed("Makefile", "^CXXFLAGS.*\\$\\(DEFINES\\)", "CXXFLAGS   = %s -fPIC $(DEFINES)" % get.CXXFLAGS())
-    #pisitools.dosed("Makefile", "\\$\\(SUBLIBS\\)  -L/usr/qt/4/lib", "$(SUBLIBS)")
 
 def build():
     shelltools.cd("Qt4/")
@@ -47,10 +46,8 @@ def build():
 def install():
     # installs not managed by the build system
     shelltools.cd("Qt4/")
-    #pisitools.insinto("/%s/lib" % Qt4DIR, "libqscintilla2.so*")
     pisitools.dolib("libqscintilla2.so*")
 
-    #shelltools.makedirs("%s/%s/include" % (get.installDIR(), Qt4DIR))
     pisitools.dodir("/usr/include")
     shelltools.copytree("Qsci", "%s/usr/include/Qsci" % get.installDIR())
     pisitools.insinto(qt4.translationdir, "qscintilla*.qm")
