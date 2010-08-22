@@ -1,0 +1,26 @@
+Index: gs/jbig2dec/configure.ac
+===================================================================
+--- gs/jbig2dec/configure.ac	(revision 11448)
++++ gs/jbig2dec/configure.ac	(revision 11449)
+@@ -45,7 +45,7 @@
+   fi
+   dnl libpng requires pow() which may be in libm
+   AC_SEARCH_LIBS([pow], [m])
+-  AC_CHECK_LIB([png], [png_check_sig], [
++  AC_CHECK_LIB([png], [png_create_write_struct], [
+     AC_CHECK_LIB([z], [deflate], [
+       AC_DEFINE(HAVE_LIBPNG, 1, [Define if libpng is available (-lpng)])
+       LIBS="-lpng -lz $LIBS"
+Index: gs/base/configure.ac
+===================================================================
+--- gs/base/configure.ac	(revision 11448)
++++ gs/base/configure.ac	(revision 11449)
+@@ -520,7 +520,7 @@
+ 	PNGDEVS="$PNGDEVS_ALL"
+ else
+ 	AC_MSG_RESULT([no])
+-	AC_CHECK_LIB(png, png_check_sig, [
++	AC_CHECK_LIB(png, png_create_write_struct, [
+ 	  AC_CHECK_HEADERS(png.h, [
+ 		SHARE_LIBPNG=1
+ 		PNGDEVS="$PNGDEVS_ALL"

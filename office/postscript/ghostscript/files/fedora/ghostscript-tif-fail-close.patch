@@ -1,0 +1,13 @@
+diff -up ghostscript-8.71/base/gdevtfax.c.tif-fail-close ghostscript-8.71/base/gdevtfax.c
+--- ghostscript-8.71/base/gdevtfax.c.tif-fail-close	2010-03-12 10:57:43.514750465 +0000
++++ ghostscript-8.71/base/gdevtfax.c	2010-03-12 10:58:38.253627230 +0000
+@@ -97,7 +97,8 @@ tfax_close(gx_device * pdev)
+ {
+     gx_device_tfax *const tfdev = (gx_device_tfax *)pdev;
+ 
+-    TIFFCleanup(tfdev->tif);
++    if (tfdev->tif)
++        TIFFCleanup(tfdev->tif);
+ 
+     return gdev_prn_close(pdev);
+ }

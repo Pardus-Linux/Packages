@@ -1,0 +1,26 @@
+diff -up ghostscript-8.64/Resource/Init/gs_init.ps.runlibfileifexists ghostscript-8.64/Resource/Init/gs_init.ps
+--- ghostscript-8.64/Resource/Init/gs_init.ps.runlibfileifexists	2009-01-08 09:17:18.000000000 +0000
++++ ghostscript-8.64/Resource/Init/gs_init.ps	2009-02-04 11:35:19.000000000 +0000
+@@ -672,6 +672,14 @@ systemdict /internaldict dup .makeintern
+ 	   { /undefinedfilename signalerror }
+ 	  ifelse
+ 	} bind def
++/runlibfileifexists
++	{		% We don't want to bind 'run' into this procedure,
++			% since run may get redefined.
++	  findlibfile
++	   { exch pop /run .systemvar exec }
++	   { pop }
++	  ifelse
++	} bind def
+ /selectdevice
+ 	{ finddevice setdevice .setdefaultscreen } bind def
+ /signalerror		% <object> <errorname> signalerror -
+@@ -840,6 +848,7 @@ userdict /.currentresourcefile //null pu
+ 	} bind def
+ % Temporarily substitute it for the real runlibfile.
+ /.runlibfile /runlibfile load def
++/.runlibfileifexists /runlibfileifexists load def
+ /runlibfile /runlibfile0 load def
+ 
+ % Create the error handling machinery.

@@ -1,0 +1,39 @@
+diff -up ghostscript-8.70/cups/pdftoraster.c.pdftoraster-exit ghostscript-8.70/cups/pdftoraster.c
+--- ghostscript-8.70/cups/pdftoraster.c.pdftoraster-exit	2008-10-17 23:58:21.000000000 +0100
++++ ghostscript-8.70/cups/pdftoraster.c	2010-01-25 10:15:42.269209639 +0000
+@@ -35,6 +35,8 @@ MIT Open Source License  -  http://www.o
+ #include <stdarg.h>
+ #include <fcntl.h>
+ #include <cups/raster.h>
++#include <sys/types.h>
++#include <sys/wait.h>
+ 
+ #define MAX_CHECK_COMMENT_LINES	20
+ #ifndef GS
+@@ -123,6 +125,7 @@ int main(int argc, char *argv[], char *e
+   const char* apos;
+   int fds[2];
+   int pid;
++  int status;
+ 
+   parseOpts(argc, argv);
+ 
+@@ -502,8 +505,17 @@ int main(int argc, char *argv[], char *e
+       }
+     }
+     fclose(fp);
++    close (fds[1]);
+   }
+ 
+-  exit(0);
++  if (waitpid (pid, &status, 0) == -1) {
++    perror (GS);
++    exit (1);
++  }
++
++  if (WIFEXITED (status))
++    exit(WEXITSTATUS (status));
++  else
++    exit(1);
+ }
+ 

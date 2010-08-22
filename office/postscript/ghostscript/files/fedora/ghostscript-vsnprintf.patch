@@ -1,0 +1,36 @@
+diff -up ghostscript-8.71/base/gsmisc.c.vsnprintf ghostscript-8.71/base/gsmisc.c
+--- ghostscript-8.71/base/gsmisc.c.vsnprintf	2010-01-05 00:52:07.000000000 +0000
++++ ghostscript-8.71/base/gsmisc.c	2010-02-17 11:30:13.777615156 +0000
+@@ -235,7 +235,7 @@ int gs_throw_imp(const char *func, const
+     va_list ap;
+ 
+     va_start(ap, fmt);
+-    vsprintf(msg, fmt, ap);
++    vsnprintf(msg, sizeof (msg), fmt, ap);
+     msg[sizeof(msg) - 1] = 0;
+     va_end(ap);
+ 
+diff -up ghostscript-8.71/base/gxttfb.c.vsnprintf ghostscript-8.71/base/gxttfb.c
+--- ghostscript-8.71/base/gxttfb.c.vsnprintf	2009-12-06 19:12:08.000000000 +0000
++++ ghostscript-8.71/base/gxttfb.c	2010-02-17 11:30:13.778616076 +0000
+@@ -246,7 +246,7 @@ static int DebugPrint(ttfFont *ttf, cons
+ 
+     if (gs_debug_c('Y')) {
+ 	va_start(args, fmt);
+-	count = vsprintf(buf, fmt, args);
++	count = vsnprintf(buf, sizeof (buf), fmt, args);
+ 	/* NB: moved debug output from stdout to stderr
+ 	 */
+ 	errwrite(buf, count);
+diff -up ghostscript-8.71/base/rinkj/rinkj-byte-stream.c.vsnprintf ghostscript-8.71/base/rinkj/rinkj-byte-stream.c
+--- ghostscript-8.71/base/rinkj/rinkj-byte-stream.c.vsnprintf	2008-04-04 02:02:16.000000000 +0100
++++ ghostscript-8.71/base/rinkj/rinkj-byte-stream.c	2010-02-17 11:30:13.791615392 +0000
+@@ -43,7 +43,7 @@ rinkj_byte_stream_printf (RinkjByteStrea
+   va_list ap;
+ 
+   va_start (ap, fmt);
+-  len = vsprintf (str, fmt, ap);
++  len = vsnprintf (str, sizeof (str), fmt, ap);
+   va_end (ap);
+   return rinkj_byte_stream_write (bs, str, len);
+ }

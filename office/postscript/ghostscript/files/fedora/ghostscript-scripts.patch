@@ -1,0 +1,31 @@
+diff -up ghostscript-8.64/lib/dvipdf.scripts ghostscript-8.64/lib/dvipdf
+--- ghostscript-8.64/lib/dvipdf.scripts	2009-01-10 22:11:18.000000000 +0000
++++ ghostscript-8.64/lib/dvipdf	2009-02-04 11:32:31.000000000 +0000
+@@ -44,4 +44,4 @@ fi
+ 
+ # We have to include the options twice because -I only takes effect if it
+ # appears before other options.
+-exec dvips -Ppdf $DVIPSOPTIONS -q -f "$infile" | $GS_EXECUTABLE $OPTIONS -q -dNOPAUSE -dBATCH -sDEVICE=pdfwrite -sstdout=%stderr -sOutputFile="$outfile" $OPTIONS -c .setpdfwrite -
++exec dvips -R -Ppdf $DVIPSOPTIONS -q -f "$infile" | $GS_EXECUTABLE $OPTIONS -q -dNOPAUSE -dBATCH -sDEVICE=pdfwrite -sstdout=%stderr -sOutputFile="$outfile" $OPTIONS -c .setpdfwrite -
+diff -up ghostscript-8.64/lib/pv.sh.scripts ghostscript-8.64/lib/pv.sh
+--- ghostscript-8.64/lib/pv.sh.scripts	2007-07-05 11:41:52.000000000 +0100
++++ ghostscript-8.64/lib/pv.sh	2009-02-04 11:31:32.000000000 +0000
+@@ -31,7 +31,7 @@ fi
+ GS_EXECUTABLE=gs
+ 
+ TEMPDIR=.
+-PAGE=$1
++PAGE="$1"
+ shift
+ FILE="$1"
+ shift
+@@ -44,7 +44,7 @@ else
+ 	tmpfile="$TEMPDIR/$FILE.$$.pv"
+ fi
+ trap "rm -rf $tmpfile" 0 1 2 15
+-#dvips -D$RESOLUTION -p $PAGE -n 1 "$FILE" "$@" -o $tmpfile
+-dvips -p $PAGE -n 1 "$FILE" "$@" -o $tmpfile
++#dvips -R -D$RESOLUTION -p $PAGE -n 1 "$FILE" "$@" -o $tmpfile
++dvips -R -p $PAGE -n 1 "$FILE" "$@" -o $tmpfile
+ $GS_EXECUTABLE $tmpfile
+ exit 0
