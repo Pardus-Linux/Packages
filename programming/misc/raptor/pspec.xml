@@ -1,0 +1,200 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>raptor</Name>
+        <Homepage>http://librdf.org/raptor</Homepage>
+        <Packager>
+            <Name>Necdet Yücel</Name>
+            <Email>necdetyucel@gmail.com</Email>
+        </Packager>
+        <License>LGPLv2.1</License>
+        <IsA>library</IsA>
+        <Summary>The RDF Parser Toolkit</Summary>
+        <Description>Raptor is the RDF Parser Toolkit for Redland that provides a set of Resource Description Framework (RDF) parsers and serializers.</Description>
+        <Archive sha1sum="6ae0c2c763ae83518422f5bcbffe5c5e74a6b367" type="targz">http://download.librdf.org/source/raptor2-1.9.0.tar.gz</Archive>
+        <BuildDependencies>
+            <Dependency>mpfr</Dependency>
+            <Dependency>gtk-doc</Dependency>
+        </BuildDependencies>
+    </Source>
+
+    <Package>
+        <Name>raptor</Name>
+        <RuntimeDependencies>
+            <Dependency>mpfr</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="executable">/usr/bin</Path>
+            <Path fileType="library">/usr/lib</Path>
+            <Path fileType="data">/usr/lib/pkgconfig</Path>
+            <Path fileType="doc">/usr/share/doc</Path>
+            <Path fileType="man">/usr/share/man/man1</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>raptor-devel</Name>
+        <Summary>Development headers for raptor</Summary>
+        <RuntimeDependencies>
+            <Dependency release="13">raptor</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="header">/usr/include</Path>
+            <Path fileType="man">/usr/share/man/man3</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>raptor-docs</Name>
+        <Summary>Documentation files for raptor</Summary>
+        <RuntimeDependencies>
+            <Dependency release="13">raptor</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="doc">/usr/share/gtk-doc/</Path>
+        </Files>
+    </Package>
+
+    <History>
+        <Update release="13">
+            <Date>2010-08-17</Date>
+            <Version>1.9.0</Version>
+            <Comment>Split headers, add docs</Comment>
+            <Name>Necdet Yücel</Name>
+            <Email>necdetyucel@gmail.com</Email>
+        </Update>
+        <Update release="12">
+            <Date>2010-08-17</Date>
+            <Version>1.9.0</Version>
+            <Comment>
+                * Raptor 2 first beta release. There may be changes before a stable 2.0.0 API
+                * Removed all deprecated functions and typedefs.
+                * Renamed all functions to the standard raptor_class_method form.
+                * All constructors take a raptor_world argument.
+                * URIs are interned and there is no longer a swappable implementation.
+                * Statement is now an array of 3-4 RDF Terms to support triples and quads.
+                * World object owns logging, blank node ID generation and describing syntaxes.
+                * Features are now called options and have typed values.
+                * GRDDL parser now saves and restores shared libxslt state.
+                * Added serializers for HTML 'html' and N-Quads 'nquads'.
+                * Added parser 'json' for JSON-Resource centric and JSON-Triples.
+                * Switched to GIT version control hosted by GitHub.
+                * Added memory-based AVL-Tree to the public API.
+                * Fixed reported issues: 0000357, 0000361, 0000369, 0000370, 0000373 and 0000379
+            </Comment>
+            <Name>Necdet Yücel</Name>
+            <Email>necdetyucel@gmail.com</Email>
+        </Update>
+        <Update release="11">
+            <Date>2010-02-28</Date>
+            <Version>1.4.21</Version>
+            <Comment>Stable bump:
+                * RDFa parser buffer management problems were fixed
+                * Turtle parser and serializer now use QNames correctly against specification
+                * RDF/XML parser now resets correctly to detect duplicate rdf:IDs
+                * Made a few other minor bug and build fixes
+                * Fixed reported issues: 0000318, 0000319, 0000326, 0000331, 0000332 and 0000337
+                * package takeover.
+            </Comment>
+            <Name>Necdet Yücel</Name>
+            <Email>nyucel@comu.edu.tr</Email>
+        </Update>
+        <Update release="10">
+            <Date>2009-12-11</Date>
+            <Version>1.4.20</Version>
+            <Comment>Stable bump:
+                * Turtle serializing performance improvement by Chris Cannam
+                * librdfa RDFa parser updates to fix empty datatype, xml:lang and 1-char prefixes by Manu Sporny
+                * Fix a crash when the GRDDL parser reported errors
+                * Enable large file support for 32-bit systems
+                * Several resilience improvements by Lauri Aalto
+                * Other minor portability and bug fixes
+                * Fixed reported issues: 0000306 0000307 0000310 and 0000312.
+            </Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="9">
+            <Date>2009-07-28</Date>
+            <Version>1.4.19</Version>
+            <Comment>Stable bump:
+                * All unused direct dependencies are gone via autoreconf.
+                * Fix NFC check for legal combiner sequence
+                * Error when raptor_new_uri() fails in Turtle parser
+                * Invalid turtle output syntax on empty integer/double/decimal literals
+                * Default/atom namespace in atom serializer output
+                * strstr is called in raptor_parse_chunk() on a buffer string, where it should be called on a null-terminating string.
+                * RSS serializer fixes for g++
+                * Fix raptor_sequence_set_at() when setting beyond end
+                * broken collection abbreviation in turtle serialization
+                * Fix raptor_sax2_parse_chunk() calling raptor_log_error_to_handlers() with expat
+                * raptor_get_feature function does not return feature value
+                * Fix RDFa parser problem when there is a subject and predicate specified on an element, but no child nodes for the object literal
+                * Fix performance problems when turtle parsing with lots of namespaces
+                * Fix RDF/XML Parser problem with legacy ordinal predicates
+                * Avoid calling xsltSetDefaultSecurityPrefs()
+                * Avoid calling xmlSetStructuredErrorFunc() and xmlSetGenericErrorFunc()
+                * rdfa parser does not parse content as RDFa which librdfa+expat alone handles
+            </Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="8">
+            <Date>2008-09-02</Date>
+            <Version>1.4.18</Version>
+            <Comment>Stable bump</Comment>
+            <Name>Murat Şenel</Name>
+            <Email>muratasenel@gmail.com</Email>
+        </Update>
+        <Update release="7">
+            <Date>2008-08-25</Date>
+            <Version>1.4.16</Version>
+            <Comment>Add missing dependency mpfr, cleanup system.base dependencies</Comment>
+            <Name>Ekin Meroğlu</Name>
+            <Email>ekin@pardus.org.tr</Email>
+        </Update>
+        <Update release="6">
+            <Date>2008-01-14</Date>
+            <Version>1.4.16</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="5">
+            <Date>2007-05-24</Date>
+            <Version>1.4.15</Version>
+            <Comment>Version bump</Comment>
+            <Name>Ali Erdinç Köroğlu</Name>
+            <Email>erdinc@pardus.org.tr</Email>
+        </Update>
+        <Update release="4">
+            <Date>2006-08-30</Date>
+            <Version>1.4.12</Version>
+            <Comment>Version bump</Comment>
+            <Name>Ali Erdinç Köroğlu</Name>
+            <Email>erdinc@pardus.org.tr</Email>
+        </Update>
+        <Update release="3">
+            <Date>2006-08-08</Date>
+            <Version>1.4.10</Version>
+            <Comment>Version bump</Comment>
+            <Name>Ali Erdinç Köroğlu</Name>
+            <Email>erdinc@pardus.org.tr</Email>
+        </Update>
+        <Update release="2">
+            <Date>2006-05-18</Date>
+            <Version>1.4.9</Version>
+            <Comment>Version bump</Comment>
+            <Name>Ali Erdinç Köroğlu</Name>
+            <Email>erdinc@pardus.org.tr</Email>
+        </Update>
+        <Update release="1">
+            <Date>2006-03-06</Date>
+            <Version>1.4.8</Version>
+            <Comment>First release.</Comment>
+            <Name>Ali Erdinç Köroğlu</Name>
+            <Email>erdinc@pardus.org.tr</Email>
+        </Update>
+    </History>
+</PISI>
