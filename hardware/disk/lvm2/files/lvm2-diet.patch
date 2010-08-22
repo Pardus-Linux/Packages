@@ -1,0 +1,180 @@
+Index: LVM2.2.02.67/lib/commands/toolcontext.c
+===================================================================
+--- LVM2.2.02.67.orig/lib/commands/toolcontext.c
++++ LVM2.2.02.67/lib/commands/toolcontext.c
+@@ -1109,10 +1109,10 @@ struct cmd_context *create_toolcontext(u
+ #ifdef M_MMAP_MAX
+ 	mallopt(M_MMAP_MAX, 0);
+ #endif
+-
++#ifdef __dietlibc__
+ 	if (!setlocale(LC_ALL, ""))
+ 		log_very_verbose("setlocale failed");
+-
++#endif
+ #ifdef INTL_PACKAGE
+ 	bindtextdomain(INTL_PACKAGE, LOCALEDIR);
+ #endif
+Index: LVM2.2.02.67/lib/locking/file_locking.c
+===================================================================
+--- LVM2.2.02.67.orig/lib/locking/file_locking.c
++++ LVM2.2.02.67/lib/locking/file_locking.c
+@@ -30,6 +30,10 @@
+ #include <fcntl.h>
+ #include <signal.h>
+ 
++#ifdef __dietlibc__
++typedef void (*sig_t) (int);
++#endif
++
+ struct lock_list {
+ 	struct dm_list list;
+ 	int lf;
+Index: LVM2.2.02.67/libdm/libdevmapper.h
+===================================================================
+--- LVM2.2.02.67.orig/libdm/libdevmapper.h
++++ LVM2.2.02.67/libdm/libdevmapper.h
+@@ -178,6 +178,10 @@ int dm_task_suppress_identical_reload(st
+ /*
+  * Control read_ahead.
+  */
++#ifdef __dietlibc__
++# define UINT32_MAX             (4294967295U)
++#endif
++
+ #define DM_READ_AHEAD_AUTO UINT32_MAX	/* Use kernel default readahead */
+ #define DM_READ_AHEAD_NONE 0		/* Disable readahead */
+ 
+Index: LVM2.2.02.67/lib/config/config.c
+===================================================================
+--- LVM2.2.02.67.orig/lib/config/config.c
++++ LVM2.2.02.67/lib/config/config.c
+@@ -28,6 +28,10 @@
+ #include <fcntl.h>
+ #include <ctype.h>
+ 
++#ifdef __dietlibc__
++typedef char* caddr_t __attribute_dontuse__;
++#endif
++
+ #define SECTION_B_CHAR '{'
+ #define SECTION_E_CHAR '}'
+ 
+Index: LVM2.2.02.67/lib/misc/lib.h
+===================================================================
+--- LVM2.2.02.67.orig/lib/misc/lib.h
++++ LVM2.2.02.67/lib/misc/lib.h
+@@ -45,4 +45,20 @@
+ #include <unistd.h>
+ #include <sys/stat.h>
+ 
++#ifdef __dietlibc__
++# include <strings.h>
++# include <limits.h>
++# if __WORDSIZE == 64
++#  define INT64_C(c)    c ## L
++# else
++#  define INT64_C(c)    c ## LL
++# endif
++# define UINT32_C(c)    c ## U
++# if __WORDSIZE == 64
++#  define UINT64_C(c)   c ## UL
++# else
++#  define UINT64_C(c)   c ## ULL
++# endif
++#endif
++
+ #endif
+Index: LVM2.2.02.67/tools/tools.h
+===================================================================
+--- LVM2.2.02.67.orig/tools/tools.h
++++ LVM2.2.02.67/tools/tools.h
+@@ -55,6 +55,21 @@
+ #include <stdarg.h>
+ #include <sys/types.h>
+ 
++#ifdef __dietlibc__
++# include <limits.h>
++# if __WORDSIZE == 64
++#  define INT64_C(c)    c ## L
++# else
++#  define INT64_C(c)    c ## LL
++# endif
++# define UINT32_C(c)    c ## U
++# if __WORDSIZE == 64
++#  define UINT64_C(c)   c ## UL
++# else
++#  define UINT64_C(c)   c ## ULL
++# endif
++#endif
++
+ #define CMD_LEN 256
+ #define MAX_ARGS 64
+ 
+Index: LVM2.2.02.67/lib/report/report.c
+===================================================================
+--- LVM2.2.02.67.orig/lib/report/report.c
++++ LVM2.2.02.67/lib/report/report.c
+@@ -26,6 +26,11 @@
+ 
+ #include <stddef.h> /* offsetof() */
+ 
++#ifdef __dietlibc__
++#define __UINT64_C(c) c ## ULL
++# define UINT64_MAX             (__UINT64_C(18446744073709551615))
++#endif
++
+ struct lvm_report_object {
+ 	struct volume_group *vg;
+ 	struct logical_volume *lv;
+Index: LVM2.2.02.67/tools/dmsetup.c
+===================================================================
+--- LVM2.2.02.67.orig/tools/dmsetup.c
++++ LVM2.2.02.67/tools/dmsetup.c
+@@ -49,6 +49,21 @@
+ #  include <libudev.h>
+ #endif
+ 
++#ifdef __dietlibc__
++# include <limits.h>
++# if __WORDSIZE == 64
++#  define INT64_C(c)    c ## L
++# else
++#  define INT64_C(c)    c ## LL
++# endif
++# define UINT32_C(c)    c ## U
++# if __WORDSIZE == 64
++#  define UINT64_C(c)   c ## UL
++# else
++#  define UINT64_C(c)   c ## ULL
++# endif
++#endif
++
+ /* FIXME Unused so far */
+ #undef HAVE_SYS_STATVFS_H
+ 
+Index: LVM2.2.02.67/tools/Makefile.in
+===================================================================
+--- LVM2.2.02.67.orig/tools/Makefile.in
++++ LVM2.2.02.67/tools/Makefile.in
+@@ -119,17 +119,17 @@ LIBS += $(UDEV_LIBS)
+ device-mapper: $(TARGETS_DM)
+ 
+ dmsetup: dmsetup.o $(top_builddir)/libdm/libdevmapper.$(LIB_SUFFIX)
+-	$(CC) $(CFLAGS) $(LDFLAGS) -L$(top_builddir)/libdm \
++	$(CC) $(CFLAGS) -L$(interfacedir) -L$(top_builddir)/libdm $(LDFLAGS) \
+ 	      -o $@ dmsetup.o -ldevmapper $(LIBS)
+ 
+ dmsetup.static: dmsetup.o $(interfacebuilddir)/libdevmapper.a
+-	$(CC) $(CFLAGS) $(LDFLAGS) -static -L$(interfacebuilddir) \
++	$(CC) $(CFLAGS) -static -L$(interfacedir) $(LDFLAGS) \
+ 	      -o $@ dmsetup.o -ldevmapper $(STATIC_LIBS) $(LIBS)
+ 
+ all: device-mapper
+ 
+ lvm: $(OBJECTS) lvm.o $(top_builddir)/lib/liblvm-internal.a
+-	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $(OBJECTS) lvm.o \
++	$(CC) $(CFLAGS) -L$(interfacedir) $(LDFLAGS) -o $@ $(OBJECTS) lvm.o \
+ 		$(LVMLIBS) $(READLINE_LIBS) $(LIBS) -rdynamic
+ 
+ lvm.static: $(OBJECTS) lvm-static.o $(top_builddir)/lib/liblvm-internal.a  $(interfacebuilddir)/libdevmapper.a
