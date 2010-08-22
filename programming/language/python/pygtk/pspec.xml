@@ -1,0 +1,211 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>pygtk</Name>
+        <Homepage>http://www.pygtk.org</Homepage>
+        <Packager>
+            <Name>Gökmen Görgen</Name>
+            <Email>gkmngrgn@gmail.com</Email>
+        </Packager>
+        <License>LGPLv2.1</License>
+        <IsA>library</IsA>
+        <Summary>GTK+ bindings for Python</Summary>
+        <Description>PyGTK lets you to easily create programs with a graphical user interface using the Python programming language and GTK+ library.</Description>
+        <Archive sha1sum="b8998ca94841906e71b2475319bb47c841b188e8" type="tarbz2">mirrors://gnome/pygtk/2.16/pygtk-2.16.0.tar.bz2</Archive>
+        <BuildDependencies>
+            <Dependency>cairo-devel</Dependency>
+            <Dependency>pango-devel</Dependency>
+            <Dependency>atk-devel</Dependency>
+            <Dependency>gtk2-devel</Dependency>
+            <Dependency>libglade-devel</Dependency>
+            <Dependency>python-pygobject-devel</Dependency>
+            <Dependency>python-cairo-devel</Dependency>
+            <Dependency>numpy</Dependency>
+        </BuildDependencies>
+        <Patches>
+            <Patch level="1">pygtk-2.13.0-fix-codegen-location.patch</Patch>
+            <Patch level="1">fix-underlinking.patch</Patch>
+        </Patches>
+    </Source>
+
+    <Package>
+        <Name>pygtk</Name>
+        <RuntimeDependencies>
+            <Dependency>cairo</Dependency>
+            <Dependency>pango</Dependency>
+            <Dependency>atk</Dependency>
+            <Dependency>gtk2</Dependency>
+            <Dependency>libglade</Dependency>
+            <Dependency>python-pygobject</Dependency>
+            <Dependency>python-cairo</Dependency>
+            <Dependency>numpy</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="library">/usr/lib</Path>
+            <Path fileType="doc">/usr/share/doc</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>pygtk-demo</Name>
+        <IsA>app:gui</IsA>
+        <Summary>PyGTK demo applications</Summary>
+        <RuntimeDependencies>
+            <Dependency releaseFrom="11">pygtk</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="executable">/usr/bin/pygtk-demo</Path>
+            <Path fileType="library">/usr/lib/pygtk/2.0/pygtk-demo.py</Path>
+            <Path fileType="data">/usr/lib/pygtk/2.0/demos</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>pygtk-docs</Name>
+        <IsA>data:doc</IsA>
+        <Summary>PyGTK reference documents</Summary>
+        <RuntimeDependencies>
+            <Dependency releaseFrom="11">pygtk</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="doc">/usr/share/gtk-doc</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>pygtk-devel</Name>
+        <Summary>Development files for pygtk</Summary>
+        <RuntimeDependencies>
+            <Dependency release="12">pygtk</Dependency>
+            <Dependency>python-pygobject-devel</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="executable">/usr/bin/pygtk-codegen-2.0</Path>
+            <Path fileType="header">/usr/include</Path>
+            <Path fileType="library">/usr/lib/pkgconfig</Path>
+            <Path fileType="data">/usr/share/pygtk</Path>
+        </Files>
+    </Package>
+
+    <History>
+        <Update release="12">
+            <Date>2010-08-22</Date>
+            <Version>2.16.0</Version>
+            <Comment>Split devel package.</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="11">
+            <Date>2009-08-24</Date>
+            <Version>2.16.0</Version>
+            <Comment>
+                * Version bump:
+                - Allow to use automake 1.11.
+                - Remove compiler warnings.
+                - Add gtk.gdk.CURRENT_TIME constant.
+                - Fix gtk.IMContext().set_client_window()
+                - Some docs fix.
+                - Fixed invocation of FileChooserDialog in print demo.
+                - Some autotools tweaks.
+                - Fix arg parsing format typo for gtk_toggle_button_new.
+                - Update some docs to the new 2.16 API.
+                * Update gtk-doc's runtime dep's release. the API doc is updated.
+                * Update copyright years.
+                * Use numpy package instead of numeric.
+                * Add runtime dependency to pygtk-demo.
+                * Update fix underlinking patch.
+            </Comment>
+            <Name>Gökmen Görgen</Name>
+            <Email>gkmngrgn@gmail.com</Email>
+        </Update>
+        <Update release="10">
+            <Date>2009-07-08</Date>
+            <Version>2.14.1</Version>
+            <Comment>
+                * Add Numeric support.
+            </Comment>
+            <Name>Gökmen Görgen</Name>
+            <Email>gkmngrgn@gmail.com</Email>
+        </Update>
+        <Update release="9">
+            <Date>2009-06-30</Date>
+            <Version>2.14.1</Version>
+            <Comment>
+                * Fix dependencies for depchecker.py.
+                * Move doc files to pygtk-docs.
+                * Cut down patch names.
+                * Disable numpy support, now.
+            </Comment>
+            <Name>Gökmen Görgen</Name>
+            <Email>gkmngrgn@gmail.com</Email>
+        </Update>
+        <Update release="8">
+            <Date>2009-05-25</Date>
+            <Version>2.14.1</Version>
+            <Comment>
+                * Fixed undefined symbols.
+                * Purged unused direct deps (ldd output).
+            </Comment>
+            <Name>Gökmen Görgen</Name>
+            <Email>gkmngrgn@gmail.com</Email>
+        </Update>
+        <Update release="7">
+            <Date>2009-04-23</Date>
+            <Version>2.14.1</Version>
+            <Comment>
+                * Version bump.
+                * Added numpy support.
+            </Comment>
+            <Name>Gökmen Görgen</Name>
+            <Email>gkmngrgn@gmail.com</Email>
+        </Update>
+        <Update release="6">
+            <Date>2009-03-17</Date>
+            <Version>2.12.1</Version>
+            <Comment>
+                * Package takeover.
+                * Version bump.
+                * Fix Description and Summary tags.
+                * Parsed package.
+            </Comment>
+            <Name>Gökmen Görgen</Name>
+            <Email>gkmngrgn@gmail.com</Email>
+        </Update>
+        <Update release="5">
+            <Date>2007-09-16</Date>
+            <Version>2.12.0</Version>
+            <Comment>Version bump to stable</Comment>
+            <Name>Eren Türkay</Name>
+            <Email>turkay.eren@gmail.com</Email>
+        </Update>
+        <Update release="4">
+            <Date>2007-04-30</Date>
+            <Version>2.10.4</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="3">
+            <Date>2006-10-28</Date>
+            <Version>2.10.3</Version>
+            <Comment>Upgraded to 2.10 branch</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="2">
+            <Date>2006-08-26</Date>
+            <Version>2.8.4</Version>
+            <Comment>Depend libglade</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="1">
+            <Date>2006-03-07</Date>
+            <Version>2.8.4</Version>
+            <Comment>First release.</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+    </History>
+</PISI>
