@@ -1,0 +1,22 @@
+Index: glib/pyglib.c
+===================================================================
+--- glib/pyglib.c
++++ glib/pyglib.c	2008-12-24 22:59:25.000000000 +0100
+@@ -354,7 +354,7 @@
+     }
+ 
+     g_set_error(error, g_quark_from_string(_PyUnicode_AsString(py_domain)),
+-                _PyLong_AsLong(py_code), _PyUnicode_AsString(py_message));
++                _PyLong_AsLong(py_code), "%s", _PyUnicode_AsString(py_message));
+ 
+     Py_DECREF(py_message);
+     Py_DECREF(py_code);
+@@ -363,7 +363,7 @@
+ 
+ bad_gerror:
+     Py_DECREF(value);
+-    g_set_error(error, g_quark_from_static_string("pyglib"), 0, bad_gerror_message);
++    g_set_error(error, g_quark_from_static_string("pyglib"), 0, "%s", bad_gerror_message);
+     PyErr_SetString(PyExc_ValueError, bad_gerror_message);
+     PyErr_Print();
+     return -2;

@@ -1,0 +1,47 @@
+diff -Nuar pygobject-2.18.0.orig/gio/Makefile.am pygobject-2.18.0/gio/Makefile.am
+--- pygobject-2.18.0.orig/gio/Makefile.am	2009-05-24 23:19:34.000000000 +0300
++++ pygobject-2.18.0/gio/Makefile.am	2009-05-25 05:00:17.000000000 +0300
+@@ -73,7 +73,7 @@
+ EXTRA_DIST += $(GIOUNIX_DEFS) unix.override
+ giounix.c: $(GIOUNIX_DEFS) unix.override
+ unix_la_CFLAGS = $(GIOUNIX_CFLAGS)
+-unix_la_LDFLAGS = $(common_ldflags) -export-symbols-regex initunix
++unix_la_LDFLAGS = $(common_ldflags) -export-symbols-regex initunix `python-config --libs`
+ unix_la_LIBADD = $(GIOUNIX_LIBS)
+ unix_la_SOURCES = unixmodule.c
+ nodist_unix_la_SOURCES = unix.c
+diff -Nuar pygobject-2.18.0.orig/glib/Makefile.am pygobject-2.18.0/glib/Makefile.am
+--- pygobject-2.18.0.orig/glib/Makefile.am	2009-05-24 23:19:34.000000000 +0300
++++ pygobject-2.18.0/glib/Makefile.am	2009-05-25 05:04:55.000000000 +0300
+@@ -20,6 +20,7 @@
+ endif
+ 
+ libpyglib_2_0_@PYTHON_BASENAME@_la_CFLAGS = $(GLIB_CFLAGS)
++libpyglib_2_0_@PYTHON_BASENAME@_la_LDFLAGS = `python-config --libs`
+ libpyglib_2_0_@PYTHON_BASENAME@_la_LIBADD = $(GLIB_LIBS) $(FFI_LIBS)
+ libpyglib_2_0_@PYTHON_BASENAME@_la_SOURCES = 	\
+ 	pyglib.c		\
+diff -Nuar pygobject-2.18.0.orig/gobject/Makefile.am pygobject-2.18.0/gobject/Makefile.am
+--- pygobject-2.18.0.orig/gobject/Makefile.am	2009-05-24 23:19:34.000000000 +0300
++++ pygobject-2.18.0/gobject/Makefile.am	2009-05-25 05:05:28.000000000 +0300
+@@ -38,7 +38,7 @@
+ 	$(FFI_CFLAGS) \
+ 	$(GLIB_CFLAGS) \
+ 	 -DPY_SSIZE_T_CLEAN
+-_gobject_la_LDFLAGS = $(common_ldflags) -export-symbols-regex "_gobject|PyInit__gobject"
++_gobject_la_LDFLAGS = $(common_ldflags) -export-symbols-regex "_gobject|PyInit__gobject" `python-config --libs`
+ _gobject_la_LIBADD = \
+ 	$(GLIB_LIBS) \
+ 	$(FFI_LIBS) \
+diff -Nuar pygobject-2.18.0.orig/tests/Makefile.am pygobject-2.18.0/tests/Makefile.am
+--- pygobject-2.18.0.orig/tests/Makefile.am	2009-05-14 00:56:45.000000000 +0300
++++ pygobject-2.18.0/tests/Makefile.am	2009-05-25 05:05:57.000000000 +0300
+@@ -14,7 +14,7 @@
+ noinst_LTLIBRARIES = testhelper.la
+ linked_LIBS = testhelper.la
+ 
+-testhelper_la_LDFLAGS = -module -avoid-version
++testhelper_la_LDFLAGS = -module -avoid-version `python-config --libs`
+ testhelper_la_LIBADD = $(GLIB_LIBS)
+ testhelper_la_SOURCES = \
+ 	testhelpermodule.c \
