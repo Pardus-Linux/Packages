@@ -26,4 +26,7 @@ def build():
 def install():
     autotools.rawInstall("DESTDIR=%s" % get.installDIR())
 
+    # FIXME: Fedora removes it, Suse keeps it, breaks samba build, investigate further
+    pisitools.remove("/usr/lib/libunwind*.a")
+
     pisitools.dodoc("AUTHORS", "ChangeLog", "README*", "NEWS", "TODO")
