@@ -1,0 +1,238 @@
+From 396608559a26a60a2f7b5c709b5aa9466ef56b43 Mon Sep 17 00:00:00 2001
+From: Danny Kukawka <danny.kukawka@web.de>
+Date: Fri, 27 Nov 2009 00:13:39 +0100
+Subject: [PATCH 06/45] added more strlen related NULL pointer checks
+
+Added more strlen related NULL pointer checks.
+---
+ hald/ci-tracker.c                 |    6 ++++++
+ hald/ck-tracker.c                 |    6 ++++++
+ hald/create_cache.c               |    5 +++++
+ hald/device.c                     |   21 ++++++++++++++-------
+ hald/device_info.c                |   13 +++++++++----
+ hald/hald_dbus.c                  |   10 ++++++++++
+ hald/linux/addons/addon-input.c   |    9 ++++++++-
+ hald/linux/device.c               |    8 ++++++--
+ hald/linux/probing/probe-smbios.c |    3 +++
+ 9 files changed, 67 insertions(+), 14 deletions(-)
+
+diff --git a/hald/ci-tracker.c b/hald/ci-tracker.c
+index a1354bb..fcaf0c3 100644
+--- a/hald/ci-tracker.c
++++ b/hald/ci-tracker.c
+@@ -72,6 +72,9 @@ validate_bus_name (const char *name)
+         const char *last_dot;
+         gboolean ret;
+ 
++	if (name == NULL)
++		return FALSE;
++
+         s = name;
+         len = strlen (name);
+         end = name + len;
+@@ -201,6 +204,9 @@ ci_tracker_name_owner_changed (CITracker *cit,
+                                const char *old_service_name, 
+                                const char *new_service_name)
+ {
++	if (old_service_name == NULL)
++		return;
++
+ 	if (strlen (old_service_name) > 0) {
+ 		CICallerInfo *caller_info;
+ 
+diff --git a/hald/ck-tracker.c b/hald/ck-tracker.c
+index ae41b10..c8e1984 100644
+--- a/hald/ck-tracker.c
++++ b/hald/ck-tracker.c
+@@ -726,6 +726,12 @@ ck_tracker_process_system_bus_message (CKTracker *tracker, DBusMessage *message)
+ 			goto out;
+ 		}
+ 
++		if (new_service_name == NULL || old_service_name == NULL) {
++			HAL_ERROR (("new_service_name == NULL || old_service_name == NULL"));
++			goto out;
++		}
++			
++
+ 		if (strlen (new_service_name) == 0 && strcmp (name, "org.freedesktop.ConsoleKit") == 0) {
+ 			HAL_INFO (("uh, oh, ConsoleKit went away!"));
+ 			ck_tracker_remove_all_seats_and_sessions (tracker);
+diff --git a/hald/create_cache.c b/hald/create_cache.c
+index ed42b7f..2da91d0 100644
+--- a/hald/create_cache.c
++++ b/hald/create_cache.c
+@@ -544,6 +544,11 @@ rules_search_and_add_fdi_files (const char *dir, int fd)
+ 	struct dirent **name_list;
+ 	int num_skipped_fdi_files;
+ 
++	if (dir == NULL) {
++		HAL_ERROR (("Given 'dir' == NULL"));
++		goto error;
++	}
++
+ 	num_skipped_fdi_files = 0;
+ 
+ 	num_entries = scandir (dir, &name_list, NULL, _alphasort);
+diff --git a/hald/device.c b/hald/device.c
+index 72c66f4..70d566c 100644
+--- a/hald/device.c
++++ b/hald/device.c
+@@ -644,6 +644,11 @@ hal_device_merge_with_rewrite  (HalDevice    *target,
+ {
+ 	merge_rewrite_ud_t ud;
+ 
++	if (source_namespace == NULL || target_namespace == NULL) {
++		HAL_ERROR(("source_namespace == NULL || target_namespace == NULL"));
++		return;
++	}
++
+ 	ud.target = target;
+ 	ud.source_namespace = source_namespace;
+ 	ud.target_namespace = target_namespace;
+@@ -973,13 +978,15 @@ hal_device_property_get_as_string (HalDevice *device, const char *key, char *buf
+ 					const char *str;
+ 					
+ 					str = (const char *) iter->data;
+-					len = strlen (str);
+-					strncpy (buf + i, str, bufsize - i);
+-					i += len;
+-
+-					if (i < bufsize) {
+-						buf[i] = '\t';
+-						i++;
++					if (str != NULL) {
++						len = strlen (str);
++						strncpy (buf + i, str, bufsize - i);
++						i += len;
++
++						if (i < bufsize) {
++							buf[i] = '\t';
++							i++;
++						}
+ 					}
+ 				}
+ 			}
+diff --git a/hald/device_info.c b/hald/device_info.c
+index b755018..1056733 100644
+--- a/hald/device_info.c
++++ b/hald/device_info.c
+@@ -407,9 +407,14 @@ handle_match (struct rule *rule, HalDevice *d)
+ 			should_be_empty = FALSE;
+ 		if (hal_device_property_get_type (d, prop_to_check) != HAL_PROPERTY_TYPE_STRING)
+ 			return FALSE;
+-		if (hal_device_has_property (d, prop_to_check))
+-			if (strlen (hal_device_property_get_string (d, prop_to_check)) > 0)
+-				is_empty = FALSE;
++		if (hal_device_has_property (d, prop_to_check)) {
++			const char *s;
++			s = hal_device_property_get_string (d, prop_to_check);
++			if (s != NULL) {
++				if (strlen (s) > 0)
++					is_empty = FALSE;
++			}
++		}
+ 
+ 		if (should_be_empty) {
+ 			if (is_empty)
+@@ -1033,7 +1038,7 @@ handle_merge (struct rule *rule, HalDevice *d)
+ 
+ 		} else {
+ 			/* only allow <remove key="foobar"/>, not <remove key="foobar">blah</remove> */
+-			if (strlen (value) == 0)
++			if (value != NULL && strlen (value) == 0)
+ 				hal_device_property_remove (d, key);
+ 		}
+ 
+diff --git a/hald/hald_dbus.c b/hald/hald_dbus.c
+index a144f51..63f0cd1 100644
+--- a/hald/hald_dbus.c
++++ b/hald/hald_dbus.c
+@@ -3561,6 +3561,11 @@ hald_singleton_device_added (const char * command_line,
+ 	SingletonInfo *info;
+ 	gchar *extra_env[2] = {NULL, NULL};
+ 
++	if (command_line == NULL) {
++		HAL_ERROR (("command_line == NULL"));
++		return FALSE;
++	}
++
+ 	if (!singletons)
+ 		singletons = g_hash_table_new_full (
+ 				g_str_hash, g_str_equal,
+@@ -5265,6 +5270,11 @@ hald_dbus_filter_function (DBusConnection * connection,
+ 
+ 		ci_tracker_name_owner_changed (ci_tracker, name, old_service_name, new_service_name);
+ 
++		if (old_service_name == NULL) {
++			HAL_ERROR (("old_service_name == NULL"));
++                        goto out;
++		}	
++
+ 		if (services_with_locks != NULL)
+ 			services_with_locks_remove_lockowner(old_service_name);
+ 
+diff --git a/hald/linux/addons/addon-input.c b/hald/linux/addons/addon-input.c
+index 0a433b1..1d6fcbc 100644
+--- a/hald/linux/addons/addon-input.c
++++ b/hald/linux/addons/addon-input.c
+@@ -355,9 +355,16 @@ add_device (LibHalContext *ctx,
+ 	int eventfp;
+ 	GIOChannel *channel;
+ 	InputData *data;
+-	int len = strlen (udi);
++	int len;
+ 	const char* device_file;
+ 
++	if (udi == NULL) {
++		HAL_ERROR(("udi == NULL"));
++		return;
++	}	
++
++	len = strlen (udi);
++
+ 	data = (InputData*) g_malloc (sizeof (InputData) + len);
+ 
+ 	memcpy (&(data->udi), udi, len+1);
+diff --git a/hald/linux/device.c b/hald/linux/device.c
+index 2eca1ef..e876a50 100644
+--- a/hald/linux/device.c
++++ b/hald/linux/device.c
+@@ -3230,7 +3230,9 @@ serial_add (const gchar *sysfs_path, const gchar *device_file, HalDevice *parent
+ 	hal_device_property_set_string (d, "serial.device", device_file);
+ 
+ 	last_elem = hal_util_get_last_element(sysfs_path);
+-	if (sscanf (last_elem, "ttyS%d", &portnum) == 1) {
++	if (last_elem == NULL) {
++		goto out;
++	} else if (sscanf (last_elem, "ttyS%d", &portnum) == 1) {
+ 		hal_device_property_set_int (d, "serial.port", portnum);
+ 		hal_device_property_set_string (d, "serial.type", "platform");
+ 		hal_device_property_set_string (d, "info.product",
+@@ -3388,7 +3390,9 @@ sound_add (const gchar *sysfs_path, const gchar *device_file, HalDevice *parent_
+ 	hal_device_property_set_string (d, "linux.sysfs_path", sysfs_path);
+ 	device = hal_util_get_last_element(sysfs_path);
+ 
+-	if (device_file[0] == '\0' && parent_dev == NULL && parent_path == NULL) {
++	if (device == NULL) {
++		goto out;
++	} else if (device_file[0] == '\0' && parent_dev == NULL && parent_path == NULL) {
+ 		goto out;
+ 	} else if (device_file[0] == '\0' && parent_dev != NULL && parent_path != NULL) {
+ 		HAL_INFO(("sound_add: handle sound card %s", sysfs_path));
+diff --git a/hald/linux/probing/probe-smbios.c b/hald/linux/probing/probe-smbios.c
+index 0bc9689..270021f 100644
+--- a/hald/linux/probing/probe-smbios.c
++++ b/hald/linux/probing/probe-smbios.c
+@@ -70,6 +70,9 @@ setstr (char *buf, char *str, char *prop)
+ 	DBusError error;
+ 	char *value;
+ 
++	if (str == NULL)
++		goto out;
++
+ 	if (strbegin (buf, str)) {
+ 		dbus_error_init (&error);
+ 		value = buf + strlen (str) + 1;
+-- 
+1.7.2.1
+

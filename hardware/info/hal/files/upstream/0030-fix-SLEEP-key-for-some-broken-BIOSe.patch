@@ -1,0 +1,32 @@
+From 05b243e5aa70ee413f135eb383f0ad379bfceee2 Mon Sep 17 00:00:00 2001
+From: Holger Macht <hmacht@suse.de>
+Date: Tue, 9 Mar 2010 12:11:22 +0100
+Subject: [PATCH 30/45] fix SLEEP key for some broken BIOSe
+
+Some BIOSe are broken and create infinite key press events for
+the sleep key (FN-F5). So ignore all key repeats for the SLEEP
+key. (bnc#525959)
+---
+ hald/linux/addons/addon-input.c |    6 ++++++
+ 1 files changed, 6 insertions(+), 0 deletions(-)
+
+diff --git a/hald/linux/addons/addon-input.c b/hald/linux/addons/addon-input.c
+index 1d6fcbc..0c4cbec 100644
+--- a/hald/linux/addons/addon-input.c
++++ b/hald/linux/addons/addon-input.c
+@@ -300,6 +300,12 @@ event_io (GIOChannel *channel, GIOCondition condition, gpointer data)
+ 				}
+ 			}
+ 		} else if (input_data->event.type == EV_KEY && key_name[input_data->event.code] != NULL && input_data->event.value) {
++			/* this is a key repeat and should be ignored for the sleep key */
++			if (input_data->event.code == KEY_SLEEP && input_data->event.value == 2) {
++				HAL_INFO (("key release event for KEY_SLEEP, ignoring"));
++				return TRUE;
++			}
++
+ 			libhal_device_emit_condition (ctx, input_data->udi,
+ 						      "ButtonPressed",
+ 						      key_name[input_data->event.code],
+-- 
+1.7.2.1
+

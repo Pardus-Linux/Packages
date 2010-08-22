@@ -1,0 +1,37 @@
+From 254a0bd1083174c4baf573737443ea2fdb81aaa8 Mon Sep 17 00:00:00 2001
+From: Danny Kukawka <danny.kukawka@web.de>
+Date: Thu, 26 Nov 2009 21:01:08 +0100
+Subject: [PATCH 04/45] added breaks to detection of storage.bus for ccw, vio and pci
+
+Added breaks to detection of storage.bus for ccw, vio and pci
+as e.g. in case of usb or ieee1394 to leave the while loop as
+soon as possible.
+---
+ hald/linux/blockdev.c |    3 +++
+ 1 files changed, 3 insertions(+), 0 deletions(-)
+
+diff --git a/hald/linux/blockdev.c b/hald/linux/blockdev.c
+index 0433400..68f50dc 100644
+--- a/hald/linux/blockdev.c
++++ b/hald/linux/blockdev.c
+@@ -1239,14 +1239,17 @@ hotplug_event_begin_add_blockdev (const gchar *sysfs_path, const gchar *device_f
+ 					physdev_udi = udi_it;
+ 					is_hotpluggable = TRUE;
+ 					hal_device_property_set_string (d, "storage.bus", "ccw");
++					break;
+ 				} else if (strcmp (bus, "vio") == 0) {
+ 					physdev = d_it;
+ 					physdev_udi = udi_it;
+ 					hal_device_property_set_string (d, "storage.bus", "vio");
++					break;
+ 				} else if (strcmp (bus, "pci") == 0) {
+ 					physdev = d_it;
+ 					physdev_udi = udi_it;
+ 					hal_device_property_set_string (d, "storage.bus", "pci");
++					break;
+ 				}
+ 			}
+ 
+-- 
+1.7.2.1
+

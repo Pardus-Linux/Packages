@@ -1,0 +1,125 @@
+From 476dd36af55f6835a719bf275ee3b772b7fa652c Mon Sep 17 00:00:00 2001
+From: Martin Pitt <martin.pitt@ubuntu.com>
+Date: Tue, 13 Jul 2010 07:58:06 +0000
+Subject: [PATCH 43/45] fsync /media/.hal-mtab after changes
+
+Some file systems (reported on ubifs) are rather lazy with writing changes to
+disk. An automount, followed by a power failure, then results in a stale
+/media/.hal-mtab and also a stale mount point directory.
+
+Use fsync() to make hal-mtab changes much more reliable.
+
+Thanks to Fujii Takafumi for debugging this!
+---
+ tools/hal-storage-mount.c  |    9 +++++++++
+ tools/hal-storage-shared.c |   32 ++++++++++++++++++++++++++++++++
+ tools/hal-storage-shared.h |    2 ++
+ 3 files changed, 43 insertions(+), 0 deletions(-)
+
+diff --git a/tools/hal-storage-mount.c b/tools/hal-storage-mount.c
+index 9471706..c543707 100644
+--- a/tools/hal-storage-mount.c
++++ b/tools/hal-storage-mount.c
+@@ -953,6 +953,13 @@ handle_mount (LibHalContext *hal_ctx,
+ 		if (fwrite (hal_mtab_buf, 1, strlen (hal_mtab_buf), hal_mtab) != strlen (hal_mtab_buf)) {
+ 			unknown_error ("Cannot write to /media/.hal-mtab~");
+ 		}
++		if (fsync (fileno (hal_mtab)) < 0) {
++			printf ("WARNING! syncing /media/.hal-mtab~ failed: %s\n", strerror (errno));
++		}
++#ifdef DEBUG
++		else
++			printf ("fsync /media/.hal-mtab~: success\n");
++#endif
+ 		fclose (hal_mtab);
+ 		g_free (hal_mtab_buf);
+ #ifdef DEBUG
+@@ -1012,6 +1019,8 @@ handle_mount (LibHalContext *hal_ctx,
+ #endif
+ 			unknown_error ("Cannot rename /media/.hal-mtab~ to /media/.hal-mtab");
+ 		}
++
++		fsync_dir("/media");
+ #ifdef DEBUG
+ 		printf ("%d: XYA done renaming /media/.hal-mtab~ to /media/.hal-mtab\n", getpid ());
+ #endif
+diff --git a/tools/hal-storage-shared.c b/tools/hal-storage-shared.c
+index 422f00e..e7e2825 100644
+--- a/tools/hal-storage-shared.c
++++ b/tools/hal-storage-shared.c
+@@ -47,6 +47,7 @@
+ #endif
+ #include <sys/types.h>
+ #include <unistd.h>
++#include <dirent.h>
+ #include <sys/file.h>
+ #include <errno.h>
+ #include <syslog.h>
+@@ -195,6 +196,28 @@ fstab_close (gpointer handle)
+ #endif
+ }
+ 
++/* fsync() a directory */
++void
++fsync_dir (char *path)
++{
++	DIR* d;
++
++	d = opendir (path);
++	if (d == NULL) {
++		printf ("fsync_dir (%s): failed to opendir(): %s\n", path, strerror (errno));
++		return;
++	}
++
++	if (fsync (dirfd (d)) < 0)
++		printf ("fsync_dir (%s): failed to fsync(): %s\n", path, strerror (errno));
++
++	closedir (d);
++
++#ifdef DEBUG
++	printf ("fsync_dir (%s): success\n", path);
++#endif
++}
++
+ #ifdef __FreeBSD__
+ #define UMOUNT		"/sbin/umount"
+ #elif sun
+@@ -460,6 +483,14 @@ line_found:
+ 		}
+ 
+ 	}
++       if (fsync (fileno (hal_mtab_new)) < 0) {
++	       printf ("WARNING! syncing /media/.hal-mtab~ failed: %s\n", strerror (errno));
++       }
++#ifdef DEBUG
++       else
++	       printf ("fsync /media/.hal-mtab~: success\n");
++#endif
++
+ 	fclose (hal_mtab_new);
+ 
+ 	g_strfreev (lines);
+@@ -521,6 +552,7 @@ line_found:
+ 		unlink ("/media/.hal-mtab~");
+ 		unknown_error ("Cannot rename /media/.hal-mtab~ to /media/.hal-mtab");
+ 	}
++	fsync_dir("/media");
+ 
+ #ifdef DEBUG
+ 	printf ("done unmounting\n");
+diff --git a/tools/hal-storage-shared.h b/tools/hal-storage-shared.h
+index dcf7a0b..fc7d63e 100644
+--- a/tools/hal-storage-shared.h
++++ b/tools/hal-storage-shared.h
+@@ -41,6 +41,8 @@ void fstab_close (gpointer handle);
+ gboolean lock_hal_mtab (void);
+ void unlock_hal_mtab (void);
+ 
++void fsync_dir (char *path);
++
+ void unknown_error (const char *detail);
+ 
+ void bailout_if_drive_is_locked (LibHalContext *hal_ctx, LibHalDrive *drive, const char *invoked_by_syscon_name);
+-- 
+1.7.2.1
+

@@ -1,0 +1,43 @@
+From 6dccf8e3ad181e8f56b1d2a994ec50a1953a1c2d Mon Sep 17 00:00:00 2001
+From: Michael Witten <mfwitten@gmail.com>
+Date: Tue, 5 Jan 2010 18:53:17 -0600
+Subject: [PATCH 20/45] Policy: handle `input.touchpad' explicitly
+
+This commit essentially duplicates the policy for:
+
+   <match key="info.capabilities" contains="input.mouse">
+
+and then changes `input.mouse' to `input.touchpad'. This
+is necessary because in Linus Torvalds's Linux repo:
+
+    git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git
+
+
+Signed-off-by: Michael Witten <mfwitten@gmail.com>
+Signed-off-by: Martin Pitt <martin.pitt@ubuntu.com>
+---
+ fdi/policy/10osvendor/10-x11-input.fdi |    8 ++++++++
+ 1 files changed, 8 insertions(+), 0 deletions(-)
+
+diff --git a/fdi/policy/10osvendor/10-x11-input.fdi b/fdi/policy/10osvendor/10-x11-input.fdi
+index cff8fc5..8bbe263 100644
+--- a/fdi/policy/10osvendor/10-x11-input.fdi
++++ b/fdi/policy/10osvendor/10-x11-input.fdi
+@@ -16,6 +16,14 @@
+       </match>
+     </match>
+ 
++    <match key="info.capabilities" contains="input.touchpad">
++      <merge key="input.x11_driver" type="string">mouse</merge>
++      <match key="/org/freedesktop/Hal/devices/computer:system.kernel.name"
++             string="Linux">
++        <merge key="input.x11_driver" type="string">evdev</merge>
++      </match>
++    </match>
++
+     <match key="info.capabilities" contains="input.tablet">
+       <match key="/org/freedesktop/Hal/devices/computer:system.kernel.name"
+              string="Linux">
+-- 
+1.7.2.1
+

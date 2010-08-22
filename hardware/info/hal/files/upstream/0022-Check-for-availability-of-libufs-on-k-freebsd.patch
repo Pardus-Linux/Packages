@@ -1,0 +1,79 @@
+From eb3879122867c6376c9c7e155d8919e0609f9fdf Mon Sep 17 00:00:00 2001
+From: Michael Biebl <mbiebl@gmail.com>
+Date: Sat, 23 Jan 2010 15:01:21 -0500
+Subject: [PATCH 22/45] Check for availability of libufs on (k)freebsd
+
+Check for availability of libufs on (k)freebsd and compile the code
+conditionally.
+---
+ configure.in                        |    8 ++++++++
+ hald/freebsd/probing/Makefile.am    |    2 +-
+ hald/freebsd/probing/probe-volume.c |    4 ++++
+ 3 files changed, 13 insertions(+), 1 deletions(-)
+
+diff --git a/configure.in b/configure.in
+index 2c74863..2394c45 100644
+--- a/configure.in
++++ b/configure.in
+@@ -508,6 +508,14 @@ AM_CONDITIONAL(HALD_COMPILE_SOLARIS, [test x$HALD_BACKEND = xsolaris], [Compilin
+ AC_SUBST(HALD_BACKEND)
+ if test "x$HALD_BACKEND" = "xfreebsd"; then
+     AC_SEARCH_LIBS([clock_gettime], [rt])
++    LIBUFS_LIBS=""
++    AC_CHECK_HEADERS([libufs.h],
++		     [AC_CHECK_LIB([libufs], [ufs_disk_fillout], [USE_LIBUFS="yes"], [], [])])
++    if test "x$USE_LIBUFS" = "xyes"; then
++	AC_DEFINE(HAVE_LIBUFS, 1, [Set if we have libufs])
++	LIBUFS_LIBS="-lufs"
++	AC_SUBST(LIBUFS_LIBS)
++    fi
+     USE_BSDLIBUSB20=no
+     USE_BSDLIBUSB=no
+     LIBUSB20_LIBS=""
+diff --git a/hald/freebsd/probing/Makefile.am b/hald/freebsd/probing/Makefile.am
+index 3e439b5..67b8dcf 100644
+--- a/hald/freebsd/probing/Makefile.am
++++ b/hald/freebsd/probing/Makefile.am
+@@ -67,5 +67,5 @@ hald_probe_volume_CPPFLAGS = $(AM_CPPFLAGS) @GLIB_CFLAGS@ @VOLUME_ID_CFLAGS@
+ hald_probe_volume_LDADD = \
+ 	@GLIB_LIBS@							\
+ 	@VOLUME_ID_LIBS@						\
+-	-lufs								\
++	@LIBUFS_LIBS@							\
+ 	$(top_builddir)/hald/freebsd/libprobe/libhald_freebsd_probe.la
+diff --git a/hald/freebsd/probing/probe-volume.c b/hald/freebsd/probing/probe-volume.c
+index e4e1689..9c8abde 100644
+--- a/hald/freebsd/probing/probe-volume.c
++++ b/hald/freebsd/probing/probe-volume.c
+@@ -38,10 +38,12 @@
+ #include <sys/param.h>
+ #include <sys/mount.h>
+ #include <sys/types.h>
++#ifdef HAVE_LIBUFS
+ #include <ufs/ufs/ufsmount.h>
+ #include <ufs/ufs/dinode.h>
+ #include <ufs/ffs/fs.h>
+ #include <libufs.h>
++#endif /* HAVE_LIBUFS */
+ #include <isofs/cd9660/iso.h>
+ #include <glib.h>
+ #include <libvolume_id.h>
+@@ -561,6 +563,7 @@ main (int argc, char **argv)
+ 
+   libhal_device_set_property_bool(hfp_ctx, hfp_udi, "volume.ignore", has_children || is_swap, &hfp_error);
+ 
++#ifdef HAVE_LIBUFS
+   if (vid && ! strcmp (vid->type, "ufs"))
+     {
+       struct uufsd ufsdisk;
+@@ -602,6 +605,7 @@ main (int argc, char **argv)
+ 	  ufs_disk_close(&ufsdisk);
+ 	}
+     }
++#endif /* HAVE_LIBUFS */
+ 
+   if (has_children)
+     usage = "partitiontable";
+-- 
+1.7.2.1
+

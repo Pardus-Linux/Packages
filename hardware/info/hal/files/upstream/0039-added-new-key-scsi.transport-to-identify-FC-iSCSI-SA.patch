@@ -1,0 +1,36 @@
+From c404ccdebe695ed3ad76175b21282b334475373e Mon Sep 17 00:00:00 2001
+From: Danny Kukawka <danny.kukawka@web.de>
+Date: Mon, 15 Mar 2010 18:59:10 +0100
+Subject: [PATCH 39/45] added new key scsi.transport to identify FC/iSCSI/SAS
+
+Added new key scsi.transport for SCSI devices to identify e.g.
+FiberChannel, iSCSI or SAS. This allow to handle them in FDI
+files (e.g. set volume.ignore or storage.automount_enabled_hint).
+---
+ hald/linux/device.c |   10 ++++++++++
+ 1 files changed, 10 insertions(+), 0 deletions(-)
+
+diff --git a/hald/linux/device.c b/hald/linux/device.c
+index 95ba3ae..b384611 100644
+--- a/hald/linux/device.c
++++ b/hald/linux/device.c
+@@ -2885,6 +2885,16 @@ scsi_add (const gchar *sysfs_path, const gchar *device_file, HalDevice *parent_d
+ 	hal_device_property_set_int (d, "scsi.target", target_num);
+ 	hal_device_property_set_int (d, "scsi.lun", lun_num);
+ 
++	if (strstr(sysfs_path, "/host") != NULL && strstr(sysfs_path, "/target") != NULL) {
++		if (strstr(sysfs_path, "/rport-") != NULL) {
++			hal_device_property_set_string (d, "scsi.transport", "FC");
++		} else if (strstr(sysfs_path, "/session") != NULL) {
++			hal_device_property_set_string (d, "scsi.transport", "iSCSI");
++		} else if (strstr(sysfs_path, "/port-") != NULL && strstr(sysfs_path, "/end_device-") != NULL) {
++			hal_device_property_set_string (d, "scsi.transport", "SAS");
++		}
++	}
++
+ 	hal_util_set_driver (d, "info.linux.driver", sysfs_path);
+ 
+ 	hal_device_property_set_string (d, "info.product", "SCSI Device");
+-- 
+1.7.2.1
+

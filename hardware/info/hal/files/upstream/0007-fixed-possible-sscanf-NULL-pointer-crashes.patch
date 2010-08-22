@@ -1,0 +1,284 @@
+From 0f97f9191286caac2597327c5997d18ad5cc593c Mon Sep 17 00:00:00 2001
+From: Danny Kukawka <danny.kukawka@web.de>
+Date: Fri, 27 Nov 2009 10:40:40 +0100
+Subject: [PATCH 07/45] fixed possible sscanf() NULL pointer crashes
+
+Fixed possible sscanf() crashes caused by hal_util_get_last_element()
+returning a NULL pointer (in rare error case) which was used unchecked
+in sscanf() calls.
+---
+ hald/linux/blockdev.c |    7 +++-
+ hald/linux/device.c   |   87 ++++++++++++++++++++++++++++++-------------------
+ hald/util.c           |    2 +-
+ 3 files changed, 59 insertions(+), 37 deletions(-)
+
+diff --git a/hald/linux/blockdev.c b/hald/linux/blockdev.c
+index 68f50dc..d01e707 100644
+--- a/hald/linux/blockdev.c
++++ b/hald/linux/blockdev.c
+@@ -894,6 +894,7 @@ hotplug_event_begin_add_blockdev (const gchar *sysfs_path, const gchar *device_f
+ 	gboolean is_cciss_device;
+         int md_number;
+ 	char tc;
++	const gchar *last_elem;
+ 
+ 	is_device_mapper = FALSE;
+         is_fakevolume = FALSE;
+@@ -908,11 +909,13 @@ hotplug_event_begin_add_blockdev (const gchar *sysfs_path, const gchar *device_f
+ 		goto out;
+ 	}
+ 
+-	if (strcmp (hal_util_get_last_element (sysfs_path), "fakevolume") == 0) {
++	last_elem = hal_util_get_last_element (sysfs_path);
++
++	if (strcmp (last_elem, "fakevolume") == 0) {
+ 		HAL_INFO (("Handling %s as fakevolume - sysfs_path_real=%s", device_file, sysfs_path_real));
+ 		is_fakevolume = TRUE;
+ 		sysfs_path_real = hal_util_get_parent_path (sysfs_path);
+-        } else if (sscanf (hal_util_get_last_element (sysfs_path), "md%d%c", &md_number, &tc) == 1) {
++        } else if (last_elem && sscanf (last_elem, "md%d%c", &md_number, &tc) == 1) {
+ 		HAL_INFO (("Handling %s as MD device", device_file));
+                 is_md_device = TRUE;
+ 		sysfs_path_real = g_strdup (sysfs_path);
+diff --git a/hald/linux/device.c b/hald/linux/device.c
+index e876a50..bdc9558 100644
+--- a/hald/linux/device.c
++++ b/hald/linux/device.c
+@@ -353,8 +353,7 @@ ccw_add (const gchar *sysfs_path, const gchar *device_file, HalDevice *parent_de
+ 	if (parent_dev != NULL)
+                 hal_device_property_set_string (d, "info.parent", hal_device_get_udi (parent_dev));
+         else
+-                hal_device_property_set_string
+-		  (d, "info.parent",
++                hal_device_property_set_string (d, "info.parent",
+ 		   "/org/freedesktop/Hal/devices/computer");
+ 
+ 	hal_util_set_driver (d, "info.linux.driver", sysfs_path);
+@@ -744,7 +743,9 @@ firewire_add (const gchar *sysfs_path, const gchar *device_file, HalDevice *pare
+ 
+ 	bus_id = hal_util_get_last_element (sysfs_path);
+ 
+-	if (sscanf (bus_id, "fw%d.%d", &device_id, &unit_id) == 2 ) {
++	if (bus_id == NULL) {
++		return NULL;
++	} else if (sscanf (bus_id, "fw%d.%d", &device_id, &unit_id) == 2 ) {
+ 		return firewire_add_unit (sysfs_path, unit_id, parent_dev);
+ 	} else if (sscanf (bus_id, "fw%d", &device_id) == 1) {
+ 		return firewire_add_device (sysfs_path, device_file, parent_dev);
+@@ -853,16 +854,18 @@ ide_add (const gchar *sysfs_path, const gchar *device_file, HalDevice *parent_de
+ 
+ 	bus_id = hal_util_get_last_element (sysfs_path);
+ 
+-	sscanf (bus_id, "%d.%d", &host, &channel);
+-	hal_device_property_set_int (d, "ide.host", host);
+-	hal_device_property_set_int (d, "ide.channel", channel);
++	if (bus_id) {
++		sscanf (bus_id, "%d.%d", &host, &channel);
++		hal_device_property_set_int (d, "ide.host", host);
++		hal_device_property_set_int (d, "ide.channel", channel);
+ 
+-	if (channel == 0) {
+-		hal_device_property_set_string (d, "info.product", "IDE device (master)");
+-	} else {
+-		hal_device_property_set_string (d, "info.product", "IDE device (slave)");
++		if (channel == 0) {
++			hal_device_property_set_string (d, "info.product", "IDE device (master)");
++		} else {
++			hal_device_property_set_string (d, "info.product", "IDE device (slave)");
++		}
+ 	}
+-	
++
+ 	return d;
+ }
+ 
+@@ -904,6 +907,9 @@ ieee1394_add (const gchar *sysfs_path, const gchar *device_file, HalDevice *pare
+ 
+ 	bus_id = hal_util_get_last_element (sysfs_path);
+ 
++	if (bus_id == NULL)
++		goto out;
++
+ 	if (sscanf (bus_id, "fw-host%d", &host_id) == 1)
+ 		goto out;
+ 
+@@ -1197,7 +1203,8 @@ input_add (const gchar *sysfs_path, const gchar *device_file, HalDevice *parent_
+ 	int eventdev_num;
+ 	HalDevice *d;
+         char *attr_sysfs_path;
+-        
++	char *last;       
++ 
+         d = NULL;
+         attr_sysfs_path = NULL;
+ 
+@@ -1205,7 +1212,8 @@ input_add (const gchar *sysfs_path, const gchar *device_file, HalDevice *parent_
+ 		goto out;
+ 
+ 	/* only care about evdev input devices */
+-	if (sscanf (hal_util_get_last_element (sysfs_path), "event%d", &eventdev_num) != 1)
++	last = hal_util_get_last_element (sysfs_path);
++	if (last == NULL || sscanf (hal_util_get_last_element (sysfs_path), "event%d", &eventdev_num) != 1)
+ 		goto out;
+         
+         /* Prior to 2.6.23pre event%d was a child of input%d - after that event%d
+@@ -1494,9 +1502,10 @@ memstick_host_add (const gchar *sysfs_path, const gchar *device_file, HalDevice
+ 	hal_device_property_set_string (d, "info.product", "Memory Stick Host Adapter");
+ 
+ 	last_elem = hal_util_get_last_element (sysfs_path);
+-	sscanf (last_elem, "memstick%d", &host_num);
+-	hal_device_property_set_int (d, "memstick_host.host", host_num);
+-
++	if (last_elem != NULL) {
++		sscanf (last_elem, "memstick%d", &host_num);
++		hal_device_property_set_int (d, "memstick_host.host", host_num);
++	}
+ out:
+ 	return d;
+ }
+@@ -1535,8 +1544,10 @@ mmc_add (const gchar *sysfs_path, const gchar *device_file, HalDevice *parent_de
+ 	hal_util_set_driver (d, "info.linux.driver", sysfs_path);
+ 
+ 	bus_id = hal_util_get_last_element (sysfs_path);
+-	sscanf (bus_id, "mmc%d:%x", &host_num, &rca);
+-	hal_device_property_set_int (d, "mmc.rca", rca);
++	if (bus_id) {
++		sscanf (bus_id, "mmc%d:%x", &host_num, &rca);
++		hal_device_property_set_int (d, "mmc.rca", rca);
++	}
+ 	
+ 	hal_util_set_string_from_file (d, "mmc.cid", sysfs_path, "cid");
+ 	hal_util_set_string_from_file (d, "mmc.csd", sysfs_path, "csd");
+@@ -1631,8 +1642,10 @@ mmc_host_add (const gchar *sysfs_path, const gchar *device_file, HalDevice *pare
+ 	hal_device_property_set_string (d, "info.product", "MMC/SD Host Adapter");
+ 
+ 	last_elem = hal_util_get_last_element (sysfs_path);
+-	sscanf (last_elem, "mmc%d", &host_num);
+-	hal_device_property_set_int (d, "mmc_host.host", host_num);
++	if (last_elem) {
++		sscanf (last_elem, "mmc%d", &host_num);
++		hal_device_property_set_int (d, "mmc_host.host", host_num);
++	}
+ 
+ 	hal_util_set_string_from_file (d, "mmc_host.slot_name", sysfs_path, "slot_name");
+ 
+@@ -1801,6 +1814,7 @@ net_refresh (HalDevice *d)
+ 	path = hal_device_property_get_string (d, "linux.sysfs_path");
+ 	ifname = hal_util_get_last_element (path);
+ 	hal_device_property_set_string (d, "net.interface", ifname);
++
+ 	return TRUE;
+ }
+ 
+@@ -2012,8 +2026,10 @@ pcmcia_add (const gchar *sysfs_path, const gchar *device_file, HalDevice *parent
+ 	hal_util_set_driver (d, "info.linux.driver", sysfs_path);
+ 
+ 	/* not sure if %d.%d means socket function - need to revisit */
+-	sscanf (bus_id, "%d.%d", &socket, &function);
+-	hal_device_property_set_int (d, "pcmcia.socket_number", socket);
++	if (bus_id) {
++		sscanf (bus_id, "%d.%d", &socket, &function);
++		hal_device_property_set_int (d, "pcmcia.socket_number", socket);
++	}
+ 
+ 	hal_util_set_string_from_file (d, "pcmcia.prod_id1", sysfs_path, "prod_id1");
+ 	hal_util_set_string_from_file (d, "pcmcia.prod_id2", sysfs_path, "prod_id2");
+@@ -2901,7 +2917,7 @@ scsi_add (const gchar *sysfs_path, const gchar *device_file, HalDevice *parent_d
+ 		goto out;
+ 
+ 	bus_id = hal_util_get_last_element (sysfs_path);
+-	if (sscanf (bus_id, "%d:%d:%d:%d", &host_num, &bus_num, &target_num, &lun_num) != 4)
++	if (bus_id == NULL || (sscanf (bus_id, "%d:%d:%d:%d", &host_num, &bus_num, &target_num, &lun_num) != 4))
+ 		goto out;
+ 
+ 	d = hal_device_new ();
+@@ -3033,7 +3049,7 @@ missing_scsi_host (const gchar *sysfs_path, HotplugEvent *device_event, HotplugA
+ 
+ 	/* catch only scsi-devices */
+ 	last_elem = hal_util_get_last_element (sysfs_path);
+-	if (sscanf (last_elem, "%d:%d:%d:%d", &host_num, &bus_num, &target_num, &lun_num) != 4)
++	if (last_elem == NULL || (sscanf (last_elem, "%d:%d:%d:%d", &host_num, &bus_num, &target_num, &lun_num) != 4))
+ 		goto out;
+ 
+ 	/* avoid loops */
+@@ -3048,7 +3064,7 @@ missing_scsi_host (const gchar *sysfs_path, HotplugEvent *device_event, HotplugA
+ 			goto out;
+ 
+ 		last_elem = hal_util_get_last_element (path);
+-		if (sscanf (last_elem, "host%d", &num) == 1)
++		if (last_elem != NULL && (sscanf (last_elem, "host%d", &num) == 1))
+ 			break;
+ 	}
+ 
+@@ -3123,7 +3139,7 @@ scsi_host_add (const gchar *sysfs_path, const gchar *device_file, HalDevice *par
+ 		goto out;
+ 
+ 	last_elem = hal_util_get_last_element (sysfs_path);
+-	if (sscanf (last_elem, "host%d", &host_num) != 1)
++	if (last_elem == NULL || (sscanf (last_elem, "host%d", &host_num) != 1))
+ 		goto out;
+ 
+ 	d = hal_device_new ();
+@@ -3172,9 +3188,11 @@ sdio_add (const gchar *sysfs_path, const gchar *device_file, HalDevice *parent_d
+ 	hal_util_set_driver (d, "info.linux.driver", sysfs_path);
+ 
+ 	bus_id = hal_util_get_last_element (sysfs_path);
+-	sscanf (bus_id, "mmc%d:%x:%d", &host_num, &rca, &card_id);
+-	hal_device_property_set_int (d, "sdio.rca", rca);
+-	hal_device_property_set_int (d, "sdio.card_id", card_id);
++	if (bus_id != NULL) {
++		sscanf (bus_id, "mmc%d:%x:%d", &host_num, &rca, &card_id);
++		hal_device_property_set_int (d, "sdio.rca", rca);
++		hal_device_property_set_int (d, "sdio.card_id", card_id);
++	}
+ 
+ 	hal_util_set_int_from_file (d, "sdio.vendor_id", sysfs_path, "vendor", 16);
+ 	hal_util_set_int_from_file (d, "sdio.product_id", sysfs_path, "device", 16);
+@@ -3752,9 +3770,8 @@ tape_compute_udi (HalDevice *d)
+ 						(d, "linux.sysfs_path"));
+ 	if (!sysfs_name)
+ 		return FALSE;
+-	hald_compute_udi (udi, sizeof (udi),
+-			  "/org/freedesktop/Hal/devices/tape_%s",
+-			  sysfs_name);
++
++	hald_compute_udi (udi, sizeof (udi), "/org/freedesktop/Hal/devices/tape_%s", sysfs_name);
+ 	hal_device_set_udi (d, udi);
+ 
+ 	return TRUE;
+@@ -3992,7 +4009,9 @@ usbclass_add (const gchar *sysfs_path, const gchar *device_file, HalDevice *pare
+ 	}
+ 
+ 	last_elem = hal_util_get_last_element (sysfs_path);
+-	if (sscanf (last_elem, "hiddev%d", &host_num) == 1) {
++	if (last_elem == NULL) {
++		goto out;
++	} else if (sscanf (last_elem, "hiddev%d", &host_num) == 1) {
+ 
+ 		d = hal_device_new ();
+ 		hal_device_property_set_string (d, "linux.sysfs_path", sysfs_path);
+@@ -4273,7 +4292,7 @@ vmbus_add (const gchar *sysfs_path, const gchar *device_file, HalDevice *parent_
+ 
+ 	bus_id = hal_util_get_last_element (sysfs_path);
+ 	hal_device_property_set_string (d, "vmbus.bus_id", bus_id);
+-	if (sscanf (bus_id, "vmbus_%d_%d", &busnum, &devicenum) == 2) {
++	if (bus_id && sscanf (bus_id, "vmbus_%d_%d", &busnum, &devicenum) == 2) {
+ 		hal_device_property_set_int (d, "vmbus.bus_number", busnum);
+ 		hal_device_property_set_int (d, "vmbus.device_number", devicenum);
+ 	}
+diff --git a/hald/util.c b/hald/util.c
+index d5346ec..9514a8b 100644
+--- a/hald/util.c
++++ b/hald/util.c
+@@ -98,7 +98,7 @@ hal_util_remove_trailing_slash (gchar *path)
+  *  foobar.
+  *
+  *  @param  path                Path
+- *  @return                     Pointer into given string
++ *  @return                     Pointer into given string or NULL in error case
+  */
+ const gchar *
+ hal_util_get_last_element (const gchar *s)
+-- 
+1.7.2.1
+

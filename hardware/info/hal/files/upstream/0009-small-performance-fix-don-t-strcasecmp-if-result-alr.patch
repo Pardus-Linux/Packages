@@ -1,0 +1,32 @@
+From afa1765215303e5dc5f6c8d80b9bf9cf1a969aca Mon Sep 17 00:00:00 2001
+From: Danny Kukawka <danny.kukawka@web.de>
+Date: Fri, 27 Nov 2009 10:55:37 +0100
+Subject: [PATCH 09/45] small performance fix, don't strcasecmp() if result already known
+
+Small performance fix, don't strcasecmp() if result already known,
+because we have set a special string.
+---
+ hald/linux/device.c |    7 +++----
+ 1 files changed, 3 insertions(+), 4 deletions(-)
+
+diff --git a/hald/linux/device.c b/hald/linux/device.c
+index 2045e13..2d3800d 100644
+--- a/hald/linux/device.c
++++ b/hald/linux/device.c
+@@ -2854,10 +2854,9 @@ rfkill_add (const gchar *sysfs_path, const gchar *device_file, HalDevice *parent
+ 	}
+ 
+ 	type = hal_util_get_string_from_file (sysfs_path, "type");
+-	if (type == NULL)
+-		type = "unknown";
+-
+-	if (strcasecmp (type, "wimax") == 0) {
++	if (type == NULL) {
++		hal_device_property_set_string (d, "killswitch.type", "unknown");
++	} else if (strcasecmp (type, "wimax") == 0) {
+ 		hal_device_property_set_string (d, "killswitch.type", "wwan");
+ 	} else { 
+ 		hal_device_property_set_string (d, "killswitch.type", type);
+-- 
+1.7.2.1
+

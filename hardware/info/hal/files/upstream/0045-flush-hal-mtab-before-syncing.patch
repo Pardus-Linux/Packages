@@ -1,0 +1,51 @@
+From 7523710dde7479e6854e172b5810ffea84be58bf Mon Sep 17 00:00:00 2001
+From: Martin Pitt <martin.pitt@ubuntu.com>
+Date: Thu, 15 Jul 2010 06:53:33 +0200
+Subject: [PATCH 45/45] flush hal-mtab before syncing
+
+Commit 476dd36 was incomplete: we need to flush the fd before we sync it, to
+really have an effect.
+
+Thanks to Fujii Takafumi for pointing this out!
+---
+ tools/hal-storage-mount.c  |    3 +++
+ tools/hal-storage-shared.c |    9 ++++++---
+ 2 files changed, 9 insertions(+), 3 deletions(-)
+
+diff --git a/tools/hal-storage-mount.c b/tools/hal-storage-mount.c
+index c543707..3ecea02 100644
+--- a/tools/hal-storage-mount.c
++++ b/tools/hal-storage-mount.c
+@@ -953,6 +953,9 @@ handle_mount (LibHalContext *hal_ctx,
+ 		if (fwrite (hal_mtab_buf, 1, strlen (hal_mtab_buf), hal_mtab) != strlen (hal_mtab_buf)) {
+ 			unknown_error ("Cannot write to /media/.hal-mtab~");
+ 		}
++		if (fflush (hal_mtab) < 0) {
++			unknown_error ("Cannot flush /media/.hal-mtab~");
++		}
+ 		if (fsync (fileno (hal_mtab)) < 0) {
+ 			printf ("WARNING! syncing /media/.hal-mtab~ failed: %s\n", strerror (errno));
+ 		}
+diff --git a/tools/hal-storage-shared.c b/tools/hal-storage-shared.c
+index e7e2825..e5373be 100644
+--- a/tools/hal-storage-shared.c
++++ b/tools/hal-storage-shared.c
+@@ -483,9 +483,12 @@ line_found:
+ 		}
+ 
+ 	}
+-       if (fsync (fileno (hal_mtab_new)) < 0) {
+-	       printf ("WARNING! syncing /media/.hal-mtab~ failed: %s\n", strerror (errno));
+-       }
++	if (fflush (hal_mtab_new) < 0) {
++	    unknown_error ("Cannot flush /media/.hal-mtab~");
++	}
++	if (fsync (fileno (hal_mtab_new)) < 0) {
++		printf ("WARNING! syncing /media/.hal-mtab~ failed: %s\n", strerror (errno));
++	}
+ #ifdef DEBUG
+        else
+ 	       printf ("fsync /media/.hal-mtab~: success\n");
+-- 
+1.7.2.1
+

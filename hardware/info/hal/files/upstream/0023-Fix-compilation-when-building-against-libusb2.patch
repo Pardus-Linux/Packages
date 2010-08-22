@@ -1,0 +1,91 @@
+From 8f7a14e44b019b80a1e77fea7896fd8533011a1f Mon Sep 17 00:00:00 2001
+From: Michael Biebl <mbiebl@gmail.com>
+Date: Sat, 23 Jan 2010 15:04:14 -0500
+Subject: [PATCH 23/45] Fix compilation when building against libusb2
+
+Use the correct macros for kFreeBSD.
+---
+ hald/freebsd/hf-usb.c                       |    8 ++++----
+ hald/freebsd/probing/probe-hiddev.c         |    2 +-
+ hald/freebsd/probing/probe-usb2-device.c    |    4 ++--
+ hald/freebsd/probing/probe-usb2-interface.c |    2 +-
+ 4 files changed, 8 insertions(+), 8 deletions(-)
+
+diff --git a/hald/freebsd/hf-usb.c b/hald/freebsd/hf-usb.c
+index 280e0db..3f36087 100644
+--- a/hald/freebsd/hf-usb.c
++++ b/hald/freebsd/hf-usb.c
+@@ -32,8 +32,8 @@
+ #include <fcntl.h>
+ #include <sys/ioctl.h>
+ #include <unistd.h>
+-#if __FreeBSD_version < 800092
+-#if __FreeBSD_version >= 800064
++#if (__FreeBSD_version < 800092) || (__FreeBSD_kernel_version < 800092)
++#if (__FreeBSD_version >= 800064) || (__FreeBSD_kernel_version >= 800064)
+ #include <legacy/dev/usb/usb.h>
+ #else
+ #include <dev/usb/usb.h>
+@@ -47,9 +47,9 @@
+ #include "hf-devtree.h"
+ #include "hf-util.h"
+ 
+-#if __FreeBSD_version < 800092
++#if (__FreeBSD_version < 800092) || (__FreeBSD_kernel_version < 800092)
+ #define HF_USB_DEVICE			"/dev/usb"
+-#if __FreeBSD_version < 800066
++#if (__FreeBSD_version < 800066) || (__FreeBSD_kernel_version < 800066)
+ #define HF_USB2_DEVICE			"/dev/usb "
+ #else
+ #define HF_USB2_DEVICE			"/dev/usbctl"
+diff --git a/hald/freebsd/probing/probe-hiddev.c b/hald/freebsd/probing/probe-hiddev.c
+index f0c598b..054b159 100644
+--- a/hald/freebsd/probing/probe-hiddev.c
++++ b/hald/freebsd/probing/probe-hiddev.c
+@@ -34,7 +34,7 @@
+ #include <dev/usb/usb.h>
+ #include <dev/usb/usbhid.h>
+ #else
+-#if __FreeBSD_version >= 800064
++#if (__FreeBSD_version >= 800064) || (__FreeBSD_kernel_version >= 800064)
+ #include <dev/usb/usbhid.h>
+ #else
+ #include <dev/usb2/include/usb2_hid.h>
+diff --git a/hald/freebsd/probing/probe-usb2-device.c b/hald/freebsd/probing/probe-usb2-device.c
+index 129a1b1..8a3596a 100644
+--- a/hald/freebsd/probing/probe-usb2-device.c
++++ b/hald/freebsd/probing/probe-usb2-device.c
+@@ -34,7 +34,7 @@
+ 
+ #include <libusb20_desc.h>
+ #include <libusb20.h>
+-#if __FreeBSD_version >= 800064
++#if (__FreeBSD_version >= 800064) || (__FreeBSD_kernel_version >= 800064)
+ #include <dev/usb/usb_ioctl.h>
+ #else
+ #include <dev/usb2/include/usb2_standard.h>
+@@ -73,7 +73,7 @@ main(int argc, char **argv)
+     {
+       struct LIBUSB20_DEVICE_DESC_DECODED *ddesc;
+       struct LIBUSB20_CONFIG_DESC_DECODED *cdesc;
+-#if __FreeBSD_version >= 800092
++#if (__FreeBSD_version >= 800092) || (__FreeBSD_kernel_version >= 800092)
+       struct usb_device_info di;
+ #else
+       struct usb2_device_info di;
+diff --git a/hald/freebsd/probing/probe-usb2-interface.c b/hald/freebsd/probing/probe-usb2-interface.c
+index f57bb77..a41e047 100644
+--- a/hald/freebsd/probing/probe-usb2-interface.c
++++ b/hald/freebsd/probing/probe-usb2-interface.c
+@@ -34,7 +34,7 @@
+ 
+ #include <libusb20_desc.h>
+ #include <libusb20.h>
+-#if __FreeBSD_version >= 800064
++#if (__FreeBSD_version >= 800064) || (__FreeBSD_kernel_version >= 800064)
+ #include <dev/usb/usb_ioctl.h>
+ #else
+ #include <dev/usb2/include/usb2_standard.h>
+-- 
+1.7.2.1
+

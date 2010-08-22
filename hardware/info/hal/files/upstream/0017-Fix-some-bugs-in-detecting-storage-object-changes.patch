@@ -1,0 +1,100 @@
+From 1ef86a4af1c88faf9f9d89e2399dda1b0d693d0f Mon Sep 17 00:00:00 2001
+From: Joe Marcus Clarke <marcus@FreeBSD.org>
+Date: Fri, 25 Dec 2009 11:26:08 -0500
+Subject: [PATCH 17/45] Fix some bugs in detecting storage object changes
+
+* Add support for file systems with spaces in their label names.
+* Ignore ufsid labels outright.  These labels are special since they are
+  created and destroyed based on whether or not the underlying device is
+  mounted or not.  This should fix some weird remounting problems with UFS
+  volumes as well as some mount contention.
+* Attempt to workaround the GEOM lock race by sleeping half of a second
+  when a DESTROY event is seen by the storage subsystem.  Additionally, protect
+  against kern.geom.conftxt returning NULL.  When this happens, all disks
+  would get removed, and that's bad.
+---
+ hald/freebsd/hf-storage.c |   39 +++++++++++++++++++++++++++++++++++++--
+ 1 files changed, 37 insertions(+), 2 deletions(-)
+
+diff --git a/hald/freebsd/hf-storage.c b/hald/freebsd/hf-storage.c
+index 3bc5ab9..3833ec8 100644
+--- a/hald/freebsd/hf-storage.c
++++ b/hald/freebsd/hf-storage.c
+@@ -30,6 +30,7 @@
+ #include <limits.h>
+ #include <inttypes.h>
+ #include <string.h>
++#include <unistd.h>
+ #include <sys/param.h>
+ #include <sys/types.h>
+ #include <sys/disklabel.h>
+@@ -418,10 +419,39 @@ hf_storage_parse_conftxt (const char *conftxt)
+ 	  continue;
+ 	}
+ 
++      /* XXX This is a hack, but we need to ignore dynamic labels like
++       * ufsids which are created and destroyed based on whether or not
++       * the actual device is mounted or not.  If we don't then strange
++       * things happen in applications like nautilus.
++       */
++      if ((! strcmp(fields[1], "LABEL") ||
++          ! strcmp(fields[1], "BSD")) &&
++          ! strncmp(fields[2], "ufsid/", strlen("ufsid/")))
++        {
++          g_strfreev(fields);
++	  continue;
++	}
++
+       geom_obj = g_new0(Geom_Object, 1);
+ 
+       geom_obj->class = g_strdup(fields[1]);
+       geom_obj->dev = g_strdup(fields[2]);
++      /* Allow for spaces in label names. */
++      if (! strcmp(fields[1], "LABEL"))
++        {
++          int j;
++
++	  for (j = 3; g_strv_length(fields) > (j + 2) &&
++               strcmp(fields[j + 2], "i"); j++)
++            {
++              char *tmp;
++
++	      tmp = g_strdup_printf("%s %s", geom_obj->dev, fields[j]);
++	      g_free(geom_obj->dev);
++	      geom_obj->dev = tmp;
++	    }
++	}
++
+       geom_obj->type = -1;	/* We use -1 here to denote a missing type. */
+       geom_obj->hash = hash;
+ 
+@@ -589,11 +619,16 @@ hf_storage_devd_notify (const char *system,
+   char *conftxt;
+   GSList *new_disks;
+ 
+-  if (strcmp(system, "DEVFS") || strcmp(subsystem, "CDEV") ||
++  if (! data || strcmp(system, "DEVFS") || strcmp(subsystem, "CDEV") ||
+       (strcmp(type, "CREATE") && strcmp(type, "DESTROY")))
+     return FALSE;
+ 
++  if (! strcmp(type, "DESTROY"))
++    g_usleep(G_USEC_PER_SEC/2);
++
+   conftxt = hf_get_string_sysctl(NULL, "kern.geom.conftxt");
++  if (! conftxt)
++    return FALSE;
+   new_disks = hf_storage_parse_conftxt(conftxt);
+   g_free(conftxt);
+ 
+@@ -669,7 +704,7 @@ hf_storage_conftxt_timeout_cb (gpointer data)
+   if (hf_is_waiting)
+     return TRUE;
+ 
+-  hf_storage_devd_notify("DEVFS", "CDEV", "CREATE", NULL);
++  hf_storage_devd_notify("DEVFS", "CDEV", "CREATE", "");
+ 
+   return TRUE;
+ }
+-- 
+1.7.2.1
+

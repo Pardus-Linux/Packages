@@ -1,0 +1,90 @@
+From bcbd8cb90b2570187417c0579530c36576923f73 Mon Sep 17 00:00:00 2001
+From: Danny Kukawka <danny.kukawka@web.de>
+Date: Mon, 15 Mar 2010 18:51:42 +0100
+Subject: [PATCH 36/45] fixed compiler warnings from cgcc
+
+Fixed compiler warnings from cgcc.
+---
+ tools/hal-device.c |   21 +++++++--------------
+ 1 files changed, 7 insertions(+), 14 deletions(-)
+
+diff --git a/tools/hal-device.c b/tools/hal-device.c
+index 38458a5..c82518b 100644
+--- a/tools/hal-device.c
++++ b/tools/hal-device.c
+@@ -74,11 +74,6 @@ int add_udi(LibHalContext *hal_ctx, char *arg);
+ void process_property(LibHalContext *hal_ctx, char *buf, lh_prop_t **prop);
+ int add_properties(LibHalContext *hal_ctx, new_dev_t *nd, lh_prop_t *prop);
+ lh_prop_t *free_properties(lh_prop_t *prop);
+-static char *skip_space(char *s);
+-static char *skip_non_eq_or_space(char *s);
+-static char *skip_number(char *s);
+-static char *skip_nonquote(char *s);
+-
+ 
+ new_dev_t new_dev;
+ 
+@@ -89,11 +84,11 @@ struct {
+ 	char *udi;
+ } opt;
+ 
+-struct option options[] = {
++static struct option options[] = {
+ 	{ "remove", 1, NULL, 'r' },
+ 	{ "add", 1, NULL, 'a' },
+ 	{ "help", 0, NULL, 'h' },
+-	{ 0, 0, 0, 0 }
++	{ NULL , 0, NULL , 0 }
+ };
+ 
+ 
+@@ -168,7 +163,7 @@ int main(int argc, char **argv)
+ }
+ 
+ 
+-void help()
++void help(void)
+ {
+ 	fprintf(stderr,
+ 		"usage: hal-device [--help] [--add udi] [--remove udi] [udi]\n"
+@@ -419,7 +414,7 @@ int add_udi(LibHalContext *hal_ctx, char *arg)
+ }
+ 
+ 
+-char *skip_space(char *s)
++static char *skip_space(char *s)
+ {
+ 	while (isspace(*s)) s++;
+ 
+@@ -427,7 +422,7 @@ char *skip_space(char *s)
+ }
+ 
+ 
+-char *skip_non_eq_or_space(char *s)
++static char *skip_non_eq_or_space(char *s)
+ {
+ 	while (*s && *s != '=' && !isspace(*s))
+ 		s++;
+@@ -435,8 +430,7 @@ char *skip_non_eq_or_space(char *s)
+ 	return s;
+ }
+ 
+-
+-char *skip_number(char *s)
++static char *skip_number(char *s)
+ {
+ 	while (*s == '-' || *s == '+' || *s == '.' || isdigit(*s))
+ 		s++;
+@@ -444,8 +438,7 @@ char *skip_number(char *s)
+ 	return s;
+ }
+ 
+-
+-char *skip_nonquote(char *s)
++static char *skip_nonquote(char *s)
+ {
+ 	while (*s && *s != '\'')
+ 		s++;
+-- 
+1.7.2.1
+

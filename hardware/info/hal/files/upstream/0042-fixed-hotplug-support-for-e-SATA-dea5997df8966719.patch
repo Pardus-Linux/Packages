@@ -1,0 +1,65 @@
+From 23267656d59fe56cb6401f65a278c3ee2b32de39 Mon Sep 17 00:00:00 2001
+From: Takashi Iwai <tiwai@suse.de>
+Date: Mon, 29 Mar 2010 15:40:12 +0200
+Subject: [PATCH 42/45] fixed hotplug support for e-SATA (dea5997df8966719)
+
+Fixed hotplug support for e-SATA from commit dea5997df8966719
+(bnc#576506 and bnc#590163).
+---
+ hald/linux/device.c |   27 ++++++++++++++++++---------
+ 1 files changed, 18 insertions(+), 9 deletions(-)
+
+diff --git a/hald/linux/device.c b/hald/linux/device.c
+index b384611..aafad71 100644
+--- a/hald/linux/device.c
++++ b/hald/linux/device.c
+@@ -3094,13 +3094,28 @@ out:
+ 	return rc;
+ }
+ 
++static 
++void check_ahci_port_cmd(const char *sysfs_path, HalDevice *d, int host_num)
++{
++	gchar path[HAL_PATH_MAX];
++	gint port_cmd;
++
++	if (!hal_util_get_int_from_file(sysfs_path, "ahci_port_cmd", &port_cmd, 16)) {
++		snprintf(path, sizeof(path), "%s/scsi_host/host%d", sysfs_path, host_num);
++		 if (!hal_util_get_int_from_file(path, "ahci_port_cmd", &port_cmd, 16))
++			return;
++	}
++
++	hal_device_property_set_int(d, "scsi_host.ahci_port_cmd", port_cmd);
++	hal_device_property_set_bool(d, "scsi_host.hotpluggable", !!(port_cmd & (1 << 21)));
++}
++
+ static HalDevice *
+ scsi_host_add (const gchar *sysfs_path, const gchar *device_file, HalDevice *parent_dev, const gchar *parent_path)
+ {
+ 	HalDevice *d;
+ 	gint host_num;
+ 	const gchar *last_elem;
+-	gint port_cmd;
+ 
+ 	d = NULL;
+ 
+@@ -3123,14 +3138,8 @@ scsi_host_add (const gchar *sysfs_path, const gchar *device_file, HalDevice *par
+ 	hal_device_add_capability (d, "scsi_host");
+ 	hal_device_property_set_string (d, "info.product", "SCSI Host Adapter");
+ 
+-	if (hal_util_get_int_from_file(sysfs_path, "ahci_port_cmd", &port_cmd, 16)) {
+-		hal_device_property_set_int(d, "scsi_host.ahci_port_cmd", port_cmd);
+-		hal_device_property_set_bool(d, "scsi_host.hotpluggable",
+-					     !!(port_cmd & (1 << 21)));
+-		hal_device_property_set_bool(parent_dev,
+-					     "scsi_host.hotpluggable",
+-					     !!(port_cmd & (1 << 21)));
+-	}
++	check_ahci_port_cmd(sysfs_path, d, host_num);
++
+ out:
+ 	return d;
+ }
+-- 
+1.7.2.1
+

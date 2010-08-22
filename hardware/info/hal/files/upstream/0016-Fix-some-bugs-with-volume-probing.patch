@@ -1,0 +1,47 @@
+From c4deea5c3413ed8272d7bbdd75594d136c31ea42 Mon Sep 17 00:00:00 2001
+From: Joe Marcus Clarke <marcus@FreeBSD.org>
+Date: Fri, 25 Dec 2009 11:24:05 -0500
+Subject: [PATCH 16/45] Fix some bugs with volume probing
+
+* Fix support for the dynamic UFSID labels.
+* Do not crash on an assertion due to a "dirty" DBusError object.
+---
+ hald/freebsd/probing/probe-volume.c |    8 +++++---
+ 1 files changed, 5 insertions(+), 3 deletions(-)
+
+diff --git a/hald/freebsd/probing/probe-volume.c b/hald/freebsd/probing/probe-volume.c
+index 73e0318..e4e1689 100644
+--- a/hald/freebsd/probing/probe-volume.c
++++ b/hald/freebsd/probing/probe-volume.c
+@@ -574,6 +574,7 @@ main (int argc, char **argv)
+ 
+ 	  snprintf(ufsid, sizeof(ufsid), "%08x%08x", ufsdisk.d_fs.fs_id[0], ufsdisk.d_fs.fs_id[1]);
+ 	  libhal_device_set_property_string(hfp_ctx, hfp_udi, "volume.freebsd.ufsid", ufsid, &hfp_error);
++	  dbus_error_free(&hfp_error);
+ 	  ufs_devs = libhal_manager_find_device_string_match(hfp_ctx,
+ 			  				     "volume.freebsd.ufsid",
+ 							     ufsid,
+@@ -582,16 +583,17 @@ main (int argc, char **argv)
+ 	  dbus_error_free(&hfp_error);
+ 	  for (i = 0; i < num_udis; i++)
+             {
+-              if (ufs_devs[i] != NULL)
++              if (ufs_devs[i] != NULL && strcmp(ufs_devs[i], hfp_udi))
+                 {
+                   gboolean mounted;
+ 
+ 		  mounted = libhal_device_get_property_bool(hfp_ctx, ufs_devs[i], "volume.is_mounted", &hfp_error);
+-		  dbus_error_free(&hfp_error);
++	          dbus_error_free(&hfp_error);
+ 		  if (mounted)
+-		    {
++	            {
+                       libhal_device_set_property_bool(hfp_ctx, hfp_udi, "volume.ignore", TRUE, &hfp_error);
+ 		      dbus_error_free(&hfp_error);
++		      break;
+ 		    }
+ 		}
+ 	    }
+-- 
+1.7.2.1
+

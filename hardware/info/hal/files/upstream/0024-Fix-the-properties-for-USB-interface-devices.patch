@@ -1,0 +1,52 @@
+From 0065d6e2d15f1d3c6c46b8f23781508286b85b23 Mon Sep 17 00:00:00 2001
+From: Joe Marcus Clarke <marcus@FreeBSD.org>
+Date: Sat, 23 Jan 2010 15:05:39 -0500
+Subject: [PATCH 24/45] Fix the properties for USB interface devices
+
+USB interfaces in hal should have usb.X for properties, compared to
+usb_device for the parent.
+---
+ hald/freebsd/hf-usb2.c |   18 +-----------------
+ 1 files changed, 1 insertions(+), 17 deletions(-)
+
+diff --git a/hald/freebsd/hf-usb2.c b/hald/freebsd/hf-usb2.c
+index f1a02e2..301846f 100644
+--- a/hald/freebsd/hf-usb2.c
++++ b/hald/freebsd/hf-usb2.c
+@@ -42,22 +42,6 @@
+ static struct libusb20_backend *hf_usb2_be = NULL;
+ 
+ static void
+-hf_usb2_copy_parent (HalDevice *parent,
+-		     const char *key,
+-		     gpointer user_data)
+-{
+-  HalDevice *device;
+-
+-  g_return_if_fail(HAL_IS_DEVICE(parent));
+-  g_return_if_fail(HAL_IS_DEVICE(user_data));
+-
+-  device = HAL_DEVICE(user_data);
+-
+-  if (! strncmp(key, "usb_device.", strlen("usb_device.")))
+-    hal_device_copy_property(parent, key, device, key);
+-}
+-
+-static void
+ hf_usb2_probe_interfaces(HalDevice *parent)
+ {
+   int num_interfaces;
+@@ -79,9 +63,9 @@ hf_usb2_probe_interfaces(HalDevice *parent)
+ 
+       hal_device_property_set_string(device, "info.subsystem", "usb");
+       hal_device_property_set_int(device, "usb.interface.number", i);
+-      hal_device_property_foreach(parent, hf_usb2_copy_parent, device);
+       hal_device_copy_property(parent, "info.product", device, "info.product");
+       hal_device_copy_property(parent, "info.vendor", device, "info.vendor");
++      hal_device_merge_with_rewrite(device, parent, "usb.", "usb_device.");
+ 
+       if (hf_device_preprobe(device))
+         {
+-- 
+1.7.2.1
+

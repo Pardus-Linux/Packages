@@ -1,0 +1,28 @@
+From c81927e3575bba4b1dc7c2bd2ff8d40883239dae Mon Sep 17 00:00:00 2001
+From: Stephan Kulow <coolo@suse.de>
+Date: Mon, 22 Feb 2010 16:39:04 +0100
+Subject: [PATCH 27/45] do not crash on unhandled rules (bnc#537452)
+
+Do not crash on unhandled rules (bnc#537452)
+---
+ hald/device_info.c |    4 +++-
+ 1 files changed, 3 insertions(+), 1 deletions(-)
+
+diff --git a/hald/device_info.c b/hald/device_info.c
+index 1056733..27f73d5 100644
+--- a/hald/device_info.c
++++ b/hald/device_info.c
+@@ -1142,7 +1142,9 @@ rules_match_and_merge_device (void *fdi_rules_list, HalDevice *d)
+ 			rule = di_jump(rule);
+ 			break;
+ 		}
+-		rule = di_next(rule);
++
++		if (rule)
++			rule = di_next(rule);
+ 	}
+ }
+ 
+-- 
+1.7.2.1
+

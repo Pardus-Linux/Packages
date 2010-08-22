@@ -1,0 +1,31 @@
+From 949ea3e42c857a40fed260756093a2d98c1bcc14 Mon Sep 17 00:00:00 2001
+From: Danny Kukawka <danny.kukawka@web.de>
+Date: Fri, 25 Sep 2009 12:14:40 +0200
+Subject: [PATCH 03/45] fix if/else block to find storage bus
+
+Fixed if/else block to find storage bus. Since info.subsystem
+is a string, there is no need to check for USB after SCSI. Added
+extra USB if block to the SCSI block as 'else if' to prevent
+unneeded double check.
+---
+ hald/linux/blockdev.c |    4 +---
+ 1 files changed, 1 insertions(+), 3 deletions(-)
+
+diff --git a/hald/linux/blockdev.c b/hald/linux/blockdev.c
+index 4bdd6cc..0433400 100644
+--- a/hald/linux/blockdev.c
++++ b/hald/linux/blockdev.c
+@@ -1199,9 +1199,7 @@ hotplug_event_begin_add_blockdev (const gchar *sysfs_path, const gchar *device_f
+ 					hal_device_property_set_string (d, "storage.bus", "scsi");
+ 					hal_device_copy_property (scsidev, "scsi.lun", d, "storage.lun");
+ 					/* want to continue here, because it may be USB or IEEE1394 */
+-				}
+-
+-				if (strcmp (bus, "usb") == 0) {
++				} else if (strcmp (bus, "usb") == 0) {
+ 					physdev = d_it;
+ 					physdev_udi = udi_it;
+ 					is_hotpluggable = TRUE;
+-- 
+1.7.2.1
+

@@ -1,0 +1,46 @@
+From d42ba7af860b08c9c9246703643d1110f6efc22c Mon Sep 17 00:00:00 2001
+From: Danny Kukawka <danny.kukawka@web.de>
+Date: Thu, 11 Mar 2010 13:36:43 +0100
+Subject: [PATCH 32/45] fix drm_compute_udi()
+
+Fix drm_compute_udi() to prevent such udi's:
+/org/freedesktop/Hal/devices/pci_1002_71c5_drm__null__card0
+
+Use drm.dri_library only if the property is really set.
+---
+ hald/linux/device.c |   19 +++++++++++++------
+ 1 files changed, 13 insertions(+), 6 deletions(-)
+
+diff --git a/hald/linux/device.c b/hald/linux/device.c
+index 6ee20b8..c61cc69 100644
+--- a/hald/linux/device.c
++++ b/hald/linux/device.c
+@@ -557,12 +557,19 @@ drm_compute_udi (HalDevice *d)
+ 
+ 	name = hal_util_get_last_element(dir);
+ 
+-	/* generate e.g.: /org/freedesktop/Hal/devices/pci_8086_2a02_drm_i915_card0 */
+-	hald_compute_udi (udi, sizeof (udi),
+-			  "%s_drm_%s_%s",
+-			  hal_device_property_get_string (d, "info.parent"),
+-			  hal_device_property_get_string (d, "drm.dri_library"),
+-			  name);
++	if (hal_device_has_property (d, "drm.dri_library")) {
++		/* generate e.g.: /org/freedesktop/Hal/devices/pci_8086_2a02_drm_i915_card0 */
++		hald_compute_udi (udi, sizeof (udi),
++				  "%s_drm_%s_%s",
++				  hal_device_property_get_string (d, "info.parent"),
++				  hal_device_property_get_string (d, "drm.dri_library"),
++				  name);
++	} else {
++		hald_compute_udi (udi, sizeof (udi),
++				  "%s_drm_%s",
++				  hal_device_property_get_string (d, "info.parent"),
++				  name);
++	}
+ 
+ 	hal_device_set_udi (d, udi);
+ 
+-- 
+1.7.2.1
+

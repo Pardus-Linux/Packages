@@ -1,0 +1,68 @@
+From dea5997df8966719d707b7136621ffd37f69a4d7 Mon Sep 17 00:00:00 2001
+From: Takashi Iwai <tiwai@suse.de>
+Date: Thu, 11 Mar 2010 13:40:57 +0100
+Subject: [PATCH 33/45] add hotplug support for e-SATA
+
+Add hotplug support for e-SATA (bnc#576506); hotpluggable flag
+is set if ahci_cmd_port is exported in sysfs (available in the
+recent kernel)
+---
+ hald/linux/blockdev.c |    2 ++
+ hald/linux/device.c   |   14 ++++++++++++++
+ 2 files changed, 16 insertions(+), 0 deletions(-)
+
+diff --git a/hald/linux/blockdev.c b/hald/linux/blockdev.c
+index d01e707..bdcc475 100644
+--- a/hald/linux/blockdev.c
++++ b/hald/linux/blockdev.c
+@@ -1201,6 +1201,8 @@ hotplug_event_begin_add_blockdev (const gchar *sysfs_path, const gchar *device_f
+ 					physdev_udi = udi_it;
+ 					hal_device_property_set_string (d, "storage.bus", "scsi");
+ 					hal_device_copy_property (scsidev, "scsi.lun", d, "storage.lun");
++					is_hotpluggable = hal_device_property_get_bool(scsidev, "scsi.hotpluggable");
++
+ 					/* want to continue here, because it may be USB or IEEE1394 */
+ 				} else if (strcmp (bus, "usb") == 0) {
+ 					physdev = d_it;
+diff --git a/hald/linux/device.c b/hald/linux/device.c
+index c61cc69..95ba3ae 100644
+--- a/hald/linux/device.c
++++ b/hald/linux/device.c
+@@ -2932,6 +2932,10 @@ scsi_add (const gchar *sysfs_path, const gchar *device_file, HalDevice *parent_d
+ 		hal_device_property_set_string (d, "scsi.type", "unknown");
+ 	}
+ 
++	if (hal_device_has_property(parent_dev, "scsi_host.hotpluggable"))
++		hal_device_property_set_bool(d, "scsi.hotpluggable",
++			hal_device_property_get_bool(parent_dev, "scsi_host.hotpluggable"));
++
+ out:
+ 	return d;
+ }
+@@ -3086,6 +3090,7 @@ scsi_host_add (const gchar *sysfs_path, const gchar *device_file, HalDevice *par
+ 	HalDevice *d;
+ 	gint host_num;
+ 	const gchar *last_elem;
++	gint port_cmd;
+ 
+ 	d = NULL;
+ 
+@@ -3107,6 +3112,15 @@ scsi_host_add (const gchar *sysfs_path, const gchar *device_file, HalDevice *par
+ 	hal_device_property_set_string (d, "info.category", "scsi_host");
+ 	hal_device_add_capability (d, "scsi_host");
+ 	hal_device_property_set_string (d, "info.product", "SCSI Host Adapter");
++
++	if (hal_util_get_int_from_file(sysfs_path, "ahci_port_cmd", &port_cmd, 16)) {
++		hal_device_property_set_int(d, "scsi_host.ahci_port_cmd", port_cmd);
++		hal_device_property_set_bool(d, "scsi_host.hotpluggable",
++					     !!(port_cmd & (1 << 21)));
++		hal_device_property_set_bool(parent_dev,
++					     "scsi_host.hotpluggable",
++					     !!(port_cmd & (1 << 21)));
++	}
+ out:
+ 	return d;
+ }
+-- 
+1.7.2.1
+

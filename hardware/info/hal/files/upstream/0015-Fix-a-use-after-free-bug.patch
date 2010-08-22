@@ -1,0 +1,31 @@
+From 44cf7dc7ec4e8d8eb92e816e94d6611256e1e0d6 Mon Sep 17 00:00:00 2001
+From: Joe Marcus Clarke <marcus@FreeBSD.org>
+Date: Fri, 25 Dec 2009 11:23:01 -0500
+Subject: [PATCH 15/45] Fix a use-after-free bug
+
+Do not use a freed pointer in the Fuse support code.
+---
+ hald/freebsd/hf-volume.c |    5 ++++-
+ 1 files changed, 4 insertions(+), 1 deletions(-)
+
+diff --git a/hald/freebsd/hf-volume.c b/hald/freebsd/hf-volume.c
+index 249d2bd..07cf805 100644
+--- a/hald/freebsd/hf-volume.c
++++ b/hald/freebsd/hf-volume.c
+@@ -86,9 +86,12 @@ hf_volume_resolve_fuse (const char *special)
+         {
+           if (strcmp(fields[0], special) == 0)
+ 	    {
++	      char *ret;
++
++	      ret = g_strdup(fields[1]);
+ 	      g_strfreev(fields);
+ 	      g_strfreev(lines);
+-	      return g_strdup(fields[1]);
++	      return ret;
+ 	    }
+ 	}
+       g_strfreev(fields);
+-- 
+1.7.2.1
+
