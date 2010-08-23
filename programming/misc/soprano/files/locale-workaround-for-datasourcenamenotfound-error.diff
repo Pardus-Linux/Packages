@@ -1,0 +1,47 @@
+Index: soprano-2.4.1/backends/virtuoso/odbcconnectionpool.cpp
+===================================================================
+--- soprano-2.4.1.orig/backends/virtuoso/odbcconnectionpool.cpp
++++ soprano-2.4.1/backends/virtuoso/odbcconnectionpool.cpp
+@@ -32,13 +32,18 @@
+ #include <QtCore/QMutexLocker>
+ 
+ #include <sql.h>
++#include <locale.h>
+ 
+ 
+ Soprano::ODBC::Connection* Soprano::ODBC::ConnectionPoolPrivate::createConnection()
+ {
++    char *tmpLocale = setlocale(LC_CTYPE, "");
++    setlocale(LC_CTYPE, "C");
++
+     Environment* env = Environment::createEnvironment();
+     if ( !env ) {
+         setError( "Unable to create ODBC environment." );
++        setlocale(LC_CTYPE, tmpLocale);
+         return 0;
+     }
+ 
+@@ -48,6 +53,7 @@ Soprano::ODBC::Connection* Soprano::ODBC
+     if ( SQLAllocConnect( env->henv(), &hdbc ) != SQL_SUCCESS ) {
+         setError( "Failed to allocate SQL handle" );
+         delete env;
++        setlocale(LC_CTYPE, tmpLocale);
+         return 0;
+     }
+ 
+@@ -73,6 +79,7 @@ Soprano::ODBC::Connection* Soprano::ODBC
+         setError( Virtuoso::convertSqlError( SQL_HANDLE_DBC, hdbc ) );
+         SQLFreeHandle( SQL_HANDLE_DBC, hdbc );
+         delete env;
++        setlocale(LC_CTYPE, tmpLocale);
+         return 0;
+     }
+ 
+@@ -82,6 +89,7 @@ Soprano::ODBC::Connection* Soprano::ODBC
+     conn->d->m_env = env;
+     conn->d->m_hdbc = hdbc;
+     conn->d->m_pool = this;
++    setlocale(LC_CTYPE, tmpLocale);
+     return conn;
+ }
+ 

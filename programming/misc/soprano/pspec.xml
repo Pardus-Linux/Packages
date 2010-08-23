@@ -1,0 +1,247 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>soprano</Name>
+        <Homepage>http://soprano.sourceforge.net/</Homepage>
+        <Packager>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Packager>
+        <License>GPLv2</License>
+        <IsA>library</IsA>
+        <Summary>Qt wrapper API to different RDF storage solutions</Summary>
+        <Description>soprano is a library which provides a highly usable object-oriented C++/Qt4 framework for RDF data. It uses different RDF storage solutions as backends through a simple plugin system.</Description>
+        <Archive sha1sum="a52aa29d3f652aa43c116d35cdae7469d8fa72c0" type="tarbz2">mirrors://sourceforge/project/soprano/Soprano/2.5.0/soprano-2.5.0.tar.bz2</Archive>
+        <BuildDependencies>
+            <Dependency>qt-devel</Dependency>
+            <Dependency>redland-devel</Dependency>
+            <Dependency>clucene-devel</Dependency>
+            <Dependency>raptor-devel</Dependency>
+            <!-- JNI is needed by sesame2 backend -->
+            <Dependency>sun-jdk</Dependency>
+            <Dependency>libiodbc-devel</Dependency>
+        </BuildDependencies>
+        <Patches>
+            <!--<Patch level="1">soprano-2.4.1-fix_version.patch</Patch>-->
+
+            <!-- Locale workaround for "Data source name not found and no default driver specified." error of iODBC -->
+            <Patch level="1">locale-workaround-for-datasourcenamenotfound-error.diff</Patch>
+        </Patches>
+    </Source>
+
+    <Package>
+        <Name>soprano</Name>
+        <RuntimeDependencies>
+            <Dependency>qt</Dependency>
+            <Dependency>clucene</Dependency>
+            <Dependency>raptor</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="executable">/usr/bin</Path>
+            <Path fileType="library">/usr/lib</Path>
+            <Path fileType="data">/usr/share/dbus-1/interfaces</Path>
+            <Path fileType="library">/usr/share/soprano/plugins</Path>
+            <Path fileType="data">/usr/share/soprano/rules</Path>
+            <Path fileType="data">/usr/share/soprano/cmake</Path>
+            <Path fileType="doc">/usr/share/doc</Path>
+            <Path fileType="data">/usr/kde/4/share/apps</Path>
+        </Files>
+   </Package>
+
+    <Package>
+        <Name>soprano-plugin-sesame2</Name>
+        <RuntimeDependencies>
+            <Dependency>qt</Dependency>
+            <!-- Sesame2 backend is linked to libjvm.so -->
+            <Dependency>sun-jre</Dependency>
+            <Dependency>soprano</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="library">/usr/lib/soprano/libsoprano_sesame2*</Path>
+            <Path fileType="data">/usr/share/soprano/plugins/sesame2*</Path>
+            <Path fileType="data">/usr/share/soprano/sesame2*</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>soprano-plugin-virtuoso</Name>
+        <RuntimeDependencies>
+            <Dependency>qt</Dependency>
+            <Dependency>virtuoso</Dependency>
+            <Dependency>libiodbc</Dependency>
+            <Dependency>soprano</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="library">/usr/lib/soprano/libsoprano_virtuoso*</Path>
+            <Path fileType="data">/usr/share/soprano/plugins/virtuoso*</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>soprano-plugin-redland</Name>
+        <RuntimeDependencies>
+            <Dependency>qt</Dependency>
+            <Dependency>redland</Dependency>
+            <Dependency>soprano</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="library">/usr/lib/soprano/libsoprano_redland*</Path>
+            <Path fileType="data">/usr/share/soprano/plugins/redland*</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>soprano-devel</Name>
+        <Summary>Development files for soprano</Summary>
+        <RuntimeDependencies>
+            <Dependency release="17">soprano</Dependency>
+            <Dependency>qt-devel</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="header">/usr/include</Path>
+            <Path fileType="data">/usr/library/pkgconfig</Path>
+            <Path fileType="data">/usr/share/soprano/cmake</Path>
+        </Files>
+    </Package>
+
+    <History>
+        <Update release="17">
+            <Date>2010-08-23</Date>
+            <Version>2.5.0</Version>
+            <Comment>Split devel package.</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="16">
+            <Date>2010-08-23</Date>
+            <Version>2.5.0</Version>
+            <Comment>Version bump to 2.5.0</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="15">
+            <Date>2010-06-16</Date>
+            <Version>2.4.63</Version>
+            <Comment>Version bump to 2.4.63, and split backends into seperate packages.</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="14">
+            <Date>2010-05-13</Date>
+            <Version>2.4.3</Version>
+            <Comment>Write strict dependency to new version of kdepimlibs,qt,kdebase,kdebase-runtime,kdebase-workspace,kdelibs,kdelibs-devel,kdepimlibs-devel</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="13">
+            <Date>2010-04-27</Date>
+            <Version>2.4.3</Version>
+            <Comment>Version bump to 2.4.3</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+       <Update release="12">
+           <Date>2010-04-05</Date>
+           <Version>2.4.1</Version>
+           <Comment>Version bump to Soprano 2.4.1</Comment>
+           <Name>Gökçen Eraslan</Name>
+           <Email>gokcen@pardus.org.tr</Email>
+       </Update>
+       <Update release="11">
+           <Date>2009-09-25</Date>
+           <Version>2.3.1</Version>
+           <Comment>Version bump to new release 2.3.1:
+                # Changed installation path of cmake modules (SopranoAppOntology.cmake) to prefix/share/soprano/cmake
+                # Prevent the redland backend to add one statement multiple times.
+                # Properly handle class names containing a dash '-' in onto2vocabularyclass.
+                # sopranocmd: Fail if trying to export a non-graph query.
+                # The new LanguageTag class replaces the old simple string based language handling with a sophisticated one implementing RFC 4647. At the same time Soprano now directly supports plain literals in addition to typed string literals via LiteralValue::createPlainLiteral. (thanks to Greg Beauchesne for the patch)
+                CAUTION: This patch changes behaviour: parsers and storage backends will now return plain literals instead of typed string literals!
+                # New static methods Node::resourceToN3, Node::literalToN3, and Node::blankToN3 for easy N3 formatting without the creation of a Node instance.
+                # Fixed both Node::matches and Statement::matches: only the paramter is treated as a wildcard.
+                # New class Graph which is a simple QSet based container for statements as a quick replacement for Model in case one wants to handle a small number of statements without query support.
+                # Fixed plugin loading on windows.
+                # Fixed a deadlock in the IndexFilterModel which was triggered in case a query could not be parsed.
+                # Prevent Model::removeContext to remove empty contexts, i.e. the whole database.
+                # Statement::operator&lt;&lt;(QTextStream) now uses a simpler format (only spaces between nodes and no brackets)
+                # Updated Sesame2 to 2.2.4.
+                # Added prefix handling to the Serializer API. For a future Soprano version the Serializer API has to be replaced with something more powerful.
+                # Improved inference rule handling in the rule parser. (Thanks to Michele Tameni)
+                # Several improvements in sopranocmd.
+           </Comment>
+           <Name>Gökçen Eraslan</Name>
+           <Email>gokcen@pardus.org.tr</Email>
+       </Update>
+       <Update release="10">
+           <Date>2009-03-04</Date>
+           <Version>2.2.3</Version>
+           <Comment>Version bump to bugfix release 2.2.3</Comment>
+           <Name>Gökçen Eraslan</Name>
+           <Email>gokcen@pardus.org.tr</Email>
+       </Update>
+       <Update release="9">
+           <Date>2009-01-27</Date>
+           <Version>2.2</Version>
+           <Comment>Version bump to 2.2</Comment>
+           <Name>Gökçen Eraslan</Name>
+           <Email>gokcen@pardus.org.tr</Email>
+       </Update>
+       <Update release="8">
+           <Date>2008-12-15</Date>
+           <Version>2.1.64</Version>
+           <Comment>Version bump to 2.1.64</Comment>
+           <Name>Gökçen Eraslan</Name>
+           <Email>gokcen@pardus.org.tr</Email>
+       </Update>
+       <Update release="7">
+           <Date>2008-08-25</Date>
+           <Version>2.1</Version>
+           <Comment>Remove raptor dep, as rasqal already depends on it</Comment>
+           <Name>Ekin Meroğlu</Name>
+           <Email>ekin@pardus.org.tr</Email>
+       </Update>
+       <Update release="6">
+           <Date>2008-07-26</Date>
+           <Version>2.1</Version>
+           <Comment>Stable update</Comment>
+           <Name>Kenan Pelit</Name>
+           <Email>kpelit@gmail.com</Email>
+       </Update>
+       <Update release="5">
+           <Date>2008-07-10</Date>
+           <Version>2.0.99_830486</Version>
+           <Comment>New snapshot</Comment>
+           <Name>Kenan Pelit</Name>
+           <Email>kpelit@gmail.com</Email>
+       </Update>
+       <Update release="4">
+           <Date>2008-05-28</Date>
+           <Version>2.0.98</Version>
+           <Comment>Version bump</Comment>
+           <Name>Kenan Pelit</Name>
+           <Email>kpelit@gmail.com</Email>
+       </Update>
+       <Update release="3">
+            <Date>2008-03-05</Date>
+            <Version>2.0.3</Version>
+            <Comment>Version bump</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+       </Update>
+       <Update release="2">
+            <Date>2008-01-07</Date>
+            <Version>2.0.0</Version>
+            <Comment>Version bump</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+       </Update>
+       <Update release="1">
+           <Date>2007-11-07</Date>
+           <Version>1.97.1_beta4</Version>
+           <Comment>First release.</Comment>
+           <Name>İsmail Dönmez</Name>
+           <Email>ismail@pardus.org.tr</Email>
+       </Update>
+    </History>
+</PISI>
