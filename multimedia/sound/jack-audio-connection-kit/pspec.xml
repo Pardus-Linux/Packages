@@ -1,0 +1,190 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>jack-audio-connection-kit</Name>
+        <Homepage>http://jackaudio.org</Homepage>
+        <Packager>
+            <Name>H. İbrahim Güngör</Name>
+            <Email>ibrahim@pardus.org.tr</Email>
+        </Packager>
+        <License>GPLv2</License>
+        <IsA>app:console</IsA>
+        <IsA>service</IsA>
+        <Summary>A low-latency audio server</Summary>
+        <Description>JACK is a low-latency audio server written for POSIX conformant operating systems. It can connect a number of different applications to an audio device, as well as allowing them to share audio between themselves.</Description>
+        <Archive sha1sum="d8f7ade5a9e858367d26b4e074c8e00a596ef1d4" type="tarbz2">http://www.grame.fr/~letz/jack-1.9.5.tar.bz2</Archive>
+        <BuildDependencies>
+            <Dependency>alsa-lib-devel</Dependency>
+            <Dependency>libsndfile-devel</Dependency>
+            <Dependency>libfreebob-devel</Dependency>
+            <Dependency>libsamplerate-devel</Dependency>
+            <Dependency>libffado-devel</Dependency>
+            <Dependency>doxygen</Dependency>
+        </BuildDependencies>
+        <Patches>
+            <Patch level="1">jack-audio-connection-kit-no_date_footer.patch</Patch>
+            <Patch level="1">jack-infrastructure.patch</Patch>
+            <Patch level="1">jack-DSO-linking.patch</Patch>
+            <Patch level="1">jack-manpages.patch</Patch>
+            <Patch level="1">jack-realtime-compat.patch</Patch>
+            <Patch level="1">jack-celt08.patch</Patch>
+        </Patches>
+    </Source>
+
+    <Package>
+        <Name>jack-audio-connection-kit</Name>
+        <RuntimeDependencies>
+            <Dependency>alsa-lib</Dependency>
+            <Dependency>libsndfile</Dependency>
+            <Dependency>libfreebob</Dependency>
+            <Dependency>libsamplerate</Dependency>
+            <Dependency>libffado</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="config">/etc/security</Path>
+            <Path fileType="executable">/usr/bin</Path>
+            <Path fileType="library">/usr/lib</Path>
+            <Path fileType="data">/usr/share/jack-audio-connection-kit</Path>
+            <Path fileType="data">/usr/share/dbus-1</Path>
+            <Path fileType="doc">/usr/share/doc</Path>
+        </Files>
+        <AdditionalFiles>
+            <AdditionalFile owner="root" permission="0644" target="/etc/security/limits.d/99-jack.conf">99-jack.conf</AdditionalFile>
+        </AdditionalFiles>
+    </Package>
+
+    <Package>
+        <Name>jack-audio-connection-kit-devel</Name>
+        <Summary>Development files for jack-audio-connection-kit</Summary>
+        <RuntimeDependencies>
+            <Dependency release="14">jack-audio-connection-kit</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="header">/usr/include</Path>
+            <Path fileType="data">/usr/lib/pkgconfig</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>jack-audio-connection-kit-docs</Name>
+        <Summary>Help files and API documents for jack-audio-connection-kit</Summary>
+        <RuntimeDependencies>
+            <Dependency release="14">jack-audio-connection-kit</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="data">/usr/share/jack-audio-connection-kit/reference</Path>
+            <Path fileType="man">/usr/share/man</Path>
+        </Files>
+    </Package>
+
+    <History>
+        <Update release="14">
+            <Date>2010-08-16</Date>
+            <Version>1.9.5</Version>
+            <Comment>Switch to Jack2, enable RT mode by adding jackuser group and increasing the rtprio of members of jackuser group.</Comment>
+            <Name>H. İbrahim Güngör</Name>
+            <Email>ibrahim@pardus.org.tr</Email>
+        </Update>
+        <Update release="13">
+            <Date>2010-04-20</Date>
+            <Version>0.118.0</Version>
+            <Comment>Compile with ffado support.</Comment>
+            <Name>H. İbrahim Güngör</Name>
+            <Email>h.ibrahim.gungor@gmail.com</Email>
+        </Update>
+        <Update release="12">
+            <Date>2010-03-17</Date>
+            <Version>0.118.0</Version>
+            <Comment>Version bump. Most of the changes are bugfixes beside an API addition, drop unused direct dependencies.</Comment>
+            <Name>H. İbrahim Güngör</Name>
+            <Email>h.ibrahim.gungor@gmail.com</Email>
+        </Update>
+        <Update release="11">
+            <Date>2009-04-26</Date>
+            <Version>0.116.2</Version>
+            <Comment>Enable libfreebob support for firewire devices, fix doc path.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="10">
+            <Date>2009-03-10</Date>
+            <Version>0.116.2</Version>
+            <Comment>
+                * Version bump to latest that has many bugfixes, new features over 0.109.2
+                  since package is not updated for more than a year. Meanwhile, this update
+                  does not break API or reverse dependencies do not need to be recompiled, as developers state:
+
+                  http://www.jackaudio.org/node/20
+
+                * Add missing libsamplerate dependency, docs and manpages
+                * Takeover package and fix homepage
+            </Comment>
+            <Name>H. İbrahim Güngör</Name>
+            <Email>h.ibrahim.gungor@gmail.com</Email>
+        </Update>
+        <Update release="9">
+            <Date>2008-02-01</Date>
+            <Version>0.109.2</Version>
+            <Comment>Version bump</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="8">
+            <Date>2008-01-18</Date>
+            <Version>0.109.0</Version>
+            <Comment>Version bump</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="7">
+            <Date>2007-05-21</Date>
+            <Version>0.103.0</Version>
+            <Comment>Version bump</Comment>
+            <Name>Ali Erdinç Köroğlu</Name>
+            <Email>erdinc@pardus.org.tr</Email>
+        </Update>
+        <Update release="6">
+            <Date>2007-03-09</Date>
+            <Version>0.102.20</Version>
+            <Comment>Depend on new libsndfile</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="5">
+            <Date>2006-10-09</Date>
+            <Version>0.102.20</Version>
+            <Comment>Version bump</Comment>
+            <Name>Ali Erdinç Köroğlu</Name>
+            <Email>erdinc@pardus.org.tr</Email>
+        </Update>
+        <Update release="4">
+            <Date>2006-07-10</Date>
+            <Version>0.101.1</Version>
+            <Comment>Missing path fix</Comment>
+            <Name>Ali Erdinç Köroğlu</Name>
+            <Email>erdinc@pardus.org.tr</Email>
+        </Update>
+        <Update release="3">
+            <Date>2006-06-25</Date>
+            <Version>0.101.1</Version>
+            <Comment>Version bump</Comment>
+            <Name>Ali Erdinç Köroğlu</Name>
+            <Email>erdinc@pardus.org.tr</Email>
+        </Update>
+        <Update release="2">
+            <Date>2006-04-17</Date>
+            <Version>0.100.0</Version>
+            <Comment>Comar script added</Comment>
+            <Name>Ali Erdinç Köroğlu</Name>
+            <Email>erdinc@pardus.org.tr</Email>
+        </Update>
+        <Update release="1">
+            <Date>2006-03-02</Date>
+            <Version>0.100.0</Version>
+            <Comment>First release.</Comment>
+            <Name>Ali Erdinç Köroğlu</Name>
+            <Email>erdinc@pardus.org.tr</Email>
+        </Update>
+    </History>
+</PISI>

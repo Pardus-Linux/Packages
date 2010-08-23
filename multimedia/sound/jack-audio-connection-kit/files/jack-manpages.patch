@@ -1,0 +1,1215 @@
+diff -rupN jack-1.9.5.old/man/alsa_in.0 jack-1.9.5/man/alsa_in.0
+--- jack-1.9.5.old/man/alsa_in.0	1969-12-31 19:00:00.000000000 -0500
++++ jack-1.9.5/man/alsa_in.0	2010-05-17 05:30:11.000000000 -0400
+@@ -0,0 +1,97 @@
++.TH ALSA_IO "1" "!DATE!" "!VERSION!"
++.SH NAME
++\fBalsa_in\fR, \fBalsa_out\fR \- Jack clients that perform I/O with an alternate audio interface
++.SH SYNOPSIS
++\fBalsa_in\fR [\fIoptions\fR]
++.br
++\fBalsa_out\fR [\fIoptions\fR]
++
++.SH DESCRIPTION
++A JACK client that opens a specified audio interface (different to the
++one used by the JACK server, if any) and moves audio data between its
++JACK ports and the interface. alsa_in will provide data from the
++interface (potentially for capture); alsa_out will deliver data to it
++(for playback).
++
++The audio interface used by alsa_in/alsa_out does not need to be
++synchronized with JACK backend (or the hardware it might be using).
++alsa_in/alsa_out tries to resample the output stream in an attempt to
++compensate for drift between the two clocks.
++
++As of jack-0.116.3 this works almost perfectly. It takes some time, to reach
++absolute resample-rate stability. So give it some minutes (its intended to be
++running permanently anyways)
++
++.SH OPTIONS
++.TP
++\fB\-j \fI jack_client_name\fR
++.br
++Set Client Name.
++.TP
++\fB\-d \fI alsa_device\fR  
++.br
++Use this Soundcard.
++.TP
++\fB\-v\fR  
++.br
++Verbose, prints out resample coefficient and other parameters useful for debugging, every 500ms.
++also reports soft xruns. 
++.TP
++\fB\-i\fR  
++.br
++Instrumentation. This logs the 4 important parameters of the samplerate control algorithm every 1ms.
++You can pipe this into a file, and plot it. Should only be necessary, if it does not work as
++expected, and we need to adjust some of the obscure parameters, to make it work. 
++Find me on irc.freenode.org #jack in order to set this up correctly.
++.TP
++\fB\-c \fI channels\fR  
++.br
++Set Number of channels.
++.TP
++\fB\-r \fI sample_rate\fR  
++.br
++Set sample_rate. The program resamples as necessary.
++So you can connect a 44k1 jackd to a soundcard only supporting
++48k. (default is jack sample_rate)
++.TP
++\fB\-p \fI period_size\fR  
++.br
++Set the period size. It is not related to the jackd period_size.
++Sometimes it affects the quality of the delay measurements.
++Setting this lower than the jackd period_size will only work, if you
++use a higher number of periods. 
++.TP
++\fB\-n \fI num_period\fR  
++.br
++Set number of periods. See note for period_size.
++.TP
++\fB\-q \fI quality\fR  
++.br
++Set the quality of the resampler from 0 to 4. can significanly reduce cpu usage.
++.TP
++\fB\-m \fI max_diff\fR  
++.br
++The value when a soft xrun occurs. Basically the window, in which
++the dma pointer may jitter. I don't think its necessary to play with this anymore. 
++.TP
++\fB\-t \fI target_delay\fR  
++.br
++The delay alsa_io should try to approach. Same as for max_diff. It will be setup based on \-p and \-n
++which is generally sufficient.
++.TP
++\fB\-s \fI smooth_array_size\fR  
++.br
++This parameter controls the size of the array used for smoothing the delay measurement. Its default is 256.
++If you use a pretty low period size, you can lower the CPU usage a bit by decreasing this parameter.
++However most CPU time is spent in the resampling so this will not be much.
++.TP
++\fB\-C \fI P Control Clamp\fR  
++.br
++If you have a PCI card, then the default value (15) of this parameter is too high for \-p64 \-n2... Setting it to 5 should fix that.
++Be aware that setting this parameter too low, lets the hf noise on the delay measurement come through onto the resamplerate, so this
++might degrade the quality of the output. (but its a threshold value, and it has been chosen, to mask the noise of a USB card,
++which has an amplitude which is 50 times higher than that of a PCI card, so 5 wont loose you any quality on a PCI card)
++
++.SH AUTHOR
++Torben Hohn
++
+diff -rupN jack-1.9.5.old/man/alsa_out.0 jack-1.9.5/man/alsa_out.0
+--- jack-1.9.5.old/man/alsa_out.0	1969-12-31 19:00:00.000000000 -0500
++++ jack-1.9.5/man/alsa_out.0	2010-05-17 05:30:11.000000000 -0400
+@@ -0,0 +1 @@
++.so man1/alsa_in.1
+diff -rupN jack-1.9.5.old/man/fill_template jack-1.9.5/man/fill_template
+--- jack-1.9.5.old/man/fill_template	1969-12-31 19:00:00.000000000 -0500
++++ jack-1.9.5/man/fill_template	2010-05-17 05:30:11.000000000 -0400
+@@ -0,0 +1,5 @@
++#!/bin/sh
++
++for i in *.0 ; do
++   sed -e "s/!VERSION!/${1}/g" -e "s/!DATE!/`date '+%B %Y'`/g" < ${i} > ${i%%0}1
++done
+diff -rupN jack-1.9.5.old/man/jack_bufsize.0 jack-1.9.5/man/jack_bufsize.0
+--- jack-1.9.5.old/man/jack_bufsize.0	1969-12-31 19:00:00.000000000 -0500
++++ jack-1.9.5/man/jack_bufsize.0	2010-05-17 05:30:11.000000000 -0400
+@@ -0,0 +1,14 @@
++.TH JACK_BUFSIZE "1" "!DATE!" "!VERSION!"
++.SH NAME
++jack_bufsize \- JACK toolkit client to change the JACK buffer size
++.SH SYNOPSIS
++.B jack_bufsize bufsize
++.SH DESCRIPTION
++.B jack_bufsize
++jack_bufsize sets the size of the buffer (frames per period) used in JACK. 
++This change happens on-line (the JACK server and its clients do not need to be 
++restarted).
++.br
++When invoked without arguments, it prints the current bufsize, and exits.
++
++
+diff -rupN jack-1.9.5.old/man/jack_connect.0 jack-1.9.5/man/jack_connect.0
+--- jack-1.9.5.old/man/jack_connect.0	1969-12-31 19:00:00.000000000 -0500
++++ jack-1.9.5/man/jack_connect.0	2010-05-17 05:30:11.000000000 -0400
+@@ -0,0 +1,11 @@
++.TH JACK_CONNECT "1" "!DATE!" "!VERSION!"
++.SH NAME
++\fBjack_connect\fR, \fBjack_disconnect\fR \- JACK toolkit clients for connecting & disconnecting ports
++.SH SYNOPSIS
++\fB jack_connect\fR [ \fI-s\fR | \fI--server servername\fR ] [\fI-h\fR | \fI--help\fR ] port1 port2
++\fB jack_disconnect\fR [ \fI-s\fR | \fI--server servername\fR ] [\fI-h\fR | \fI--help\fR ] port1 port2
++.SH DESCRIPTION
++\fBjack_connect\fR connects the two named ports. \fBjack_connect\fR disconnects the two named ports.
++.SH RETURNS
++The exit status is zero if successful, 1 otherwise
++
+diff -rupN jack-1.9.5.old/man/jackd.0 jack-1.9.5/man/jackd.0
+--- jack-1.9.5.old/man/jackd.0	1969-12-31 19:00:00.000000000 -0500
++++ jack-1.9.5/man/jackd.0	2010-05-17 05:30:11.000000000 -0400
+@@ -0,0 +1,547 @@
++.TH "JACKD" "1" "!VERSION!" "!DATE!" ""
++.SH "NAME"
++jackd \- JACK Audio Connection Kit sound server
++.SH "SYNOPSIS"
++\fBjackd\fR [\fIoptions\fR] \fB\-d\fI backend \fR 
++[\fIbackend\-parameters\fR]
++.br
++\fBjackd \-\-help\fR
++.SH "DESCRIPTION"
++\fBjackd\fR is the JACK audio server daemon, a low\-latency audio
++server.  Originally written for the
++GNU/Linux operating system, it also supports Mac OS X and various Unix
++platforms.  JACK can connect a number of different client applications
++to an audio device and also to each other.  Most clients are external,
++running in their own processes as normal applications.  JACK also
++supports internal clients, which run within the \fBjackd\fR process
++using a loadable "plugin" interface.
++
++JACK differs from other audio servers in being designed from the
++ground up for professional audio work.  It focuses on two key areas:
++synchronous execution of all clients, and low latency operation.
++
++For the latest JACK information, please consult the web site,
++<\fBhttp://www.jackaudio.org\fR>.
++.SH "OPTIONS"
++.TP
++\fB\-d, \-\-driver \fIbackend\fR [\fIbackend\-parameters\fR ]
++.br
++Select the audio interface backend.  The current list of supported
++backends is: \fBalsa\fR, \fBcoreaudio\fR, \fBdummy\fR, \fBfreebob\fR,
++\fBoss\fR \fBsun\fR and \fBportaudio\fR.  They are not all available
++on all platforms.  All \fIbackend\-parameters\fR are optional.
++
++.TP
++\fB\-h, \-\-help\fR
++.br
++Print a brief usage message describing the main \fBjackd\fR options.
++These do not include \fIbackend\-parameters\fR, which are listed using
++the \fB\-\-help\fR option for each specific backend.  Examples below
++show how to list them.
++.TP
++\fB\-m, \-\-no\-mlock\fR
++Do not attempt to lock memory, even if \fB\-\-realtime\fR.
++.TP
++\fB\-n, \-\-name\fR \fIserver\-name\fR
++Name this \fBjackd\fR instance \fIserver\-name\fR.  If unspecified,
++this name comes from the \fB$JACK_DEFAULT_SERVER\fR environment
++variable.  It will be "default" if that is not defined.
++.TP
++\fB\-p, \-\-port\-max \fI n\fR
++Set the maximum number of ports the JACK server can manage.  
++The default value is 256.
++.TP
++\fB\-\-replace-registry\fR 
++.br
++Remove the shared memory registry used by all JACK server instances
++before startup. This should rarely be used, and is intended only
++for occasions when the structure of this registry changes in ways
++that are incompatible across JACK versions (which is rare).
++.TP
++\fB\-R, \-\-realtime\fR 
++.br
++Use realtime scheduling (default = true). This is needed for reliable low\-latency
++performance.  On many systems, it requires \fBjackd\fR to run with
++special scheduler and memory allocation privileges, which may be
++obtained in several ways. 
++.TP
++\fB\-r, \-\-no-realtime\fR
++.br
++Do not use realtime scheduling. 
++.TP
++\fB\-P, \-\-realtime\-priority \fIint\fR
++When running \fB\-\-realtime\fR, set the scheduler priority to
++\fIint\fR.
++.TP
++\fB\-\-silent\fR
++Silence any output during operation.
++.TP
++\fB\-T, \-\-temporary\fR
++Exit once all clients have closed their connections.
++.TP
++\fB\-t, \-\-timeout \fIint\fR
++.br
++Set client timeout limit in milliseconds.  The default is 500 msec.
++In realtime mode the client timeout must be smaller than the watchdog timeout (5000 msec).
++.TP
++\fB\-Z, \-\-nozombies\fR
++.br
++Prevent JACK from ever kicking out clients because they were too slow.
++This cancels the effect any specified timeout value, but JACK and its clients are
++still subject to the supervision of the watchdog thread or its equivalent.
++.TP
++\fB\-u, \-\-unlock\fR
++.br
++Unlock libraries GTK+, QT, FLTK, Wine.
++.TP
++\fB\-v, \-\-verbose\fR
++Give verbose output.
++.TP
++\fB\-c, \-\-clocksource\fR (\fI c(ycle)\fR | \fI h(pet) \fR | \fI s(ystem) \fR)
++Select a specific wall clock (Cycle Counter, HPET timer, System timer).
++.TP
++\fB\-V, \-\-version\fR
++Print the current JACK version number and exit.
++.SS ALSA BACKEND OPTIONS
++.TP
++\fB\-C, \-\-capture\fR [ \fIname\fR ]
++Provide only capture ports, unless combined with \-D or \-P.  Parameterally set 
++capture device name.
++.TP
++\fB\-d, \-\-device \fIname\fR
++.br
++The ALSA pcm device \fIname\fR to use.  If none is specified, JACK will
++use "hw:0", the first hardware card defined in \fB/etc/modules.conf\fR.
++.TP
++\fB\-z, \-\-dither [rectangular,triangular,shaped,none]
++Set dithering mode.  If \fBnone\fR or unspecified, dithering is off.
++Only the first letter of the mode name is required.
++.TP
++\fB\-D, \-\-duplex\fR
++Provide both capture and playback ports.  Defaults to on unless only one 
++of \-P or \-C is specified.
++.TP
++\fB\-h, \-\-help\fR Print a brief usage message describing only the
++\fBalsa\fR backend parameters.
++.TP
++\fB\-M, \-\-hwmeter\fR
++.br
++Enable hardware metering for devices that support it.  Otherwise, use
++software metering.
++.TP
++\fB\-H, \-\-hwmon\fR
++.br
++Enable hardware monitoring of capture ports.  This is a method for
++obtaining "zero latency" monitoring of audio input.  It requires
++support in hardware and from the underlying ALSA device driver.
++
++When enabled, requests to monitor capture ports will be satisfied by
++creating a direct signal path between audio interface input and output
++connectors, with no processing by the host computer at all.  This
++offers the lowest possible latency for the monitored signal.
++
++Presently (March 2003), only the RME Hammerfall series and cards based
++on the ICE1712 chipset (M\-Audio Delta series, Terratec, and others)
++support \fB\-\-hwmon\fR.  In the future, some consumer cards may also
++be supported by modifying their mixer settings.
++
++Without \fB\-\-hwmon\fR, port monitoring requires JACK to read audio
++into system memory, then copy it back out to the hardware again,
++imposing the basic JACK system latency determined by the
++\fB\-\-period\fR and \fB\-\-nperiods\fR parameters.
++.TP
++\fB\-i, \-\-inchannels \fIint\fR
++.br
++Number of capture channels.  Default is maximum supported by hardware.
++.TP
++\fB\-n, \-\-nperiods \fIint\fR
++.br
++Specify the number of periods of playback latency.  In seconds, this
++corresponds to \fB\-\-nperiods\fR times \fB\-\-period\fR divided by
++\fB\-\-rate\fR.  The default is 2, the minimum allowable.  For most
++devices, there is no need for any other value with the
++\fB\-\-realtime\fR option.  Without realtime privileges or with boards
++providing unreliable interrupts (like ymfpci), a larger value may
++yield fewer xruns.  This can also help if the system is not tuned for
++reliable realtime scheduling.
++
++For most ALSA devices, the hardware buffer has exactly
++\fB\-\-period\fR times \fB\-\-nperiods\fR frames.  Some devices demand
++a larger buffer.  If so, JACK will use the smallest possible buffer
++containing at least \fB\-\-nperiods\fR, but the playback latency does
++not increase.
++
++For USB audio devices it is recommended to use \fB\-n 3\fR. Firewire
++devices supported by FFADO (formerly Freebob) are configured with
++\fB\-n 3\fR by default.
++.TP
++\fB\-o, \-\-outchannels \fIint\fR
++.br
++Number of playback channels.  Default is maximum supported by hardware.
++.TP
++\fB\-P, \-\-playback\fR [ \fIname\fR ]
++Provide only playback ports, unless combined with \-D or \-C.  Optionally set 
++playback device name.
++.TP
++\fB\-p, \-\-period \fIint\fR
++.br
++Specify the number of frames between JACK \fBprocess()\fR calls.  This
++value must be a power of 2, and the default is 1024.  If you need low 
++latency, set \fB\-p\fR as low as you can go without seeing xruns.  A larger 
++period size yields higher latency, but makes xruns less likely.  The JACK 
++capture latency in seconds is \fB\-\-period\fR divided by \fB\-\-rate\fR.
++.TP
++\fB\-r, \-\-rate \fIint\fR
++Specify the sample rate.  The default is 48000.
++.TP
++\fB\-S, \-\-shorts
++.br
++Try to configure card for 16\-bit samples first, only trying 32\-bits if
++unsuccessful.  Default is to prefer 32\-bit samples.
++.TP
++\fB\-s, \-\-softmode\fR 
++.br
++Ignore xruns reported by the ALSA driver.  This makes JACK less likely
++to disconnect unresponsive ports when running without \fB\-\-realtime\fR.
++.TP
++\fB\-X, \-\-midi \fR[\fIseq\fR|\fIraw\fR]
++.br
++Specify which ALSA MIDI system to provide access to. Using \fBraw\fR
++will provide a set of JACK MIDI ports that correspond to each raw ALSA
++device on the machine. Using \fBseq\fR will provide a set of JACK MIDI
++ports that correspond to each ALSA "sequencer" client (which includes
++each hardware MIDI port on the machine). \fBraw\fR provides slightly
++better performance but does not permit JACK MIDI communication with
++software written to use the ALSA "sequencer" API.
++.SS COREAUDIO BACKEND PARAMETERS
++.TP
++\fB\-c \-\-channel\fR
++Maximum number of channels (default: 2)
++.TP
++\fB\-i \-\-channelin\fR
++Maximum number of input channels (default: 2)
++.TP
++\fB\-o \-\-channelout\fR
++Maximum number of output channels (default: 2)
++.TP
++\fB\-C \-\-capture\fR
++Whether or not to capture (default: true)
++.TP
++\fB\-P \-\-playback\fR
++Whether or not to playback (default: true)
++.TP
++\fB\-D \-\-duplex\fR
++Capture and playback (default: true)
++.TP
++\fB\-r \-\-rate\fR
++Sample rate (default: 44100)
++.TP
++\fB\-p \-\-period\fR
++Frames per period (default: 128). Must be a power of 2.
++.TP
++\fB\-n \-\-name\fR
++Driver name (default: none)
++.TP
++\fB\-I \-\-id\fR
++Audio Device ID (default: 0)
++.SS DUMMY BACKEND PARAMETERS
++.TP
++\fB\-C, \-\-capture \fIint\fR
++Specify number of capture ports. The default value is 2.
++.TP
++\fB\-P, \-\-playback \fIint\fR
++Specify number of playback ports. The default value is 2.
++.TP
++\fB\-r, \-\-rate \fIint\fR
++Specify sample rate. The default value is 48000.
++.TP
++\fB\-p, \-\-period \fIint\fR
++Specify the number of frames between JACK \fBprocess()\fR calls.  This
++value must be a power of 2, and the default is 1024.  If you need low 
++latency, set \fB\-p\fR as low as you can go without seeing xruns.  A larger 
++period size yields higher latency, but makes xruns less likely.  The JACK 
++capture latency in seconds is \fB\-\-period\fR divided by \fB\-\-rate\fR.
++.TP
++\fB\-w, \-\-wait \fIint\fR 
++Specify number of usecs to wait between engine processes. 
++The default value is 21333.
++
++
++.SS NET BACKEND PARAMETERS
++
++.TP
++ \fB\-i, \-\-audio\-ins \fIint\fR
++Number of capture channels (default: 2)
++.TP
++ \fB\-o, \-\-audio\-outs \fIint\fR
++Number of playback channels (default: 2)
++.TP
++ \fB\-I, \-\-midi\-ins \fIint\fR
++Number of midi capture channels (default: 1)
++.TP 
++\fB\-O, \-\-midi\-outs \fIint\fR
++Number of midi playback channels (default: 1)
++.TP
++ \fB\-r, \-\-rate \fIint\fR
++Sample rate (default: 48000)
++.TP 
++\fB\-p, \-\-period \fIint\fR
++Frames per period (default: 1024)
++.TP 
++\fB\-n, \-\-num\-periods \fIint\fR
++Network latency setting in no. of periods (default: 5)
++.TP 
++\fB\-l, \-\-listen\-port \fIint\fR
++The socket port we are listening on for sync packets (default: 3000)
++.TP 
++\fB\-f, \-\-factor \fIint\fR
++Factor for sample rate reduction (default: 1)
++.TP 
++\fB\-u, \-\-upstream\-factor \fIint\fR
++Factor for sample rate reduction on the upstream (default: 0)
++.TP 
++\fB\-c, \-\-celt \fIint\fR
++sets celt encoding and number of kbits per channel (default: 0)
++.TP 
++\fB\-b, \-\-bit\-depth \fIint\fR
++Sample bit\-depth (0 for float, 8 for 8bit and 16 for 16bit) (default: 0)
++.TP 
++\fB\-t, \-\-transport\-sync \fIint\fR
++Whether to slave the transport to the master transport (default: true)
++.TP 
++\fB\-a, \-\-autoconf \fIint\fR
++Whether to use Autoconfig, or just start. (default: true)
++.TP 
++\fB\-R, \-\-redundancy \fIint\fR
++Send packets N times (default: 1)
++.TP 
++\fB\-e, \-\-native\-endian \fIint\fR
++Dont convert samples to network byte order. (default: false)
++.TP 
++\fB\-J, \-\-jitterval \fIint\fR
++attempted jitterbuffer microseconds on master (default: 0)
++.TP 
++\fB\-D, \-\-always\-deadline \fIint\fR
++always use deadline (default: false)
++
++
++.SS OSS BACKEND PARAMETERS
++.TP
++\fB\-r, \-\-rate \fIint\fR
++Specify the sample rate.  The default is 48000.
++.TP
++\fB\-p, \-\-period \fIint\fR
++Specify the number of frames between JACK \fBprocess()\fR calls.  This
++value must be a power of 2, and the default is 1024.  If you need low 
++latency, set \fB\-p\fR as low as you can go without seeing xruns.  A larger 
++period size yields higher latency, but makes xruns less likely.  The JACK 
++capture latency in seconds is \fB\-\-period\fR divided by \fB\-\-rate\fR.
++.TP
++\fB\-n, \-\-nperiods \fIint\fR
++Specify the number of periods in the hardware buffer.  The default is
++2.  The period size (\fB\-p\fR) times \fB\-\-nperiods\fR times four is
++the JACK buffer size in bytes.  The JACK output latency in seconds is
++\fB\-\-nperiods\fR times \fB\-\-period\fR divided by \fB\-\-rate\fR.
++.TP
++\fB\-w, \-\-wordlength \fIint\fR
++Specify the sample size in bits. The default is 16.
++.TP
++\fB\-i, \-\-inchannels \fIint\fR
++Specify how many channels to capture (default: 2)
++.TP
++\fB\-o, \-\-outchannels \fIint\fR
++Specify number of playback channels (default: 2)
++.TP
++\fB\-C, \-\-capture \fIdevice_file\fR
++Specify input device for capture (default: /dev/dsp)
++.TP
++\fB\-P, \-\-playback \fIdevice_file\fR
++Specify output device for playback (default: /dev/dsp)
++.TP
++\fB\-b, \-\-ignorehwbuf \fIboolean\fR
++Specify, whether to ignore hardware period size (default: false)
++.SS SUN BACKEND PARAMETERS
++.TP
++\fB\-r, \-\-rate \fIint\fR
++Specify the sample rate.  The default is 48000.
++.TP
++\fB\-p, \-\-period \fIint\fR
++Specify the number of frames between JACK \fBprocess()\fR calls.  This
++value must be a power of 2, and the default is 1024.  If you need low 
++latency, set \fB\-p\fR as low as you can go without seeing xruns.  A larger 
++period size yields higher latency, but makes xruns less likely.  The JACK 
++capture latency in seconds is \fB\-\-period\fR divided by \fB\-\-rate\fR.
++.TP
++\fB\-n, \-\-nperiods \fIint\fR
++Specify the number of periods in the hardware buffer.  The default is
++2.  The period size (\fB\-p\fR) times \fB\-\-nperiods\fR times four
++(assuming 2 channels 16-bit samples) is the JACK buffer size in bytes.
++The JACK output latency in seconds is \fB\-\-nperiods\fR times
++\fB\-\-period\fR divided by \fB\-\-rate\fR.
++.TP
++\fB\-w, \-\-wordlength \fIint\fR
++Specify the sample size in bits. The default is 16.
++.TP
++\fB\-i, \-\-inchannels \fIint\fR
++Specify how many channels to capture (default: 2)
++.TP
++\fB\-o, \-\-outchannels \fIint\fR
++Specify number of playback channels (default: 2)
++.TP
++\fB\-C, \-\-capture \fIdevice_file\fR
++Specify input device for capture (default: /dev/audio)
++.TP
++\fB\-P, \-\-playback \fIdevice_file\fR
++Specify output device for playback (default: /dev/audio)
++.TP
++\fB\-b, \-\-ignorehwbuf \fIboolean\fR
++Specify, whether to ignore hardware period size (default: false)
++.SS PORTAUDIO BACKEND PARAMETERS
++.TP
++\fB\-c \-\-channel\fR
++Maximum number of channels (default: all available hardware channels)
++.TP
++\fB\-i \-\-channelin\fR
++Maximum number of input channels (default: all available hardware channels)
++.TP
++\fB\-o \-\-channelout\fR
++Maximum number of output channels (default: all available hardware channels)
++.TP
++\fB\-C \-\-capture\fR
++Whether or not to capture (default: true)
++.TP
++\fB\-P \-\-playback\fR
++Whether or not to playback (default: true)
++.TP
++\fB\-D \-\-duplex\fR
++Capture and playback (default: true)
++.TP
++\fB\-r \-\-rate\fR
++Sample rate (default: 48000)
++.TP
++\fB\-p \-\-period\fR
++Frames per period (default: 1024). Must be a power of 2.
++.TP
++\fB\-n \-\-name\fR
++Driver name (default: none)
++.TP
++\fB\-z \-\-dither\fR
++Dithering mode (default: none)
++.SH "EXAMPLES"
++.PP
++Print usage message for the parameters specific to each backend.
++.IP
++\fBjackd \-d alsa \-\-help\fR
++.br
++\fBjackd \-d coreaudio \-\-help\fR
++.br
++\fBjackd \-d net \-\-help\fR
++.br
++\fBjackd \-d dummy \-\-help\fR
++.br
++\fBjackd \-d firewire \-\-help\fR
++.br
++\fBjackd \-d freebob \-\-help\fR
++.br
++\fBjackd \-d oss \-\-help\fR
++.br
++\fBjackd \-d sun \-\-help\fR
++.br
++\fBjackd \-d portaudio \-\-help\fR
++.PP
++Run the JACK daemon with realtime priority using the first ALSA
++hardware card defined in \fB/etc/modules.conf\fR.
++.IP
++\fBjackstart \-\-realtime \-\-driver=alsa\fR
++.PP
++Run the JACK daemon with low latency giving verbose output, which can
++be helpful for trouble\-shooting system latency problems.  A
++reasonably well\-tuned system with a good sound card and a
++low\-latency kernel can handle these values reliably.  Some can do
++better.  If you get xrun messages, try a larger buffer.  Tuning a
++system for low latency can be challenging.  The JACK FAQ,
++.I http://jackit.sourceforge.net/docs/faq.php\fR
++has some useful suggestions.
++.IP
++\fBjackstart \-Rv \-d alsa \-p 128 \-n 2 \-r 44100\fR
++.PP
++Run \fBjackd\fR with realtime priority using the "sblive" ALSA device
++defined in ~/.asoundrc.  Apply shaped dithering to playback audio.
++.IP
++\fBjackd \-R \-d alsa \-d sblive \-\-dither=shaped\fR
++.PP
++Run \fBjackd\fR with no special privileges using the second ALSA
++hardware card defined in \fB/etc/modules.conf\fR.  Any xruns reported
++by the ALSA backend will be ignored.  The larger buffer helps reduce
++data loss.  Rectangular dithering will be used for playback.
++.IP
++\fBjackd \-d alsa \-d hw:1 \-p2048 \-n3 \-\-softmode \-zr\fR
++.PP
++Run \fBjackd\fR in full\-duplex mode using the ALSA hw:0,0 device for 
++playback and the hw:0,2 device for capture.
++.IP
++\fBjackd \-d alsa \-P hw:0,0 \-C hw:0,2\fR
++.PP
++Run \fBjackd\fR in playback\-only mode using the ALSA hw:0,0 device. 
++.IP
++\fBjackd \-d alsa \-P hw:0,0\fR
++.SH "ENVIRONMENT"
++.br
++JACK is evolving a mechanism for automatically starting the server
++when needed.  Any client started without a running JACK server will
++attempt to start one itself using the command line found in the first
++line of \fB$HOME/.jackdrc\fR if it exists, or \fB/etc/jackdrc\fR if it
++does not.  If neither file exists, a built\-in default command will be
++used, including the \fB\-T\fR flag, which causes the server to shut
++down when all clients have exited.
++
++As a transition, this only happens when \fB$JACK_START_SERVER\fR is
++defined in the environment of the calling process.  In the future this
++will become normal behavior.  In either case, defining
++\fB$JACK_NO_START_SERVER\fR disables this feature.
++
++To change where JACK looks for the backend drivers, set
++\fB$JACK_DRIVER_DIR\fR.
++
++\fB$JACK_DEFAULT_SERVER\fR specifies the default server name.  If not
++defined, the string "default" is used.  If set in their respective
++environments, this affects \fBjackd\fR unless its \fB\-\-name\fR
++parameter is set, and all JACK clients unless they pass an explicit
++name to \fBjack_client_open()\fR.
++
++.SH "SEE ALSO:"
++.PP
++.I http://www.jackaudio.org
++.br
++The official JACK website with news, docs and a list of JACK clients.
++.PP
++.I http://jackaudio.org/email
++.br
++The JACK developers' mailing list.  Subscribe, to take part in
++development of JACK or JACK clients.  User questions are also welcome,
++there is no user-specific mailing list.
++.PP
++.I http://www.jackosx.com/
++.br
++Tools specific to the Mac OS X version of JACK.
++.PP
++.I http://www.alsa\-project.org
++.br
++The Advanced Linux Sound Architecture.
++.SH "BUGS"
++Please report bugs to
++.br
++.I http://trac.jackaudio.org/
++.SH "AUTHORS"
++Architect and original implementor: Paul Davis
++.PP
++Original design Group: Paul Davis, David Olofson, Kai Vehmanen, Benno Sennoner,
++Richard Guenther, and other members of the Linux Audio Developers group.
++.PP
++Programming: Paul Davis, Jack O'Quin, Taybin Rutkin, Stephane Letz, Fernando
++Pablo Lopez-Lezcano, Steve Harris, Jeremy Hall, Andy Wingo, Kai
++Vehmanen, Melanie Thielker, Jussi Laako, Tilman Linneweh, Johnny
++Petrantoni, Torben Hohn.
++.PP
++Manpage written by Stefan Schwandter, Jack O'Quin and Alexandre
++Prokoudine.
+diff -rupN jack-1.9.5.old/man/jack_disconnect.0 jack-1.9.5/man/jack_disconnect.0
+--- jack-1.9.5.old/man/jack_disconnect.0	1969-12-31 19:00:00.000000000 -0500
++++ jack-1.9.5/man/jack_disconnect.0	2010-05-17 05:30:11.000000000 -0400
+@@ -0,0 +1 @@
++.so man1/jack_connect.1
+diff -rupN jack-1.9.5.old/man/jack_freewheel.0 jack-1.9.5/man/jack_freewheel.0
+--- jack-1.9.5.old/man/jack_freewheel.0	1969-12-31 19:00:00.000000000 -0500
++++ jack-1.9.5/man/jack_freewheel.0	2010-05-17 05:30:11.000000000 -0400
+@@ -0,0 +1,16 @@
++.TH JACK_FREEWHEEL "1" "!DATE!" "!VERSION!"
++.SH NAME
++jack_freewheel \- JACK toolkit client to control freewheeling mode
++.SH SYNOPSIS
++.B jack_freewheel [y|n]
++.SH DESCRIPTION
++.B jack_freewheel
++Turns freewheeling mode on (y) or off (n). While in freewheeling mode,
++the JACK server does not wait in between process() calls, and does not
++read or write data from/to any audio interface. That results in the JACK graph
++processing data as fast as possible. Freewheeling makes fast exports to 
++files possible.
++.PP
++There is no useful reason to use this tool other than testing. JACK
++clients that use freewheeling will turn it on and off themselves.
++
+diff -rupN jack-1.9.5.old/man/jack_impulse_grabber.0 jack-1.9.5/man/jack_impulse_grabber.0
+--- jack-1.9.5.old/man/jack_impulse_grabber.0	1969-12-31 19:00:00.000000000 -0500
++++ jack-1.9.5/man/jack_impulse_grabber.0	2010-05-17 05:30:11.000000000 -0400
+@@ -0,0 +1,11 @@
++.TH JACK_IMPULSE_GRABBER "1" "!DATE!" "!VERSION!"
++.SH NAME
++jack_impulse_grabber \- JACK toolkit client to grab an impulse (response)
++.SH SYNOPSIS
++\fBjack_impulse_grabber\fR \fB-d\fR \fIduration\fR [\fI-f\fR (C|gnuplot)]
++.SH DESCRIPTION
++\fBjack_impulse_grabber\fR is a JACK example client for collecting
++impulses recordings from JACK ports.
++
++
++
+diff -rupN jack-1.9.5.old/man/jack_load.0 jack-1.9.5/man/jack_load.0
+--- jack-1.9.5.old/man/jack_load.0	1969-12-31 19:00:00.000000000 -0500
++++ jack-1.9.5/man/jack_load.0	2010-05-17 05:30:11.000000000 -0400
+@@ -0,0 +1,28 @@
++.TH JACK_LOAD "1" "!DATE!" "!VERSION!"
++.SH NAME
++jack_load \- JACK toolkit client for loading in-process clients
++.SH SYNOPSIS
++\fBjack_load\fR [ \fI-i\fR initstring ] [ \fI-s\fR servername ] [\fI-w\fR ] client-name so-name [ initstring ]
++.SH DESCRIPTION
++\fBjack_load\fR is a JACK toolkit client. It loads the specified plugin and creates an in-process client.
++.SH ARGUMENTS
++.PP
++The client-name must be a currently unused client name.
++.PP
++The so-name is the name of file that client code is stored in (typically, \fIclientname.so\fR)
++.SH OPTIONS
++.TP
++\fB-i\fR, \fB--init\fR init-string
++.br
++initialization string passed to the in-process client. Note that this can also be specified as the last argument on the command line.
++.TP
++\fB-s\fR, \fB--server\fR servername
++.br
++Name of JACK server to connect to
++.TP
++\fB-w\fR, \fB--wait\fR
++Wait for a signal (eg. from Ctrl-c) and then unload the client.
++.SH AUTHOR
++Jeremy Hall
++
++
+diff -rupN jack-1.9.5.old/man/jack_lsp.0 jack-1.9.5/man/jack_lsp.0
+--- jack-1.9.5.old/man/jack_lsp.0	1969-12-31 19:00:00.000000000 -0500
++++ jack-1.9.5/man/jack_lsp.0	2010-05-17 05:30:11.000000000 -0400
+@@ -0,0 +1,47 @@
++.TH JACK_LSP "1" "!DATE!" "!VERSION!"
++.SH NAME
++jack_lsp \- JACK toolkit client to list informtion on ports
++.SH SYNOPSIS
++\fBjack_lsp\fR [ \fI-s\fR | \fI--server\fR servername ] [ \fI-AclLptvh\fR ]
++.SH DESCRIPTION
++\fBjack_lsp\fR lists all known ports associated with a JACK
++server. It can also optionally list various kinds of information about each port.
++.SH OPTIONS
++.TP
++\fB-s\fR, \fB--server\fR \fIservername\fR
++.br
++Connect to the jack server named \fIservername\fR
++.TP
++\fB-A\fR, \fB--aliases\fR
++.br
++List aliases for each port
++.TP
++\fB-c\fR, \fB--connections\fR
++.br
++List connections to/from each port
++.TP
++\fB-l\fR, \fB--latency\fR
++.br
++Display per-port latency in frames at each port
++.TP
++\fB-L\fR, \fI--latency\fR
++.br
++Display total latency in frames at each port
++.TP
++\fB-p\fR, \fB--properties\fR
++.br
++Display port properties. Output may include input|output, can-monitor, physical, terminal
++.TP
++\fB-t\fR, \fB--type\fR
++.br
++Display port type
++.TP
++\fB-h\fR, \fB--help\fR
++.br
++Display help/usage message
++.TP
++\fB-v\fR, \fB--version\fR
++.br
++Output version information and exit
++
++
+diff -rupN jack-1.9.5.old/man/jack_metro.0 jack-1.9.5/man/jack_metro.0
+--- jack-1.9.5.old/man/jack_metro.0	1969-12-31 19:00:00.000000000 -0500
++++ jack-1.9.5/man/jack_metro.0	2010-05-17 05:30:11.000000000 -0400
+@@ -0,0 +1,40 @@
++.TH JACK_METRO "1" "!DATE!" "!VERSION!"
++.SH NAME
++jack_metro \- JACK toolkit metronome
++.SH SYNOPSIS
++\fBjack_metro\fR [ \fI-n\fR name ] [ \fI-f\fR hz ] [ \fI-D\fR msecs ] [\fI-a\fR % ] [ \fI-d\fR % ] \fI-b\fR bpm 
++.SH DESCRIPTION
++\fBjack_metro\fR is a simple metronome for JACK. It generates a
++synthetic "tick" sound for every beat. Note that is does \fBnot\fR
++connect its output port by default - to hear the sound it makes you must
++connect them using some other tool.
++.SH OPTIONS
++.TP
++\fB-n\fR, \fB--name\fR
++.br
++Specify a name for this instance of the metronome.
++.TP
++\fB-f\fR, \fB--frequency\fR Hz
++.br
++Define the frequency of the "tick" in Hz.
++.TP
++\fB-D\fR, \fB--duration\fR msecs
++.br
++Define the duration of the "tick" in milliseconds.
++.TP
++\fB-a\fR, \fB--attack\fR %-age
++.br
++Define the duration of the attack phase of the "tick" as a percentage
++of the duration.
++.TP
++\fB-d\fR, \fB--decay\fR %-age
++.br
++Define the duration of the decay phase of the "tick" as a percentage
++of the duration.
++.TP
++\fB--b\fR, \fB--bpm\fR bpm
++.br
++Define the number of beats per minute.
++.SH AUTHOR
++Anthony Van Groningen
++
+diff -rupN jack-1.9.5.old/man/jack_monitor_client.0 jack-1.9.5/man/jack_monitor_client.0
+--- jack-1.9.5.old/man/jack_monitor_client.0	1969-12-31 19:00:00.000000000 -0500
++++ jack-1.9.5/man/jack_monitor_client.0	2010-05-17 05:30:11.000000000 -0400
+@@ -0,0 +1,18 @@
++.TH JACK_CONNECT "1" "!DATE!" "!VERSION!"
++.SH NAME
++jack_monitor_client \- The JACK Audio Connection Kit example client
++.SH SYNOPSIS
++.B jack_monitor_client
++client-name
++.PP
++The client-name must be the name of a existing client that monitoring is 
++to be enabled for.
++.SH DESCRIPTION
++.B jack_monitor_client
++is an example client for the JACK Audio Connection Kit. It enables
++monitoring for the specified client.
++.SH AUTHOR
++Jeremy Hall
++.PP
++This manpage was written by Robert Jordens <jordens@debian.org> for Debian.
++
+diff -rupN jack-1.9.5.old/man/jack_netsource.0 jack-1.9.5/man/jack_netsource.0
+--- jack-1.9.5.old/man/jack_netsource.0	1969-12-31 19:00:00.000000000 -0500
++++ jack-1.9.5/man/jack_netsource.0	2010-05-17 05:30:11.000000000 -0400
+@@ -0,0 +1,109 @@
++.TH JACK_NETSOURCE "1" "!DATE!" "!VERSION!"
++.SH NAME
++jack_netsource \- Netjack Master client for one slave
++.SH SYNOPSIS
++\fBjack_netsource\fR [ \fI-H\fR hostname ] [ \fIoptions\fR ]
++
++.SH DESCRIPTION
++\fBjack_netsource\fR The Master side of a netjack connection. Represents the slave jackd -dnet in the master jack graph.
++Most connection parameters are configured via the netsource, and the slave will set itself up according to the commandline
++option given to jack_netsource.
++.br
++Netjack allows low latency audio connections over general IP networks. When using celt for compression, it is even possible
++to establish transatlantic links, with latencies not much over the actual ping time. 
++.br
++But the main usecase is of course a LAN, where it can achieve one jack period of latency.
++
++.SH OPTIONS
++.TP
++\fB-h\fR this help text
++.TP
++\fB-H\fR \fIslave host\fR
++.br
++Host name of the slave JACK
++.TP
++\fB-o\fR \fInum channels\fR
++.br
++Number of audio playback channels
++.TP
++\fB-i\fR \fInum channels\fR
++.br
++Number of audio capture channels
++.TP
++\fB-O\fR \fInum channels\fR
++.br
++Number of midi playback channels
++.TP
++\fB-I\fR \fInum channels\fR
++.br
++Number of midi capture channels
++.TP
++\fB-n\fR \fIperiods\fR
++.br
++Network latency in JACK periods
++.TP
++\fB-p\fR \fIport\fR
++.br
++UDP port that the slave is listening on
++.TP
++\fB-r\fR \fIreply port\fR
++.br
++UDP port that we are listening on
++.TP
++\fB-B\fR \fIbind port\fR
++.br
++reply port, for use in NAT environments
++.TP
++\fB-b\fR \fIbitdepth\fR
++.br
++Set transport to use 16bit or 8bit
++.TP
++\fB-c\fR \fIbytes\fR
++.br
++Use CELT encoding with <bytes> per period and channel
++.TP
++\fB-m\fR \fImtu\fR
++.br
++Assume this mtu for the link
++.TP
++\fB-R\fR \fIN\fR
++.br
++Redundancy: send out packets N times.
++.TP
++\fB-e\fR
++.br
++skip host-to-network endianness conversion
++.TP
++\fB-N\fR \fIjack name\fR
++.br
++Reports a different client name to jack
++.TP
++.TP
++\fB-s\fR, \fB--server\fR \fIservername\fR
++.br
++Connect to the jack server named \fIservername\fR
++.TP
++\fB-h\fR, \fB--help\fR
++.br
++Display help/usage message
++.TP
++\fB-v\fR, \fB--version\fR
++.br
++Output version information and exit
++
++
++.SH EXAMPLES
++
++.PP
++run a 4 audio channel bidirectional link with one period of latency and no midi channels. Audio data is flowing uncompressed over the wire:
++.br
++On \fIhostA\fR:
++.IP
++\fBjackd \-d alsa \fR
++.br
++\fBjack_netsource \-H hostB -n1 -i4 -o4 -I0 -O0 \fR
++.PP
++On \fIhostB\fR:
++.IP
++\fBjackd \-d net \fR
++
+diff -rupN jack-1.9.5.old/man/jackrec.0 jack-1.9.5/man/jackrec.0
+--- jack-1.9.5.old/man/jackrec.0	1969-12-31 19:00:00.000000000 -0500
++++ jack-1.9.5/man/jackrec.0	2010-05-17 05:30:11.000000000 -0400
+@@ -0,0 +1,23 @@
++.TH JACKREC "1" "!DATE!" "!VERSION!"
++.SH NAME
++jackrec \- JACK toolkit client for recording audio
++.SH SYNOPSIS
++.B jackrec
++\-f filename \-d seconds [ \-b bitdepth ] port1 [ port2 ... ]
++.SH DESCRIPTION
++.B jackrec is a basic, but useful, audio recorder that will record
++audio from 1 or more JACK ports to a file on disk. The file format is
++always RIFF/WAV, with samples stored as signed integers. The sample
++bit depth can be selected using the \fI-b\fR option. The file will
++have as many channels as there are ports specified on the command line
++- each channel will contain the data recorded from one port. The user
++should generally specify the duration (in seconds) using the \fI-d\fR
++option. If not specified, jackrec will record until terminated by a
++signal (eg. from Ctrl-c).
++.PP
++This application is not intended to be a heavy duty audio recorder,
++and originated as an example client to show how to handle threading
++and disk I/O in a JACK client. However, it is a useful, simple
++recorder and is included in the JACK toolkit as a result.
++
++
+diff -rupN jack-1.9.5.old/man/jack_samplerate.0 jack-1.9.5/man/jack_samplerate.0
+--- jack-1.9.5.old/man/jack_samplerate.0	1969-12-31 19:00:00.000000000 -0500
++++ jack-1.9.5/man/jack_samplerate.0	2010-05-17 05:30:11.000000000 -0400
+@@ -0,0 +1,9 @@
++.TH JACK_SAMPLERATE "1" "!DATE!" "!VERSION!"
++.SH NAME
++jack_samplerate \- JACK toolkit client to print current samplerate
++.SH SYNOPSIS
++.B jack_samplerate
++.SH DESCRIPTION
++.B jack_samplerate prints the current samplerate, and exits.
++
++
+diff -rupN jack-1.9.5.old/man/jack_showtime.0 jack-1.9.5/man/jack_showtime.0
+--- jack-1.9.5.old/man/jack_showtime.0	1969-12-31 19:00:00.000000000 -0500
++++ jack-1.9.5/man/jack_showtime.0	2010-05-17 05:30:11.000000000 -0400
+@@ -0,0 +1,13 @@
++.TH JACK_SHOWTIME "1" "!DATE!" "!VERSION!"
++.SH NAME
++jack_showtime \- The JACK Audio Connection Kit example client
++.SH SYNOPSIS
++.B jack_showtime
++.SH DESCRIPTION
++.B jack_showtime
++prints the current timebase information to stdout
++.SH AUTHOR
++Paul Davis
++.PP
++This manpage was written by Stefan Schwandter <swan@debian.org>
++
+diff -rupN jack-1.9.5.old/man/jack_simple_client.0 jack-1.9.5/man/jack_simple_client.0
+--- jack-1.9.5.old/man/jack_simple_client.0	1969-12-31 19:00:00.000000000 -0500
++++ jack-1.9.5/man/jack_simple_client.0	2010-05-17 05:30:11.000000000 -0400
+@@ -0,0 +1,20 @@
++.TH JACK_CONNECT "1" "!DATE!" "!VERSION!"
++.SH NAME
++jack_simple_client \- The JACK Audio Connection Kit example client
++.SH SYNOPSYS
++.B jack_simple_client
++client-name
++.PP
++The client-name must be a yet unused client name.
++.SH DESCRIPTION
++.B jack_simple_client
++is an example client for the JACK Audio Connection Kit. It creates two
++ports (client-name:input and client-name:output) that pass the data
++unmodified.
++.SH EXAMPLE
++jack_simple_client in_process_test
++.SH AUTHOR
++Jeremy Hall
++.PP
++This manpage was written by Robert Jordens <jordens@debian.org> for Debian.
++
+diff -rupN jack-1.9.5.old/man/jack_transport.0 jack-1.9.5/man/jack_transport.0
+--- jack-1.9.5.old/man/jack_transport.0	1969-12-31 19:00:00.000000000 -0500
++++ jack-1.9.5/man/jack_transport.0	2010-05-17 05:30:11.000000000 -0400
+@@ -0,0 +1,13 @@
++.TH JACK_TRANSPORT "1" "!DATE!" "!VERSION!"
++.SH NAME
++jack_transport \- JACK toolkit client for transport control
++.SH SYNOPSIS
++.B jack_transport
++.SH DESCRIPTION
++.B jack_transport
++is a toolkit client for the JACK Audio Connection Kit. It provides command-line
++control over the JACK transport system. Type help at jack_transport's
++command prompt to see the available commands.
++.SH AUTHOR
++Jeremy Hall
++
+diff -rupN jack-1.9.5.old/man/jack_unload.0 jack-1.9.5/man/jack_unload.0
+--- jack-1.9.5.old/man/jack_unload.0	1969-12-31 19:00:00.000000000 -0500
++++ jack-1.9.5/man/jack_unload.0	2010-05-17 05:30:11.000000000 -0400
+@@ -0,0 +1,19 @@
++.TH JACK_UNLOAD "1" "!DATE!" "!VERSION!"
++.SH NAME
++jack_unload \- The JACK Audio Connection Kit example client
++.SH SYNOPSIS
++.B jack_unload 
++client-name
++.PP
++The client-name must be the name of a loaded client that can be unloaded.
++.SH DESCRIPTION
++.B jack_unload
++is the counterpart to 
++.B jack_load
++and unloads the specified client.
++.SH EXAMPLE
++.B jack_unload in_process_test
++.SH AUTHOR
++Jeremy Hall
++.PP
++This manpage was written by Robert Jordens <jordens@debian.org> for Debian.
+diff -rupN jack-1.9.5.old/man/jack_wait.0 jack-1.9.5/man/jack_wait.0
+--- jack-1.9.5.old/man/jack_wait.0	1969-12-31 19:00:00.000000000 -0500
++++ jack-1.9.5/man/jack_wait.0	2010-05-17 05:30:11.000000000 -0400
+@@ -0,0 +1,41 @@
++.TH JACK_WAIT "1" "!DATE!" "!VERSION!"
++.SH NAME
++jack_wait \- JACK toolkit client to check and wait for existence/exit of jackd.  
++.SH SYNOPSIS
++\fBjack_wait\fR [ \fI-s\fR | \fI--server\fR servername ] [ \fI-t\fR | \fI--timeout\fR timeout_seconds [ \fI-cqwhv\fR ]
++.SH DESCRIPTION
++\fBjack_wait\fR When invoked with \fI-c\fR it only checks for the existence of a jack server. When invoked with \fI-w\fR the
++program will wait for a jackd to be available.
++The \fI-q\fR makes it wait for the jackd to exit.
++
++.SH OPTIONS
++.TP
++\fB-w\fR, \fB--wait\fR
++.br
++Wait for jackd to be available.
++.TP
++\fB-q\fR, \fB--quit\fR
++.br
++Wait for jackd quit.
++.TP
++\fB-c\fR, \fB--check\fR
++.br
++Only check for existence of jackd, and exit.
++.TP
++\fB-s\fR, \fB--server\fR \fIservername\fR
++.br
++Connect to the jack server named \fIservername\fR
++.TP
++\fB-t\fR, \fB--timeout\fR \fItimeout_seconds\fR
++.br
++Only wait \fItimeout_seconds\fR.
++.TP
++\fB-h\fR, \fB--help\fR
++.br
++Display help/usage message
++.TP
++\fB-v\fR, \fB--version\fR
++.br
++Output version information and exit
++
++
+diff -rupN jack-1.9.5.old/man/wscript jack-1.9.5/man/wscript
+--- jack-1.9.5.old/man/wscript	1969-12-31 19:00:00.000000000 -0500
++++ jack-1.9.5/man/wscript	2010-05-17 05:30:11.000000000 -0400
+@@ -0,0 +1,13 @@
++#! /usr/bin/env python
++# encoding: utf-8
++
++import Build
++import re
++import os
++import misc
++
++
++def build(bld):
++    bld.exec_command("cd man ; sh fill_template %s" % bld.env['JACK_VERSION'])
++    bld.install_files(bld.env['MANDIR'], '*.1')
++
+diff -rupN jack-1.9.5.old/wscript jack-1.9.5/wscript
+--- jack-1.9.5.old/wscript	2010-02-12 05:58:08.000000000 -0500
++++ jack-1.9.5/wscript	2010-06-04 22:00:04.000000000 -0400
+@@ -62,6 +62,7 @@ def set_options(opt):
+ 
+     opt.add_option('--libdir', type='string', help="Library directory [Default: <prefix>/lib]")
+     opt.add_option('--libdir32', type='string', help="32bit Library directory [Default: <prefix>/lib32]")
++    opt.add_option('--mandir', type='string', help="Manpage directory [Default: <prefix>/share/man/man1]")
+     opt.add_option('--dbus', action='store_true', default=False, help='Enable D-Bus JACK (jackdbus)')
+     opt.add_option('--classic', action='store_true', default=False, help='Force enable standard JACK (jackd) even if D-Bus JACK (jackdbus) is enabled too')
+     opt.add_option('--doxygen', action='store_true', default=False, help='Enable build of doxygen documentation')
+@@ -150,6 +151,11 @@ def configure(conf):
+         conf.env['LIBDIR'] = conf.env['PREFIX'] + Options.options.libdir
+     else:
+         conf.env['LIBDIR'] = conf.env['PREFIX'] + '/lib'
++    
++    if Options.options.mandir:
++        conf.env['MANDIR'] = conf.env['PREFIX'] + Options.options.mandir
++    else:
++        conf.env['MANDIR'] = conf.env['PREFIX'] + '/share/man/man1'
+ 
+     if conf.env['BUILD_DEBUG']:
+         conf.env.append_unique('CXXFLAGS', '-g')
+@@ -255,6 +261,7 @@ def build(bld):
+         bld.add_subdirs('linux')
+         bld.add_subdirs('example-clients')
+         bld.add_subdirs('tests')
++        bld.add_subdirs('man')
+         if bld.env['BUILD_JACKDBUS'] == True:
+            bld.add_subdirs('dbus')
+   
