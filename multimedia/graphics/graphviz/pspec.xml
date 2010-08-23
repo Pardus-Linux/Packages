@@ -1,0 +1,211 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>graphviz</Name>
+        <Homepage>http://www.graphviz.org</Homepage>
+        <Packager>
+            <Name>Serdar Dalgıç</Name>
+            <Email>serdar@pardus.org.tr</Email>
+        </Packager>
+        <License>CPL-1.0</License>
+        <IsA>app:console</IsA>
+        <IsA>app:gui</IsA>
+        <Summary>Open source graph drawing software</Summary>
+        <Description>Graphviz is open source graph visualization software which has web and interactive graphical interfaces, and auxiliary tools and libraries. Graphviz has many useful features for diagrams, such as options for colors, fonts, tabular node layouts, line styles, and custom shapes.</Description>
+        <Archive sha1sum="04503ac5a9eaa579859f0d017811fa245717edec" type="targz">http://www.graphviz.org/pub/graphviz/stable/SOURCES/graphviz-2.26.3.tar.gz</Archive>
+        <BuildDependencies>
+            <Dependency>libXaw-devel</Dependency>
+            <Dependency>libXmu-devel</Dependency>
+            <Dependency>libXt-devel</Dependency>
+            <Dependency>librsvg-devel</Dependency>
+            <Dependency>atk-devel</Dependency>
+            <Dependency versionFrom="1.8.8">cairo-devel</Dependency>
+            <Dependency>gd-devel</Dependency>
+            <Dependency>fontconfig-devel</Dependency>
+            <Dependency versionFrom="2.18.5">gtk2-devel</Dependency>
+            <Dependency>pango-devel</Dependency>
+            <Dependency>guile-devel</Dependency>
+            <!--<Dependency>ruby</Dependency>-->
+            <Dependency>tcltk-devel</Dependency>
+            <!-- required to create jni wrapper using JDK -->
+            <Dependency>sun-jdk</Dependency>
+            <Dependency>freeglut-devel</Dependency>
+            <Dependency>ghostscript-devel</Dependency>
+        </BuildDependencies>
+    </Source>
+
+    <Package>
+        <Name>graphviz</Name>
+        <RuntimeDependencies>
+            <Dependency>libXaw</Dependency>
+            <Dependency>libXmu</Dependency>
+            <Dependency>libXt</Dependency>
+            <Dependency>librsvg</Dependency>
+            <Dependency>atk</Dependency>
+            <Dependency versionFrom="1.8.8">cairo</Dependency>
+            <Dependency>gd</Dependency>
+            <Dependency>fontconfig</Dependency>
+            <Dependency versionFrom="2.18.5">gtk2</Dependency>
+            <Dependency>pango</Dependency>
+            <!--<Dependency>ruby</Dependency>-->
+            <Dependency>tcltk</Dependency>
+            <Dependency>freeglut</Dependency>
+            <Dependency>ghostscript</Dependency>
+        </RuntimeDependencies>
+        <Conflicts>
+            <Package releaseTo="14">graphviz-docs</Package>
+        </Conflicts>
+        <Files>
+            <Path fileType="executable">/usr/bin</Path>
+            <Path fileType="library">/usr/lib</Path>
+            <Path fileType="data">/usr/share/graphviz</Path>
+            <Path fileType="man">/usr/share/man</Path>
+            <Path fileType="doc">/usr/share/doc</Path>
+        </Files>
+        <Provides>
+            <COMAR script="package.py">System.Package</COMAR>
+        </Provides>
+    </Package>
+
+    <Package>
+        <Name>graphviz-docs</Name>
+        <Files>
+            <Path fileType="doc">/usr/share/doc/graphviz/html</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>graphviz-devel</Name>
+        <Summary>Development files for graphviz</Summary>
+        <RuntimeDependencies>
+            <Dependency release="16">graphviz</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="header">/usr/include</Path>
+            <Path fileType="data">/usr/lib/pkgconfig</Path>
+            <Path fileType="man">/usr/share/man/man3</Path>
+        </Files>
+    </Package>
+
+    <History>
+        <Update release="16">
+            <Date>2010-08-23</Date>
+            <Version>2.26.3</Version>
+            <Comment>Split devel package.</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="15">
+            <Date>2010-08-22</Date>
+            <Version>2.26.3</Version>
+            <Comment>Version bump to 2.26.3</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="14">
+            <Date>2009-12-04</Date>
+            <Version>2.22.2</Version>
+            <Comment>Depend on new perl.</Comment>
+            <Name>Serdar Dalgıç</Name>
+            <Email>serdar@pardus.org.tr</Email>
+        </Update>
+        <Update release="13">
+            <Date>2009-04-25</Date>
+            <Version>2.22.2</Version>
+            <Comment>Add missing deps</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="12">
+            <Date>2009-04-24</Date>
+            <Version>2.22.2</Version>
+            <Comment>Stable version bump to bugfix release.</Comment>
+            <Name>Pınar Yanardağ</Name>
+            <Email>pinar@pardus.org.tr</Email>
+        </Update>
+        <Update release="11">
+            <Date>2008-11-24</Date>
+            <Version>2.20.3</Version>
+            <Comment>
+                    Disable optional DevIL support, causes a lot of circular dependencies.
+                    DevIL plugin duplicates output formats of other plugings, so can be turned off safely.
+            </Comment>
+            <Name>Ekin Meroğlu</Name>
+            <Email>ekin@pardus.org.tr</Email>
+        </Update>
+        <Update release="10" type="security">
+            <Date>2008-10-23</Date>
+            <Version>2.20.3</Version>
+            <Comment>
+                * Version bump to bugfix release, previous security patch is included also.
+                * Turn on java, ruby, guile and tcl bindings.
+            </Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="9">
+            <Date>2008-10-23</Date>
+            <Version>2.18</Version>
+            <Comment>Disable R support, R has lots of dependencies and we don't have that much space in CD.</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="8" type="security">
+            <Date>2008-10-21</Date>
+            <Version>2.18</Version>
+            <Comment>Fix buffer overflow vulnerability in push_subg() (CVE-2008-4555), (bug#8422)</Comment>
+            <Name>Pınar Yanardağ</Name>
+            <Email>pinar@pardus.org.tr</Email>
+        </Update>
+        <Update release="7">
+            <Date>2008-05-11</Date>
+            <Version>2.18</Version>
+            <Comment>Split doc package</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="6">
+            <Date>2008-04-02</Date>
+            <Version>2.18</Version>
+            <Comment>Version bump</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="5">
+            <Date>2007-08-28</Date>
+            <Version>2.14.1</Version>
+            <Comment>Version bump</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="4">
+            <Date>2007-03-24</Date>
+            <Version>2.12</Version>
+            <Comment>Version bump</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="3">
+            <Date>2006-05-02</Date>
+            <Version>2.6</Version>
+            <Comment>fix #2483</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="2" type="security">
+            <Date>2005-10-27</Date>
+            <Version>2.6</Version>
+            <Comment>Update to version 2.6</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="1">
+            <Date>2005-09-06</Date>
+            <Version>1.16</Version>
+            <Comment>First release.</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+    </History>
+</PISI>
