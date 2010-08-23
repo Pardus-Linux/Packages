@@ -16,6 +16,7 @@ def setup():
     # SQLITE_SECURE_DELETE overwrites written data with zeros.
     shelltools.export("CFLAGS", "%s \
                        -DSQLITE_SECURE_DELETE=1 \
+                       -DSQLITE_ENABLE_UNLOCK_NOTIFY=1 \
                        -DSQLITE_ENABLE_COLUMN_METADATA=1 \
                        -DSQLITE_DISABLE_DIRSYNC=1 \
                        -DSQLITE_ENABLE_FTS3=3 \
