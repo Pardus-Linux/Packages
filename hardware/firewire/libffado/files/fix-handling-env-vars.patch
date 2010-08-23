@@ -1,0 +1,48 @@
+Index: libffado-2.0.1/SConstruct
+===================================================================
+--- libffado-2.0.1.orig/SConstruct
++++ libffado-2.0.1/SConstruct
+@@ -74,6 +74,30 @@ buildenv=os.environ
+ 
+ env = Environment( tools=['default','scanreplace','pyuic','pyuic4','dbus','doxygen','pkgconfig'], toolpath=['admin'], ENV = buildenv, options=opts )
+ 
++
++if os.environ.has_key('CC'):
++	env['CC'] = os.environ['CC']
++
++if os.environ.has_key('CXX'):
++	env['CXX'] = os.environ['CXX']
++
++# grab OS CFLAGS / CCFLAGS
++if os.environ.has_key('CFLAGS'):
++	env['OS_CFLAGS'] = os.environ['CFLAGS']
++	env['CFLAGS'] = os.environ['CFLAGS']
++
++if os.environ.has_key('CCFLAGS'):
++	env['OS_CCFLAGS'] = os.environ['CCFLAGS']
++	env['CCFLAGS'] = os.environ['CCFLAGS']
++
++if os.environ.has_key('CXXFLAGS'):
++	env['OS_CCFLAGS'] = os.environ['CXXFLAGS']
++	env['CXXFLAGS'] = os.environ['CXXFLAGS']
++
++if os.environ.has_key('CPPFLAGS'):
++	env['OS_CPPFLAGS'] = os.environ['CPPFLAGS']
++	env['CPPFLAGS'] = os.environ['CPPFLAGS']
++
+ if env.has_key('COMPILE_FLAGS') and len(env['COMPILE_FLAGS']) > 0:
+ 	print '''
+  * Usage of additional flags is not supported by the ffado-devs.
+Index: libffado-2.0.1/src/SConscript
+===================================================================
+--- libffado-2.0.1.orig/src/SConscript
++++ libffado-2.0.1/src/SConscript
+@@ -199,7 +199,7 @@ libenv.PrependUnique( LIBS=["libconfigpp
+ libname_versioned = "libffado.so.%s" % libenv['VERSION']
+ libname_versioned_short = "libffado.so.%s" % libenv['VERSION'].split('.')[0]
+ 
+-libenv.AppendUnique( LINKFLAGS = env.Split("-Wl,-soname=%s" % libname_versioned_short) )
++libenv["LINKFLAGS"] = "%s -Wl,-soname=%s" % (env["LINKFLAGS"], libname_versioned_short)
+ ffadolib = libenv.SharedLibrary( "ffado", source )
+ 
+ #libenv.Install( "$libdir", ffadolib )
