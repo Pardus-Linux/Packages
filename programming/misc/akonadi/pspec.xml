@@ -1,0 +1,189 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>akonadi</Name>
+        <Homepage>http://pim.kde.org/akonadi/</Homepage>
+        <Packager>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Packager>
+        <License>LGPLv2.1</License>
+        <Icon>akonadi</Icon>
+        <IsA>library</IsA>
+        <Summary>PIM (Personal Information Management) Storage Service</Summary>
+        <Description>akonadi is an extensible cross-desktop storage service for PIM data and meta data providing concurrent read, write, and query access.</Description>
+        <Archive sha1sum="a83943aa46537fee4e07953fedf29f5c13487937" type="tarbz2">http://download.akonadi-project.org/akonadi-1.4.0.tar.bz2</Archive>
+        <BuildDependencies>
+            <Dependency versionFrom="4.7.0_beta2">qt-devel</Dependency>
+            <Dependency versionFrom="4.7.0_beta2">qt-sql-mysql</Dependency>
+            <Dependency>mysql-server</Dependency>
+            <Dependency releaseFrom="47">mysql-client</Dependency>
+            <Dependency versionFrom="0.20">shared-mime-info</Dependency>
+            <Dependency>libxslt-devel</Dependency>
+            <Dependency>automoc4</Dependency>
+            <Dependency>boost-devel</Dependency>
+            <Dependency versionFrom="2.4.1">soprano-devel</Dependency>
+        </BuildDependencies>
+        <Patches>
+            <Patch level="1">akonadi-1.1.1-mysql_conf.patch</Patch>
+        </Patches>
+    </Source>
+
+    <Package>
+        <Name>akonadi</Name>
+        <RuntimeDependencies>
+            <Dependency versionFrom="4.7.0_beta2">qt</Dependency>
+            <Dependency versionFrom="4.7.0_beta2">qt-sql-mysql</Dependency>
+            <Dependency versionFrom="0.20">shared-mime-info</Dependency>
+            <Dependency>libxslt</Dependency>
+            <!-- 
+            http://techbase.kde.org/Projects/PIM/Akonadi#Can_Akonadi_use_a_normal_MySQL_server_running_on_my_system.3F
+            http://dot.kde.org/1209500572/1209540984/
+            -->
+            <Dependency>mysql-server</Dependency>
+            <!-- mysql_upgrade is needed -->
+            <Dependency releaseFrom="47">mysql-client</Dependency>
+            <Dependency>boost</Dependency>
+            <Dependency versionFrom="2.4.1">soprano</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="config">/etc/akonadi</Path>
+            <Path fileType="executable">/usr/bin</Path>
+            <Path fileType="library">/usr/lib</Path>
+            <Path fileType="library">/usr/qt/4/plugins</Path>
+            <Path fileType="data">/usr/share</Path>
+            <Path fileType="doc">/usr/share/doc/</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>akonadi-devel</Name>
+        <Summary>Development files for akonadi</Summary>
+        <RuntimeDependencies>
+            <Dependency release="14">akonadi</Dependency>
+            <Dependency>qt-devel</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="header">/usr/include/akonadi</Path>
+            <Path fileType="data">/usr/lib/pkgconfig</Path>
+            <Path fileType="data">/usr/lib/cmake</Path>
+        </Files>
+    </Package>
+
+    <History>
+        <Update release="14">
+            <Date>2010-08-23</Date>
+            <Version>1.4.0</Version>
+            <Comment>Split devel package.</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="13">
+            <Date>2010-08-05</Date>
+            <Version>1.4.0</Version>
+            <Comment>Version bump to 1.4.0</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="12">
+            <Date>2010-06-29</Date>
+            <Version>1.3.85</Version>
+            <Comment>Version bump to 1.3.85</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="11">
+            <Date>2010-04-06</Date>
+            <Version>1.3.1</Version>
+            <Comment>Version bump to 1.3.1</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="10">
+            <Date>2009-09-25</Date>
+            <Version>1.2.1</Version>
+            <Comment>Version bump to stable release and change prefix to KDE independent place.</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="9">
+            <Date>2009-05-07</Date>
+            <Version>1.1.2</Version>
+            <Comment>Version bump to stable release</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="8">
+            <Date>2009-01-27</Date>
+            <Version>1.1.1</Version>
+            <Comment>Version bump to stable release for KDE 4.2.0</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="7">
+            <Date>2009-01-07</Date>
+            <Version>1.1.0</Version>
+            <Comment>Version bump to stable release for KDE 4.2.x:
+                * Restart agents when their executable changed, much easier to test changes this way :)
+                * Properly set up compile flags (QT_DEBUG/QT_NO_DEBUG, ...) to make sure that the plugins have the correct Q_PLUGIN_VERIFICATION_DATA
+                * We need to use kde's script for finding boost, not cmake's, as otherwise Boost_PROGRAM_OPTIONS_LIBRARY for example is not defined.
+                * Use AkApplication here as well so we get the same command line handling as with the other applications.
+                * While not starting the server without the control process being available is the right thing to do, it is rather inconvenient during debugging/testing, so allow to overwrite that check with a command line option.
+                * Try harder to prevent one of the partial running states (control dead, server running) by only allowing the server to start if the control process is registered at D-Bus and terminating it when the control process dies.
+                * Shut down when we lost the connection to the D-Bus session bus (which likely means the session was closed, but as a non-gui application we have no way of knowing that). - add some basic handling of command line args, at least 'akonadiserver --help' does no longer accidentally start a partial Akonadi server. - add a --version command line option which will be useful for the self-tests BUG:178916
+                * Add a D-Bus call to flush the notification queue. This is needed for unit tests to avoid ugly and unreliable QTest::qWait() hacks there. While at it, also made the notification interval configurable so this is easier to test.i
+                * MySQL doesn't like world-writeable config files, so adjust the access rights of our file if it somehow ends up being world-writable.
+            </Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="6">
+            <Date>2008-12-17</Date>
+            <Version>1.0.81</Version>
+            <Comment>Version bump:
+                - Restore protocol backward compatibility with Akonadi 1.0.x servers.
+                - Build system fixes.
+                - Fix compiler warnings.
+                - Fall back to the default server path if the configured one points to a non-existing file.
+            </Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="5">
+            <Date>2008-11-28</Date>
+            <Version>1.0.80</Version>
+            <Comment>MySQL server dependency added. One day we may get rid of this i hope.</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="4">
+            <Date>2008-11-21</Date>
+            <Version>1.0.80</Version>
+            <Comment>Stable update</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="3">
+            <Date>2008-07-27</Date>
+            <Version>1.0.0</Version>
+            <Comment>Stable update</Comment>
+            <Name>Kenan Pelit</Name>
+            <Email>kpelit@gmail.com</Email>
+        </Update>
+        <Update release="2">
+            <Date>2008-07-05</Date>
+            <Version>0.82.0_828193</Version>
+            <Comment>New snapshot</Comment>
+            <Name>Kenan Pelit</Name>
+            <Email>kpelit@gmail.com</Email>
+        </Update>
+        <Update release="1">
+            <Date>2008-05-28</Date>
+            <Version>0.81.0_813706</Version>
+            <Comment>First release</Comment>
+            <Name>Kenan Pelit</Name>
+            <Email>kpelit@gmail.com</Email>
+        </Update>
+    </History>
+</PISI>
