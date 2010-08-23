@@ -1,0 +1,792 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>kdelibs</Name>
+        <Homepage>http://www.kde.org/</Homepage>
+        <Packager>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Packager>
+        <License>GPLv2</License>
+        <License>LGPLv2.1</License>
+        <IsA>library</IsA>
+        <Summary>KDE4 core libraries</Summary>
+        <Description>Contains base KDE4 libraries needed by almost all KDE4 applications.</Description>
+        <Archive type="tarbz2" sha1sum="b1f6523d608433d4ed81c3ae7343a893942d8768">mirrors://kde/stable/4.5.0/src/kdelibs-4.5.0.tar.bz2</Archive>
+        <BuildDependencies>
+            <Dependency versionFrom="4.7.0_beta2">qt-devel</Dependency>
+            <Dependency versionFrom="4.4.2">phonon-devel</Dependency>
+            <Dependency versionFrom="2.5.0">soprano-devel</Dependency>
+            <Dependency versionFrom="0.7.2">strigi-devel</Dependency>
+            <Dependency>polkit-qt_1-devel</Dependency>
+            <Dependency>attica-devel</Dependency>
+            <Dependency>shared-desktop-ontologies</Dependency>
+            <Dependency>automoc4</Dependency>
+            <Dependency>cups-devel</Dependency>
+            <Dependency>giflib-devel</Dependency>
+            <Dependency>openexr-devel</Dependency>
+            <Dependency>alsa-lib-devel</Dependency>
+            <Dependency>jasper-devel</Dependency>
+            <Dependency>mit-kerberos</Dependency>
+            <Dependency>avahi-devel</Dependency>
+            <Dependency>hal-devel</Dependency>
+            <Dependency>utempter-devel</Dependency>
+            <Dependency versionFrom="0.70">shared-mime-info</Dependency>
+            <Dependency>enchant-devel</Dependency>
+            <Dependency>graphviz-devel</Dependency>
+            <Dependency>ilmbase-devel</Dependency>
+            <Dependency>libXcursor-devel</Dependency>
+            <Dependency>libXfixes-devel</Dependency>
+            <Dependency>libXrender-devel</Dependency>
+            <Dependency>libXtst-devel</Dependency>
+            <Dependency>mesa-devel</Dependency>
+            <Dependency>qca2-devel</Dependency>
+            <Dependency>libXext-devel</Dependency>
+            <Dependency>libXScrnSaver-devel</Dependency>
+            <Dependency>docbook-xml4_2</Dependency>
+            <Dependency>xz-devel</Dependency>
+            <Dependency>libdbusmenu-qt-devel</Dependency>
+            <Dependency>gamin-devel</Dependency>
+            <Dependency>jpeg-devel</Dependency>
+            <Dependency>libICE-devel</Dependency>
+            <Dependency>libSM-devel</Dependency>
+            <Dependency>libpng-devel</Dependency>
+            <Dependency>libxslt-devel</Dependency>
+            <Dependency>openexr-devel</Dependency>
+            <Dependency>strigi-devel</Dependency>
+        </BuildDependencies>
+        <Patches>
+
+            <!--
+            Fedora 
+            <Patch level="1">fedora/kdelibs-4.3.80-policykit-workaround.patch</Patch>
+            <Patch level="1">fedora/kdelibs-4.3.98-no_rpath.patch</Patch>
+
+            Mandriva
+            <Patch level="1">mandriva/kdelibs-4.4.1-add-confirmation-window.patch</Patch>
+
+            Pardus 
+            http://mail.kde.org/pipermail/plasma-devel/2010-May/011829.html
+            <Patch level="1">pardus/workaround-for-plasma-iconwidget-sizehint.diff</Patch>
+            -->
+
+            <!-- Fedora Patches -->
+            <Patch level="1">fedora/kdelibs-4.3.1-CVE-2009-2702.patch</Patch>
+
+            <!-- Mandriva patches -->
+            <Patch>mandriva/kdelibs-4.4.0-add-default-places.patch</Patch>
+
+            <!--
+             Ubuntu patches 
+            <Patch level="1">ubuntu/14_hardcode_ptm_device.diff</Patch>
+            <Patch level="1">ubuntu/kubuntu_01_no_translate_pc_dir.diff</Patch>
+            <Patch level="1">ubuntu/kubuntu_19_no_indent_kickoff_subtext.diff</Patch>
+            <Patch level="1">ubuntu/kubuntu_80_kaction_qt_keys.diff</Patch>
+
+            -->
+
+            <!-- Pardus patches-->
+
+            <Patch>pardus/default-useragent.diff</Patch>
+
+            <!-- Disable hspell and aspell support of sonnet, they are included in enchant -->
+            <Patch level="1">pardus/disable-hspell-aspell.diff</Patch>
+
+            <!-- Show Delete entry in context menus -->
+            <Patch level="1">pardus/show-delete-command-default.diff</Patch>
+
+            <!-- Suppress harmless "hede specifies undefined mimetype/servicetype" messages of kbuildsycoca4-->
+            <Patch level="1">pardus/quiet-kbuildsyscoca.patch</Patch>
+
+            <!-- Do not suppress encoding errors when kwrite is started with parameters #11486, related with kde#158806 -->
+            <Patch>pardus/do-not-suppress-encoding-errors-11486.diff</Patch>
+
+            <!-- Disable plasma theme caching on Live mediums, we don't have enough space for that -->
+            <Patch>pardus/disable-plasma-cache-on-livemedium.diff</Patch>
+
+            <!-- Keep -g and -O gcc parameters while using -DCMAKE_BUILD_TYPE=RelWithDebInfo-->
+            <Patch>pardus/dont-change-some-parameters-in-relwithdebinfo.diff</Patch>
+
+            <Patch level="1">pardus/usedotkde4.patch</Patch>
+
+        </Patches>
+    </Source>
+    <Package>
+        <Name>kdelibs</Name>
+        <RuntimeDependencies>
+            <Dependency versionFrom="4.7.0_beta2">qt</Dependency>
+            <Dependency>qt-webkit</Dependency>
+            <Dependency versionFrom="4.4.2">phonon</Dependency>
+            <Dependency versionFrom="2.5.0">soprano</Dependency>
+            <Dependency versionFrom="0.7.2">strigi</Dependency>
+            <Dependency>polkit-qt_1</Dependency>
+            <Dependency>attica</Dependency>
+            <Dependency>shared-desktop-ontologies</Dependency>
+            <Dependency>cups</Dependency>
+            <Dependency>giflib</Dependency>
+            <Dependency>openexr</Dependency>
+            <Dependency>alsa-lib</Dependency>
+            <Dependency>jasper</Dependency>
+            <Dependency>mit-kerberos</Dependency>
+            <Dependency>avahi</Dependency>
+            <Dependency>hal</Dependency>
+            <Dependency>utempter</Dependency>
+            <Dependency versionFrom="0.70">shared-mime-info</Dependency>
+            <Dependency>enchant</Dependency>
+            <Dependency>ilmbase</Dependency>
+            <Dependency>libXcursor</Dependency>
+            <Dependency>libXfixes</Dependency>
+            <Dependency>libXrender</Dependency>
+            <Dependency>libXtst</Dependency>
+            <Dependency>mesa</Dependency>
+            <Dependency>qca2</Dependency>
+            <Dependency>libXext</Dependency>
+            <Dependency>libXScrnSaver</Dependency>
+            <Dependency>xz</Dependency>
+            <Dependency>libdbusmenu-qt</Dependency>
+            <Dependency>gamin</Dependency>
+            <Dependency>jpeg</Dependency>
+            <Dependency>libICE</Dependency>
+            <Dependency>libSM</Dependency>
+            <Dependency>libpng</Dependency>
+            <Dependency>libxslt</Dependency>
+            <Dependency>openexr-libs</Dependency>
+            <Dependency>strigi-libs</Dependency>
+        </RuntimeDependencies>
+        <Conflicts>
+            <!-- plasma is included kdelibs in KDE 4.2 -->
+            <Package versionTo="4.1.3">kdebase4-workspace</Package>
+
+            <!-- /usr/kde/4/lib/libnepomukquery.so moved from kdebase-workspace -->
+            <Package versionTo="4.3.5">kdebase-workspace</Package>
+        </Conflicts>
+        <Replaces>
+            <Package>kdelibs4</Package>
+            <Package>kdelibs-experimental</Package>
+            <Package>webkitkde</Package>
+        </Replaces>
+        <Files>
+            <Path fileType="config">/etc</Path>
+            <Path fileType="executable">/usr/bin</Path>
+            <Path fileType="library">/usr/lib</Path>
+            <Path fileType="config">/usr/share/config</Path>
+            <Path fileType="man">/usr/share/man</Path>
+            <Path fileType="doc">/usr/share/doc</Path>
+            <Path fileType="data">/usr/share</Path>
+            <Path fileType="library">/usr/qt/4/plugins/designer</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>kdelibs-devel</Name>
+        <IsA>library</IsA>
+        <IsA>app:console</IsA>
+        <Summary>KDE4 development package</Summary>
+        <Description>Development package of KDE4 including headers and tools to develop KDE4 applications and libraries</Description>
+        <RuntimeDependencies>
+            <Dependency versionFrom="4.5.0">kdelibs</Dependency>
+            <!-- For compiling a KDE4 application, automoc4 and strigi-devel are needed -->
+            <Dependency>automoc4</Dependency>
+            <Dependency>strigi-devel</Dependency>
+            <Dependency versionFrom="4.7.0_beta2">qt-devel</Dependency>
+        </RuntimeDependencies>
+        <Conflicts>
+            <Package versionTo="4.2.4">kdebase-workspace</Package>
+            <Package versionTo="4.2.4">kdebase-runtime</Package>
+            <Package versionTo="0.9.97">kdevplatform-devel</Package>
+        </Conflicts>
+        <Replaces>
+            <Package>kdelibs4-devel</Package>
+        </Replaces>
+        <Files>
+            <Path fileType="header">/usr/include</Path>
+            <Path fileType="data">/usr/share/apps/cmake</Path>
+            <Path fileType="data">/usr/share/kde4/apps/cmake</Path>
+            <Path fileType="doc">/usr/share/apps/kdewidgets</Path>
+            <Path fileType="executable">/usr/bin/kconfig_compiler</Path>
+            <Path fileType="executable">/usr/bin/makekdewidgets</Path>
+            <Path fileType="executable">/usr/bin/checkXML</Path>
+            <Path fileType="executable">/usr/bin/kunittestmodrunner</Path>
+            <Path fileType="man">/usr/share/man/man1/checkXML.1</Path>
+            <Path fileType="man">/usr/share/man/man1/makekdewidgets.1</Path>
+        </Files>
+    </Package>
+
+    <History>
+        <Update release="79">
+            <Date>2010-08-11</Date>
+            <Version>4.5.0</Version>
+            <Comment>Version bump to 4.5.0</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="78">
+            <Date>2010-06-29</Date>
+            <Version>4.4.90</Version>
+            <Comment>Version bump to 4.4.90</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="77">
+            <Date>2010-06-16</Date>
+            <Version>4.4.85</Version>
+            <Comment>Version bump to 4.4.85</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="76">
+            <Date>2010-05-31</Date>
+            <Version>4.4.4</Version>
+            <Comment>Version bump to 4.4.4</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="75">
+            <Date>2010-05-30</Date>
+            <Version>4.4.3</Version>
+            <Comment>Add workaround for 'plasma panel icons are fixed in 32x32' bug/feature.</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="74">
+            <Date>2010-05-18</Date>
+            <Version>4.4.3</Version>
+            <Comment>Add qca2, libXext and libXScrnSaver packages as runtime and build dependencies.</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="73">
+            <Date>2010-05-12</Date>
+            <Version>4.4.3</Version>
+            <Comment>Don't ignore the window flags passed in to the Plasma::Dialog constructor</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="72">
+            <Date>2010-05-05</Date>
+            <Version>4.4.3</Version>
+            <Comment>Add a better patch from KDE branch for kde#231761.</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="71">
+            <Date>2010-05-04</Date>
+            <Version>4.4.3</Version>
+            <Comment>Version bump to 4.4.3</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="70">
+            <Date>2010-04-06</Date>
+            <Version>4.4.2</Version>
+            <Comment>Version bump to 4.4.2</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="69">
+            <Date>2010-01-26</Date>
+            <Version>4.3.5</Version>
+            <Comment>Version bump to 4.3.5</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="68">
+            <Date>2009-12-15</Date>
+            <Version>4.3.4</Version>
+            <Comment>Keep -g and -O gcc parameters while using -DCMAKE_BUILD_TYPE=RelWithDebInfo</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="67">
+            <Date>2009-12-15</Date>
+            <Version>4.3.4</Version>
+            <Comment>Fix a dolphin and kbuildsycoca crash. Patches from KDE 4.4</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="66">
+            <Date>2009-12-11</Date>
+            <Version>4.3.4</Version>
+            <Comment>Fix crashes about KPixmapCache caused by previous patch about live media.</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="65">
+            <Date>2009-12-09</Date>
+            <Version>4.3.4</Version>
+            <Comment>Disable plasma theme caching on Live mediums, we don't have enough space for that.</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="64">
+            <Date>2009-12-02</Date>
+            <Version>4.3.4</Version>
+            <Comment>Version bump to 4.3.4</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="63">
+            <Date>2009-10-31</Date>
+            <Version>4.3.3</Version>
+            <Comment>Bump to stable 4.3.3</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="62">
+            <Date>2009-10-24</Date>
+            <Version>4.3.2</Version>
+            <Comment>Use latest Qt/X11 keyboard scancode definitions (#10852).</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="61">
+            <Date>2009-10-12</Date>
+            <Version>4.3.2</Version>
+            <Comment>
+                - Fix segfault in kcm_locale module,
+                - With multiple tabs opened, Ctrl+F Ctrl+W crashes konqueror/khtml in 4.3.2.
+            </Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="60">
+            <Date>2009-09-25</Date>
+            <Version>4.3.2</Version>
+            <Comment>Bump to stable 4.3 branch</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="59">
+            <Date>2009-09-25</Date>
+            <Version>4.2.4</Version>
+            <Comment>Use system-wide openssl CA list instead of outdated KDE CA list.</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="58">
+            <Date>2009-08-14</Date>
+            <Version>4.2.4</Version>
+            <Comment>Default value getters support for kconfig_compiler from SVN, needed by new KSCD to be compiled.</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="57">
+            <Date>2009-08-13</Date>
+            <Version>4.2.4</Version>
+            <Comment>Fix for kio-http infinite loop kdebug#175967 #10876.</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="56" type="security">
+            <Date>2009-07-27</Date>
+            <Version>4.2.4</Version>
+            <Comment>Fix for CVE-2009-1687 and CVE-2009-1698</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="55">
+            <Date>2009-07-24</Date>
+            <Version>4.2.4</Version>
+            <Comment>Handle correctly when we're provided an unknown enum value with the &amp; operator in solid predicates.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="54">
+            <Date>2009-07-15</Date>
+            <Version>4.2.4</Version>
+            <Comment>
+                * Fix some crashes related to QTextCodec.codecForName, fixes #9951.
+                * Remove default SuSE kdesu settings.
+            </Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="53">
+            <Date>2009-07-10</Date>
+            <Version>4.2.4</Version>
+            <Comment>Move kdeglobals config file to pardus-default-settings package.</Comment>
+            <Name>Gökmen Göksel</Name>
+            <Email>gokmen@pardus.org.tr</Email>
+        </Update>
+        <Update release="52">
+            <Date>2009-07-01</Date>
+            <Version>4.2.4</Version>
+            <Comment>Add KDE man directory to MANPATH, remove annoying 'bzzt' from plasma dataengine.</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="51">
+            <Date>2009-06-19</Date>
+            <Version>4.2.4</Version>
+            <Comment>Fix totally transparent folderview at startup.</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="50">
+            <Date>2009-06-18</Date>
+            <Version>4.2.4</Version>
+            <Comment>Switch to KDE default wallpaper, Kaptan's default wallpaper selection is important now.</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="49" type="security">
+            <Date>2009-06-18</Date>
+            <Version>4.2.4</Version>
+            <Comment>Fix a denial of service (memory corruption and application crash), CVE-2009-1690 #10048</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="48">
+            <Date>2009-06-15</Date>
+            <Version>4.2.4</Version>
+            <Comment>Fix crashes when quitting applications.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="47">
+            <Date>2009-06-10</Date>
+            <Version>4.2.4</Version>
+            <Comment>Fix create symlink mechanism.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="46">
+            <Date>2009-06-03</Date>
+            <Version>4.2.4</Version>
+            <Comment>Version bump to latest stable release and sync svg class to fix some plasma theme rendering problems.</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="45">
+            <Date>2009-05-30</Date>
+            <Version>4.2.3</Version>
+            <Comment>Various crash fixes and optimizations for Plasma from 4.3</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="44">
+            <Date>2009-05-29</Date>
+            <Version>4.2.3</Version>
+            <Comment>Backport theme, svg and framesvg classes from KDE 4.3, you should try Air with this patch now, yay!</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="43">
+            <Date>2009-05-23</Date>
+            <Version>4.2.3</Version>
+            <Comment>New Terminal interface (by Rahman Duran) to add Konsole KPart some cool features.</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="42">
+            <Date>2009-05-21</Date>
+            <Version>4.2.3</Version>
+            <Comment>Switch to KDE4.3 solid, this is needed by new kdebase-workspace solid.</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="41">
+            <Date>2009-05-21</Date>
+            <Version>4.2.3</Version>
+            <Comment>Use qtcurve again, now it looks like the Oxygen style and this makes Gtk and KDE apps look like each other.</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="40">
+            <Date>2009-05-17</Date>
+            <Version>4.2.3</Version>
+            <Comment>Revert r912162 to fix kickoff branding icon support kde#188894.</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="39">
+            <Date>2009-05-08</Date>
+            <Version>4.2.3</Version>
+            <Comment>XDG_DATA_DIRS variable must be set before dbus --session is started. Previously startkde was exporting XDG_DATA_DIRS environment variable before it starts dbus session. But now, xinit starts dbus session in /etc/X11/Xsession.d/30-dbus.sh before startkde export XDG_DATA_DIRS variable. One solution is exporting variable before xdm service, and this is why we put variable to env.d.</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="38">
+            <Date>2009-05-07</Date>
+            <Version>4.2.3</Version>
+            <Comment>Version bump to latest bugfix release</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="37">
+            <Date>2009-05-04</Date>
+            <Version>4.2.2</Version>
+            <Comment>Do not use QtCurve by default.</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="36">
+            <Date>2009-04-12</Date>
+            <Version>4.2.2</Version>
+            <Comment>
+                * Directory thumbnail support backported from KDE 4.3, really nice feature.
+                * Show Delete entry in context menus by default.
+            </Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="35">
+            <Date>2009-04-02</Date>
+            <Version>4.2.2</Version>
+            <Comment>
+                * Version bump to new bugfix release
+                * aspell dependency is removed and disabled in sonnet, enchant does it's job.
+                * Missing ilmbase dependency is added.
+            </Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="34">
+            <Date>2009-03-02</Date>
+            <Version>4.2.1</Version>
+            <Comment>Version bump to new bugfix release</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="33">
+            <Date>2009-02-24</Date>
+            <Version>4.2.0</Version>
+            <Comment>strigi-devel is added as runtime dep to kdelibs4-devel</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="32">
+            <Date>2009-02-13</Date>
+            <Version>4.2.0</Version>
+            <Comment>
+                * automoc4 is added as runtime dep to kdelibs4-devel
+                * enable-final compile option is enabled
+            </Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="31">
+            <Date>2009-02-11</Date>
+            <Version>4.2.0</Version>
+            <Comment>
+                6 patches added from Fedora:
+                    * kde#179934, kde#182472 fixed.
+                    * Patches suggested in Packager list (commits 917170, 918403 and 918654)
+                    * Fix duplicated applications in the K menu and in keditfiletype.
+            </Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="30">
+            <Date>2009-01-28</Date>
+            <Version>4.2.0</Version>
+            <Comment>Added some Ubuntu patches.</Comment>
+            <Name>David Stegbauer</Name>
+            <Email>daaste@gmail.com</Email>
+        </Update>
+        <Update release="29">
+            <Date>2009-01-27</Date>
+            <Version>4.2.0</Version>
+            <Comment>Version bump to 4.2 final release</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="28">
+            <Date>2009-01-17</Date>
+            <Version>4.1.87_907426</Version>
+            <Comment>Splitted package to kdelibs4 and kdelibs4-devel</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="27">
+            <Date>2009-01-08</Date>
+            <Version>4.1.87_907426</Version>
+            <Comment>Sync with KDE SVN</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="26">
+            <Date>2009-01-08</Date>
+            <Version>4.1.87</Version>
+            <Comment>Add patch allowing the basepath to be a symlink. Will probably fix symlink problems on livecd.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="25">
+            <Date>2009-01-05</Date>
+            <Version>4.1.87</Version>
+            <Comment>Version bump, apidox package added.</Comment>
+            <Name>Gökmen Göksel</Name>
+            <Email>gokmen@pardus.org.tr</Email>
+        </Update>
+        <Update release="24">
+            <Date>2008-12-15</Date>
+            <Version>4.1.85</Version>
+            <Comment>Version bump to 4.2 beta 2</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="23">
+            <Date>2008-11-21</Date>
+            <Version>4.1.80</Version>
+            <Comment>Version bump to 4.2 beta 1</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="22">
+            <Date>2008-11-10</Date>
+            <Version>4.1.3</Version>
+            <Comment>PKG_CONFIG_PATH variable added to 45kde4paths</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="21">
+            <Date>2008-11-02</Date>
+            <Version>4.1.3</Version>
+            <Comment>Stable update</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="20">
+            <Date>2008-09-26</Date>
+            <Version>4.1.2</Version>
+            <Comment>Stable update to bugfix release</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="19">
+            <Date>2008-09-19</Date>
+            <Version>4.1.1</Version>
+            <Comment>Make Firefox default Web Browser</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="18">
+            <Date>2008-09-17</Date>
+            <Version>4.1.1</Version>
+            <Comment>Fedora patches added for various fixes</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="17">
+            <Date>2008-09-12</Date>
+            <Version>4.1.1</Version>
+            <Comment>Set default style to QtCurve</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="16">
+            <Date>2008-09-08</Date>
+            <Version>4.1.1</Version>
+            <Comment>Dont start nepomuk..</Comment>
+            <Name>Gökmen Göksel</Name>
+            <Email>gokmen@pardus.org.tr</Email>
+        </Update>
+        <Update release="15">
+            <Date>2008-09-05</Date>
+            <Version>4.1.1</Version>
+            <Comment>Stable update to new bugfix release. automoc4 dep added also.</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="14">
+            <Date>2008-07-27</Date>
+            <Version>4.1.0</Version>
+            <Comment>Stable update</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="13">
+            <Date>2008-07-25</Date>
+            <Version>4.0.99</Version>
+            <Comment>Version bump</Comment>
+            <Name>İşbaran Akçayır</Name>
+            <Email>isbaran@comu.edu.tr</Email>
+        </Update>
+        <Update release="12">
+            <Date>2008-07-15</Date>
+            <Version>4.0.98</Version>
+            <Comment>Version bump</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="11">
+            <Date>2008-07-13</Date>
+            <Version>4.0.85</Version>
+            <Comment>Phonon dependency added</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="10">
+            <Date>2008-07-04</Date>
+            <Version>4.0.85</Version>
+            <Comment>Version bump</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="9">
+            <Date>2008-06-24</Date>
+            <Version>4.0.83</Version>
+            <Comment>Beta 2</Comment>
+            <Name>İşbaran Akçayır</Name>
+            <Email>isbaran@comu.edu.tr</Email>
+        </Update>
+        <Update release="8">
+            <Date>2008-05-28</Date>
+            <Version>4.0.80</Version>
+            <Comment>Stable update</Comment>
+            <Name>Kenan Pelit</Name>
+            <Email>kpelit@gmail.com</Email>
+        </Update>
+        <Update release="7">
+            <Date>2008-05-07</Date>
+            <Version>4.0.4</Version>
+            <Comment>Stable update</Comment>
+            <Name>Kenan Pelit</Name>
+            <Email>kpelit@gmail.com</Email>
+        </Update>
+        <Update release="6" type="security">
+            <Date>2008-04-26</Date>
+            <Version>4.0.3</Version>
+            <Comment>Security fix for khtml CVE-2008-1670</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="5">
+            <Date>2008-04-03</Date>
+            <Version>4.0.3</Version>
+            <Comment>Version bump</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="4">
+            <Date>2008-03-12</Date>
+            <Version>4.0.2</Version>
+            <Comment>Adapt to new avahi packages</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="3">
+            <Date>2008-03-05</Date>
+            <Version>4.0.2</Version>
+            <Comment>Stable update</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="2">
+            <Date>2008-01-31</Date>
+            <Version>4.0.1</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="1">
+            <Date>2008-01-05</Date>
+            <Version>4.0.0</Version>
+            <Comment>First release</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+    </History>
+</PISI>

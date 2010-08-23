@@ -1,0 +1,21 @@
+In a build environment /dev/ptmx is not always present.
+Bypass build time check as /dev/ptmx is alsways present at runtime.
+Index: kdelibs-4.1.85/ConfigureChecks.cmake
+===================================================================
+--- kdelibs-4.1.85.orig/ConfigureChecks.cmake	2008-12-11 18:13:25.000000000 +0100
++++ kdelibs-4.1.85/ConfigureChecks.cmake	2008-12-11 18:15:14.000000000 +0100
+@@ -191,13 +191,7 @@
+     set(HAVE_OPENPTY)
+ 
+     EXECUTE_PROCESS(
+-      COMMAND sh -c "
+-        for ptm in ptc ptmx ptm ptym/clone; do
+-          if test -c /dev/$ptm; then
+-            echo /dev/$ptm
+-            break
+-          fi
+-        done"
++      COMMAND sh -c "echo /dev/ptmx"
+       OUTPUT_VARIABLE PTM_DEVICE
+       OUTPUT_STRIP_TRAILING_WHITESPACE)
+     message(STATUS "PTY multiplexer: ${PTM_DEVICE}")
