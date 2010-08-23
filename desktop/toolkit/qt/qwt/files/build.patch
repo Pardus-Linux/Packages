@@ -1,0 +1,117 @@
+Index: qwt-5.2.1/examples/examples.pri
+===================================================================
+--- qwt-5.2.1.orig/examples/examples.pri
++++ qwt-5.2.1/examples/examples.pri
+@@ -1,61 +1,7 @@
+-# -*- mode: sh -*- ################################################
+-# Qwt Widget Library
+-# Copyright (C) 1997   Josef Wilgen
+-# Copyright (C) 2002   Uwe Rathmann
+-#
+-# This library is free software; you can redistribute it and/or
+-# modify it under the terms of the Qwt License, Version 1.0
+-###################################################################
+-
+-QWT_ROOT = ../..
+-
+-include( $${QWT_ROOT}/qwtconfig.pri )
+-
+-SUFFIX_STR =
+-VVERSION = $$[QT_VERSION]
+-isEmpty(VVERSION) {
+-
+-    # Qt 3
+-    debug {
+-        SUFFIX_STR = $${DEBUG_SUFFIX}
+-    }
+-    else {
+-        SUFFIX_STR = $${RELEASE_SUFFIX}
+-    }
+-}
+-else {
+-    CONFIG(debug, debug|release) {
+-        SUFFIX_STR = $${DEBUG_SUFFIX}
+-    }
+-    else {
+-        SUFFIX_STR = $${RELEASE_SUFFIX}
+-    }
+-}
+-
++include( qwtconfig.pri )
+ TEMPLATE     = app
+-
+ MOC_DIR      = moc
+-INCLUDEPATH += $${QWT_ROOT}/src
+-DEPENDPATH  += $${QWT_ROOT}/src
+-OBJECTS_DIR  = obj$${SUFFIX_STR}
+-DESTDIR      = $${QWT_ROOT}/examples/bin$${SUFFIX_STR}
+-
+-QWTLIB       = qwt$${SUFFIX_STR}
+-
+-win32 {
+-    contains(CONFIG, QwtDll) {
+-        DEFINES    += QT_DLL QWT_DLL
+-        QWTLIB = $${QWTLIB}$${VER_MAJ}
+-    }
++INCLUDEPATH += /usr/qt/4/include/qwt
++DEPENDPATH  += /usr/qt/4/include/qwt
++LIBS        += -lqwt
+ 
+-    win32-msvc:LIBS  += $${QWT_ROOT}/lib/$${QWTLIB}.lib
+-    win32-msvc.net:LIBS  += $${QWT_ROOT}/lib/$${QWTLIB}.lib
+-    win32-msvc2002:LIBS += $${QWT_ROOT}/lib/$${QWTLIB}.lib
+-    win32-msvc2003:LIBS += $${QWT_ROOT}/lib/$${QWTLIB}.lib
+-    win32-msvc2005:LIBS += $${QWT_ROOT}/lib/$${QWTLIB}.lib
+-    win32-msvc2008:LIBS += $${QWT_ROOT}/lib/$${QWTLIB}.lib
+-    win32-g++:LIBS   += -L$${QWT_ROOT}/lib -l$${QWTLIB}
+-}
+-else {
+-    LIBS        += -L$${QWT_ROOT}/lib -l$${QWTLIB}
+-}
+Index: qwt-5.2.1/examples/examples.pro
+===================================================================
+--- qwt-5.2.1.orig/examples/examples.pro
++++ qwt-5.2.1/examples/examples.pro
+@@ -7,7 +7,7 @@
+ # modify it under the terms of the Qwt License, Version 1.0
+ ###################################################################
+ 
+-include( ../qwtconfig.pri )
++include( qwtconfig.pri )
+ 
+ TEMPLATE = subdirs
+ 
+Index: qwt-5.2.1/qwtconfig.pri
+===================================================================
+--- qwt-5.2.1.orig/qwtconfig.pri
++++ qwt-5.2.1/qwtconfig.pri
+@@ -8,7 +8,7 @@ VER_PAT      = 1
+ VERSION      = $${VER_MAJ}.$${VER_MIN}.$${VER_PAT}
+ 
+ unix {
+-    INSTALLBASE    = /usr/local/qwt-5.2.1
++    INSTALLBASE    = /usr
+ }
+ 
+ win32 {
+@@ -16,8 +16,8 @@ win32 {
+ }
+ 
+ target.path    = $$INSTALLBASE/lib
+-headers.path   = $$INSTALLBASE/include
+-doc.path       = $$INSTALLBASE/doc
++headers.path   = $$INSTALLBASE/include/qwt
++doc.path       = $$INSTALLBASE/share/doc/qwt
+ 
+ ######################################################################
+ # qmake internal options
+Index: qwt-5.2.1/src/src.pro
+===================================================================
+--- qwt-5.2.1.orig/src/src.pro
++++ qwt-5.2.1/src/src.pro
+@@ -225,4 +225,4 @@ unix {
+     doc.files      += $${QWT_ROOT}/doc/man
+ }
+ 
+-INSTALLS       = target headers doc
++INSTALLS       = target headers
