@@ -85,6 +85,7 @@ def postInstall(fromVersion, fromRelease, toVersion, toRelease):
               "hal",
               "icecast",
               "italc",
+              "jackuser",
               "kdm",
               "kvm",
               "ldap",
@@ -264,6 +265,9 @@ def postInstall(fromVersion, fromRelease, toVersion, toRelease):
     hav("addGroup", (203, "netadmin"))
     hav("addGroup", (204, "power"))
     hav("addGroup", (205, "pnpadmin"))
+
+    # for RT jackaudio
+    hav("addGroup", (206, "jackuser"))
 
 
     # Merge new system users
