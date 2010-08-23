@@ -14,7 +14,6 @@ from pisi.actionsapi import get
 
 def setup():
     autotools.autoreconf("-vfi")
-    #libtools.libtoolize("--force --install")
     autotools.configure("--disable-static \
                          --with-external-mp4v2")
 
