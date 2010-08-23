@@ -1,0 +1,175 @@
+Index: enlightenment-0.16.999.49539/src/modules/wizard/Makefile.am
+===================================================================
+--- enlightenment-0.16.999.49539.orig/src/modules/wizard/Makefile.am
++++ enlightenment-0.16.999.49539/src/modules/wizard/Makefile.am
+@@ -23,8 +23,6 @@ pkg_LTLIBRARIES        = module.la \
+                          page_010.la \
+                          page_020.la \
+                          page_030.la \
+-                         page_070.la \
+-                         page_080.la \
+                          page_200.la
+ 
+ ### disabled because profile selector really does the job. code here just for
+@@ -82,16 +80,16 @@ page_030_la_DEPENDENCIES = $(top_builddi
+ #page_060_la_DEPENDENCIES = $(top_builddir)/config.h
+ 
+ #Choose appliactions
+-page_070_la_SOURCES      = page_070.c
+-page_070_la_LIBADD       = @e_libs@ @dlopen_libs@
+-page_070_la_LDFLAGS      = -module -avoid-version
+-page_070_la_DEPENDENCIES = $(top_builddir)/config.h
+-
+-#Choose quick launch
+-page_080_la_SOURCES      = page_080.c
+-page_080_la_LIBADD       = @e_libs@ @dlopen_libs@
+-page_080_la_LDFLAGS      = -module -avoid-version
+-page_080_la_DEPENDENCIES = $(top_builddir)/config.h
++#page_070_la_SOURCES      = page_070.c
++#page_070_la_LIBADD       = @e_libs@ @dlopen_libs@
++#page_070_la_LDFLAGS      = -module -avoid-version
++#page_070_la_DEPENDENCIES = $(top_builddir)/config.h
++
++##Choose quick launch
++#page_080_la_SOURCES      = page_080.c
++#page_080_la_LIBADD       = @e_libs@ @dlopen_libs@
++#page_080_la_LDFLAGS      = -module -avoid-version
++#page_080_la_DEPENDENCIES = $(top_builddir)/config.h
+ 
+ page_200_la_SOURCES      = page_200.c
+ page_200_la_LIBADD       = @e_libs@ @dlopen_libs@
+Index: enlightenment-0.16.999.49539/src/modules/wizard/page_010.c
+===================================================================
+--- enlightenment-0.16.999.49539.orig/src/modules/wizard/page_010.c
++++ enlightenment-0.16.999.49539/src/modules/wizard/page_010.c
+@@ -19,28 +19,29 @@ struct _E_Intl_Pair
+ const E_Intl_Pair basic_language_predefined_pairs[ ] = {
+      {"bg_BG.UTF-8", "lang-bg_BG.png", "Български"},
+      {"ca_ES.UTF-8", "lang-ca_ES.png", "Català"},
+-     {"zh_CN.UTF-8", "lang-zh_CN.png", "Chinese (Simplified)"},
+-     {"zh_TW.UTF-8", "lang-zh_TW.png", "Chinese (Traditional)"},
+      {"cs_CZ.UTF-8", "lang-cs_CZ.png", "Čeština"},
+      {"da_DK.UTF-8", "lang-da_DK.png", "Dansk"},
+-     {"nl_NL.UTF-8", "lang-nl_NL.png", "Nederlands"},
++     {"de_DE.UTF-8", "lang-de_DE.png", "Deutsch"},
++     {"el_GR.UTF-8", "lang-el_GR.png", "Ελληνικά"},
+      {"en_US.UTF-8", "lang-en_US.png", "English"},
++     {"es_AR.UTF-8", "lang-es_AR.png", "Español"},
+      {"fi_FI.UTF-8", "lang-fi_FI.png", "Suomi"},
+      {"fr_FR.UTF-8", "lang-fr_FR.png", "Français"},
+-     {"de_DE.UTF-8", "lang-de_DE.png", "Deutsch"},
+      {"hu_HU.UTF-8", "lang-hu_HU.png", "Magyar"},
+      {"it_IT.UTF-8", "lang-it_IT.png", "Italiano"},
+      {"ja_JP.UTF-8", "lang-ja_JP.png", "日本語"},
+      {"ko_KR.UTF-8", "lang-ko_KR.png", "한국어"},
+      {"nb_NO.UTF-8", "lang-nb_NO.png", "Norsk Bokmål"},
++     {"nl_NL.UTF-8", "lang-nl_NL.png", "Nederlands"},
+      {"pl_PL.UTF-8", "lang-pl_PL.png", "Polski"},
+      {"pt_BR.UTF-8", "lang-pt_BR.png", "Português"},
+      {"ru_RU.UTF-8", "lang-ru_RU.png", "Русский"},
+      {"sk_SK.UTF-8", "lang-sk_SK.png", "Slovenčina"},
+      {"sl_SI.UTF-8", "lang-sl_SI.png", "Slovenščina"},
+-     {"es_AR.UTF-8", "lang-es_AR.png", "Español"},
+      {"sv_SE.UTF-8", "lang-sv_SE.png", "Svenska"},
+-     {"el_GR.UTF-8", "lang-el_GR.png", "Ελληνικά"},
++     {"tr_TR.UTF-8", "lang-tr_TR.png", "Türkçe"},
++     {"zh_CN.UTF-8", "lang-zh_CN.png", "Chinese (Simplified)"},
++     {"zh_TW.UTF-8", "lang-zh_TW.png", "Chinese (Traditional)"},
+      { NULL, NULL, NULL }
+ };
+ 
+Index: enlightenment-0.16.999.49539/src/modules/wizard/page_030.c
+===================================================================
+--- enlightenment-0.16.999.49539.orig/src/modules/wizard/page_030.c
++++ enlightenment-0.16.999.49539/src/modules/wizard/page_030.c
+@@ -34,15 +34,7 @@ wizard_page_init(E_Wizard_Page *pg)
+    const char *dirs[] = 
+      {
+ 	"/etc/xdg",
+-	  "/usr/etc/xdg",
+-	  "/usr/local/etc/xdg",
+-	  "/usr/opt/etc/xdg",
+-	  "/usr/opt/xdg",
+-	  "/usr/local/opt/etc/xdg",
+-	  "/usr/local/opt/xdg",
+-          "/opt/etc/xdg",
+-          "/opt/xdg",
+-	  // FIXME: add more "known locations"
++	  "/usr/kde/4/etc/xdg",
+ 	  NULL
+      };
+    int i, newdir;
+Index: enlightenment-0.16.999.49539/src/modules/wizard/page_200.c
+===================================================================
+--- enlightenment-0.16.999.49539.orig/src/modules/wizard/page_200.c
++++ enlightenment-0.16.999.49539/src/modules/wizard/page_200.c
+@@ -38,28 +38,28 @@ wizard_page_hide(E_Wizard_Page *pg)
+ EAPI int
+ wizard_page_apply(E_Wizard_Page *pg)
+ {
+-   char buf[PATH_MAX];
++   /*char buf[PATH_MAX];*/
+    // setup ~/Desktop and ~/.e/e/fileman/favorites and 
+    // ~/.e/e/applications/bar/default, maybe ~/.e/e/applications/startup/.order
+ 
+    // FIXME: should become a wizard page on its own
+    // setup fileman favorites
+-   snprintf(buf, sizeof(buf),
+-	    "gzip -d -c < %s/data/other/efm_favorites.tar.gz | "
+-	    "(cd %s/.e/e/ ; tar -xkf -)",
+-	    e_prefix_data_get(), e_user_homedir_get());
+-   system(buf);
+-   // FIXME: efm favorites linked to desktop should be an option in another
+-   // wizard page
+-   // ~/Desktop
+-   e_user_homedir_concat(buf, sizeof(buf), _("Desktop"));
+-   ecore_file_mkpath(buf);
+-   e_user_homedir_snprintf(buf, sizeof(buf), "%s/%s", _("Desktop"), "home.desktop");
+-   ecore_file_symlink("../.e/e/fileman/favorites/home.desktop", buf);
+-   e_user_homedir_snprintf(buf, sizeof(buf), "%s/%s", _("Desktop"), "root.desktop");
+-   ecore_file_symlink("../.e/e/fileman/favorites/root.desktop", buf);
+-   e_user_homedir_snprintf(buf, sizeof(buf), "%s/%s", _("Desktop"), "tmp.desktop");
+-   ecore_file_symlink("../.e/e/fileman/favorites/tmp.desktop", buf);
++   /*snprintf(buf, sizeof(buf),*/
++		/*"gzip -d -c < %s/data/other/efm_favorites.tar.gz | "*/
++		/*"(cd %s/.e/e/ ; tar -xkf -)",*/
++		/*e_prefix_data_get(), e_user_homedir_get());*/
++   /*system(buf);*/
++   /*// FIXME: efm favorites linked to desktop should be an option in another*/
++   /*// wizard page*/
++   /*// ~/Desktop*/
++   /*e_user_homedir_concat(buf, sizeof(buf), _("Desktop"));*/
++   /*ecore_file_mkpath(buf);*/
++   /*e_user_homedir_snprintf(buf, sizeof(buf), "%s/%s", _("Desktop"), "home.desktop");*/
++   /*ecore_file_symlink("../.e/e/fileman/favorites/home.desktop", buf);*/
++   /*e_user_homedir_snprintf(buf, sizeof(buf), "%s/%s", _("Desktop"), "root.desktop");*/
++   /*ecore_file_symlink("../.e/e/fileman/favorites/root.desktop", buf);*/
++   /*e_user_homedir_snprintf(buf, sizeof(buf), "%s/%s", _("Desktop"), "tmp.desktop");*/
++   /*ecore_file_symlink("../.e/e/fileman/favorites/tmp.desktop", buf);*/
+    
+    // save the config now everyone has modified it
+    e_config_save();
+Index: enlightenment-0.16.999.49539/config/Makefile.am
+===================================================================
+--- enlightenment-0.16.999.49539.orig/config/Makefile.am
++++ enlightenment-0.16.999.49539/config/Makefile.am
+@@ -1,5 +1,5 @@
+ MAINTAINERCLEANFILES = Makefile.in
+-SUBDIRS = default standard minimalist scaleable netbook illume illume-home
++SUBDIRS = default standard minimalist scaleable netbook
+ 
+ EET_EET = @eet_eet@
+ 
+Index: enlightenment-0.16.999.49539/config/Makefile.in
+===================================================================
+--- enlightenment-0.16.999.49539.orig/config/Makefile.in
++++ enlightenment-0.16.999.49539/config/Makefile.in
+@@ -411,7 +411,7 @@ version_info = @version_info@
+ x_cflags = @x_cflags@
+ x_libs = @x_libs@
+ MAINTAINERCLEANFILES = Makefile.in
+-SUBDIRS = default standard minimalist scaleable netbook illume illume-home
++SUBDIRS = default standard minimalist scaleable netbook
+ EET_EET = @eet_eet@
+ EXTRA_DIST = profile.src
+ filesdir = $(datadir)/enlightenment/data/config

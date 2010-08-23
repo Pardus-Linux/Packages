@@ -1,0 +1,186 @@
+Index: enlightenment-0.16.999.49539/config/standard/e.src
+===================================================================
+--- enlightenment-0.16.999.49539.orig/config/standard/e.src
++++ enlightenment-0.16.999.49539/config/standard/e.src
+@@ -15,10 +15,10 @@ group "E_Config" struct {
+   value "font_cache" int: 512;
+   value "edje_cache" int: 32;
+   value "edje_collection_cache" int: 64;
+-  value "zone_desks_x_count" int: 4;
++  value "zone_desks_x_count" int: 2;
+   value "zone_desks_y_count" int: 1;
+   value "use_virtual_roots" int: 0;
+-  value "show_desktop_icons" int: 1;
++  value "show_desktop_icons" int: 0;
+   value "edge_flip_dragging" int: 1;
+   value "evas_engine_default" int: 1;
+   value "evas_engine_container" int: 0;
+@@ -458,6 +458,14 @@ group "E_Config" struct {
+   }
+   group "modules" list {
+     group "E_Config_Module" struct {
++      value "name" string: "systray";
++      value "enabled" uchar: 1;
++      value "delayed" uchar: 1;
++      value "priority" int: 0;
++    }
++  }
++  group "modules" list {
++    group "E_Config_Module" struct {
+       value "name" string: "everything";
+       value "enabled" uchar: 1;
+       value "delayed" uchar: 0;
+@@ -1635,7 +1643,7 @@ group "E_Config" struct {
+   value "focus_revert_on_hide_or_close" int: 1;
+   value "pointer_slide" int: 1;
+   value "use_e_cursor" int: 1;
+-  value "cursor_size" int: 32;
++  value "cursor_size" int: 24;
+   value "menu_autoscroll_margin" int: 0;
+   value "menu_autoscroll_cursor_margin" int: 1;
+   value "transient.move" int: 1;
+@@ -1700,7 +1708,7 @@ group "E_Config" struct {
+           value "name" string: "ibox";
+           value "id" string: "ibox.1";
+           value "geom.pos" int: 152;
+-          value "geom.size" int: 32;
++          value "geom.size" int: 150;
+           value "geom.res" int: 800;
+           value "geom.pos_x" double: 0.0000000000000000000000000;
+           value "geom.pos_y" double: 0.0000000000000000000000000;
+@@ -1710,15 +1718,15 @@ group "E_Config" struct {
+           value "state_info.flags" int: 0;
+           value "style" string: "inset";
+           value "autoscroll" uchar: 0;
+-          value "resizable" uchar: 0;
++          value "resizable" uchar: 1;
+         }
+       }
+       group "clients" list {
+         group "E_Config_Gadcon_Client" struct {
+-          value "name" string: "ibar";
+-          value "id" string: "ibar.1";
+-          value "geom.pos" int: 350;
+-          value "geom.size" int: 200;
++          value "name" string: "mixer";
++          value "id" string: "mixer.1";
++          value "geom.pos" int: 302;
++          value "geom.size" int: 32;
+           value "geom.res" int: 800;
+           value "geom.pos_x" double: 0.0000000000000000000000000;
+           value "geom.pos_y" double: 0.0000000000000000000000000;
+@@ -1726,7 +1734,7 @@ group "E_Config" struct {
+           value "geom.size_h" double: 0.0000000000000000000000000;
+           value "state_info.seq" int: 5;
+           value "state_info.flags" int: 0;
+-          value "style" string: "inset";
++          value "style" string: "plain";
+           value "autoscroll" uchar: 0;
+           value "resizable" uchar: 0;
+         }
+@@ -1735,7 +1743,7 @@ group "E_Config" struct {
+         group "E_Config_Gadcon_Client" struct {
+           value "name" string: "temperature";
+           value "id" string: "temperature.1";
+-          value "geom.pos" int: 672;
++          value "geom.pos" int: 334;
+           value "geom.size" int: 32;
+           value "geom.res" int: 800;
+           value "geom.pos_x" double: 0.0000000000000000000000000;
+@@ -1751,9 +1759,9 @@ group "E_Config" struct {
+       }
+       group "clients" list {
+         group "E_Config_Gadcon_Client" struct {
+-          value "name" string: "cpufreq";
+-          value "id" string: "cpufreq";
+-          value "geom.pos" int: 704;
++          value "name" string: "battery";
++          value "id" string: "battery";
++          value "geom.pos" int: 366;
+           value "geom.size" int: 32;
+           value "geom.res" int: 800;
+           value "geom.pos_x" double: 0.0000000000000000000000000;
+@@ -1764,14 +1772,14 @@ group "E_Config" struct {
+           value "state_info.flags" int: 0;
+           value "style" string: "plain";
+           value "autoscroll" uchar: 0;
+-          value "resizable" uchar: 0;
++          value "resizable" uchar: 1;
+         }
+       }
+       group "clients" list {
+         group "E_Config_Gadcon_Client" struct {
+-          value "name" string: "battery";
+-          value "id" string: "battery";
+-          value "geom.pos" int: 736;
++          value "name" string: "cpufreq";
++          value "id" string: "cpufreq";
++          value "geom.pos" int: 400;
+           value "geom.size" int: 32;
+           value "geom.res" int: 800;
+           value "geom.pos_x" double: 0.0000000000000000000000000;
+@@ -1789,7 +1797,7 @@ group "E_Config" struct {
+         group "E_Config_Gadcon_Client" struct {
+           value "name" string: "clock";
+           value "id" string: "clock";
+-          value "geom.pos" int: 768;
++          value "geom.pos" int: 432 ;
+           value "geom.size" int: 32;
+           value "geom.res" int: 800;
+           value "geom.pos_x" double: 0.0000000000000000000000000;
+@@ -2086,8 +2094,8 @@ group "E_Config" struct {
+   value "border_raise_on_focus" int: 1;
+   value "desk_flip_wrap" int: 0;
+   value "fullscreen_flip" int: 1;
+-  value "icon_theme" string: "Tango";
+-  value "icon_theme_overrides" uchar: 0;
++  value "icon_theme" string: "Milky";
++  value "icon_theme_overrides" uchar: 1;
+   value "desk_flip_animate_mode" int: 1;
+   value "desk_flip_animate_interpolation" int: 0;
+   value "desk_flip_animate_time" double: 0.2000000000000000111022302;
+@@ -2156,7 +2164,7 @@ group "E_Config" struct {
+   }
+   value "desk_auto_switch" int: 0;
+   value "thumb_nice" int: 0;
+-  value "menu_favorites_show" int: 1;
++  value "menu_favorites_show" int: 0;
+   value "menu_apps_show" int: 1;
+   value "ping_clients_interval" int: 128;
+   value "cache_flush_poll_interval" int: 512;
+@@ -2164,18 +2172,18 @@ group "E_Config" struct {
+   value "thumbscroll_threshhold" int: 8;
+   value "thumbscroll_momentum_threshhold" double: 100.0000000000000000000000000;
+   value "thumbscroll_friction" double: 1.0000000000000000000000000;
+-  value "dbus_desktop" int: 1;
++  value "dbus_desktop" int: 0;
+   value "border_keyboard.timeout" double: 5.0000000000000000000000000;
+   value "border_keyboard.move.dx" uchar: 5;
+   value "border_keyboard.move.dy" uchar: 5;
+   value "border_keyboard.resize.dx" uchar: 5;
+   value "border_keyboard.resize.dy" uchar: 5;
+-  value "dbus_desktop" int: 1;
++  value "dbus_desktop" int: 0;
+   value "scale.min" double: 1.0000000000000000000000000;
+   value "scale.max" double: 3.0000000000000000000000000;
+   value "scale.factor" double: 1.0000000000000000000000000;
+-  value "scale.base_dpi" int: 142;
+-  value "scale.use_dpi" uchar: 0;
++  value "scale.base_dpi" int: 96;
++  value "scale.use_dpi" uchar: 1;
+   value "scale.use_custom" uchar: 0;
+   value "show_cursor" uchar: 1;
+   value "idle_cursor" uchar: 1;
+Index: enlightenment-0.16.999.49539/config/standard/module.ibox.src
+===================================================================
+--- enlightenment-0.16.999.49539.orig/config/standard/module.ibox.src
++++ enlightenment-0.16.999.49539/config/standard/module.ibox.src
+@@ -11,7 +11,7 @@ group "IBox_Config" struct {
+   group "items" list {
+     group "IBox_Config_Item" struct {
+       value "id" string: "ibox.1";
+-      value "show_label" int: 0;
++      value "show_label" int: 1;
+       value "show_zone" int: 1;
+       value "show_desk" int: 0;
+       value "icon_label" int: 0;

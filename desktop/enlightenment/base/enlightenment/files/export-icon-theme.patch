@@ -1,0 +1,25 @@
+Index: enlightenment-0.16.999.49539/src/modules/conf_icon_theme/e_int_config_icon_themes.c
+===================================================================
+--- enlightenment-0.16.999.49539.orig/src/modules/conf_icon_theme/e_int_config_icon_themes.c
++++ enlightenment-0.16.999.49539/src/modules/conf_icon_theme/e_int_config_icon_themes.c
+@@ -119,6 +119,7 @@ _basic_apply_data(E_Config_Dialog *cfd, 
+ 
+    eina_stringshare_del(e_config->icon_theme);
+    e_config->icon_theme = eina_stringshare_ref(cfdata->themename);
++   e_util_env_set("ICON_THEME", e_config->icon_theme);
+ 
+    e_config->icon_theme_overrides = !!cfdata->overrides;
+ 
+Index: enlightenment-0.16.999.49539/src/bin/e_main.c
+===================================================================
+--- enlightenment-0.16.999.49539.orig/src/bin/e_main.c
++++ enlightenment-0.16.999.49539/src/bin/e_main.c
+@@ -582,6 +582,8 @@ main(int argc, char **argv)
+ 
+    locked |= e_config->desklock_start_locked;
+ 
++   e_util_env_set("ICON_THEME", e_config->icon_theme);
++
+    /* set all execced stuff to configured priority */
+    ecore_exe_run_priority_set(e_config->priority);
+ 
