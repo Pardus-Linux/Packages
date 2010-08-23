@@ -1,0 +1,142 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>virtuoso</Name>
+        <Homepage>http://virtuoso.openlinksw.com/wiki/main/Main/</Homepage>
+        <Packager>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Packager>
+        <License>GPLv2</License>
+        <IsA>service</IsA>
+        <Summary>A high-performance object-relational SQL database</Summary>
+        <Description>Virtuoso is a high-performance object-relational SQL database. As a database, it provides transactions, a smart SQL compiler, powerful stored-procedure language with optional Java and .Net server-side hosting, hot backup, SQL-99 support and more.</Description>
+        <Archive sha1sum="fdcc79c230aaa6f63d2796659ec96ebfc571ac97" type="targz">mirrors://sourceforge/virtuoso/virtuoso-opensource-6.1.2.tar.gz</Archive>
+        <BuildDependencies>
+            <Dependency>wbxml2-devel</Dependency>
+            <Dependency>sun-jdk</Dependency>
+            <Dependency>libiodbc-devel</Dependency>
+            <Dependency>imagemagick-devel</Dependency>
+            <Dependency>openldap-client</Dependency>
+        </BuildDependencies>
+        <Patches>
+            <Patch>virtuoso-opensource-6.1.0-extern-iodbc.patch</Patch>
+            <Patch level="1">virtuoso-opensource-6.1.0-nodemos_buildfix.patch</Patch>
+        </Patches>
+    </Source>
+
+    <Package>
+        <Name>virtuoso</Name>
+        <RuntimeDependencies>
+            <Dependency>openldap-client</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="config">/etc</Path>
+            <Path fileType="executable">/usr/bin</Path>
+            <Path fileType="header">/usr/include</Path>
+            <Path fileType="library">/usr/lib</Path>
+            <Path fileType="data">/var/lib</Path>
+            <Path fileType="data">/usr/share</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>virtuoso-apps</Name>
+        <IsA>data</IsA>
+        <Summary>Applications of Virtuoso RDBMS</Summary>
+        <RuntimeDependencies>
+            <Dependency>imagemagick</Dependency>
+            <Dependency>wbxml2</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="library">/usr/lib/virtuoso/hosting</Path>
+            <Path fileType="data">/usr/share/virtuoso/vad</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>virtuoso-java</Name>
+        <IsA>data</IsA>
+        <Summary>JAR files of Virtuoso RDBMS</Summary>
+        <Files>
+            <Path fileType="library">/usr/lib/jdbc*</Path>
+            <Path fileType="library">/usr/lib/jena</Path>
+            <Path fileType="library">/usr/lib/sesame</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>virtuoso-conductor</Name>
+        <IsA>data</IsA>
+        <Summary>Server pages of Virtuoso RDBMS</Summary>
+        <Files>
+            <Path fileType="data">/usr/share/virtuoso/vad/conductor_dav.vad</Path>
+            <Path fileType="data">/var/lib/virtuoso/vsp</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>virtuoso-docs</Name>
+        <IsA>data:doc</IsA>
+        <Summary>Documents of Virtuoso RDBMS</Summary>
+        <Replaces>
+            <Package>virtuoso-doc</Package>
+        </Replaces>
+        <Files>
+            <Path fileType="doc">/usr/share/doc</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>virtuoso-utils</Name>
+        <IsA>app:console</IsA>
+        <Summary>Helper utilies of Virtuoso RDBMS</Summary>
+        <RuntimeDependencies>
+            <Dependency>libiodbc</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="executable">/usr/bin/virt_mail</Path>
+            <Path fileType="executable">/usr/bin/odbc_mail</Path>
+            <Path fileType="executable">/usr/bin/virtuoso-i*</Path>
+        </Files>
+    </Package>
+
+    <History>
+        <Update release="5">
+            <Date>2010-08-07</Date>
+            <Version>6.1.2</Version>
+            <Comment>Version bump to 6.1.2</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="4">
+            <Date>2010-05-10</Date>
+            <Version>6.1.1</Version>
+            <Comment>Version bump to 6.1.1</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="3">
+            <Date>2010-04-27</Date>
+            <Version>6.1.0</Version>
+            <Comment>Add workaround for virtuoso-apps virtuoso-conductor file conflict.</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="2">
+            <Date>2010-03-23</Date>
+            <Version>6.1.0</Version>
+            <Comment>Fix build.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="1">
+            <Date>2010-02-12</Date>
+            <Version>6.1.0</Version>
+            <Comment>First release.</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+    </History>
+</PISI>
