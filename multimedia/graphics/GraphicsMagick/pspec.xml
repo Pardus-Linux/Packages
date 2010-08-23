@@ -1,0 +1,170 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>GraphicsMagick</Name>
+        <Homepage>http://www.graphicsmagick.org</Homepage>
+        <Packager>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Packager>
+        <License>MIT</License>
+        <IsA>library</IsA>
+        <Summary>GraphicsMagick Image Processing System</Summary>
+        <Description>GraphicsMagick is a comprehensive image processing package which is initially based on ImageMagick 5.5.2, but which has undergone significant re-work by the GraphicsMagick Group to significantly improve the quality and performance of the software.</Description>
+        <Archive sha1sum="6b8a414af162ad8679f2f04b10f128edc8ee3233" type="tarbz2">mirrors://sourceforge/graphicsmagick/GraphicsMagick-1.3.12.tar.bz2</Archive>
+        <BuildDependencies>
+            <Dependency>freetype-devel</Dependency>
+            <Dependency>ghostscript-devel</Dependency>
+            <Dependency>jasper-devel</Dependency>
+            <Dependency>jbigkit-devel</Dependency>
+            <Dependency>jpeg-devel</Dependency>
+            <Dependency>lcms-devel</Dependency>
+            <Dependency>libXext-devel</Dependency>
+            <Dependency>libpng-devel</Dependency>
+            <Dependency>libwmf-devel</Dependency>
+            <Dependency>tiff-devel</Dependency>
+        </BuildDependencies>
+        <Patches>
+            <Patch level="1">remove-setlocale.patch</Patch>
+        </Patches>
+    </Source>
+
+    <Package>
+        <Name>GraphicsMagick</Name>
+        <IsA>app:console</IsA>
+        <RuntimeDependencies>
+            <Dependency>freetype</Dependency>
+            <Dependency>ghostscript</Dependency>
+            <Dependency>jasper</Dependency>
+            <Dependency>jbigkit</Dependency>
+            <Dependency>jpeg</Dependency>
+            <Dependency>lcms</Dependency>
+            <Dependency>libXext</Dependency>
+            <Dependency>libgomp</Dependency>
+            <Dependency>libpng</Dependency>
+            <Dependency>libwmf</Dependency>
+            <Dependency>tiff</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="config">/etc</Path>
+            <Path fileType="executable">/usr/bin/gm</Path>
+            <Path fileType="library">/usr/lib/GraphicsMagick-*</Path>
+            <Path fileType="library">/usr/lib/lib*</Path>
+            <Path fileType="data">/usr/share/GraphicsMagick-*</Path>
+            <Path fileType="doc">/usr/share/doc</Path>
+            <Path fileType="man">/usr/share/man/man1/gm.1</Path>
+            <Path fileType="man">/usr/share/man/man[345]</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>GraphicsMagick-devel</Name>
+        <Summary>Development files for GraphicsMagick</Summary>
+        <RuntimeDependencies>
+            <Dependency release="10">GraphicsMagick</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="executable">/usr/bin/*-config</Path>
+            <Path fileType="header">/usr/include</Path>
+            <Path fileType="data">/usr/lib/pkgconfig</Path>
+            <Path fileType="doc">/usr/share/doc/GraphicsMagick/www</Path>
+            <Path fileType="man">/usr/share/man/man1/*-config.*</Path>
+        </Files>
+    </Package>
+
+    <History>
+        <Update release="10">
+            <Date>2010-08-23</Date>
+            <Version>1.3.12</Version>
+            <Comment>Add missing dependencies</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="9">
+            <Date>2010-06-01</Date>
+            <Version>1.3.12</Version>
+            <Comment>Fix crash on systems using Turkish locale</Comment>
+            <Type package="GraphicsMagick">critical</Type>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="8">
+            <Date>2010-03-09</Date>
+            <Version>1.3.12</Version>
+            <Comment>
+                Version bump. Security Fixes:
+                * Fixed array underflow on systems using signed char which could result in a program crash due to extended characters in filenames or in certain file formats.
+
+                Bug fixes:
+                * Fixed array underflow on systems using signed char which could result in a program crash due to extended characters in filenames or in certain file formats.
+                * Now compiles with libpng 1.4.
+
+                New Features:
+                * Added a -thumbnail command to 'convert' and 'mogrify'.  This is a faster way to scale down the image when speed is a primary concern.
+                * Added a -extent command to 'convert' and 'mogrify' which composites the image on top of a backing canvas image of solid color.
+                * Added support for -compose to the 'convert' and 'mogrify', which were documented to support it (but did not).
+
+                Performance Improvements:
+                * Requests for 'Over' and 'Atop' composition are converted to a request for the (faster) 'Copy' composition when both images are opaque.
+
+                Behavior Changes:
+                * DCX output format is only written on request.  Previously the PCX coder would automatically switch to DCX format if multiple frames would be written.
+            </Comment>
+            <Name>Serdar Dalgıç</Name>
+            <Email>serdar@pardus.org.tr</Email>
+        </Update>
+        <Update release="7">
+            <Date>2010-02-11</Date>
+            <Version>1.3.10</Version>
+            <Comment>Latest stable release. This release fixes several bugs which were discovered in the 1.3.9 release. The most significant fix is that +adjoin was not working as expected with one image frame.</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="6">
+            <Date>2010-02-07</Date>
+            <Version>1.3.9</Version>
+            <Comment>Latest stable release. This release fixes quite a few bugs, including those submitted to the Debian bug tracking system or to the Debian GraphicsMagick maintainer. The most significant bug fixed is a crash if the number of OpenMP threads is reduced from the default via the command line or OpenMP API.</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="5">
+            <Date>2010-01-22</Date>
+            <Version>1.3.8</Version>
+            <Comment>Latest stable release. Drop upstreamed patch.</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="4" type="security">
+            <Date>2009-10-09</Date>
+            <Version>1.3.7</Version>
+            <Comment>Latest stable release fixing XMakeImage() Integer Overflow Vulnerability (CVE-2009-1882, #11307)</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="3">
+            <Date>2009-07-05</Date>
+            <Version>1.3.5</Version>
+            <Comment>Add missing libXext dependency</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="2">
+            <Date>2009-06-14</Date>
+            <Version>1.3.5</Version>
+            <Comment>
+                - New stable release
+                - Keep .la files in order to load modules
+            </Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="1">
+            <Date>2009-01-09</Date>
+            <Version>1.3.3</Version>
+            <Comment>First release</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+    </History>
+</PISI>
