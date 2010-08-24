@@ -1,0 +1,63 @@
+diff -Naur kdebase-4.1.70/apps/konsole/src/ViewManager.cpp kdebase-4.1.70.konsole-session/apps/konsole/src/ViewManager.cpp
+--- kdebase-4.1.70/apps/konsole/src/ViewManager.cpp	2008-10-09 11:46:34.000000000 +0200
++++ kdebase-4.1.70.konsole-session/apps/konsole/src/ViewManager.cpp	2008-10-29 16:14:04.000000000 +0100
+@@ -885,7 +885,7 @@
+         Q_ASSERT(view);
+         Session *session = _sessionMap[view];
+         ids << SessionManager::instance()->getRestoreId(session);
+-        if (view == activeview) group.writeEntry("Active", tab);
++        if (view == activeview) group.writeEntry("ActiveTabIndex", tab);
+         unique.insert(session, 1);
+         tab++;
+     }
+@@ -905,24 +905,37 @@
+ void ViewManager::restoreSessions(const KConfigGroup& group)
+ {
+     QList<int> ids = group.readEntry("Sessions", QList<int>());
+-    int activeTab  = group.readEntry("Active", 0);
+-    TerminalDisplay *display = 0;
+ 
+-    int tab = 1;
+-    foreach(int id, ids)
++    if (ids.isEmpty())
+     {
+-        Session *session = SessionManager::instance()->idToSession(id);
++        // Incomplete session file, e.g. from a KDE3 session. Create a
++        // default session so that we don't end up with an empty window.
++        kWarning() << i18n("Unable to restore saved tabs. Possibly unsupported KDE 3 session data.");
++        Session *session = SessionManager::instance()->createSession();
+         createView(session);
+-        if (!session->isRunning())
+-            session->run();
+-        if (tab++ == activeTab)
+-            display = dynamic_cast<TerminalDisplay*>(activeView());
++        session->run();
+     }
+-
+-    if (display)
++    else
+     {
+-        _viewSplitter->activeContainer()->setActiveView(display);
+-        display->setFocus(Qt::OtherFocusReason);
++        int activeTab = group.readEntry("ActiveTabIndex", 0);
++        int tab = 1;
++        QWidget *focusView = 0;
++
++        foreach(int id, ids)
++        {
++            Session *session = SessionManager::instance()->idToSession(id);
++            createView(session);
++            if (!session->isRunning())
++                session->run();
++            if (tab++ == activeTab)
++                focusView = activeView();
++        }
++
++        if (focusView)
++        {
++            _viewSplitter->activeContainer()->setActiveView(focusView);
++            focusView->setFocus(Qt::OtherFocusReason);
++        }
+     }
+ }
+ 
