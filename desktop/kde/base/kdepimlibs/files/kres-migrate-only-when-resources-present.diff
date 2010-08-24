@@ -1,0 +1,85 @@
+Index: kresources/factory.cpp
+===================================================================
+--- kresources/factory.cpp	(revision 1132835)
++++ kresources/factory.cpp	(working copy)
+@@ -46,6 +46,7 @@
+ #include <kpluginloader.h>
+ 
+ #include "resource.h"
++#include "managerimpl.h"
+ 
+ using namespace KRES;
+ 
+@@ -79,38 +80,42 @@
+ 
+     // Akonadi migration
+     KConfig config( "kres-migratorrc" );
+-    KConfigGroup migrationCfg( &config, "Migration" );
+-    const bool enabled = migrationCfg.readEntry( "Enabled", false );
+-    const bool setupClientBrige = migrationCfg.readEntry( "SetupClientBridge", true );
+-    const int currentVersion = migrationCfg.readEntry( "Version-" + resourceFamily, 0 );
+-    const int targetVersion = migrationCfg.readEntry( "TargetVersion", 0 );
+-    if ( enabled && currentVersion < targetVersion ) {
+-      kDebug() << "Performing Akonadi migration. Good luck!";
+-      KProcess proc;
+-      QStringList args = QStringList() << "--interactive-on-change" << "--type" << resourceFamily;
+-      if ( !setupClientBrige ) {
+-        args << "--omit-client-bridge";
++    // check that resource
++    if ( QFile( KRES::ManagerImpl::defaultConfigFile( resourceFamily ) ).exists() ) {
++      KConfigGroup migrationCfg( &config, "Migration" );
++      const bool enabled = migrationCfg.readEntry( "Enabled", false );
++      const bool setupClientBrige = migrationCfg.readEntry( "SetupClientBridge", true );
++      const int currentVersion = migrationCfg.readEntry( "Version-" + resourceFamily, 0 );
++      const int targetVersion = migrationCfg.readEntry( "TargetVersion", 0 );
++      if ( enabled && currentVersion < targetVersion ) {
++        kDebug() << "Performing Akonadi migration. Good luck!";
++        KProcess proc;
++        QStringList args = QStringList() << "--interactive-on-change" << "--type" << resourceFamily;
++        if ( !setupClientBrige ) {
++          args << "--omit-client-bridge";
++        }
++        proc.setProgram( "kres-migrator", args );
++        proc.start();
++        bool result = proc.waitForStarted();
++        if ( result ) {
++          result = proc.waitForFinished();
++        }
++        if ( result && proc.exitCode() == 0 ) {
++          kDebug() << "Akonadi migration has been successful";
++          migrationCfg.writeEntry( "Version-" + resourceFamily, targetVersion );
++          migrationCfg.sync();
++        } else if ( !result || proc.exitCode() != 1 ) {
++          // exit code 1 means it is already running, so we are probably called by a migrator instance
++          kError() << "Akonadi migration failed!";
++          kError() << "command was: " << proc.program();
++          kError() << "exit code: " << proc.exitCode();
++          kError() << "stdout: " << proc.readAllStandardOutput();
++          kError() << "stderr: " << proc.readAllStandardError();
++        }
+       }
+-      proc.setProgram( "kres-migrator", args );
+-      proc.start();
+-      bool result = proc.waitForStarted();
+-      if ( result ) {
+-        result = proc.waitForFinished();
+-      }
+-      if ( result && proc.exitCode() == 0 ) {
+-        kDebug() << "Akonadi migration has been successful";
+-        migrationCfg.writeEntry( "Version-" + resourceFamily, targetVersion );
+-        migrationCfg.sync();
+-      } else if ( !result || proc.exitCode() != 1 ) {
+-        // exit code 1 means it is already running, so we are probably called by a migrator instance
+-        kError() << "Akonadi migration failed!";
+-        kError() << "command was: " << proc.program();
+-        kError() << "exit code: " << proc.exitCode();
+-        kError() << "stdout: " << proc.readAllStandardOutput();
+-        kError() << "stderr: " << proc.readAllStandardError();
+-      }
++    } else {
++      kDebug() << "Resource" << resourceFamily << "does not exist, skipping!";
+     }
+-
+   }
+ 
+   return factory;
