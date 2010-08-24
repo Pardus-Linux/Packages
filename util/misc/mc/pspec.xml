@@ -1,0 +1,270 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>mc</Name>
+        <Homepage>http://www.midnight-commander.org/</Homepage>
+        <Packager>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Packager>
+        <License>GPLv2</License>
+        <IsA>app:console</IsA>
+        <Summary>GNU Midnight Commander cli-based file manager</Summary>
+        <Description>Contains GNU Midnight Commander cli-based file manager. You can do lots of file management and editing tasks, both in normal terminals and in terminal emulators of X. Also has file transfer capabilities over FTP, SSH, and Samba.</Description>
+        <Archive sha1sum="c6f3072384d670caa82ca1cc4b1777c0f066e341" type="targz">http://www.midnight-commander.org/downloads/mc-4.6.2.tar.gz</Archive>
+        <BuildDependencies>
+            <Dependency>gpm</Dependency>
+            <Dependency>samba-devel</Dependency>
+            <Dependency>libICE-devel</Dependency>
+        </BuildDependencies>
+        <Patches>
+            <!-- utf8 stuff -->
+            <Patch level="1" compressionType="bz2">mc-utf8.patch.bz2</Patch>
+            <Patch level="1">00-70-utf8-common.patch</Patch>
+            <Patch level="1">00-73-utf8-bottom-buttons-width.patch</Patch>
+            <Patch level="1">00-75-utf8-cmdline-help.patch</Patch>
+            <Patch level="1">00-76-utf8-hotlist-highlight.patch</Patch>
+            <Patch level="1">00-77-utf8-filename-search-highlight.patch</Patch>
+            <Patch level="1">utf8-slang-codeset.patch</Patch>
+            <Patch level="1">utf8-look-and-feel.patch</Patch>
+
+            <!-- bugfix -->
+            <Patch level="1">palmsupport.patch</Patch>
+            <!-- https://savannah.gnu.org/bugs/?21461 -->
+            <Patch>lang-no-to-nb.patch</Patch>
+            <Patch>syntax-hpp.patch</Patch>
+            <Patch>utf8-nlink.patch</Patch>
+            <Patch>esc-seq.patch</Patch>
+            <Patch>rpm.patch</Patch>
+            <Patch level="1">remove_obsolete_rpm_tags.patch</Patch>
+            <Patch level="1">choose_correct_urar.patch</Patch>
+            <Patch level="1">improved_u7z_support.patch</Patch>
+            <!-- https://savannah.gnu.org/bugs/?18042 -->
+            <Patch level="1">ssh-port.patch</Patch>
+            <!-- https://savannah.gnu.org/bugs/?19344 -->
+            <!--
+            <Patch level="1">boxsizes.patch</Patch>
+            -->
+            <Patch level="1">64bit.patch</Patch>
+            <Patch level="1">off64t.patch</Patch>
+            <!-- remarked for now in favor of cedit configurable higlight patch
+            <Patch>visible_tabs.patch</Patch>
+            -->
+            <Patch level="1">chmod_error.patch</Patch>
+            <Patch>ftpfs_symlink2.patch</Patch>
+            <Patch level="1">fix-regex-pattern-lengths.patch</Patch>
+            <Patch level="1">regexp-replace-fixed.patch</Patch>
+            <!-- http://www.midnight-commander.org/ticket/287 -->
+            <Patch level="1">multi-press-f-keys.patch</Patch>
+            <Patch level="1">showfree.patch</Patch>
+            <Patch level="1">ipv6.patch</Patch>
+            <Patch level="1">utf8-8bit-hex.patch</Patch>
+            <Patch level="1">ministatus.patch</Patch>
+            <Patch level="1">delcheck.patch</Patch>
+            <Patch level="1">prompt.patch</Patch>
+            <Patch level="1">refresh.patch</Patch>
+            <Patch level="1">hintchk.patch</Patch>
+            <Patch level="1">prevent_lazy_bindings_for_cons.patch</Patch>
+
+            <!-- make sure ~/.mc is created everytime mc is run, or every config related thing borks
+                 this patch obsoletes synced_chdir.patch, check and remove when sure -->
+            <Patch level="1">make_config_dir.patch</Patch>
+
+            <!-- enhancement -->
+            <Patch level="1">find.patch</Patch>
+            <Patch level="1">synced_chdir.patch</Patch>
+            <Patch level="1">lzma.patch</Patch>
+            <Patch level="1">nonblocking_io.patch</Patch>
+            <Patch level="1">ebuild-syntax.patch</Patch>
+            <Patch level="1">turkish_update.patch</Patch>
+            <Patch level="1">hostname.patch</Patch>
+            <Patch>f-keys.patch</Patch>
+            <Patch>cursor-appearance.patch</Patch>
+            <Patch level="1">cedit.patch</Patch>
+            <Patch level="1">cedit-configurable-highlight.patch</Patch>
+            <Patch level="1">exit.patch</Patch>
+            <Patch level="1">newlinedir.patch</Patch>
+
+            <!-- pardus spesific mime types -->
+            <Patch level="1">mime-mplayer.patch</Patch>
+            <Patch level="1">mime-kpdf.patch</Patch>
+            <Patch level="1">mime-kdvi.patch</Patch>
+            <Patch level="1">mime-gwenview.patch</Patch>
+            <Patch level="1">mime-xmms2mplayer.patch</Patch>
+            <Patch level="1">mime-html.patch</Patch>
+            <Patch level="1">mime-djvu.patch</Patch>
+            <Patch level="1">mime-openoffice.patch</Patch>
+        </Patches>
+    </Source>
+
+    <Package>
+        <Name>mc</Name>
+        <RuntimeDependencies>
+            <Dependency>gpm</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="data">/etc/profile.d</Path>
+            <Path fileType="executable">/usr/bin</Path>
+            <Path fileType="library">/usr/lib</Path>
+            <Path fileType="library">/usr/libexec</Path>
+            <Path fileType="doc">/usr/share/doc</Path>
+            <Path fileType="localedata">/usr/share/locale</Path>
+            <Path fileType="man">/usr/share/man</Path>
+            <Path fileType="data">/usr/share/mc</Path>
+        </Files>
+        <AdditionalFiles>
+            <AdditionalFile owner="root" permission="0644" target="/etc/profile.d/mc.sh">mc.profile</AdditionalFile>
+            <AdditionalFile owner="root" permission="0755" target="/usr/share/mc/extfs/u7z">u7z</AdditionalFile>
+            <AdditionalFile owner="root" permission="0755" target="/usr/share/mc/mc.ini">mc.ini</AdditionalFile>
+        </AdditionalFiles>
+   </Package>
+
+    <History>
+        <Update release="19">
+            <Date>2010-08-24</Date>
+            <Version>4.6.2</Version>
+            <Comment>Depend on devel packages</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="18">
+            <Date>2009-04-23</Date>
+            <Version>4.6.2</Version>
+            <Comment>Make sure we do not need cvs for autopoint</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="17">
+            <Date>2009-03-24</Date>
+            <Version>4.6.2</Version>
+            <Comment>Correctly view rar file contents</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="16">
+            <Date>2009-03-14</Date>
+            <Version>4.6.2</Version>
+            <Comment>
+                Version bump to stable
+                Add xz support
+                Add ipv6 support
+                Improve 7z support
+                Enhance UI in UTF-8 locale
+                Add free space display support
+                Add folder percentage bar
+                Fix xorg dependencies
+                Fix subshell prompt colors and size
+                Use external gettext
+                Many more fixes and enhancements
+            </Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="15">
+            <Date>2008-05-21</Date>
+            <Version>4.6.2_pre1</Version>
+            <Comment>Add 3gp to mplayer mimes</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="14">
+            <Date>2008-05-12</Date>
+            <Version>4.6.2_pre1</Version>
+            <Comment>Add a few fixes, openoffice and lzma mimes</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="13">
+            <Date>2008-04-24</Date>
+            <Version>4.6.2_pre1</Version>
+            <Comment>Switch to .sh suffix for profile.d</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="12">
+            <Date>2008-01-26</Date>
+            <Version>4.6.2_pre1</Version>
+            <Comment>Version bump for many bugfix, especially for vfs fixes, new lzma and bash support</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="11">
+            <Date>2007-05-20</Date>
+            <Version>4.6.1</Version>
+            <Comment>Remove console font workaround since the real problem (font) is fixed</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="10">
+            <Date>2007-05-13</Date>
+            <Version>4.6.1</Version>
+            <Comment>Fix resizing when in an xtermized console emulators, allow port defining on remote shells</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="9">
+            <Date>2006-12-12</Date>
+            <Version>4.6.1</Version>
+            <Comment>Added defult filetypes to use with mplayer, kpdf etc.</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="8">
+            <Date>2006-05-29</Date>
+            <Version>4.6.1</Version>
+            <Comment>Added all the fancy stuff for lzma, editing, tar.lzma etc</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="7">
+            <Date>2006-05-17</Date>
+            <Version>4.6.1</Version>
+            <Comment>Version bump to fix segfault with new flags + samba support</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="6">
+            <Date>2006-02-02</Date>
+            <Version>4.6.0</Version>
+            <Comment>Fix filetypes to make env settings work</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="5">
+            <Date>2005-12-22</Date>
+            <Version>4.6.0</Version>
+            <Comment>Lotsa updates and usablity fixes</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="4">
+            <Date>2005-11-25</Date>
+            <Version>4.6.0</Version>
+            <Comment>Fix runtime dependencies</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="3">
+            <Date>2005-11-22</Date>
+            <Version>4.6.0</Version>
+            <Comment>Add profile.d script to make mc pretty on text console</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="2">
+            <Date>2005-10-14</Date>
+            <Version>4.6.0</Version>
+            <Comment>Default options patch to make it more useable out of box.</Comment>
+            <Name>Gürer Özen</Name>
+            <Email>gurer@pardus.org.tr</Email>
+        </Update>
+        <Update release="1">
+            <Date>2005-09-04</Date>
+            <Version>4.6.0</Version>
+            <Comment>First release.</Comment>
+            <Name>Gürer Özen</Name>
+            <Email>gurer@pardus.org.tr</Email>
+        </Update>
+    </History>
+</PISI>
