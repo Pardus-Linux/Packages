@@ -1,0 +1,44 @@
+Index: glew-1.5.5/config/Makefile.linux
+===================================================================
+--- glew-1.5.5.orig/config/Makefile.linux
++++ glew-1.5.5/config/Makefile.linux
+@@ -9,7 +9,7 @@ LDFLAGS.SO = -shared -Wl,-soname=$(LIB.S
+ M_ARCH ?= $(shell uname -m)
+ ifeq (x86_64,${M_ARCH})
+ LDFLAGS.EXTRA = -L/usr/X11R6/lib64
+-LIBDIR = $(GLEW_DEST)/lib64
++LIBDIR = $(GLEW_DEST)/lib
+ else
+ LDFLAGS.EXTRA = -L/usr/X11R6/lib
+ LIBDIR = $(GLEW_DEST)/lib
+Index: glew-1.5.5/Makefile
+===================================================================
+--- glew-1.5.5.orig/Makefile
++++ glew-1.5.5/Makefile
+@@ -100,7 +100,7 @@ bin/$(GLEWINFO.BIN): $(GLEWINFO.BIN.OBJS
+ 	$(CC) $(CFLAGS) -o $@ $(GLEWINFO.BIN.OBJS) $(BIN.LIBS)
+ 
+ bin/$(VISUALINFO.BIN): $(VISUALINFO.BIN.OBJS) lib/$(LIB.SHARED)
+-	$(CC) $(CFLAGS) -o $@ $(VISUALINFO.BIN.OBJS) $(BIN.LIBS)
++	$(CC) $(CFLAGS) -o $@ $(VISUALINFO.BIN.OBJS) $(BIN.LIBS) -lGLU
+ 
+ %.o: %.c
+ 	$(CC) -c $(CFLAGS) -o $@ $<
+@@ -132,7 +132,7 @@ ifeq ($(patsubst mingw%,mingw,$(SYSTEM))
+ 	$(INSTALL) -m 0644 lib/$(LIB.SHARED) $(BINDIR)/
+ else
+ 	$(STRIP) -x lib/$(LIB.SHARED)
+-	$(INSTALL) -m 0644 lib/$(LIB.SHARED) $(LIBDIR)/
++	$(INSTALL) -m 0755 lib/$(LIB.SHARED) $(LIBDIR)/
+ 	$(LN) $(LIB.SHARED) $(LIBDIR)/$(LIB.SONAME)
+ endif
+ # development files
+@@ -148,7 +148,7 @@ else
+ 	$(LN) $(LIB.SHARED) $(LIBDIR)/$(LIB.DEVLNK)
+ endif
+ # utilities
+-	$(INSTALL) -s -m 0755 bin/$(GLEWINFO.BIN) bin/$(VISUALINFO.BIN) $(BINDIR)/
++	$(INSTALL) -m 0755 bin/$(GLEWINFO.BIN) bin/$(VISUALINFO.BIN) $(BINDIR)/
+ 
+ uninstall:
+ 	$(RM) $(INCDIR)/wglew.h
