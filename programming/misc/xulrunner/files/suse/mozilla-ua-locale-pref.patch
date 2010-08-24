@@ -1,0 +1,140 @@
+diff --git a/chrome/src/nsChromeRegistry.cpp b/chrome/src/nsChromeRegistry.cpp
+--- a/chrome/src/nsChromeRegistry.cpp
++++ b/chrome/src/nsChromeRegistry.cpp
+@@ -1267,20 +1267,21 @@ nsChromeRegistry::WrappersEnabled(nsIURI
+   return PL_DHASH_ENTRY_IS_LIVE(entry) &&
+          entry->flags & PackageEntry::XPCNATIVEWRAPPERS;
+ }
+ 
+ nsresult
+ nsChromeRegistry::SelectLocaleFromPref(nsIPrefBranch* prefs)
+ {
+   nsresult rv;
+-  PRBool matchOSLocale = PR_FALSE;
++  PRBool matchOSLocale = PR_FALSE, userLocaleOverride = PR_FALSE;
++  prefs->PrefHasUserValue(SELECTED_LOCALE_PREF, &userLocaleOverride);
+   rv = prefs->GetBoolPref(MATCH_OS_LOCALE_PREF, &matchOSLocale);
+ 
+-  if (NS_SUCCEEDED(rv) && matchOSLocale) {
++  if (NS_SUCCEEDED(rv) && matchOSLocale && !userLocaleOverride) {
+     // compute lang and region code only when needed!
+     nsCAutoString uiLocale;
+     rv = getUILangCountry(uiLocale);
+     if (NS_SUCCEEDED(rv))
+       mSelectedLocale = uiLocale;
+   }
+   else {
+     nsXPIDLCString provider;
+diff --git a/chrome/test/unit/data/test_bug519468.manifest b/chrome/test/unit/data/test_bug519468.manifest
+deleted file mode 100644
+--- a/chrome/test/unit/data/test_bug519468.manifest
++++ /dev/null
+@@ -1,2 +0,0 @@
+-locale testmatchos en-US jar:en-US.jar!/locale/en-US/global/
+-locale testmatchos fr-FR jar:en-US.jar!/locale/en-US/global/
+diff --git a/chrome/test/unit/test_bug519468.js b/chrome/test/unit/test_bug519468.js
+--- a/chrome/test/unit/test_bug519468.js
++++ b/chrome/test/unit/test_bug519468.js
+@@ -31,50 +31,90 @@
+  * decision by deleting the provisions above and replace them with the notice
+  * and other provisions required by the GPL or the LGPL. If you do not delete
+  * the provisions above, a recipient may use your version of this file under
+  * the terms of any one of the MPL, the GPL or the LGPL.
+  *
+  * ***** END LICENSE BLOCK *****
+  */
+ 
++function write_locale(stream, locale, package) {
++  var s = "locale " + package + " " + locale + " jar:" + locale + ".jar!";
++  s += "/locale/" + locale + "/" + package +"/\n";
++  stream.write(s, s.length);
++}
++
++var localeService = Cc["@mozilla.org/intl/nslocaleservice;1"]
++                    .getService(Ci.nsILocaleService);
++
++var systemLocale = localeService.getLocaleComponentForUserAgent();
++
++var locales;
++
++if (systemLocale == "en-US")
++  locales = [ "en-US", "fr-FR", "de-DE" ];
++else if (systemLocale == "fr-FR")
++  locales = [ "en-US", systemLocale, "de-DE" ];
++else
++  locales = [ "en-US", systemLocale, "fr-FR" ];
++
++var workingDir = Cc["@mozilla.org/file/directory_service;1"].
++                 getService(Ci.nsIProperties).get("TmpD", Ci.nsIFile);
++var manifest = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsILocalFile);
++manifest.initWithFile(workingDir);
++manifest.append("test_bug519468.manifest");
++manifest.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0600);
++var stream = Cc["@mozilla.org/network/file-output-stream;1"].
++             createInstance(Ci.nsIFileOutputStream);
++stream.init(manifest, 0x04 | 0x08 | 0x20, 0600, 0); // write, create, truncate
++locales.slice(0,2).forEach(function(l) write_locale(stream, l, "testmatchos"));
++write_locale(stream, locales[2], "testnomatchos");
++stream.close();
++
+ var MANIFESTS = [
+-  do_get_file("data/test_bug519468.manifest")
++  manifest
+ ];
+ 
+ registerManifests(MANIFESTS);
+ 
+ var chromeReg = Cc["@mozilla.org/chrome/chrome-registry;1"]
+                 .getService(Ci.nsIXULChromeRegistry)
+                 .QueryInterface(Ci.nsIToolkitChromeRegistry);
+ 
+-var localeService = Cc["@mozilla.org/intl/nslocaleservice;1"]
+-                    .getService(Ci.nsILocaleService);
+-
+ var prefService = Cc["@mozilla.org/preferences-service;1"]
+                   .getService(Ci.nsIPrefService)
+                   .QueryInterface(Ci.nsIPrefBranch);
+ 
+ function test_locale(aTest) {
+   prefService.setBoolPref("intl.locale.matchOS", aTest.matchOS);
+-  prefService.setCharPref("general.useragent.locale", aTest.selected || "en-US");
++  if (aTest.selected)
++    prefService.setCharPref("general.useragent.locale", aTest.selected);
++  else
++    try {
++      prefService.clearUserPref("general.useragent.locale");
++    } catch(e) {}
+ 
+-  var selectedLocale = chromeReg.getSelectedLocale("testmatchos");
++  var selectedLocale = chromeReg.getSelectedLocale(aTest.package);
+   do_check_eq(selectedLocale, aTest.locale);
+ }
+ 
+ function run_test()
+ {
+-  var systemLocale = localeService.getLocaleComponentForUserAgent();
+-
+   var tests = [
+-    {matchOS: false, selected: null, locale: "en-US"},
+     {matchOS: true, selected: null, locale: systemLocale},
+-    {matchOS: true, selected: "fr-FR", locale: systemLocale},
+-    {matchOS: false, selected: "fr-FR", locale: "fr-FR"},
+-    {matchOS: true, selected: null, locale: systemLocale}
++    {matchOS: true, selected: locales[0], locale: locales[0]},
++    {matchOS: true, selected: locales[1], locale: locales[1]},
++    {matchOS: true, selected: locales[2], locale: locales[0]},
++    {matchOS: true, selected: null, locale: locales[2], package: "testnomatchos"},
++    {matchOS: false, selected: null, locale: locales[0]},
++    {matchOS: false, selected: locales[0], locale: locales[0]},
++    {matchOS: false, selected: locales[1], locale: locales[1]},
++    {matchOS: false, selected: locales[2], locale: locales[0]},
+   ];
+ 
+   for (var i = 0; i < tests.length; ++ i) {
+     var test = tests[i];
++    if (!test.package)
++      test.package = "testmatchos";
+     test_locale(test);
+   }
++  manifest.remove(false);
+ }

@@ -1,0 +1,102 @@
+From: Wolfgang Rosenauer
+Subject: pkgconfig tuning
+
+diff --git a/xulrunner/installer/Makefile.in b/xulrunner/installer/Makefile.in
+--- a/xulrunner/installer/Makefile.in
++++ b/xulrunner/installer/Makefile.in
+@@ -62,16 +62,19 @@ PKG_DMG_SOURCE = $(STAGEPATH)xulrunner-p
+ endif
+ 
+ include $(topsrcdir)/config/rules.mk
+ 
+ INSTALL_SDK = 1
+ 
+ include $(topsrcdir)/toolkit/mozapps/installer/packager.mk
+ 
++# the apilibdir always ends with 1.9 as every patch update will provide a link
++apilibdir = $(dir $(installdir))xulrunner-1.9.2
++
+ $(MOZILLA_VERSION).system.conf: $(topsrcdir)/config/milestone.txt Makefile
+ 	printf "[%s]\nGRE_PATH=%s\nxulrunner=true\nabi=%s" \
+ 	  $(MOZILLA_VERSION) $(installdir) $(TARGET_XPCOM_ABI)> $@
+ 
+ ifndef SKIP_GRE_REGISTRATION
+ # to register xulrunner per-user, override this with $HOME/.gre.d
+ regdir = /etc/gre.d
+ 
+@@ -116,16 +119,17 @@ endif
+ 
+ %.pc: $(srcdir)/%.pc.in $(GLOBAL_DEPS)
+ 	cat $< | sed \
+ 	-e "s|%ojidef%|$(OJIDEF)|" \
+ 	-e "s|%prefix%|$(prefix)|" \
+ 	-e "s|%includedir%|$(includedir)|" \
+ 	-e "s|%idldir%|$(idldir)|" \
+ 	-e "s|%sdkdir%|$(sdkdir)|" \
++	-e "s|%libdir%|$(apilibdir)|" \
+ 	-e "s|%MOZ_APP_NAME%|$(MOZ_APP_NAME)|" \
+ 	-e "s|%MOZILLA_VERSION%|$(MOZ_APP_VERSION)|" \
+ 	-e "s|%WCHAR_CFLAGS%|$(WCHAR_CFLAGS)|" \
+ 	-e "s|%FULL_NSPR_LIBS%|$(FULL_NSPR_LIBS)|" \
+ 	-e "s|%FULL_NSPR_CFLAGS%|$(FULL_NSPR_CFLAGS)|" \
+ 	-e "s|%NSPR_NAME%|$(NSPR_NAME)|" \
+ 	-e "s|%NSPR_VERSION%|$(NSPR_VERSION)|" > $@
+ 	chmod 644 $@
+diff --git a/xulrunner/installer/libxul-embedding.pc.in b/xulrunner/installer/libxul-embedding.pc.in
+--- a/xulrunner/installer/libxul-embedding.pc.in
++++ b/xulrunner/installer/libxul-embedding.pc.in
+@@ -1,10 +1,11 @@
+ prefix=%prefix%
+ sdkdir=%sdkdir%
+ includedir=%includedir%
+ idldir=%idldir%
+ 
+ Name: libxul-embedding
+ Description: Static library for version-independent embedding of the Mozilla runtime
+ Version: %MOZILLA_VERSION%
+-Libs: -L${sdkdir}/lib -lxpcomglue
++Requires: %NSPR_NAME% >= %NSPR_VERSION%
++Libs: -L${sdkdir}/sdk/lib -lxpcomglue
+ Cflags: -DXPCOM_GLUE -I${includedir} %WCHAR_CFLAGS%
+diff --git a/xulrunner/installer/mozilla-gtkmozembed-embedding.pc.in b/xulrunner/installer/mozilla-gtkmozembed-embedding.pc.in
+--- a/xulrunner/installer/mozilla-gtkmozembed-embedding.pc.in
++++ b/xulrunner/installer/mozilla-gtkmozembed-embedding.pc.in
+@@ -1,8 +1,9 @@
+ prefix=%prefix%
+ sdkdir=%sdkdir%
++libdir=%libdir%
+ includedir=%includedir%
+ 
+ Name: mozilla-gtkembedmoz
+ Description: Static version-independent Mozilla Embedding Widget for Gtk+
+ Version: %MOZILLA_VERSION%
+ Requires: libxul-embedding = %MOZILLA_VERSION%
+diff --git a/xulrunner/installer/mozilla-gtkmozembed.pc.in b/xulrunner/installer/mozilla-gtkmozembed.pc.in
+--- a/xulrunner/installer/mozilla-gtkmozembed.pc.in
++++ b/xulrunner/installer/mozilla-gtkmozembed.pc.in
+@@ -1,8 +1,9 @@
+ prefix=%prefix%
+ sdkdir=%sdkdir%
++libdir=%libdir%
+ includedir=%includedir%
+ 
+ Name: mozilla-gtkembedmoz
+ Description: Mozilla Embedding Widget for Gtk+
+ Version: %MOZILLA_VERSION%
+ Requires: libxul = %MOZILLA_VERSION%
+diff --git a/xulrunner/installer/mozilla-js.pc.in b/xulrunner/installer/mozilla-js.pc.in
+--- a/xulrunner/installer/mozilla-js.pc.in
++++ b/xulrunner/installer/mozilla-js.pc.in
+@@ -1,10 +1,11 @@
+ prefix=%prefix%
+ sdkdir=%sdkdir%
++libdir=%libdir%
+ includedir=%includedir%
+ 
+ Name: JavaScript
+ Description: The Mozilla JavaScript Library
+ Version: %MOZILLA_VERSION%
+ Requires: %NSPR_NAME% >= %NSPR_VERSION%
+-Libs: -L${sdkdir}/lib -lmozjs
++Libs: -Wl,-rpath,${libdir} -L${sdkdir}/lib -lmozjs
+ Cflags: -I${includedir} -DXP_UNIX -DJS_THREADSAFE

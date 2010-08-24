@@ -1,0 +1,119 @@
+From: various contributors
+Subject: toolkit ui lockdown hooks
+
+diff --git a/toolkit/components/passwordmgr/content/passwordManager.js b/toolkit/components/passwordmgr/content/passwordManager.js
+--- a/toolkit/components/passwordmgr/content/passwordManager.js
++++ b/toolkit/components/passwordmgr/content/passwordManager.js
+@@ -119,19 +119,28 @@ function LoadSignons() {
+   // SignonColumnSort) assumes we want to toggle the sort
+   // direction but here we don't so we have to trick it
+   lastSignonSortAscending = !lastSignonSortAscending;
+   SignonColumnSort(lastSignonSortColumn);
+ 
+   // disable "remove all signons" button if there are no signons
+   var element = document.getElementById("removeAllSignons");
+   var toggle = document.getElementById("togglePasswords");
++  try {
++    var viewLocked = Components.classes["@mozilla.org/preferences-service;1"]
++      .getService(Components.interfaces.nsIPrefBranch)
++      .getBoolPref("config.lockdown.showsavedpasswords");
++  } catch (e) {
++    var viewLocked = false;
++  }
+   if (signons.length == 0 || gSelectUserInUse) {
+     element.setAttribute("disabled","true");
+     toggle.setAttribute("disabled","true");
++  } else if (viewLocked) {
++    toggle.setAttribute("disabled","true");
+   } else {
+     element.removeAttribute("disabled");
+     toggle.removeAttribute("disabled");
+   }
+ 
+   return true;
+ }
+ 
+@@ -166,16 +175,28 @@ function DeleteAllSignons() {
+   var syncNeeded = (signonsTreeView._filterSet.length != 0);
+   DeleteAllFromTree(signonsTree, signonsTreeView,
+                         signonsTreeView._filterSet.length ? signonsTreeView._filterSet : signons,
+                         deletedSignons, "removeSignon", "removeAllSignons");
+   FinalizeSignonDeletions(syncNeeded);
+ }
+ 
+ function TogglePasswordVisible() {
++  try {
++    var viewLocked = Components.classes["@mozilla.org/preferences-service;1"]
++      .getService(Components.interfaces.nsIPrefBranch)
++      .getBoolPref("config.lockdown.showsavedpasswords");
++  } catch (e) {
++    var viewLocked = false;
++  }
++  // at that point if viewLocked is true, we shouldn't reach this code,
++  // but better be safe than sorry.
++  if (viewLocked) {
++    return;
++  }
+   if (showingPasswords || ConfirmShowPasswords()) {
+     showingPasswords = !showingPasswords;
+     document.getElementById("togglePasswords").label = kSignonBundle.getString(showingPasswords ? "hidePasswords" : "showPasswords");
+     document.getElementById("togglePasswords").accessKey = kSignonBundle.getString(showingPasswords ? "hidePasswordsAccessKey" : "showPasswordsAccessKey");
+     document.getElementById("passwordCol").hidden = !showingPasswords;
+     _filterPasswords();
+   }
+ 
+diff --git a/toolkit/components/printing/content/printdialog.js b/toolkit/components/printing/content/printdialog.js
+--- a/toolkit/components/printing/content/printdialog.js
++++ b/toolkit/components/printing/content/printdialog.js
+@@ -45,16 +45,17 @@ var printService       = null;
+ var gOriginalNumCopies = 1;
+ 
+ var paramBlock;
+ var gPrefs             = null;
+ var gPrintSettings     = null;
+ var gWebBrowserPrint   = null;
+ var gPrintSetInterface = Components.interfaces.nsIPrintSettings;
+ var doDebug            = false;
++var gPrefService       = null;
+ 
+ //---------------------------------------------------
+ function initDialog()
+ {
+   dialog = new Object;
+ 
+   dialog.propertiesButton = document.getElementById("properties");
+   dialog.descText         = document.getElementById("descText");
+@@ -82,21 +83,33 @@ function initDialog()
+ 
+   dialog.printButton     = document.documentElement.getButton("accept");
+ 
+   // <data> elements
+   dialog.printName       = document.getElementById("printButton");
+   dialog.fpDialog        = document.getElementById("fpDialog");
+ 
+   dialog.enabled         = false;
++
++  gPrefService = Components.classes["@mozilla.org/preferences-service;1"]
++      .getService(Components.interfaces.nsIPrefService).getBranch(null);
++  if (gPrefService.getBoolPref("config.lockdown.savepage")) {
++    dialog.fileCheck.setAttribute("disabled", "true");
++  }
++  if (gPrefService.getBoolPref("config.lockdown.printing")) {
++    dialog.printButton.setAttribute("disabled", "true");
++  }
+ }
+ 
+ //---------------------------------------------------
+ function checkInteger(element)
+ {
++  if (gPrefService.getBoolPref("config.lockdown.printing"))
++    return;
++
+   var value = element.value;
+   if (value && value.length > 0) {
+     value = value.replace(/[^0-9]/g,"");
+     if (!value) value = "";
+     element.value = value;
+   }
+   if (!value || value < 1 || value > 999)
+     dialog.printButton.setAttribute("disabled","true");

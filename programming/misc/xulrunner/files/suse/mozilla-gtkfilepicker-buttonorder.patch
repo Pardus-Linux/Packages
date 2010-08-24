@@ -1,0 +1,46 @@
+From: Wolfgang Rosenauer
+Subject: Gtk filechooser should support alternative button order (as used in KDE)
+References:
+http://bugzilla.novell.com/show_bug.cgi?id=527418
+
+
+diff --git a/widget/src/gtk2/nsFilePicker.cpp b/widget/src/gtk2/nsFilePicker.cpp
+--- a/widget/src/gtk2/nsFilePicker.cpp
++++ b/widget/src/gtk2/nsFilePicker.cpp
+@@ -95,6 +95,7 @@ typedef GtkWidget* (*_gtk_file_chooser_d
+                                                       GtkFileChooserAction action,
+                                                       const gchar *first_button_text,
+                                                       ...);
++typedef void (*_gtk_dialog_set_alternative_button_order_fn)(GtkDialog *dialog, gint first_response_id, ...);
+ typedef void (*_gtk_file_chooser_set_select_multiple_fn)(GtkFileChooser* chooser, gboolean truth);
+ typedef void (*_gtk_file_chooser_set_do_overwrite_confirmation_fn)(GtkFileChooser* chooser, gboolean do_confirm);
+ typedef void (*_gtk_file_chooser_set_current_name_fn)(GtkFileChooser* chooser, const gchar* name);
+@@ -119,6 +120,7 @@ DECL_FUNC_PTR(gtk_file_chooser_get_filen
+ DECL_FUNC_PTR(gtk_file_chooser_get_uri);
+ DECL_FUNC_PTR(gtk_file_chooser_get_uris);
+ DECL_FUNC_PTR(gtk_file_chooser_dialog_new);
++DECL_FUNC_PTR(gtk_dialog_set_alternative_button_order);
+ DECL_FUNC_PTR(gtk_file_chooser_set_select_multiple);
+ DECL_FUNC_PTR(gtk_file_chooser_set_do_overwrite_confirmation);
+ DECL_FUNC_PTR(gtk_file_chooser_set_current_name);
+@@ -214,6 +216,7 @@ nsFilePicker::LoadSymbolsGTK24()
+   GET_LIBGTK_FUNC(gtk_file_chooser_get_uri);
+   GET_LIBGTK_FUNC(gtk_file_chooser_get_uris);
+   GET_LIBGTK_FUNC(gtk_file_chooser_dialog_new);
++  GET_LIBGTK_FUNC(gtk_dialog_set_alternative_button_order);
+   GET_LIBGTK_FUNC(gtk_file_chooser_set_select_multiple);
+   GET_LIBGTK_FUNC_OPT(gtk_file_chooser_set_do_overwrite_confirmation);
+   GET_LIBGTK_FUNC(gtk_file_chooser_set_current_name);
+@@ -605,6 +608,12 @@ nsFilePicker::Show(PRInt16 *aReturn)
+                                    GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+                                    accept_button, GTK_RESPONSE_ACCEPT,
+                                    NULL);
++
++  _gtk_dialog_set_alternative_button_order(GTK_DIALOG(file_chooser),
++                                          GTK_RESPONSE_ACCEPT,
++                                          GTK_RESPONSE_CANCEL,
++                                          -1);
++
+   if (mAllowURLs) {
+     _gtk_file_chooser_set_local_only(GTK_FILE_CHOOSER(file_chooser), FALSE);
+   }
