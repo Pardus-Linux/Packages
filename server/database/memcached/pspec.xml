@@ -1,0 +1,158 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>memcached</Name>
+        <Homepage>http://memcached.org/</Homepage>
+        <Packager>
+            <Name>Necdet Yücel</Name>
+            <Email>necdetyucel@gmail.com</Email>
+        </Packager>
+        <License>BSD</License>
+        <IsA>service</IsA>
+        <Summary>Distributed memory object caching system</Summary>
+        <Description>memcached is a high-performance, distributed memory object caching system, generic in nature, but intended for use in speeding up dynamic web applications by alleviating database load.</Description>
+        <Archive sha1sum="c7d6517764b82d23ae2de76b56c2494343c53f02" type="targz">http://memcached.googlecode.com/files/memcached-1.4.5.tar.gz</Archive>
+        <BuildDependencies>
+            <Dependency>libevent-devel</Dependency>
+        </BuildDependencies>
+        <Patches>
+            <Patch level="1">memcached-1.2.2-fbsd.patch</Patch>
+            <Patch level="1">memcached-1.4.0-fix-as-needed-linking.patch</Patch>
+            <Patch level="1">memcached-1.4.4-as-needed.patch</Patch>
+        </Patches>
+    </Source>
+
+    <Package>
+        <Name>memcached</Name>
+        <RuntimeDependencies>
+            <Dependency>libevent</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="executable">/usr/bin</Path>
+            <Path fileType="config">/etc</Path>
+            <Path fileType="man">/usr/share/man</Path>
+            <Path fileType="doc">/usr/share/doc</Path>
+            <Path fileType="data">/var/run/memcached</Path>
+        </Files>
+        <AdditionalFiles>
+            <AdditionalFile owner="root" permission="0644" target="/etc/conf.d/memcached">memcached.confd</AdditionalFile>
+        </AdditionalFiles>
+        <Provides>
+             <COMAR script="service.py">System.Service</COMAR>
+        </Provides>
+    </Package>
+
+    <Package>
+        <Name>memcached-devel</Name>
+        <IsA>library</IsA>
+        <Summary>Development headers for memcached</Summary>
+        <RuntimeDependencies>
+            <Dependency release="11">memcached</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="header">/usr/include</Path>
+        </Files>
+    </Package>
+
+    <History>
+        <Update release="11">
+            <Date>2010-07-08</Date>
+            <Version>1.4.5</Version>
+            <Comment>Split headers, fix for gcc-4.5.1 (thanks Onur)</Comment>
+            <Name>Necdet Yücel</Name>
+            <Email>necdetyucel@gmail.com</Email>
+        </Update>
+        <Update release="10">
+            <Date>2010-06-21</Date>
+            <Version>1.4.5</Version>
+            <Comment>Version bump, fix for x86_64, fix License info, change Homepage, add gentoo patches</Comment>
+            <Name>Necdet Yücel</Name>
+            <Email>necdetyucel@gmail.com</Email>
+        </Update>
+        <Update release="9">
+            <Date>2010-04-13</Date>
+            <Version>1.4.4</Version>
+            <Comment>Version bump to fix denial of service via long line. (CVE-2010-1152, #12672)</Comment>
+            <Name>Eren Türkay</Name>
+            <Email>eren@pardus.org.tr</Email>
+        </Update>
+        <Update release="8">
+            <Date>2009-11-12</Date>
+            <Version>1.4.3</Version>
+            <Comment>
+              * Malicious input can crash server fix
+              * Fix get stats accounting
+            </Comment>
+            <Name>Faik Uygur</Name>
+            <Email>faik@pardus.org.tr</Email>
+        </Update>
+        <Update release="7">
+            <Date>2009-11-03</Date>
+            <Version>1.4.2</Version>
+            <Comment>
+  	      * Reject keys larger than 250 bytes in the binary protocol
+	      * Bounds checking on stats cachedump
+	      * Binary protocol set+cas wasn't returning a new cas ID
+	      * Support for libhugetlbfs
+	      * Support for evictions, evict_time and OOM counts in memcached-tool
+	      * Configurable maximum item size
+            </Comment>
+            <Name>Faik Uygur</Name>
+            <Email>faik@pardus.org.tr</Email>
+        </Update>
+        <Update release="6">
+            <Date>2009-10-02</Date>
+            <Version>1.4.1</Version>
+            <Comment>
+              * Boundary condition during pipelined decoding caused crash (bug72)
+              * Bad initialization during buffer realloc (bug77)
+              * Buffer overrun in stats_prefix_find (bug79)
+              * Memory corruption from negative and invalid item lengths (bug70)
+              * Update flush stats for binary flushes (bug71)
+              * stats slabs returns the number of requested bytes as mem_requested
+            </Comment>
+            <Name>Faik Uygur</Name>
+            <Email>faik@pardus.org.tr</Email>
+        </Update>
+        <Update release="5">
+            <Date>2009-08-11</Date>
+            <Version>1.4.0</Version>
+            <Comment>
+              - Various bug fixes (binary stat alignment, buffer overflow in stats, incr validation...)
+              - Lots of performance improvements
+              - New binary protocol (original protocol is not deprecated and will be supported)
+            </Comment>
+            <Name>Faik Uygur</Name>
+            <Email>faik@pardus.org.tr</Email>
+        </Update>
+        <Update release="4">
+            <Date>2009-06-15</Date>
+            <Version>1.2.8</Version>
+            <Comment>Version bump.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="3">
+            <Date>2009-03-08</Date>
+            <Version>1.2.6</Version>
+            <Comment>New stable version comes with major crash fixes, DTrace support and minor updates.</Comment>
+            <Name>Ahmet AYGÜN</Name>
+            <Email>ahmet@pardusman.org</Email>
+        </Update>
+        <Update release="2">
+            <Date>2008-07-07</Date>
+            <Version>1.2.5</Version>
+            <Comment>Version bump.</Comment>
+            <Name>Eren Türkay</Name>
+            <Email>turkay.eren@gmail.com</Email>
+        </Update>
+        <Update release="1">
+            <Date>2007-09-25</Date>
+            <Version>1.2.2</Version>
+            <Comment>First release.</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+    </History>
+</PISI>
