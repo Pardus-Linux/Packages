@@ -49,15 +49,8 @@ def install():
     pisitools.dosym("/usr/bin/python%s-config" % PythonVersion, "/usr/bin/python-config")
     pisitools.dosym("/usr/lib/python%s/pdb.py" % PythonVersion, "/usr/bin/pdb")
 
-    pisitools.remove("/usr/bin/idle")
     pisitools.remove("/usr/bin/pydoc")
     pisitools.remove("/usr/bin/smtpd.py")
     pisitools.remove("/usr/bin/2to3")
-    pisitools.removeDir("/usr/lib/python%s/idlelib" % PythonVersion)
-
-    tkinterFile = "/usr/lib/python%s/lib-dynload/_tkinter.so" % PythonVersion
-    if shelltools.isFile("%s/%s" % (get.installDIR(), tkinterFile)):
-        pisitools.remove(tkinterFile)
-        pisitools.removeDir("/usr/lib/python%s/lib-tk" % PythonVersion)
 
     pisitools.dodoc("LICENSE", "README")

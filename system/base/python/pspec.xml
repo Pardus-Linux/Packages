@@ -14,15 +14,24 @@
         <Description>Python is a dynamic object-oriented programming language that can be used for many kinds of software development. It offers strong support for integration with other languages and tools, comes with extensive standard libraries, and can be learned in a few days.</Description>
         <Archive sha1sum="b0378e0d1ca56bdf22ac42ea32a3213ef2e4697f" type="targz">http://python.org/ftp/python/2.7/Python-2.7.tgz</Archive>
         <BuildDependencies>
-            <Dependency versionFrom="1.1.3">zlib</Dependency>
+            <Dependency versionFrom="1.1.3">zlib-devel</Dependency>
+            <!-- check whether ncurses is splitted to devel or not!! -->
             <Dependency versionFrom="5.2">ncurses</Dependency>
+            <!-- check whether readline is splitted to devel or not!! -->
             <Dependency versionFrom="4.1">readline</Dependency>
-            <Dependency>db4</Dependency>
+            <Dependency>db4-devel</Dependency>
+            <!-- check whether gdbm is splitted to devel or not!! -->
             <Dependency>gdbm</Dependency>
+            <!-- check whether bzip2 is splitted to devel or not!! -->
             <Dependency>bzip2</Dependency>
             <Dependency>sqlite-devel</Dependency>
-            <Dependency>openssl</Dependency>
-            <Dependency>expat</Dependency>
+            <Dependency>openssl-devel</Dependency>
+            <Dependency>expat-devel</Dependency>
+            <Dependency>libffi-devel</Dependency>
+            <!-- Bootstrap -->
+            <!-- Comment these deps when bootstrapping -->
+            <Dependency>tcl-devel</Dependency>
+            <Dependency>tcltk-devel</Dependency>
         </BuildDependencies>
         <Patches>
             <!-- Look into /usr/lib/pardus first -->
@@ -88,12 +97,17 @@
             <Dependency>sqlite</Dependency>
             <Dependency>openssl</Dependency>
             <Dependency>expat</Dependency>
+            <Dependency>libffi</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="config">/etc</Path>
             <Path fileType="executable">/usr/bin</Path>
+            <!-- "Makefile" and the config-32/64.h file are needed by
+            distutils/sysconfig.py:_init_posix(), so we include them in the core
+            package, along with their parent directories (https://bugzilla.redhat.com/show_bug.cgi?id=531901)
+            -->
+            <Path fileType="header">/usr/include/python2.7/pyconfig.h</Path>
             <Path fileType="library">/usr/lib</Path>
-            <Path fileType="header">/usr/include</Path>
             <Path fileType="doc">/usr/share/doc</Path>
         </Files>
         <AdditionalFiles>
@@ -105,7 +119,66 @@
         </Provides>
     </Package>
 
+    <Package>
+        <Name>python-devel</Name>
+        <PartOf>system.devel</PartOf>
+        <Summary>Development files for python</Summary>
+        <RuntimeDependencies>
+            <Dependency release="62">python</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="header">/usr/include</Path>
+        </Files>
+    </Package>
+
+    <!-- Bootstrap -->
+    <!-- Comment these packages (python-tk and idle) when bootstrapping -->
+    <Package>
+        <Name>python-tk</Name>
+        <IsA>library</IsA>
+        <PartOf>programming.language.python</PartOf>
+        <Summary>Python modules for Tk</Summary>
+        <RuntimeDependencies>
+            <Dependency>tcl</Dependency>
+            <Dependency>tcltk</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="library">/usr/lib/python*/lib-tk</Path>
+            <Path fileType="library">/usr/lib/python*/lib-dynload/_tkinter.so</Path>
+        </Files>
+    </Package>
+
+    <!-- Bootstrap -->
+    <!-- Comment these packages (python-tk and idle) when bootstrapping -->
+    <Package>
+        <Name>idle</Name>
+        <Icon>idle</Icon>
+        <IsA>app:gui</IsA>
+        <PartOf>programming.environment</PartOf>
+        <Summary>An Integrated Development Environment for Python</Summary>
+        <RuntimeDependencies>
+            <Dependency>python-tk</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="executable">/usr/bin/idle</Path>
+            <Path fileType="library">/usr/lib/python*/idlelib</Path>
+            <Path fileType="data">/usr/share/applications</Path>
+            <Path fileType="data">/usr/share/pixmaps</Path>
+        </Files>
+        <AdditionalFiles>
+            <AdditionalFile permission="0644" target="/usr/share/pixmaps/idle.png">python-logo.png</AdditionalFile>
+            <AdditionalFile permission="0644" target="/usr/share/applications/idle.desktop">idle.desktop</AdditionalFile>
+        </AdditionalFiles>
+    </Package>
+
     <History>
+        <Update release="62">
+            <Date>2010-08-24</Date>
+            <Version>2.7</Version>
+            <Comment>Split devel package, reorganize dependencies and add libffi dependency. Extract idle and python-tk packages from system.base python.</Comment>
+            <Name>Serdar Dalgıç</Name>
+            <Email>serdar@pardus.org.tr</Email>
+        </Update>
         <Update release="61">
             <Date>2010-08-18</Date>
             <Version>2.7</Version>
