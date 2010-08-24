@@ -16,12 +16,12 @@
         <BuildDependencies>
             <Dependency versionFrom="4.7.0_beta2">qt-devel</Dependency>
             <Dependency>automoc4</Dependency>
-            <Dependency>alsa-lib</Dependency>
+            <Dependency>alsa-lib-devel</Dependency>
+            <Dependency>gst-plugins-base-devel</Dependency>
+            <Dependency>pulseaudio-libs-devel</Dependency>
+            <Dependency>gstreamer-devel</Dependency>
             <!--
-            <Dependency>gst-plugins-base</Dependency>
-            <Dependency>pulseaudio</Dependency>
             <Dependency>xine-lib</Dependency>
-            <Dependency>gstreamer</Dependency>
             -->
         </BuildDependencies>
         <Patches>
@@ -29,7 +29,7 @@
             <Patch level="1">mandriva/phonon-4.3.50-phonon-allow-stop-empty-source.patch</Patch>
             <Patch level="1">mandriva/phonon-4.3.50-gstreamer-fix-seekable-query-failed.patch</Patch>
 
-            <Patch level="1">do-not-compile-backends.diff</Patch>
+            <!--<Patch level="1">do-not-compile-backends.diff</Patch>-->
         </Patches>
     </Source>
 
@@ -37,7 +37,7 @@
         <Name>phonon</Name>
         <RuntimeDependencies>
             <Dependency versionFrom="4.7.0_beta2">qt</Dependency>
-            <!--<Dependency>pulseaudio</Dependency>-->
+            <Dependency>pulseaudio-libs</Dependency>
             <Dependency>alsa-lib</Dependency>
         </RuntimeDependencies>
         <!-- oxygen icons conflict -->
@@ -67,33 +67,37 @@
             <Path fileType="data">/usr/kde/4/share/kde4/services/phononbackends/xine.desktop</Path>
         </Files>
     </Package>
+    -->
 
     <Package>
         <Name>phonon-gstreamer</Name>
         <RuntimeDependencies>
             <Dependency>phonon</Dependency>
+            <Dependency>qt</Dependency>
+            <Dependency>mesa</Dependency>
             <Dependency>gstreamer</Dependency>
             <Dependency>gst-plugins-base</Dependency>
+            <!--
             <Dependency>gst-plugins-good</Dependency>
             <Dependency>gst-ffmpeg</Dependency>
+            -->
         </RuntimeDependencies>
         <Files>
-            <Path fileType="library">/usr/qt/4/plugins/phonon_backend/*gstreamer*</Path>
-            <Path fileType="data">/usr/kde/4/share/kde4/services/phononbackends/gstreamer.desktop</Path>
-            <Path fileType="library">/usr/kde/4/lib/kde4/plugins/phonon_backend/*gstreamer*</Path>
+            <Path fileType="library">/usr/lib/qt4/plugins/phonon_backend/*gstreamer*</Path>
+            <Path fileType="data">/usr/share/kde4/services/phononbackends/gstreamer.desktop</Path>
+            <Path fileType="library">/usr/lib/kde4/plugins/phonon_backend/*gstreamer*</Path>
             <Path fileType="data">/usr/share/icons/hicolor/*/*/*gstreamer*</Path>
         </Files>
         <AdditionalFiles>
             <AdditionalFile owner="root" permission="0644" target="/usr/share/icons/hicolor/scalable/apps/phonon-gstreamer.svg">phonon-gstreamer.svg</AdditionalFile>
         </AdditionalFiles>
     </Package>
-    -->
 
     <Package>
         <Name>phonon-devel</Name>
         <Summary>Development files for phonon</Summary>
         <RuntimeDependencies>
-            <Dependency release="23">phonon</Dependency>
+            <Dependency release="24">phonon</Dependency>
             <Dependency versionFrom="4.7.0_beta2">qt-devel</Dependency>
         </RuntimeDependencies>
         <Files>
@@ -103,6 +107,13 @@
     </Package>
 
     <History>
+        <Update release="24">
+            <Date>2010-08-24</Date>
+            <Version>4.4.2</Version>
+            <Comment>Add gstreamer backend and recompile with pulseaudio.</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
         <Update release="23">
             <Date>2010-08-21</Date>
             <Version>4.4.2</Version>
