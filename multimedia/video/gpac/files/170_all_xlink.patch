@@ -1,0 +1,36 @@
+Index: gpac/modules/x11_out/Makefile
+===================================================================
+--- gpac.orig/modules/x11_out/Makefile
++++ gpac/modules/x11_out/Makefile
+@@ -34,19 +34,19 @@ endif
+ 
+ ifeq ($(USE_X11_XV), yes)
+ CFLAGS+=-DGPAC_HAS_X11_XV
+-LDFLAGS+=-lXv
++LDLIBS+=-lXv
+ endif
+ 
+ ifeq ($(USE_X11_SHM), yes)
+ CFLAGS+=-DGPAC_HAS_X11_SHM
+-LDFLAGS+=-lXext
++LDLIBS+=-lXext
+ endif
+ 
+ ifeq ($(HAS_OPENGL), yes)
+ ifeq ($(GPAC_USE_TINYGL), yes)
+ else
+ #CFLAGS +=-DGPAC_HAS_OPENGL
+-LDFLAGS+=-lGL
++LDLIBS+=-lGL
+ #LDFLAGS+=-lTinyGL -L$(SRC_PATH)../../TinyGL/lib/ 
+ endif
+ endif
+@@ -71,7 +71,7 @@ all: $(LIB)
+ 
+ 
+ $(LIB): $(OBJSPIC)
+-	$(CC) $(SHFLAGS) $(LDFLAGS) -lX11 -L../../bin/gcc -lgpac -o ../../bin/gcc/$@ $(OBJSPIC)
++	$(CC) $(SHFLAGS) $(LDFLAGS) -o ../../bin/gcc/$@ $(OBJSPIC) -lX11 -L../../bin/gcc -lgpac $(LDLIBS)
+ 
+ %.o: %.c
+ 	$(CC) $(CFLAGS) -c -o $@ $< 

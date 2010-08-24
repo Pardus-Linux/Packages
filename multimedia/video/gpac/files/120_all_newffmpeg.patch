@@ -1,0 +1,23 @@
+Index: gpac/modules/ffmpeg_in/ffmpeg_decode.c
+===================================================================
+--- gpac.orig/modules/ffmpeg_in/ffmpeg_decode.c
++++ gpac/modules/ffmpeg_in/ffmpeg_decode.c
+@@ -241,7 +241,7 @@ static GF_Err FFDEC_AttachStream(GF_Base
+ 
+ 	/*setup audio streams*/
+ 	if (ffd->st==GF_STREAM_AUDIO) {
+-		if ((ffd->codec->type == CODEC_ID_MP3LAME) || (ffd->codec->type == CODEC_ID_MP2)) {
++		if ((ffd->codec->type == CODEC_ID_MP3) || (ffd->codec->type == CODEC_ID_MP2)) {
+ 			ffd->ctx->frame_size = (ffd->ctx->sample_rate > 24000) ? 1152 : 576;
+ 		}
+ 		/*may be 0 (cfg not known yet)*/
+@@ -446,7 +446,8 @@ static GF_Err FFDEC_ProcessData(GF_Media
+ 		if (ffd->frame_start>inBufferLength) ffd->frame_start = 0;
+ 
+ redecode:
+-		len = avcodec_decode_audio(ffd->ctx, (short *)ffd->audio_buf, &gotpic, inBuffer + ffd->frame_start, inBufferLength - ffd->frame_start);
++                gotpic=AVCODEC_MAX_AUDIO_FRAME_SIZE;
++		len = avcodec_decode_audio2(ffd->ctx, (short *)ffd->audio_buf, &gotpic, inBuffer + ffd->frame_start, inBufferLength - ffd->frame_start);
+ 
+ 		if (len<0) { ffd->frame_start = 0; return GF_NON_COMPLIANT_BITSTREAM; }
+ 		if (gotpic<0) { ffd->frame_start = 0; return GF_OK; }

@@ -1,0 +1,25 @@
+Index: gpac/src/Makefile
+===================================================================
+--- gpac.orig/src/Makefile
++++ gpac/src/Makefile
+@@ -193,16 +193,16 @@ lib: $(LIB)
+ 
+ #there's a bunch of warnings in there, get rid of them
+ mcrypt: CFLAGS= $(OPTFLAGS) -w -I$(SRC_PATH)/include
+-mcrypt: $(LIBGPAC_MCRYPT)
++mcrypt: $(LIBGPAC_MCRYPT) $(LIBGPAC_MCRYPT:%.o=%.opic)
+ 
+ scenegraph: CFLAGS += $(SCENEGRAPH_CFLAGS)
+-scenegraph: $(LIBGPAC_SCENE)
++scenegraph: $(LIBGPAC_SCENE) $(LIBGPAC_SCENE:%.o=%.opic)
+ 
+ mediatools: CFLAGS += $(MEDIATOOLS_CFLAGS)
+-mediatools: $(LIBGPAC_MEDIATOOLS)
++mediatools: $(LIBGPAC_MEDIATOOLS) $(LIBGPAC_MEDIATOOLS:%.o=%.opic)
+ 
+ compositor: CFLAGS+=$(COMPOSITOR_CFLAGS)
+-compositor: $(LIBGPAC_COMPOSITOR)
++compositor: $(LIBGPAC_COMPOSITOR) $(LIBGPAC_COMPOSITOR:%.o=%.opic)
+ 
+ %.o: %.c
+ 	$(CC) $(CFLAGS) -c -o $@ $< 

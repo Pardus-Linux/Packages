@@ -1,0 +1,78 @@
+Index: gpac/configure
+===================================================================
+--- gpac.orig/configure
++++ gpac/configure
+@@ -112,6 +112,7 @@ OSS_CFLAGS=""
+ OSS_LDFLAGS=""
+ INSTFLAGS=""
+ is_64="no"
++FFMPEG_CFLAGS=""
+ 
+ #Configure Usage
+ if test x"$1" = x"-h" -o x"$1" = x"--help" ; then
+@@ -578,6 +579,16 @@ if $cc -o $TMPO $TMPC $LINK_SSL 2> /dev/
+ has_ssl="yes"
+ fi
+ 
++cat > $TMPC << EOF
++#include <stddef.h>
++#include <libavcodec/avcodec.h>
++int main( void ) { return 0; }
++EOF
++
++if $cc -o $TMPO $TMPC -lz -lavcodec -lavformat 2> /dev/null  ; then
++FFMPEG_CFLAGS="-DNEW_FFMPEG_LAYOUT=1"
++has_ffmpeg="system"
++fi
+ 
+ #look for JPEG support
+ cat > $TMPC << EOF
+@@ -1573,6 +1584,7 @@ echo "CONFIG_OGG=$has_ogg" >> config.mak
+ echo "CONFIG_VORBIS=$has_vorbis" >> config.mak
+ echo "CONFIG_THEORA=$has_theora" >> config.mak
+ echo "CONFIG_FFMPEG=$has_ffmpeg" >> config.mak
++echo "FFMPEG_CFLAGS=$FFMPEG_CFLAGS" >> config.mak
+ echo "CONFIG_OSS_AUDIO=$has_oss_audio" >> config.mak
+ echo "CONFIG_ALSA=$has_alsa" >> config.mak
+ echo "CONFIG_JACK=$has_jack" >> config.mak
+Index: gpac/modules/ffmpeg_in/ffmpeg_in.h
+===================================================================
+--- gpac.orig/modules/ffmpeg_in/ffmpeg_in.h
++++ gpac/modules/ffmpeg_in/ffmpeg_in.h
+@@ -56,15 +56,23 @@
+ 
+ 
+ /*include FFMPEG APIs*/
++#if NEW_FFMPEG_LAYOUT
++#include <libavformat/avformat.h>
++#else
+ #include <ffmpeg/avformat.h>
++#endif
+ 
+ void gf_av_vlog(void* avcl, int level, const char *fmt, va_list vl);
+ 
+ 
+ #if LIBAVCODEC_VERSION_INT > ((52<<16)+(0<<8)+0)
+ #define FFMPEG_SWSCALE
++#if NEW_FFMPEG_LAYOUT
++#include <libswscale/swscale.h>
++#else
+ #include <ffmpeg/swscale.h>
+ #endif
++#endif
+ 
+ /*FFMPEG decoder module */
+ typedef struct 
+Index: gpac/modules/ffmpeg_in/Makefile
+===================================================================
+--- gpac.orig/modules/ffmpeg_in/Makefile
++++ gpac/modules/ffmpeg_in/Makefile
+@@ -2,7 +2,7 @@ include ../../config.mak
+ 
+ vpath %.c $(SRC_PATH)/modules/ffmpeg_in
+ 
+-CFLAGS= $(OPTFLAGS) -I$(SRC_PATH)/include
++CFLAGS= $(OPTFLAGS) -I$(SRC_PATH)/include $(FFMPEG_CFLAGS)
+ 
+ ifeq ($(DEBUGBUILD), yes)
+ CFLAGS+=-g
