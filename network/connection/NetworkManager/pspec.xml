@@ -1,0 +1,135 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>NetworkManager</Name>
+        <Homepage>http://projects.gnome.org/NetworkManager</Homepage>
+        <Packager>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Packager>
+        <License>LGPLv2.1</License>
+        <IsA>app:console</IsA>
+        <Summary>Network connection manager powered by D-Bus and UDEV</Summary>
+        <Description>NetworkManager attempts to keep an active network connection available at all times.</Description>
+        <Archive sha1sum="778989ed73cfd7ec05714f77121fa8bfc1bf0981" type="tarbz2">http://ftp.acc.umu.se/pub/GNOME/sources/NetworkManager/0.8/NetworkManager-0.8.1.tar.bz2</Archive>
+        <AdditionalFiles>
+            <AdditionalFile target="po/tr.po">tr.po</AdditionalFile>
+        </AdditionalFiles>
+        <BuildDependencies>
+            <Dependency>nss-devel</Dependency>
+            <Dependency>nspr-devel</Dependency>
+            <Dependency>libnl-devel</Dependency>
+            <Dependency>iptables-devel</Dependency>
+            <Dependency>wpa_supplicant</Dependency>
+            <Dependency versionFrom="2.4.5">ppp-devel</Dependency>
+        </BuildDependencies>
+        <Patches>
+            <Patch level="1">disable-gtk-doc.patch</Patch>
+            <Patch level="1">fix-tests.patch</Patch>
+            <Patch level="1">add-tr-to-LINGUAS.patch</Patch>
+        </Patches>
+    </Source>
+
+    <Package>
+        <Name>NetworkManager</Name>
+        <RuntimeDependencies>
+            <Dependency>nss</Dependency>
+            <Dependency>nspr</Dependency>
+            <Dependency>libnl</Dependency>
+            <Dependency>avahi</Dependency>
+            <Dependency>dhcpcd</Dependency>
+            <Dependency>iproute2</Dependency>
+            <Dependency>iptables</Dependency>
+            <Dependency>ModemManager</Dependency>
+            <Dependency>wpa_supplicant</Dependency>
+            <Dependency versionFrom="2.4.5">ppp</Dependency>
+            <Dependency>mobile-broadband-provider-info</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="executable">/lib/udev</Path>
+            <Path fileType="executable">/usr/sbin</Path>
+            <Path fileType="executable">/usr/bin</Path>
+            <Path fileType="executable">/usr/libexec</Path>
+            <Path fileType="library">/usr/lib</Path>
+            <Path fileType="localedata">/usr/share/locale</Path>
+            <Path fileType="man">/usr/share/man</Path>
+            <Path fileType="doc">/usr/share/doc</Path>
+            <Path fileType="data">/lib/udev/rules.d</Path>
+            <Path fileType="data">/usr/share</Path>
+            <Path fileType="data">/etc/dbus-1</Path>
+            <Path fileType="data">/etc/NetworkManager/system-connections</Path>
+            <Path fileType="data">/var/run/NetworkManager</Path>
+            <Path fileType="data">/var/lib/NetworkManager</Path>
+            <Path fileType="config">/etc</Path>
+        </Files>
+        <AdditionalFiles>
+            <AdditionalFile owner="root" permission="0644" target="/etc/NetworkManager/NetworkManager.conf">NetworkManager.conf</AdditionalFile>
+            <AdditionalFile owner="root" permission="0644" target="/etc/conf.d/NetworkManager">NetworkManager.confd</AdditionalFile>
+            <AdditionalFile owner="root" permission="0755" target="/usr/bin/nm-switch">nm-switch.py</AdditionalFile>
+        </AdditionalFiles>
+        <Provides>
+            <COMAR script="service.py">System.Service</COMAR>
+        </Provides>
+    </Package>
+
+    <Package>
+        <Name>NetworkManager-devel</Name>
+        <Summary>Development files for NetworkManager</Summary>
+        <RuntimeDependencies>
+            <Dependency release="6">NetworkManager</Dependency>
+            <Dependency>dbus-glib-devel</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="header">/usr/include</Path>
+            <Path fileType="data">/usr/lib/pkgconfig</Path>
+            <!-- FIXME: Remove this if not necessary -->
+            <Path fileType="man">/usr/share/man/man3</Path>
+        </Files>
+    </Package>
+
+    <History>
+        <Update release="6">
+            <Date>2010-08-24</Date>
+            <Version>0.8.1</Version>
+            <Comment>Split devel package.</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="5">
+            <Date>2010-07-23</Date>
+            <Version>0.8.1</Version>
+            <Comment>Version bump</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="4">
+            <Date>2010-07-02</Date>
+            <Version>0.8.0.999</Version>
+            <Comment>Bump to 0.8.0.999</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="3">
+            <Date>2010-05-26</Date>
+            <Version>0.8.0.998</Version>
+            <Comment>Bump to beta2</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="2">
+            <Date>2010-05-20</Date>
+            <Version>0.8.0.997</Version>
+            <Comment>Version bump</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="1">
+            <Date>2010-04-26</Date>
+            <Version>0.8_20100426</Version>
+            <Comment>Initial release.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+    </History>
+</PISI>
