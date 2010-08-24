@@ -1,0 +1,26 @@
+Index: mozilla/toolkit/xre/nsNativeAppSupportUnix.cpp
+===================================================================
+--- mozilla.orig/toolkit/xre/nsNativeAppSupportUnix.cpp
++++ mozilla/toolkit/xre/nsNativeAppSupportUnix.cpp
+@@ -174,18 +174,9 @@ gboolean save_yourself_cb(GnomeClient *c
+     rv = gDirServiceProvider->GetFile(XRE_EXECUTABLE_FILE, &dummy, getter_AddRefs(executablePath));
+ 
+     if (NS_SUCCEEDED(rv)) {
+-      nsCAutoString path;
+-
+-      // Strip off the -bin suffix to get the shell script we should run; this is what Breakpad does
+-      nsCAutoString leafName;
+-      rv = executablePath->GetNativeLeafName(leafName);
+-      if (NS_SUCCEEDED(rv) && StringEndsWith(leafName, NS_LITERAL_CSTRING("-bin"))) {
+-        leafName.SetLength(leafName.Length() - strlen("-bin"));
+-        executablePath->SetNativeLeafName(leafName);
+-      }
+-  
+-      executablePath->GetNativePath(path);
+-      argv1 = (char*)(path.get());
++      // Always point to /usr/bin/firefox so that restoring firefox session behaves the
++      // same as running firefox on desktop (Fixes: #7592)
++      argv1 = "/usr/bin/firefox";
+     }
+   }
+ 

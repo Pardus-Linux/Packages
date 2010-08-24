@@ -1,0 +1,1132 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>firefox</Name>
+        <Homepage>http://www.mozilla.org/projects/firefox/</Homepage>
+        <Packager>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Packager>
+        <License>MPL-1.1</License>
+        <License>NPL-1.1</License>
+        <License>GPLv2</License>
+        <Icon>firefox</Icon>
+        <IsA>app:gui</IsA>
+        <Summary>Firefox Web Browser</Summary>
+        <Description>It is more secure and faster to browse the web with Firefox web browser. You can personalize your web browser with many specifications that is not enough to explain in two sentences.</Description>
+        <Archive sha1sum="9e552c90b1a995e6c24305ab23f0fc9c6d398230" type="tarlzma">http://cekirdek.pardus.org.tr/~gokcen/files/mozilla-4b4.tar.lzma</Archive>
+        <AdditionalFiles>
+            <AdditionalFile target="browser/app/profile/kde.js" permission="0644">suse/kde.js</AdditionalFile>
+        </AdditionalFiles>
+        <BuildDependencies>
+            <Dependency releaseFrom="36">xulrunner-devel</Dependency>
+            <Dependency>nspr-devel</Dependency>
+            <Dependency>fontconfig-devel</Dependency>
+            <Dependency versionFrom="2.18.5">gtk2-devel</Dependency>
+            <Dependency>pango-devel</Dependency>
+            <Dependency versionFrom="1.8.8">cairo-devel</Dependency>
+            <Dependency>libIDL-devel</Dependency>
+            <Dependency>startup-notification</Dependency>
+            <Dependency>dbus-glib-devel</Dependency>
+            <Dependency>hunspell-devel</Dependency>
+            <Dependency versionFrom="0.4.0">libproxy-devel</Dependency>
+        </BuildDependencies>
+        <Patches>
+            <!-- default config values -->
+            <Patch>mozconfig.patch</Patch>
+
+            <!-- No default browser patch 
+            <Patch>suse/firefox-appname.patch</Patch>
+            <Patch level="1">suse/firefox-kde.patch</Patch>
+            <Patch level="1">suse/firefox-browser-css.patch</Patch>
+            <Patch level="1">suse/firefox-ui-lockdown.patch</Patch>
+            <Patch level="1">suse/firefox-cross-desktop.patch</Patch>
+            -->
+            <!-- When KWin restores firefox, it runs /usr/lib/MozillaFirefox/firefox-bin
+            instead of /usr/bin/firefox. /usr/bin/firefox is a shell script which scans
+            predefined paths for mozilla plugins, so restored firefox is missing all the plugins.
+            This patch fixes this issue by forcing firefox to always return /usr/bin/firefox to
+            X Session Manager. (Fixes #7592)
+            <Patch level="1">pardus/fix-kde-session.patch</Patch>
+
+            <Patch>pardus/as-needed.diff</Patch>
+
+            <Patch>pardus/fix-downloaddir-translation.diff</Patch>
+            <Patch>pardus/fix-double-turkish-option.diff</Patch>
+            -->
+            <Patch level="1">pardus/autoconf-213-hack.diff</Patch>
+
+            <Patch level="1">gio-extension7-0.6.diff</Patch>
+        </Patches>
+    </Source>
+
+    <Package>
+        <Name>firefox</Name>
+        <RuntimeDependencies>
+            <Dependency releaseFrom="36">xulrunner</Dependency>
+            <Dependency>nspr</Dependency>
+            <Dependency>fontconfig</Dependency>
+            <Dependency versionFrom="2.18.5">gtk2</Dependency>
+            <Dependency>pango</Dependency>
+            <Dependency versionFrom="1.8.8">cairo</Dependency>
+            <Dependency>libIDL</Dependency>
+            <Dependency>startup-notification</Dependency>
+            <Dependency>dbus-glib</Dependency>
+            <Dependency>hunspell</Dependency>
+            <Dependency versionFrom="0.4.0">libproxy</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="config">/etc/</Path>
+            <Path fileType="executable">/usr/bin</Path>
+            <Path fileType="executable">/usr/lib/MozillaFirefox</Path>
+            <Path fileType="executable">/usr/libexec</Path>
+            <Path fileType="data">/usr/lib/pkgconfig</Path>
+            <Path fileType="data">/usr/share/applications</Path>
+            <Path fileType="data">/usr/share/pixmaps</Path>
+            <Path fileType="data">/usr/share/mime</Path>
+            <Path fileType="doc">/usr/share/doc</Path>
+        </Files>
+        <AdditionalFiles>
+            <!-- wrappers -->
+            <AdditionalFile target="/usr/bin/firefox" permission="0755" owner="root">pardus/firefox</AdditionalFile>
+
+            <!-- Desktop file -->
+            <AdditionalFile target="/usr/share/applications/mozillafirefox.desktop" permission="0644" owner="root">pardus/mozillafirefox.desktop</AdditionalFile>
+
+            <!-- Default options -->
+            <AdditionalFile target="/usr/lib/MozillaFirefox/defaults/preferences/firefox-pardus.js" permission="0644" owner="root">pardus/default-prefs.js</AdditionalFile>
+            <AdditionalFile target="/usr/lib/MozillaFirefox/defaults/preferences/firefox-l10n.js" permission="0644" owner="root">pardus/firefox-l10n.js</AdditionalFile>
+            <AdditionalFile target="/usr/lib/MozillaFirefox/browserconfig.properties" permission="0644" owner="root">pardus/browserconfig.properties</AdditionalFile>
+
+            <!-- Uluzilla search plugin -->
+            <AdditionalFile target="/usr/lib/MozillaFirefox/searchplugins/uluzilla.xml" permission="0644" owner="root">searchplugins/uluzilla.xml</AdditionalFile>
+            <!-- Google linux search plugin -->
+            <AdditionalFile target="/usr/lib/MozillaFirefox/searchplugins/googlelinux.xml" permission="0644" owner="root">searchplugins/googlelinux.xml</AdditionalFile>
+
+            <!-- Wikipedia search plugins -->
+            <AdditionalFile target="/usr/lib/MozillaFirefox/pardus/wikipedia_tr.xml" permission="0644" owner="root">searchplugins/wikipedia/wikipedia_tr.xml</AdditionalFile>
+            <AdditionalFile target="/usr/lib/MozillaFirefox/pardus/wikipedia_en.xml" permission="0644" owner="root">searchplugins/wikipedia/wikipedia_en.xml</AdditionalFile>
+            <AdditionalFile target="/usr/lib/MozillaFirefox/pardus/wikipedia_nl.xml" permission="0644" owner="root">searchplugins/wikipedia/wikipedia_nl.xml</AdditionalFile>
+            <AdditionalFile target="/usr/lib/MozillaFirefox/pardus/wikipedia_pt.xml" permission="0644" owner="root">searchplugins/wikipedia/wikipedia_pt.xml</AdditionalFile>
+
+            <!-- Pardus-Wiki search plugins -->
+            <AdditionalFile target="/usr/lib/MozillaFirefox/pardus/pardus-wiki_tr.xml" permission="0644" owner="root">searchplugins/pardus-wiki/pardus-wiki_tr.xml</AdditionalFile>
+            <AdditionalFile target="/usr/lib/MozillaFirefox/pardus/pardus-wiki_en.xml" permission="0644" owner="root">searchplugins/pardus-wiki/pardus-wiki_en.xml</AdditionalFile>
+            <AdditionalFile target="/usr/lib/MozillaFirefox/pardus/pardus-wiki_nl.xml" permission="0644" owner="root">searchplugins/pardus-wiki/pardus-wiki_nl.xml</AdditionalFile>
+            <AdditionalFile target="/usr/lib/MozillaFirefox/pardus/pardus-wiki_pt.xml" permission="0644" owner="root">searchplugins/pardus-wiki/pardus-wiki_pt.xml</AdditionalFile>
+
+            <!-- Default bookmarks -->
+            <AdditionalFile target="/usr/lib/MozillaFirefox/pardus/bookmarks-tr.html" permission="0644" owner="root">pardus/pardus_bookmark-tr.html</AdditionalFile>
+            <AdditionalFile target="/usr/lib/MozillaFirefox/pardus/bookmarks-en.html" permission="0644" owner="root">pardus/pardus_bookmark-en.html</AdditionalFile>
+            <AdditionalFile target="/usr/lib/MozillaFirefox/pardus/bookmarks-nl.html" permission="0644" owner="root">pardus/pardus_bookmark-nl.html</AdditionalFile>
+            <AdditionalFile target="/usr/lib/MozillaFirefox/pardus/bookmarks-de.html" permission="0644" owner="root">pardus/pardus_bookmark-de.html</AdditionalFile>
+
+            <!-- Mimetype for XPI files -->
+            <AdditionalFile target="/usr/share/mime/packages/firefox.xml" permission="0644" owner="root">suse/firefox-mimeinfo.xml</AdditionalFile>
+
+            <AdditionalFile target="/usr/lib/MozillaFirefox/defaults/preferences/lockdown.js" permission="0644" owner="root">suse/firefox-lockdown.js</AdditionalFile>
+        </AdditionalFiles>
+        <Provides>
+            <COMAR script='package.py'>System.Package</COMAR>
+        </Provides>
+    </Package>
+
+    <History>
+        <Update release="132">
+            <Date>2010-08-24</Date>
+            <Version>4.0_beta2</Version>
+            <Comment>Version bump to new release</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="131" type="security">
+            <Date>2010-08-05</Date>
+            <Version>3.6.8</Version>
+            <Comment>
+                - Version bump to new release:
+                   * Dangling pointer crash regression from plugin parameter array fix
+                   * Cross-origin data leakage from script filename in error messages
+                   * Cross-domain data theft using CSS
+                   * Multiple location bar spoofing vulnerabilities
+                   * Characters mapped to U+FFFD in 8 bit encodings cause subsequent character to vanish
+                   * Same-origin bypass using canvas context
+                   * Cross-origin data disclosure via Web Workers and importScripts
+                   * Remote code execution using malformed PNG image
+                   * nsTreeSelection dangling pointer remote code execution vulnerability
+                   * nsCSSValue::Array index integer overflow
+                   * Arbitrary code execution using SJOW and fast native function
+                   * Plugin parameter EnsureCachedAttrParamArrays remote code execution vulnerability
+                   * Use-after-free error in NodeIterator
+                   * DOM attribute cloning remote code execution vulnerability
+                   * Miscellaneous memory safety hazards (rv:1.9.2.7/ 1.9.1.11)
+            </Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="130">
+            <Date>2010-06-29</Date>
+            <Version>3.6.6</Version>
+            <Comment>Version bump to new release which just increases hang detector timeout (http://www.mozilla.com/en-US/firefox/3.6.6/releasenotes/)</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="129" type="security">
+            <Date>2010-06-21</Date>
+            <Version>3.6.4</Version>
+            <Comment>
+                - Version bump to Firefox 3.6.4
+                - Firefox 3.6.4 provides uninterrupted
+                browsing for users when there is a crash in plugins.
+            </Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="128">
+            <Date>2010-05-31</Date>
+            <Version>3.6.3</Version>
+            <Comment>Add translate.pardus.org.tr to bookmarks toolbar by default.</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="127">
+            <Date>2010-05-22</Date>
+            <Version>3.6.3</Version>
+            <Comment>Vergi kimlik no bookmark entry removed.</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="126" type="security">
+            <Date>2010-04-27</Date>
+            <Version>3.6.3</Version>
+            <Comment>Version bump to new release</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="125" type="security">
+            <Date>2010-04-01</Date>
+            <Version>3.6.2</Version>
+            <Comment>Version bump to new release</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="124">
+            <Date>2010-04-01</Date>
+            <Version>3.6</Version>
+            <Comment>Version bump to new release</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="123" type="security">
+            <Date>2010-03-31</Date>
+            <Version>3.5.9</Version>
+            <Comment>
+                Bump to new security release:
+                    * XMLDocument::load() doesn't check nsIContentPolicy
+                    * Image src redirect to mailto: URL opens email editor
+                    * Update NSS to support TLS renegotiation indication
+                    * Chrome privilege escalation via forced URL drag and drop
+                    * Dangling pointer vulnerability in nsPluginArray
+                    * Dangling pointer vulnerability in nsTreeContentView
+                    * Remote code execution with use-after-free in nsTreeSelection
+                    * Crashes with evidence of memory corruption (rv:1.9.2.2/ 1.9.1.9/ 1.9.0.19)
+            </Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="122" type="security">
+            <Date>2010-02-23</Date>
+            <Version>3.5.8</Version>
+            <Comment>Bump to new security release (#12316):
+                * XSS hazard using SVG document and binary Content-Type
+                * XSS due to window.dialogArguments being readable cross-domain
+                * Use-after-free crash in HTML parser
+                * Web Worker Array Handling Heap Corruption Vulnerability
+                * Crashes with evidence of memory corruption (rv:1.9.1.8/ 1.9.0.18)
+            </Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="121">
+            <Date>2010-01-07</Date>
+            <Version>3.5.7</Version>
+            <Comment>Version bump to new stability release:
+                * DNS resolution in MakeSN of nsAuthSSPI causing issues for proxy servers that support NTLM auth
+            </Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="120">
+            <Date>2009-12-14</Date>
+            <Version>3.5.6</Version>
+            <Comment>Depend strictly on new cairo and gtk2, fixes bug (#11724)</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="119" type="security">
+            <Date>2009-12-14</Date>
+            <Version>3.5.6</Version>
+            <Comment>Version bump to latest stable release and also fix Sabah newspaper and Calikbank(now Aktifbank) bookmark URIs.</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="118" type="security">
+            <Date>2009-10-30</Date>
+            <Version>3.5.4</Version>
+            <Comment>Version bump to latest security release, #11473:
+                 * MFSA 2009-64 Crashes with evidence of memory corruption (rv:1.9.1.4/ 1.9.0.15)
+                 * MFSA 2009-63 Upgrade media libraries to fix memory safety bugs
+                 * MFSA 2009-62 Download filename spoofing with RTL override
+                 * MFSA 2009-61 Cross-origin data theft through document.getSelection()
+                 * MFSA 2009-59 Heap buffer overflow in string to number conversion
+                 * MFSA 2009-57 Chrome privilege escalation in XPCVariant::VariantDataToJS()
+                 * MFSA 2009-56 Heap buffer overflow in GIF color map parser
+                 * MFSA 2009-55 Crash in proxy auto-configuration regexp parsing
+                 * MFSA 2009-54 Crash with recursive web-worker calls
+                 * MFSA 2009-53 Local downloaded file tampering
+                 * MFSA 2009-52 Form history vulnerable to stealing
+            </Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="117" type="security">
+            <Date>2009-09-10</Date>
+            <Version>3.5.3</Version>
+            <Comment>Version bump to latest security release, CVE-2009-3070, #1114</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="116">
+            <Date>2009-08-11</Date>
+            <Version>3.5.2</Version>
+            <Comment>Fix Turkish translation of user word.</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="115" type="security">
+            <Date>2009-08-10</Date>
+            <Version>3.5.2</Version>
+            <Comment>
+                * Images with ICC profiles now render properly on all monitors.
+                * Several security issues:
+                    * Chrome privilege escalation due to incorrectly cached wrapper
+                    * Crashes with evidence of memory corruption (rv:1.9.1.2/1.9.0.13)
+                    * Location bar and SSL indicator spoofing via window.open() on invalid URL
+                    * Data corruption with SOCKS5 reply containing DNS name longer than 15 characters
+            </Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="114">
+            <Date>2009-07-27</Date>
+            <Version>3.5.1</Version>
+            <Comment>Remove LD_PRELOAD hack for Flash fullscreen crash bug, now it's fixed in xulrunner via a jemalloc patch.</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="113">
+            <Date>2009-07-17</Date>
+            <Version>3.5.1</Version>
+            <Comment>Do not remove main Firefox directory in postRemove, it's very dangerous while using delta. </Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="112" type="security">
+            <Date>2009-07-17</Date>
+            <Version>3.5.1</Version>
+            <Comment>Version bump to latest bugfix release.</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="111">
+            <Date>2009-07-17</Date>
+            <Version>3.5</Version>
+            <Comment>Enable libgnomeui, update Dutch bookmarks.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="110">
+            <Date>2009-06-30</Date>
+            <Version>3.5</Version>
+            <Comment>Bump to 3.5 final release and remove redundant /etc/env.d/10MozillaFirefox file.</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="109">
+            <Date>2009-06-22</Date>
+            <Version>3.5_rc1</Version>
+            <Comment>Install application icon from Mozilla tarball instead of the additional file.</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="108">
+            <Date>2009-06-19</Date>
+            <Version>3.5_rc1</Version>
+            <Comment>Do not strip debug symbols, we need them in our debug packages.</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="107">
+            <Date>2009-06-13</Date>
+            <Version>3.5_rc1</Version>
+            <Comment>Version bump to 3.5rc1 release and add LD_PRELOAD hack for fullscreen video crashes with nvidia cards.</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="106">
+            <Date>2009-05-26</Date>
+            <Version>3.5_beta4</Version>
+            <Comment>Move spellchecking related stuff including zemberek patch to xulrunner</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="105" type="security">
+            <Date>2009-05-11</Date>
+            <Version>3.5_beta4</Version>
+            <Comment>Version bump to 3.5 branch</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="104" type="security">
+            <Date>2009-05-01</Date>
+            <Version>3.0.10</Version>
+            <Comment>Version bump to new security release and make Firefox xulrunner dependant</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="103" type="security">
+            <Date>2009-03-30</Date>
+            <Version>3.0.8</Version>
+            <Comment>Version bump to new security release fixes CVE-2009-1044 and CVE-2009-1169</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="102">
+            <Date>2009-03-09</Date>
+            <Version>3.0.7</Version>
+            <Comment>With new zemberek patch, firefox now uses zemberek-server via DBus instead of socket, thanks to Faiksan. Fixes #4385.</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="101" type="security">
+            <Date>2009-03-05</Date>
+            <Version>3.0.7</Version>
+            <Comment>Security patches for mozilla#448329 and mozilla#456757.</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="100" type="security">
+            <Date>2009-03-05</Date>
+            <Version>3.0.7</Version>
+            <Comment>Version bump to new security release</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="99">
+            <Date>2009-03-03</Date>
+            <Version>3.0.6</Version>
+            <Comment>Disable smooth scrolling as it slows down scrolling on low end computers and bad web sites.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="98" type="security">
+            <Date>2009-03-02</Date>
+            <Version>3.0.6</Version>
+            <Comment>Security patches for mozilla#448329 and mozilla#456757.</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="97">
+            <Date>2009-02-12</Date>
+            <Version>3.0.6</Version>
+            <Comment>Fix IHA URL in bookmarks.</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="96" type="security">
+            <Date>2009-02-04</Date>
+            <Version>3.0.6</Version>
+            <Comment>Version bump to new security release</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="95">
+            <Date>2009-01-30</Date>
+            <Version>3.0.5</Version>
+            <Comment>Fallback to English bookmarks in pt_BR locale</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="94">
+            <Date>2008-12-26</Date>
+            <Version>3.0.5</Version>
+            <Comment>
+                * Comment and GenericName keys are updated in desktop file.
+                * network.prefetch-next enabled as in default.
+                * German bookmarks added by Mustafa Ölçerman
+                * Use system hunspell instead of the bundled one
+                * about:about URI removed as upstream suggested.
+            </Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="93" type="security">
+            <Date>2008-12-18</Date>
+            <Version>3.0.5</Version>
+            <Comment>Version bump to security release</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="92">
+            <Date>2008-12-14</Date>
+            <Version>3.0.4</Version>
+            <Comment>Fix a translation bug in CTRL+F toolbar.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="91">
+            <Date>2008-11-26</Date>
+            <Version>3.0.4</Version>
+            <Comment>Don't show about:rights if the user has already accepted EULA.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="90">
+            <Date>2008-11-20</Date>
+            <Version>3.0.4</Version>
+            <Comment>
+                - Fixes the issue of missing mozilla plugins when KDE restores firefox upon logout (Fixes #7592),
+                - Add ozgurlukicin.com as well as pardus.org.tr to the startup pages (Fixes #7172),
+                - Fix several bugs in Turkish bookmarks and update some icons (Fixes #7987),
+                - Fix several Turkish translation issues,
+                - Remove EULA and add popup toolbar for showing user rights.
+                - Use system sqlite instead of the one comes with Firefox
+            </Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="89" type="security">
+            <Date>2008-11-20</Date>
+            <Version>3.0.4</Version>
+            <Comment>Version bump to 3.0.4</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="88">
+            <Date>2008-11-11</Date>
+            <Version>3.0.3</Version>
+            <Comment>Fix Turkish translation of Find in Edit menu</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="87">
+            <Date>2008-09-27</Date>
+            <Version>3.0.3</Version>
+            <Comment>Version bump to fresh bugfix release</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="86" type="security">
+            <Date>2008-09-26</Date>
+            <Version>3.0.2</Version>
+            <Comment>Version bump to 3.0.2 to fix severeal security issues</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="85">
+            <Date>2008-08-27</Date>
+            <Version>3.0.1</Version>
+            <Comment>Swedish translations added</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="84">
+            <Date>2008-07-31</Date>
+            <Version>3.0.1</Version>
+            <Comment>Fix font problems, do not set fixed and minimum font sizes to 12, 15 is OK for most of the web sites. Set serif type as DejaVu Serif, not DejaVu Sans.</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="83" type="security">
+            <Date>2008-07-17</Date>
+            <Version>3.0.1</Version>
+            <Comment>Version bump from rc1 to stable release</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="82" type="security">
+            <Date>2008-07-14</Date>
+            <Version>3.0.1</Version>
+            <Comment>Version bump, pl and ca locales added</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="81">
+            <Date>2008-06-18</Date>
+            <Version>3.0</Version>
+            <Comment>Version bump to stable release</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="80">
+            <Date>2008-06-05</Date>
+            <Version>3.0_rc2</Version>
+            <Comment>Version bump</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="79">
+            <Date>2008-05-23</Date>
+            <Version>3.0_rc1</Version>
+            <Comment>Version bump</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="78">
+            <Date>2008-05-12</Date>
+            <Version>3.0_beta5</Version>
+            <Comment>Zemberek support</Comment>
+            <Name>Faik Uygur</Name>
+            <Email>faik@pardus.org.tr</Email>
+        </Update>
+        <Update release="77">
+            <Date>2008-04-07</Date>
+            <Version>3.0_beta5</Version>
+            <Comment>Some patches from SuSE and Ubuntu about reloading new plugins, default browser and no update</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="76">
+            <Date>2008-04-03</Date>
+            <Version>3.0_beta5</Version>
+            <Comment>Version bump</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="75">
+            <Date>2008-03-22</Date>
+            <Version>3.0_beta4</Version>
+            <Comment>Version bump</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="74">
+            <Date>2008-02-07</Date>
+            <Version>3.0_pre20080207</Version>
+            <Comment>Version bump</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="73">
+            <Date>2007-12-01</Date>
+            <Version>2.0.0.11</Version>
+            <Comment>Regression fix release</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="72" type="security">
+            <Date>2007-11-27</Date>
+            <Version>2.0.0.10</Version>
+            <Comment>Security update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="71" type="security">
+            <Date>2007-11-15</Date>
+            <Version>2.0.0.9</Version>
+            <Comment>Fix Mozilla bug #369814 and #403331</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="70">
+            <Date>2007-11-02</Date>
+            <Version>2.0.0.9</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="69" type="security">
+            <Date>2007-10-19</Date>
+            <Version>2.0.0.8</Version>
+            <Comment>Security update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="68">
+            <Date>2007-10-02</Date>
+            <Version>2.0.0.6</Version>
+            <Comment>More updates to default bookmarks</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="67">
+            <Date>2007-09-01</Date>
+            <Version>2.0.0.6</Version>
+            <Comment>Updates to default bookmarks</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="66">
+            <Date>2007-08-26</Date>
+            <Version>2.0.0.6</Version>
+            <Comment>Add google linux search plugin</Comment>
+            <Name>Eren Türkay</Name>
+            <Email>turkay.eren@gmail.com</Email>
+        </Update>
+        <Update release="65" type="security">
+            <Date>2007-07-31</Date>
+            <Version>2.0.0.6</Version>
+            <Comment>Security update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="64">
+            <Date>2007-07-25</Date>
+            <Version>2.0.0.5</Version>
+            <Comment>Fix wikipedia urls, bug #6133</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="63" type="security">
+            <Date>2007-07-18</Date>
+            <Version>2.0.0.5</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="62" type="security">
+            <Date>2007-07-09</Date>
+            <Version>2.0.0.4</Version>
+            <Comment>Fix Mozilla bug #387333 and #363897</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="61">
+            <Date>2007-07-08</Date>
+            <Version>2.0.0.4</Version>
+            <Comment>Revert last</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="60">
+            <Date>2007-07-08</Date>
+            <Version>2.0.0.4</Version>
+            <Comment>Fix #6016</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="59">
+            <Date>2007-07-05</Date>
+            <Version>2.0.0.4</Version>
+            <Comment>Fix slowdown on spellchecking large editboxes</Comment>
+            <Name>Mehmet D. Akın</Name>
+            <Email>mdakin@pardus.org.tr</Email>
+        </Update>
+        <Update release="58" type="security">
+            <Date>2007-06-20</Date>
+            <Version>2.0.0.4</Version>
+            <Comment>Fix Mozilla bug #381300</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="57" type="security">
+            <Date>2007-05-30</Date>
+            <Version>2.0.0.4</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="56">
+            <Date>2007-05-30</Date>
+            <Version>2.0.0.3</Version>
+            <Comment>Sexify buttons and checkboxes</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="55">
+            <Date>2007-05-24</Date>
+            <Version>2.0.0.3</Version>
+            <Comment>Fix a problem with Turkish translation</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="54">
+            <Date>2007-05-22</Date>
+            <Version>2.0.0.3</Version>
+            <Comment>Generate .autoreg file while installing to fix #5006 and similar problems</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="53">
+            <Date>2007-05-13</Date>
+            <Version>2.0.0.3</Version>
+            <Comment>Add power patch from http://www.linuxpowertop.org/patches/firefox-2.0.patch</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="52">
+            <Date>2007-05-10</Date>
+            <Version>2.0.0.3</Version>
+            <Comment>Correct build date</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="51">
+            <Date>2007-03-26</Date>
+            <Version>2.0.0.3</Version>
+            <Comment>Fix #4449</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="50">
+            <Date>2007-03-24</Date>
+            <Version>2.0.0.3</Version>
+            <Comment>Search plugin corrections.</Comment>
+            <Name>Ahmet AYGÜN</Name>
+            <Email>ahmet@zion.gen.tr</Email>
+        </Update>
+        <Update release="49" type="security">
+            <Date>2007-03-21</Date>
+            <Version>2.0.0.3</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="48">
+            <Date>2007-03-05</Date>
+            <Version>2.0.0.2</Version>
+            <Comment>Add pt_BR</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="47" type="security">
+            <Date>2007-02-23</Date>
+            <Version>2.0.0.2</Version>
+            <Comment>Fix Mozilla bug #371375</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="46" type="security">
+            <Date>2007-02-23</Date>
+            <Version>2.0.0.2</Version>
+            <Comment>Stable update to fix multiple vulnerabilities</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="45">
+            <Date>2007-01-19</Date>
+            <Version>2.0.0.1</Version>
+            <Comment>Enable shared libs as Furkan requested</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="44">
+            <Date>2006-12-21</Date>
+            <Version>2.0.0.1</Version>
+            <Comment>Revert last</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="43">
+            <Date>2006-12-21</Date>
+            <Version>2.0.0.1</Version>
+            <Comment>Re-enable visibility, it works on i386</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="42">
+            <Date>2006-12-21</Date>
+            <Version>2.0.0.1</Version>
+            <Comment>Mimetype fixes</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="41" type="security">
+            <Date>2006-12-20</Date>
+            <Version>2.0.0.1</Version>
+            <Comment>Security update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="40">
+            <Date>2006-12-12</Date>
+            <Version>2.0</Version>
+            <Comment>Support OpenOffice 1.x formats</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="39">
+            <Date>2006-12-12</Date>
+            <Version>2.0</Version>
+            <Comment>Fix #3708</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="38">
+            <Date>2006-12-09</Date>
+            <Version>2.0</Version>
+            <Comment>Fix #4446</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="37">
+            <Date>2006-12-08</Date>
+            <Version>2.0</Version>
+            <Comment>Fix pkgconfig files</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="36">
+            <Date>2006-12-03</Date>
+            <Version>2.0</Version>
+            <Comment>Use zemberek, heyo!</Comment>
+            <Name>Faik Uygur</Name>
+            <Email>faik@pardus.org.tr</Email>
+        </Update>
+        <Update release="35">
+            <Date>2006-12-02</Date>
+            <Version>2.0</Version>
+            <Comment>Don't use aoss</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="34">
+            <Date>2006-11-28</Date>
+            <Version>2.0</Version>
+            <Comment>Stable update</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="33">
+            <Date>2006-11-07</Date>
+            <Version>1.5.0.8</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="32">
+            <Date>2006-11-05</Date>
+            <Version>1.5.0.7</Version>
+            <Comment>Fix Uluzilla #2244</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="31" type="security">
+            <Date>2006-09-15</Date>
+            <Version>1.5.0.7</Version>
+            <Comment>Version bump to fix various security bugs</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="30">
+            <Date>2006-07-31</Date>
+            <Version>1.5.0.5</Version>
+            <Comment>Fix "ppdClose from /usr/lib/libcups.so.2" seg. fault</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="29" type="security">
+            <Date>2006-07-28</Date>
+            <Version>1.5.0.5</Version>
+            <Comment>Version bump for several sec. fix, fix #2458 and add ~22 language to firefox</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="28">
+            <Date>2006-07-11</Date>
+            <Version>1.5.0.4</Version>
+            <Comment>Fix Milliyet's url</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="27">
+            <Date>2006-07-11</Date>
+            <Version>1.5.0.4</Version>
+            <Comment>Fix #382, #1305, #2432. Remove hacky wrapper which means faster startup times, update preload file. Fix printing issues from upstream. Update some additional files</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="26">
+            <Date>2006-07-07</Date>
+            <Version>1.5.0.4</Version>
+            <Comment>Revert back min. font size to 12pt</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="25">
+            <Date>2006-06-23</Date>
+            <Version>1.5.0.4</Version>
+            <Comment>Make direct mms link work</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="24">
+            <Date>2006-06-20</Date>
+            <Version>1.5.0.4</Version>
+            <Comment>fix #248, set font.minimum-size.* to 10</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="23">
+            <Date>2006-06-19</Date>
+            <Version>1.5.0.4</Version>
+            <Comment>Set font.minimum-size.* to null</Comment>
+            <Name>Gökmen Göksel</Name>
+            <Email>gokmen@pardus.org.tr</Email>
+        </Update>
+        <Update release="22" type="security">
+            <Date>2006-06-02</Date>
+            <Version>1.5.0.4</Version>
+            <Comment>Security/Bugfix release</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="21" type="security">
+            <Date>2006-05-01</Date>
+            <Version>1.5.0.2</Version>
+            <Comment>Fix mozilla bug #334515</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="20" type="security">
+            <Date>2006-04-20</Date>
+            <Version>1.5.0.2</Version>
+            <Comment>Version bump</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="19">
+            <Date>2006-04-07</Date>
+            <Version>1.5.0.1</Version>
+            <Comment>fix #2458, cleanup and sync</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="18">
+            <Date>2006-03-25</Date>
+            <Version>1.5.0.1</Version>
+            <Comment>Default bookmarks updated</Comment>
+            <Name>A. Murat Eren</Name>
+            <Email>meren@pardus.org.tr</Email>
+        </Update>
+        <Update release="17">
+            <Date>2006-03-07</Date>
+            <Version>1.5.0.1</Version>
+            <Comment>Version bump</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="16">
+            <Date>2006-01-28</Date>
+            <Version>1.5.0</Version>
+            <Comment>Make all fonts Sans</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="15">
+            <Date>2006-01-18</Date>
+            <Version>1.5.0</Version>
+            <Comment>Zemberek support by Faik Uygur</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="14">
+            <Date>2006-01-01</Date>
+            <Version>1.5.0</Version>
+            <Comment>Use system nss/nspr and fix upstream bug #305970</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="13">
+            <Date>2005-12-31</Date>
+            <Version>1.5.0</Version>
+            <Comment>Fix all font problems</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="12">
+            <Date>2005-12-28</Date>
+            <Version>1.5.0</Version>
+            <Comment>Fix small font problems by always using X's dpi</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="11">
+            <Date>2005-11-30</Date>
+            <Version>1.5.0</Version>
+            <Comment>Final stable version for 1.5</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="10">
+            <Date>2005-11-28</Date>
+            <Version>1.5_rc3</Version>
+            <Comment>Fix #265</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="9">
+            <Date>2005-11-25</Date>
+            <Version>1.5_rc3</Version>
+            <Comment>Add default mimetypes</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="8">
+            <Date>2005-11-18</Date>
+            <Version>1.5_rc3</Version>
+            <Comment>Update to version 1.5rc3, fix GTK+ 2.8 support and enable SVG</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="7" type="security">
+            <Date>2005-11-11</Date>
+            <Version>1.5_rc2</Version>
+            <Comment>Update to version 1.5rc2</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="6">
+            <Date>2005-11-05</Date>
+            <Version>1.5_rc1</Version>
+            <Comment>Update translations</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="5">
+            <Date>2005-11-02</Date>
+            <Version>1.5_rc1</Version>
+            <Comment>Update to version 1.5rc1</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="4">
+            <Date>2005-11-01</Date>
+            <Version>1.5_beta2</Version>
+            <Comment>Add preload support for rootfs 0.2</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="3">
+            <Date>2005-10-14</Date>
+            <Version>1.5_beta2</Version>
+            <Comment>Uluzilla search plugin added.</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="2">
+            <Date>2005-08-10</Date>
+            <Version>1.5_beta2</Version>
+            <Comment>firefox-devel depens firefox</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="1">
+            <Date>2005-08-10</Date>
+            <Version>1.5_beta2</Version>
+            <Comment>Initial import</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+    </History>
+</PISI>

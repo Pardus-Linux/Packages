@@ -1,0 +1,289 @@
+From: various contributors
+Subject: Firefox chrome lockdown hooks
+
+Index: mozilla/browser/base/content/browser.js
+===================================================================
+--- mozilla.orig/browser/base/content/browser.js
++++ mozilla/browser/base/content/browser.js
+@@ -1185,11 +1185,165 @@ function prepareForStartup() {
+   gGestureSupport.init(true);
+ }
+ 
++function lockdownElement(ident, disable, hideCompletely)
++{
++  var e = document.getElementById(ident);
++  if (!e) return;
++  if (hideCompletely) {
++    e.setAttribute("style", (disable) ? "display: none;" : "");
++  } else if (disable) {
++    e.setAttribute("disabled", "true");
++  } else {
++    e.removeAttribute("disabled");
++  }
++}
++
++function applyLockdown(isStartup)
++{
++  // It is important to check that Firefox code does not change the
++  // "disabled" state of these UI elements. Fortunately it mostly hides
++  // elements rather than disables them.
++  var disablePrinting = gPrefService.getBoolPref("config.lockdown.printing");
++  var disablePrintSetup = gPrefService.getBoolPref("config.lockdown.printsetup");
++  if (!isStartup || disablePrintSetup || disablePrintSetup) {
++    lockdownElement("cmd_pageSetup", disablePrinting || disablePrintSetup);
++    lockdownElement("menu_printPreview", disablePrinting || disablePrintSetup);
++    lockdownElement("cmd_print", disablePrinting);
++  }
++
++  var disableSave = gPrefService.getBoolPref("config.lockdown.savepage");
++  if (!isStartup || disableSave) {
++    lockdownElement("Browser:SavePage", disableSave);
++    lockdownElement("Browser:SaveFrame", disableSave);
++    lockdownElement("context-savepage", disableSave);
++    lockdownElement("context-saveframe", disableSave);
++    lockdownElement("context-savelink", disableSave);
++    lockdownElement("context-saveimage", disableSave);
++    lockdownElement("View:PageSource", disableSave);
++    lockdownElement("context-viewpartialsource-selection", disableSave);
++    lockdownElement("context-viewpartialsource-mathml", disableSave);
++    lockdownElement("context-viewsource", disableSave);
++    lockdownElement("context-viewframesource", disableSave);
++    lockdownElement("View:PageInfo", disableSave);
++    lockdownElement("context-viewinfo", disableSave);
++    lockdownElement("context-viewframeinfo", disableSave);
++    lockdownElement("Tasks:InspectPage", disableSave); // from DOMInspector extension
++  }
++
++  var disableBookmarks = gPrefService.getBoolPref("config.lockdown.hidebookmark");
++  var disableBookmarkEditing = gPrefService.getBoolPref("config.lockdown.bookmark");
++  if (!isStartup || disableBookmarks || disableBookmarkEditing) {
++    lockdownElement("bookmarksMenu", disableBookmarks, true);
++    lockdownElement("viewBookmarksSidebar", disableBookmarks);
++    lockdownElement("PersonalToolbar", disableBookmarks); // XXX check
++    lockdownElement("Browser:AddBookmarkAs", disableBookmarks || disableBookmarkEditing);
++    lockdownElement("Browser:ShowAllBookmarks", disableBookmarks || disableBookmarkEditing);
++    lockdownElement("manBookmark", disableBookmarks || disableBookmarkEditing);
++    lockdownElement("context-bookmarkpage", disableBookmarks || disableBookmarkEditing);
++    lockdownElement("context-bookmarklink", disableBookmarks || disableBookmarkEditing);
++
++    // hide the personal bookmarks toolbar if necessary
++    if (disableBookmarks) {
++      document.getElementById("PersonalToolbar").setAttribute("collapsed", "true");
++    }
++  }
++
++  var disableHistory = gPrefService.getBoolPref("config.lockdown.history");
++  if (!isStartup || disableHistory) {
++    lockdownElement("history-menu", disableHistory, true);
++    lockdownElement("viewHistorySidebar", disableHistory);
++    lockdownElement("Browser:ShowAllHistory", disableHistory);
++    gURLBar.setAttribute("enablehistory", disableHistory ? "false" : "true");
++    gURLBar.disableAutoComplete = disableHistory;
++  }
++
++  var defaultPrefs = Cc["@mozilla.org/preferences-service;1"]
++      .getService(Ci.nsIPrefService).getDefaultBranch(null);
++  if (isStartup && disableHistory) {
++    if (!defaultPrefs.prefIsLocked("browser.history_expire_days")) {
++      defaultPrefs.setIntPref("browser.history_expire_days", 0);
++      defaultPrefs.lockPref("browser.history_expire_days");
++    }
++    if (!defaultPrefs.prefIsLocked("browser.formfill.enable")) {
++      defaultPrefs.setBoolPref("browser.formfill.enable", false);
++      defaultPrefs.lockPref("browser.formfill.enable");
++    }
++    if (!defaultPrefs.prefIsLocked("browser.download.manager.retention")) {
++      defaultPrefs.setIntPref("browser.download.manager.retention", 0);
++      defaultPrefs.lockPref("browser.download.manager.retention");
++    }
++    gPrefService.setBoolPref("config.lockdown.history.set", true);
++  } else if (isStartup && gPrefService.prefHasUserValue("config.lockdown.history.set")) {
++    if (!defaultPrefs.prefIsLocked("browser.history_expire_days")) {
++      defaultPrefs.clearUserPref("browser.history_expire_days");
++    }
++    if (!defaultPrefs.prefIsLocked("browser.formfill.enable")) {
++      defaultPrefs.clearUserPref("browser.formfill.enable");
++    }
++    if (!defaultPrefs.prefIsLocked("browser.download.manager.retention")) {
++      defaultPrefs.clearUserPref("browser.download.manager.retention");
++    }
++    gPrefService.clearUserPref("config.lockdown.history.set");
++  }
++
++  var disableURLBar = gPrefService.getBoolPref("config.lockdown.urlbar");
++  if (!isStartup || disableURLBar) {
++    lockdownElement("urlbar", disableURLBar);
++    lockdownElement("Browser:OpenLocation", disableURLBar);
++    lockdownElement("Browser:OpenFile", disableURLBar);
++  }
++
++  var disableSearchBar = gPrefService.getBoolPref("config.lockdown.searchbar");
++  if (!isStartup || disableSearchBar) {
++    document.getElementById("search-container")
++      .setAttribute("style", (disableSearchBar) ? "display: none;" : "");
++  }
++
++  var disableToolbarEditing = gPrefService.getBoolPref("config.lockdown.toolbarediting");
++  if (!isStartup || disableToolbarEditing) {
++    var e = document.getElementById("cmd_CustomizeToolbars");
++    if (!e.getAttribute("inCustomization")) {
++      lockdownElement("cmd_CustomizeToolbars", disableToolbarEditing);
++    }
++  }
++
++  // Close sidebar if we disabled the command that's currently in use
++  var sidebarBox = document.getElementById("sidebar-box");
++  var cmd = sidebarBox.getAttribute("sidebarcommand");
++  if (cmd) {
++    var elt = document.getElementById(cmd);
++    if (elt && elt.getAttribute("disabled") == "true") {
++      toggleSidebar(cmd, false);
++      gMustLoadSidebar = false;
++    }
++  }
++}
++
++var lockdownObserver = {
++  observe: function(aSubject, aTopic, aPrefName)
++  {
++    try {
++      applyLockdown(false);
++    } catch (ex) {
++      dump("Failed lockdown: " + ex + "\n");
++    }
++  }
++};
++
+ function delayedStartup(isLoadingBlank, mustLoadSidebar) {
+   var os = Cc["@mozilla.org/observer-service;1"].getService(Ci.nsIObserverService);
+   os.addObserver(gSessionHistoryObserver, "browser:purge-session-history", false);
+   os.addObserver(gXPInstallObserver, "xpinstall-install-blocked", false);
+ 
++  try {
++    // do lockdown stuff in an exception handler so that if it fails
++    // catastrophically, the browser should still come up and function
++    applyLockdown(true);
++    gPrefService.addObserver("config.lockdown.", lockdownObserver, false);
++  } catch (ex) {
++    dump("Failed lockdown: " + ex + "\n");
++  }
++
+   BrowserOffline.init();
+   OfflineApps.init();
+ 
+@@ -1199,8 +1353,8 @@ function delayedStartup(isLoadingBlank, 
+   Cc["@mozilla.org/login-manager;1"].getService(Ci.nsILoginManager);
+ 
+   if (mustLoadSidebar) {
+-    let sidebar = document.getElementById("sidebar");
+     let sidebarBox = document.getElementById("sidebar-box");
++    let sidebar = document.getElementById("sidebar");
+     sidebar.setAttribute("src", sidebarBox.getAttribute("src"));
+   }
+ 
+@@ -1411,6 +1565,8 @@ function BrowserShutdown()
+   os.removeObserver(gXPInstallObserver, "xpinstall-install-blocked");
+   os.removeObserver(gMissingPluginInstaller, "plugin-crashed");
+ 
++  gPrefService.removeObserver("config.lockdown.", lockdownObserver);
++
+   try {
+     gBrowser.removeProgressListener(window.XULBrowserWindow);
+     gBrowser.removeTabsProgressListener(window.TabsProgressListener);
+@@ -3221,6 +3377,13 @@ function FillHistoryMenu(aParent) {
+       aParent.removeChild(children[i]);
+   }
+ 
++  // lockdown. Don't display anything if locked down.
++  try {
++    var disableHistory = gPrefService.getBoolPref("config.lockdown.history");
++    if (disableHistory)
++      return false;
++  } catch (ex) {}
++
+   var webNav = getWebNavigation();
+   var sessionHistory = webNav.sessionHistory;
+ 
+@@ -3370,6 +3533,7 @@ function BrowserCustomizeToolbar()
+ 
+   var cmd = document.getElementById("cmd_CustomizeToolbars");
+   cmd.setAttribute("disabled", "true");
++  cmd.setAttribute("inCustomization", "true");
+ 
+   var splitter = document.getElementById("urlbar-search-splitter");
+   if (splitter)
+@@ -3407,6 +3571,21 @@ function BrowserCustomizeToolbar()
+   }
+ }
+ 
++function BrowserRestoreCustomizationDisabledState()
++{
++  var cmd = document.getElementById("cmd_CustomizeToolbars");
++  try {
++    var disableToolBarEditing =
++      gPrefService.getBoolPref("config.lockdown.toolbarediting");
++  } catch (ex) {
++    var disableToolBarEditing = false;
++  }
++  if (!disableToolBarEditing) {
++    cmd.removeAttribute("disabled", "true");
++  }
++  cmd.removeAttribute("inCustomization");
++}
++
+ function BrowserToolboxCustomizeDone(aToolboxChanged) {
+   if (gCustomizeSheet) {
+     document.getElementById("customizeToolbarSheetIFrame").hidden = true;
+@@ -3424,6 +3603,17 @@ function BrowserToolboxCustomizeDone(aTo
+     gIdentityHandler._cacheElements();
+     window.XULBrowserWindow.init();
+ 
++    // make sure the search bar is not put back if locked down
++    try {
++      var disableSearchBar = gPrefService.getBoolPref("config.lockdown.searchbar");
++    } catch (ex) {
++      var disableSearchBar = false;
++    }
++    if (disableSearchBar) {
++      document.getElementById("search-container")
++        .setAttribute("style", (disableSearchBar) ? "display: none;" : "");
++    }
++
+     var backForwardDropmarker = document.getElementById("back-forward-dropmarker");
+     if (backForwardDropmarker)
+       backForwardDropmarker.disabled =
+@@ -3458,8 +3648,7 @@ function BrowserToolboxCustomizeDone(aTo
+   var menubar = document.getElementById("main-menubar");
+   for (var i = 0; i < menubar.childNodes.length; ++i)
+     menubar.childNodes[i].setAttribute("disabled", false);
+-  var cmd = document.getElementById("cmd_CustomizeToolbars");
+-  cmd.removeAttribute("disabled");
++  BrowserRestoreCustomizationDisabledState();
+ 
+ #ifdef XP_MACOSX
+   // make sure to re-enable click-and-hold
+@@ -4558,6 +4747,9 @@ function onViewToolbarsPopupShowing(aEve
+       menuItem.setAttribute("toolbarindex", i);
+       menuItem.setAttribute("type", "checkbox");
+       menuItem.setAttribute("label", toolbarName);
++      if (toolbar.getAttribute("disabled") == "true") {
++        menuItem.setAttribute("disabled", "true");
++      }
+       menuItem.setAttribute("accesskey", toolbar.getAttribute("accesskey"));
+       menuItem.setAttribute("checked", toolbar.getAttribute(hidingAttribute) != "true");
+       popup.insertBefore(menuItem, firstMenuItem);
+@@ -6743,7 +6935,13 @@ BookmarkAllTabsHandler.prototype = {
+     if (aTabClose)
+       numTabs--;
+ 
+-    if (numTabs > 1)
++    try {
++      var disableBookmarks =
++        gPrefService.getBoolPref("config.lockdown.bookmark");
++    } catch (ex) {
++      var disableBookmarks = false;
++    }
++    if (numTabs > 1 && !disableBookmarks)
+       this._command.removeAttribute("disabled");
+     else
+       this._command.setAttribute("disabled", "true");
