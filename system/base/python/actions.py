@@ -17,7 +17,7 @@ WorkDir = "Python-%s" % get.srcVERSION()
 PythonVersion = "2.7"
 
 def setup():
-    shelltools.export("OPT", "%s -fPIC" % get.CFLAGS())
+    shelltools.export("OPT", "%s -fPIC -fwrapv" % get.CFLAGS())
 
     shelltools.unlinkDir("Modules/expat")
     #shelltools.unlinkDir("Modules/zlib")
