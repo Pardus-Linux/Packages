@@ -22,8 +22,8 @@ def setup():
     shelltools.unlinkDir("Modules/expat")
     #shelltools.unlinkDir("Modules/zlib")
     # Uncomment to use installed libffi as does other distributions and replace 
-    # shelltools.export("CPPFLAGS", "%s" % os.popen("pkg-config --cflags-only-I libffi").read().strip())
-    # shelltools.system("rm -rf Modules/_ctypes/libffi*")
+    shelltools.export("CPPFLAGS", "%s" % os.popen("pkg-config --cflags-only-I libffi").read().strip())
+    shelltools.system("rm -rf Modules/_ctypes/libffi*")
 
     autotools.autoreconf("-vif")
     autotools.configure("--with-fpectl \
@@ -34,7 +34,7 @@ def setup():
                          --enable-unicode=ucs4 \
                          --with-wctype-functions \
                          --with-system-expat \
-                         --without-system-ffi")
+                         --with-system-ffi")
 
 def build():
     autotools.make()
@@ -48,9 +48,5 @@ def install():
     pisitools.dosym("/usr/bin/python%s" % PythonVersion, "/usr/bin/python")
     pisitools.dosym("/usr/bin/python%s-config" % PythonVersion, "/usr/bin/python-config")
     pisitools.dosym("/usr/lib/python%s/pdb.py" % PythonVersion, "/usr/bin/pdb")
-
-    pisitools.remove("/usr/bin/pydoc")
-    pisitools.remove("/usr/bin/smtpd.py")
-    pisitools.remove("/usr/bin/2to3")
 
     pisitools.dodoc("LICENSE", "README")
