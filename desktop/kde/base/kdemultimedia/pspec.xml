@@ -1,0 +1,390 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>kdemultimedia</Name>
+        <Homepage>http://www.kde.org/</Homepage>
+        <Packager>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Packager>
+        <License>GPLv2</License>
+        <IsA>app:gui</IsA>
+        <Summary>KDE4 multimedia applications</Summary>
+        <Description>Contains KDE4 multimedia applications. In package dragonplayer (a simple video player), juk (a music manager and player), kmix (an audio mixer) and kscd (an Audio-CD player) applications are included.</Description>
+        <Archive type="tarbz2" sha1sum="325d270322a2140f3dd288b4f26971d63d3059bb">mirrors://kde/stable/4.5.0/src/kdemultimedia-4.5.0.tar.bz2</Archive>
+        <BuildDependencies>
+            <Dependency versionFrom="4.5.0">kdelibs-devel</Dependency>
+            <Dependency versionFrom="4.7.0_beta2">qt-devel</Dependency>
+            <Dependency>flac-devel</Dependency>
+            <Dependency>lame-devel</Dependency>
+            <Dependency>phonon-devel</Dependency>
+            <Dependency>taglib-devel</Dependency>
+            <Dependency>libogg-devel</Dependency>
+            <Dependency>alsa-lib-devel</Dependency>
+            <Dependency>libvorbis-devel</Dependency>
+            <Dependency>cdparanoia-devel</Dependency>
+            <Dependency>pulseaudio-libs-devel</Dependency>
+            <!--
+            <Dependency>xine-lib</Dependency>
+            <Dependency>musicbrainz</Dependency>
+            <Dependency>tunepimp</Dependency>
+            -->
+        </BuildDependencies>
+        <Patches>
+            <!-- Partial fix for autostart option of kscd -->
+            <Patch>partial-fix-for-start-option.diff</Patch>
+
+            <!-- Show Play Audio CD with KSCD option on top -->
+            <Patch>set-kscd-predicate-toplevel.diff</Patch>
+
+            <Patch level="1">kdemultimedia-4.2.85-nomplayerthumbs.patch</Patch>
+
+            <!-- Add Kaction for pavucontrol to KMix -->
+            <!-- TODO: Do not show menu item if pavucontrol is not installed, or always show item and install pavucontrol package if it's not found -->
+            <Patch level="1">kmix-add-pavucontrol-shortcut.patch</Patch>
+
+            <Patch>mandriva/kdemultimedia-4.3.1-kscd-allow-more-cd.patch</Patch>
+            <!--<Patch level="1">mandriva/kmix-pulse.patch</Patch>-->
+
+            <!-- Use kded_kosd for OSD stuff
+            <Patch level="1">kmix-kosd-support.patch</Patch>
+            -->
+        </Patches>
+    </Source>
+    <Package>
+        <Name>kdemultimedia</Name>
+        <RuntimeDependencies>
+            <!-- For kded_kosd stuff -->
+            <Dependency versionFrom="4.5.0">kdebase-workspace</Dependency>
+            <Dependency versionFrom="4.5.0">kdelibs</Dependency>
+            <Dependency versionFrom="4.7.0_beta2">qt</Dependency>
+            <Dependency>flac</Dependency>
+            <Dependency>lame</Dependency>
+            <Dependency>phonon</Dependency>
+            <Dependency>taglib</Dependency>
+            <Dependency>libogg</Dependency>
+            <Dependency>alsa-lib</Dependency>
+            <Dependency>libvorbis</Dependency>
+            <Dependency>pulseaudio-libs</Dependency>
+            <Dependency>cdparanoia</Dependency>
+            <!--
+            <Dependency>vorbis-tools</Dependency>
+            <Dependency>xine-lib</Dependency>
+            <Dependency>musicbrainz</Dependency>
+            <Dependency>tunepimp</Dependency>
+            -->
+        </RuntimeDependencies>
+        <Replaces>
+            <Package>kdemultimedia4</Package>
+        </Replaces>
+        <Files>
+            <Path fileType="executable">/usr/bin</Path>
+            <Path fileType="library">/usr/lib</Path>
+            <Path fileType="data">/usr/share</Path>
+        </Files>
+    </Package>
+    <Package>
+        <Name>kdemultimedia-devel</Name>
+        <Summary>Development files for kdemultimedia</Summary>
+        <RuntimeDependencies>
+            <Dependency release="40">kdemultimedia</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="header">/usr/include</Path>
+        </Files>
+    </Package>
+
+    <History>
+        <Update release="40">
+            <Date>2010-08-24</Date>
+            <Version>4.5.0</Version>
+            <Comment>Split devel package.</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="39">
+            <Date>2010-08-23</Date>
+            <Version>4.5.0</Version>
+            <Comment>Version bump to 4.5.0</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="38">
+            <Date>2010-07-01</Date>
+            <Version>4.4.90</Version>
+            <Comment>Version bump to 4.4.90</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="37">
+            <Date>2010-05-31</Date>
+            <Version>4.4.4</Version>
+            <Comment>Version bump to 4.4.4</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="36">
+            <Date>2010-05-04</Date>
+            <Version>4.4.3</Version>
+            <Comment>Version bump to 4.4.3</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="35">
+            <Date>2010-04-14</Date>
+            <Version>4.4.2</Version>
+            <Comment>
+                - Version bump to 4.4.2,
+                - Drop kosd dependency, depend on the new workspace which carries kosd as a KDED module (Ozan),
+            </Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="34">
+            <Date>2010-01-26</Date>
+            <Version>4.3.5</Version>
+            <Comment>Version bump to 4.3.5</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="33">
+            <Date>2010-01-15</Date>
+            <Version>4.3.4</Version>
+            <Comment>Autostart kmix after kosd</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="32">
+            <Date>2010-01-06</Date>
+            <Version>4.3.4</Version>
+            <Comment>
+                - Depend on kosd,
+                - Rework patch to check for KOSD and fallback to native OSD if it's not running.
+            </Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="31">
+            <Date>2009-12-04</Date>
+            <Version>4.3.4</Version>
+            <Comment>Version bump to 4.3.4</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="30">
+            <Date>2009-11-04</Date>
+            <Version>4.3.3</Version>
+            <Comment>Add pavucontrol shortcut to KMix context menu.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="29">
+            <Date>2009-11-03</Date>
+            <Version>4.3.3</Version>
+            <Comment>Version bump to 4.3.3</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="28">
+            <Date>2009-10-22</Date>
+            <Version>4.3.2</Version>
+            <Comment>Add missing kdelibs-experimental dependency.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="27">
+            <Date>2009-10-06</Date>
+            <Version>4.3.2</Version>
+            <Comment>Version bump to 4.3.2 release</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="26">
+            <Date>2009-08-14</Date>
+            <Version>4.2.4</Version>
+            <Comment>
+                * New chrome skin for KSCD from SVN
+                * Partial fix for autostart option of kscd
+                * Show Play Audio CD with KSCD option on top
+            </Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="25">
+            <Date>2009-06-03</Date>
+            <Version>4.2.4</Version>
+            <Comment>Version bump to 4.2.4 bugfix release</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="24">
+            <Date>2009-05-07</Date>
+            <Version>4.2.3</Version>
+            <Comment>Version bump to 4.2.3 bugfix release</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="23">
+            <Date>2009-04-10</Date>
+            <Version>4.2.2</Version>
+            <Comment>Version bump to 4.2.2 bugfix release</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="22">
+            <Date>2009-03-04</Date>
+            <Version>4.2.1</Version>
+            <Comment>Version bump to 4.2.1 bugfix release</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="21">
+            <Date>2009-01-29</Date>
+            <Version>4.2.0</Version>
+            <Comment>Version bump to 4.2 final release</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="20">
+            <Date>2009-01-08</Date>
+            <Version>4.1.87_906699</Version>
+            <Comment>Sync with SVN</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="19">
+            <Date>2009-01-05</Date>
+            <Version>4.1.87</Version>
+            <Comment>Version bump</Comment>
+            <Name>Gökmen Göksel</Name>
+            <Email>gokmen@pardus.org.tr</Email>
+        </Update>
+        <Update release="18">
+            <Date>2008-12-23</Date>
+            <Version>4.1.85</Version>
+            <Comment>Version bump to 4.2 beta 2</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="17">
+            <Date>2008-11-28</Date>
+            <Version>4.1.80</Version>
+            <Comment>Version bump to 4.2 beta 1</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="16">
+            <Date>2008-11-02</Date>
+            <Version>4.1.3</Version>
+            <Comment>Stable update</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="15">
+            <Date>2008-09-26</Date>
+            <Version>4.1.2</Version>
+            <Comment>Stable update to bugfix release</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="14">
+            <Date>2008-09-17</Date>
+            <Version>4.1.1</Version>
+            <Comment>Patch from Fedora to fix Drangon part crash</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="13">
+            <Date>2008-09-05</Date>
+            <Version>4.1.1</Version>
+            <Comment>Stable update to new bugfix release</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="12">
+            <Date>2008-07-27</Date>
+            <Version>4.1.0</Version>
+            <Comment>Stable update</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="11">
+            <Date>2008-07-25</Date>
+            <Version>4.0.99</Version>
+            <Comment>Version bump</Comment>
+            <Name>İşbaran Akçayır</Name>
+            <Email>isbaran@comu.edu.tr</Email>
+        </Update>
+        <Update release="10">
+            <Date>2008-07-15</Date>
+            <Version>4.0.98</Version>
+            <Comment>Version bump</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="9">
+            <Date>2008-07-13</Date>
+            <Version>4.0.85</Version>
+            <Comment>Phonon dependecy added</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="8">
+            <Date>2008-07-04</Date>
+            <Version>4.0.85</Version>
+            <Comment>Version bump</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="7">
+            <Date>2008-06-24</Date>
+            <Version>4.0.83</Version>
+            <Comment>Beta 2</Comment>
+            <Name>İşbaran Akçayır</Name>
+            <Email>isbaran@comu.edu.tr</Email>
+        </Update>
+        <Update release="6">
+            <Date>2008-05-28</Date>
+            <Version>4.0.80</Version>
+            <Comment>Stable update</Comment>
+            <Name>Kenan Pelit</Name>
+            <Email>kpelit@gmail.com</Email>
+        </Update>
+        <Update release="5">
+            <Date>2008-05-07</Date>
+            <Version>4.0.4</Version>
+            <Comment>Stable update</Comment>
+            <Name>Kenan Pelit</Name>
+            <Email>kpelit@gmail.com</Email>
+        </Update>
+        <Update release="4">
+            <Date>2008-04-03</Date>
+            <Version>4.0.3</Version>
+            <Comment>Stable update</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="3">
+            <Date>2008-03-05</Date>
+            <Version>4.0.2</Version>
+            <Comment>Stable update</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="2">
+            <Date>2008-01-31</Date>
+            <Version>4.0.1</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="1">
+            <Date>2008-01-05</Date>
+            <Version>4.0.0</Version>
+            <Comment>First release</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+    </History>
+</PISI>

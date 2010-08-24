@@ -1,0 +1,57 @@
+Index: kdemultimedia-4.3.3/kmix/kmixdockwidget.cpp
+===================================================================
+--- kdemultimedia-4.3.3.orig/kmix/kmixdockwidget.cpp
++++ kdemultimedia-4.3.3/kmix/kmixdockwidget.cpp
+@@ -33,6 +33,8 @@
+ #include <kwindowsystem.h>
+ #include <kactioncollection.h>
+ #include <ktoggleaction.h>
++#include <kprocess.h>
++#include <kmessagebox.h>
+ #include <qapplication.h>
+ #include <qcursor.h>
+ #include <QDesktopWidget>
+@@ -98,6 +100,13 @@ void KMixDockWidget::createActions()
+     if ( a ) menu->addAction( a );
+ }
+ 
++  // Add pavucontrol shortcut to the context menu
++  QAction *paction = actionCollection()->addAction( "run_pavucontrol" );
++  paction->setText( i18n ("Advanced Sound Control") );
++  connect(paction, SIGNAL(triggered(bool) ), SLOT (runPavucontrol() ));
++  QAction *a1 = actionCollection()->action ("run_pavucontrol" );
++  if ( a1 ) menu->addAction( a1 );
++
+   // Put "Select Master Channel" dialog in context menu
+   if ( m_mixer != 0 ) {
+   QAction *action = actionCollection()->addAction( "select_master" );
+@@ -158,6 +167,17 @@ void KMixDockWidget::selectMaster()
+     // !! The dialog is modal. Does it delete itself?
+ }
+ 
++void KMixDockWidget::runPavucontrol()
++{
++    KProcess *pulse_proc = new KProcess();
++    pulse_proc->setProgram("/usr/bin/pavucontrol");
++
++    if ( pulse_proc->startDetached() == 0 ) {
++        // Error
++        KMessageBox::error(0, i18n("Failed launching pavucontrol, make sure the pavucontrol package is correctly installed."),
++                              i18n("Error launching pavucontrol"));
++    }
++}
+ 
+ void KMixDockWidget::handleNewMaster(QString& /*mixerID*/, QString& /*control_id*/)
+ {
+Index: kdemultimedia-4.3.3/kmix/kmixdockwidget.h
+===================================================================
+--- kdemultimedia-4.3.3.orig/kmix/kmixdockwidget.h
++++ kdemultimedia-4.3.3/kmix/kmixdockwidget.h
+@@ -84,6 +84,7 @@ class KMixDockWidget : public KNotificat
+    void trayWheelEvent(int delta);
+    //void kmixSystrayAction(QSystemTrayIcon::ActivationReason);
+    void selectMaster();
++   void runPavucontrol();
+    void handleNewMaster(QString& soundcard_id, QString& channel_id);
+    void contextMenuAboutToShow();
+ };
