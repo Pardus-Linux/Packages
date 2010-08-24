@@ -1,0 +1,63 @@
+Index: services/servicerunner.cpp
+===================================================================
+--- kdebase-workspace-4.3.0/plasma/runners/services/servicerunner.cpp	(revision 979260)
++++ kdebase-workspace-4.3.0/plasma/runners/services/servicerunner.cpp	(working copy)
+@@ -154,6 +154,36 @@
+         matches << match;
+     }
+ 
++    QString termUpper = term.toUpper();
++    //listing all apps of a particular desktop environment wouldn't be too useful
++    if (termUpper != "KDE" || termUpper != "GNOME" || termUpper != "XFCE") {
++        //search for applications whose categories contains the query
++        query = QString("exist Exec and (exist Categories and '%1' ~subin Categories)").arg(term);
++        services = KServiceTypeTrader::self()->query("Application", query);
++
++        if (!services.isEmpty()) {
++            //kDebug() << service->name() << "is an exact match!" << service->storageId() << service->exec();
++            foreach (const KService::Ptr &service, services) {
++                if (!service->noDisplay()) {
++                    QString id = service->storageId();
++                    QString exec = service->exec();
++                    if (seen.contains(id) || seen.contains(exec)) {
++                        //kDebug() << "already seen" << id << exec;
++                        continue;
++                    }
++                    Plasma::QueryMatch match(this);
++                    match.setType(Plasma::QueryMatch::ExactMatch);
++                    setupMatch(service, match);
++                    match.setRelevance(0.6);
++                    if (service->categories().contains("X-KDE-More") || !service->property("OnlyShowIn").isNull()) {
++                        match.setRelevance(0.5);
++                    }
++                    matches << match;
++                }
++            }
++        }
++    }
++
+     context.addMatches(term, matches);
+ }
+ 
+Index: bookmarks/bookmarksrunner.cpp
+===================================================================
+--- kdebase-workspace-4.3.0/plasma/runners/bookmarks/bookmarksrunner.cpp	(revision 979260)
++++ kdebase-workspace-4.3.0/plasma/runners/bookmarks/bookmarksrunner.cpp	(working copy)
+@@ -41,6 +41,7 @@
+     m_icon = KIcon("bookmarks");
+     m_bookmarkManager = KBookmarkManager::userBookmarksManager();
+     addSyntax(Plasma::RunnerSyntax(":q:", i18n("Finds web browser bookmarks matching :q:.")));
++    addSyntax(Plasma::RunnerSyntax(i18nc("list of all konqueror bookmarks", "list bookmarks"), i18n("List all bookmarks of the browser")));
+ }
+ 
+ BookmarksRunner::~BookmarksRunner()
+@@ -96,6 +97,9 @@
+         } else if (bookmark.url().prettyUrl().contains(term, Qt::CaseInsensitive)) {
+             type = Plasma::QueryMatch::PossibleMatch;
+             relevance = 0.2;
++        } else if (term.compare(i18nc("list of all konqueror bookmarks", "list bookmarks"), Qt::CaseInsensitive) == 0) {
++            type = Plasma::QueryMatch::PossibleMatch;
++            relevance = 0.18;
+         }
+ 
+         if (type != Plasma::QueryMatch::NoMatch) {

@@ -1,0 +1,33 @@
+Index: plasma/netbook/shell/plasmaapp.cpp
+===================================================================
+--- plasma/netbook/shell/plasmaapp.cpp	(revision 1133011)
++++ plasma/netbook/shell/plasmaapp.cpp	(revision 1133012)
+@@ -215,6 +215,7 @@
+       m_mainView(0),
+       m_isDesktop(false),
+       m_autoHideControlBar(true),
++      m_raiseTimer(new QTimer(this)),
+       m_unHideTimer(0)
+ {
+     KGlobal::locale()->insertCatalog("libplasma");
+@@ -246,16 +247,16 @@
+     Plasma::Theme::defaultTheme()->setFont(cg.readEntry("desktopFont", font()));
+ 
+     m_mainView = new NetView(0, NetView::mainViewId(), 0);
++
++    m_raiseTimer->setSingleShot(true);
++    connect(m_raiseTimer, SIGNAL(timeout()), this, SLOT(raiseMainView()));
++	
+     connect(m_mainView, SIGNAL(containmentActivated()), this, SLOT(mainContainmentActivated()));
+     connect(KWindowSystem::self(), SIGNAL(workAreaChanged()), this, SLOT(positionPanel()));
+     m_mainView->installEventFilter(this);
+ 
+     connect(KWindowSystem::self(), SIGNAL(activeWindowChanged(WId)), this, SLOT(controlBarVisibilityUpdate()));
+ 
+-    m_raiseTimer = new QTimer(this);
+-    m_raiseTimer->setSingleShot(true);
+-    connect(m_raiseTimer, SIGNAL(timeout()), this, SLOT(raiseMainView()));
+-
+     int width = 400;
+     int height = 200;
+     if (isDesktop) {

@@ -1,0 +1,115 @@
+--- a/kcontrol/dateandtime/dtime.h	2009-07-01 14:36:40.660957351 +0300
++++ b/kcontrol/dateandtime/dtime.h	2009-07-01 14:35:31.851082715 +0300
+@@ -23,6 +23,7 @@
+ #define dtime_included
+ 
+ #include <QDateTime>
++#include <QTimeEdit>
+ #include <QLineEdit>
+ #include <QSpinBox>
+ #include <QComboBox>
+@@ -85,9 +86,14 @@
+   QComboBox	*month;
+   QSpinBox	*year;
+ 
++/*
+   HMSTimeWidget	*hour;
+   HMSTimeWidget	*minute;
+   HMSTimeWidget	*second;
++*/
++  QTimeEdit	*hour;
++  QTimeEdit	*minute;
++  QTimeEdit	*second;
+ 
+   Kclock	*kclock;
+ 
+--- a/kcontrol/dateandtime/dtime.cpp	2009-07-01 14:36:40.659957418 +0300
++++ b/kcontrol/dateandtime/dtime.cpp	2009-07-01 14:35:31.851082715 +0300
+@@ -144,9 +144,12 @@
+   QSpacerItem *spacer1 = new QSpacerItem( 20, 20, QSizePolicy::Expanding, QSizePolicy::Minimum );
+   v3->addItem(spacer1, 0, 1, 2, 1);
+ 
+-  hour = new HMSTimeWidget( timeBox );
++  hour = new QTimeEdit( timeBox );
++  hour->setDisplayFormat("hh");
+   hour->setWrapping(true);
++  /*
+   hour->setMaximum(23);
++  */
+ #ifdef __GNUC__
+ #warning fixme hour->setValidator(new KStrictIntValidator(0, 23, hour));
+ #endif
+@@ -157,10 +160,13 @@
+   dots1->setAlignment( Qt::AlignCenter );
+   v3->addWidget(dots1, 0, 3, 2, 1);
+ 
+-  minute = new HMSTimeWidget( timeBox );
++  minute = new QTimeEdit( timeBox );
++  minute->setDisplayFormat("mm");
+   minute->setWrapping(true);
++  /*
+   minute->setMinimum(0);
+   minute->setMaximum(59);
++  */
+ #ifdef __GNUC__
+   #warning fixme minute->setValidator(new KStrictIntValidator(0, 59, minute));
+ #endif
+@@ -171,10 +177,13 @@
+   dots2->setAlignment( Qt::AlignCenter );
+   v3->addWidget(dots2, 0, 5, 2, 1);
+ 
+-  second = new HMSTimeWidget( timeBox );
++  second = new QTimeEdit( timeBox );
++  second->setDisplayFormat("ss");
+   second->setWrapping(true);
++  /*
+   second->setMinimum(0);
+   second->setMaximum(59);
++  */
+ #ifdef __GNUC__
+   #warning fixme second->setValidator(new KStrictIntValidator(0, 59, second));
+ #endif
+@@ -204,9 +213,9 @@
+   // End Dialog
+   // *************************************************************
+ 
+-  connect( hour, SIGNAL(valueChanged(int)), SLOT(set_time()) );
+-  connect( minute, SIGNAL(valueChanged(int)), SLOT(set_time()) );
+-  connect( second, SIGNAL(valueChanged(int)), SLOT(set_time()) );
++  connect( hour, SIGNAL(timeChanged(QTime)), SLOT(set_time()) );
++  connect( minute, SIGNAL(timeChanged(QTime)), SLOT(set_time()) );
++  connect( second, SIGNAL(timeChanged(QTime)), SLOT(set_time()) );
+   connect( cal, SIGNAL(dateChanged(QDate)), SLOT(changeDate(QDate)));
+ 
+   connect( &internalTimer, SIGNAL(timeout()), SLOT(timeout()) );
+@@ -245,7 +254,7 @@
+ 
+   internalTimer.stop();
+ 
+-  time.setHMS( hour->value(), minute->value(), second->value() );
++  time.setHMS( hour->time().hour(), minute->time().minute(), second->time().second() );
+   kclock->setTime( time );
+ 
+   emit timeChanged( true );
+@@ -312,7 +321,7 @@
+   else {
+     // User time setting
+     QDateTime dt(date,
+-        QTime(hour->value(), minute->value(), second->value()));
++        QTime(hour->time().hour(), minute->time().minute(), second->time().second()));
+ 
+     kDebug() << "Set date " << dt;
+ 
+@@ -341,9 +350,9 @@
+   time = QTime::currentTime();
+ 
+   ontimeout = true;
+-  second->setValue(time.second());
+-  minute->setValue(time.minute());
+-  hour->setValue(time.hour());
++  second->setTime(time);
++  minute->setTime(time);
++  hour->setTime(time);
+   ontimeout = false;
+ 
+   kclock->setTime( time );

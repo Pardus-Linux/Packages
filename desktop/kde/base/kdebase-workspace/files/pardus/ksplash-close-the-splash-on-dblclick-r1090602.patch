@@ -1,0 +1,82 @@
+Index: kdebase-workspace-4.3.5/ksplash/simple/main.cpp
+===================================================================
+--- kdebase-workspace-4.3.5.orig/ksplash/simple/main.cpp
++++ kdebase-workspace-4.3.5/ksplash/simple/main.cpp
+@@ -155,8 +155,13 @@ int main( int argc, char* argv[])
+     int pos = 0;
+     int state = 1; // cannot check dcop connection - make this state initial
+     const int delay = 200; // ms
++    const int doubleclick_delay = 200; // mouse doubleclick delay - in ms
+     time_t final_time = time( NULL ) + 300;
+     time_t test_time = time( NULL ) + 1;
++    struct timeval button_press_time, current_time; // we need timeval to deal with milliseconds
++    button_press_time.tv_sec = 0;
++    button_press_time.tv_usec = 0;
++    long click_delay, click_delay_useconds;
+     Atom kde_splash_progress = XInternAtom( dpy, "_KDE_SPLASH_PROGRESS", False );
+     for(;;)
+         {
+@@ -166,8 +171,21 @@ int main( int argc, char* argv[])
+             XNextEvent( dpy, &ev );
+             if( ev.type == ButtonPress && ev.xbutton.button == Button1 )
+                 {
+-                final_time = time( NULL );
+-                break;
++                gettimeofday( &current_time, NULL );
++                
++                // find difference in milliseconds with current and previous mouse presses times
++                // and take the absolute value of it to avoid negative values
++                // No need to use tv_sec as the inter-click interval is < 1 sec
++                click_delay = (current_time.tv_usec - button_press_time.tv_usec) / 1000;
++                click_delay = (click_delay<0)?-click_delay:click_delay;
++            
++                if( click_delay <= doubleclick_delay )
++                    {
++                    // close splash on doubleclick
++                    final_time = time( NULL );
++                    break;
++                    }
++                gettimeofday( &button_press_time, NULL );
+                 }
+             if( ev.type == ConfigureNotify && ev.xconfigure.event == DefaultRootWindow( dpy ))
+                 {
+Index: kdebase-workspace-4.3.5/ksplash/ksplashx/splash.cpp
+===================================================================
+--- kdebase-workspace-4.3.5.orig/ksplash/ksplashx/splash.cpp
++++ kdebase-workspace-4.3.5/ksplash/ksplashx/splash.cpp
+@@ -865,6 +865,11 @@ static bool waitState( int expected_stat
+         close( parent_pipe );
+         parent_pipe = -1;
+         }
++    const int doubleclick_delay = 200; // mouse doubleclick delay - in ms
++    struct timeval button_press_time, current_time; // we need timeval to deal with milliseconds
++    button_press_time.tv_sec = 0;
++    button_press_time.tv_usec = 0;
++    long click_delay, click_delay_useconds;
+     for(;;)
+         {
+         while( XPending( qt_xdisplay()))
+@@ -873,8 +878,21 @@ static bool waitState( int expected_stat
+             XNextEvent( qt_xdisplay(), &ev );
+             if( ev.type == ButtonPress && ev.xbutton.window == window && ev.xbutton.button == Button1 )
+                 {
+-                final_time = time( NULL );
+-                break;
++                gettimeofday( &current_time, NULL );
++                
++                // find difference in milliseconds with current and previous mouse presses times
++                // and take the absolute value of it to avoid negative values
++                // No need to use tv_sec as the inter-click interval is < 1 sec
++                click_delay = (current_time.tv_usec - button_press_time.tv_usec) / 1000;
++                click_delay = (click_delay<0)?-click_delay:click_delay;
++            
++                if( click_delay <= doubleclick_delay )
++                    {
++                    // close splash on doubleclick
++                    final_time = time( NULL );
++                    break;
++                    }
++                gettimeofday( &button_press_time, NULL );
+                 }
+             if( ev.type == Expose && ev.xexpose.window == window )
+                 doPaint( QRect( ev.xexpose.x, ev.xexpose.y, ev.xexpose.width, ev.xexpose.height ));

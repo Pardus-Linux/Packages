@@ -1,0 +1,165 @@
+From 86dd34fb4efba8163272c171912484ea077b0ed0 Mon Sep 17 00:00:00 2001
+From: =?utf-8?q?Aur=C3=A9lien=20G=C3=A2teau?= <agateau@kde.org>
+Date: Thu, 18 Jun 2009 17:45:23 +0200
+Subject: [PATCH] Switch to org.freedesktop.Notifications
+
+---
+--- a/plasma/dataengines/notifications/CMakeLists.txt
++++ b/plasma/dataengines/notifications/CMakeLists.txt
+@@ -4,7 +4,7 @@ set(notifications_engine_SRCS
+     notificationaction.cpp
+ )
+ 
+-qt4_add_dbus_adaptor( notifications_engine_SRCS org.kde.VisualNotifications.xml notificationsengine.h  NotificationsEngine )
++qt4_add_dbus_adaptor( notifications_engine_SRCS org.freedesktop.Notifications.xml notificationsengine.h  NotificationsEngine )
+ 
+ kde4_add_plugin(plasma_engine_notifications ${notifications_engine_SRCS})
+ 
+--- a/plasma/dataengines/notifications/notificationsengine.cpp
++++ b/plasma/dataengines/notifications/notificationsengine.cpp
+@@ -19,7 +19,7 @@
+ 
+ #include "notificationsengine.h"
+ #include "notificationservice.h"
+-#include "visualnotificationsadaptor.h"
++#include "notificationsadaptor.h"
+ 
+ #include <Plasma/DataContainer>
+ #include <Plasma/Service>
+@@ -29,21 +29,21 @@
+ NotificationsEngine::NotificationsEngine( QObject* parent, const QVariantList& args )
+     : Plasma::DataEngine( parent, args ), m_nextId( 1 )
+ {
+-    VisualNotificationsAdaptor* adaptor = new VisualNotificationsAdaptor(this);
++    NotificationsAdaptor* adaptor = new NotificationsAdaptor(this);
+     connect(this, SIGNAL(NotificationClosed(uint, uint)),
+             adaptor, SIGNAL(NotificationClosed(uint,uint)));
+     connect(this, SIGNAL(ActionInvoked(uint, const QString&)),
+             adaptor, SIGNAL(ActionInvoked(uint, const QString&)));
+ 
+     QDBusConnection dbus = QDBusConnection::sessionBus();
+-    dbus.registerService( "org.kde.VisualNotifications" );
+-    dbus.registerObject( "/VisualNotifications", this );
++    dbus.registerService( "org.freedesktop.Notifications" );
++    dbus.registerObject( "/org/freedesktop/Notifications", this );
+ }
+ 
+ NotificationsEngine::~NotificationsEngine()
+ {
+     QDBusConnection dbus = QDBusConnection::sessionBus();
+-    dbus.unregisterService( "org.kde.VisualNotifications" );
++    dbus.unregisterService( "org.freedesktop.Notifications" );
+ }
+ 
+ void NotificationsEngine::init()
+@@ -123,6 +123,26 @@ Plasma::Service* NotificationsEngine::serviceForSource(const QString& source)
+     return new NotificationService(this, source);
+ }
+ 
++QStringList NotificationsEngine::GetCapabilities()
++{
++    return QStringList()
++        << "body"
++        << "body-hyperlinks"
++        << "body-markup"
++        << "icon-static"
++        << "actions"
++        ;
++}
++
++// FIXME: Signature is ugly
++QString NotificationsEngine::GetServerInformation(QString& vendor, QString& version, QString& specVersion)
++{
++    vendor = "KDE";
++    version = "1.0"; // FIXME
++    specVersion = "0.10";
++    return "Plasma";
++}
++
+ K_EXPORT_PLASMA_DATAENGINE(notifications, NotificationsEngine)
+ 
+ #include "notificationsengine.moc"
+--- a/plasma/dataengines/notifications/notificationsengine.h
++++ b/plasma/dataengines/notifications/notificationsengine.h
+@@ -50,6 +50,10 @@ public:
+ 
+     Plasma::Service* serviceForSource(const QString& source);
+ 
++    QStringList GetCapabilities();
++
++    QString GetServerInformation(QString& vendor, QString& version, QString& specVersion);
++
+ signals:
+     void NotificationClosed( uint id, uint reason );
+     void ActionInvoked( uint id, const QString& actionKey );
+--- /dev/null
++++ b/plasma/dataengines/notifications/org.freedesktop.Notifications.xml
+@@ -0,0 +1,37 @@
++<!DOCTYPE node PUBLIC "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN" "http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">
++<node>
++  <interface name="org.freedesktop.Notifications">
++    <signal name="NotificationClosed">
++      <arg name="id" type="u" direction="out"/>
++      <arg name="reason" type="u" direction="out"/>
++    </signal>
++    <signal name="ActionInvoked">
++      <arg name="id" type="u" direction="out"/>
++      <arg name="action_key" type="s" direction="out"/>
++    </signal>
++    <method name="Notify">
++      <annotation name="com.trolltech.QtDBus.QtTypeName.In6" value="QVariantMap"/>
++      <arg type="u" direction="out"/>
++      <arg name="app_name" type="s" direction="in"/>
++      <arg name="replaces_id" type="u" direction="in"/>
++      <arg name="app_icon" type="s" direction="in"/>
++      <arg name="summary" type="s" direction="in"/>
++      <arg name="body" type="s" direction="in"/>
++      <arg name="actions" type="as" direction="in"/>
++      <arg name="hints" type="a{sv}" direction="in"/>
++      <arg name="timeout" type="i" direction="in"/>
++    </method>
++    <method name="CloseNotification">
++      <arg name="id" type="u" direction="in"/>
++    </method>
++    <method name="GetCapabilities">
++      <arg type="as" name="caps" direction="out"/>
++    </method>
++    <method name="GetServerInformation">
++      <arg type="s" name="name" direction="out"/>
++      <arg type="s" name="vendor" direction="out"/>
++      <arg type="s" name="version" direction="out"/>
++      <arg type="s" name="spec_version" direction="out"/>
++    </method>
++  </interface>
++</node>
+--- a/plasma/dataengines/notifications/org.kde.VisualNotifications.xml
++++ /dev/null
+@@ -1,28 +0,0 @@
+-<!DOCTYPE node PUBLIC "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN" "http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">
+-<node>
+-  <interface name="org.kde.VisualNotifications">
+-    <signal name="NotificationClosed">
+-      <arg name="id" type="u" direction="out"/>
+-      <arg name="reason" type="u" direction="out"/>
+-    </signal>
+-    <signal name="ActionInvoked">
+-      <arg name="id" type="u" direction="out"/>
+-      <arg name="action_key" type="s" direction="out"/>
+-    </signal>
+-    <method name="Notify">
+-      <annotation name="com.trolltech.QtDBus.QtTypeName.In6" value="QVariantMap"/>
+-      <arg type="u" direction="out"/>
+-      <arg name="app_name" type="s" direction="in"/>
+-      <arg name="replaces_id" type="u" direction="in"/>
+-      <arg name="app_icon" type="s" direction="in"/>
+-      <arg name="summary" type="s" direction="in"/>
+-      <arg name="body" type="s" direction="in"/>
+-      <arg name="actions" type="as" direction="in"/>
+-      <arg name="hints" type="a{sv}" direction="in"/>
+-      <arg name="timeout" type="i" direction="in"/>
+-    </method>
+-    <method name="CloseNotification">
+-      <arg name="id" type="u" direction="in"/>
+-    </method>
+-  </interface>
+-</node>

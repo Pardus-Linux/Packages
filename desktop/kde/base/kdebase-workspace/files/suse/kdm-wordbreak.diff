@@ -1,0 +1,22 @@
+Index: kdm/kfrontend/kfdialog.cpp
+===================================================================
+--- kdm/kfrontend/kfdialog.cpp.orig
++++ kdm/kfrontend/kfdialog.cpp
+@@ -28,6 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fi
+ 
+ #include <KGuiItem>
+ #include <KPushButton>
++#include <KGlobalSettings>
+ 
+ #include <QApplication>
+ #include <QDesktopWidget>
+@@ -170,6 +171,9 @@ KFMsgBox::KFMsgBox( QWidget *parent, QMe
+ 	QLabel *label1 = new QLabel( this );
+ 	label1->setPixmap( QMessageBox::standardIcon( type ) );
+ 	QLabel *label2 = new QLabel( text, this );
++        QRect d = KGlobalSettings::desktopGeometry(this);
++        if ( label2->fontMetrics().size( 0, text).width() > d.width() * 3 / 5)
++            label2->setWordWrap( true );
+ 	KPushButton *button = new KPushButton( KStandardGuiItem::ok(), this );
+ 	button->setDefault( true );
+ 	button->setSizePolicy( QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred ) );

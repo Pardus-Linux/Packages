@@ -1,0 +1,58 @@
+diff -Naur kdebase-workspace-4.3.4-orig/kdm/kfrontend/kdmshutdown.cpp kdebase-workspace-4.3.4/kdm/kfrontend/kdmshutdown.cpp
+--- kdebase-workspace-4.3.4-orig/kdm/kfrontend/kdmshutdown.cpp	2009-12-09 16:11:09.272437919 +0200
++++ kdebase-workspace-4.3.4/kdm/kfrontend/kdmshutdown.cpp	2009-12-09 16:23:17.652113501 +0200
+@@ -41,6 +41,7 @@
+ #include <QCheckBox>
+ #include <QComboBox>
+ #include <QDateTime>
++#include <QFile>
+ #include <QFrame>
+ #include <QGroupBox>
+ #include <QHeaderView>
+@@ -609,7 +610,7 @@
+   // would require string changes (coolo)
+   QList<DpySpec> sess;
+   kDebug() << "slotSuspend" << _allowSuspend;
+-  if (!sess.isEmpty() || _allowSuspend == SHUT_ROOT)
++  if ((!sess.isEmpty() || _allowSuspend == SHUT_ROOT) && !QFile::exists("/var/run/pardus/livemedia"))
+   {
+       int ret = KDMConfShutdown( -1, sess, SHUT_SUSPEND, 0 ).exec();
+       if ( !ret )
+@@ -682,7 +683,7 @@
+ {
+ 	reject();
+ 	QList<DpySpec> sess = fetchSessions( lstRemote | lstTTY );
+-	if (sess.isEmpty() && _allowShutdown != SHUT_ROOT)
++	if ((sess.isEmpty() && _allowShutdown != SHUT_ROOT) || QFile::exists("/var/run/pardus/livemedia"))
+ 		return true;
+ 	int ret = KDMConfShutdown( -1, sess, type, os ).exec();
+ 	if (ret == Schedule) {
+@@ -696,7 +697,7 @@
+ KDMSlimShutdown::externShutdown( int type, const QString &os, int uid, bool ask )
+ {
+ 	QList<DpySpec> sess = fetchSessions( lstRemote | lstTTY );
+-	if (ask || !sess.isEmpty() || (uid && _allowShutdown == SHUT_ROOT)) {
++	if (!QFile::exists("/var/run/pardus/livemedia") && (ask || !sess.isEmpty() || (uid && _allowShutdown == SHUT_ROOT))) {
+ 		int ret = KDMConfShutdown( uid, sess, type, os ).exec();
+ 		if (ret == Schedule) {
+ 			KDMShutdown( uid ).exec();
+diff -Naur kdebase-workspace-4.3.4-orig/kdm/kfrontend/kgdialog.cpp kdebase-workspace-4.3.4/kdm/kfrontend/kgdialog.cpp
+--- kdebase-workspace-4.3.4-orig/kdm/kfrontend/kgdialog.cpp	2009-12-09 16:34:22.552189053 +0200
++++ kdebase-workspace-4.3.4/kdm/kfrontend/kgdialog.cpp	2009-12-09 16:34:33.592062666 +0200
+@@ -33,6 +33,7 @@
+ 
+ #include <QAction>
+ #include <QMenu>
++#include <QFile>
+ 
+ KGDialog::KGDialog( bool themed ) : inherited( 0, !themed )
+ {
+@@ -169,7 +169,7 @@
+ {
+ #ifdef HAVE_VTS
+ 	QList<DpySpec> sess = fetchSessions( 0 );
+-	if (!sess.isEmpty()) {
++	if (!sess.isEmpty() && !QFile::exists("/var/run/pardus/livemedia")) {
+ 		if (verify)
+ 			verify->suspend();
+ 		int ret = KDMConfShutdown( -1, sess, SHUT_CONSOLE, 0 ).exec();

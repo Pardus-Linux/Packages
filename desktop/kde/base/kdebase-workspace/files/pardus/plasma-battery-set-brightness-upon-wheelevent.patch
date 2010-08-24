@@ -1,0 +1,28 @@
+--- a/plasma/generic/applets/battery/battery.cpp	2009-11-20 10:36:16.126973028 +0200
++++ b/plasma/generic/applets/battery/battery.cpp	2009-11-20 10:40:23.994946174 +0200
+@@ -275,6 +275,15 @@
+     m_boxColor.setAlpha(m_boxAlpha);
+ }
+ 
++void Battery::wheelEvent(QGraphicsSceneWheelEvent *event)
++{
++    float current = Solid::Control::PowerManager::brightness();
++    float newVal = current + (5 * (event->delta() / 120));
++    if (newVal < 0)
++        newVal = 0;
++    Solid::Control::PowerManager::setBrightness(newVal);
++}
++
+ void Battery::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
+ {
+     showLabel(true);
+--- a/plasma/generic/applets/battery/battery.h	2009-06-23 14:15:05.000000000 +0300
++++ b/plasma/generic/applets/battery/battery.h	2009-11-20 10:36:32.573946373 +0200
+@@ -61,6 +61,7 @@
+         void dataUpdated(const QString &name, const Plasma::DataEngine::Data &data);
+ 
+     protected Q_SLOTS:
++        virtual void wheelEvent (QGraphicsSceneWheelEvent *event);
+         virtual void hoverEnterEvent(QGraphicsSceneHoverEvent *event);
+         virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent *event);
+         void configAccepted();

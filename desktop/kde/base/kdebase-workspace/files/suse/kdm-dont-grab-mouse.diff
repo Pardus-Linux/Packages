@@ -1,0 +1,31 @@
+Subject: Do not grab mouse in KDM
+From: Lubos Lunak
+Patch-upstream: no (it's basically r732242 reverted)
+Bug: bnc#445726
+
+This patch reverts change in KDM that made it also grab the mouse, which
+prevents xvkbd from working on tablet PCs.
+
+
+Index: kdm/kfrontend/kdm_greet.c
+===================================================================
+--- kdm/kfrontend/kdm_greet.c.orig
++++ kdm/kfrontend/kdm_greet.c
+@@ -462,7 +462,7 @@ secureInputs( Display *dpy )
+ {
+ 	debug( "secureInputs %s\n", dname );
+ 	secureKeyboard( dpy );
+-	securePointer( dpy );
++/*	securePointer( dpy ); */
+ 	XSetInputFocus( dpy, None, None, CurrentTime );
+ 	debug( "secureInputs %s done\n", dname );
+ }
+@@ -473,7 +473,7 @@ unsecureInputs( Display *dpy )
+ 	debug( "unsecureInputs %s\n", dname );
+ 	XSetInputFocus( dpy, PointerRoot, PointerRoot, CurrentTime );
+ 	XUngrabKeyboard( dpy, CurrentTime );
+-	XUngrabPointer( dpy, CurrentTime );
++/*	XUngrabPointer( dpy, CurrentTime ); */
+ 	XSync( dpy, False );
+ }
+ 

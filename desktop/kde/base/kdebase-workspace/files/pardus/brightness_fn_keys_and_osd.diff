@@ -1,0 +1,382 @@
+Index: kdebase-workspace-4.4.3/libs/solid/control/powermanager.cpp
+===================================================================
+--- kdebase-workspace-4.4.3.orig/libs/solid/control/powermanager.cpp
++++ kdebase-workspace-4.4.3/libs/solid/control/powermanager.cpp
+@@ -25,6 +25,8 @@
+ #include "ifaces/powermanager.h"
+ #include <kdebug.h>
+ #include <kglobal.h>
++#include <QDBusInterface>
++#include <QDBusPendingCall>
+ #include <QX11Info>
+ 
+ K_GLOBAL_STATIC(Solid::Control::PowerManagerPrivate, globalPowerManager)
+@@ -160,7 +162,8 @@ bool Solid::Control::PowerManager::setBr
+ #ifdef Q_WS_WIN
+             return false;
+ #else
+-            return ( xrandr_brightlight( QX11Info::display(), brightness ) >= 0 );
++            if ( xrandr_brightlight( QX11Info::display(), brightness ) < 0 )
++                return false;
+ #endif
+         }
+         else
+@@ -170,8 +173,12 @@ bool Solid::Control::PowerManager::setBr
+                 SOLID_CALL(Ifaces::PowerManager *, globalPowerManager->managerBackend(), setBrightness(brightness, device));
+             }
+             //TODO - This should be done better, it will return true even if one of the calls returns false. SOLID_CALL does not allow us to get the return value.
+-            return true;
+         }
++
++        QDBusInterface iface("org.kde.kded", "/modules/powerdevil", "org.kde.PowerDevil", QDBusConnection::sessionBus());
++        if (iface.isValid())
++            iface.asyncCall("notifyOfBrightnessChange", (int) Solid::Control::PowerManager::brightness());
++        return true;
+     }
+     else
+     {
+Index: kdebase-workspace-4.4.3/plasma/generic/applets/battery/battery.cpp
+===================================================================
+--- kdebase-workspace-4.4.3.orig/plasma/generic/applets/battery/battery.cpp
++++ kdebase-workspace-4.4.3/plasma/generic/applets/battery/battery.cpp
+@@ -24,6 +24,7 @@
+ #include <QApplication>
+ #include <QDBusConnection>
+ #include <QDBusInterface>
++#include <QDesktopWidget>
+ #include <QPainter>
+ #include <QStyleOptionGraphicsItem>
+ #include <QFont>
+@@ -34,6 +35,7 @@
+ #include <QLabel>
+ #include <QPropertyAnimation>
+ 
++#include <KApplication>
+ #include <KDebug>
+ #include <KIcon>
+ #include <KSharedConfig>
+@@ -62,7 +64,6 @@
+ #include <Plasma/ComboBox>
+ #include <Plasma/IconWidget>
+ 
+-
+ Battery::Battery(QObject *parent, const QVariantList &args)
+     : Plasma::PopupApplet(parent, args),
+       m_isEmbedded(false),
+@@ -343,13 +344,18 @@ void Battery::hibernate()
+ 
+ void Battery::brightnessChanged(const int brightness)
+ {
+-    Solid::Control::PowerManager::setBrightness(brightness);
++    if (!m_ignoreBrightnessChange) {
++        Solid::Control::PowerManager::setBrightness(brightness);
++    }
+ }
+ 
+-void Battery::updateSlider(const float brightness)
++void Battery::updateSlider(int brightness)
+ {
+-    if (m_brightnessSlider->value() != (int)brightness) {
+-        m_brightnessSlider->setValue((int) brightness);
++    if (m_brightnessSlider->value() != brightness) {
++        // only update the slider, but don't set the brightness
++        m_ignoreBrightnessChange = true;
++        m_brightnessSlider->setValue(brightness);
++        m_ignoreBrightnessChange = false;
+     }
+ }
+ 
+@@ -372,6 +378,7 @@ void Battery::initExtenderItem(Plasma::E
+     // as the battery applet is also embedded into the battery's extender.
+     if (!m_isEmbedded && item->name() == "powermanagement") {
+         int row = 0;
++        m_ignoreBrightnessChange = false;
+ 
+         m_controls = new QGraphicsWidget(item);
+         m_controls->setMinimumWidth(360);
+@@ -436,16 +443,12 @@ void Battery::initExtenderItem(Plasma::E
+ 
+         m_brightnessSlider = new Plasma::Slider(m_controls);
+         m_brightnessSlider->setRange(0, 100);
+-        m_brightnessSlider->setValue(Solid::Control::PowerManager::brightness());
++        updateSlider(Solid::Control::PowerManager::brightness());
+         m_brightnessSlider->nativeWidget()->setTickInterval(10);
+         m_brightnessSlider->setOrientation(Qt::Horizontal);
+         connect(m_brightnessSlider, SIGNAL(valueChanged(int)),
+                 this, SLOT(brightnessChanged(int)));
+ 
+-        Solid::Control::PowerManager::Notifier *notifier = Solid::Control::PowerManager::notifier();
+-
+-        connect(notifier, SIGNAL(brightnessChanged(float)),
+-                this, SLOT(updateSlider(float)));
+         m_controlsLayout->addItem(m_brightnessSlider, row, 1);
+         row++;
+ 
+@@ -536,6 +539,9 @@ void Battery::initExtenderItem(Plasma::E
+         item->setTitle(i18n("Power Management"));
+ 
+         setupFonts();
++
++        QDBusConnection::sessionBus().connect("org.kde.kded", "/modules/powerdevil", "org.kde.PowerDevil",
++                                              "brightnessChanged", this, SLOT(showBrightnessOSD(int,bool)));
+     }
+ }
+ 
+@@ -660,7 +666,7 @@ void Battery::updateStatus()
+     }
+ 
+     if (m_brightnessSlider) {
+-        m_brightnessSlider->setValue(Solid::Control::PowerManager::brightness());
++        updateSlider(Solid::Control::PowerManager::brightness());
+     }
+ }
+ 
+@@ -998,4 +1004,14 @@ qreal Battery::acAlpha()
+     return m_acAlpha;
+ }
+ 
++void Battery::showBrightnessOSD(int brightness, bool byFnKey)
++{
++    if (byFnKey) {
++        QDBusConnection dbus(QDBusConnection::sessionBus());
++        QDBusInterface iface("org.kde.kded", "/modules/kosd", "org.kde.KOSD", dbus);
++        iface.asyncCall("showOSD", "computer", "", brightness);
++    }
++
++}
++
+ #include "battery.moc"
+Index: kdebase-workspace-4.4.3/plasma/generic/applets/battery/battery.h
+===================================================================
+--- kdebase-workspace-4.4.3.orig/plasma/generic/applets/battery/battery.h
++++ kdebase-workspace-4.4.3/plasma/generic/applets/battery/battery.h
+@@ -84,7 +84,7 @@ class Battery : public Plasma::PopupAppl
+         void sourceAdded(const QString &source);
+         void sourceRemoved(const QString &source);
+         void brightnessChanged(const int brightness);
+-        void updateSlider(const float brightness);
++        void updateSlider(int brightness);
+         void setFullBrightness();
+         void openConfig();
+         void setProfile(const QString &profile);
+@@ -92,6 +92,7 @@ class Battery : public Plasma::PopupAppl
+         void hibernate();
+         void updateBattery();
+         void setupFonts();
++        void showBrightnessOSD(int brightness, bool byFnKey);
+ 
+     private:
+         void connectSources();
+@@ -173,6 +174,8 @@ class Battery : public Plasma::PopupAppl
+         QPropertyAnimation *m_labelAnimation;
+         qreal m_acAlpha;
+         QPropertyAnimation *m_acAnimation;
++
++        bool m_ignoreBrightnessChange;
+ };
+ 
+ K_EXPORT_PLASMA_APPLET(battery, Battery)
+Index: kdebase-workspace-4.4.3/powerdevil/daemon/org.kde.PowerDevil.xml
+===================================================================
+--- kdebase-workspace-4.4.3.orig/powerdevil/daemon/org.kde.PowerDevil.xml
++++ kdebase-workspace-4.4.3/powerdevil/daemon/org.kde.PowerDevil.xml
+@@ -42,6 +42,10 @@
+       <arg type="as" direction="out" />
+     </method>
+     
++    <method name="notifyOfBrightnessChange">
++      <arg type="i" direction="in" />
++    </method>
++    
+     <signal name="lidClosed">
+       <arg type="i" direction="out" />
+       <arg type="s" direction="out" />
+@@ -56,5 +60,9 @@
+     </signal>
+      <signal name="DPMSconfigUpdated">
+     </signal>
++    <signal name="brightnessChanged">
++      <arg type="i" direction="out" />
++      <arg type="b" direction="out" />
++    </signal>
+   </interface>
+ </node>
+Index: kdebase-workspace-4.4.3/powerdevil/daemon/PowerDevilDaemon.cpp
+===================================================================
+--- kdebase-workspace-4.4.3.orig/powerdevil/daemon/PowerDevilDaemon.cpp
++++ kdebase-workspace-4.4.3/powerdevil/daemon/PowerDevilDaemon.cpp
+@@ -26,6 +26,8 @@
+ 
+ #include <kdemacros.h>
+ #include <KAboutData>
++#include <KAction>
++#include <KActionCollection>
+ #include <KPluginFactory>
+ #include <KNotification>
+ #include <KIcon>
+@@ -93,6 +95,7 @@ public:
+             : notifier(Solid::Control::PowerManager::notifier())
+             , currentConfig(0)
+             , status(PowerDevilDaemon::NoAction)
++            , brightnessInHardware(false)
+             , ckSessionInterface(0) {}
+ 
+     Solid::Control::PowerManager::Notifier *notifier;
+@@ -119,6 +122,8 @@ public:
+ 
+     int batteryPercent;
+     int brightness;
++    int cachedBrightness;
++    bool brightnessInHardware;
+     bool isPlugged;
+ 
+     // ConsoleKit stuff
+@@ -174,6 +179,18 @@ PowerDevilDaemon::PowerDevilDaemon(QObje
+     d->ksmServerIface = new OrgKdeKSMServerInterfaceInterface("org.kde.ksmserver", "/KSMServer",
+                                                               QDBusConnection::sessionBus(), this);
+ 
++    QDBusInterface halManager("org.freedesktop.Hal",
++            "/org/freedesktop/Hal/Manager", "org.freedesktop.Hal.Manager",
++            QDBusConnection::systemBus());
++    QStringList panelDevices = halManager.call("FindDeviceByCapability",
++             "laptop_panel").arguments().at(0).toStringList();
++    if (!panelDevices.empty()) {
++        QDBusInterface deviceInterface("org.freedesktop.Hal", panelDevices.at(0), "org.freedesktop.Hal.Device",
++                QDBusConnection::systemBus());
++        d->brightnessInHardware = deviceInterface.call("GetPropertyBoolean",
++                "laptop_panel.brightness_in_hardware").arguments().at(0).toBool();
++    }
++
+     /*  Not needed anymore; I am not sure if we will need that in a future, so I leave it here
+      *  just in case.
+      *
+@@ -198,6 +215,19 @@ PowerDevilDaemon::PowerDevilDaemon(QObje
+     QDBusConnection::sessionBus().registerService("org.kde.powerdevil");
+     // All systems up Houston, let's go!
+     refreshStatus();
++
++    d->cachedBrightness = (int) Solid::Control::PowerManager::brightness();
++    KActionCollection* actionCollection = new KActionCollection( this );
++
++    KAction* globalAction = actionCollection->addAction("increase_brightness");
++    globalAction->setText(i18n("Increase Screen Brightness"));
++    globalAction->setGlobalShortcut(KShortcut(Qt::Key_MonBrightnessUp));
++    connect(globalAction, SIGNAL(triggered(bool)), SLOT(increaseBrightness()));
++
++    globalAction = actionCollection->addAction("decrease_brightness");
++    globalAction->setText(i18n("Decrease Screen Brightness"));
++    globalAction->setGlobalShortcut(KShortcut(Qt::Key_MonBrightnessDown));
++    connect(globalAction, SIGNAL(triggered(bool)), SLOT(decreaseBrightness()));
+ }
+ 
+ PowerDevilDaemon::~PowerDevilDaemon()
+@@ -663,24 +693,47 @@ void PowerDevilDaemon::buttonPressed(int
+     }
+ }
+ 
+-void PowerDevilDaemon::decreaseBrightness()
++void PowerDevilDaemon::incDecBrightness(bool increase)
+ {
+     if (!checkIfCurrentSessionActive()) {
+         return;
+     }
++ 
++    int currentBrightness = (int) Solid::Control::PowerManager::brightness();
++
++    // Ignore brightness key events if we are not able to determine the brightness level.
++    if (currentBrightness == -1) {
++        return;
++    }
++
++    // Only update the brightness if it isn't already set by the hardware/kernel.
++    // This is the case when the HAL property brightness_in_hardware is false
++    // and the cached brightness value is equal to the current one.
++    if ((currentBrightness == d->cachedBrightness) && !d->brightnessInHardware)
++    {
++        int newBrightness;
++        if (increase) {
++            newBrightness = qMin(100, currentBrightness + 10);
++        }
++        else {
++            newBrightness = qMax(0, currentBrightness - 10);
++        }
+ 
+-    int currentBrightness = qMax(0, (int)(Solid::Control::PowerManager::brightness() - 10));
+-    Solid::Control::PowerManager::setBrightness(currentBrightness);
++        Solid::Control::PowerManager::setBrightness(newBrightness);
++        currentBrightness = (int) Solid::Control::PowerManager::brightness();
++    }
++
++    emitBrightnessChanged(currentBrightness, true);
+ }
+ 
+-void PowerDevilDaemon::increaseBrightness()
++void PowerDevilDaemon::decreaseBrightness()
+ {
+-    if (!checkIfCurrentSessionActive()) {
+-        return;
+-    }
++    incDecBrightness(false);
++}
+ 
+-    int currentBrightness = qMin(100, (int)(Solid::Control::PowerManager::brightness() + 10));
+-    Solid::Control::PowerManager::setBrightness(currentBrightness);
++void PowerDevilDaemon::increaseBrightness()
++{
++    incDecBrightness(true);
+ }
+ 
+ void PowerDevilDaemon::shutdownNotification(bool automated)
+@@ -1461,4 +1514,17 @@ void PowerDevilDaemon::setUpConsoleKit()
+                                          SLOT(refreshStatus()));
+ }
+ 
++void PowerDevilDaemon::notifyOfBrightnessChange(int brightness)
++{
++    emitBrightnessChanged(brightness, false);
++}
++
++void PowerDevilDaemon::emitBrightnessChanged(int brightness, bool byFnKey)
++{
++    if ((d->cachedBrightness != brightness) || byFnKey) {
++        d->cachedBrightness = brightness;
++        emit brightnessChanged(brightness, byFnKey);
++    }
++}
++
+ #include "PowerDevilDaemon.moc"
+Index: kdebase-workspace-4.4.3/powerdevil/daemon/PowerDevilDaemon.h
+===================================================================
+--- kdebase-workspace-4.4.3.orig/powerdevil/daemon/PowerDevilDaemon.h
++++ kdebase-workspace-4.4.3/powerdevil/daemon/PowerDevilDaemon.h
+@@ -61,10 +61,13 @@ public Q_SLOTS:
+ 
+     SuspensionLockHandler *lockHandler();
+ 
++    void notifyOfBrightnessChange(int brightness);
++
+ private Q_SLOTS:
+     void acAdapterStateChanged(int state, bool forced = false);
+     void batteryChargePercentChanged(int percent, const QString &udi);
+ 
++    void incDecBrightness(bool increase);
+     void decreaseBrightness();
+     void increaseBrightness();
+ 
+@@ -106,6 +109,7 @@ Q_SIGNALS:
+     void stateChanged(int, bool);
+     void profileChanged(const QString &, const QStringList &);
+     void DPMSconfigUpdated();
++    void brightnessChanged(int brightness, bool byFnKey);
+ 
+ private:
+     void lockScreen();
+@@ -127,6 +131,8 @@ private:
+ 
+     bool checkIfCurrentSessionActive();
+ 
++    void emitBrightnessChanged(int brightness, bool byFnKey);
++
+ public:
+     enum IdleAction {
+         None = 0,

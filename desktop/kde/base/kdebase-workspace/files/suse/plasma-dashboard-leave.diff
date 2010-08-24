@@ -1,0 +1,17 @@
+Index: plasma/shells/desktop/dashboardview.cpp
+===================================================================
+--- plasma/shells/desktop/dashboardview.cpp.orig
++++ plasma/shells/desktop/dashboardview.cpp
+@@ -161,6 +161,12 @@ void DashboardView::appletBrowserDestroy
+ bool DashboardView::eventFilter(QObject *watched, QEvent *event)
+ {
+     if (watched != m_appletBrowser) {
++        if (event->type() == QEvent::MouseButtonPress) {
++            QMouseEvent *me = static_cast<QMouseEvent *>(event);
++            if (me->button() == Qt::LeftButton) {
++                hideView();
++            }
++        }
+         return false;
+     }
+ 

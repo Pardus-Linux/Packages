@@ -1,0 +1,32 @@
+Index: plasma/desktop/shell/desktopcorona.cpp
+===================================================================
+--- plasma/desktop/shell/desktopcorona.cpp.orig
++++ plasma/desktop/shell/desktopcorona.cpp
+@@ -240,10 +240,10 @@ void DesktopCorona::loadDefaultLayout()
+     panel->setScreen(topLeftScreen);
+     panel->setLocation(Plasma::BottomEdge);
+ 
+-    const int newHeight = 28;
+-    panel->resize(QSize((int)panel->size().width(), newHeight));
+-    panel->setMinimumSize(QSize((int)panel->minimumSize().width(), newHeight));
+-    panel->setMaximumSize(QSize((int)panel->maximumSize().width(), newHeight));
++    const int newHeight = 35;
++    panel->resize(QSize((int)panel->size().width() - 20, newHeight));
++    panel->setMinimumSize(QSize((int)panel->minimumSize().width() - 20, newHeight));
++    panel->setMaximumSize(QSize((int)panel->maximumSize().width() - 20, newHeight));
+ 
+     panel->updateConstraints(Plasma::StartupCompletedConstraint);
+     panel->flushPendingConstraintsEvents();
+Index: plasma/desktop/shell/panelview.cpp
+===================================================================
+--- plasma/desktop/shell/panelview.cpp.orig
++++ plasma/desktop/shell/panelview.cpp
+@@ -243,7 +243,7 @@ PanelView::PanelView(Plasma::Containment
+     QRect screenRect = Kephal::ScreenUtils::screenGeometry(panel->screen());
+     m_lastHorizontal = isHorizontal();
+     m_lastSeenSize = sizes.readEntry("lastsize", m_lastHorizontal ? screenRect.width() : screenRect.height());
+-    m_alignment = alignmentFilter((Qt::Alignment)viewConfig.readEntry("Alignment", (int)Qt::AlignLeft));
++    m_alignment = alignmentFilter((Qt::Alignment)viewConfig.readEntry("Alignment", (int)Qt::AlignCenter));
+     m_offset = viewConfig.readEntry("Offset", 0);
+ 
+     KWindowSystem::setType(winId(), NET::Dock);

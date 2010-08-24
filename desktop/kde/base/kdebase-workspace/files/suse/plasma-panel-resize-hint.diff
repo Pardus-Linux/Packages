@@ -1,0 +1,36 @@
+Index: plasma/shells/desktop/panelcontroller.cpp
+===================================================================
+--- plasma/shells/desktop/panelcontroller.cpp.orig
++++ plasma/shells/desktop/panelcontroller.cpp
+@@ -949,6 +949,7 @@ void PanelController::mouseMoveFilter(QM
+             newX - screenGeom.left() <= screenGeom.width()/3) {
+             move(newX, pos().y());
+             d->resizeFrameHeight(geometry().left() - screenGeom.left());
++            d->sizeTool->setText(i18n("Width: %1", screenGeom.left() + (mapToGlobal(event->pos()).x() - d->startDragPos.x())));
+         }
+         break;
+     }
+@@ -958,6 +959,7 @@ void PanelController::mouseMoveFilter(QM
+             newX + width() - screenGeom.left() >= 2*(screenGeom.width()/3)) {
+             move(newX, pos().y());
+             d->resizeFrameHeight(screenGeom.right() - geometry().right());
++            d->sizeTool->setText(i18n("Width: %1", screenGeom.right() - (mapToGlobal(event->pos()).x() - d->startDragPos.x()) - width() + 1));
+         }
+         break;
+     }
+@@ -967,6 +969,7 @@ void PanelController::mouseMoveFilter(QM
+              newY - screenGeom.top()<= screenGeom.height()/3) {
+             move(pos().x(), newY);
+             d->resizeFrameHeight(geometry().top() - screenGeom.top());
++            d->sizeTool->setText(i18n("Height: %1", screenGeom.top() + (mapToGlobal(event->pos()).y() - d->startDragPos.y())));
+         }
+         break;
+     }
+@@ -977,6 +980,7 @@ void PanelController::mouseMoveFilter(QM
+              newY + height() - screenGeom.top() >= 2*(screenGeom.height()/3)) {
+             move(pos().x(), newY);
+             d->resizeFrameHeight(screenGeom.bottom() - geometry().bottom());
++            d->sizeTool->setText(i18n("Height: %1", screenGeom.bottom() - (mapToGlobal(event->pos()).y() - d->startDragPos.y()) - height() + 1));
+         }
+         break;
+     }

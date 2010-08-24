@@ -1,0 +1,83 @@
+Index: plasma/generic/dataengines/hotplug/hotplugengine.cpp
+===================================================================
+--- plasma/generic/dataengines/hotplug/hotplugengine.cpp.orig
++++ plasma/generic/dataengines/hotplug/hotplugengine.cpp
+@@ -27,6 +27,7 @@
+ #include <KLocale>
+ #include <KStandardDirs>
+ #include <KDesktopFile>
++#include <KNotification>
+ #include <Plasma/DataContainer>
+ 
+ //solid specific includes
+@@ -35,6 +36,7 @@
+ #include <Solid/DeviceInterface>
+ #include <Solid/StorageDrive>
+ #include <Solid/StorageVolume>
++#include <Solid/GenericInterface>
+ 
+ //#define HOTPLUGENGINE_TIMING
+ 
+@@ -51,7 +53,7 @@ HotplugEngine::HotplugEngine(QObject* pa
+ 
+ HotplugEngine::~HotplugEngine()
+ {
+-
++    pluggedDevices.clear();
+ }
+ 
+ void HotplugEngine::init()
+@@ -157,6 +159,20 @@ QStringList HotplugEngine::predicatesFor
+ void HotplugEngine::onDeviceAdded(const QString &udi)
+ {
+     Solid::Device device(udi);
++
++    QString deviceInfo = device.vendor() + " " + device.product();
++
++    // Notify when a new device plugged-in
++    Solid::GenericInterface *interface = device.as<Solid::GenericInterface>();
++    if (!pluggedDevices.contains(udi)) {
++        if (interface) {
++            if (interface->property("info.subsystem").toString() == "usb_device"){
++                pluggedDevices.insert(udi, deviceInfo);
++                KNotification::event (KNotification::Notification, i18n("Device <b>%1</b> plugged in.", deviceInfo));
++            }
++        }
++    }
++
+     onDeviceAdded(device);
+ }
+ 
+@@ -231,6 +247,12 @@ void HotplugEngine::onDeviceRemoved(cons
+ {
+     //kDebug() << "remove hardware:" << udi;
+ 
++    if (pluggedDevices.contains(udi)) {
++        QString deviceInfo = pluggedDevices[udi];
++        KNotification::event (KNotification::Notification, i18n("Device <b>%1</b> plugged out.", deviceInfo));
++        pluggedDevices.remove(udi);
++    }
++
+     if (m_startList.contains(udi)) {
+         m_startList.remove(udi);
+         return;
+Index: plasma/generic/dataengines/hotplug/hotplugengine.h
+===================================================================
+--- plasma/generic/dataengines/hotplug/hotplugengine.h.orig
++++ plasma/generic/dataengines/hotplug/hotplugengine.h
+@@ -22,6 +22,7 @@
+ #define HOTPLUGENGINE_H
+ 
+ #include <QObject>
++#include <QHash>
+ 
+ #include <Plasma/DataEngine>
+ 
+@@ -48,6 +49,7 @@ class HotplugEngine : public Plasma::Dat
+     private:
+         void onDeviceAdded(Solid::Device &dev, bool added = true);
+         void findPredicates();
++        QHash<QString, QString> pluggedDevices;
+         QStringList predicatesForDevice(Solid::Device &device);
+ 
+     private Q_SLOTS:

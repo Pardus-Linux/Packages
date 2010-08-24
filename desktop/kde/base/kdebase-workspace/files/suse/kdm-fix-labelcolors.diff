@@ -1,0 +1,72 @@
+Subject: Fix broken KDM layout with fingerprint support
+From: Lubos Lunak
+Patch-upstream: yes
+Bug: bnc#533189
+Relates: kdm-fix-generic-greeter.diff, same-pam-generic-classic.diff
+
+--- workspace/kdm/kfrontend/themer/kdmlabel.h.sav	2009-12-17 19:55:47.000000000 +0100
++++ workspace/kdm/kfrontend/themer/kdmlabel.h	2010-02-23 14:08:46.493126179 +0100
+@@ -61,6 +61,8 @@ protected:
+ 
+ 	virtual void doPlugActions( bool plug );
+ 
++	virtual void updatePalette( QWidget *w );
++
+ 	struct LabelStruct {
+ 		QString text;
+ 		bool isTimer;
+--- workspace/kdm/kfrontend/themer/kdmitem.cpp.sav	2009-12-17 19:55:47.000000000 +0100
++++ workspace/kdm/kfrontend/themer/kdmitem.cpp	2010-02-23 14:54:51.423875416 +0100
+@@ -240,9 +240,9 @@ void
+ KdmItem::setWidgetAttribs( QWidget *widget )
+ {
+ 	widget->setPalette( style.palette );
++	::setWidgetAttribs( widget, style, style.frame );
+ 	widget->installEventFilter( this );
+ 	updatePalette( myWidget );
+-	::setWidgetAttribs( widget, style, style.frame );
+ }
+ 
+ void
+--- workspace/kdm/kfrontend/themer/kdmitem.h.sav	2009-12-17 19:55:47.000000000 +0100
++++ workspace/kdm/kfrontend/themer/kdmitem.h	2010-02-23 14:08:00.428124930 +0100
+@@ -199,7 +199,7 @@ protected:
+ 
+ 	bool eventFilter( QObject *o, QEvent *e );
+ 	void setWidgetAttribs( QWidget * );
+-	void updatePalette( QWidget *w );
++	virtual void updatePalette( QWidget *w );
+ 
+ 	void updateThisVisible();
+ 
+--- workspace/kdm/kfrontend/themer/kdmlabel.cpp.sav	2010-02-23 13:58:17.000000000 +0100
++++ workspace/kdm/kfrontend/themer/kdmlabel.cpp	2010-02-23 15:57:27.457125094 +0100
+@@ -219,6 +219,8 @@ KdmLabel::statusChanged( bool descend )
+ 	if ((state == Sprelight && !label.prelight.present) ||
+ 	    (state == Sactive && !label.active.present))
+ 		return;
++	if( myWidget )
++		updatePalette( myWidget );
+ 	needUpdate();
+ }
+ 
+@@ -336,4 +338,19 @@ KdmLabel::lookupText( const QString &t )
+ 	return text;
+ }
+ 
++void
++KdmLabel::updatePalette( QWidget *w )
++{
++	struct LabelStruct::LabelClass *l = &label.normal;
++	if (state == Sactive && label.active.present)
++		l = &label.active;
++	else if (state == Sprelight && label.prelight.present)
++		l = &label.prelight;
++	w->setFont( l->font.font );
++	QPalette p = w->palette();
++	p.setColor( QPalette::WindowText, l->color );
++	w->setPalette( p );
++	KdmItem::updatePalette( w );
++}
++
+ #include "kdmlabel.moc"
