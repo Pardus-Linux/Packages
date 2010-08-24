@@ -1,0 +1,177 @@
+From cffac1c3ae888c6467d1d77e4f58835fd3fec909 Mon Sep 17 00:00:00 2001
+From: Mete Alpaslan <mete@pardus.org.tr>
+Date: Tue, 24 Aug 2010 16:03:18 +0300
+Subject: [PATCH 117/118] Fix Partitioing screens
+
+Fix partitioning screens regression.
+---
+ yali/gui/ManualPartition.py    |    5 +----
+ yali/gui/ScrPartitionAuto.py   |   26 +++++++++-----------------
+ yali/gui/ScrPartitionManual.py |    5 ++---
+ yali/gui/ScrSummary.py         |    3 ++-
+ yali/gui/storageGuiHelpers.py  |    2 +-
+ 5 files changed, 15 insertions(+), 26 deletions(-)
+
+diff --git a/yali/gui/ManualPartition.py b/yali/gui/ManualPartition.py
+index 59566fd..fd3bb5d 100644
+--- a/yali/gui/ManualPartition.py
++++ b/yali/gui/ManualPartition.py
+@@ -110,7 +110,7 @@ class PartitionEditor:
+                 if allowedDrives:
+                     for drive in allowedDrives:
+                         for disk in self.storage.partitioned:
+-                            if disk.name == drive:
++                            if disk.name == drive.name:
+                                 disks.append(disk)
+ 
+                 format = formats.getFormat(formatType, mountpoint=mountpoint)
+@@ -334,9 +334,6 @@ class PartitionWidget(QtGui.QWidget):
+         format  = formats.getFormat(self.sender().itemText(index))
+         self.setMntptComboStateFromFStype(format, self.mountCombo)
+ 
+-    def fillAllSpaceCB(self, state):
+-        self.fillMaxsizeSpinBox.setEnabled(state)
+-
+     def sizeSpinChanged(self, size):
+         maxsize = self.fillMaxsizeSpinBox.value()
+         if size < 1:
+diff --git a/yali/gui/ScrPartitionAuto.py b/yali/gui/ScrPartitionAuto.py
+index c49ad98..9b1cd8d 100644
+--- a/yali/gui/ScrPartitionAuto.py
++++ b/yali/gui/ScrPartitionAuto.py
+@@ -143,23 +143,14 @@ class DrivesListItem(QtGui.QListWidgetItem):
+ class DriveItem(QtGui.QWidget):
+     def __init__(self, parent, drive):
+         QtGui.QWidget.__init__(self, parent)
+-        #self.gridLayout = QtGui.QGridLayout(self)
+         self.layout = QtGui.QHBoxLayout(self)
+         self.checkBox = QtGui.QCheckBox(self)
+-        #self.gridLayout.addWidget(self.checkBox, 0, 0, 1, 1)
+-        #self.layout.addWidget(self.checkBox, 0, 0, 1, 1)
+         self.layout.addWidget(self.checkBox)
+-        #self.verticalLayout = QtGui.QVBoxLayout()
+         self.labelDrive = QtGui.QLabel(self)
+         self.labelDrive.setText("%s on %s - (%s) MB" % (drive.model, drive.name, str(int(drive.size))))
+         self.layout.addWidget(self.labelDrive)
+         spacerItem = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+         self.layout.addItem(spacerItem)
+-        #self.labelDescription = QtGui.QLabel(self)
+-        #self.labelDescription.setText("%s" % drive.model)
+-        #self.verticalLayout.addWidget(self.labelDrive)
+-        #self.verticalLayout.addWidget(self.labelDescription)
+-        #self.gridLayout.addLayout(self.verticalLayout, 0, 1, 1, 1)
+         self.connect(self.checkBox, SIGNAL("stateChanged(int)"), self.stateChanged)
+         self.drive = drive
+         self.parent = parent
+@@ -171,7 +162,7 @@ class DriveItem(QtGui.QWidget):
+             selectedDisks = []
+             for index in range(self.parent.count()):
+                 if self.checkBox.checkState() == Qt.Checked:
+-                    selectedDisks.append(self.ui.drives.item(index).drive)
++                    selectedDisks.append(self.ui.drives.item(index).drive.name)
+ 
+             if len(selectedDisks):
+                 ctx.mainScreen.enableNext()
+@@ -277,16 +268,17 @@ Pardus create a new partition for installation.</p>
+         selectedDisks = []
+         for index in range(self.ui.drives.count()):
+             if self.ui.drives.item(index).widget.checkBox.checkState() == Qt.Checked:
+-                selectedDisks.append(self.ui.drives.item(index).widget.drive)
++                selectedDisks.append(self.ui.drives.item(index).widget.drive.name)
+ 
+         if len(selectedDisks) == 0:
+             self.intf.messageWindow(_("Error"),
+                                     _("You must select at least one "
+                                       "drive to be used for installation."), customIcon="error")
+             return False
+-
+-        self.clearPartDisks = selectedDisks.sort(self.storage.compareDisks)
+-        return True
++        else:
++            selectedDisks.sort(self.storage.compareDisks)
++            self.storage.clearPartDisks = selectedDisks
++            return True
+ 
+     def execute(self):
+         rc = self.nextCheck()
+@@ -301,7 +293,7 @@ Pardus create a new partition for installation.</p>
+         if self.checkClearPartDisks():
+             increment = 0
+             if self.ui.createCustom.isChecked():
+-                ctx.mainScreen.stepIncrement = 1
++                increment = 1
+                 self.storage.clearPartType = CLEARPART_TYPE_NONE
+             else:
+                 if self.ui.shrinkCurrent.isChecked():
+@@ -318,7 +310,6 @@ Pardus create a new partition for installation.</p>
+ 
+                 self.storage.doAutoPart = True
+                 self.storage.autoPartitionRequests = defaultPartitioning(self.storage, quiet=0)
+-                self.storage.clearPartDisks = self.clearPartDisks
+                 if not self.storage.clearPartDisks:
+                     return False
+ 
+@@ -326,8 +317,9 @@ Pardus create a new partition for installation.</p>
+                     increment = 1
+                 else:
+                     increment = 2
++                return doAutoPartition(self.storage)
+ 
+             ctx.mainScreen.stepIncrement = increment
+-            return doAutoPartition(self.storage)
++            return True
+ 
+         return False
+diff --git a/yali/gui/ScrPartitionManual.py b/yali/gui/ScrPartitionManual.py
+index 531d7d2..c07206f 100644
+--- a/yali/gui/ScrPartitionManual.py
++++ b/yali/gui/ScrPartitionManual.py
+@@ -107,8 +107,7 @@ about disk partitioning.
+                           "you continue your installation of "
+                           "%s.") % yali.util.product_name()
+ 
+-            comments = string.join(errors, "\n\n")
+-
++            comments = "\n\n".join(errors)
+             ctx.yali.detailedMessageWindow(_("Partitioning Errors"),
+                                              detailed, comments, type="ok")
+             return False
+@@ -120,7 +119,7 @@ about disk partitioning.
+                          "your requested partitioning "
+                          "scheme?")
+ 
+-            comments = string.join(warnings, "\n\n")
++            comments = "\n\n".join(warnings)
+             rc = ctx.yali.detailedMessageWindow(_("Partitioning Warnings"),
+                                                   detailed, comments, type="yesno")
+             if rc != 1:
+diff --git a/yali/gui/ScrSummary.py b/yali/gui/ScrSummary.py
+index ebcce3d..705d47e 100644
+--- a/yali/gui/ScrSummary.py
++++ b/yali/gui/ScrSummary.py
+@@ -144,7 +144,8 @@ Here you can see your install options before installation starts.
+             summary = ""
+             devices = ""
+             for disk in ctx.storage.clearPartDisks:
+-                devices += "(%s on %s)" % (disk.model, disk.name)
++                device = ctx.storage.devicetree.getDeviceByName(disk)
++                devices += "(%s on %s)" % (device.model, device.name)
+ 
+             content.append(item % _("Automatic Partitioning selected."))
+             if ctx.storage.clearPartType == CLEARPART_TYPE_ALL:
+diff --git a/yali/gui/storageGuiHelpers.py b/yali/gui/storageGuiHelpers.py
+index cf2ebef..e8abfe8 100644
+--- a/yali/gui/storageGuiHelpers.py
++++ b/yali/gui/storageGuiHelpers.py
+@@ -233,7 +233,7 @@ def createAdvancedSizeOptions(parent, request):
+     fillMaxsizeRadioButton = QtGui.QRadioButton(_("Fill all space up to (MB):"))
+     fillMaxsizeSpinBox = QtGui.QSpinBox(groupBox)
+     fillMaxsizeSpinBox.setMaximum(ctx.consts.MAX_PART_SIZE)
+-    QObject.connect(fillMaxsizeRadioButton, SIGNAL("toggled()"), parent.fillAllSpaceCB)
++    QObject.connect(fillMaxsizeRadioButton, SIGNAL("toggled(bool)"), lambda x: fillMaxsizeSpinBox.setEnabled(x))
+ 
+     fillMaxsizeSpinBox.setEnabled(False)
+ 
+-- 
+1.7.2.1
+

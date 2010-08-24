@@ -1,0 +1,26 @@
+From 8d8a920255fb2d3a0057107f29100e80cdda69c4 Mon Sep 17 00:00:00 2001
+From: Mete Alpaslan <mete@pardus.org.tr>
+Date: Tue, 24 Aug 2010 16:05:24 +0300
+Subject: [PATCH 118/118] Fix python-pyblock module error
+
+pyblock raise error for not modprobing device-mapper module.Modprobe
+with os.system before initializing yali.
+---
+ yali-bin |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
+
+diff --git a/yali-bin b/yali-bin
+index 2af73b3..2f07304 100755
+--- a/yali-bin
++++ b/yali-bin
+@@ -39,6 +39,7 @@ def main():
+ 
+ if __name__ == "__main__":
+     locale.setlocale(locale.LC_ALL, "")
++    os.system("modprobe dm-mod")
+     yali.init_logging("/var/log")
+     main()
+ 
+-- 
+1.7.2.1
+
