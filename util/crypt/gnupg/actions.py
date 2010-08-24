@@ -36,5 +36,5 @@ def install():
     pisitools.dohtml("doc/gnupg.html/*")
     pisitools.dodoc("ChangeLog", "NEWS", "README", "THANKS", "TODO")
 
-#def check():
-    #autotools.make("check")
+def check():
+    autotools.make("check")
