@@ -10,7 +10,7 @@ from pisi.actionsapi import pisitools
 from pisi.actionsapi import shelltools
 from pisi.actionsapi import get
 
-#import os
+import os
 
 WorkDir = "Python-%s" % get.srcVERSION()
 
