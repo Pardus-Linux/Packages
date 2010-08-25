@@ -21,7 +21,7 @@ def install():
 
     chmod("/etc/shadow", 0600)
 
-    shelltools.echo("%s/etc/pardus-release" % get.installDIR(), "Pardus 2011 Pre-Alpha 2")
+    shelltools.echo("%s/etc/pardus-release" % get.installDIR(), "Pardus 2011 Alpha")
 
     # Install some files to /usr/share/baselayout instead of /etc to keep from overwriting the user's settings,
     for f in ("passwd", "shadow", "group", "fstab", "hosts", "ld.so.conf", "resolv.conf", "inittab.live"):
