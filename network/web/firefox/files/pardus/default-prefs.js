@@ -21,7 +21,7 @@ pref("browser.throbber.url", "resource:/browserconfig.properties");
 pref("general.autoScroll", true);
 pref("general.smoothScroll", false);
 pref("general.useragent.vendor", "Pardus");
-pref("general.useragent.vendorSub", "2009");
+pref("general.useragent.vendorSub", "2011");
 pref("middlemouse.contentLoadURL", false);
 pref("spellchecker.dictionary", "tr-TR");
 pref("startup.homepage_override_url", "resource:/browserconfig.properties");
