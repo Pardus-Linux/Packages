@@ -6,13 +6,14 @@
 
 from pisi.actionsapi import autotools
 from pisi.actionsapi import pisitools
+from pisi.actionsapi import shelltools
 from pisi.actionsapi import get
+
+shelltools.export("HOME", get.workDIR())
 
 def setup():
     autotools.autoreconf("-fi")
-    autotools.configure("--disable-static \
-                         --with-html-dir=%s/usr/share/doc/%s/html"
-                         % (get.installDIR(), get.srcNAME()))
+    autotools.configure("--disable-static")
 
 def build():
     autotools.make()
