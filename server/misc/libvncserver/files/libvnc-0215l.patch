@@ -1,0 +1,23 @@
+Index: LibVNCServer-0.9.1/libvncserver/main.c
+===================================================================
+--- LibVNCServer-0.9.1.orig/libvncserver/main.c
++++ LibVNCServer-0.9.1/libvncserver/main.c
+@@ -1053,16 +1053,17 @@ rfbProcessEvents(rfbScreenInfoPtr screen
+ {
+   rfbClientIteratorPtr i;
+   rfbClientPtr cl,clPrev;
+   struct timeval tv;
++  unsigned int rep = 0;
+   rfbBool result=FALSE;
+   extern rfbClientIteratorPtr
+     rfbGetClientIteratorWithClosed(rfbScreenInfoPtr rfbScreen);
+ 
+   if(usec<0)
+     usec=screen->deferUpdateTime*1000;
+ 
+-  rfbCheckFds(screen,usec);
++  while (rfbCheckFds(screen,usec) && ++rep < 16);
+   rfbHttpCheckFds(screen);
+ #ifdef CORBA
+   corbaCheckFds(screen);
+ #endif

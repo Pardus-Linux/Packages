@@ -1,0 +1,24 @@
+Index: LibVNCServer-0.8.2/libvncserver/Makefile.am
+===================================================================
+--- LibVNCServer-0.8.2.orig/libvncserver/Makefile.am
++++ LibVNCServer-0.8.2/libvncserver/Makefile.am
+@@ -1,5 +1,5 @@
+-AM_CFLAGS=-g -Wall -I $(top_srcdir)
++AM_CFLAGS=-g -Wall -I $(top_srcdir) $(CFLAGS_$@)
+ 
+ if WITH_TIGHTVNC_FILETRANSFER
+ TIGHTVNCFILETRANSFERHDRS=tightvnc-filetransfer/filelistinfo.h \
+ 	tightvnc-filetransfer/filetransfermsg.h \
+@@ -32,8 +32,11 @@ if HAVE_LIBJPEG
+ JPEGSRCS = tight.c
+ endif
+ endif
+ 
++CFLAGS_auth.o = $(CFLAGS) -fstack-protector
++CFLAGS_vncauth.o = $(CFLAGS) -fstack-protector
++
+ LIB_SRCS = main.c rfbserver.c rfbregion.c auth.c sockets.c \
+ 	stats.c corre.c hextile.c rre.c translate.c cutpaste.c \
+ 	httpd.c cursor.c font.c \
+ 	draw.c selbox.c d3des.c vncauth.c cargs.c minilzo.c ultra.c scale.c \
+
