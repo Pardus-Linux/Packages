@@ -1,0 +1,87 @@
+Index: setup.py
+===================================================================
+--- setup.py	(revision 31637)
++++ setup.py	(revision 31638)
+@@ -30,7 +30,7 @@
+ 
+     # Collect UI files
+     for filename in glob.glob1("ui", "*.ui"):
+-        os.system("/usr/kde/4/bin/pykde4uic -o .tmp/ui_%s.py ui/%s" % (filename.split(".")[0], filename))
++        os.system("pykde4uic -o .tmp/ui_%s.py ui/%s" % (filename.split(".")[0], filename))
+ 
+     # Collect Python files
+     for filename in glob.glob1("src/kaptan", "*.py"):
+@@ -83,10 +83,10 @@
+         # Copy compiled UIs and RCs
+         print "Generating UIs..."
+         for filename in glob.glob1("ui", "*.ui"):
+-            os.system("/usr/kde/4/bin/pykde4uic -o build/kaptan/screens/%s.py ui/%s" % (filename.split(".")[0], filename))
++            os.system("pykde4uic -o build/kaptan/screens/%s.py ui/%s" % (filename.split(".")[0], filename))
+         print "Generating RCs..."
+         for filename in glob.glob1("data", "*.qrc"):
+-            os.system("/usr/bin/pyrcc4 data/%s -o build/kaptan/%s_rc.py" % (filename, filename.split(".")[0]))
++            os.system("pyrcc4 data/%s -o build/kaptan/%s_rc.py" % (filename, filename.split(".")[0]))
+ 
+         os.system("sed -i 's/kaptan_rc/kaptan.\kaptan_rc/g' build/kaptan/screens/ui_*")
+ 
+@@ -94,13 +94,13 @@
+     def run(self):
+         os.system("./setup.py build")
+         if self.root:
+-            kde_dir = "%s/usr/kde/4" % self.root
++            kde_dir = "%s/usr" % self.root
+         else:
+-            kde_dir = "/usr/kde/4"
++            kde_dir = "/usr"
+         bin_dir = os.path.join(kde_dir, "bin")
+         locale_dir = os.path.join(kde_dir, "share/locale")
+         autostart_dir = os.path.join(kde_dir, "share/autostart")
+-        project_dir = os.path.join(kde_dir, "share/apps", about.appName)
++        project_dir = os.path.join(kde_dir, "share/kde4/apps", about.appName)
+ 
+         # Make directories
+         print "Making directories..."
+Index: src/kaptan/screens/scrGoodbye.py
+===================================================================
+--- src/kaptan/screens/scrGoodbye.py	(revision 31637)
++++ src/kaptan/screens/scrGoodbye.py	(revision 31638)
+@@ -20,7 +20,7 @@
+ from kaptan.screens.ui_scrGoodbye import Ui_goodbyeWidget
+ import kaptan.screens.scrSmolt as smoltWidget
+ 
+-sys.path.append('/usr/kde/4/share/apps/migration/')
++sys.path.append('/use/share/kde4/apps/migration/')
+ from migration.utils import partition
+ 
+ class Widget(QtGui.QWidget, Screen):
+Index: src/kaptan/screens/scrStyle.py
+===================================================================
+--- src/kaptan/screens/scrStyle.py	(revision 31637)
++++ src/kaptan/screens/scrStyle.py	(revision 31638)
+@@ -47,11 +47,11 @@
+         defaultDesktopNumber = int(group.readEntry('Number'))
+ 
+         self.ui.spinBoxDesktopNumbers.setValue(defaultDesktopNumber)
+-        lst2 = glob.glob1("/usr/kde/4/share/apps/kaptan/kaptan/kde-themes", "*.style")
++        lst2 = glob.glob1("/use/share/kde4/apps/kaptan/kaptan/kde-themes", "*.style")
+ 
+         for desktopFiles in lst2:
+             parser = DesktopParser()
+-            parser.read("/usr/kde/4/share/apps/kaptan/kaptan/kde-themes/" +str(desktopFiles))
++            parser.read("/use/share/kde4/apps/kaptan/kaptan/kde-themes/" +str(desktopFiles))
+             try:
+                 styleName = unicode(parser.get_locale('Style', 'name[%s]'%self.catLang, ''))
+             except:
+@@ -70,10 +70,10 @@
+                 colorScheme = unicode(parser.get_locale('Style', 'colorScheme', ''))
+                 iconTheme = unicode(parser.get_locale('Style', 'iconTheme', ''))
+                 windowDecoration = unicode(parser.get_locale('Style', 'windowDecoration', ''))
+-                styleThumb = unicode(os.path.join("/usr/kde/4/share/apps/kaptan/kaptan/kde-themes/",  parser.get_locale('Style', 'thumbnail','')))
++                styleThumb = unicode(os.path.join("/use/share/kde4/apps/kaptan/kaptan/kde-themes/",  parser.get_locale('Style', 'thumbnail','')))
+ 
+                 colorDict = {}
+-                colorDir = "/usr/kde/4/share/apps/color-schemes/"
++                colorDir = "/usr/share/kde4/apps/color-schemes/"
+                 self.Config = ConfigParser()
+                 self.Config.optionxform = str
+                 color = colorDir + colorScheme + ".colors"
