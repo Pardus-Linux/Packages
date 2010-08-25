@@ -42,10 +42,8 @@ def build():
 def install():
     autotools.rawInstall('DESTDIR=%s -j1 MWMRCDIR="/etc/X11/mwm"' % get.installDIR())
 
-    # pisitools.domove("%s/system.mwmrc" % mwmlibdir, "%s/" % mwmconfigdir)
-    # pisitools.dosym("%s/system.mwmrc" % mwmconfigdir, "%s/system.mwmrc" % mwmlibdir)
-
     # these are just demos
     pisitools.removeDir("/usr/share/Xm")
+
     pisitools.dodoc("ChangeLog", "README*", "BUGREPORT", "RELEASE", "RELNOTES", "TODO")
 
