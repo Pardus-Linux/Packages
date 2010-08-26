@@ -1,0 +1,41 @@
+Index: yali4/installer.py
+===================================================================
+--- yali4/installer.py	(revision 30096)
++++ yali4/installer.py	(working copy)
+@@ -369,21 +369,22 @@
+                 ctx.debugger.log("FAILED: %s" % unicode(message))
+                 InfoDialog(unicode(message), title = _("Filesystem Error"))
+ 
+-            self.info.updateMessage(_("Resize Finished ..."))
+-            ctx.debugger.log("UA: Resize finished.")
+-            time.sleep(1)
++            else:
++                self.info.updateMessage(_("Resize Finished ..."))
++                ctx.debugger.log("UA: Resize finished.")
++                time.sleep(1)
+ 
+-            newStart = _np.geom.end
+-            np = dev.getPartition(_np.num)
+-            self.info.updateMessage(_("Creating new partition ..."))
+-            ctx.debugger.log("UA: newStart : %s " % newStart)
+-            _newPart = dev.addPartition(None,
+-                                        ptype,
+-                                        parttype.root.filesystem,
+-                                        newPartSize - 8,
+-                                        parttype.root.parted_flags,
+-                                        newStart)
+-            newPart = dev.getPartition(_newPart.num)
++                newStart = _np.geom.end
++                np = dev.getPartition(_np.num)
++                self.info.updateMessage(_("Creating new partition ..."))
++                ctx.debugger.log("UA: newStart : %s " % newStart)
++                _newPart = dev.addPartition(None,
++                                            ptype,
++                                            parttype.root.filesystem,
++                                            newPartSize - 8,
++                                            parttype.root.parted_flags,
++                                            newStart)
++                newPart = dev.getPartition(_newPart.num)
+         elif part.isFreespace():
+             newPartSize = part.getMB() - 8
+             newStart = part.getStart()
