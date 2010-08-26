@@ -1,0 +1,168 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>gnokii</Name>
+        <Homepage>http://www.gnokii.org/</Homepage>
+        <Packager>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Packager>
+        <License>GPLv2</License>
+        <IsA>app:console</IsA>
+        <IsA>app:gui</IsA>
+        <Summary>Userspace driver and tools for use with mobile phones</Summary>
+        <Description>gnokii contains driver and tools to allow regular users connect their cellular phones to their computers.</Description>
+        <Archive sha1sum="a7c6f9fa56bfe01e3c8e719bb8585a24469fe1e7" type="tarbz2">http://www.gnokii.org/download/gnokii/0.6.x/gnokii-0.6.27.tar.bz2</Archive>
+        <BuildDependencies>
+            <Dependency>gtk2-devel</Dependency>
+            <Dependency>bluez</Dependency>
+            <Dependency>libXpm-devel</Dependency>
+            <Dependency>libical-devel</Dependency>
+            <Dependency>mysql-lib</Dependency>
+            <Dependency>pcsc-lite-devel</Dependency>
+            <Dependency>postgresql-lib</Dependency>
+        </BuildDependencies>
+        <Patches>
+            <Patch>gnokiirc.patch</Patch>
+        </Patches>
+    </Source>
+
+    <Package>
+        <Name>gnokii</Name>
+        <RuntimeDependencies>
+            <Dependency>gtk2</Dependency>
+            <Dependency>bluez</Dependency>
+            <Dependency>libXpm</Dependency>
+            <Dependency>libical</Dependency>
+            <!--
+            <Dependency>xdg-utils</Dependency>-->
+            <Dependency>mysql-lib</Dependency>
+            <Dependency>pcsc-lite</Dependency>
+            <Dependency>postgresql-lib</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="executable">/usr/bin</Path>
+            <Path fileType="executable">/usr/sbin</Path>
+            <Path fileType="config">/etc</Path>
+            <Path fileType="library">/usr/lib</Path>
+            <Path fileType="doc">/usr/share/doc</Path>
+            <Path fileType="man">/usr/share/man</Path>
+            <Path fileType="localedata">/usr/share/locale</Path>
+            <Path fileType="data">/usr/share/pixmaps</Path>
+            <Path fileType="data">/usr/share/applications</Path>
+            <Path fileType="data">/usr/share/xgnokii</Path>
+        </Files>
+        <AdditionalFiles>
+            <AdditionalFile owner="root" permission="0644" target="/usr/share/pixmaps/xgnokii.png">xgnokii.png</AdditionalFile>
+            <AdditionalFile owner="root" permission="0644" target="/usr/share/applications/xgnokii.desktop">xgnokii.desktop</AdditionalFile>
+            <AdditionalFile owner="root" permission="0644" target="/etc/conf.d/gnokii-smsd">gnokii.conf</AdditionalFile>
+        </AdditionalFiles>
+        <Provides>
+            <COMAR script="service.py">System.Service</COMAR>
+        </Provides>
+    </Package>
+
+    <Package>
+        <Name>gnokii-devel</Name>
+        <Summary>Development files for gnokii</Summary>
+        <RuntimeDependencies>
+            <Dependency release="12">gnokii</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="header">/usr/include</Path>
+            <Path fileType="data">/usr/lib/pkgconfig</Path>
+        </Files>
+    </Package>
+
+    <History>
+        <Update release="12">
+            <Date>2010-08-26</Date>
+            <Version>0.6.27</Version>
+            <Comment>Split devel package</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="11">
+            <Date>2009-06-30</Date>
+            <Version>0.6.27</Version>
+            <Comment>Add missing libXpm dependency.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="10">
+            <Date>2009-04-24</Date>
+            <Version>0.6.27</Version>
+            <Comment>Enable libical support, add COMAR service for the SMS daemon, add xdg-utils dep.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="9">
+            <Date>2009-02-08</Date>
+            <Version>0.6.27</Version>
+            <Comment>
+                - Version bump to 0.6.27,
+                - Enable pcsc-lite support,
+                - Move xgnokii from Utilities to Utilities->Peripherals (Fixes #8526).
+            </Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="8">
+            <Date>2008-04-09</Date>
+            <Version>0.6.24</Version>
+            <Comment>Version bump.</Comment>
+            <Name>Faik Uygur</Name>
+            <Email>faik@pardus.org.tr</Email>
+        </Update>
+        <Update release="7">
+            <Date>2007-11-25</Date>
+            <Version>0.6.22</Version>
+            <Comment>Version bump.</Comment>
+            <Name>Eren Türkay</Name>
+            <Email>turkay.eren@gmail.com</Email>
+        </Update>
+        <Update release="6">
+            <Date>2007-09-11</Date>
+            <Version>0.6.20</Version>
+            <Comment>Version bump.</Comment>
+            <Name>Eren Türkay</Name>
+            <Email>turkay.eren@gmail.com</Email>
+        </Update>
+        <Update release="5">
+            <Date>2007-08-06</Date>
+            <Version>0.6.18</Version>
+            <Comment>Version bump and desktop icon appearance problem fix</Comment>
+            <Name>Ali Erdinç Köroğlu</Name>
+            <Email>erdinc@pardus.org.tr</Email>
+        </Update>
+        <Update release="4">
+            <Date>2007-06-22</Date>
+            <Version>0.6.17</Version>
+            <Comment>Version bump. Bugfix release.</Comment>
+            <Name>Eren Türkay</Name>
+            <Email>turkay.eren@gmail.com</Email>
+        </Update>
+        <Update release="3">
+            <Date>2007-05-11</Date>
+            <Version>0.6.15</Version>
+            <Comment>Version bump.</Comment>
+            <Name>Eren Türkay</Name>
+            <Email>turkay.eren@gmail.com</Email>
+        </Update>
+        <Update release="2">
+            <Date>2007-05-06</Date>
+            <Version>0.6.14</Version>
+            <Comment>Add xgnokii desktop icon file. Fix bug #5609</Comment>
+            <Name>Eren Türkay</Name>
+            <Email>turkay.eren@gmail.com</Email>
+        </Update>
+        <Update release="1">
+            <Date>2007-02-01</Date>
+            <Version>0.6.14</Version>
+            <Comment>First release.</Comment>
+            <Name>Eren Türkay</Name>
+            <Email>turkay.eren@gmail.com</Email>
+        </Update>
+    </History>
+</PISI>
