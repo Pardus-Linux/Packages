@@ -1,0 +1,17 @@
+diff -up ./src/sys_unix.c.close_on_exec ./src/sys_unix.c
+--- ./src/sys_unix.c.close_on_exec	2009-02-24 16:02:47.641288000 -0800
++++ ./src/sys_unix.c	2009-02-24 16:10:25.774746000 -0800
+@@ -123,9 +123,12 @@ INTERNAL int SYS_USleep(int iTimeVal)
+  * @retval >0 The file descriptor.
+  * @retval -1 An error ocurred.
+  */
++
+ INTERNAL int SYS_OpenFile(const char *pcFile, int flags, int mode)
+ {
+-	return open(pcFile, flags, mode);
++	int fd = open(pcFile, flags, mode);
++	fcntl(fd, F_SETFD, FD_CLOEXEC);
++	return fd;
+ }
+ 
+ /**

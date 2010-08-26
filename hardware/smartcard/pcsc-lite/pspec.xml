@@ -1,0 +1,142 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>pcsc-lite</Name>
+        <Homepage>http://pcsclite.alioth.debian.org</Homepage>
+        <Packager>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Packager>
+        <License>as-is</License>
+        <IsA>app:console</IsA>
+        <Summary>PC/SC drivers for smart card readers</Summary>
+        <Description>pcsc-lite is middleware to access a smart card using SCard API (PC/SC).</Description>
+        <Archive sha1sum="6791a8bd07f69972f708d4bdd03d6b1056c7af3e" type="tarbz2">http://alioth.debian.org/frs/download.php/3082/pcsc-lite-1.5.5.tar.bz2</Archive>
+        <BuildDependencies>
+            <Dependency>hal-devel</Dependency>
+        </BuildDependencies>
+        <Patches>
+            <Patch level="1">pcsc-lite-close_on_exec.patch</Patch>
+            <Patch level="1">use-lpthread.patch</Patch>
+            <Patch level="1">prefer-ccid-over-openct.patch</Patch>
+        </Patches>
+    </Source>
+
+    <Package>
+        <Name>pcsc-lite</Name>
+        <RuntimeDependencies>
+            <Dependency>hal</Dependency>
+            <Dependency>hal-libs</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="config">/etc/reader.conf.d</Path>
+            <Path fileType="executable">/usr/sbin</Path>
+            <Path fileType="library">/usr/lib</Path>
+            <Path fileType="doc">/usr/share/doc</Path>
+            <Path fileType="man">/usr/share/man</Path>
+        </Files>
+        <Provides>
+            <COMAR script="service.py">System.Service</COMAR>
+        </Provides>
+    </Package>
+
+    <Package>
+        <Name>pcsc-lite-devel</Name>
+        <Summary>Development files for pcsc-lite</Summary>
+        <RuntimeDependencies>
+            <Dependency release="12">pcsc-lite</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="header">/usr/include</Path>
+            <Path fileType="data">/usr/lib/pkgconfig</Path>
+        </Files>
+    </Package>
+
+    <History>
+        <Update release="12">
+            <Date>2010-08-26</Date>
+            <Version>1.5.5</Version>
+            <Comment>Split devel package.</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="11">
+            <Date>2010-03-23</Date>
+            <Version>1.5.5</Version>
+            <Comment>Always prefer CCID over OpenCT if the specific driver is OpenCT and we already have CCID in our hands.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="10">
+            <Date>2010-02-25</Date>
+            <Version>1.5.5</Version>
+            <Comment>Improve system.service script, start by default, rework paths.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="9">
+            <Date>2009-09-03</Date>
+            <Version>1.5.5</Version>
+            <Comment>Version bump</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="8">
+            <Date>2009-06-03</Date>
+            <Version>1.5.3</Version>
+            <Comment>Version bump.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="7">
+            <Date>2009-04-24</Date>
+            <Version>1.5.2</Version>
+            <Comment>Make it use -lpthread, add missing hal dependency.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="6">
+            <Date>2009-03-24</Date>
+            <Version>1.5.2</Version>
+            <Comment>Add a fedora patch.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="5">
+            <Date>2009-02-08</Date>
+            <Version>1.5.2</Version>
+            <Comment>Version bump.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="4">
+            <Date>2008-08-12</Date>
+            <Version>1.4.102</Version>
+            <Comment>Fix service script.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="3">
+            <Date>2008-07-11</Date>
+            <Version>1.4.102</Version>
+            <Comment>Version bump.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="2">
+            <Date>2007-05-23</Date>
+            <Version>1.4.0</Version>
+            <Comment>Updated Service script.</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="1">
+            <Date>2007-04-11</Date>
+            <Version>1.4.0</Version>
+            <Comment>First release.</Comment>
+            <Name>Gürer Özen</Name>
+            <Email>gurer@pardus.org.tr</Email>
+        </Update>
+    </History>
+</PISI>
