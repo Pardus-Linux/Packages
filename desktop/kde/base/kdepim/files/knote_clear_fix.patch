@@ -1,0 +1,38 @@
+Index: kdepim-4.2.4/knotes/knoteedit.cpp
+===================================================================
+--- kdepim-4.2.4.orig/knotes/knoteedit.cpp
++++ kdepim-4.2.4/knotes/knoteedit.cpp
+@@ -72,7 +72,7 @@ KNoteEdit::KNoteEdit( KActionCollection 
+   connect( this, SIGNAL( copyAvailable( bool ) ),
+            m_copy, SLOT( setEnabled( bool ) ) );
+   
+-  KStandardAction::clear( this, SLOT( clear() ), actions );
++  KStandardAction::clear( this, SLOT( slotClear() ), actions );
+   KStandardAction::selectAll( this, SLOT( selectAll() ), actions );
+   
+   // create the actions modifying the text format
+@@ -210,6 +210,12 @@ void KNoteEdit::slotCutEnabled( bool b )
+     m_cut->setEnabled( b && !isReadOnly() );
+ }
+ 
++void KNoteEdit::slotClear()
++{
++    clear();
++    document()->setModified( true );
++}
++
+ void KNoteEdit::setText( const QString& text )
+ {
+   if ( acceptRichText() && Qt::mightBeRichText( text ) ) {
+Index: kdepim-4.2.4/knotes/knoteedit.h
+===================================================================
+--- kdepim-4.2.4.orig/knotes/knoteedit.h
++++ kdepim-4.2.4/knotes/knoteedit.h
+@@ -92,6 +92,7 @@ class KNoteEdit
+   private slots:
+     void slotCurrentCharFormatChanged( const QTextCharFormat & );
+     void slotCutEnabled( bool );
++    void slotClear();
+ 
+   private:
+     void autoIndent();

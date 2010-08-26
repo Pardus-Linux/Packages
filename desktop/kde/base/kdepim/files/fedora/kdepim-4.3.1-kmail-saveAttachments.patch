@@ -1,0 +1,37 @@
+Index: kmail/kmcommands.cpp
+===================================================================
+--- kmail/kmcommands.cpp	(revision 1010021)
++++ kmail/kmcommands.cpp	(working copy)
+@@ -54,6 +54,7 @@
+ #include <kdbusservicestarter.h>
+ #include <kdebug.h>
+ #include <kfiledialog.h>
++#include <kfilewidget.h>
+ #include <kabc/stdaddressbook.h>
+ #include <kabc/addresseelist.h>
+ #include <klocale.h>
+@@ -2412,7 +2413,11 @@
+   KUrl url, dirUrl;
+   if ( mAttachmentMap.count() > 1 ) {
+     // get the dir
+-    dirUrl = KFileDialog::getExistingDirectoryUrl( KUrl( "kfiledialog:///saveAttachment" ),
++    QString dummy;
++    KUrl startUrl = KFileWidget::getStartUrl( KUrl( "kfiledialog:///saveAttachment" ), dummy );
++    if ( !startUrl.isValid() || startUrl.isEmpty() )
++      startUrl = KUrl( KGlobalSettings::documentPath() );
++    dirUrl = KFileDialog::getExistingDirectoryUrl( startUrl,
+                                                    parentWidget(),
+                                                    i18n( "Save Attachments To" ) );
+     if ( !dirUrl.isValid() ) {
+Index: kmail/CMakeLists.txt
+===================================================================
+--- kmail/CMakeLists.txt	(revision 1010021)
++++ kmail/CMakeLists.txt	(working copy)
+@@ -371,6 +371,7 @@
+   kpgp
+   kdepim
+   ${KDE4_KIO_LIBS}
++  ${KDE4_KFILE_LIBS}
+   ${KDEPIMLIBS_KABC_LIBS}
+   ${KDEPIMLIBS_KPIMUTILS_LIBS}
+   ${KDEPIMLIBS_KPIMTEXTEDIT_LIBS}

@@ -1,0 +1,30 @@
+diff --exclude=.svn --exclude=.svnignore --exclude=CVS -Naur kdepim-4.2.0-orig/kmail/kmmainwin.cpp kdepim-4.2.0/kmail/kmmainwin.cpp
+--- kdepim-4.2.0-orig/kmail/kmmainwin.cpp	2009-02-19 23:05:00.000000000 +0200
++++ kdepim-4.2.0/kmail/kmmainwin.cpp	2009-02-19 23:42:29.000000000 +0200
+@@ -20,6 +20,7 @@
+ #include <kdebug.h>
+ #include <ktip.h>
+ #include <kicon.h>
++#include <kstatusbarofflineindicator.h>
+ 
+ #include "kmmainwin.moc"
+ 
+@@ -166,12 +167,18 @@
+   mLittleProgress = new StatusbarProgressWidget( mProgressDialog, statusBar() );
+   mLittleProgress->show();
+ 
++  /* Indicator for desktop offline mode */
++  KStatusBarOfflineIndicator* indicator = new KStatusBarOfflineIndicator( this);
++  statusBar()->addWidget( indicator, 0);
++  //indicator->init();
++
+   statusBar()->insertItem( i18n("Starting..."), 1, 4 );
+   QTimer::singleShot( 2000, KPIM::BroadcastStatus::instance(), SLOT( reset() ) );
+   statusBar()->setItemAlignment( 1, Qt::AlignLeft | Qt::AlignVCenter );
+   statusBar()->addPermanentWidget( mKMMainWidget->vacationScriptIndicator() );
+   statusBar()->addPermanentWidget( mLittleProgress );
+   mLittleProgress->show();
++
+ }
+ 
+ void KMMainWin::slotQuit()
