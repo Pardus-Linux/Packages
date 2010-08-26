@@ -14,7 +14,7 @@ def postInstall(fromVersion, fromRelease, toVersion, toRelease):
     os.system("/bin/touch /usr/lib/MozillaFirefox/components/xpti.dat")
     os.system("/usr/lib/MozillaFirefox/firefox -register")
     os.system("/bin/touch /usr/lib/MozillaFirefox/.autoreg")
-
+    """
     # Bookmarks & Search plugins
     lang = open("/etc/env.d/03locale").readline().strip("LANG=")[:5]
 
@@ -35,9 +35,11 @@ def postInstall(fromVersion, fromRelease, toVersion, toRelease):
         symlink("/usr/lib/MozillaFirefox/pardus/bookmarks-de.html", "/usr/lib/MozillaFirefox/defaults/profile/bookmarks.html")
         symlink("/usr/lib/MozillaFirefox/pardus/wikipedia_de.xml", "/usr/lib/MozillaFirefox/searchplugins/wikipedia.xml")
     else:
-        symlink("/usr/lib/MozillaFirefox/pardus/bookmarks-en.html", "/usr/lib/MozillaFirefox/defaults/profile/bookmarks.html")
-        symlink("/usr/lib/MozillaFirefox/pardus/pardus-wiki_en.xml", "/usr/lib/MozillaFirefox/searchplugins/pardus-wiki.xml")
-        symlink("/usr/lib/MozillaFirefox/pardus/wikipedia_en.xml", "/usr/lib/MozillaFirefox/searchplugins/wikipedia.xml")
+
+    """
+    symlink("/usr/lib/MozillaFirefox/pardus/bookmarks-en.html", "/usr/lib/MozillaFirefox/defaults/profile/bookmarks.html")
+    symlink("/usr/lib/MozillaFirefox/pardus/pardus-wiki_en.xml", "/usr/lib/MozillaFirefox/searchplugins/pardus-wiki.xml")
+    symlink("/usr/lib/MozillaFirefox/pardus/wikipedia_en.xml", "/usr/lib/MozillaFirefox/searchplugins/wikipedia.xml")
 
 def preRemove():
     try:
