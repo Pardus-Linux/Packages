@@ -1,0 +1,1293 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>mplayer</Name>
+        <Homepage>http://www.mplayerhq.hu/</Homepage>
+        <Packager>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Packager>
+        <License>GPLv2+</License>
+        <Icon>mplayer</Icon>
+        <IsA>app:gui</IsA>
+        <IsA>app:console</IsA>
+        <Summary>Media Player for Linux</Summary>
+        <Description>MPlayer is a movie player that can run on many platforms. It plays most MPEG/VOB, AVI, Ogg/OGM, VIVO, ASF/WMA/WMV, QT/MOV/MP4, RealMedia, Matroska, NUT, NuppelVideo, FLI, YUV4MPEG, FILM, RoQ, PVA files, supported by many native codecs.</Description>
+        <Archive sha1sum="6d17b867bcb5dc19fa3416899e9f0be44be46d7d" type="targz">http://cekirdek.pardus.org.tr/~onur/distfiles/mplayer-32021.tar.gz</Archive>
+        <Archive sha1sum="6f7522a14c7ff0083990d32f213ff6d8e577821e" type="targz" target="mplayer">http://cekirdek.pardus.org.tr/~onur/distfiles/MPlayer_default_skin-0.1.tar.gz</Archive>
+        <BuildDependencies>
+            <Dependency>DirectFB-devel</Dependency>
+            <Dependency>aalib-devel</Dependency>
+            <Dependency>alsa-lib-devel</Dependency>
+            <Dependency>cdparanoia-devel</Dependency>
+            <Dependency>faac-devel</Dependency>
+            <Dependency>fontconfig-devel</Dependency>
+            <Dependency>giflib-devel</Dependency>
+            <Dependency versionFrom="2.18.5">gtk2-devel</Dependency>
+            <Dependency>ladspa-sdk-devel</Dependency>
+            <Dependency>lame-devel</Dependency>
+            <Dependency>libcaca-devel</Dependency>
+            <Dependency>libdca-devel</Dependency>
+            <Dependency>libdv-devel</Dependency>
+            <Dependency>libdvdnav-devel</Dependency>
+            <Dependency>libdvdread-devel</Dependency>
+            <Dependency>libmad-devel</Dependency>
+            <Dependency>libmatroska-devel</Dependency>
+            <Dependency>libmpcdec-devel</Dependency>
+            <Dependency>libnut-devel</Dependency>
+            <Dependency>libsdl-devel</Dependency>
+            <Dependency>libtheora-devel</Dependency>
+            <Dependency>libvorbis-devel</Dependency>
+            <Dependency>lirc-devel</Dependency>
+            <Dependency>live555-devel</Dependency>
+            <Dependency>lzo-devel</Dependency>
+            <Dependency>openal-devel</Dependency>
+            <Dependency>pulseaudio-libs-devel</Dependency>
+            <Dependency>samba-devel</Dependency>
+            <Dependency>schroedinger-devel</Dependency>
+            <Dependency>speex-devel</Dependency>
+            <Dependency>twolame-devel</Dependency>
+            <Dependency releaseFrom="29">x264-devel</Dependency>
+            <Dependency>xvid-devel</Dependency>
+            <Dependency>atk-devel</Dependency>
+            <Dependency versionFrom="1.8.8">cairo-devel</Dependency>
+            <Dependency>libXScrnSaver-devel</Dependency>
+            <Dependency>libXext-devel</Dependency>
+            <Dependency>libXinerama-devel</Dependency>
+            <Dependency>libXv-devel</Dependency>
+            <Dependency>libXvMC-devel</Dependency>
+            <Dependency>libXxf86dga-devel</Dependency>
+            <Dependency>libXxf86vm-devel</Dependency>
+            <Dependency>libXrender-devel</Dependency>
+            <Dependency>gsm-devel</Dependency>
+            <Dependency>openjpeg-devel</Dependency>
+            <Dependency>a52dec-devel</Dependency>
+            <Dependency>mesa-devel</Dependency>
+            <Dependency>pango-devel</Dependency>
+            <Dependency>libvdpau-devel</Dependency>
+            <Dependency releaseFrom="6">libva-devel</Dependency>
+            <Dependency>libvpx-devel</Dependency>
+            <Dependency>jack-audio-connection-kit-devel</Dependency>
+            <Dependency>opencore-amr-devel</Dependency>
+            <Dependency>mpg123-devel</Dependency>
+            <Dependency>libass-devel</Dependency>
+        </BuildDependencies>
+        <Patches>
+            <!-- Bugfix -->
+            <Patch level="1">tr-locale-fix.patch</Patch>
+            <!-- check if still needed
+            <Patch level="1">noalignmessage.patch</Patch>
+            -->
+            <Patch level="1">noframeskiplog.patch</Patch>
+            <Patch level="1">osdmenu_post_cmd.patch</Patch>
+            <Patch level="1">dvbmenu_post_cmd.patch</Patch>
+            <Patch level="1">asf_streams.patch</Patch>
+            <!-- FIXME: is this still needed -->
+            <Patch level="1">http-parse.patch</Patch>
+            <Patch level="1">vo_keep_window_state.patch</Patch>
+
+            <Patch>asf_redirect_playlist.patch</Patch>
+            <Patch>asf_header_buffer_size.patch</Patch>
+            <Patch>center-sdl.patch</Patch>
+            <!-- FIXME: use this on segfault and normal exit only after \n since some
+            frontends suck to parse it or teach smplayer how to parse
+            <Patch>reset-msgcolor-attributes.patch</Patch>
+            -->
+            <Patch>fix-dvd-sub.patch</Patch>
+            <Patch level="1">demux_mkv_seek.diff</Patch>
+            <Patch level="1">awk_path.patch</Patch>
+            <Patch level="1">remove_vfw_bframe_warning.patch</Patch>
+
+            <!-- don't let console config mess with gui config -->
+            <Patch level="1">dont_override_gui_conf.patch</Patch>
+            <Patch level="1">default_gui_config.patch</Patch>
+
+            <!-- this is for \n\r in mp_msg when playing in gui -->
+            <Patch level="1">erase_to_eof.patch</Patch>
+
+            <!-- Menu stuff -->
+            <Patch level="1">menu-colors.patch</Patch>
+            <!-- Menu is back to En now
+            <Patch level="1">menu-locale.patch</Patch>
+            -->
+
+            <!-- Enhancement -->
+            <Patch level="1">alsa_surround.patch</Patch>
+            <Patch level="1">mmsplaylist.patch</Patch>
+            <Patch level="1">config_per_protocol_and_extension-case.patch</Patch>
+            <Patch level="1">keep_volume_level.patch</Patch>
+
+            <!-- Demuxer patches for eac3 support, can be epanded for provided samples -->
+            <Patch level="1">eac3_mkv.patch</Patch>
+            <Patch level="1">eac3_codec_id.patch</Patch>
+
+            <!-- for libvaapi support -->
+            <Patch level="1">mplayer-vaapi.patch</Patch>
+            <Patch level="1">mplayer-vaapi-menuload.patch</Patch>
+            <Patch level="1">mplayer-vaapi-0.29.patch</Patch>
+            <Patch level="1">mplayer-vaapi_underlink.patch</Patch>
+            <Patch level="1">mplayer-vdpau.patch</Patch>
+            <Patch level="1">vaapi_eosd_backports.patch</Patch>
+            <!-- too hacky, keep it in case we really need it
+            <Patch level="1">mplayer-vaapi-gma500-workaround.patch</Patch>
+            -->
+
+            <Patch level="1">v4lw.patch</Patch>
+
+            <Patch>avidec-check-ast.patch</Patch>
+            <Patch>x264_revert.patch</Patch>
+        </Patches>
+    </Source>
+
+    <Package>
+        <Name>mplayer</Name>
+        <RuntimeDependencies>
+            <Dependency>DirectFB</Dependency>
+            <Dependency>aalib</Dependency>
+            <Dependency>alsa-lib</Dependency>
+            <Dependency>cdparanoia</Dependency>
+            <Dependency>faac</Dependency>
+            <Dependency>fontconfig</Dependency>
+            <Dependency>giflib</Dependency>
+            <Dependency versionFrom="2.18.5">gtk2</Dependency>
+            <Dependency>ladspa-sdk</Dependency>
+            <Dependency>lame</Dependency>
+            <Dependency>libcaca</Dependency>
+            <Dependency>libdca</Dependency>
+            <Dependency>libdv</Dependency>
+            <Dependency>libdvdnav</Dependency>
+            <Dependency>libdvdread</Dependency>
+            <Dependency>libmad</Dependency>
+            <Dependency>libmatroska</Dependency>
+            <Dependency>libmpcdec</Dependency>
+            <Dependency>libnut</Dependency>
+            <Dependency>libsdl</Dependency>
+            <Dependency>libtheora</Dependency>
+            <Dependency>libvorbis</Dependency>
+            <Dependency>lirc</Dependency>
+            <Dependency>live555</Dependency>
+            <Dependency>lzo</Dependency>
+            <Dependency>openal</Dependency>
+            <Dependency>pulseaudio-libs</Dependency>
+            <Dependency>samba</Dependency>
+            <Dependency>schroedinger</Dependency>
+            <Dependency>speex</Dependency>
+            <Dependency>twolame</Dependency>
+            <Dependency releaseFrom="29">x264</Dependency>
+            <Dependency>xvid</Dependency>
+            <Dependency>atk</Dependency>
+            <Dependency versionFrom="1.8.8">cairo</Dependency>
+            <Dependency>libXScrnSaver</Dependency>
+            <Dependency>libXext</Dependency>
+            <Dependency>libXinerama</Dependency>
+            <Dependency>libXv</Dependency>
+            <Dependency>libXvMC</Dependency>
+            <Dependency>libXxf86dga</Dependency>
+            <Dependency>libXxf86vm</Dependency>
+            <Dependency>libXrender</Dependency>
+            <Dependency>gsm</Dependency>
+            <Dependency>openjpeg</Dependency>
+            <Dependency>a52dec</Dependency>
+            <Dependency>mesa</Dependency>
+            <Dependency>pango</Dependency>
+            <Dependency>libvdpau</Dependency>
+            <Dependency releaseFrom="6">libva</Dependency>
+            <Dependency>libvpx</Dependency>
+            <Dependency>jack-audio-connection-kit</Dependency>
+            <Dependency>opencore-amr</Dependency>
+            <Dependency>mpg123</Dependency>
+            <Dependency>libass</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="config">/etc</Path>
+            <Path fileType="executable">/usr/bin</Path>
+            <Path fileType="library">/usr/lib</Path>
+            <Path fileType="doc">/usr/share/doc</Path>
+            <Path fileType="man">/usr/share/man</Path>
+            <Path fileType="data">/usr/share/applications</Path>
+            <Path fileType="data">/usr/share/mplayer</Path>
+            <Path fileType="data">/usr/share/pixmaps</Path>
+        </Files>
+        <AdditionalFiles>
+            <AdditionalFile owner="root" permission="0644" target="/usr/share/applications/mplayer.desktop">mplayer.desktop</AdditionalFile>
+            <AdditionalFile owner="root" permission="0644" target="/usr/share/pixmaps/mplayer.png">mplayer.png</AdditionalFile>
+            <AdditionalFile owner="root" permission="0644" target="/etc/mplayer.conf">mplayer.conf</AdditionalFile>
+            <AdditionalFile owner="root" permission="0644" target="/etc/mencoder.conf">mencoder.conf</AdditionalFile>
+            <AdditionalFile owner="root" permission="0644" target="/usr/share/mplayer/input.conf">input.conf</AdditionalFile>
+            <AdditionalFile owner="root" permission="0644" target="/usr/share/mplayer/menu.conf">menu.conf</AdditionalFile>
+            <AdditionalFile owner="root" permission="0644" target="/usr/share/mplayer/extensions">extensions</AdditionalFile>
+            <AdditionalFile owner="root" permission="0755" target="/usr/bin/test-webcam">test-webcam</AdditionalFile>
+            <AdditionalFile owner="root" permission="0755" target="/usr/bin/midentify">midentify</AdditionalFile>
+            <AdditionalFile owner="root" permission="0644" target="/etc/bash_completion.d/mplayer">bash_completion</AdditionalFile>
+        </AdditionalFiles>
+    </Package>
+
+    <History>
+        <Update release="133">
+            <Date>2010-08-27</Date>
+            <Version>0.0_20100827</Version>
+            <Comment>
+                Bump snapshot to 32021, ffmpeg 24953
+                Remove unused amr deps, we use only opencore-amr
+                Fix segfault with some avi files
+            </Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="132">
+            <Date>2010-08-24</Date>
+            <Version>0.0_20100823</Version>
+            <Comment>
+                Bump snapshot to 32006, ffmpeg 24910
+            </Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="131">
+            <Date>2010-08-19</Date>
+            <Version>0.0_20100819</Version>
+            <Comment>
+                Bump snapshot to 31982, ffmpeg 24839
+                Fix segfaults with flv files
+                Fix cache2 segfault, fixes seeking in some filetypes like flv
+                Revert flash completion as it breaks empty space completion
+                Fix versioning
+            </Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="130">
+            <Date>2010-07-19</Date>
+            <Version>0.0_20100719</Version>
+            <Comment>
+                Bump snapshot to 31750, ffmpeg 24320
+                Fix geometry of GL2 outputs too, fixes bugs #13154 and #13778
+            </Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="129">
+            <Date>2010-07-16</Date>
+            <Version>0.0_20100716</Version>
+            <Comment>
+                Bump snapshot to 31743, ffmpeg 24252
+                Depend on latest libva for new tfp feature
+                Fix a crash on float_to_int16_interleave_sse2
+                Enable libvpx for VP8
+                Fix geometry of GL outputs, should fix bug #13154  #13778
+                Add a few more parameters to bash_completion
+                Add missing dependencies
+            </Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="128">
+            <Date>2010-06-01</Date>
+            <Version>0.0_20100601</Version>
+            <Comment>
+                Bump snapshot to 31299, ffmpeg 23406
+                Fix a regression of video may not be played when stdin is handled by another process
+                Fix crash with some mkv files due to spu parsing
+                Put a parameter to default conf to set where video should stat automatically
+                Revert to internal libass until ass_flush_events is made public
+            </Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="127">
+            <Date>2010-05-27</Date>
+            <Version>0.0_20100527</Version>
+            <Comment>
+                Bump snapshot to 31231, ffmpeg 23351
+                Depend on new x264 and libva, disable vdpau for now for the sake of vaapi
+                Fix heavy load with vaapi, fixes bug #13128
+            </Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="126">
+            <Date>2010-05-25</Date>
+            <Version>0.0_20100525</Version>
+            <Comment>
+                Bump snapshot to 31210, ffmpeg 23308
+                Add old vaapi compiatibility patch
+            </Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="125">
+            <Date>2010-05-12</Date>
+            <Version>0.0_20100302</Version>
+            <Comment>
+                Add amv to bash completion
+            </Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="124">
+            <Date>2010-03-02</Date>
+            <Version>0.0_20100302</Version>
+            <Comment>
+                Bump snapshot to 30815, ffmpeg 22144
+                Fix threaded h264 decoding
+                Fix buffer management in vdpau
+            </Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="123">
+            <Date>2010-03-01</Date>
+            <Version>0.0_20100301</Version>
+            <Comment>
+                Bump snapshot to 30800, ffmpeg 22131
+                Add latest segfault fixes
+                Fix packed B frame playing with vdpau
+            </Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="122">
+            <Date>2010-02-26</Date>
+            <Version>0.0_20100226</Version>
+            <Comment>
+                Bump snapshot to 30741, ffmpeg 22071
+                Fix latest segfault fixes
+                Update vaapi support
+                Enable parallel build
+            </Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="121">
+            <Date>2010-02-22</Date>
+            <Version>0.0_20100222</Version>
+            <Comment>
+                Bump snapshot to 30713, ffmpeg 21967
+                Forwardport mplayer changes to vaapi patch
+                Update to new vaapi
+            </Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="120">
+            <Date>2010-02-15</Date>
+            <Version>0.0_20100215</Version>
+            <Comment>
+                Bump snapshot to 30589, ffmpeg 21831
+                Fix VP6/VP7 segfault
+                Add speed optimizations, especially for the startup times
+            </Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="119">
+            <Date>2010-02-11</Date>
+            <Version>0.0_20100211</Version>
+            <Comment>
+                Bump snapshot to 30538, ffmpeg 21761
+                Depend on new x264
+                Support faster x264 decoding
+                Add many issue fixes
+                Change language to English
+            </Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="118">
+            <Date>2010-01-14</Date>
+            <Version>0.0_20100114</Version>
+            <Comment>
+                Revert mp3lib priority changes
+                Remove vfw bframe warning
+                Remove vdpau vaapi patch for now
+            </Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="117">
+            <Date>2010-01-14</Date>
+            <Version>0.0_20100114</Version>
+            <Comment>
+                Bump snapshot to 30302, ffmpeg 21212
+                Fix vaapi support
+                Update internal libass
+            </Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="116">
+            <Date>2009-12-29</Date>
+            <Version>0.0_20091229</Version>
+            <Comment>
+                Bump snapshot to 30135, ffmpeg 20964
+                Enable vaapi support
+                Depend on new x264
+                Add mp4, matroska, 3gp, mp4 mimetypes to desktop file
+                Add more examples to mplayer.conf
+            </Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="115">
+            <Date>2009-10-20</Date>
+            <Version>0.0_20091020</Version>
+            <Comment>
+                Bump snapshot to 29789, ffmpeg 20334
+                Fix bframe pyramid in x264
+            </Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="114">
+            <Date>2009-10-18</Date>
+            <Version>0.0_20091018</Version>
+            <Comment>
+                Bump snapshot to 29777, ffmpeg 20277
+                Try to recover from VDPAU display pre-emptions
+                Fix volume restore of pulseaudio, probably will fix gnome-mplayer sond issues
+            </Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="113">
+            <Date>2009-10-16</Date>
+            <Version>0.0_20091016</Version>
+            <Comment>
+                Bump snapshot to 29776, ffmpeg 20256
+                Depend on new x264
+                Fix alsa buffer management
+                Fix lots of buffer overflows
+            </Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="112" type="security">
+            <Date>2009-09-18</Date>
+            <Version>0.0_20090918</Version>
+            <Comment>
+                Bump snapshot to 29687, ffmpeg 19909
+                Fix integer overflow in siearravmd, bug #11175
+            </Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="111">
+            <Date>2009-09-10</Date>
+            <Version>0.0_20090910</Version>
+            <Comment>
+                Bump snapshot to 29670
+                Fix playing of some online mov index like in pbs
+                Add missing dependencies
+                Fix interleaved AVI decoding
+                Add wmapro support
+                Keep volume level on file changes, bug #10846
+                Many more fixes
+            </Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="110" type="security">
+            <Date>2009-07-30</Date>
+            <Version>0.0_20090730</Version>
+            <Comment>
+                Bump snapshot to 29455
+                Fix opencoreamr usage bug #10480
+                Fix RDT integer overflow bug #10685
+                Fix u8 1c pcm playing (thanks to Gökmen Göksel for the sample)
+            </Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="109">
+            <Date>2009-07-15</Date>
+            <Version>0.0_20090715</Version>
+            <Comment>
+                Bump snapshot to 29418
+                Add missing dependencies
+                Use libvdpau
+                Enable jack sound system
+            </Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="108">
+            <Date>2009-05-26</Date>
+            <Version>0.0_20090604</Version>
+            <Comment>Bump snapshot</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="107">
+            <Date>2009-05-26</Date>
+            <Version>0.0_20090526</Version>
+            <Comment>
+                Bump snapshot
+                Fix vo state changing on multiple files
+            </Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="106">
+            <Date>2009-05-15</Date>
+            <Version>0.0_20090515</Version>
+            <Comment>
+                Bump snapshot
+                Fix wrong colorspace conversion
+                Disable joystick support in config only due to popular demand
+            </Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="105">
+            <Date>2009-04-29</Date>
+            <Version>0.0_20090429</Version>
+            <Comment>
+                Big snapshot bump and get rid of all the backports
+                Remove everything about arts
+                Add more file suffix to bash-completion
+                Allow O3 in flags
+                Put matroska correct-pts workaround
+            </Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="104">
+            <Date>2009-02-09</Date>
+            <Version>0.0_20090101</Version>
+            <Comment>Fix overflooding pts messages, this will fix playing of latest matroska files
+                     Get flv video bitrate from metadata</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="103" type="security">
+            <Date>2009-01-30</Date>
+            <Version>0.0_20090101</Version>
+            <Comment>Fix a signedness error within the "fourxm_read_header()" function in libavformat/4xm.c (bug#9121)</Comment>
+            <Name>Pınar Yanardağ</Name>
+            <Email>pinar@pardus.org.tr</Email>
+        </Update>
+        <Update release="102">
+            <Date>2009-01-01</Date>
+            <Version>0.0_20090101</Version>
+            <Comment>Snapshot bump for lots of enhancements like many performance improvements on x264 decoding, and bugfixes including playing of sound in some media files bug #8588, fix eve-raido playing bug #8851, fix mplayer running as a child and defects caused by this like small video display, not killing the child on exit etc. bug #8948. Will also help fixing bugs #8234, #8559, #8729</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="101" type="security">
+            <Date>2008-12-23</Date>
+            <Version>0.0_20081015</Version>
+            <Comment>Fix possible stack overflow in vqf demuxer, fixes CVE-2008-5616, bug #8879</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="100">
+            <Date>2008-11-29</Date>
+            <Version>0.0_20081015</Version>
+            <Comment>Fix bash_completion script by moving it into /etc as bash_completion external dir is there and it treats _filedir etc. better</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="99" type="security">
+            <Date>2008-11-25</Date>
+            <Version>0.0_20081015</Version>
+            <Comment>Fix endless loop when opening corrupt FLV files, check sub_packet_size against 0 to avoid div by zero later, only warn about "Invalid and inefficient vfw-avi packed B frames" once</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="98">
+            <Date>2008-11-10</Date>
+            <Version>0.0_20081015</Version>
+            <Comment>Add bash_completion script, it will be maintained here</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="97" type="security">
+            <Date>2008-10-28</Date>
+            <Version>0.0_20081015</Version>
+            <Comment>Fix possibly exploitable yuv2rgb buffer overflow in swscale</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="96">
+            <Date>2008-10-15</Date>
+            <Version>0.0_20081015</Version>
+            <Comment>Add support for svq3 watermark, don't use negative size buffer for vp6, add a few memleak fixes and some packed YUV fixes</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="95">
+            <Date>2008-10-12</Date>
+            <Version>0.0_20081012</Version>
+            <Comment>Bump snapshot for many swscale changes, disable backingstore for better performance in composite environments, add support for more multimedia keys, fix strict casting violation for aac decoder, flv pts fixes, matroska fixes, many AC3 fixes, x264 enhancements, fixes playing of some mp4/mov/avi files provided lately</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="94" type="security">
+            <Date>2008-10-02</Date>
+            <Version>0.0_20080909</Version>
+            <Comment>Fix CVE-2008-3827</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="93">
+            <Date>2008-09-09</Date>
+            <Version>0.0_20080909</Version>
+            <Comment>Added MXF muxer, fix wma regressions, fix mid/side stereo buggy output zeroing, add generic IIR filter interface with Butterworth lowpass filter implementation, fix decoding of ape 3.98 files, do not assign avctx->rc_eq to libx264's context and leave the decision to library, fix detection of MPEG4 in MPEG-PS, support invalid h264 that does not mark IDR with POC=0, fix an invalid free in the AVI muxer when an unsupported audio track is added, prevent a division by 0 in the g726 decoder, fix round to even for aspect ratio correction, add ac3/eac3 support for many formats like mov/mp4/mkv etc., add support for the PIX_FMT_RGB32, PIX_FMT_RGB555 and PIX_FMT_RGB565 in V4L2, fix alac crash where bits per sample is not set, set block align in av_write_header if not set, fix stsd box size for ac3 in mp4, lots of matroska fixes (pts, seek etc.)</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="92" type="security">
+            <Date>2008-08-25</Date>
+            <Version>0.0_20080825</Version>
+            <Comment>Fix buffer overflow in dca, enhance lavf support, fix PCM DVD divide by zero, do not set timestamp information for a non existing AVStream, lots of constantization, fix fir_32bands_perfect table, fix fps for v4l1 cams in test script</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="91" type="security">
+            <Date>2008-08-20</Date>
+            <Version>0.0_20080820</Version>
+            <Comment>Bump to fix possibly exploitable freeing of pointers that have not been allocated in rc_eq, overflow in AVStream pts_buffer, alac samplesize overflow, nut demuxer double free etc. and many bugfixes</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="90" type="security">
+            <Date>2008-07-29</Date>
+            <Version>0.0_20080729</Version>
+            <Comment>Bump to fix CVE-2008-3230, add nut and dirac support, fix lots of segfaults, avc1 optimizations etc.</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="89" type="security">
+            <Date>2008-06-27</Date>
+            <Version>0.0_20080626</Version>
+            <Comment>Fix exploitable psxstr demuxer, fix dvdnav bindings</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="88">
+            <Date>2008-06-25</Date>
+            <Version>0.0_20080625</Version>
+            <Comment>Version bump</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="87">
+            <Date>2008-06-06</Date>
+            <Version>0.0_20080605</Version>
+            <Comment>Put back eac3 support</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="86" type="security">
+            <Date>2008-06-05</Date>
+            <Version>0.0_20080605</Version>
+            <Comment>Fix possible buffer overflow in mkv muxer</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="85">
+            <Date>2008-05-23</Date>
+            <Version>0.0_20080523</Version>
+            <Comment>Version bump</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="84">
+            <Date>2008-05-09</Date>
+            <Version>0.0_20080509</Version>
+            <Comment>Add gmplayer symlink manually for now</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="83" type="security">
+            <Date>2008-05-09</Date>
+            <Version>0.0_20080509</Version>
+            <Comment>Version bump for many overflows in alac and flac codecs, many fixes especially in mkv and x264, enable and default to pulseaudio</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="82" type="security">
+            <Date>2008-03-19</Date>
+            <Version>0.0_20080322</Version>
+            <Comment>Fix possible heap overflow in av_fast_realloc and CVE-2008-0073 and some enhancements like better framedrop support</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="81">
+            <Date>2008-02-16</Date>
+            <Version>0.0_20080216</Version>
+            <Comment>Bump for osd fixes, fixes for mencoder regression, avc1 optimizations etc., fix subtitle display on pause and switch to ass by default</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="80" type="security">
+            <Date>2008-01-30</Date>
+            <Version>0.0_20080130</Version>
+            <Comment>Prevent possible buffer overflow in parsing flac metadata and mov alike containers, add some fixes for stuff like mms stream id limit</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="79" type="security">
+            <Date>2008-01-21</Date>
+            <Version>0.0_20080121</Version>
+            <Comment>Prevent possible buffer overflow in cddb stream (25824) and stream url parsing (25823)</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="78">
+            <Date>2008-01-19</Date>
+            <Version>0.0_20080119</Version>
+            <Comment>Bump to new snapshot for many fixes for vobsub, eac3, ac3 and memleak fixes</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="77">
+            <Date>2007-12-23</Date>
+            <Version>0.0_20071230</Version>
+            <Comment>Bump to new snapshot.
+                - Lots of format/codec fixes, aspect ratio fixes, workarounds for mp4, flv, mkv.
+                - Add mencoder default config with profiles and add a default font thanks to Türker Sezer
+                - Fix test-webcam regressions
+                - Many menu enhancements
+                - Switch to Xss based screensaver and remove hacky system() stuff
+                - Add screenscale support
+                - Add protocol and extension based config support etc. etc.</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="76">
+            <Date>2007-11-30</Date>
+            <Version>0.0_20071130</Version>
+            <Comment>Fix gui cache settings saving, wma_decode, subtitle loading, dvd memleak, revise empty vobsub patch</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="75">
+            <Date>2007-11-29</Date>
+            <Version>0.0_20071128</Version>
+            <Comment>Fix bug #6539 and #6341, fix segfault on interlaced h264</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="74">
+            <Date>2007-11-12</Date>
+            <Version>0.0_20071112</Version>
+            <Comment>OSD fixes, IMDCT enhancements, fix X window side pixels, enable http redirection etc.</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="73">
+            <Date>2007-11-06</Date>
+            <Version>0.0_20071106</Version>
+            <Comment>A few more codecs and some memory leak fixes added</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="72">
+            <Date>2007-10-26</Date>
+            <Version>0.0_20071025</Version>
+            <Comment>Many new formats and codecs like Nellymoser, lots of fixes including some buffer overflows causing segfaults</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="71">
+            <Date>2007-09-19</Date>
+            <Version>0.0_20070919</Version>
+            <Comment>Bump for MPEG qpel int overflow, V4L2 control support, vobsub and mms fixes</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="70">
+            <Date>2007-09-16</Date>
+            <Version>0.0_20070916</Version>
+            <Comment>New snapshot for new codecs like Monkey Audio, some crash fixes, EAC3 is working</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="69" type="security">
+            <Date>2007-08-21</Date>
+            <Version>0.0_20070821</Version>
+            <Comment>New snapshot for many new stuff, semiworking E-AC3 support, fix a possible heap flow on image changes, revise test-webcam</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="68">
+            <Date>2007-06-23</Date>
+            <Version>0.0_20070623</Version>
+            <Comment>Version bump for subtitle and mkv largefile fixes</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="67">
+            <Date>2007-06-16</Date>
+            <Version>0.0_20070616</Version>
+            <Comment>Version bump</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="66">
+            <Date>2007-06-07</Date>
+            <Version>0.0_20070607</Version>
+            <Comment>Bump mainly for H.263/H.264 corruption fixes</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="65" type="security">
+            <Date>2007-06-06</Date>
+            <Version>0.0_20070524</Version>
+            <Comment>Fix a buffer overflow in stream_cddb.c</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="64" type="security">
+            <Date>2007-05-24</Date>
+            <Version>0.0_20070524</Version>
+            <Comment>Many bugfixes including utf-8 fixes and a buffer overflow</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="63">
+            <Date>2007-04-14</Date>
+            <Version>0.0_20070414</Version>
+            <Comment>Improve flv, dtx, real detection. Finally fix #5285</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="62">
+            <Date>2007-04-11</Date>
+            <Version>0.0_20070411</Version>
+            <Comment>x264 segfault, libass and bframe fixes</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="61">
+            <Date>2007-04-08</Date>
+            <Version>0.0_20070408</Version>
+            <Comment>MPEG muxer and gtk_file_sel fixes</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="60">
+            <Date>2007-04-07</Date>
+            <Version>0.0_20070407</Version>
+            <Comment>Fix mpeg a/v sync problems</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="59">
+            <Date>2007-04-04</Date>
+            <Version>0.0_20070404</Version>
+            <Comment>Add rle, thp, vidix, wma9dso fixes</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="58">
+            <Date>2007-03-30</Date>
+            <Version>0.0_20070330</Version>
+            <Comment>Many fixes like invalid b-frame setting, borking in large audio files, invalid exit() usage, mp3 seeking etc.</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="57">
+            <Date>2007-03-26</Date>
+            <Version>0.0_20070326</Version>
+            <Comment>Many fixes like mp3 seeking</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="56">
+            <Date>2007-03-24</Date>
+            <Version>0.0_20070325</Version>
+            <Comment>Many fixes, including bug #4197 and #5285</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="55">
+            <Date>2007-03-23</Date>
+            <Version>0.0_20070323</Version>
+            <Comment>Many fixes</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="54">
+            <Date>2007-02-21</Date>
+            <Version>0.0_20070217</Version>
+            <Comment>Aspect ratio and vo dimensions fixes</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="53">
+            <Date>2007-02-18</Date>
+            <Version>0.0_20070217</Version>
+            <Comment>Fix some bugs in codecs svn:22256</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="52" type="security">
+            <Date>2007-02-16</Date>
+            <Version>0.0_20070216</Version>
+            <Comment>Add boundary checks for fixed-length arrays in rtsp real streams svn:22234</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="51">
+            <Date>2007-02-15</Date>
+            <Version>0.0_20070214</Version>
+            <Comment>Some fixes svn:22223</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="50">
+            <Date>2007-02-09</Date>
+            <Version>0.0_20070208</Version>
+            <Comment>OSD, subtitle, mpeg, vc1 etc. fixes svn:22178</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="49">
+            <Date>2007-02-05</Date>
+            <Version>0.0_20070204</Version>
+            <Comment>Fix flv seeking in a hackish way</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="48">
+            <Date>2007-02-05</Date>
+            <Version>0.0_20070204</Version>
+            <Comment>Bugfixes for vc1, amr and docs updated to match current svn:22143</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="47">
+            <Date>2007-02-04</Date>
+            <Version>0.0_20070204</Version>
+            <Comment>Bugfixes like vc1 extradata parsing and mpeg svn:22133</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="46">
+            <Date>2007-02-04</Date>
+            <Version>0.0_20070203</Version>
+            <Comment>Bugfixes svn:22119</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="45">
+            <Date>2007-02-02</Date>
+            <Version>0.0_20070128</Version>
+            <Comment>Depend on new live555</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="44" type="security">
+            <Date>2007-01-26</Date>
+            <Version>0.0_20070128</Version>
+            <Comment>Bugfixes svn:22051, fix mpegpes broken by #22039</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="43" type="security">
+            <Date>2007-01-01</Date>
+            <Version>0.0_20061209</Version>
+            <Comment>Fix CVE-2006-6172</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="42">
+            <Date>2006-12-12</Date>
+            <Version>0.0_20061209</Version>
+            <Comment>Do not cry like a baby update</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="41">
+            <Date>2006-12-12</Date>
+            <Version>0.0_20061209</Version>
+            <Comment>Do not cry like a baby on init</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="40" type="security">
+            <Date>2006-12-09</Date>
+            <Version>0.0_20061209</Version>
+            <Comment>Bump for lots of segfaults  svn:21558</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="39" type="security">
+            <Date>2006-11-23</Date>
+            <Version>0.0_20061111</Version>
+            <Comment>Fix overflows in ALAC decoder and shorten plugin</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="38">
+            <Date>2006-11-20</Date>
+            <Version>0.0_20061111</Version>
+            <Comment>Make it compile with new libraries</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="37" type="security">
+            <Date>2006-11-14</Date>
+            <Version>0.0_20061111</Version>
+            <Comment>Make it compile, change version name style</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="36" type="security">
+            <Date>2006-11-14</Date>
+            <Version>20061104</Version>
+            <Comment>Fix possible overflows in FLIC decoder</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="35">
+            <Date>2006-11-11</Date>
+            <Version>20061111</Version>
+            <Comment>Bump a little, fix resolution swithcing, stream segfaults etc. svn:20860</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="34">
+            <Date>2006-11-04</Date>
+            <Version>20061104</Version>
+            <Comment>Bump a little, fix flv seeking, add icon etc. svn:20660</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="33">
+            <Date>2006-10-29</Date>
+            <Version>20061026</Version>
+            <Comment>Depend on new x264 and add CMOV detection patch from upstream</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="32">
+            <Date>2006-10-26</Date>
+            <Version>20061026</Version>
+            <Comment>Match with 1.0rc1 and last minute fixes svn:20460</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="31">
+            <Date>2006-10-13</Date>
+            <Version>20060923</Version>
+            <Comment>Add screenshot support + tidy up menu</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="30">
+            <Date>2006-10-11</Date>
+            <Version>20060923</Version>
+            <Comment>Fix linking issues</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="29">
+            <Date>2006-10-05</Date>
+            <Version>20060923</Version>
+            <Comment>Add sneaky ladspa dep + menu updates</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="28">
+            <Date>2006-09-27</Date>
+            <Version>20060923</Version>
+            <Comment>Translate menu</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="27">
+            <Date>2006-09-23</Date>
+            <Version>20060923</Version>
+            <Comment>Version bump, write all deps, remove bitmap fonts, lotsa fix and enhancements svn:19963</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="26">
+            <Date>2006-07-14</Date>
+            <Version>20060618</Version>
+            <Comment>Add a webcam script</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="25">
+            <Date>2006-07-06</Date>
+            <Version>20060618</Version>
+            <Comment>Fix essential dependency</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="24">
+            <Date>2006-06-20</Date>
+            <Version>20060618</Version>
+            <Comment>Update Turkish translation</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="23">
+            <Date>2006-06-19</Date>
+            <Version>20060618</Version>
+            <Comment>Update Turkish translation</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="22">
+            <Date>2006-06-18</Date>
+            <Version>20060618</Version>
+            <Comment>Some unicode and segfault fixes, Turkish translation update etc. svn:18751</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="21">
+            <Date>2006-06-16</Date>
+            <Version>20060612</Version>
+            <Comment>Turkish translation update by Tuncay Er</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="20">
+            <Date>2006-06-15</Date>
+            <Version>20060612</Version>
+            <Comment>Define reallibdir in configure so essential codecs work, fix by İsmail</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="19">
+            <Date>2006-06-14</Date>
+            <Version>20060612</Version>
+            <Comment>Update Turkish translation, tidy up configs, fix some defaults</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="18">
+            <Date>2006-06-13</Date>
+            <Version>20060612</Version>
+            <Comment>Add amr configure parameters</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="17">
+            <Date>2006-06-12</Date>
+            <Version>20060612</Version>
+            <Comment>MPlayer 1.0pre8, aka svn:18685</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="16">
+            <Date>2006-05-09</Date>
+            <Version>20060414</Version>
+            <Comment>We all love direct linking :P</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="15" type="security">
+            <Date>2006-04-14</Date>
+            <Version>20060414</Version>
+            <Comment>Version bump</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="14">
+            <Date>2006-03-20</Date>
+            <Version>20051121</Version>
+            <Comment>Compile with new live555</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="13" type="security">
+            <Date>2006-02-22</Date>
+            <Version>20051121</Version>
+            <Comment>Security fix of CAN-2006-0579</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="12">
+            <Date>2005-12-24</Date>
+            <Version>20051121</Version>
+            <Comment>First search for arts, then for alsa, for some soundcards</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="11">
+            <Date>2005-12-23</Date>
+            <Version>20051121</Version>
+            <Comment>Fix skin language, needs lots of work</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="10">
+            <Date>2005-12-21</Date>
+            <Version>20051121</Version>
+            <Comment>Fix desktop file</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="9">
+            <Date>2005-12-12</Date>
+            <Version>20051121</Version>
+            <Comment>Add lirc support</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="8">
+            <Date>2005-12-05</Date>
+            <Version>20051121</Version>
+            <Comment>Enable nas</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="7" type="security">
+            <Date>2005-12-02</Date>
+            <Version>20051121</Version>
+            <Comment>Apply a patch from upstream to fix possible overflow in default_get_buffer</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="6">
+            <Date>2005-11-29</Date>
+            <Version>20051121</Version>
+            <Comment>Removed CFLAG modification, really enable samba</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="5">
+            <Date>2005-11-28</Date>
+            <Version>20051121</Version>
+            <Comment>Enable samba</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="4">
+            <Date>2005-11-25</Date>
+            <Version>20051121</Version>
+            <Comment>Enable live/libdts/twolame/internal-faad and disable cdparanoia so we can use libcdio for real</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="3">
+            <Date>2005-11-24</Date>
+            <Version>20051121</Version>
+            <Comment>Skin improvement</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="2">
+            <Date>2005-11-21</Date>
+            <Version>20051121</Version>
+            <Comment>Version bump</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="1">
+            <Date>2005-10-19</Date>
+            <Version>20051019</Version>
+            <Comment>First release.</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+    </History>
+</PISI>
+

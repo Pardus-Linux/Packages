@@ -11,11 +11,12 @@ from pisi.actionsapi import shelltools
 from pisi.actionsapi import get
 
 WorkDir = "ffmpeg"
-version = "24910"
-minimumcpu = "" if get.ARCH() == "x86_64" else "--cpu=i686"
+version = "24953"
+minimumcpu = "" if get.ARCH() == "x86_64" else "--cpu=atom"
 
 
 def setup():
+    # http://gcc.gnu.org/bugzilla/show_bug.cgi?id=11203
     shelltools.export("CFLAGS","%s -DRUNTIME_CPUDETECT -O3 -ffast-math -fomit-frame-pointer" % get.CFLAGS())
     pisitools.dosed("configure", "die_li.*aac")
 
@@ -65,6 +66,7 @@ def setup():
                             # --enable-avfilter-lavf \
                             # FIXME: this may be nice, or not
                             # --enable-hardcoded-tables \
+                            # --disable-optimizations \
 
 def build():
     autotools.make()
