@@ -22,7 +22,7 @@ def install():
     pisitools.insinto("/usr/share/hal/fdi/information/20thirdparty", "libmtp.fdi", "10-libmtp.fdi")
 
     # Regenerate udev rules without MODE= property
-    shelltools.system('examples/hotplug -a\'SYMLINK+="libmtp-%k"\' > libmtp.rules')
+    shelltools.system('examples/hotplug -a\'SYMLINK+="libmtp-%k" ENV{ACL_MANAGE}="0" TAG+="udev-acl"\' > libmtp.rules')
 
     #install UDEV rules
     pisitools.insinto("/lib/udev/rules.d/", "libmtp.rules", "65-mtp.rules")
