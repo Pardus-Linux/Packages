@@ -1,0 +1,53 @@
+--- b/printer-applet/printer-applet.py  2009-06-29 15:44:35.000000000 +0300
++++ a/printer-applet/printer-applet.py	2009-07-16 14:18:39.000000000 +0300
+@@ -42,7 +42,7 @@
+ from PyQt4.QtCore import *
+ from PyQt4.QtGui import *
+ from PyQt4 import uic
+-from PyKDE4.kdecore import i18n, i18nc, i18np, i18ncp, ki18n, KAboutData, KCmdLineArgs, KCmdLineOptions, KStandardDirs, KLocalizedString
++from PyKDE4.kdecore import i18n, i18nc, i18np, i18ncp, ki18n, KAboutData, KCmdLineArgs, KCmdLineOptions, KStandardDirs, KLocalizedString, KComponentData
+ from PyKDE4.kdeui import KApplication, KXmlGuiWindow, KStandardAction, KIcon, KToggleAction, KNotification, KMessageBox
+ 
+ def translate(self, prop):
+@@ -319,6 +319,23 @@
+         self.sysTray.show()
+         KNotification.event(title, text, KIcon("konqueror").pixmap(QSize(22,22)))
+ 
++    def firmware_requested(self):
++        print "ooooooooooooooo"
++
++
++    def notify_firmware_request(self, printer, title):
++        print "odsfosfkdosfkdosfkkfdosk"
++        self.sysTray.show()
++
++        kn = KNotification("Missing Printer Driver")
++        kn.setText(i18n("The printer <b>%1</b> requires a firmware.", printer))
++        kn.setActions(QStringList((i18n("Install"), i18n("Ignore"))))
++        kn.setFlags(KNotification.Persistent)
++        kn.setComponentData(KComponentData("printer-applet", "printer-applet"))
++
++        kn.connect(kn, SIGNAL("action1Activated()"), self.firmware_requested)
++        kn.sendEvent()
++
+     """unused, see set_special_statusicon
+     def set_statusicon_from_pixbuf (self, pb):
+         self.saved_statusicon_pixbuf = pb
+@@ -1062,7 +1079,16 @@
+                                     service_running=service_running,
+                                     trayicon=trayicon, suppress_icon_hide=True)
+     """
+-    
++
++    @dbus.service.signal(dbus_interface="com.redhat.NewPrinterNotification", signature="")
++    def FirmwareInstallationAccepted(self):
++        print "signal emitted"
++        return
++
++    @dbus.service.method(PDS_IFACE, in_signature='s', out_signature='')
++    def RequestFirmwareDownload(self, name):
++        return self.jobmanager.notify_firmware_request(name, i18n("Firmware Request"));
++
+     @dbus.service.method(PDS_IFACE, in_signature='', out_signature='')
+     def GetReady (self):
+         """hal-cups-utils is settings up a new printer"""

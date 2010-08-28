@@ -1,0 +1,20 @@
+--- kdeutils-4.2.70.svn954171/printer-applet/printer-applet.py.old	2009-05-03 13:00:01.000000000 +0200
++++ kdeutils-4.2.70.svn954171/printer-applet/printer-applet.py	2009-05-03 13:01:10.000000000 +0200
+@@ -248,6 +248,7 @@
+ 
+         self.menu = QMenu()
+         self.menu.addAction(i18n("_Hide").replace("_", ""), self.on_icon_hide_activate)
++        self.menu.addAction(KIcon("printer"), i18n("_Manage Printers").replace("_", ""), self.on_icon_manage_activate)
+         self.menu.addAction(KIcon("application-exit"), i18n("Quit"), self.on_icon_quit_activate)
+         self.sysTray.setContextMenu(self.menu)
+ 
+@@ -570,6 +571,9 @@
+         self.num_jobs_when_hidden = len (self.jobs.keys ())
+         self.set_statusicon_visibility ()
+ 
++    def on_icon_manage_activate(self):
++        os.spawnlp(os.P_NOWAIT, 'kcmshell4', 'kcmshell4', 'system-config-printer-kde')
++
+     def on_icon_quit_activate(self):
+         app.quit()
+ 
