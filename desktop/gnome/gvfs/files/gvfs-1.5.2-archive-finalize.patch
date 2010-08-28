@@ -1,0 +1,24 @@
+From d75c004513061c1810c8d03f2ead3a747cbf87ee Mon Sep 17 00:00:00 2001
+From: Benjamin Otte <otte@redhat.com>
+Date: Wed, 20 Jan 2010 12:23:00 +0000
+Subject: Set variable to NULL after unreffing
+
+Fixes an assertion that triggers later when finalizing the backend
+object.
+
+https://bugzilla.gnome.org/show_bug.cgi?id=555543
+---
+diff --git a/daemon/gvfsbackendarchive.c b/daemon/gvfsbackendarchive.c
+index 92758bb..43fe999 100644
+--- a/daemon/gvfsbackendarchive.c
++++ b/daemon/gvfsbackendarchive.c
+@@ -590,6 +590,7 @@ do_unmount (GVfsBackend *backend,
+   GVfsBackendArchive *ba = G_VFS_BACKEND_ARCHIVE (backend);
+ 
+   g_object_unref (ba->file);
++  ba->file = NULL;
+   archive_file_free (ba->files);
+   ba->files = NULL;
+ 
+--
+cgit v0.8.3.1

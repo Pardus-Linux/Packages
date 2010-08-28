@@ -1,0 +1,85 @@
+From 67069c464a2cb827a2afe2b7886e79707c7149e2 Mon Sep 17 00:00:00 2001
+From: Christian Kellner <gicmo@gnome.org>
+Date: Fri, 16 Oct 2009 10:34:02 +0000
+Subject: [HTTP] Use soup's (2.26) header parsing function
+
+Libsoup has (since 2.26) specific functions for parsing various
+well-known http headers, including Content-Type and Content-Length.
+Bump the soup requirement accordingly. Based on a patch rom Robert
+Ancell <robert.ancell@gmail.com>
+---
+diff --git a/configure.ac b/configure.ac
+index a2c9932..5069d73 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -121,7 +121,7 @@ HTTP_CFLAGS=
+ HTTP_LIBS=
+ 
+ if test "x$enable_http" != "xno"; then
+-  PKG_CHECK_EXISTS(libsoup-gnome-2.4 >= 2.25.1, msg_http=yes)
++  PKG_CHECK_EXISTS(libsoup-gnome-2.4 >= 2.26.0, msg_http=yes)
+ 
+   if test "x$msg_http" = "xyes"; then
+     PKG_CHECK_MODULES(HTTP, libsoup-gnome-2.4 libxml-2.0)
+diff --git a/daemon/gvfsbackendhttp.c b/daemon/gvfsbackendhttp.c
+index 23d1f97..ee531d1 100644
+--- a/daemon/gvfsbackendhttp.c
++++ b/daemon/gvfsbackendhttp.c
+@@ -549,40 +549,24 @@ file_info_from_message (SoupMessage *msg,
+   if (basename != NULL &&
+       g_file_attribute_matcher_matches (matcher,
+                                         G_FILE_ATTRIBUTE_STANDARD_DISPLAY_NAME))
+-    {
+-      ed_name = gvfs_file_info_populate_names_as_local (info, basename);
+-    }
++    ed_name = gvfs_file_info_populate_names_as_local (info, basename);
+ 
+   if (ed_name != NULL &&
+       g_file_attribute_matcher_matches (matcher,
+                                         G_FILE_ATTRIBUTE_STANDARD_EDIT_NAME))
+-    {
+-      g_file_info_set_edit_name (info, ed_name);
+-    }
++    g_file_info_set_edit_name (info, ed_name);
+ 
+   g_free (basename);
+   g_free (ed_name);
+ 
+-  text = soup_message_headers_get (msg->response_headers,
+-                                   "Content-Length");
+-  if (text)
+-    {
+-      guint64 size = g_ascii_strtoull (text, NULL, 10);
+-      g_file_info_set_size (info, size);
+-    }
+-
++  if (soup_message_headers_get_encoding(msg->response_headers) == SOUP_ENCODING_CONTENT_LENGTH)
++    g_file_info_set_size (info, soup_message_headers_get_content_length (msg->response_headers));
+ 
+-  text = soup_message_headers_get (msg->response_headers,
+-                                   "Content-Type");
++  text = soup_message_headers_get_content_type (msg->response_headers, NULL);
+   if (text)
+     {
+-      char *p = strchr (text, ';');
+-      char *tmp = NULL;
+       GIcon *icon;
+ 
+-      if (p != NULL)
+-        text = tmp = g_strndup (text, p - text);
+-
+       g_file_info_set_file_type (info, G_FILE_TYPE_REGULAR);
+       g_file_info_set_content_type (info, text);
+       g_file_info_set_attribute_string (info, G_FILE_ATTRIBUTE_STANDARD_FAST_CONTENT_TYPE, text);
+@@ -590,9 +574,6 @@ file_info_from_message (SoupMessage *msg,
+       icon = g_content_type_get_icon (text);
+       g_file_info_set_icon (info, icon);
+       g_object_unref (icon);
+-
+-      g_free (tmp);
+-
+     }
+ 
+ 
+--
+cgit v0.8.2

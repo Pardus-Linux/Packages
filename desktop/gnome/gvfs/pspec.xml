@@ -1,0 +1,173 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>gvfs</Name>
+        <Homepage>http://www.gnome.org</Homepage>
+        <Packager>
+            <Name>Burak Çalışkan</Name>
+            <Email>burakclskn@gmail.com</Email>
+        </Packager>
+        <License>GPLv2</License>
+        <IsA>library</IsA>
+        <Summary>New generation gnome-virtual-file-system</Summary>
+        <Description>GVFS is a userspace virtual filesystem designed to work with the I/O abstractions, especially HAL. It supports fuse for directly access for GVFS mounts. It installs several modules and backends that are automatically used by applications.</Description>
+        <Archive sha1sum="3c28516893d6829b3bbae1768fb44e8a405c44e7" type="tarbz2">mirrors://gnome/gvfs/1.4/gvfs-1.4.3.tar.bz2</Archive>
+        <BuildDependencies>
+            <Dependency>avahi</Dependency>
+            <Dependency>avahi-glib</Dependency>
+            <Dependency>bluez</Dependency>
+            <Dependency>fuse</Dependency>
+            <Dependency>gconf</Dependency>
+            <Dependency>gnome-keyring</Dependency>
+            <Dependency>hal</Dependency>
+            <Dependency>libarchive</Dependency>
+            <Dependency>libcdio</Dependency>
+            <Dependency>libgphoto2</Dependency>
+            <Dependency>libsoup</Dependency>
+            <Dependency>obexftp</Dependency>
+            <Dependency>samba</Dependency>
+            <Dependency versionFrom="0.4.0">libproxy</Dependency>
+        </BuildDependencies>
+        <Patches>
+            <Patch level="1">gvfs-1.4.1-http-suport-stream-query-info.patch</Patch>
+            <Patch level="1">gvfs-1.4.1-http-soup-header-parsing.patch</Patch>
+            <Patch level="1">gvfs-1.5.1-dont-leak-mountoperation.patch</Patch>
+            <Patch level="1">gvfs-1.5.1-gphoto2-no-storageinfo-support.patch</Patch>
+            <Patch level="1">gvfs-1.5.1-obexftp-dbus-private-connection.patch</Patch>
+            <Patch level="1">gvfs-1.5.2-trash-finalize.patch</Patch>
+            <Patch level="1">gvfs-1.5.2-archive-finalize.patch</Patch>
+        </Patches>
+    </Source>
+
+    <Package>
+        <Name>gvfs-common</Name>
+        <Summary>Common files and applications for main GVFS daemon</Summary>
+        <RuntimeDependencies>
+            <Dependency>gconf</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="executable">/usr/bin</Path>
+            <Path fileType="library">/usr/lib/libgvfscommon.so*</Path>
+            <Path fileType="library">/usr/lib/gio</Path>
+            <Path fileType="doc">/usr/share/doc</Path>
+            <Path fileType="executable">/usr/libexec/gvfsd</Path>
+            <Path fileType="data">/usr/share/dbus-1/services/gvfs-daemon.service</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>gvfs-fuse</Name>
+        <Summary>FUSE backend for GVFS</Summary>
+        <RuntimeDependencies>
+            <Dependency>gvfs-common</Dependency>
+            <Dependency>fuse</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="executable">/usr/libexec/gvfs-fuse-daemon</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>gvfs-smb</Name>
+        <Summary>Samba backend for GVFS</Summary>
+        <RuntimeDependencies>
+            <Dependency>gvfs-common</Dependency>
+            <Dependency>samba</Dependency>
+            <Dependency>gnome-keyring</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="executable">/usr/libexec/gvfsd-smb*</Path>
+            <Path fileType="data">/usr/share/gvfs/mounts/smb*</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>gvfs-archive</Name>
+        <Summary>Compression backend for GVFS</Summary>
+        <RuntimeDependencies>
+            <Dependency>gvfs-common</Dependency>
+            <Dependency>libarchive</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="executable">/usr/libexec/gvfsd-archive</Path>
+            <Path fileType="data">/usr/share/gvfs/mounts/archive.mount</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>gvfs-obexftp</Name>
+        <Summary>FTP backend for GVFS</Summary>
+        <RuntimeDependencies>
+            <Dependency>gvfs-common</Dependency>
+            <Dependency>bluez</Dependency>
+            <Dependency>hal</Dependency>
+            <Dependency>obexftp</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="executable">/usr/libexec/gvfsd-obexftp</Path>
+            <Path fileType="data">/usr/share/gvfs/mounts/obexftp.mount</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>gvfs-gphoto2</Name>
+        <Summary>Digital camera backend for GVFS</Summary>
+        <RuntimeDependencies>
+            <Dependency>gvfs-common</Dependency>
+            <Dependency>libgphoto2</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="executable">/usr/libexec/gvfs-gphoto2-volume-monitor</Path>
+            <Path fileType="executable">/usr/libexec/gvfsd-gphoto2</Path>
+            <Path fileType="data">/usr/share/gvfs/mounts/gphoto2.mount</Path>
+            <Path fileType="data">/usr/share/gvfs/remote-volume-monitors/gphoto2.monitor</Path>
+            <Path fileType="data">/usr/share/dbus-1/services/org.gtk.Private.GPhoto2VolumeMonitor.service</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>gvfs</Name>
+        <Summary>gvfs package contains all GVFS backends, development and translations files</Summary>
+        <RuntimeDependencies>
+            <Dependency>avahi</Dependency>
+            <Dependency>avahi-glib</Dependency>
+            <Dependency>libcdio</Dependency>
+            <Dependency>libsoup</Dependency>
+            <Dependency>gvfs-common</Dependency>
+            <Dependency>gvfs-fuse</Dependency>
+            <Dependency>gvfs-smb</Dependency>
+            <Dependency>gvfs-archive</Dependency>
+            <Dependency>gvfs-obexftp</Dependency>
+            <Dependency>gvfs-gphoto2</Dependency>
+            <Dependency versionFrom="0.4.0">libproxy</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="config">/etc/profile.d</Path>
+            <Path fileType="header">/usr/include</Path>
+            <Path fileType="library">/usr/lib</Path>
+            <Path fileType="executable">/usr/libexec</Path>
+            <Path fileType="localedata">/usr/share/locale</Path>
+            <Path fileType="data">/usr/share/dbus-1</Path>
+            <Path fileType="data">/usr/share/gvfs</Path>
+            <Path fileType="library">/usr/lib/gio/modules/libgioremote-volume-monitor.so</Path>
+        </Files>
+    </Package>
+
+    <History>
+        <Update release="2">
+            <Date>2010-03-20</Date>
+            <Version>1.4.3</Version>
+            <Comment>Add libproxy dependency.</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="1">
+            <Date>2010-02-02</Date>
+            <Version>1.4.3</Version>
+            <Comment>First release.</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+    </History>
+</PISI>

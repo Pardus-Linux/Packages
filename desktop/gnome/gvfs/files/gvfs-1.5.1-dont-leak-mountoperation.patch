@@ -1,0 +1,34 @@
+From 438628c6794fc8f9203fbd99b534371a1aa6d11a Mon Sep 17 00:00:00 2001
+From: Hans de Goede <jwrdegoede@fedoraproject.org>
+Date: Tue, 12 Jan 2010 12:36:11 +0000
+Subject: Don't leak mount job operation
+
+gvfs <= 1.5.1 does not properly call the finalize function of backends,
+due to a missing unref call. This causes the cleanup functions of the
+libraries underlying the backends to not get called.
+
+In case of the gphoto2 backend, this causes the kernel driver for dual
+mode webcams (which have a kernel space webcam driver and a userspace
+stillcam driver), to not get re-attached to the device when then the gvfs
+mount gets unmounted.
+
+This patch fixes this by adding a g_object_unref (job) to
+g_vfs_daemon_initiate_mount, which is needed as g_vfs_daemon_queue_job
+takes a reference itself.
+
+https://bugzilla.gnome.org/show_bug.cgi?id=606194
+---
+diff --git a/daemon/gvfsdaemon.c b/daemon/gvfsdaemon.c
+index 15fffc7..909e1d7 100644
+--- a/daemon/gvfsdaemon.c
++++ b/daemon/gvfsdaemon.c
+@@ -1081,6 +1081,7 @@ g_vfs_daemon_initiate_mount (GVfsDaemon *daemon,
+ 
+   job = g_vfs_job_mount_new (mount_spec, mount_source, is_automount, request, backend);
+   g_vfs_daemon_queue_job (daemon, job);
++  g_object_unref (job);
+ }
+ 
+ /**
+--
+cgit v0.8.3.1

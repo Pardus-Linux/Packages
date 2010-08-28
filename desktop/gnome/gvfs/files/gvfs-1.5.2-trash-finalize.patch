@@ -1,0 +1,27 @@
+From d618141ea5161d05e388e9fbfa4148a6abd976b1 Mon Sep 17 00:00:00 2001
+From: Alexander Larsson <alexl@redhat.com>
+Date: Mon, 18 Jan 2010 12:48:08 +0000
+Subject: Avoid crash on race to mount gvfstrash
+
+If the trash is already mounted (due to e.g. a race) when registering the
+new trash backend we error out and free the trash backend. This caused
+the g_assert_not_reached() in trash_watcher_free to hit.
+---
+diff --git a/daemon/trashlib/trashwatcher.c b/daemon/trashlib/trashwatcher.c
+index a2cabfd..9661ce4 100644
+--- a/daemon/trashlib/trashwatcher.c
++++ b/daemon/trashlib/trashwatcher.c
+@@ -280,7 +280,10 @@ trash_watcher_new (TrashRoot *root)
+ void
+ trash_watcher_free (TrashWatcher *watcher)
+ {
+-  g_assert_not_reached ();
++  /* We just leak everything here, as this is not normally hit.
++     This used to be a g_assert_not_reached(), and that got hit when
++     mounting the trash backend failed due to the trash already being
++     mounted. */
+ }
+ 
+ void
+--
+cgit v0.8.3.1
