@@ -13,7 +13,7 @@ WorkDir = "networkmanagement"
 NoStrip=["/usr/share/icons"]
 
 def setup():
-    kde4.configure()
+    kde4.configure("-DDBUS_SYSTEM_POLICY_DIR=/etc/dbus-1/system.d")
 
 def build():
     kde4.make()
