@@ -75,6 +75,7 @@ def postInstall(fromVersion, fromRelease, toVersion, toRelease):
     # Remove old groups/users
     groups = ["apache",
               "avahi",
+              "avahi-autoipd",
               "bitlbee",
               "clamav",
               "dhcp",
@@ -133,6 +134,7 @@ def postInstall(fromVersion, fromRelease, toVersion, toRelease):
 
     users = ["apache",
              "avahi",
+             "avahi-autoipd",
              "bitlbee",
              "clamav",
              "dhcp",
@@ -200,6 +202,7 @@ def postInstall(fromVersion, fromRelease, toVersion, toRelease):
     hav("addGroup", (112, "clamav"))
     hav("addGroup", (113, "ntlmaps"))
     hav("addGroup", (120, "avahi"))
+    hav("addGroup", (121, "avahi-autoipd"))
     hav("addGroup", (123, "ntp"))
     hav("addGroup", (130, "tss"))
     hav("addGroup", (131, "ejabberd"))
@@ -287,7 +290,8 @@ def postInstall(fromVersion, fromRelease, toVersion, toRelease):
     hav("addUser", (111, "ldap", "OpenLDAP", "/dev/null", "/bin/false", "", ["ldap"], [], []))
     hav("addUser", (112, "clamav", "Clamav", "/dev/null", "/bin/false", "", ["clamav"], [], []))
     hav("addUser", (113, "ntlmaps", "NTLMaps", "/dev/null", "/bin/false", "", ["ntlmaps"], [], []))
-    hav("addUser", (120, "avahi", "Avahi", "/dev/null", "/bin/false", "", ["avahi"], [], []))
+    hav("addUser", (120, "avahi", "Avahi mDNS/DNS-SD Stack", "/var/run/avahi-daemon", "/sbin/nologin", "", ["avahi"], [], []))
+    hav("addUser", (121, "avahi-autoipd", "Avahi IPv4LL Stack", "/var/lib/avahi-autoipd", "/sbin/nologin", "", ["avahi-autoipd"], [], []))
     hav("addUser", (123, "ntp", "NTP", "/dev/null", "/bin/false", "", ["ntp"], [], []))
     hav("addUser", (130, "tss", "tss", "/var/lib/tpm", "/bin/false", "", ["tss"], [], []))
     hav("addUser", (131, "ejabberd", "Ejabberd", "/var/lib/ejabberd", "/bin/false", "", ["ejabberd"], [], []))
