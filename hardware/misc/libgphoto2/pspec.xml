@@ -1,0 +1,310 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>libgphoto2</Name>
+        <Homepage>http://www.gphoto.org/</Homepage>
+        <Packager>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Packager>
+        <License>GPLv2</License>
+        <IsA>library</IsA>
+        <Summary>Library that implements support for numerous digital cameras</Summary>
+        <Description>libgphoto2 is the core library designed to allow access to digital camera by external programs.</Description>
+        <Archive sha1sum="0fbbcfdfe13c3cf128505e3079faf55407b647c5" type="tarbz2">mirrors://sourceforge/gphoto/libgphoto2-2.4.10.tar.bz2</Archive>
+        <BuildDependencies>
+            <Dependency>doxygen</Dependency>
+            <Dependency>hal-devel</Dependency>
+            <Dependency>libexif-devel</Dependency>
+        </BuildDependencies>
+        <Patches>
+            <Patch level="1">gphoto2-pkgcfg.patch</Patch>
+            <!--<Patch level="1">gphoto2-storage.patch</Patch>-->
+            <Patch level="1">gphoto2-ixany.patch</Patch>
+            <Patch level="1">70_increase_max_entries.patch</Patch>
+            <Patch level="1">gphoto2-device-return.patch</Patch>
+            <Patch level="1">gphoto2-badcode.patch</Patch>
+
+            <!-- When gphoto does serial probing it hangs and causes a hang in the client, see bug #11534 -->
+            <Patch level="1">disable_lockdev.patch</Patch>
+        </Patches>
+    </Source>
+
+    <Package>
+        <Name>libgphoto2</Name>
+        <RuntimeDependencies>
+            <Dependency>jpeg</Dependency>
+            <Dependency>libexif</Dependency>
+            <Dependency>hal-libs</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="executable">/usr/bin</Path>
+            <Path fileType="executable">/lib/udev</Path>
+            <Path fileType="doc">/usr/share/doc/libgphoto2/README</Path>
+            <Path fileType="doc">/usr/share/doc/libgphoto2/COPYING</Path>
+            <Path fileType="library">/usr/lib</Path>
+            <Path fileType="data">/usr/share/libgphoto2</Path>
+            <Path fileType="data">/usr/share/hal/fdi</Path>
+            <Path fileType="data">/lib/udev/rules.d</Path>
+            <Path fileType="localedata">/usr/share/locale</Path>
+            <Path fileType="man">/usr/share/man</Path>
+        </Files>
+        <Provides>
+            <COMAR script="package.py">System.Package</COMAR>
+        </Provides>
+    </Package>
+
+    <Package>
+        <Name>libgphoto2-docs</Name>
+        <Summary>Documentation for libgphoto2</Summary>
+        <Replaces>
+            <Package>libgphoto2-doc</Package>
+        </Replaces>
+        <Files>
+            <Path fileType="doc">/usr/share/doc/libgphoto2</Path>
+            <Path fileType="doc">/usr/share/doc/libgphoto2/camlibs</Path>
+            <Path fileType="doc">/usr/share/doc/libgphoto2/apidocs.html</Path>
+            <Path fileType="doc">/usr/share/doc/libgphoto2/linux-hotplug</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>libgphoto2-devel</Name>
+        <Summary>Development files for libgphoto2</Summary>
+        <RuntimeDependencies>
+            <Dependency>libexif-devel</Dependency>
+            <Dependency release="30">libgphoto2</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="executable">/usr/bin/gphoto2-config*</Path>
+            <Path fileType="executable">/usr/bin/gphoto2-port-config</Path>
+            <Path fileType="header">/usr/include/gphoto2</Path>
+            <Path fileType="data">/usr/lib/pkgconfig</Path>
+            <Path fileType="man">/usr/share/man/man3</Path>
+        </Files>
+    </Package>
+
+    <History>
+        <Update release="30">
+            <Date>2010-08-27</Date>
+            <Version>2.4.10</Version>
+            <Comment>Version bump</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="29">
+            <Date>2010-04-05</Date>
+            <Version>2.4.8</Version>
+            <Comment>Generate udev rules</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="28">
+            <Date>2010-02-03</Date>
+            <Version>2.4.8</Version>
+            <Comment>
+                - New USB IDs for Kodak, Nikon, Canon and Fuji cameras,
+                - Fuji S5 Pro capture support,
+                - Bugfixes in Canon EOS preview code,
+                - Fixed Nikon DSLR shutterspeed not able to set bug,
+                - Several Canon EOS configuration and capture additions and fixes, focus pulling,
+                - PTP protocol stability improvements.
+            </Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="27">
+            <Date>2009-11-21</Date>
+            <Version>2.4.7</Version>
+            <Comment>
+                - Remove CVS build dependency
+                - Disable lockdev to fix bug #11534
+            </Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="26">
+            <Date>2009-10-15</Date>
+            <Version>2.4.7</Version>
+            <Comment>Version bump and add lockdev dependency.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="25">
+            <Date>2009-06-15</Date>
+            <Version>2.4.6</Version>
+            <Comment>Version bump, remove stale hal/udev rules in postInstall.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="24">
+            <Date>2009-04-27</Date>
+            <Version>2.4.5</Version>
+            <Comment>Version bump, generate and install hal fdi file.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="23">
+            <Date>2008-08-27</Date>
+            <Version>2.4.2</Version>
+            <Comment>Remove unneeded avahi-glib dependency</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="22">
+            <Date>2008-07-15</Date>
+            <Version>2.4.2</Version>
+            <Comment>Version bump.</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="21">
+            <Date>2008-04-01</Date>
+            <Version>2.4.1</Version>
+            <Comment>Version bump.</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="20">
+            <Date>2008-03-12</Date>
+            <Version>2.4.0</Version>
+            <Comment>Patch for various camera PTP ids.</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="19">
+            <Date>2008-03-12</Date>
+            <Version>2.4.0</Version>
+            <Comment>Adapted to new avahi packages</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="18">
+            <Date>2008-03-06</Date>
+            <Version>2.4.0</Version>
+            <Comment>HAL patch added, deprecated info.bus is changed to info.subsystem</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="17">
+            <Date>2007-11-24</Date>
+            <Version>2.4.0</Version>
+            <Comment>Version bump</Comment>
+            <Name>Ali Erdinç Köroğlu</Name>
+            <Email>erdinc@pardus.org.tr</Email>
+        </Update>
+        <Update release="16">
+            <Date>2007-06-25</Date>
+            <Version>2.3.1</Version>
+            <Comment>Version bump</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="15">
+            <Date>2007-05-29</Date>
+            <Version>2.2.1</Version>
+            <Comment>Use versionFrom for libexif</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="14">
+            <Date>2007-04-01</Date>
+            <Version>2.2.1</Version>
+            <Comment>Fix dependencies</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="13">
+            <Date>2007-03-05</Date>
+            <Version>2.2.1</Version>
+            <Comment>Fix #5132</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="12">
+            <Date>2007-01-05</Date>
+            <Version>2.2.1</Version>
+            <Comment>Disable static libraries</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="11">
+            <Date>2006-11-01</Date>
+            <Version>2.2.1</Version>
+            <Comment>Fix typo in patch, solve #3916</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="10">
+            <Date>2006-11-01</Date>
+            <Version>2.2.1</Version>
+            <Comment>Package cleanups by Doruk Fişek</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="9">
+            <Date>2006-09-28</Date>
+            <Version>2.2.1</Version>
+            <Comment>strict libexif dependency</Comment>
+            <Name>Barış Metin</Name>
+            <Email>baris@pardus.org.tr</Email>
+        </Update>
+        <Update release="8">
+            <Date>2006-09-03</Date>
+            <Version>2.2.1</Version>
+            <Comment>Use pnp group</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="7">
+            <Date>2006-06-25</Date>
+            <Version>2.2.1</Version>
+            <Comment>Version bump</Comment>
+            <Name>Ali Erdinç Köroğlu</Name>
+            <Email>erdinc@pardus.org.tr</Email>
+        </Update>
+        <Update release="6">
+            <Date>2006-06-18</Date>
+            <Version>2.2.0</Version>
+            <Comment>Version bump to support more cameras</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="5">
+            <Date>2006-05-06</Date>
+            <Version>2.1.99</Version>
+            <Comment>Use udev/hal, plug'n play baby!!!</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="4">
+            <Date>2006-04-10</Date>
+            <Version>2.1.99</Version>
+            <Comment>Version bump</Comment>
+            <Name>Ali Erdinç Köroğlu</Name>
+            <Email>erdinc@pardus.org.tr</Email>
+        </Update>
+        <Update release="3">
+            <Date>2006-01-28</Date>
+            <Version>2.1.6</Version>
+            <Comment>Fix and install udev rule too</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="2">
+            <Date>2005-11-25</Date>
+            <Version>2.1.6</Version>
+            <Comment>Version bump</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="1">
+            <Date>2005-09-13</Date>
+            <Version>2.1.4</Version>
+            <Comment>First release.</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+    </History>
+</PISI>
