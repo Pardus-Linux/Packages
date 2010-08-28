@@ -11,21 +11,24 @@
         <License>GPLv2</License>
         <IsA>library</IsA>
         <Summary>Password and keyring managing daemon</Summary>
-        <Archive sha1sum="099146a0cb3c03683cfc3fe3caaddf5dff00acf8" type="tarbz2">mirrors://gnome/gnome-keyring/2.28/gnome-keyring-2.28.2.tar.bz2</Archive>
+        <Archive sha1sum="0e0a2a1f4127dc6a01583fb3e81386370d9335f0" type="tarbz2">mirrors://gnome/gnome-keyring/2.30/gnome-keyring-2.30.3.tar.bz2</Archive>
         <BuildDependencies>
-            <Dependency versionFrom="2.20.0">gtk2</Dependency>
-            <Dependency>pango</Dependency>
-            <Dependency>gconf</Dependency>
+            <Dependency>gtk2-devel</Dependency>
+            <Dependency>pango-devel</Dependency>
+            <Dependency>gconf-devel</Dependency>
             <Dependency>gtk-doc</Dependency>
-            <Dependency>libtasn1</Dependency>
-            <Dependency>libgcrypt</Dependency>
+            <Dependency>libtasn1-devel</Dependency>
+            <Dependency>libgcrypt-devel</Dependency>
         </BuildDependencies>
+        <Patches>
+            <Patch level="1">gck-underlinking.patch</Patch>
+        </Patches>
     </Source>
 
     <Package>
         <Name>gnome-keyring</Name>
         <RuntimeDependencies>
-            <Dependency versionFrom="2.20.0">gtk2</Dependency>
+            <Dependency>gtk2</Dependency>
             <Dependency>pango</Dependency>
             <Dependency>gconf</Dependency>
             <Dependency>libtasn1</Dependency>
@@ -35,13 +38,11 @@
             <Path fileType="config">/etc</Path>
             <Path fileType="library">/lib</Path>
             <Path fileType="executable">/usr/bin</Path>
-            <Path fileType="header">/usr/include</Path>
             <Path fileType="library">/usr/lib</Path>
             <Path fileType="executable">/usr/libexec</Path>
             <Path fileType="localedata">/usr/share/locale</Path>
             <Path fileType="doc">/usr/share/doc</Path>
             <Path fileType="data">/usr/share/dbus-1</Path>
-            <Path fileType="data">/usr/lib/pkgconfig</Path>
             <Path fileType="data">/usr/share/gcr</Path>
             <Path fileType="data">/usr/share/gnome-keyring</Path>
         </Files>
@@ -56,7 +57,31 @@
         </Files>
     </Package>
 
+    <Package>
+        <Name>gnome-keyring-devel</Name>
+        <Summary>Development files for gnome-keyring</Summary>
+        <RuntimeDependencies>
+            <Dependency release="17">gnome-keyring</Dependency>
+            <Dependency>gtk2-devel</Dependency>
+            <Dependency>libtasn1-devel</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="header">/usr/include</Path>
+            <Path fileType="data">/usr/lib/pkgconfig</Path>
+        </Files>
+    </Package>
+
     <History>
+        <Update release="17">
+            <Date>2010-08-28</Date>
+            <Version>2.30.3</Version>
+            <Comment>
+                - Version bump
+                - Split devel package
+            </Comment>
+            <Name>Burak Çalışkan</Name>
+            <Email>burakclskn@gmail.com</Email>
+        </Update>
         <Update release="16">
             <Date>2010-05-10</Date>
             <Version>2.28.2</Version>
