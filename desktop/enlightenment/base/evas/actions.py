@@ -10,6 +10,9 @@ from pisi.actionsapi import get
 
 def setup():
     autotools.autoreconf("-fi")
+    # asyns/pipe rendering is disabled due to bugs shown in x86 and arm.
+    # Upstream is aware and has recommended to not to enable them.
+    # http://trac.enlightenment.org/e/changeset/51691/trunk/evas/README.in
     autotools.configure("--enable-gl-x11 \
                          --enable-fribidi \
                          --enable-buffer \
