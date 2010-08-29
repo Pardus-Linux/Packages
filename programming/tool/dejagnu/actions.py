@@ -21,4 +21,5 @@ def check():
 def install():
     autotools.rawInstall('DESTDIR="%s"' % get.installDIR())
 
+    pisitools.removeDir("/usr/include")
     pisitools.dodoc("AUTHORS", "ChangeLog", "NEWS", "README", "TODO")
