@@ -1,0 +1,167 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>timidity</Name>
+        <Homepage>http://timidity.sourceforge.net/</Homepage>
+        <Packager>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Packager>
+        <License>GPLv2</License>
+        <IsA>service</IsA>
+        <Summary>Software synthesizer and MIDI converter</Summary>
+        <Description>Timidity is a software synthesizer, MIDI player and MIDI to other sound formats converter which can also emulate a midi port.</Description>
+        <Archive sha1sum="8e603146e1164335303a5ac5dff291f369241b4e" type="tarbz2">mirrors://sourceforge/timidity/TiMidity++-2.13.2.tar.bz2</Archive>
+        <BuildDependencies>
+            <Dependency>alsa-lib-devel</Dependency>
+            <Dependency>libao-devel</Dependency>
+            <Dependency>flac-devel</Dependency>
+            <Dependency>libvorbis-devel</Dependency>
+            <Dependency>speex-devel</Dependency>
+            <Dependency>libXext-devel</Dependency>
+            <Dependency>libogg-devel</Dependency>
+            <Dependency>gtk2-devel</Dependency>
+        </BuildDependencies>
+        <Patches>
+            <Patch level="1">timidity++-2.13.2-exiterror.patch</Patch>
+            <Patch>timidity++-2.13.2-gtk26.patch</Patch>
+            <Patch level="1">timidity++-2.13.2-gcc4.patch</Patch>
+            <Patch level="1">speex-header.patch</Patch>
+            <!-- try the new flac patches
+            <Patch level="1">flac-1.1.3.patch</Patch>
+            -->
+
+            <Patch level="1">TiMidity++-2.13.0-64bit.patch</Patch>
+            <Patch level="1">TiMidity++-2.13.0-detect.patch</Patch>
+            <Patch level="1">TiMidity++-2.13.0-warnings.patch</Patch>
+            <Patch level="1">TiMidity++-2.13.2-flac-detect.patch</Patch>
+            <Patch level="1">TiMidity++-2.13.2-flac.patch</Patch>
+            <Patch level="1">TiMidity++-2.13.2-dynlibroot.patch</Patch>
+            <Patch level="1">TiMidity++-2.13.2-ipv6.patch</Patch>
+            <Patch level="1">TiMidity++-2.13.2-libao-first.patch</Patch>
+            <Patch level="1">TiMidity++-2.13.2-man-pages.patch</Patch>
+            <Patch level="1">TiMidity++-2.13.2-misc-fixes.patch</Patch>
+            <Patch level="1">TiMidity++-2.13.2-missing-protos.patch</Patch>
+            <Patch level="1">TiMidity++-2.13.2-mlutil.patch</Patch>
+        </Patches>
+    </Source>
+
+    <Package>
+        <Name>timidity</Name>
+        <RuntimeDependencies>
+            <Dependency>alsa-lib</Dependency>
+            <Dependency>libao</Dependency>
+            <Dependency>flac</Dependency>
+            <Dependency>libvorbis</Dependency>
+            <Dependency>speex</Dependency>
+            <Dependency>libXext</Dependency>
+            <Dependency>libogg</Dependency>
+            <Dependency>gtk2</Dependency>
+            <Dependency>timidity-shompatches</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="config">/etc</Path>
+            <Path fileType="executable">/usr/bin</Path>
+            <Path fileType="library">/usr/lib</Path>
+            <Path fileType="doc">/usr/share/doc</Path>
+            <Path fileType="man">/usr/share/man</Path>
+            <Path fileType="data">/usr/share/timidity</Path>
+        </Files>
+        <AdditionalFiles>
+            <AdditionalFile owner="root" permission="0644" target="/etc/conf.d/timidity">timidity.conf.d</AdditionalFile>
+            <AdditionalFile owner="root" permission="0644" target="/etc/timidity.cfg">timidity.cfg</AdditionalFile>
+            <AdditionalFile owner="root" permission="0755" target="/usr/bin/timidity-update">timidity-update</AdditionalFile>
+        </AdditionalFiles>
+        <Provides>
+            <COMAR script="service.py">System.Service</COMAR>
+        </Provides>
+    </Package>
+
+    <History>
+        <Update release="12">
+            <Date>2009-11-02</Date>
+            <Version>2.13.2</Version>
+            <Comment>Don't try to start alsa-utils service as it doesn't exist.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="11">
+            <Date>2009-07-06</Date>
+            <Version>2.13.2</Version>
+            <Comment>Add missing dependencies</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="10">
+            <Date>2009-05-02</Date>
+            <Version>2.13.2</Version>
+            <Comment>Add a bunch of fixes from Fedora</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="9">
+            <Date>2009-04-25</Date>
+            <Version>2.13.2</Version>
+            <Comment>Cleanup dependencies</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="8">
+            <Date>2008-07-19</Date>
+            <Version>2.13.2</Version>
+            <Comment>Use hw:0 instead of default alsa device, fixes bug #7834</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="7">
+            <Date>2007-05-23</Date>
+            <Version>2.13.2</Version>
+            <Comment>Updated Service script.</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="6">
+            <Date>2007-03-09</Date>
+            <Version>2.13.2</Version>
+            <Comment>Compile with new flac</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="5">
+            <Date>2006-10-09</Date>
+            <Version>2.13.2</Version>
+            <Comment>Service script updated.</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="4">
+            <Date>2006-07-06</Date>
+            <Version>2.13.2</Version>
+            <Comment>Add Xaw3d dep</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="3">
+            <Date>2006-07-01</Date>
+            <Version>2.13.2</Version>
+            <Comment>Disable chorus in default config</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="2">
+            <Date>2006-06-30</Date>
+            <Version>2.13.2</Version>
+            <Comment>Set daemons output to alsa</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="1">
+            <Date>2006-06-29</Date>
+            <Version>2.13.2</Version>
+            <Comment>First release.</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+    </History>
+</PISI>
