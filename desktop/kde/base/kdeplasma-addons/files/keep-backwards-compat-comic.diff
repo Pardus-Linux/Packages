@@ -1,0 +1,27 @@
+Index: applets/comic/comic.cpp
+===================================================================
+--- applets/comic/comic.cpp.orig
++++ applets/comic/comic.cpp
+@@ -546,8 +546,13 @@ void ComicApplet::checkDayChanged()
+ void ComicApplet::loadConfig()
+ {
+     KConfigGroup cg = config();
++    mUseTabs = cg.readEntry( "useTabs", false );
+     mTabIdentifier = cg.readEntry( "tabIdentifier", QStringList( QString() ) );
+-    mComicIdentifier = mTabIdentifier.count() ? mTabIdentifier.at( 0 ) : QString();
++    if (!mUseTabs)
++        mComicIdentifier = cg.readEntry( "comic", "" );
++    else
++        mComicIdentifier = mTabIdentifier.count() ? mTabIdentifier.at( 0 ) : QString();
++
+     mShowComicUrl = cg.readEntry( "showComicUrl", false );
+     mShowComicAuthor = cg.readEntry( "showComicAuthor", false );
+     mShowComicTitle = cg.readEntry( "showComicTitle", false );
+@@ -565,7 +570,6 @@ void ComicApplet::loadConfig()
+ 
+     mSwitchTabTime = cg.readEntry( "switchTabTime", 10 );// 10 seconds as default
+     mShowTabBar = cg.readEntry( "showTabBar", true );
+-    mUseTabs = cg.readEntry( "useTabs", false );
+     mSwitchTabs = cg.readEntry( "switchTabs", false );
+     mTabView = cg.readEntry( "tabView", ShowText | ShowIcon );
+     mSavingDir = cg.readEntry( "savingDir", QString() );
