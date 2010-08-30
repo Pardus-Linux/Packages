@@ -15,15 +15,9 @@
         <Description>D-Bus supplies both a system daemon (for events such as "new hardware device added" or "printer queue changed") and a per-user-login-session daemon (for general IPC needs among user applications). Also, the message bus is built on top of a general one-to-one message passing framework, which can be used by any two apps to communicate directly (without going through the message bus daemon). Currently the communicating applications are on one computer, but TCP/IP option is available and remote support planned.</Description>
         <Archive sha1sum="83c27e15ba79d4a84a10b123ff382233cc77773b" type="targz">http://dbus.freedesktop.org/releases/dbus/dbus-1.3.1.tar.gz</Archive>
         <BuildDependencies>
-            <Dependency>glib2</Dependency>
-            <Dependency>audit</Dependency>
-            <Dependency>expat</Dependency>
-            <Dependency>libcap-ng</Dependency>
-            <Dependency>e2fsprogs</Dependency>
+            <Dependency>expat-devel</Dependency>
             <Dependency>libX11-devel</Dependency>
-            <Dependency>libXau-devel</Dependency>
-            <Dependency>libxcb-devel</Dependency>
-            <Dependency>libXdmcp-devel</Dependency>
+            <Dependency>libcap-ng-devel</Dependency>
         </BuildDependencies>
         <Patches>
             <Patch level="1">all-your-service-names-are-belong-to-us.patch</Patch>
@@ -33,24 +27,16 @@
     <Package>
         <Name>dbus</Name>
         <RuntimeDependencies>
-            <Dependency>glib2</Dependency>
-            <Dependency>audit</Dependency>
             <Dependency>expat</Dependency>
             <Dependency>libX11</Dependency>
-            <Dependency>libXau</Dependency>
-            <Dependency>libxcb</Dependency>
-            <Dependency>libXdmcp</Dependency>
             <Dependency>libcap-ng</Dependency>
-            <Dependency>e2fsprogs</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="config">/etc/dbus-1</Path>
             <Path fileType="executable">/usr/bin</Path>
-            <Path fileType="header">/usr/include</Path>
             <Path fileType="library">/usr/lib</Path>
             <Path fileType="library">/usr/libexec</Path>
             <Path fileType="data">/usr/share/dbus-1</Path>
-            <Path fileType="data">/usr/lib/pkgconfig</Path>
             <Path fileType="doc">/usr/share/doc</Path>
             <Path fileType="man">/usr/share/man</Path>
             <Path fileType="data">/var/run/dbus</Path>
@@ -58,7 +44,29 @@
         </Files>
     </Package>
 
+    <Package>
+        <Name>dbus-devel</Name>
+        <PartOf>system.devel</PartOf>
+        <Summary>Development files for dbus</Summary>
+        <RuntimeDependencies>
+            <Dependency release="50">dbus</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="header">/usr/include</Path>
+            <Path fileType="data">/usr/lib/pkgconfig</Path>
+            <Path fileType="library">/usr/lib/dbus-1.0/include</Path>
+            <Path fileType="man">/usr/share/man/man3</Path>
+        </Files>
+    </Package>
+
     <History>
+        <Update release="50">
+            <Date>2010-08-30</Date>
+            <Version>1.3.1</Version>
+            <Comment>Split devel package.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
         <Update release="49">
             <Date>2010-07-04</Date>
             <Version>1.3.1</Version>

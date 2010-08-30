@@ -17,7 +17,6 @@ def setup():
                          --with-session-socket-dir=/tmp \
                          --with-dbus-user=dbus \
                          --localstatedir=/var \
-                         --enable-libaudit \
                          --disable-selinux \
                          --disable-static \
                          --disable-tests \
