@@ -1,0 +1,52 @@
+diff -up scim-1.4.7/extras/panel/scim_panel_gtk.cpp.timeout scim-1.4.7/extras/panel/scim_panel_gtk.cpp
+--- scim-1.4.7/extras/panel/scim_panel_gtk.cpp.timeout	2008-07-17 09:44:53.000000000 +0800
++++ scim-1.4.7/extras/panel/scim_panel_gtk.cpp	2008-07-17 10:47:57.000000000 +0800
+@@ -638,6 +638,7 @@ ui_initialize (void)
+     GtkWidget *input_window_vbox;
+ 
+     ui_load_config ();
++    _toolbar_hidden = false;
+ 
+     if (_lookup_table_window) gtk_widget_destroy (_lookup_table_window);
+     if (_input_window) gtk_widget_destroy (_input_window);
+@@ -1024,8 +1025,13 @@ ui_initialize (void)
+     }
+ 
+     //Init timeout callback
++    if (_toolbar_hide_timeout != 0) {
++        g_source_remove (_toolbar_hide_timeout);
++        _toolbar_hide_timeout = 0;
++
++    }
+     if (_toolbar_always_show && _toolbar_hide_timeout_max > 0) {
+-        _toolbar_hide_timeout = gtk_timeout_add (1000, ui_hide_window_timeout_cb, NULL);
++        _toolbar_hide_timeout = g_timeout_add (1000, ui_hide_window_timeout_cb, NULL);
+         g_signal_connect (G_OBJECT (_toolbar_window), "enter-notify-event",
+                           G_CALLBACK (ui_toolbar_window_crossing_cb),
+                           GINT_TO_POINTER (0));
+@@ -2492,11 +2498,14 @@ panel_agent_thread_func (gpointer data)
+ 
+     if (!_panel_agent->run ())
+         std::cerr << "Failed to run Panel.\n";
+-
++/*
+     G_LOCK (_global_resource_lock);
+     _should_exit = true;
+     G_UNLOCK (_global_resource_lock);
+-
++*/
++    gdk_threads_enter ();
++    gtk_main_quit ();
++    gdk_threads_leave ();
+     g_thread_exit (NULL);
+     return ((gpointer) NULL);
+ }
+@@ -3703,7 +3712,7 @@ int main (int argc, char *argv [])
+ 
+     start_auto_start_helpers ();
+ 
+-    _check_exit_timeout = gtk_timeout_add (500, check_exit_timeout_cb, NULL);
++    // _check_exit_timeout = g_timeout_add (500, check_exit_timeout_cb, NULL);
+ 
+     gdk_threads_enter ();
+     gtk_main ();

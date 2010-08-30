@@ -1,0 +1,139 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>scim</Name>
+        <Homepage>http://www.scim-im.org</Homepage>
+        <Packager>
+            <Name>Rajeev J Sebastian</Name>
+            <Email>rajeev.sebastian@gmail.com</Email>
+        </Packager>
+        <License>LGPLv2.1</License>
+        <IsA>library</IsA>
+        <Summary>Smart Common Input Method - framework for Input Methods</Summary>
+        <Description>Smart Common Input Method (SCIM) is a framework for Input Methods. It is a modular and flexible approach for authoring and using Input Methods for X11 platform.</Description>
+        <Archive sha1sum="7717339575fdbf909309a78882e30c60cce9f8eb" type="targz">mirrors://sourceforge/scim/scim-1.4.9.tar.gz</Archive>
+        <BuildDependencies>
+            <Dependency>gtk2-devel</Dependency>
+            <Dependency>pango-devel</Dependency>
+        </BuildDependencies>
+        <Patches>
+            <!--<Patch level="1">skim.patch</Patch>-->
+
+            <!-- Fedora patches -->
+            <Patch level="1">scim_panel_gtk-emacs-cc-style.patch</Patch>
+            <Patch level="1">scim_panel_gtk-icon-size-fixes.patch</Patch>
+            <Patch level="1">scim-1.4.5-panel-menu-fixes.patch</Patch>
+            <Patch level="1">scim_x11_frontend-ic-focus-LTC27940-215953.patch</Patch>
+            <Patch level="1">scim-gtkimm-default-snooper-off-213796.patch</Patch>
+            <Patch level="1">scim-1.4.5-no-rpath-libdir.patch</Patch>
+            <Patch level="1">scim-1.4.7-remove-locale.patch</Patch>
+            <Patch level="1">scim-1.4.7-fix-fallback.patch</Patch>
+            <Patch level="1">scim-1.4.7-fix-capslock.patch</Patch>
+            <Patch level="1">scim-1.4.7-fix-gdm.patch</Patch>
+            <Patch level="1">scim-1.4.7-remove-help-frame.patch</Patch>
+            <Patch level="1">scim-1.4.7-timeout.patch</Patch>
+            <Patch level="1">scim-1.4.7-trayicon.patch</Patch>
+            <Patch level="1">scim-1.4.7-menu-pos.patch</Patch>
+            <Patch level="1">scim-1.4.7-xim-wrong-format.patch</Patch>
+            <Patch level="1">scim-1.4.7-bz462820.patch</Patch>
+            <Patch level="1">scim-1.4.7-imdkit-read-property-properly.patch</Patch>
+            <Patch level="1">scim-1.4.7-syslibltdl.patch</Patch>
+            <Patch level="1">scim-1.4.8-fix-dlopen.patch</Patch>
+        </Patches>
+    </Source>
+
+    <Package>
+        <Name>scim-core</Name>
+        <Summary>Core of SCIM for users</Summary>
+        <RuntimeDependencies>
+            <Dependency>gtk2</Dependency>
+            <Dependency>pango</Dependency>
+            <Dependency>scim-libs</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="config">/etc</Path>
+            <Path fileType="executable">/usr/bin</Path>
+            <Path fileType="library">/usr/lib/scim-1.0</Path>
+            <Path fileType="data">/usr/share/scim</Path>
+            <Path fileType="doc">/usr/share/doc</Path>
+            <Path fileType="localedata">/usr/share/locale</Path>
+        </Files>
+        <AdditionalFiles>
+            <AdditionalFile target="/etc/X11/Xsession.d/91-scim.sh" permission="0644" owner="root">scim.session</AdditionalFile>
+            <AdditionalFile target="/etc/env.d/03scim" permission="0644" owner="root">scim.env</AdditionalFile>
+        </AdditionalFiles>
+    </Package>
+
+    <Package>
+        <Name>scim-libs</Name>
+        <Summary>Libraries of SCIM</Summary>
+        <RuntimeDependencies>
+            <Dependency>gtk2</Dependency>
+            <Dependency>pango</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="library">/usr/lib/libscim-*</Path>
+            <Path fileType="library">/usr/lib/scim-1.0/*/Config</Path>
+            <Path fileType="library">/usr/lib/scim-1.0/*/IMEngine</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>scim-devel</Name>
+        <Summary>Includes and pkgconfig for scim development</Summary>
+        <RuntimeDependencies>
+            <Dependency release="4">scim-core</Dependency>
+            <Dependency>gtk2-devel</Dependency>
+        </RuntimeDependencies>
+        <Replaces>
+            <Package>scim-lib-dev</Package>
+        </Replaces>
+        <Files>
+            <Path fileType="header">/usr/include</Path>
+            <Path fileType="library">/usr/lib/pkgconfig</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>scim-immodule-gtk</Name>
+        <Summary>IM Module for GTK applications</Summary>
+        <RuntimeDependencies>
+            <Dependency>scim-core</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="library">/usr/lib/gtk-2.0</Path>
+        </Files>
+    </Package>
+
+    <History>
+        <Update release="4">
+            <Date>2010-08-30</Date>
+            <Version>1.4.9</Version>
+            <Comment>Ready for 2011</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="3">
+            <Date>2010-07-26</Date>
+            <Version>1.4.9</Version>
+            <Comment>Version bump.</Comment>
+            <Name>Rajeev J Sebastian</Name>
+            <Email>rajeev.sebastian@gmail.com</Email>
+        </Update>
+        <Update release="2">
+            <Date>2008-08-26</Date>
+            <Version>1.4.7</Version>
+            <Comment>Version bump.</Comment>
+            <Name>Semen Cirit</Name>
+            <Email>semen@pardus.org.tr</Email>
+        </Update>
+        <Update release="1">
+            <Date>2006-10-16</Date>
+            <Version>1.4.5</Version>
+            <Comment>First release.</Comment>
+            <Name>Rajeev J Sebastian</Name>
+            <Email>rajeev.sebastian@gmail.com</Email>
+        </Update>
+    </History>
+</PISI>
