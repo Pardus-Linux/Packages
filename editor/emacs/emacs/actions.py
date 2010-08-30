@@ -22,8 +22,7 @@ def removeCruft():
 def setup():
     autotools.autoreconf("-fvi")
     autotools.configure("--with-x-toolkit=gtk \
-                         --with-xft \
-                         --with-freetype")
+                         --with-xft")
 
 def build():
     autotools.make()
