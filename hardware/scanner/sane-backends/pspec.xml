@@ -1,0 +1,237 @@
+<?xml version="1.0"?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>sane-backends</Name>
+        <Homepage>http://www.sane-project.org</Homepage>
+        <Packager>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Packager>
+        <License>GPLv2</License>
+        <Icon>sane</Icon>
+        <IsA>app:console</IsA>
+        <IsA>library</IsA>
+        <Summary>Scanner access software</Summary>
+        <Description>Scanner Access Now Easy (SANE) is a universal scanner interface. The SANE application programming interface provides standardized access to any raster image scanner hardware.</Description>
+        <Archive sha1sum="4a2789ea9dae1ece090d016abd14b0f2450d9bdb" type="targz">ftp://ftp.sane-project.org/pub/sane/sane-backends-1.0.21/sane-backends-1.0.21.tar.gz</Archive>
+        <BuildDependencies>
+            <Dependency>libieee1284-devel</Dependency>
+            <Dependency>libgphoto2-devel</Dependency>
+            <Dependency>libv4l-devel</Dependency>
+            <Dependency>avahi-devel</Dependency>
+            <Dependency>jpeg-devel</Dependency>
+            <Dependency>tiff-devel</Dependency>
+        </BuildDependencies>
+        <Patches>
+            <!-- fixes too small arrays in backend/niash.c -->
+            <Patch>fix-buffer-overflow.patch</Patch>
+
+            <!-- canon backend do scanner auto-recognition -->
+            <Patch>canon-backend-autoprobing.patch</Patch>
+
+            <Patch level="1">sane-backends-1.0.21-pkgconfig.patch</Patch>
+            <Patch level="1">sane-backends-1.0.20-open-macro.patch</Patch>
+            <Patch level="1">sane-backends-1.0.21-udev.patch</Patch>
+            <Patch level="1">sane-backends-1.0.21-man-encoding.patch</Patch>
+            <Patch level="1">sane-backends-1.0.20-lockdir.patch</Patch>
+            <Patch level="1">sane-backends-1.0.21-epson-expression800.patch</Patch>
+
+            <!-- Suse fixes from post 1.0.20 -->
+
+            <!-- Fix undefined 'foo = ++foo modulo bar' operations -->
+            <Patch level="1">suse/fix-mustek_pp_ccd300.c.patch</Patch>
+
+            <!-- Link with avahi libraries -->
+            <Patch level="1">link-with-avahi.patch</Patch>
+        </Patches>
+    </Source>
+
+    <Package>
+        <Name>sane-backends</Name>
+        <RuntimeDependencies>
+            <Dependency>libieee1284</Dependency>
+            <Dependency>avahi-libs</Dependency>
+            <Dependency>libgphoto2</Dependency>
+            <Dependency>libv4l</Dependency>
+            <Dependency>tiff</Dependency>
+            <Dependency>jpeg</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="data">/etc/sane.d/dll.d</Path>
+            <Path fileType="data">/etc/env.d</Path>
+            <Path fileType="config">/etc/sane.d</Path>
+            <Path fileType="executable">/usr/bin</Path>
+            <Path fileType="localedata">/usr/share/locale</Path>
+            <Path fileType="executable">/usr/sbin</Path>
+            <Path fileType="executable">/usr/libexec</Path>
+            <Path fileType="library">/usr/lib</Path>
+            <Path fileType="doc">/usr/share/doc/sane-backends/README</Path>
+            <Path fileType="doc">/usr/share/doc/sane-backends/COPYING</Path>
+            <Path fileType="man">/usr/share/man</Path>
+            <Path fileType="data">/usr/share/pixmaps</Path>
+            <Path fileType="data">/lib/udev/rules.d</Path>
+            <Path fileType="data">/usr/share/sane</Path>
+        </Files>
+        <AdditionalFiles>
+            <AdditionalFile owner="root" permission="0644" target="/usr/share/pixmaps/sane.png">sane.png</AdditionalFile>
+            <AdditionalFile owner="root" permission="0644" target="/etc/env.d/30sane">30sane</AdditionalFile>
+        </AdditionalFiles>
+   </Package>
+
+    <Package>
+        <Name>sane-backends-devel</Name>
+        <Summary>Development files for sane-backends</Summary>
+        <RuntimeDependencies>
+            <Dependency release="17">sane-backends</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="header">/usr/include</Path>
+            <Path fileType="executable">/usr/bin/sane-config</Path>
+            <Path fileType="man">/usr/share/man/man1/sane-config.1*</Path>
+            <Path fileType="data">/usr/lib/pkgconfig</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>sane-backends-docs</Name>
+        <Summary>Documentation for SANE backends</Summary>
+        <Files>
+            <Path fileType="doc">/usr/share/doc</Path>
+        </Files>
+    </Package>
+
+   <History>
+        <Update release="17">
+            <Date>2010-08-29</Date>
+            <Version>1.0.21</Version>
+            <Comment>Version bump, split devel package, fix localstatedir.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="16">
+            <Date>2010-04-05</Date>
+            <Version>1.0.20</Version>
+            <Comment>Switch to UDEV, disable HAL</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="15">
+            <Date>2009-11-10</Date>
+            <Version>1.0.20</Version>
+            <Comment>
+                - Add missing HAL callout,
+                - Grab some post 1.0.20 fixes from Suse to improve hardware support.
+            </Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="14">
+            <Date>2009-06-15</Date>
+            <Version>1.0.20</Version>
+            <Comment>Bump to final 1.0.20, add libv4l and texlive-latexextra dependency, enable Avahi support for the net backend.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="13">
+            <Date>2009-04-27</Date>
+            <Version>1.0.19_20090427</Version>
+            <Comment>
+                - Version bump to daily snapshot which contains major backend improvements,
+                - Add support for buttons on Canon LiDE 35/40/50,
+                - Add support for CCD sensor PIXMA: MP970, MP800, MP810, MP830, MP960,
+                - Add support for MP630 in pixma backend,
+                - MP620 supported by pixma backend confirmed,
+                - MP220 is now reported to work fine,
+                - Enable brother, brother3 and XeroxPhaser3100 backends by default,
+                - Use HAL for ACL management on device nodes.
+            </Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="12">
+            <Date>2008-09-21</Date>
+            <Version>1.0.19</Version>
+            <Comment>Enable epkowa and brother2 backends by default.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="11">
+            <Date>2008-09-12</Date>
+            <Version>1.0.19</Version>
+            <Comment>Add libsane-scsi.rules for correctly detecting SCSI scanners.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="10">
+            <Date>2008-03-19</Date>
+            <Version>1.0.19</Version>
+            <Comment>Version bump</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="9">
+            <Date>2007-12-17</Date>
+            <Version>1.0.18</Version>
+            <Comment>Added HP Scanjet 3900 backend, fixes bug #6399</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="8">
+            <Date>2007-05-31</Date>
+            <Version>1.0.18</Version>
+            <Comment>Fix Nikon Coolscan LS-30 scanning</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="7">
+            <Date>2006-10-13</Date>
+            <Version>1.0.18</Version>
+            <Comment>Add hplip backend to default config file</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="6">
+            <Date>2006-09-03</Date>
+            <Version>1.0.18</Version>
+            <Comment>Use pnp group</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="5">
+            <Date>2006-08-14</Date>
+            <Version>1.0.18</Version>
+            <Comment>udev rules corrected</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="4">
+            <Date>2006-08-10</Date>
+            <Version>1.0.18</Version>
+            <Comment>New version with more drivers</Comment>
+            <Name>Gürer Özen</Name>
+            <Email>gurer@pardus.org.tr</Email>
+        </Update>
+        <Update release="3">
+            <Date>2006-02-06</Date>
+            <Version>1.0.17</Version>
+            <Comment>Use udev luke!</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="2">
+            <Date>2006-02-06</Date>
+            <Version>1.0.17</Version>
+            <Comment>Version bump</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="1">
+            <Date>2005-11-29</Date>
+            <Version>1.0.16</Version>
+            <Comment>First release.</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+    </History>
+</PISI>
