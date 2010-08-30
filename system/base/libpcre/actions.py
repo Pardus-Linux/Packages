@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright 2005-2007 TUBITAK/UEKAE
+# Copyright 2005-2010 TUBITAK/UEKAE
 # Licensed under the GNU General Public License, version 2.
 # See the file http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
 
@@ -14,10 +14,8 @@ WorkDir="pcre-%s" % get.srcVERSION()
 def setup():
     autotools.configure("--enable-utf8 \
                          --enable-unicode-properties \
-                         --with-link-size=2 \
-                         --with-match-limit=10000000 \
-                         --enable-newline-is-lf \
-                         --disable-static")
+                         --docdir=/%s/%s \
+                         --disable-static" % (get.docDIR(), get.srcNAME()))
 
 def build():
     autotools.make()

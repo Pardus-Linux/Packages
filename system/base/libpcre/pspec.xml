@@ -12,11 +12,9 @@
         <IsA>library</IsA>
         <Summary>Perl-compatible regular expression library</Summary>
         <Description>The PCRE (Perl Compatible Regular Expressions) library is a set of functions that implement regular expression pattern matching using the same syntax and semantics as Perl 5.</Description>
-        <Archive sha1sum="f1f54d3e13e6cb427de962e62eaaee32c74cba38" type="tarbz2">ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/pcre-7.7.tar.bz2</Archive>
+        <Archive sha1sum="8b345da0f835b2caabff071b0b5bab40564652be" type="tarbz2">ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/pcre-8.10.tar.bz2</Archive>
         <Patches>
-            <Patch>compat.patch</Patch>
-            <!-- Heap based buffer overflow, http://secunia.com/advisories/30916/ -->
-            <Patch>CVE-2008-2371.patch</Patch>
+            <Patch level="1">pcre-8.10-multilib.patch</Patch>
         </Patches>
     </Source>
 
@@ -24,14 +22,38 @@
         <Name>libpcre</Name>
         <Files>
             <Path fileType="executable">/usr/bin</Path>
-            <Path fileType="header">/usr/include</Path>
             <Path fileType="man">/usr/share/man</Path>
             <Path fileType="doc">/usr/share/doc</Path>
             <Path fileType="library">/usr/lib</Path>
         </Files>
     </Package>
 
+    <Package>
+        <Name>libpcre-devel</Name>
+        <PartOf>system.devel</PartOf>
+        <Summary>Development files for libpcre</Summary>
+        <RuntimeDependencies>
+            <Dependency release="15">libpcre</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="executable">/usr/bin/pcre-config</Path>
+            <Path fileType="header">/usr/include</Path>
+            <Path fileType="man">/usr/share/man/man3</Path>
+            <Path fileType="man">/usr/share/man/man1/pcre-config.1*</Path>
+            <Path fileType="data">/usr/lib/pkgconfig</Path>
+            <Path fileType="doc">/usr/share/doc/libpcre/html</Path>
+            <Path fileType="doc">/usr/share/doc/libpcre/pcre-config.txt</Path>
+        </Files>
+    </Package>
+
     <History>
+        <Update release="15">
+            <Date>2010-08-30</Date>
+            <Version>8.10</Version>
+            <Comment>Version bump</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
         <Update release="14">
             <Date>2008-08-06</Date>
             <Version>7.7</Version>

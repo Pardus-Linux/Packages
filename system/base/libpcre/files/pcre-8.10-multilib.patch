@@ -1,0 +1,38 @@
+diff -Naur pcre-8.10.orig/pcre-config.in pcre-8.10/pcre-config.in
+--- pcre-8.10.orig/pcre-config.in	2010-03-02 12:08:45.000000000 +0100
++++ pcre-8.10/pcre-config.in	2010-07-12 14:15:30.666700210 +0200
+@@ -15,16 +15,6 @@
+       exit 1
+ fi
+ 
+-libR=
+-case `uname -s` in
+-  *SunOS*)
+-  libR=" -R@libdir@"
+-  ;;
+-  *BSD*)
+-  libR=" -Wl,-R@libdir@"
+-  ;;
+-esac
+-
+ while test $# -gt 0; do
+   case "$1" in
+   -*=*) optarg=`echo "$1" | sed 's/[-_a-zA-Z0-9]*=//'` ;;
+@@ -58,14 +48,14 @@
+       echo $includes @PCRE_STATIC_CFLAG@
+       ;;
+     --libs-posix)
+-      echo -L@libdir@$libR -lpcreposix -lpcre
++      echo -lpcreposix -lpcre
+       ;;
+     --libs)
+-      echo -L@libdir@$libR -lpcre
++      echo -lpcre
+       ;;
+     --libs-cpp)
+       if test @enable_cpp@ = yes ; then
+-        echo -L@libdir@$libR -lpcrecpp -lpcre
++        echo -lpcrecpp -lpcre
+       else
+         echo "${usage}" 1>&2
+       fi
