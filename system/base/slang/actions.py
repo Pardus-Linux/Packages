@@ -16,5 +16,8 @@ def setup():
 def build():
     autotools.make("-j1 install_doc_dir=/%s/%s all" % (get.docDIR(), get.installDIR()))
 
+def check():
+    autotools.make("check")
+
 def install():
     autotools.rawInstall("DESTDIR=%s INST_LIB_DIR=%s/usr/lib" % (get.installDIR(),get.installDIR()))
