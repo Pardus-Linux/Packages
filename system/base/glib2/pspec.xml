@@ -12,10 +12,10 @@
         <IsA>library</IsA>
         <Summary>A library of handy utility functions</Summary>
         <Description>glib2 is the low-level core library that forms the basis for projects such as GTK+ and GNOME. It provides data structure handling for C, portability wrappers, and interfaces for such runtime functionality as an event loop, threads, dynamic loading, and an object system.</Description>
-        <Archive sha1sum="882350c31af929cd4e78ee6aad46108748240e78" type="tarbz2">mirrors://gnome/glib/2.24/glib-2.24.2.tar.bz2</Archive>
+        <Archive sha1sum="e2a026a8cd315c03ca6da45f23ead5350a8f7fd6" type="tarbz2">mirrors://gnome/glib/2.25/glib-2.25.14.tar.bz2</Archive>
         <BuildDependencies>
-            <Dependency>libpcre</Dependency>
-            <Dependency>zlib</Dependency>
+            <Dependency>libpcre-devel</Dependency>
+            <Dependency>zlib-devel</Dependency>
         </BuildDependencies>
         <Patches>
             <!-- Don't fail check when run as root -->
@@ -24,7 +24,10 @@
             <!-- This fails because we don't have update-desktop-database -->
             <Patch level="1">glib-2.20.5-drop-gio-desktop-app-info-test.patch</Patch>
 
-            <Patch level="1">fix-broken-gthread-pkgconfig.patch</Patch>
+            <Patch level="1">0001-GDBusProxy-Call-into-well-known-name-if-no-name-owne.patch</Patch>
+
+            <!-- Fix broken gio test -->
+            <Patch level="1">7d6a6ca57b5a5dc1ad55a785dfd79fa98d7e4093.patch</Patch>
         </Patches>
     </Source>
 
@@ -35,20 +38,70 @@
             <Dependency>zlib</Dependency>
         </RuntimeDependencies>
         <Files>
+            <Path fileType="executable">/etc/bash_completion.d</Path>
+            <Path fileType="executable">/etc/profile.d</Path>
             <Path fileType="executable">/usr/bin</Path>
-            <Path fileType="header">/usr/include</Path>
             <Path fileType="library">/usr/lib</Path>
             <Path fileType="localedata">/usr/share/locale</Path>
             <Path fileType="man">/usr/share/man</Path>
             <Path fileType="doc">/usr/share/doc</Path>
-            <Path fileType="data">/usr/share/gdb</Path>
-            <Path fileType="data">/usr/share/aclocal</Path>
-            <Path fileType="data">/usr/lib/pkgconfig</Path>
             <Path fileType="data">/usr/share/glib-2.0</Path>
+            <Path fileType="data">/usr/share/glib-2.0/schemas</Path>
+        </Files>
+        <AdditionalFiles>
+            <AdditionalFile owner="root" permission="0644" target="/etc/profile.d/glib2.sh">glib2.sh</AdditionalFile>
+            <AdditionalFile owner="root" permission="0644" target="/etc/profile.d/glib2.csh">glib2.csh</AdditionalFile>
+        </AdditionalFiles>
+        <Provides>
+            <COMAR script="pakhandler.py">System.PackageHandler</COMAR>
+        </Provides>
+    </Package>
+
+    <Package>
+        <Name>glib2-devel</Name>
+        <PartOf>system.devel</PartOf>
+        <Summary>Development files for glib2</Summary>
+        <RuntimeDependencies>
+            <Dependency release="45">glib2</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="executable">/usr/bin/gtester</Path>
+            <Path fileType="executable">/usr/bin/gtester-report</Path>
+            <Path fileType="executable">/usr/bin/gobject-query</Path>
+            <Path fileType="executable">/usr/bin/glib-genmarshal</Path>
+            <Path fileType="executable">/usr/bin/glib-gettextize</Path>
+            <Path fileType="executable">/usr/bin/glib-mkenums</Path>
+            <Path fileType="header">/usr/include</Path>
+            <Path fileType="header">/usr/lib/glib-2.0/include</Path>
+            <Path fileType="data">/usr/lib/pkgconfig</Path>
+            <Path fileType="data">/usr/share/aclocal</Path>
+            <Path fileType="data">/usr/share/glib-2.0/schemas/gschema.dtd</Path>
+            <Path fileType="data">/usr/share/glib-2.0/gettext</Path>
+            <Path fileType="data">/usr/share/glib-2.0/gdb</Path>
+            <Path fileType="data">/usr/share/gdb/auto-load/libglib-2.0.so.*-gdb.py*</Path>
+            <Path fileType="data">/usr/share/gdb/auto-load/libgobject-2.0.so.*-gdb.py*</Path>
+            <Path fileType="man">/usr/share/man/man3</Path>
+            <Path fileType="man">/usr/share/man/man1/glib-genmarshal.1</Path>
+            <Path fileType="man">/usr/share/man/man1/glib-gettextize.1</Path>
+            <Path fileType="man">/usr/share/man/man1/glib-mkenums.1</Path>
+            <Path fileType="man">/usr/share/man/man1/gobject-query.1</Path>
+            <Path fileType="man">/usr/share/man/man1/gtester-report.1</Path>
+            <Path fileType="man">/usr/share/man/man1/gtester.1</Path>
         </Files>
     </Package>
 
     <History>
+        <Update release="45">
+            <Date>2010-08-30</Date>
+            <Version>2.25.14</Version>
+            <Comment>
+                - Version bump, split devel package,
+                - Ship package handler to update gio module cache,
+                - Ship profile.d scripts to fix a UTF-8 glitch.
+            </Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
         <Update release="44">
             <Date>2010-08-13</Date>
             <Version>2.24.2</Version>

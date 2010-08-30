@@ -6,6 +6,7 @@
 # See the file http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
 
 from pisi.actionsapi import autotools
+from pisi.actionsapi import libtools
 from pisi.actionsapi import pisitools
 from pisi.actionsapi import get
 
@@ -13,8 +14,7 @@ WorkDir = "glib-%s" % get.srcVERSION()
 
 def setup():
     autotools.autoconf()
-    autotools.configure("--with-threads=posix \
-                         --disable-gtk-doc \
+    autotools.configure("--disable-gtk-doc \
                          --with-pcre=system \
                          --disable-fam \
                          --disable-static")
@@ -25,10 +25,10 @@ def build():
     autotools.make()
 
 def check():
-    autotools.make("check")
+    autotools.make("LC_ALL=C check")
 
 def install():
     autotools.rawInstall("DESTDIR=%s" % get.installDIR())
     pisitools.removeDir("/usr/share/gtk-doc")
 
-    pisitools.dodoc("AUTHORS", "ChangeLog*", "README*", "NEWS*")
+    pisitools.dodoc("AUTHORS", "ChangeLog", "README", "NEWS")
