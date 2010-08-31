@@ -1,0 +1,24 @@
+diff -Nur texlive-core-20091107-old/texlive-20091107-source/texk/web2c/pdftexdir/pdftoepdf.cc texlive-core-20091107/texlive-20091107-source/texk/web2c/pdftexdir/pdftoepdf.cc
+--- texlive-core-20091107-old/texlive-20091107-source/texk/web2c/pdftexdir/pdftoepdf.cc	2010-08-24 10:55:08.443000001 +0300
++++ texlive-core-20091107/texlive-20091107-source/texk/web2c/pdftexdir/pdftoepdf.cc	2010-08-24 10:58:45.355000421 +0300
+@@ -689,6 +689,7 @@
+     Page *page;
+     int rotate;
+     PDFRectangle *pagebox;
++    int minor_pdf_version_found, major_pdf_version_found;
+     float pdf_version_found, pdf_version_wanted;
+     // initialize
+     if (!isInit) {
+@@ -704,8 +705,11 @@
+     // this works only for PDF 1.x -- but since any versions of PDF newer
+     // than 1.x will not be backwards compatible to PDF 1.x, pdfTeX will
+     // then have to changed drastically anyway.
+-    pdf_version_found = pdf_doc->doc->getPDFVersion();
++    minor_pdf_version_found = pdf_doc->doc->getPDFMinorVersion();
++    major_pdf_version_found = pdf_doc->doc->getPDFMajorVersion();
++    pdf_version_found = major_pdf_version_found + (minor_pdf_version_found * 0.1);
+     pdf_version_wanted = 1 + (minor_pdf_version_wanted * 0.1);
++
+     if (pdf_version_found > pdf_version_wanted) {
+         char msg[] =
+             "PDF inclusion: found PDF version <%.1f>, but at most version <%.1f> allowed";
