@@ -14,7 +14,7 @@ shelltools.export("HOME", get.workDIR())
 NoStrip=["/usr/share"]
 
 def setup():
-    kde4.configure("-DWITH_JINGLE=TRUE")
+    kde4.configure("-DWITH_JINGLE=TRUE -DMOZPLUGIN_INSTALL_DIR=/usr/lib/browser-plugins")
 
 def build():
     kde4.make()
