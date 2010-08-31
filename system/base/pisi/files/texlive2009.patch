@@ -1,6 +1,6 @@
 diff -Nur pisi-2.3.2-old/pisi/actionsapi/texlivemodules.py pisi-2.3.2/pisi/actionsapi/texlivemodules.py
---- pisi-2.3.2-old/pisi/actionsapi/texlivemodules.py	2010-08-31 10:49:48.620000001 +0300
-+++ pisi-2.3.2/pisi/actionsapi/texlivemodules.py	2010-08-31 10:50:57.891000052 +0300
+--- pisi-2.3.2-old/pisi/actionsapi/texlivemodules.py	2010-08-31 12:20:56.268999084 +0300
++++ pisi-2.3.2/pisi/actionsapi/texlivemodules.py	2010-08-31 12:21:44.932000012 +0300
 @@ -12,6 +12,7 @@
  # standard python modules
  import os
@@ -66,7 +66,7 @@ diff -Nur pisi-2.3.2-old/pisi/actionsapi/texlivemodules.py pisi-2.3.2/pisi/actio
  
  
  def createSymlinksFormat2Engines():
-@@ -104,16 +107,6 @@
+@@ -104,26 +107,24 @@
                          sym(symbin[1], "%s/usr/bin/%s" % (get.installDIR(), symbin[0]))
          symfile.close()
  
@@ -82,8 +82,10 @@ diff -Nur pisi-2.3.2-old/pisi/actionsapi/texlivemodules.py pisi-2.3.2/pisi/actio
 -
  def installDocFiles():
      '''Installing docs'''
-     if not "documentation" in get.srcNAME():
-@@ -122,8 +115,16 @@
+-    if not "documentation" in get.srcNAME():
++    if "documentation" in get.srcNAME():
+         if os.path.isdir("%s/texmf-doc" % get.curDIR()):
+             copytree("texmf-doc", "%s/usr/share/texmf-doc" % get.installDIR())
      else:
          for removedir in ["texmf", "texmf-dist"]:
              if os.path.isdir("%s/%s/doc/" % (get.curDIR(), removedir)):
@@ -122,7 +124,7 @@ diff -Nur pisi-2.3.2-old/pisi/actionsapi/texlivemodules.py pisi-2.3.2/pisi/actio
 +    for root, dirs,files in os.walk("%s/usr/share/texmf" % get.installDIR()):
 +        for file in files:
 +            if file.endswith("cnf") or file.endswith("cfg"):
-+                if not ("config" or "doc") in root:
++                if not ("config" and "doc") in root:
 +                    dirname = root.split("/")[-1]
 +                    if not os.path.isdir("%s/etc/texmf/%s.d" % (get.installDIR(),dirname)):
 +                        ctx.ui.info(_('Creating /etc/texmf/%s.d') % dirname)
