@@ -12,7 +12,8 @@ from pisi.actionsapi import get
 WorkDir = "pkg-config-%s" % get.srcVERSION()
 
 def setup():
-    autotools.configure("--disable-shared")
+    autotools.configure("--with-installed-glib \
+                         --with-installed-popt")
 
 def check():
     autotools.make("check")
