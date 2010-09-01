@@ -18,7 +18,3 @@ def build():
 def install():
     texlivemodules.install()
 
-    # Install texmf bin scripts
-    bindocs=["epspdf","epspdftk"]
-    for i in bindocs:
-        pisitools.dosym("%s/%s/texmf-dist/scripts/epspdf/%s" % (get.workDIR(), WorkDir, i), "/usr/bin/%s" % i)
