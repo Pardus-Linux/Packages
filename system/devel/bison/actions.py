@@ -10,7 +10,7 @@ from pisi.actionsapi import pisitools
 from pisi.actionsapi import get
 
 def setup():
-    autotools.configure("--enable-nls")
+    autotools.configure("--disable-nls")
 
 def build():
     autotools.make()
@@ -21,7 +21,9 @@ def check():
 def install():
     autotools.rawInstall("DESTDIR=%s" % get.installDIR())
 
-    pisitools.domove("/usr/bin/yacc", "/usr/bin", "yacc.bison")
+    pisitools.rename("/usr/bin/yacc", "yacc.bison")
+    pisitools.rename("/usr/share/man/man1/yacc.1", "yacc.bison.1")
+
     pisitools.removeDir("/usr/lib/")
 
     pisitools.dodoc("AUTHORS", "NEWS", "ChangeLog", "README", "COPYING")
