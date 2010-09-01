@@ -11,8 +11,12 @@ from pisi.actionsapi import pisitools
 from pisi.actionsapi import shelltools
 
 def setup():
-    shelltools.touch("man/*.1")
-    shelltools.chmod("config/*", 0775)
+    # shelltools.touch("man/*.1")
+    # shelltools.chmod("config/*", 0775)
+
+    # disable automagic libsigsegv dependency
+    shelltools.export("AUTOPOINT", "true")
+    shelltools.export("ac_cv_libsigsegv", "no")
 
     autotools.autoreconf("-vfi")
     autotools.configure("--enable-nls")
