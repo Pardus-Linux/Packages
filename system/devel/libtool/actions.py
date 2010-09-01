@@ -10,7 +10,7 @@ from pisi.actionsapi import pisitools
 from pisi.actionsapi import shelltools
 from pisi.actionsapi import get
 
-WorkDir = "libtool-2.2.6b"
+# WorkDir = "libtool-2.2.6b"
 configTemplateDir = "/usr/share/libtool/config"
 
 # FIXME: do we still need this ?
