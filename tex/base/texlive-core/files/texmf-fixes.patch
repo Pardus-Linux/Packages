@@ -1,0 +1,67 @@
+diff -Nur texlive-core-20091107-old/texlive-20091107-source/texk/kpathsea/texmf.cnf texlive-core-20091107/texlive-20091107-source/texk/kpathsea/texmf.cnf
+--- texlive-core-20091107-old/texlive-20091107-source/texk/kpathsea/texmf.cnf	2010-09-01 01:52:16.042000019 +0300
++++ texlive-core-20091107/texlive-20091107-source/texk/kpathsea/texmf.cnf	2010-09-01 01:56:40.947000017 +0300
+@@ -53,15 +53,15 @@
+ 
+ % The tree containing the runtime files closely related to the specific
+ % program version used:
+-TEXMFMAIN = $SELFAUTOPARENT/texmf
++TEXMFMAIN = /usr/share/texmf
+ 
+ % The main distribution tree:
+-TEXMFDIST = $SELFAUTOPARENT/texmf-dist
++TEXMFDIST =/usr/share/texmf-dist
+ 
+ % A place for local additions to a "standard" texmf tree.
+ % This tree is not used for local configuration maintained by
+ % texconfig, it uses TEXMFCONFIG below.
+-TEXMFLOCAL = $SELFAUTOPARENT/../texmf-local
++TEXMFLOCAL = /usr/local/share/texmf
+ 
+ % TEXMFSYSVAR, where texconfig-sys stores variable runtime data.
+ % With teTeX-3.0 or later, this must be set.
+@@ -69,7 +69,7 @@
+ %   TEXMFSYSVAR = $TEXMFMAIN
+ % For using a separate tree:
+ %   TEXMFSYSVAR = $SELFAUTOPARENT/texmf-var
+-TEXMFSYSVAR = $SELFAUTOPARENT/texmf-var
++TEXMFSYSVAR = /var/lib/texmf
+ 
+ % TEXMFSYSCONFIG, where texconfig-sys stores configuration data.
+ % With teTeX-3.0 or later, this must be set.
+@@ -77,7 +77,7 @@
+ %   TEXMFSYSCONFIG = $TEXMFMAIN
+ % For using a separate tree:
+ %   TEXMFSYSCONFIG = $SELFAUTOPARENT/texmf-config
+-TEXMFSYSCONFIG = $SELFAUTOPARENT/texmf-config
++TEXMFSYSCONFIG = /etc/texmf
+ 
+ % User texmf trees are allowed as follows.
+ % This used to be HOMETEXMF.
+@@ -128,7 +128,7 @@
+ % Where generated fonts may be written.  This tree is used when the sources
+ % were found in a system tree and either that tree wasn't writable, or the
+ % varfonts feature was enabled in MT_FEATURES in mktex.cnf.
+-VARTEXFONTS = $TEXMFVAR/fonts
++VARTEXFONTS = /var/cache/fonts
+ 
+ % Where to look for ls-R files.  There need not be an ls-R in the
+ % directories in this path, but if there is one, Kpathsea will use it.
+@@ -137,7 +137,7 @@
+ % ls-R is present, it will be used, and the disk will not be searched.
+ % This is arguably a bug in kpathsea.
+ %
+-TEXMFDBS = {!!$TEXMFSYSCONFIG,!!$TEXMFSYSVAR,!!$TEXMFMAIN,!!$TEXMFLOCAL,!!$TEXMFDIST}
++TEXMFDBS = {!!$TEXMFSYSCONFIG,!!$TEXMFSYSVAR,!!$TEXMFMAIN,!!$TEXMFLOCAL,!!$TEXMFDIST,!!$TEXMFDOC}
+ 
+ % On some systems, there will be a system tree which contains all the font
+ % files that may be created as well as the formats.  For example
+@@ -498,7 +498,7 @@
+ % 
+ % Unfortunately we found too many problems with shell_escape=p, so it
+ % should be treated as though it were just as dangerous as shell_escape=t.
+-shell_escape_commands = \
++shell_escape_commands = \\
+ false
+ 
+ % These programs are our first goal when we can enable it.
