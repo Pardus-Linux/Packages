@@ -18,6 +18,4 @@ def build():
 def install():
     texlivemodules.install()
 
-    # Install texmf bin scripts
-    pisitools.dosym("texmf-dist/scripts/pst2pdf/pst2pdf.pl", "/usr/bin/pst2pdf")
 
