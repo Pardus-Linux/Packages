@@ -10,8 +10,12 @@ from pisi.actionsapi import pisitools
 from pisi.actionsapi import shelltools
 from pisi.actionsapi import get
 
+
+flags = "%s -fPIC" % get.CFLAGS() if get.ARCH() == "x86_64" else get.CFLAGS()
+
 def setup():
-    shelltools.export("CC", get.CC())
+    shelltools.export("CFLAGS", flags)
+
     autotools.configure("--enable-nls \
                          --disable-rpath")
                          # --enable-python \
