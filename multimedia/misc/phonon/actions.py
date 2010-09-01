@@ -23,7 +23,7 @@ def install():
     #pure Qt4 apps look for this path to use phonon backends
     pisitools.dodir("%s/phonon_backend" % qt4.plugindir)
     pisitools.dosym("%s/plugins/phonon_backend/phonon_gstreamer.so" % kde4.modulesdir, "%s/phonon_backend/libphonon_gstreamer.so" % qt4.plugindir)
-    #pisitools.dosym("%s/plugins/phonon_backend/phonon_xine.so" % kde4.modulesdir, "%s/phonon_backend/libphonon_xine.so" % qt4.plugindir)
+    pisitools.dosym("%s/plugins/phonon_backend/phonon_xine.so" % kde4.modulesdir, "%s/phonon_backend/libphonon_xine.so" % qt4.plugindir)
 
     #some applications like mediaplayer example of Qt needs this #11648
     pisitools.dosym("/usr/include/KDE/Phonon", "/usr/include/Phonon")
