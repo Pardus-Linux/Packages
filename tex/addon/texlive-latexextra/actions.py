@@ -18,9 +18,3 @@ def build():
 def install():
     texlivemodules.install()
 
-    # Install texmf bin scripts
-    pisitools.dosym("/usr/share/texmf-dist/scripts/perltex/perltex.pl", "/usr/bin/perltex" )
-    pisitools.dosym("/usr/share/texmf-dist/scripts/ppower4/pdfthumb.texlua", "/usr/bin/pdfthumb" )
-    pisitools.dosym("/usr/share/texmf-dist/scripts/ppower4/ppower4.texlua", "/usr/bin/ppower4" )
-    pisitools.dosym("/usr/share/texmf-dist/scripts/pst-pdf/ps4pdf", "/usr/bin/ps4pdf" )
-    pisitools.dosym("/usr/share/texmf-dist/scripts/vpe/vpe.pl", "/usr/bin/vpe" )
