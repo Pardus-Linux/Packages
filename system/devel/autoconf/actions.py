@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright 2008-2009 TUBITAK/UEKAE
+# Copyright 2008-2010 TUBITAK/UEKAE
 # Licensed under the GNU General Public License, version 2.
 # See the file http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
 
@@ -20,7 +20,7 @@ def setup():
     autotools.configure()
 
 def build():
-    autotools.make("-j1")
+    autotools.make()
 
 # takes too long, do it by hand
 #def check():
