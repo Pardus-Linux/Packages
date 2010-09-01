@@ -11,7 +11,8 @@ from pisi.actionsapi import pisitools
 from pisi.actionsapi import get
 
 def setup():
-    shelltools.system("rm -rf zlib")
+    if shelltools.isDirectory("zlib"):
+        shelltools.unlinkDir("zlib")
     autotools.configure()
 
 def build():
