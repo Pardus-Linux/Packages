@@ -8,7 +8,10 @@
 from pisi.actionsapi import autotools
 
 def setup():
-    autotools.configure("--with-nls")
+    autotools.configure("--disable-dependency-tracking \
+                         --disable-static \
+                         --disable-rpath \
+                         --enable-nls")
 
 def build():
     autotools.make()
