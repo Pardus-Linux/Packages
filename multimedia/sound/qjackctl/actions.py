@@ -10,7 +10,6 @@ from pisi.actionsapi import pisitools
 from pisi.actionsapi import get
 
 def setup():
-    #autotools.configure("--with-qt=/usr/qt/4")
     autotools.configure("--with-qt=/usr/lib/qt4")
 
 def build():
