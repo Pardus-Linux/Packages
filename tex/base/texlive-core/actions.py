@@ -34,8 +34,19 @@ def setup():
                           --with-system-pnglib \
                           --with-system-xpdf \
                           --with-system-teckit \
-                          --with-teckit-includes=/usr/include/teckit \
                           --without-texinfo \
+                          --with-xdvipdfmx \
+                          --with-teckit-includes=/usr/include/teckit \
+                          --disable-detex \
+                          --disable-dvi2tty \
+                          --disable-dvipng \
+                          --disable-dvipdfmx \
+                          --disable-luatex \
+                          --disable-ps2eps \
+                          --disable-psutils \
+                          --disable-xetex \
+                          --disable-xdvik \
+                          --disable-xindy \
                           --disable-dialog \
                           --disable-multiplatform \
                           --with-epsfwin \
@@ -44,24 +55,13 @@ def setup():
                           --with-tektronixwin \
                           --with-unitermwin \
                           --with-ps=gs \
-                          --enable-psutils \
                           --disable-tlutils \
                           --enable-ipc \
-                          --enable-xetex \
-                          --enable-dvipng \
-                          --disable-dvipdfmx \
-                          --with-xdvipdfmx \
                           --disable-lcdf-typetools \
                           --disable-pdfopen \
-                          --enable-ps2eps \
-                          --enable-detex \
                           --disable-ttf2pk \
                           --disable-tex4htk \
                           --disable-cjkutils \
-                          --enable-xdvik \
-                          --disable-xindy \
-                          --enable-luatex \
-                          --enable-dvi2tty \
                           --disable-vlna \
                           --disable-largefile \
                           --enable-shared \
