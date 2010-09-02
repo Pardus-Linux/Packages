@@ -11,8 +11,12 @@ from pisi.actionsapi import autotools
 from pisi.actionsapi import pisitools
 
 def setup():
-    autotools.autoreconf() # have a buggy mktime check
+    shelltools.export("ac_cv_libsigsegv", "no")
+    shelltools.export("AUTOPOINT", "true")
+    autotools.autoreconf("-vfi") # have a buggy mktime check
+
     autotools.configure("--bindir=/bin \
+                         --enable-switch \
                          --enable-nls")
 
 def build():
