@@ -17,45 +17,93 @@ GetWorkdir = "%s/%s" % (get.workDIR(), WorkDir)
 
 
 def setup():
-    shelltools.cd("%s/source/" % GetWorkdir)
+    libtools.libtoolize()
     shelltools.export("LC_ALL","C")
+    shelltools.cd("%s/source/texk/web2c" % GetWorkdir)
+
+    autotools.configure("--disable-cxx-runtime-hack \
+                        --disable-afm2pl    \
+                        --disable-aleph		\
+                        --disable-bibtex	\
+                        --disable-bibtex8	\
+                        --disable-cfftot1	\
+                        --disable-cjkutils	\
+                        --disable-detex		\
+                        --disable-devnag	\
+                        --disable-dialog	\
+                        --disable-dtl		\
+                        --enable-dump-share	\
+                        --disable-dvi2tty	\
+                        --disable-dvidvi	\
+                        --without-dviljk    \
+                        --disable-dvipdfm	\
+                        --disable-dvipdfmx	\
+                        --disable-dvipos	\
+                        --disable-dvipsk	\
+                        --disable-gsftopk	\
+                        --disable-ipc		\
+                        --disable-lacheck	\
+                        --disable-lcdf-typetools \
+                        --disable-makeindexk \
+                        --disable-mf		\
+                        --disable-mmafm		\
+                        --disable-mmpfb		\
+                        --disable-mp		\
+                        --disable-musixflx	\
+                        --disable-otfinfo	\
+                        --disable-otftotfm	\
+                        --disable-pdfopen	\
+                        --disable-pdftex	\
+                        --disable-ps2eps	\
+                        --disable-ps2pkm	\
+                        --disable-psutils	\
+                        --disable-ptex		\
+                        --disable-seetexk	\
+                        --disable-t1dotlessj  \
+                        --disable-t1lint	\
+                        --disable-t1rawafm	\
+                        --disable-t1reencode	\
+                        --disable-t1testpage \
+                        --disable-t1utils	\
+                        --disable-tex		\
+                        --disable-tex4htk	\
+                        --disable-tpic2pdftex	\
+                        --disable-ttf2pk	\
+                        --disable-ttfdump	\
+                        --disable-ttftotype42	\
+                        --disable-vlna		\
+                        --disable-web-progs \
+                        --disable-xdv2pdf	\
+                        --disable-xdvipdfmx \
+                        --disable-xetex		\
+                        --without-x			\
+                        --without-system-kpathsea	\
+                        --with-system-gd	\
+                        --with-system-libpng	\
+                        --with-system-teckit \
+                        --with-system-zlib \
+                        --with-system-t1lib \
+                        --with-system-xpdf \
+                        --with-system-zziplib \
+                        --disable-largefile \
+                        --disable-multiplatform \
+                        --disable-shared")
+
+    for i in ["libs/obsdcompat", "texk/kpathsea"]:
+        shelltools.cd("%s/source/%s" % (GetWorkdir, i))
+        autotools.configure()
 
 
 def build():
-    shelltools.makedirs("%s/build" % GetWorkdir)
-    shelltools.cd("%s/build/" % GetWorkdir)
+    for i in ["libs/obsdcompat", "texk/kpathsea"]:
+        shelltools.cd("%s/source/%s" % (GetWorkdir, i))
+        autotools.make()
 
-    conf_options =  "--enable-cxx-runtime-hack \
-                    --disable-all-pkgs \
-                    --enable-shared    \
-                    --disable-largefile \
-                    --disable-native-texlive-build \
-                    --disable-ptex \
-                    --disable-ipc \
-                    --enable-dump-share  \
-                    --enable-mp  \
-                    --enable-luatex  \
-                    --with-system-ptexenc \
-                    --with-system-kpathsea \
-                    --with-system-poppler \
-                    --with-system-xpdf \
-                    --with-system-freetype \
-                    --with-system-freetype2 \
-                    --with-system-gd \
-                    --with-system-libpng \
-                    --with-system-teckit \
-                    --with-system-t1lib \
-                    --with-system-zlib \
-                    --with-system-icu \
-                    --without-system-zziplib \
-                    --without-mf-x-toolkit --without-x"
-
-    shelltools.system('TL_MAKE="make" ../source/configure %s' % conf_options)
+    shelltools.cd("%s/source/texk/web2c" % GetWorkdir)
+    autotools.make()
 
 def install():
-    shelltools.cd("%s/build/" % GetWorkdir)
+    shelltools.cd("%s/source/texk/web2c" % GetWorkdir)
+
     autotools.rawInstall("DESTDIR=%s bin_PROGRAMS='luatex' SUBDIRS='' nodist_man_MANS=''" % get.installDIR()) 
-    
     pisitools.dodoc("%s/README" % GetWorkdir, "%s/manual/*.pdf" % GetWorkdir)
-
-
