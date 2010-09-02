@@ -44,7 +44,8 @@ def setup():
                           --disable-luatex \
                           --disable-ps2eps \
                           --disable-psutils \
-                          --disable-xetex \
+                          --disable-tlutils \
+                          --enable-xetex \
                           --disable-xdvik \
                           --disable-xindy \
                           --disable-dialog \
@@ -55,7 +56,6 @@ def setup():
                           --with-tektronixwin \
                           --with-unitermwin \
                           --with-ps=gs \
-                          --disable-tlutils \
                           --enable-ipc \
                           --disable-lcdf-typetools \
                           --disable-pdfopen \
