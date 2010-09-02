@@ -10,8 +10,11 @@ from pisi.actionsapi import pisitools
 from pisi.actionsapi import shelltools
 from pisi.actionsapi import get
 
+
+flags = "%s -fPIC" % get.CFLAGS() if get.ARCH() == "x86_64" else get.CFLAGS()
+
 def setup():
-    shelltools.export("CFLAGS","%s -fPIC" % get.CFLAGS())
+    # shelltools.export("CFLAGS", flags)
     autotools.autoreconf("-vfi")
     autotools.configure("--enable-nls \
                          --with-xinerama")
