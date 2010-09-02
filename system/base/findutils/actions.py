@@ -14,16 +14,19 @@ def setup():
     shelltools.export("CFLAGS", "%s -D_GNU_SOURCE" % get.CFLAGS())
 
     autotools.configure("--enable-nls \
-                         --without-internal-regex \
+                         --without-included-regex \
                          --disable-rpath \
                          --disable-assert \
+                         --with-fts \
+                         --enable-leaf-optimisation \
                          --enable-d_type-optimization")
 
 def build():
     autotools.make()
 
-def check():
-    autotools.make("check")
+# Sandbox ihlali: rmdir (/// -> /)
+#def check():
+#    autotools.make("check")
 
 def install():
     autotools.install()
