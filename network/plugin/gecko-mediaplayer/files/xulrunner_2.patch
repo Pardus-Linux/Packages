@@ -1,0 +1,15 @@
+diff -Nur gecko-mediaplayer-old//configure.in gecko-mediaplayer/configure.in
+--- gecko-mediaplayer-old//configure.in	2010-09-02 19:09:18.882000951 +0300
++++ gecko-mediaplayer/configure.in	2010-09-02 19:10:51.357000168 +0300
+@@ -49,6 +49,11 @@
+         [])
+ 
+ if test "$GECKO_CFLAGS" = ""; then
++PKG_CHECK_MODULES(GECKO, [libxul >= 2.0.0],[GECKO_CFLAGS="$GECKO_CFLAGS -DMOZ_NO_MOZALLOC" AC_DEFINE([HAVE_NEW_XULRUNNER],[1],[Define to 1 if using libxul 2.0.0 or higher]) AC_MSG_NOTICE([Using libxul >= 2.0.0])
++    ],[AC_MSG_NOTICE([libxul >= 2.0.0 not found, trying another])])
++fi
++
++if test "$GECKO_CFLAGS" = ""; then
+ PKG_CHECK_MODULES(GECKO, [libxul < 1.9.2],[ AC_MSG_NOTICE([Using libxul < 1.9.2])
+     ],[AC_MSG_WARN([libxul < 1.9.2 not found, trying another])])
+ fi
