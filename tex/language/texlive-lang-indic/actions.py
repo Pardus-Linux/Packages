@@ -18,6 +18,3 @@ def build():
 def install():
     texlivemodules.install()
 
-    # Install texmf bin scripts
-    pisitools.dosym("texmf-dist/scripts/bengali/ebong.py", "/usr/bin/ebong")
-
