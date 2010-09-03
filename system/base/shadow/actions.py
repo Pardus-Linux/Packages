@@ -15,7 +15,10 @@ def setup():
                          --without-selinux \
                          --with-audit \
                          --with-libpam \
+                         --enable-nls \
+                         --without-group-name-max-length \
                          --disable-shared")
+                         # --with-skey  ehem
 
 def build():
     # Rebuild gmo catalogs

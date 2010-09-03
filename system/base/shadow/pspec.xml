@@ -12,29 +12,38 @@
         <IsA>app:console</IsA>
         <Summary>Utilities to deal with user accounts</Summary>
         <Description>The Shadow password file utilities package includes programs necessary to convert traditional V7 *NIX password files to the SVR4 shadow password format, and additional tools to maintain password and group files (that work with both shadow and non-shadow passwords).</Description>
-        <Archive sha1sum="6cbd29104c219ff6776eececb8068f7326d57a45" type="tarbz2">ftp://pkg-shadow.alioth.debian.org/pub/pkg-shadow/shadow-4.1.2.2.tar.bz2</Archive>
+        <Archive sha1sum="43e29471057c671de51360b10e3ee2b419c78ffa" type="tarbz2">ftp://pkg-shadow.alioth.debian.org/pub/pkg-shadow/shadow-4.1.4.2.tar.bz2</Archive>
         <BuildDependencies>
-            <Dependency>pam</Dependency>
-            <Dependency>audit</Dependency>
-            <Dependency>gettext</Dependency>
+            <Dependency>pam-devel</Dependency>
+            <Dependency>audit-devel</Dependency>
+            <Dependency>gettext-devel</Dependency>
         </BuildDependencies>
         <Patches>
-            <Patch level="1">shadow-4.1.2-redhat.patch</Patch>
-            <Patch level="1">shadow-4.1.2-goodname.patch</Patch>
-            <Patch level="1">shadow-4.1.2-selinux.patch</Patch>
-            <Patch level="1">shadow-4.1.2-sysAccountDownhill.patch</Patch>
-            <Patch level="1">shadow-4.1.2-gmSEGV.patch</Patch>
-            <Patch level="1">shadow-4.1.2-audit.patch</Patch>
-            <Patch level="1">shadow-4.1.1-selinuxUserMappings.patch</Patch>
-            <Patch level="1">shadow-4.1.2-checkName.patch</Patch>
-            <Patch level="1">shadow-4.1.2-gmNoGroup.patch</Patch>
+            <!-- Fedora patches -->
+            <Patch level="1">fedora/shadow-4.1.4.2-redhat.patch</Patch>
+            <Patch level="1">fedora/shadow-4.1.4.1-goodname.patch</Patch>
+            <Patch level="1">fedora/shadow-4.1.4.2-leak.patch</Patch>
+            <Patch level="1">fedora/shadow-4.1.4.2-fixes.patch</Patch>
+            <Patch level="1">fedora/shadow-4.1.4.2-infoParentDir.patch</Patch>
+            <Patch level="1">fedora/shadow-4.1.4.2-semange.patch</Patch>
+            <!-- Enable it if we prefer to use ACL
+            <Patch level="1">fedora/shadow-4.1.4.2-acl.patch</Patch>
+            -->
+            <Patch level="1">fedora/shadow-4.1.4.2-underflow.patch</Patch>
+            <Patch level="1">fedora/shadow-4.1.4.2-uflg.patch</Patch>
 
-            <!-- Fixes #5900, the problem of ignoring 3rd login attempt -->
-            <Patch level="1">shadow-4.0.15-maxtries.patch</Patch>
+            <!-- Gentoo patches -->
+            <Patch level="1">gentoo/shadow-4.1.4.2-env-reset-keep-locale.patch</Patch>
+            <Patch level="1">gentoo/shadow-4.1.4.2-groupmod-pam-check.patch</Patch>
+            <Patch level="1">gentoo/shadow-4.1.4.2-su_no_sanitize_env.patch</Patch>
+            <Patch>gentoo/shadow-4.1.4.2-fix-etc-gshadow-reading.patch</Patch>
+
+
+            <!-- Skip copying of .newconfig files in skel -->
+            <Patch level="1">skip_newconfig_in_skel.patch</Patch>
 
             <!-- Fixes some little translations -->
             <Patch level="1">tr.patch</Patch>
-            <Patch level="1">gettext-login.patch</Patch>
         </Patches>
     </Source>
 
@@ -81,6 +90,17 @@
     </Package>
 
     <History>
+        <Update release="20">
+            <Date>2010-09-02</Date>
+            <Version>4.1.4.2</Version>
+            <Comment>
+                Version bump
+                Add a patch to skip copying .newconfig files from skel
+                Switch encryption to sha512
+            </Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
         <Update release="19">
             <Date>2010-06-08</Date>
             <Version>4.1.2.2</Version>
