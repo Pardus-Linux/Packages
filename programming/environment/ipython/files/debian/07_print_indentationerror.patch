@@ -1,0 +1,90 @@
+Description: resolve print statements in history mangled by autocall feature in python 2.[56]
+Origin: upstream, http://bazaar.launchpad.net/%7Eipython-dev/ipython/0.10.1/revision/1224
+Bug: http://launchpad.net/bugs/414967
+Last-Update: 2010-04-24 
+Applied-Upstream: 0.10.1 rev 1224
+
+Index: lucid/IPython/Magic.py
+===================================================================
+--- lucid.orig/IPython/Magic.py	2010-04-24 15:57:59.000000000 -0700
++++ lucid/IPython/Magic.py	2010-04-24 15:58:07.000000000 -0700
+@@ -15,6 +15,7 @@
+ 
+ # Python standard modules
+ import __builtin__
++import __future__
+ import bdb
+ import inspect
+ import os
+@@ -41,6 +42,11 @@
+     except ImportError:
+         profile = pstats = None
+ 
++# print_function was added to __future__ in Python2.6, remove this when we drop
++# 2.5 compatibility
++if not hasattr(__future__,'CO_FUTURE_PRINT_FUNCTION'):
++    __future__.CO_FUTURE_PRINT_FUNCTION = 65536
++
+ # Homebrewed
+ import IPython
+ from IPython import Debugger, OInspect, wildcard
+@@ -192,9 +198,7 @@
+ 
+         Has special code to detect magic functions.
+         """
+-        
+         oname = oname.strip()
+-
+         alias_ns = None
+         if namespaces is None:
+             # Namespaces to search in:
+@@ -208,8 +212,16 @@
+             alias_ns = self.shell.alias_table
+ 
+         # initialize results to 'null'
+-        found = 0; obj = None;  ospace = None;  ds = None;
+-        ismagic = 0; isalias = 0; parent = None
++        found = False; obj = None;  ospace = None;  ds = None;
++        ismagic = False; isalias = False; parent = None
++
++        # We need to special-case 'print', which as of python2.6 registers as a
++        # function but should only be treated as one if print_function was
++        # loaded with a future import.  In this case, just bail.
++        if (oname == 'print' and not (self.shell.compile.compiler.flags &
++                                      __future__.CO_FUTURE_PRINT_FUNCTION)):
++            return {'found':found, 'obj':obj, 'namespace':ospace,
++                    'ismagic':ismagic, 'isalias':isalias, 'parent':parent}
+ 
+         # Look for the given name by splitting it in parts.  If the head is
+         # found, then we look for all the remaining parts as members, and only
+@@ -234,10 +246,10 @@
+                         break
+                 else:
+                     # If we finish the for loop (no break), we got all members
+-                    found = 1
++                    found = True
+                     ospace = nsname
+                     if ns == alias_ns:
+-                        isalias = 1
++                        isalias = True
+                     break  # namespace loop
+ 
+         # Try to see if it's magic
+@@ -246,14 +258,14 @@
+                 oname = oname[1:]
+             obj = getattr(self,'magic_'+oname,None)
+             if obj is not None:
+-                found = 1
++                found = True
+                 ospace = 'IPython internal'
+-                ismagic = 1
++                ismagic = True
+ 
+         # Last try: special-case some literals like '', [], {}, etc:
+         if not found and oname_head in ["''",'""','[]','{}','()']:
+             obj = eval(oname_head)
+-            found = 1
++            found = True
+             ospace = 'Interactive'
+             
+         return {'found':found, 'obj':obj, 'namespace':ospace,
