@@ -1,0 +1,92 @@
+Index: lyx-1.6.6/lib/configure.py
+===================================================================
+--- lyx-1.6.6.orig/lib/configure.py
++++ lyx-1.6.6/lib/configure.py
+@@ -261,26 +261,26 @@ def checkModule(module):
+ 
+ def checkFormatEntries(dtl_tools):  
+     ''' Check all formats (\Format entries) '''
+-    checkViewer('a Tgif viewer and editor', ['tgif'],
++    checkViewer('a Tgif viewer and editor', ['xdg-open', 'tgif'],
+         rc_entry = [r'\Format tgif       obj     Tgif                   "" "%%"	"%%"	"vector"'])
+     #
+-    checkViewer('a FIG viewer and editor', ['xfig', 'jfig3-itext.jar', 'jfig3.jar'],
++    checkViewer('a FIG viewer and editor', ['xdg-open', 'xfig', 'jfig3-itext.jar', 'jfig3.jar'],
+         rc_entry = [r'\Format fig        fig     FIG                    "" "%%"	"%%"	"vector"'])
+     #
+-    checkViewer('a Dia viewer and editor', ['dia'],
++    checkViewer('a Dia viewer and editor', ['xdg-open', 'dia'],
+         rc_entry = [r'\Format dia        dia     DIA                    "" "%%"	"%%"	"vector"'])
+     #
+-    checkViewer('a Grace viewer and editor', ['xmgrace'],
++    checkViewer('a Grace viewer and editor', ['xdg-open', 'xmgrace'],
+         rc_entry = [r'\Format agr        agr     Grace                  "" "%%"	"%%"	"vector"'])
+     #
+     checkViewer('a FEN viewer and editor', ['xboard -lpf $$i -mode EditPosition'],
+         rc_entry = [r'\Format fen        fen     FEN                    "" "%%"	"%%"	""'])
+     #
+-    checkViewer('an SVG viewer and editor', ['inkscape'],
++    checkViewer('an SVG viewer and editor', ['xdg-open', 'inkscape'],
+         rc_entry = [r'\Format svg        svg     SVG                    "" "%%" "%%"	"vector"'])
+     #
+-    path, iv = checkViewer('a raster image viewer', ['xv', 'kview', 'gimp-remote', 'gimp'])
+-    path, ie = checkViewer('a raster image editor', ['gimp-remote', 'gimp'])
++    path, iv = checkViewer('a raster image viewer', ['xdg-open', 'xv', 'kview', 'gimp-remote', 'gimp'])
++    path, ie = checkViewer('a raster image editor', ['xdg-open', 'gimp-remote', 'gimp'])
+     addToRC(r'''\Format bmp        bmp     BMP                    "" "%s"	"%s"	""
+ \Format gif        gif     GIF                    "" "%s"	"%s"	""
+ \Format jpg        jpg     JPEG                   "" "%s"	"%s"	""
+@@ -293,7 +293,7 @@ def checkFormatEntries(dtl_tools):  
+ \Format xpm        xpm     XPM                    "" "%s"	"%s"	""''' % \
+         (iv, ie, iv, ie, iv, ie, iv, ie, iv, ie, iv, ie, iv, ie, iv, ie, iv, ie, iv, ie) )
+     #
+-    checkViewer('a text editor', ['sensible-editor', 'xemacs', 'gvim', 'kedit', 'kwrite', 'kate', \
++    checkViewer('a text editor', ['xdg-open', 'sensible-editor', 'xemacs', 'gvim', 'kedit', 'kwrite', 'kate', \
+         'nedit', 'gedit', 'notepad'],
+         rc_entry = [r'''\Format asciichess asc    "Plain text (chess output)"  "" ""	"%%"	""
+ \Format asciiimage asc    "Plain text (image)"         "" ""	"%%"	""
+@@ -313,7 +313,7 @@ def checkFormatEntries(dtl_tools):  
+ \Format text4      txt    "Plain text (catdvi)"   "" ""	"%%"	"document"
+ \Format textparagraph txt "Plain Text, Join Lines" "" ""	"%%"	"document"''' ])
+  #
+-    checkViewer('a BibTeX editor', ['sensible-editor', 'jabref', 'JabRef', \
++    checkViewer('a BibTeX editor', ['xdg-open', 'sensible-editor', 'jabref', 'JabRef', \
+         'pybliographic', 'bibdesk', 'gbib', 'kbib', \
+         'kbibtex', 'sixpack', 'bibedit', 'tkbibtex' \
+         'xemacs', 'gvim', 'kedit', 'kwrite', 'kate', \
+@@ -322,29 +322,29 @@ def checkFormatEntries(dtl_tools):  
+     #
+     #checkProg('a Postscript interpreter', ['gs'],
+     #  rc_entry = [ r'\ps_command "%%"' ])
+-    checkViewer('a Postscript previewer', ['kghostview', 'okular', 'evince', 'gv', 'ghostview -swap'],
++    checkViewer('a Postscript previewer', ['xdg-open', 'kghostview', 'okular', 'evince', 'gv', 'ghostview -swap'],
+         rc_entry = [r'''\Format eps        eps     EPS                    "" "%%"	""	"vector"
+ \Format ps         ps      Postscript             t  "%%"	""	"document,vector"'''])
+     #
+-    checkViewer('a PDF previewer', ['kpdf', 'okular', 'evince', 'kghostview', 'xpdf', 'acrobat', 'acroread', \
++    checkViewer('a PDF previewer', ['xdg-open', 'kpdf', 'okular', 'evince', 'kghostview', 'xpdf', 'acrobat', 'acroread', \
+ 		    'gv', 'ghostview'],
+         rc_entry = [r'''\Format pdf        pdf    "PDF (ps2pdf)"          P  "%%"	""	"document,vector"
+ \Format pdf2       pdf    "PDF (pdflatex)"        F  "%%"	""	"document,vector"
+ \Format pdf3       pdf    "PDF (dvipdfm)"         m  "%%"	""	"document,vector"'''])
+     #
+-    checkViewer('a DVI previewer', ['xdvi', 'kdvi', 'okular', 'dviout -Set=!m'],
++    checkViewer('a DVI previewer', ['xdg-open', 'xdvi', 'kdvi', 'okular', 'dviout -Set=!m'],
+         rc_entry = [r'\Format dvi        dvi     DVI                    D  "%%"	""	"document,vector"'])
+     if dtl_tools:
+         # Windows only: DraftDVI
+         addToRC(r'\Format dvi2       dvi     DraftDVI               ""	""	""	"vector"')
+     #
+-    checkViewer('an HTML previewer', ['firefox', 'mozilla file://$$p$$i', 'netscape'],
++    checkViewer('an HTML previewer', ['xdg-open', 'firefox', 'mozilla file://$$p$$i', 'netscape'],
+         rc_entry = [r'\Format html       html    HTML                   H  "%%"	""	"document"'])
+     #
+-    checkViewer('Noteedit', ['noteedit'],
++    checkViewer('Noteedit', ['xdg-open', 'noteedit'],
+         rc_entry = [r'\Format noteedit   not     Noteedit               "" "%%"	"%%"	"vector"'])
+     #
+-    checkViewer('an OpenDocument viewer', ['swriter', 'oowriter'],
++    checkViewer('an OpenDocument viewer', ['xdg-open', 'swriter', 'oowriter'],
+         rc_entry = [r'\Format odt        odt     OpenDocument           "" "%%"	"%%"	"document,vector"'])
+     #
+     # entried that do not need checkProg
