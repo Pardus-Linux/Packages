@@ -22,6 +22,7 @@ def setup():
 
     # Fix overlinking
     pisitools.dosed("libtool", "-pthread", "-lpthread")
+    pisitools.dosed("src/liblzma/liblzma.pc.in", "@PTHREAD_CFLAGS@", "")
 
     # Remove RPATH
     pisitools.dosed("libtool", "^hardcode_libdir_flag_spec=.*", "hardcode_libdir_flag_spec=\"\"")
