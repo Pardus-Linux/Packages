@@ -12,6 +12,9 @@ from pisi.actionsapi import get
 WorkDir = "djvulibre-%s" % get.srcVERSION()
 
 def setup():
+    autotools.aclocal("-I config")
+    autotools.autoconf("-f")
+
     autotools.configure("--enable-threads \
                          --disable-desktopfiles \
                          --enable-xmltools \
