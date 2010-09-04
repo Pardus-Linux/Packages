@@ -38,7 +38,7 @@ def install():
     autotools.install("texmf='%s/usr/share/texmf'" % get.installDIR())
 
     pisitools.domove("/usr/share/texmf/xdvi/XDvi" , "/usr/share/X11/app-defaults/")
-    pisitools.dosym("/usr/share/X11/app-defaults/", "/usr/share/texmf/xdvi/XDvi")
+    pisitools.dosym("/usr/share/X11/app-defaults/XDvi", "/usr/share/texmf/xdvi/XDvi")
 
 
     pisitools.insinto("/usr/share/emacs/site-lisp/tex-utils/", "*.el")
