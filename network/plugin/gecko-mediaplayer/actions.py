@@ -11,13 +11,14 @@ from pisi.actionsapi import shelltools
 from pisi.actionsapi import get
 
 WorkDir = "gecko-mediaplayer"
+plugindir = "/usr/lib/browser-plugins"
 
 def setup():
     shelltools.export("AT_M4DIR", "m4")
     autotools.autoreconf("-vfi")
 
     autotools.configure("--disable-schemas-install \
-                         --with-plugin-dir=/usr/lib/nsbrowser/plugins")
+                         --with-plugin-dir=%s" % plugindir)
                          #--with-xulrunner-sdk \
                          #--enable-new-libxul \
 
