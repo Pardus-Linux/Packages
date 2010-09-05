@@ -59,3 +59,4 @@ def install():
             pisitools.dosym("../../../../etc/terminfo/%s/%s" % (file[0], file ), "/usr/share/terminfo/%s/%s" % (file[0], file ))
 
     pisitools.dodoc("ANNOUNCE", "NEWS", "README*", "TO-DO")
+

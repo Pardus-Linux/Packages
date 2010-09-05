@@ -1,0 +1,31 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+import os
+import sys
+
+tmpl = '<Patch level="1" compressionType="gz">%s</Patch>'
+target = "./"
+
+def listFiles(target):
+    files = []
+    for t in os.listdir(target):
+        if target == ("./"):
+            files.append(t)
+        else:
+            files.append(os.path.join(target, t))
+    return files
+
+def printFiles(files):
+    files.sort()
+    for f in files:
+        # if (f.endswith(".patch") or f.endswith(".diff")) and os.path.isfile(f):
+        if os.path.isfile(f):
+            print tmpl % f
+
+
+if len(sys.argv) > 1:
+    target = sys.argv[1]
+
+printFiles(listFiles(target))
+
