@@ -20,9 +20,14 @@ makefiles = {
 def setup():
     shelltools.copy(makefiles[get.ARCH()], "makefile.machine")
 
+    for i in shelltools.ls("makefile.*"):
+        pisitools.dosed(i, "^CC=gcc ", "CC=%s " % get.CC())
+        pisitools.dosed(i, "^CXX=g\+\+ ", "CXX=%s " % get.CXX())
+
 def build():
-    autotools.make('CC="%s" CXX="%s" OPTFLAGS="%s -DHAVE_GCCVISIBILITYPATCH -fvisibility=hidden -fvisibility-inlines-hidden" \
-                    all3' % (get.CC(), get.CXX(), get.CFLAGS()))
+    # do not force CC and CXX here since asm build fails
+    autotools.make('OPTFLAGS="%s -DHAVE_GCCVISIBILITYPATCH -fvisibility=hidden -fvisibility-inlines-hidden" \
+                    all3' % get.CFLAGS())
 
 def install():
     pisitools.insinto("/usr/lib/p7zip","bin/*")
