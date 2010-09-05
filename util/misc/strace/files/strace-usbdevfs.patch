@@ -1,0 +1,243 @@
+diff -p -up strace-4.5.20/defs.h.usbdevfs strace-4.5.20/defs.h
+--- strace-4.5.20/defs.h.usbdevfs	2010-04-07 07:19:26.000000000 -0300
++++ strace-4.5.20/defs.h	2010-05-17 09:00:03.000000000 -0300
+@@ -549,6 +549,7 @@ extern int proc_ioctl(struct tcb *, int,
+ extern int stream_ioctl(struct tcb *, int, int);
+ #ifdef LINUX
+ extern int rtc_ioctl(struct tcb *, long, long);
++extern int usbdevfs_ioctl(struct tcb *, long, long);
+ extern int scsi_ioctl(struct tcb *, long, long);
+ #endif
+ 
+diff -p -up strace-4.5.20/ioctl.c.usbdevfs strace-4.5.20/ioctl.c
+--- strace-4.5.20/ioctl.c.usbdevfs	2007-06-30 08:37:09.000000000 -0300
++++ strace-4.5.20/ioctl.c	2010-05-17 08:59:40.000000000 -0300
+@@ -152,6 +152,8 @@ long code, arg;
+ #ifdef LINUX
+ 	case 'p':
+ 		return rtc_ioctl(tcp, code, arg);
++	case 0x55:
++		return usbdevfs_ioctl(tcp, code, arg);
+ 	case 0x22:
+ 		return scsi_ioctl(tcp, code, arg);
+ #endif
+diff -p -up strace-4.5.20/Makefile.am.usbdevfs strace-4.5.20/Makefile.am
+--- strace-4.5.20/Makefile.am.usbdevfs	2010-04-07 07:17:50.000000000 -0300
++++ strace-4.5.20/Makefile.am	2010-05-17 08:59:40.000000000 -0300
+@@ -15,7 +15,7 @@ INCLUDES = -I$(srcdir)/$(OS)/$(ARCH) -I$
+ strace_SOURCES = strace.c syscall.c count.c util.c desc.c file.c ipc.c \
+ 		 io.c ioctl.c mem.c net.c process.c bjm.c quota.c \
+ 		 resource.c signal.c sock.c system.c term.c time.c \
+-		 proc.c scsi.c stream.c
++		 usbdevfs.c proc.c scsi.c stream.c
+ noinst_HEADERS = defs.h
+ 
+ EXTRA_DIST = $(man_MANS) errnoent.sh signalent.sh syscallent.sh ioctlsort.c \
+diff -p -up strace-4.5.20/usbdevfs.c.usbdevfs strace-4.5.20/usbdevfs.c
+--- strace-4.5.20/usbdevfs.c.usbdevfs	2010-05-17 08:59:40.000000000 -0300
++++ strace-4.5.20/usbdevfs.c	2010-05-17 08:59:40.000000000 -0300
+@@ -0,0 +1,204 @@
++/*
++ * Copyright (c) 1991, 1992 Paul Kranenburg <pk@cs.few.eur.nl>
++ * Copyright (c) 1993 Branko Lankester <branko@hacktic.nl>
++ * Copyright (c) 1993, 1994, 1995, 1996 Rick Sladkey <jrs@world.std.com>
++ * All rights reserved.
++ *
++ * Redistribution and use in source and binary forms, with or without
++ * modification, are permitted provided that the following conditions
++ * are met:
++ * 1. Redistributions of source code must retain the above copyright
++ *    notice, this list of conditions and the following disclaimer.
++ * 2. Redistributions in binary form must reproduce the above copyright
++ *    notice, this list of conditions and the following disclaimer in the
++ *    documentation and/or other materials provided with the distribution.
++ * 3. The name of the author may not be used to endorse or promote products
++ *    derived from this software without specific prior written permission.
++ *
++ * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
++ * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
++ * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
++ * IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
++ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
++ * NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
++ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
++ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
++ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
++ * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
++ *
++ *	$Id: time.c,v 1.11 2004/10/06 22:27:43 roland Exp $
++ */
++
++#include "defs.h"
++
++#ifdef LINUX
++#include <linux/version.h>
++#include <sys/timex.h>
++#include <linux/ioctl.h>
++#include <linux/rtc.h>
++#include <linux/usbdevice_fs.h> /* for struct usbdevfs_urb */
++#endif /* LINUX */
++
++#ifdef LINUX
++#define USB_ENDPOINT_DIR_MASK          0x80
++
++static void
++print_ctrltransfer(tcp, ctrl)
++struct tcb *tcp;
++const struct usbdevfs_ctrltransfer *ctrl;
++{
++	tprintf("{requesttype=0x%x, request=0x%x, "
++		"value=0x%x, index=0x%x, "
++		"length=%d, timeout=%d, data=",
++		ctrl->bRequestType, ctrl->bRequest,
++		ctrl->wValue, ctrl->wIndex,
++		ctrl->wLength, ctrl->timeout);
++	printstr(tcp, (long)ctrl->data, ctrl->wLength);
++	tprintf("}");
++}
++
++static void
++print_ctrl(tcp, ctrl)
++struct tcb *tcp;
++const struct usbdevfs_ioctl *ctrl;
++{
++	tprintf("{ifno=0x%x, ioctl_code=0x%x}",
++		ctrl->ifno, ctrl->ioctl_code);
++}
++
++static void
++print_connectinfo(tcp, ci)
++struct tcb *tcp;
++const struct usbdevfs_connectinfo *ci;
++{
++	tprintf("{devnum=%d, slow=%d}",
++		ci->devnum, ci->slow);
++}
++
++
++static void
++print_urb(tcp, urb)
++struct tcb *tcp;
++const struct usbdevfs_urb *urb;
++{
++	tprintf("{type=%d, endpoint=0x%x, status=%d, "
++		"flags=0x%x, "
++		"buffer_length=%d, "
++		"actual_length=%d, start_frame=%d, "
++		"number_of_packets=%d, error_count=%d, "
++		"signr=%d, usercontext=%p, buffer=",
++		urb->type, urb->endpoint, urb->status,
++		urb->flags,
++		urb->buffer_length,
++		urb->actual_length, urb->start_frame,
++		urb->number_of_packets, urb->error_count,
++		urb->signr, urb->usercontext);
++}
++
++int
++usbdevfs_ioctl(tcp, code, arg)
++struct tcb *tcp;
++long code;
++long arg;
++{
++	switch (code) {
++	case USBDEVFS_REAPURBNDELAY:
++		if (exiting(tcp)) {
++			struct usbdevfs_urb urb;
++			void *urbaddr;
++			if (umove(tcp, arg, &urbaddr))
++				tprintf(", %#lx", arg);
++			else {
++				if (umove(tcp, urbaddr, &urb))
++					tprintf(", %#lx", arg);
++				else {
++					tprintf(", ");
++					print_urb(tcp, &urb);
++					printstr(tcp, (long)urb.buffer, urb.buffer_length);
++					tprintf("}");
++				}
++			}
++		}
++		break;
++	case USBDEVFS_CONTROL:
++		if (entering(tcp)) {
++			struct usbdevfs_ctrltransfer ctrl;
++			if (umove(tcp, arg, &ctrl) < 0)
++				tprintf(", %#lx", arg);
++			else {
++				tprintf(", ");
++				print_ctrltransfer(tcp, &ctrl);
++			}
++		}
++		break;
++		
++	case USBDEVFS_SETINTERFACE:
++		if (entering(tcp)) {
++			struct usbdevfs_setinterface setintf;
++			if (umove(tcp, arg, &setintf) < 0)
++				tprintf(", %#lx", arg);
++			else {
++				tprintf(", {interface=%d, altsetting=%d}",
++					setintf.interface, setintf.altsetting);
++			}
++		}
++		break;
++	case USBDEVFS_CLAIMINTERFACE:
++	case USBDEVFS_RELEASEINTERFACE:
++	case USBDEVFS_SETCONFIGURATION:
++		if (entering(tcp)) {
++			int val;
++			if (umove(tcp, arg, &val) < 0)
++				tprintf(", %#lx", arg);
++			else {
++				tprintf(", {%d}", val);
++			}
++		}
++		break;
++	case USBDEVFS_CONNECTINFO:
++		if (exiting(tcp)) {
++			struct usbdevfs_connectinfo ci;
++			if (umove(tcp, arg, &ci) < 0)
++				tprintf(", %#lx", arg);
++			else {
++				tprintf(", ");
++				print_connectinfo(tcp, &ci);
++			}
++		}
++		break;
++	case USBDEVFS_IOCTL:
++		if (entering(tcp)) {
++			struct usbdevfs_ioctl ctrl;
++			if (umove(tcp, arg, &ctrl) < 0)
++				tprintf(", %#lx", arg);
++			else {
++				tprintf(", ");
++				print_ctrl(tcp, &ctrl);
++			}
++		}
++		break;
++	case USBDEVFS_SUBMITURB:
++		if (entering(tcp)) {
++			struct usbdevfs_urb urb;
++			if (umove(tcp, arg, &urb) < 0)
++				tprintf(", %#lx", arg);
++			else {
++				tprintf(", ");
++				print_urb(tcp, &urb);
++				/* outgoing URB? */
++				if ((urb.endpoint & ~USB_ENDPOINT_DIR_MASK) == 0) {
++					printstr(tcp, (long)urb.buffer, urb.buffer_length);
++				}
++				tprintf("}");
++
++			}
++		}
++		break;
++	default:
++		if (entering(tcp))
++			tprintf(", %#lx", arg);
++		break;
++	}
++	return 1;
++}
++#endif /* LINUX */
