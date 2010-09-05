@@ -134,4 +134,6 @@ def install():
     # Keep it as that's where the formats will go
     pisitools.dodir("/var/lib/texmf")
 
-
+    #Remove false symlinks (NOTE: MAKEFILE in texk/texlive/linked_scripts causes it, has to be FIXED)
+    pisitools.remove("/usr/bin/makeglossaries") # comes with latex-glossaries
+    pisitools.remove("/usr/share/scripts/scripts/glossaries/makeglossaries") # comes with latex-glossaries
