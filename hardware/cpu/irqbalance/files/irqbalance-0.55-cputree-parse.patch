@@ -1,0 +1,145 @@
+--- cputree.c	2006-12-10 15:04:59.000000000 -0500
++++ cputree.c	2007-09-28 12:43:35.000000000 -0400
+@@ -26,6 +26,8 @@
+ 
+ #define _GNU_SOURCE
+ 
++#include <ctype.h>
++#include <fcntl.h>
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <unistd.h>
+@@ -131,34 +133,30 @@ static void fill_cache_domain(void)
+ }
+ 
+ 
+-static void do_one_cpu(char *path)
++static void do_one_cpu(int dfd, char *d_name)
+ {
+ 	struct cpu_core *cpu;
+ 	FILE *file;
+ 	char new_path[PATH_MAX];
+ 
+ 	/* skip offline cpus */
+-	snprintf(new_path, PATH_MAX, "%s/online", path);
+-	file = fopen(new_path, "r");
+-	if (file) {
+-		char *line = NULL;
+-		size_t size = 0;
+-		if (getline(&line, &size, file)==0)
++	snprintf(new_path, PATH_MAX, "%s/online", d_name);
++	int fd = openat(dfd, new_path, O_RDONLY);
++	if (fd != -1) {
++		char buf[1];
++		ssize_t n = read(fd, buf, sizeof(buf));
++		close(fd);
++		if (n != sizeof(buf))
+ 			return;
+-		fclose(file);
+-		if (line && line[0]=='0') {
+-			free(line);
++		if (buf[0] == '0')
+ 			return;
+-		}
+-		free(line);
+ 	}
+ 
+-	cpu = malloc(sizeof(struct cpu_core));
++	cpu = calloc(1, sizeof(struct cpu_core));
+ 	if (!cpu)
+ 		return;
+-	memset(cpu, 0, sizeof(struct cpu_core));
+ 
+-	cpu->number = strtoul(&path[27], NULL, 10);
++	cpu->number = strtoul(&d_name[3], NULL, 10);
+ 	
+ 	cpu_set(cpu->number, cpu->mask);
+ 
+@@ -170,43 +168,45 @@ static void do_one_cpu(char *path)
+ 		return;
+ 	}
+ 
++	char *line = NULL;
++	size_t size = 0;
+ 
+ 	/* try to read the package mask; if it doesn't exist assume solitary */
+-	snprintf(new_path, PATH_MAX, "%s/topology/core_siblings", path);
+-	file = fopen(new_path, "r");
++	snprintf(new_path, PATH_MAX, "%s/topology/core_siblings", d_name);
++	fd = openat(dfd, new_path, O_RDONLY);
++	file = fd == -1 ? NULL : fdopen(fd, "r");
+ 	cpu_set(cpu->number, cpu->package_mask);
+ 	if (file) {
+-		char *line = NULL;
+-		size_t size = 0;
+ 		if (getline(&line, &size, file)) 
+ 			cpumask_parse_user(line, strlen(line), cpu->package_mask);
+ 		fclose(file);
+-		free(line);
+-	}
++	} else if (fd != -1)
++		close(fd);
+ 
+ 	/* try to read the cache mask; if it doesn't exist assume solitary */
+ 	/* We want the deepest cache level available so try index1 first, then index2 */
+ 	cpu_set(cpu->number, cpu->cache_mask);
+-	snprintf(new_path, PATH_MAX, "%s/cache/index1/shared_cpu_map", path);
+-	file = fopen(new_path, "r");
++	snprintf(new_path, PATH_MAX, "%s/cache/index1/shared_cpu_map", d_name);
++	fd = openat(dfd, new_path, O_RDONLY);
++	file = fd == -1 ? NULL : fdopen(fd, "r");
+ 	if (file) {
+-		char *line = NULL;
+-		size_t size = 0;
+ 		if (getline(&line, &size, file)) 
+ 			cpumask_parse_user(line, strlen(line), cpu->cache_mask);
+ 		fclose(file);
+-		free(line);
+-	}
+-	snprintf(new_path, PATH_MAX, "%s/cache/index2/shared_cpu_map", path);
+-	file = fopen(new_path, "r");
++	} else if (fd != -1)
++		close(fd);
++
++	snprintf(new_path, PATH_MAX, "%s/cache/index2/shared_cpu_map", d_name);
++	fd = openat(dfd, new_path, O_RDONLY);
++	file = fd == -1 ? NULL : fdopen(fd, "r");
+ 	if (file) {
+-		char *line = NULL;
+-		size_t size = 0;
+ 		if (getline(&line, &size, file)) 
+ 			cpumask_parse_user(line, strlen(line), cpu->cache_mask);
+ 		fclose(file);
+-		free(line);
+-	}
++	} else if (fd != -1)
++		close(fd);
++
++	free(line);
+ 
+ 	/* 
+ 	   blank out the banned cpus from the various masks so that interrupts
+@@ -311,18 +311,19 @@ void parse_cpu_tree(void)
+ {
+ 	DIR *dir;
+ 	struct dirent *entry;
++	int dfd;
+ 
+ 	cpus_complement(unbanned_cpus, banned_cpus);
+ 
+ 	dir = opendir("/sys/devices/system/cpu");
+ 	if (!dir)
+ 		return;
++	dfd = dirfd(dir);
+ 	do {
+ 		entry = readdir(dir);
+-                if (entry && strlen(entry->d_name)>3 && strstr(entry->d_name,"cpu")) {
+-			char new_path[PATH_MAX];
+-			sprintf(new_path, "/sys/devices/system/cpu/%s", entry->d_name);
+-			do_one_cpu(new_path);
++                if (entry && strlen(entry->d_name)>3 && memcmp(entry->d_name,"cpu",3) == 0
++		    && isdigit(entry->d_name[3])) {
++			do_one_cpu(dfd, entry->d_name);
+ 		}
+ 	} while (entry);
+ 	closedir(dir);  

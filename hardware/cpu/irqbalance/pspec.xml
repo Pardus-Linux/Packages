@@ -1,0 +1,117 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>irqbalance</Name>
+        <Homepage>http://www.irqbalance.org</Homepage>
+        <Packager>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Packager>
+        <License>GPLv2</License>
+        <IsA>service</IsA>
+        <Summary>Distribute hardware interrupts across processors</Summary>
+        <Description>Daemon to balance IRQs across multiple CPUs on systems.This can lead to better performance and I/O balance on SMP systems.</Description>
+        <Archive sha1sum="64065ab2d9eeecc9bf15c242453c9882b36c85fb" type="tarbz2">http://irqbalance.googlecode.com/files/irqbalance-0.56.tbz2</Archive>
+        <Patches>
+            <Patch level="1">irqbalance-pie.patch</Patch>
+            <!--
+            <Patch>irqbalance-0.55-cputree-parse.patch</Patch>
+            <Patch level="1">irqbalance-0.55-pid-file.patch</Patch>
+            -->
+        </Patches>
+    </Source>
+
+    <Package>
+        <Name>irqbalance</Name>
+        <Files>
+            <Path fileType="config">/etc</Path>
+            <Path fileType="executable">/usr/sbin</Path>
+            <Path fileType="man">/usr/share/man</Path>
+        </Files>
+        <AdditionalFiles>
+            <AdditionalFile owner="root" permission="0644" target="/usr/share/man/man1/irqbalance.1">irqbalance.1</AdditionalFile>
+            <AdditionalFile owner="root" permission="0644" target="/etc/conf.d/irqbalance">irqbalance.confd</AdditionalFile>
+        </AdditionalFiles>
+        <Provides>
+            <COMAR script="service.py">System.Service</COMAR>
+        </Provides>
+    </Package>
+
+    <History>
+        <Update release="10">
+            <Date>2010-09-04</Date>
+            <Version>0.56</Version>
+            <Comment>Version bump</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="9">
+            <Date>2009-12-14</Date>
+            <Version>0.55</Version>
+            <Comment>Use libcap-ng</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="8">
+            <Date>2009-05-02</Date>
+            <Version>0.55</Version>
+            <Comment>Switch to pie patch for build</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="7">
+            <Date>2009-03-05</Date>
+            <Version>0.55</Version>
+            <Comment>
+                - Improve service script,
+                - Add pidfile support,
+                - Add makefile.patch to break its somewhat odd xorg-util dependency.
+            </Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="6">
+            <Date>2008-09-10</Date>
+            <Version>0.55</Version>
+            <Comment>Remove syncronized from status in service script, to prevent causing infinite loop locking in Comar. Add conditional support to service.</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="5">
+            <Date>2007-10-14</Date>
+            <Version>0.55</Version>
+            <Comment>Overhaul the package</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="4">
+            <Date>2007-02-08</Date>
+            <Version>0.55</Version>
+            <Comment>Version bump</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="3">
+            <Date>2006-11-10</Date>
+            <Version>0.13</Version>
+            <Comment>Fixed irqbalance to detect multicore and bumping up MAX_INTERRUPTS to support xen kernels</Comment>
+            <Name>Ali Erdinç Köroğlu</Name>
+            <Email>erdinc@pardus.org.tr</Email>
+        </Update>
+        <Update release="2">
+            <Date>2006-09-21</Date>
+            <Version>0.13</Version>
+            <Comment>Version bump</Comment>
+            <Name>Ali Erdinç Köroğlu</Name>
+            <Email>erdinc@pardus.org.tr</Email>
+        </Update>
+        <Update release="1">
+            <Date>2005-10-05</Date>
+            <Version>0.12</Version>
+            <Comment>First release.</Comment>
+            <Name>Timu EREN</Name>
+            <Email>selamtux@gmail.com</Email>
+        </Update>
+    </History>
+</PISI>
