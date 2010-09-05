@@ -16,7 +16,7 @@ def setup():
     shelltools.export("CXXFLAGS", "%s -fno-strict-aliasing -fno-force-addr -ffunction-sections -frename-registers -fomit-frame-pointer" % get.CXXFLAGS())
     shelltools.export("CCASFLAGS","-Wa,--noexecstack")
     # to get rid of cvs
-    shelltools.export("AUTOPOINT", "/bin/true")
+    shelltools.export("AUTOPOINT", "true")
 
     #libtools.libtoolize("--force --copy")
     autotools.autoreconf("-vfi")
