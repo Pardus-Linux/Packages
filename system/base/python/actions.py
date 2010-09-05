@@ -25,6 +25,9 @@ def setup():
     shelltools.export("CPPFLAGS", "%s" % os.popen("pkg-config --cflags-only-I libffi").read().strip())
     shelltools.system("rm -rf Modules/_ctypes/libffi*")
 
+    # Bump required autoconf version
+    pisitools.dosed("configure.in", r"\(2.65\)", "(2.67)")
+
     autotools.autoreconf("-vif")
     autotools.configure("--with-fpectl \
                          --enable-shared \
