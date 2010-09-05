@@ -13,11 +13,13 @@ from pisi.actionsapi import get
 def setup():
     shelltools.export("gl_cv_func_printf_directive_n", "yes")
     shelltools.export("gl_cv_func_isnanl_works", "yes")
-    shelltools.export("DEFAULT_POSIX2_VERSION", "199209")
-    shelltools.export("AUTOPOINT", "/bin/true")
+    # shelltools.export("DEFAULT_POSIX2_VERSION", "199209")
+    shelltools.export("DEFAULT_POSIX2_VERSION", "200112")
+    shelltools.export("AUTOPOINT", "true")
+    shelltools.export("CFLAGS", "%s -fno-strict-aliasing -fPIC -D_GNU_SOURCE=1" % get.CFLAGS())
 
     shelltools.export("AT_M4DIR", "m4")
-    autotools.autoreconf("-fi")
+    autotools.autoreconf("-vfi")
     autotools.configure("--enable-largefile \
                          --enable-nls \
                          --enable-acl \

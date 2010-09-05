@@ -12,48 +12,48 @@
         <IsA>app:console</IsA>
         <Summary>Standard GNU file, text and shell utilities</Summary>
         <Description>Standard GNU file utilities (chmod, cp, dd, dir, ls...), text utilities (sort, tr, head, wc..), and shell utilities (whoami, who,...)</Description>
-        <Archive sha1sum="98880651bee000b1b31e1ee55ff8fabdad8eeecd" type="targz">mirrors://gnu/coreutils/coreutils-7.6.tar.gz</Archive>
+        <Archive sha1sum="939144f16d05691753a87134436dd2bb8ea89851" type="targz">mirrors://gnu/coreutils/coreutils-8.5.tar.gz</Archive>
         <BuildDependencies>
-            <Dependency>acl</Dependency>
-            <Dependency>attr</Dependency>
+            <Dependency>acl-devel</Dependency>
+            <Dependency>attr-devel</Dependency>
             <Dependency>perl</Dependency>
             <Dependency>shadow</Dependency>
-            <Dependency>gettext</Dependency>
-            <Dependency>ncurses</Dependency>
+            <Dependency>gettext-devel</Dependency>
+            <Dependency>ncurses-devel</Dependency>
         </BuildDependencies>
         <Patches>
             <!-- Pardus patches -->
             <Patch level="1">remove_am_silent_rules.patch</Patch>
-            <Patch level="1">automake_version.patch</Patch>
             <Patch level="1">dircolors_pisi.patch</Patch>
-            <!-- this is replaced by c_toupper, make sure it is ok
-            <Patch level="1">date_utf8.patch</Patch>
-            -->
+            <Patch level="1">more-dir-colors.patch</Patch>
+
             <!-- Candy  FIXME: needs a few magic touches
             <Patch level="1">progressbar.patch</Patch>
             -->
 
-            <Patch level="1">coreutils-4.5.3-langinfo.patch</Patch>
-            <Patch level="1">coreutils-overflow.patch</Patch>
-            <Patch level="1">more-dir-colors.patch</Patch>
 
             <!-- Fedora patches -->
+            <Patch level="1">fedora/coreutils-8.5-tac-doublefree.patch</Patch>
+            <Patch level="1">fedora/coreutils-4.5.3-langinfo.patch</Patch>
+            <Patch level="1">fedora/coreutils-overflow.patch</Patch>
             <Patch level="1">fedora/coreutils-6.10-configuration.patch</Patch>
-            <Patch level="1">fedora/coreutils-6.10-longoptions.patch</Patch>
             <Patch level="1">fedora/coreutils-6.10-manpages.patch</Patch>
-            <Patch level="1">fedora/coreutils-silentmv.patch</Patch>
-            <Patch level="1">fedora/coreutils-getfacl-exit-code.patch</Patch>
             <!-- https://bugzilla.redhat.com/show_bug.cgi?id=504798 -->
             <Patch level="1">fedora/coreutils-7.4-sttytcsadrain.patch</Patch>
+            <Patch level="1">fedora/coreutils-8.2-uname-processortype.patch</Patch>
+            <Patch level="1">fedora/coreutils-df-direct.patch</Patch>
+            <Patch level="1">fedora/coreutils-mkstemp.patch</Patch>
+            <Patch level="1">fedora/coreutils-8.5-dircolors.patch</Patch>
+            <Patch level="1">fedora/sh-utils-2.0.11-dateman.patch</Patch>
+            <Patch level="1">fedora/coreutils-i18n.patch</Patch>
+            <Patch level="1">fedora/coreutils-getfacl-exit-code.patch</Patch>
 
             <!-- Suse patches -->
             <Patch>suse/coreutils-add_ogv.patch</Patch>
-            <Patch>suse/coreutils-cifs-afs.diff</Patch>
-            <Patch level="1">suse/coreutils-getaddrinfo.diff</Patch>
-            <Patch level="1">suse/coreutils-sysinfo.diff</Patch>
-            <Patch level="1">suse/invalid-ids.diff</Patch>
-
-            <Patch level="1">ae034822c535fa5168069a75fb5e1c58f93a7834.patch</Patch>
+            <Patch>suse/coreutils-getaddrinfo.patch</Patch>
+            <Patch>suse/coreutils-sysinfo.patch</Patch>
+            <Patch>suse/coreutils-invalid-ids.patch</Patch>
+            <Patch>suse/coreutils-i18n-uninit.patch</Patch>
         </Patches>
     </Source>
 
@@ -77,14 +77,16 @@
             <Path fileType="info">/usr/share/info</Path>
             <Path fileType="localedata">/usr/share/locale</Path>
         </Files>
-        <!-- switch to dircolors.hin but keep this for now
-        <AdditionalFiles>
-            <AdditionalFile owner="root" permission="0644" target="/etc/DIR_COLORS">DIR_COLORS</AdditionalFile>
-        </AdditionalFiles>
-        -->
     </Package>
 
     <History>
+        <Update release="35">
+            <Date>2010-09-03</Date>
+            <Version>8.5</Version>
+            <Comment>Version bump</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
         <Update release="34">
             <Date>2010-06-08</Date>
             <Version>7.6</Version>
