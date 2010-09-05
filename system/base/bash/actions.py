@@ -1,22 +1,34 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright 2005-2009 TUBITAK/UEKAE
+# Copyright 2005-2010 TUBITAK/UEKAE
 # Licensed under the GNU General Public License, version 2.
 # See the file http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
 
 from pisi.actionsapi import autotools
 from pisi.actionsapi import pisitools
+from pisi.actionsapi import shelltools
+from pisi.actionsapi import get
 
 def setup():
+    # Recycles pids is neccessary. When bash's last fork's pid was X and new fork's pid is also X,
+    # bash has to wait for this same pid. Without Recycles pids bash will not wait.
+    shelltools.export("CFLAGS", "%s -D_GNU_SOURCE -DRECYCLES_PIDS " % get.CFLAGS())
+
     autotools.autoconf()
     autotools.configure("--without-installed-readline \
                          --disable-profiling \
                          --without-gnu-malloc \
+                         --disable-rpath \
                          --with-curses")
 
 def build():
     autotools.make()
+
+# FIXME: package build stops right after checking even when no errors happen (probably
+# due to SIGHUP in test). It is the duty of the packager to run tests by hand.
+#def check():
+#    autotools.make("check")
 
 def install():
     autotools.install()
