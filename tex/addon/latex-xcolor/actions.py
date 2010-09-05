@@ -25,7 +25,7 @@ def install():
         if srcfile.endswith(("dvi", "ps", "pdf")):
             pisitools.dodoc(srcfile)
             pisitools.dosym("/usr/share/doc/%s/%s" % (get.srcTAG(), srcfile), "/usr/share/texmf/doc/latex/%s/%s" % (WorkDir, srcfile))
-        elif srcfile.endswith(("sty", "cls", "fd", "clo", "def")):
+        elif srcfile.endswith(("sty", "cls", "fd", "clo", "def", "cfg")):
             pisitools.insinto("/usr/share/texmf/tex/latex/%s/" % WorkDir, srcfile)
 
     pisitools.dodoc("ChangeLog", "README")
