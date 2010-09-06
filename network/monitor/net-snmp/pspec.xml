@@ -1,0 +1,163 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>net-snmp</Name>
+        <Homepage>http://net-snmp.sourceforge.net/</Homepage>
+        <Packager>
+            <Name>H. İbrahim Güngör</Name>
+            <Email>ibrahim@pardus.org.tr</Email>
+        </Packager>
+        <License>BSD</License>
+        <IsA>library</IsA>
+        <IsA>app:console</IsA>
+        <Summary>A collection of SNMP protocol tools and libraries</Summary>
+        <Description>Simple Network Management Protocol (SNMP) is a widely used protocol for monitoring the health and welfare of network equipment (eg. routers), computer equipment and even devices like UPSs. Net-SNMP is a suite of applications used to implement SNMP v1, SNMP v2c and SNMP v3 using both IPv4 and IPv6.</Description>
+        <Archive sha1sum="ca03ece79b218af081ee4b273da4e217f459e508" type="targz">mirrors://sourceforge/net-snmp/net-snmp-5.5.tar.gz</Archive>
+        <BuildDependencies>
+            <Dependency versionFrom="5.10.1">perl</Dependency>
+            <Dependency>libnl-devel</Dependency>
+            <Dependency>python-setuptools</Dependency>
+        </BuildDependencies>
+        <Patches>
+            <Patch level="1">net-snmp-5.4.1-pie.patch</Patch>
+            <Patch level="1">net-snmp-5.5-dir-fix.patch</Patch>
+            <Patch level="1">net-snmp-5.5-sensors3.patch</Patch>
+            <Patch level="1">net-snmp-5.5-udptable-index.patch</Patch>
+            <Patch level="1">net-snmp-5.5-missing-bcast.patch</Patch>
+            <Patch level="1">net-snmp-5.5-tcp-pid.patch</Patch>
+            <Patch level="1">net-snmp-5.5-test-tmpdir.patch</Patch>
+            <Patch level="1">net-snmp-5.5-include-struct.patch</Patch>
+            <Patch level="1">net-snmp-5.5-mktemp-size.patch</Patch>
+            <Patch level="1">net-snmp-5.5-apsl-copying.patch</Patch>
+            <Patch level="1">net-snmp-5.5-perl-linking.patch</Patch>
+            <Patch level="1">locale.patch</Patch>
+        </Patches>
+    </Source>
+
+    <Package>
+        <Name>net-snmp</Name>
+        <RuntimeDependencies>
+            <Dependency versionFrom="5.10.1">perl</Dependency>
+            <Dependency>libnl</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="config">/etc/snmp</Path>
+            <Path fileType="header">/usr/include</Path>
+            <Path fileType="executable">/usr/bin</Path>
+            <Path fileType="executable">/usr/sbin/snmpd</Path>
+            <Path fileType="config">/etc/conf.d/snmpd</Path>
+            <Path fileType="library">/usr/lib</Path>
+            <Path fileType="data">/usr/share/snmp</Path>
+            <Path fileType="data">/var/lib</Path>
+            <Path fileType="man">/usr/share/man</Path>
+            <Path fileType="doc">/usr/share/doc</Path>
+        </Files>
+        <AdditionalFiles>
+            <AdditionalFile owner="root" permission="0644" target="/etc/conf.d/snmpd">confd-snmpd.conf</AdditionalFile>
+            <AdditionalFile owner="root" permission="0644" target="/etc/snmp/snmpd.conf">net-snmpd.conf</AdditionalFile>
+        </AdditionalFiles>
+        <Provides>
+            <COMAR script="snmpd.py">System.Service</COMAR>
+        </Provides>
+    </Package>
+
+    <Package>
+        <Name>net-snmptrap</Name>
+        <RuntimeDependencies>
+            <Dependency releaseFrom="11">net-snmp</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="config">/etc/conf.d/snmptrapd</Path>
+            <Path fileType="config">/etc/snmp/snmptrapd.conf</Path>
+            <Path fileType="executable">/usr/sbin/snmptrapd</Path>
+        </Files>
+        <AdditionalFiles>
+            <AdditionalFile owner="root" permission="0644" target="/etc/conf.d/snmptrapd">confd-snmptrapd.conf</AdditionalFile>
+            <AdditionalFile owner="root" permission="0644" target="/etc/snmp/snmptrapd.conf">net-snmptrapd.conf</AdditionalFile>
+        </AdditionalFiles>
+        <Provides>
+            <COMAR script="snmptrapd.py">System.Service</COMAR>
+        </Provides>
+    </Package>
+
+    <History>
+        <Update release="11">
+            <Date>2010-09-06</Date>
+            <Version>5.5</Version>
+            <Comment>Add patches, change license, enable Python build, make net-snmbtrap strictly depend on latest release of net-snmp, add sample configurations.</Comment>
+            <Name>H. İbrahim Güngör</Name>
+            <Email>ibrahim@pardus.org.tr</Email>
+        </Update>
+        <Update release="10">
+            <Date>2009-12-29</Date>
+            <Version>5.5</Version>
+            <Comment>Bump to 5.5</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="9">
+            <Date>2009-12-07</Date>
+            <Version>5.4.2.1</Version>
+            <Comment>Depend on new perl.</Comment>
+            <Name>Serdar Dalgıç</Name>
+            <Email>serdar@pardus.org.tr</Email>
+        </Update>
+        <Update release="8">
+            <Date>2009-05-05</Date>
+            <Version>5.4.2.1</Version>
+            <Comment>New release</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="7" type="security">
+            <Date>2008-11-04</Date>
+            <Version>5.4.1</Version>
+            <Comment>Fix Denial of Service vulnerability in getbulk (CVE-2008-4309), (bug#8577)</Comment>
+            <Name>Pınar Yanardağ</Name>
+            <Email>pinar@pardus.org.tr</Email>
+        </Update>
+        <Update release="6" type="security">
+            <Date>2008-06-10</Date>
+            <Version>5.4.1</Version>
+            <Comment>Add patch to fix CVE-2008-{0960, 2292}</Comment>
+            <Name>Eren Türkay</Name>
+            <Email>turkay.eren@gmail.com</Email>
+        </Update>
+        <Update release="5">
+            <Date>2008-04-08</Date>
+            <Version>5.4.1</Version>
+            <Comment>Add more fixes</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="4">
+            <Date>2008-01-21</Date>
+            <Version>5.4.1</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="3" type="security">
+            <Date>2007-11-07</Date>
+            <Version>5.4</Version>
+            <Comment>Fix CVE-2007-5846</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="2">
+            <Date>2007-06-10</Date>
+            <Version>5.4</Version>
+            <Comment>Update service script</Comment>
+            <Name>Ekin Meroğlu</Name>
+            <Email>ekin@pardus.org.tr</Email>
+        </Update>
+        <Update release="1">
+            <Date>2007-02-09</Date>
+            <Version>5.4</Version>
+            <Comment>First release</Comment>
+            <Name>Ali Erdinç Köroğlu</Name>
+            <Email>erdinc@pardus.org.tr</Email>
+        </Update>
+    </History>
+</PISI>
