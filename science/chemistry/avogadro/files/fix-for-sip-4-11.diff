@@ -1,0 +1,18 @@
+Index: avogadro-1.0.1/libavogadro/src/python/sip.cpp
+===================================================================
+--- avogadro-1.0.1.orig/libavogadro/src/python/sip.cpp
++++ avogadro-1.0.1/libavogadro/src/python/sip.cpp
+@@ -200,11 +200,12 @@ struct QClass_converters
+     // reinterpret to sipWrapper
+ #ifdef SIP_4_8
+     sipSimpleWrapper *wrapper = reinterpret_cast<sipSimpleWrapper*>(obj_ptr);
++    return wrapper->data;
+ #else
+     sipWrapper *wrapper = reinterpret_cast<sipWrapper*>(obj_ptr);
++    return wrapper->u.cppPtr;
+ #endif
+     // return the C++ pointer
+-    return wrapper->u.cppPtr;
+   }
+     
+   QClass_converters()
