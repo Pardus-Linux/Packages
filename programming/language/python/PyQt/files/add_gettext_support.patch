@@ -46,8 +46,8 @@ Index: pyuic/uic/driver.py
              pyfile = open(self._opts.output, 'wt')
  
          compileUi(self._ui_file, pyfile, self._opts.execute, self._opts.indent,
--                self._opts.pyqt3_wrapper)
-+                self._opts.pyqt3_wrapper, self.gettext_header)
+-                self._opts.pyqt3_wrapper, self._opts.from_imports)
++                self._opts.pyqt3_wrapper, self._opts.from_imports, self.gettext_header)
  
      def on_IOError(self, e):
          """ Handle an IOError exception. """
@@ -59,19 +59,19 @@ Index: pyuic/uic/__init__.py
                  compile_ui(dir, ui)
  
  
--def compileUi(uifile, pyfile, execute=False, indent=4, pyqt3_wrapper=False):
-+def compileUi(uifile, pyfile, execute=False, indent=4, pyqt3_wrapper=False, additional_text=''):
-     """compileUi(uifile, pyfile, execute=False, indent=4, pyqt3_wrapper=False)
+-def compileUi(uifile, pyfile, execute=False, indent=4, pyqt3_wrapper=False, from_imports=False):
++def compileUi(uifile, pyfile, execute=False, indent=4, pyqt3_wrapper=False, from_imports=False, additional_text=''):
+     """compileUi(uifile, pyfile, execute=False, indent=4, pyqt3_wrapper=False, from_imports=False)
  
      Creates a Python module from a Qt Designer .ui file.
-@@ -125,6 +125,9 @@ def compileUi(uifile, pyfile, execute=Fa
+@@ -127,6 +127,9 @@ def compileUi(uifile, pyfile, execute=Fa
  
      pyfile.write(_header % (uifname, ctime(), PYQT_VERSION_STR))
  
 +    if not additional_text == '':
 +        pyfile.write(additional_text)
 +
-     winfo = compiler.UICompiler().compileUi(uifile, pyfile)
+     winfo = compiler.UICompiler().compileUi(uifile, pyfile, from_imports)
  
      if pyqt3_wrapper:
 Index: pyuic/uic/pyuic.py
