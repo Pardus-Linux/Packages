@@ -9,7 +9,7 @@ from pisi.actionsapi import autotools
 from pisi.actionsapi import pisitools
 from pisi.actionsapi import get
 
-WorkDir="."
+WorkDir="%s30" % get.srcNAME()
 
 def build():
     autotools.make("-f unix/Makefile CC=%s CPP=%s generic" % (get.CC(), get.CXX()))
@@ -19,4 +19,4 @@ def install():
         pisitools.dobin(bin)
 
     pisitools.doman("man/*.1")
-    pisitools.dodoc("BUGS", "CHANGES", "MANUAL", "README", "TODO", "WHATSNEW", "WHERE")
+    pisitools.dodoc("BUGS", "CHANGES", "LICENSE", "README", "TODO", "WHATSNEW", "WHERE")
