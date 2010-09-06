@@ -20,7 +20,7 @@ def build():
 def install():
     autotools.rawInstall('DESTDIR=%s' % get.installDIR())
 
-    blacklist = ["mplayer", "mount"]
+    blacklist = ["mplayer", "mount", "service"]
     for comp in blacklist:
         pisitools.remove("/etc/bash_completion.d/%s" % comp)
 
