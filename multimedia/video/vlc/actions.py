@@ -73,6 +73,7 @@ def setup():
                          --enable-x264 \
                          --enable-upnp \
                          --enable-id3tag \
+                         --enable-projectm \
                          --with-x \
                          --disable-static \
                          --disable-altivec \
