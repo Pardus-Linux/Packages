@@ -1,0 +1,80 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>libuser</Name>
+        <Homepage>https://fedorahosted.org/libuser</Homepage>
+        <Packager>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Packager>
+        <License>GPLv2</License>
+        <IsA>library</IsA>
+        <Summary>A user and group account administration library</Summary>
+        <Description>libuser implements a standardized interface for manipulating and administering user and group accounts. The library uses pluggable back-ends to interface to its data sources.</Description>
+        <Archive sha1sum="834e477c47e6be40fb12bfef17d6d79ac91e076f" type="tarbz2">http://cekirdek.pardus.org.tr/~gokcen/files/libuser-0.56.17.tar.bz2</Archive>
+        <BuildDependencies>
+            <!-- WARNING: To be removed in Bootstrap -->
+            <Dependency>openldap-client</Dependency>
+        </BuildDependencies>
+        <Patches>
+            <Patch>libuser-0.56.15-fix_blowfish.patch</Patch>
+            <Patch level="1">libuser-0.56.17-crypt_style.patch</Patch>
+            <Patch>libuser-0.56.9-fix-str-fmt.patch</Patch>
+            <Patch level="1">complete-tr-translations.diff</Patch>
+            <Patch level="1">disable-sgml2x-conversion.diff</Patch>
+            <Patch level="1">add-python-linkage.diff</Patch>
+        </Patches>
+    </Source>
+
+    <Package>
+        <Name>libuser</Name>
+        <Files>
+            <Path fileType="config">/etc</Path>
+            <Path fileType="man">/usr/share/man</Path>
+            <Path fileType="doc">/usr/share/doc</Path>
+            <Path fileType="localedata">/usr/share/locale</Path>
+            <Path fileType="executable">/usr/bin</Path>
+            <Path fileType="executable">/usr/sbin</Path>
+            <Path fileType="library">/usr/lib</Path>
+        </Files>
+    </Package>
+
+    <!-- WARNING: To be removed in Bootstrap -->
+    <Package>
+        <Name>libuser-ldap</Name>
+        <PartOf>server.misc</PartOf>
+        <Summary>LDAP library of libuser</Summary>
+        <RuntimeDependencies>
+            <Dependency>openldap-client</Dependency>
+            <Dependency>libuser</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="library">/usr/lib/libuser/*ldap*</Path>
+        </Files>
+    </Package>
+
+
+    <Package>
+        <Name>libuser-devel</Name>
+        <PartOf>system.devel</PartOf>
+        <Summary>Development files for libuser</Summary>
+        <RuntimeDependencies>
+            <Dependency release="1">libuser</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="header">/usr/include</Path>
+            <Path fileType="data">/usr/lib/pkgconfig</Path>
+        </Files>
+    </Package>
+
+    <History>
+        <Update release="1">
+            <Date>2010-09-03</Date>
+            <Version>0.56.17</Version>
+            <Comment>First release.</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+    </History>
+</PISI>
