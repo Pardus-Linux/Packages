@@ -21,4 +21,6 @@ def build():
 def install():
     cmaketools.rawInstall("DESTDIR=%s" % get.installDIR())
 
+    pisitools.dosym("libprojectM.so.2.0.1", "/usr/lib/libprojectM.so.2")
+
     pisitools.dodoc("ChangeLog")
