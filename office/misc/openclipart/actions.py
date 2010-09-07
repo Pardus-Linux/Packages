@@ -13,6 +13,7 @@ import os
 
 WorkDir = "%s-%s-pngonly" % (get.srcNAME(), get.srcVERSION())
 ClipartDir = "/usr/share/clipart/%s" % get.srcNAME()
+NoStrip=["/"]
 
 def install():
     #Since installDIR is created just before this function, I can't do those 2 operations in setup function :/
