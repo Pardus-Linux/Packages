@@ -1,0 +1,42 @@
+diff -up sysstat-9.0.6.1/mpstat.c.tl sysstat-9.0.6.1/mpstat.c
+--- sysstat-9.0.6.1/mpstat.c.tl	2009-09-12 20:59:04.000000000 +0200
++++ sysstat-9.0.6.1/mpstat.c	2010-04-19 10:42:01.000000000 +0200
+@@ -272,10 +272,21 @@ void write_stats_core(int prev, int curr
+ 			/* Recalculate itv for current proc */
+ 			pc_itv = get_per_cpu_interval(scc, scp);
+ 
+-			if (!pc_itv) {
+-				/* Current CPU is offline */
++			/* if the CPU is offline it is omited from /proc/stat
++			   so the sum of all values is zero */
++			if ((scc->cpu_user    + scc->cpu_nice   + scc->cpu_sys   +
++			     scc->cpu_iowait  + scc->cpu_idle   + scc->cpu_steal +
++			     scc->cpu_hardirq + scc->cpu_softirq) == 0) {
+ 				printf("    0.00    0.00    0.00    0.00    0.00    0.00"
+ 				       "    0.00    0.00    0.00\n");
++				continue;
++			}
++
++			/* if the CPU is tickless  then
++			  there is no change in CPU values but the sum of values is not null */
++			if (!pc_itv) {
++				printf("    0.00    0.00    0.00    0.00    0.00    0.00"
++				       "    0.00    0.00  100.00\n");
+ 			}
+ 			else {
+ 				printf("  %6.2f  %6.2f  %6.2f  %6.2f  %6.2f  %6.2f"
+@@ -643,6 +654,14 @@ void rw_mpstat_loop(int dis_hdr, int row
+ 			scc = st_cpu[curr]  + cpu;
+ 			scp = st_cpu[!curr] + cpu;
+ 			*scc = *scp;
++			scc->cpu_user = 0;
++			scc->cpu_nice = 0;
++			scc->cpu_sys = 0;
++			scc->cpu_iowait = 0;
++			scc->cpu_idle = 0;
++			scc->cpu_steal = 0;
++			scc->cpu_hardirq = 0;
++			scc->cpu_softirq = 0;
+ 		}
+ 
+ 		/* Get time */
