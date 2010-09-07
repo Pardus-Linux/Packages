@@ -18,7 +18,7 @@ XulDir = "/usr/lib/%s-%s" % (get.srcNAME(), XulVersion)
 
 def setup():
     # Write xulrunner version correctly including the minor part
-    for f in ("xulrunner/installer/Makefile.in", ".mozconfig", "20xulrunner"):
+    for f in ("xulrunner/installer/Makefile.in", ".mozconfig", "20-xulrunner.conf"):
         pisitools.dosed(f, "PSPEC_VERSION", XulVersion)
 
     #Use autoconf-213 which we provide via a hacky pathc to produce configure
@@ -52,4 +52,4 @@ def install():
             for file in files:
                 shelltools.chmod(os.path.join(root, file), 0644)
 
-    pisitools.insinto("/etc/env.d", "20xulrunner")
+    pisitools.insinto("/etc/ld.so.conf.d", "20-xulrunner.conf")
