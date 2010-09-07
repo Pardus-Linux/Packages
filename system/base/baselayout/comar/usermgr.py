@@ -29,7 +29,7 @@ from pardus.fileutils import FileLock
 # faces
 
 FACES = [
-    "/usr/kde/3.5/share/apps/kdm/pics/users",
+    "/usr/share/kde4/apps/kdm/pics/users",
 ]
 
 # messages
@@ -337,7 +337,7 @@ def setup_home(uid, gid, path):
         # Copy skeleton home dir
         os.system('/bin/cp -r %s "%s"' % ('/etc/skel', path))
         # Set a random face icon
-        faces = glob.glob("/usr/kde/3.5/share/apps/kdm/pics/users/*.png")
+        faces = glob.glob("/usr/share/*/apps/kdm/pics/users/*.png")
         if len(faces) > 0:
             facepath = os.path.join(path, '.face.icon')
             os.system('/bin/cp --remove-destination "%s" "%s"' % (random.choice(faces), facepath))
