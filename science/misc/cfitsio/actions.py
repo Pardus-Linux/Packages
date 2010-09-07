@@ -30,4 +30,8 @@ def install():
 
     pisitools.remove("/usr/lib/*.a")
 
+    pisitools.domove("/usr/lib/libcfitsio.so", "/usr/lib", "libcfitsio.so.0.0")
+    pisitools.dosym("/usr/lib/libcfitsio.so.0.0", "/usr/lib/libcfitsio.so.0")
+    pisitools.dosym("/usr/lib/libcfitsio.so.0.0", "/usr/lib/libcfitsio.so")
+
     pisitools.dodoc("*.txt", "README")
