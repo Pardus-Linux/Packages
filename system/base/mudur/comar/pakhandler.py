@@ -7,7 +7,7 @@ def doenv(filepath):
     doc = piksemel.parse(filepath)
     for item in doc.tags("File"):
         path = item.getTagData("Path")
-        if path.endswith(".so") or path.startswith("etc/env.d"):
+        if path.startswith("etc/env.d"):
             updenv = imp.load_source("updenv", "/sbin/update-environment")
             updenv.update_environment("/")
             return
