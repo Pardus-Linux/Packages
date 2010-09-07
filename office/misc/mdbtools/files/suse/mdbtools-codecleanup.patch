@@ -1,0 +1,130 @@
+--- src/gmdb2/debug.c
++++ src/gmdb2/debug.c
+@@ -503,7 +503,7 @@
+ 
+ 	str = g_strdup_printf("Row Number: %u", pg_row & 0xff);
+ 	gmdb_debug_add_item(store, node, str, offset, 1);
+-	str = g_strdup_printf("Page Number: %lu", pg_row >> 8); 
++	str = g_strdup_printf("Page Number: %lu", (unsigned long)(pg_row >> 8)); 
+ 	gmdb_debug_add_item(store, node, str, offset+1, 3);
+ }
+ static void 
+@@ -1078,7 +1078,7 @@
+ 	gboolean *dissect;
+ 
+ 	pglabel = glade_xml_get_widget (xml, "debug_num_label");
+-	str = g_strdup_printf("(0-%d):", gmdb_get_max_page(mdb));
++	str = g_strdup_printf("(0-%ld):", gmdb_get_max_page(mdb));
+ 	gtk_label_set_text(GTK_LABEL(pglabel), str);
+ 	g_free(str);
+ 
+--- src/gmdb2/sql.c
++++ src/gmdb2/sql.c
+@@ -39,6 +39,12 @@
+ extern MdbHandle *mdb;
+ extern MdbSQL *sql;
+ 
++#if defined __STDC__ || defined __cplusplus
++extern int yyparse (void);
++#else
++extern int yyparse ();
++#endif
++     
+ static void gmdb_sql_tree_populate(MdbHandle *mdb, GladeXML *xml);
+ static void gmdb_sql_load_query(GladeXML *xml, gchar *file_path);
+ 
+@@ -80,7 +86,7 @@
+ 	
+ 	filesel = glade_xml_get_widget (xml, "export_dialog");
+ 	sql_xml = g_object_get_data(G_OBJECT(filesel), "sql_xml");
+-	printf("sql_xml %lu\n",sql_xml);
++	printf("sql_xml %lu\n",(unsigned long)sql_xml);
+ 
+ 	gmdb_export_get_delimiter(xml, delimiter, 10);
+ 	gmdb_export_get_lineterm(xml, lineterm, 5);
+--- src/odbc/connectparams.c
++++ src/odbc/connectparams.c
+@@ -23,12 +23,18 @@
+ #include <stdio.h>
+ #include <string.h>
+ #include <sys/stat.h>
++#include <ctype.h>
+ 
+ #include "connectparams.h"
+ #ifdef HAVE_CONFIG_H
+ #include "config.h"
+ #endif
+ 
++#if HAVE_SQLGETPRIVATEPROFILESTRING
++#include <odbcinst.h>
++#endif
++
++
+ /*
+  *  * Last resort place to check for INI file. This is usually set at compile time
+  *   * by build scripts.
+@@ -46,7 +52,10 @@
+ static char line[max_line];
+ 
+ static guint HashFunction (gconstpointer key);
+-static GString* GetIniFileName ();
++
++#if !HAVE_SQLGETPRIVATEPROFILESTRING
++static GString* GetIniFileName (void);
++#endif
+ static int FileExists (const gchar* name);
+ static int FindSection (FILE* stream, const char* section);
+ static int GetNextItem (FILE* stream, char** name, char** value);
+@@ -319,6 +328,7 @@
+    return params->dsnName->str;   
+ }
+ 
++#if !HAVE_SQLGETPRIVATEPROFILESTRING
+ /*
+  * Begin local function definitions
+  */
+@@ -363,6 +373,7 @@
+ 
+    return iniFileName;
+ }
++#endif
+ 
+ static int FileExists (const gchar* name)
+ {
+@@ -467,7 +478,7 @@
+ {
+    FILE* output = (FILE*) user_data;
+ 
+-   g_printerr ("Parameter: %s, Value: %s\n", key, value);
++   g_printerr ("Parameter: %s, Value: %s\n", (char *)key, (char *)value);
+ }
+ 
+ static gboolean cleanup (gpointer key, gpointer value, gpointer user_data)
+--- src/util/mdb-import.c
++++ src/util/mdb-import.c
+@@ -20,6 +20,9 @@
+ 
+ #include "mdbtools.h"
+ 
++extern void _mdb_put_int16(void *buf, guint32 offset, guint32 value);
++extern void _mdb_put_int32(void *buf, guint32 offset, guint32 value);
++extern int mdb_insert_row(MdbTableDef *table, int num_fields, MdbField *fields);
+ #define MAX_ROW_SIZE 4096
+ 
+ void
+--- src/util/mdb-sql.c
++++ src/util/mdb-sql.c
+@@ -282,11 +282,11 @@
+ 		row_count++;
+   		for (j=0;j<sql->num_columns-1;j++) {
+ 			sqlcol = g_ptr_array_index(sql->columns,j);
+-			fprintf(out, "%s%s", sql->bound_values[j],
++			fprintf(out, "%s%s", (char *)(sql->bound_values[j]),
+ 				delimiter ? delimiter : "\t");
+ 		}
+ 		sqlcol = g_ptr_array_index(sql->columns,sql->num_columns-1);
+-		fprintf(out, "%s", sql->bound_values[sql->num_columns-1]);
++		fprintf(out, "%s", (char *)(sql->bound_values[sql->num_columns-1]));
+ 		fprintf(out,"\n");
+ 		fflush(out);
+ 	}
