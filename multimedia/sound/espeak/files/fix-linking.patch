@@ -1,0 +1,26 @@
+Index: espeak-1.43.03-source/src/Makefile
+===================================================================
+--- espeak-1.43.03-source.orig/src/Makefile
++++ espeak-1.43.03-source/src/Makefile
+@@ -87,10 +87,10 @@ all: $(BIN_NAME) $(LIB_NAME) $(STATIC_LI
+ 	$(CC) $(CFLAGS) $(USE_AUDIO) -D PATH_ESPEAK_DATA=\"$(DATADIR)\" -Wall -pedantic -I. -c -fno-exceptions  $<
+ 
+ $(BIN_NAME): $(OBJS1)
+-	$(CC) -o $@ $(OBJS1) $(LIBS1)
++	$(CC) $(LDFLAGS) $(OBJS1) $(LIBS1) -o $@
+ 
+ $(BIN2_NAME): $(OBJS3) $(LIB_NAME)
+-	$(CC) -o $@ $(OBJS3) $(LIBS3)
++	$(CC) $(LDFLAGS) $(OBJS3) $(LIBS3) -o $@
+ 
+ 
+ 
+@@ -99,7 +99,7 @@ x_%.o: %.cpp
+ 	-I. -D LIBRARY -c -fno-exceptions  $<  -o x_$*.o
+ 
+ $(LIB_NAME): $(OBJS2)
+-	$(CC) -shared $(SONAME_OPT)$(LIB_NAME).$(LIB_VERSION) -o $@ $(OBJS2) $(LIBS2)
++	$(CC) $(LDFLAGS) -shared $(SONAME_OPT)$(LIB_NAME).$(LIB_VERSION) $(OBJS2) $(LIBS2) -o $@
+ 
+ $(STATIC_LIB_NAME): $(OBJS2)
+ 	$(AR) cqs $(STATIC_LIB_NAME) $(OBJS2)
