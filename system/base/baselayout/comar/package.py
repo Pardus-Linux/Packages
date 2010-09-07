@@ -23,6 +23,11 @@ def postInstall(fromVersion, fromRelease, toVersion, toRelease):
         if not os.path.exists("/etc/%s" % specialFile):
             shutil.copy("/usr/share/baselayout/%s" % specialFile, "/etc")
 
+    if int(fromRelease) < 143:
+        # Release 143 starts using /etc/ld.so.conf.d. Copy ld.so.conf
+        # for "include" statement.
+        shutil.copy("/usr/share/baselayout/ld.so.conf", "/etc")
+
     shutil.copy("/etc/passwd", "/usr/share/baselayout/passwd.backup")
     shutil.copy("/etc/group", "/usr/share/baselayout/group.backup")
 
