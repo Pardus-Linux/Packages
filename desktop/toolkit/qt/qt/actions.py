@@ -93,8 +93,8 @@ def install():
     pisitools.remove("/usr/share/dbus-1/interfaces/org.kde.Phonon.AudioOutput.xml")
     os.removedirs("%s/usr/share/dbus-1/interfaces" % get.installDIR())
 
-    # pisitools.remove("%s/phononbackends/gstreamer.desktop" % kde4.servicesdir)
-    # os.removedirs("%s/%s/phononbackends" % (get.installDIR(), kde4.servicesdir))
+    pisitools.remove("%s/phononbackends/gstreamer.desktop" % kde4.servicesdir)
+    os.removedirs("%s/%s/phononbackends" % (get.installDIR(), kde4.servicesdir))
 
     # Turkish translations
     shelltools.export("LD_LIBRARY_PATH", "%s%s" % (get.installDIR(), qt4.libdir))
