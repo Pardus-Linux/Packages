@@ -1,0 +1,70 @@
+Index: vigranumpy/src/core/impex.cxx
+===================================================================
+--- vigranumpy/src/core/impex.cxx.orig
++++ vigranumpy/src/core/impex.cxx
+@@ -43,7 +43,10 @@
+ #include "vigra/impex.hxx"
+ #include "vigra/multi_impex.hxx"
+ #include <vigra/numpy_array_converters.hxx>
++
++#if HasHDF5
+ #include "vigra/hdf5impex.hxx"
++#endif
+ 
+ namespace python = boost::python;
+ 
+Index: vigranumpy/src/core/random_forest.cxx
+===================================================================
+--- vigranumpy/src/core/random_forest.cxx.orig
++++ vigranumpy/src/core/random_forest.cxx
+@@ -39,7 +39,9 @@
+ #include <vigra/numpy_array.hxx>
+ #include <vigra/numpy_array_converters.hxx>
+ #include <vigra/random_forest.hxx>
++#if HasHDF5
+ #include <vigra/random_forest_hdf5_impex.hxx>
++#endif
+ #include <set>
+ #include <cmath>
+ #include <memory>
+@@ -92,8 +94,13 @@ pythonImportRandomForestFromHDF5(std::st
+ { 
+     std::auto_ptr<RandomForest<LabelType> > rf(new RandomForest<LabelType>);
+     
++#if HasHDF5
+     vigra_precondition(rf_import_HDF5(*rf, filename, pathname),
+            "RandomForest(): Unable to load from HDF5 file.");
++#else
++    vigra_precondition(true,
++           "RandomForest(): Unable to load from HDF5 file.");
++#endif
+            
+     return rf.release();
+ }					
+@@ -299,11 +306,13 @@ void defineRandomForest()
+              "Learn online.\n\n"
+              "Works only if forest has been created with prepare_online_learning=true. "
+              "Needs the old training data and the new appened, starting at startIndex.\n\n")
++#if HasHDF5
+         .def("writeHDF5", &rf_export_HDF5<UInt32>,
+              (arg("filename"), arg("pathInFile")="", arg("overwriteflag")=false),
+              "Store the random forest in the given HDF5 file 'filname' under the internal\n"
+              "path 'pathInFile'. If a dataset already exists, 'overwriteflag' determines\n"
+              "if the old data are overwritten.\n")
++#endif
+         ;
+ }
+ 
+Index: vigranumpy/lib/__init__.py
+===================================================================
+--- vigranumpy/lib/__init__.py.orig
++++ vigranumpy/lib/__init__.py
+@@ -102,7 +102,7 @@ except:
+ # import most frequently used functions    
+ from vigranumpycore import registerPythonArrayType, listExportedArrayKeys
+ from arraytypes import *
+-from impex import readImage, readImageFromHDF5, readVolume, readVolumeFromHDF5
++from impex import readImage, readVolume
+ from filters import convolve, gaussianSmoothing
+ from sampling import resize
+ 
