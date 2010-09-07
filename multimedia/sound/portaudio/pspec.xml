@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+
+<PISI>
+    <Source>
+        <Name>portaudio</Name>
+        <Homepage>http://www.portaudio.com</Homepage>
+        <Packager>
+            <Name>Fahri Tuğrul Gürkaynak</Name>
+            <Email>tugrul@pardus.org.tr</Email>
+        </Packager>
+        <License>as-is</License>
+        <IsA>library</IsA>
+        <Summary>Portable audio library</Summary>
+        <Description>PortAudio is a free, cross platform, open-source, audio I/O library.</Description>
+        <Archive type="targz" sha1sum="3841453bb7be672a15b6b632ade6f225eb0a4efc">http://www.portaudio.com/archives/pa_stable_v19_20071207.tar.gz</Archive>
+        <BuildDependencies>
+            <Dependency>doxygen</Dependency>
+            <Dependency>alsa-lib-devel</Dependency>
+            <Dependency>jack-audio-connection-kit-devel</Dependency>
+        </BuildDependencies>
+        <Patches>
+            <!-- Add a patch from Fedora to make non mmap alsa (and thus pulseaudio) work -->
+            <Patch level="1">portaudio-non-mmap-alsa.patch</Patch>
+        </Patches>
+    </Source>
+
+    <Package>
+        <Name>portaudio</Name>
+        <RuntimeDependencies>
+            <Dependency>alsa-lib</Dependency>
+            <Dependency>jack-audio-connection-kit</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="library">/usr/lib</Path>
+            <Path fileType="doc">/usr/share/doc</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>portaudio-devel</Name>
+        <Summary>Development files for portaudio</Summary>
+        <RuntimeDependencies>
+            <Dependency release="5">portaudio</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="header">/usr/include</Path>
+            <Path fileType="data">/usr/lib/pkgconfig</Path>
+            <Path fileType="doc">/usr/share/doc/portaudio/html</Path>
+        </Files>
+    </Package>
+
+    <History>
+        <Update release="5">
+            <Date>2010-09-07</Date>
+            <Version>19</Version>
+            <Comment>Split devel package.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="4">
+            <Date>2009-07-29</Date>
+            <Version>19</Version>
+            <Comment>
+                - Add a Fedora patch to make non mmap alsa (thus pulseaudio) work,
+                - Enable C++ version of the library,
+                - Disable static libraries.
+            </Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="3">
+            <Date>2009-06-09</Date>
+            <Version>19</Version>
+            <Comment>dependencies and documentation added.</Comment>
+            <Name>Fahri Tuğrul Gürkaynak</Name>
+            <Email>tugrul@pardus.org.tr</Email>
+        </Update>
+        <Update release="2">
+            <Date>2008-06-22</Date>
+            <Version>19</Version>
+            <Comment>Version bump.</Comment>
+            <Name>Fahri Tuğrul Gürkaynak</Name>
+            <Email>tugrul@pardus.org.tr</Email>
+        </Update>
+        <Update release="1">
+            <Date>2006-03-02</Date>
+            <Version>18.1</Version>
+            <Comment>First release.</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+    </History>
+</PISI>
