@@ -1,0 +1,17 @@
+diff -up logrotate-3.7.7/config.c.toolarge logrotate-3.7.7/config.c
+--- logrotate-3.7.7/config.c.toolarge	2008-11-21 12:57:25.000000000 +0100
++++ logrotate-3.7.7/config.c	2008-11-21 12:57:41.000000000 +0100
+@@ -530,6 +530,13 @@ static int readConfigFile(const char *co
+ 
+     length = sb.st_size;
+ 
++    if (length > 0xffffff) {
++        message(MESS_ERROR, "file %s too large, probably not a config file.\n",
++                configFile);
++        close(fd);
++        return 1;
++    }    
++
+     buf = alloca(length + 2);
+     if (!buf) {
+ 	message(MESS_ERROR, "alloca() of %d bytes failed\n", (int) length);
