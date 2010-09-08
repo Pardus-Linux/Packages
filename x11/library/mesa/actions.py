@@ -25,9 +25,8 @@ def setup():
                          --enable-gallium-radeon \
                          --enable-gallium-nouveau \
                          --with-driver=dri \
-                         --without-demos \
                          --with-dri-driverdir=/usr/lib/xorg/modules/dri \
-                         --with-dri-drivers=i810,i915,i965,mach64,nouveau,r128,r200,r300,r600,radeon,sis,tdfx,swrast \
+                         --with-dri-drivers=i810,i915,i965,mach64,nouveau,r128,r200,r600,radeon,sis,tdfx,swrast \
                          --with-state-trackers=dri,glx")
 
     pisitools.dosed("configs/autoconf", "(PYTHON_FLAGS) = .*", r"\1 = -t")

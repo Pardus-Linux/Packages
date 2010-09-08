@@ -1,24 +1,17 @@
 #!/usr/bin/python
 
 import os
-import subprocess
-
-def unlink(name):
-    if os.path.lexists(name):
-        os.unlink(name)
-
-def symlink(src, dst):
-    unlink(dst)
-    os.symlink(src, dst)
 
 def postInstall(fromVersion, fromRelease, toVersion, toRelease):
-    libGL = "/usr/lib/libGL.so.1.2"
-    if not os.path.exists(libGL) or os.readlink(libGL).startswith("xorg/std"):
-        # GL library
-        symlink("mesa/libGL.so.1.2", libGL)
+    os.system("/usr/sbin/alternatives \
+                --install /usr/lib/libGL.so.1.2 libGL /usr/lib/mesa/libGL.so.1.2 80 \
+                --slave /usr/lib/xorg/modules/volatile xorg-modules-volatile /var/empty")
 
-        # Create other links
-        subprocess.call(["/sbin/ldconfig"])
+    if not os.path.lexists("/usr/lib/libGL.so.1"):
+        os.symlink("libGL.so.1.2", "/usr/lib/libGL.so.1")
 
-        # We do not use .la files anymore
-        unlink("/usr/lib/libGL.la")
+def preRemove():
+    # FIXME This is not needed when upgrading package; but pisi does not
+    #       provide a way to learn operation type.
+    #os.system("/usr/sbin/alternatives --remove libGL /usr/lib/mesa/libGL.so.1.2")
+    pass
