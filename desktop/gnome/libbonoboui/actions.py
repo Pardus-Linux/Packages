@@ -25,4 +25,4 @@ def install():
     for sample in samples:
         pisitools.remove(sample)
 
-    pisitools.dodoc("NEWS", "README", "ChangeLog", "INSTALL")
+    pisitools.dodoc("NEWS", "README", "ChangeLog")
