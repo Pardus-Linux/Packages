@@ -34,16 +34,20 @@ def setup():
                          --disable-xsdl \
                          --disable-xfake \
                          --disable-xfbdev \
+                         --disable-devel-docs \
+                         --without-doxygen \
                          --with-pic \
                          --without-dtrace \
                          --with-int10=x86emu \
                          --with-os-name=\"Pardus\" \
                          --with-os-vendor=\"TÜBİTAK, UEKAE\" \
                          --with-builderstring=\"Package: %s\" \
-                         --with-fontdir=/usr/share/fonts \
+                         --with-fontrootdir=/usr/share/fonts \
                          --with-default-font-path=catalogue:/etc/X11/fontpath.d,built-ins \
                          --with-xkb-output=/var/lib/xkb \
                          --with-dri-driver-path=/usr/lib/xorg/modules/dri \
+                         --without-xmlto \
+                         --without-fop \
                          --localstatedir=/var \
                          PCI_TXT_IDS_DIR=/usr/share/X11/pci \
                          " % get.srcTAG())
@@ -55,13 +59,11 @@ def install():
     autotools.rawInstall("DESTDIR=%s" % get.installDIR())
 
     pisitools.dodir("/etc/X11/fontpath.d")
+    pisitools.dodir("/etc/X11/xorg.conf.d")
     pisitools.dodir("/usr/share/X11/pci")
     pisitools.dodir("/usr/share/X11/xorg.conf.d")
 
     # Remove empty dir
     pisitools.removeDir("/var/log")
-
-    # Move glx module for dynamic switching
-    pisitools.domove("/usr/lib/xorg/modules/extensions/libglx.so", "/usr/lib/xorg/std/extensions")
 
     pisitools.dodoc("COPYING", "README")

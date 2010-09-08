@@ -11,7 +11,7 @@
         <License>MIT</License>
         <Summary>X.Org X Server</Summary>
         <Description>X server is the main application that allows a graphical interface.</Description>
-        <Archive sha1sum="2d84e541609f444de0cc9ce1a0b2ee392a4ba886" type="tarbz2">mirrors://xorg/individual/xserver/xorg-server-1.8.99.906.tar.bz2</Archive>
+        <Archive sha1sum="a18d2212df80446b597b71b8948d133f52c399cc" type="tarbz2">mirrors://xorg/individual/xserver/xorg-server-1.9.0.tar.bz2</Archive>
         <BuildDependencies>
             <Dependency>font-util</Dependency>
             <Dependency>jpeg-devel</Dependency>
@@ -42,7 +42,6 @@
             <Patch level="1">fedora/xserver-1.5.1-mode-debug.patch</Patch>
             <Patch level="1">fedora/xserver-1.6.0-displayfd.patch</Patch>
             <Patch level="1">fedora/xserver-1.6.0-less-acpi-brokenness.patch</Patch>
-            <Patch level="1">fedora/xserver-1.6.1-nouveau.patch</Patch>
             <Patch level="1">fedora/xserver-1.6.99-default-modes.patch</Patch>
             <!--
             <Patch level="1">fedora/xserver-1.6.99-hush-prerelease-warning.patch</Patch>
@@ -51,12 +50,19 @@
             <Patch level="1">fedora/xserver-1.7.0-randr-gamma-restore.patch</Patch>
             <Patch level="1">fedora/xserver-1.7.1-gamma-kdm-fix.patch</Patch>
             <Patch level="1">fedora/xserver-1.8-disable-vboxvideo.patch</Patch>
-            <Patch level="1">fedora/xserver-1.9-reset-root-null.patch</Patch>
+            <Patch level="1">fedora/xserver-1.9.0-tcflush-fix.patch</Patch>
 
             <Patch level="1">suse/bug534768-prefer_local_symbols.patch</Patch>
-            <!--
-            <Patch level="0">suse/p_default-module-path.diff</Patch>
-            -->
+            <Patch level="1">suse/xserver-1.6.1-nouveau.patch</Patch>
+            <Patch level="0">suse/autoconfig_fallback_fbdev_first.diff</Patch>
+            <Patch level="1">suse/CVE-2010-2240-address_space_limit.patch</Patch>
+            <Patch level="1">suse/CVE-2010-2240-tree_depth_limit.patch</Patch>
+            <Patch level="0">suse/driver-autoconfig.diff</Patch>
+            <Patch level="0">suse/fix_fglrx_screendepth_issue.patch</Patch>
+            <Patch level="0">suse/p_xkills_wrong_client.diff</Patch>
+            <Patch level="1">suse/vbe-bufferoverflow.diff</Patch>
+            <Patch level="1">suse/xorg-detect-psb.patch</Patch>
+
             <Patch level="1">suse/xorg-server-xf4vnc.patch</Patch>
             <Patch level="0">suse/xorg-server-xf4vnc-disable-dmxvnc.diff</Patch>
             <Patch level="1">suse/xorg-server-xf4vnc-TranslateNone.diff</Patch>
@@ -65,9 +71,12 @@
             <Patch level="1">suse/xorg-server-xf4vnc-busyloop.diff</Patch>
             <Patch level="1">suse/xorg-server-xf4vnc-clientTimeout.diff</Patch>
             <Patch level="1">suse/xorg-server-xf4vnc-fix.diff</Patch>
-
-            <Patch level="1">ubuntu/111_armel-drv-fallbacks.patch</Patch>
             <!--
+            <Patch level="0">suse/xorg-server-xf4vnc-fixes_1_8.diff</Patch>
+            -->
+
+            <!--
+            <Patch level="1">ubuntu/111_armel-drv-fallbacks.patch</Patch>
             <Patch level="1">ubuntu/112_xaa-fbcomposite-fix-negative-size.patch</Patch>
             <Patch level="1">ubuntu/184_virtual_devices_autodetect.patch</Patch>
             <Patch level="1">ubuntu/196_xvfb-fbscreeninit-handling.patch</Patch>
@@ -90,6 +99,9 @@
 
             <!-- xserver 1.9 ABI/API changes for xf4vnc -->
             <Patch level="1">xf4vnc-xserver19-abi.patch</Patch>
+
+            <!-- Default module path -->
+            <Patch level="1">default-module-path.patch</Patch>
         </Patches>
     </Source>
 
@@ -124,6 +136,7 @@
             <Dependency>xorg-app</Dependency>
         </RuntimeDependencies>
         <Files>
+            <Path fileType="config">/etc/X11/xorg.conf.d</Path>
             <Path fileType="executable">/usr/bin/X</Path>
             <Path fileType="executable">/usr/bin/Xorg</Path>
             <Path fileType="executable">/usr/bin/cvt</Path>
@@ -251,6 +264,13 @@
     </Package>
 
     <History>
+        <Update release="76">
+            <Date>2010-09-08</Date>
+            <Version>1.9.0</Version>
+            <Comment>New stable release</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
         <Update release="75">
             <Date>2010-08-17</Date>
             <Version>1.8.99.906</Version>
