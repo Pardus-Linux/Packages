@@ -1,0 +1,71 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>crda</Name>
+        <Homepage>http://wireless.kernel.org/en/developers/Regulatory/CRDA</Homepage>
+        <Packager>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Packager>
+        <License>as-is</License>
+        <IsA>app:console</IsA>
+        <Summary>Regulatory compliance daemon for 802.11 wireless networking</Summary>
+        <Description>crda acts as the udev helper for communication between the kernel and userspace for regulatory compliance. It relies on nl80211 for communication. crda is intended to be run only through udev communication from the kernel.</Description>
+        <Archive sha1sum="73643b3f49b34c4150df4abb793a36792cc68fb7" type="tarbz2">http://wireless.kernel.org/download/crda/crda-1.1.1.tar.bz2</Archive>
+        <BuildDependencies>
+            <Dependency>libnl-devel</Dependency>
+            <Dependency>wireless-regdb</Dependency>
+            <Dependency>libgcrypt-devel</Dependency>
+            <Dependency>python-M2Crypto</Dependency>
+        </BuildDependencies>
+        <Patches>
+            <Patch level="1">crda-1.0.1-sanitize-udev-directory.diff</Patch>
+            <Patch level="1">regulatory-rules-setregdomain.patch</Patch>
+        </Patches>
+    </Source>
+
+    <Package>
+        <Name>crda</Name>
+        <RuntimeDependencies>
+            <Dependency>iw</Dependency>
+            <Dependency>libnl</Dependency>
+            <Dependency>libgcrypt</Dependency>
+            <Dependency>wireless-regdb</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="data">/lib/udev/rules.d</Path>
+            <Path fileType="executable">/sbin</Path>
+            <Path fileType="man">/usr/share/man/man8</Path>
+            <Path fileType="doc">/usr/share/doc</Path>
+        </Files>
+        <AdditionalFiles>
+            <AdditionalFile owner="root" permission="0755" target="/sbin/setregdomain">setregdomain</AdditionalFile>
+        </AdditionalFiles>
+    </Package>
+
+    <History>
+        <Update release="3">
+            <Date>2010-04-29</Date>
+            <Version>1.1.1</Version>
+            <Comment>Version bump</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="2">
+            <Date>2009-06-30</Date>
+            <Version>1.1.0</Version>
+            <Comment>Modify udev helper to use /etc/timezone, and define a default one US.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="1">
+            <Date>2009-03-31</Date>
+            <Version>1.1.0</Version>
+            <Comment>First release.</Comment>
+            <Name>Ekin Meroğlu</Name>
+            <Email>ekin@pardus.org.tr</Email>
+        </Update>
+    </History>
+</PISI>
+
