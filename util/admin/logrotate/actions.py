@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright 2005-2009 TUBITAK/UEKAE
+# Copyright 2005-2010 TUBITAK/UEKAE
 # Licensed under the GNU General Public License, version 2.
 # See the file http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
 
@@ -13,9 +13,12 @@ def build():
     autotools.make("RPM_OPT_FLAGS=\"%s\"" % get.CFLAGS())
 
 def install():
-    pisitools.dosbin("logrotate")
-    pisitools.doman("logrotate.8")
-    pisitools.dodir("/etc/logrotate.d")
+    autotools.rawInstall("PREFIX=%s MANDIR=%s" % (get.installDIR(), get.manDIR()))
 
-    pisitools.dodoc("examples/logrotate*")
+    pisitools.dodir("/etc/logrotate.d")
+    pisitools.dodir("/var/lib")
+
+    pisitools.insinto("/etc/cron.daily", "examples/logrotate.cron")
+    pisitools.insinto("/etc", "examples/logrotate-default", "logrotate.conf")
+
     pisitools.dodoc("CHANGES", "COPYING", "README*")
