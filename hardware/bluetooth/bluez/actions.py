@@ -29,9 +29,10 @@ def setup():
                          --enable-dund \
                          --enable-pand \
                          --enable-test \
-                         --disable-hid2hci \
                          --enable-pcmcia \
                          --enable-configfiles \
+                         --with-ouifile=/usr/share/misc/oui.txt \
+                         --disable-hid2hci \
                          --libexecdir=/lib \
                          --localstatedir=/var")
 def build():
