@@ -1,0 +1,295 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>nmap</Name>
+        <Homepage>http://www.insecure.org/nmap/</Homepage>
+        <Packager>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Packager>
+        <License>GPLv2</License>
+        <Icon>nmap</Icon>
+        <Summary>Utility for network exploration or security auditing</Summary>
+        <Description>Nmap is a utility for network exploration or security auditing.</Description>
+        <Archive sha1sum="5fd786d4bbe6b4fbc0ae625fbb6893b19fbde627" type="tarbz2">http://nmap.org/dist/nmap-5.35DC1.tar.bz2</Archive>
+        <BuildDependencies>
+            <Dependency>libpcap-devel</Dependency>
+            <Dependency>lua-devel</Dependency>
+        </BuildDependencies>
+        <Patches>
+            <Patch level="1">nmap-4.75-include.patch</Patch>
+            <Patch level="1">nmap-4.75-nolua.patch</Patch>
+            <Patch level="1">nmap-5.10_beta1-string.patch</Patch>
+            <Patch level="1">nmap-5.21-python.patch</Patch>
+            <Patch>nmap-5.21-openssl-1.patch</Patch>
+            <Patch level="1">zenmap_xdgsu.patch</Patch>
+            <Patch level="1">tr.patch</Patch>
+        </Patches>
+    </Source>
+
+    <Package>
+        <Name>nmap</Name>
+        <IsA>app:console</IsA>
+        <RuntimeDependencies>
+            <Dependency>libpcap</Dependency>
+            <Dependency>lua</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="executable">/usr/bin</Path>
+            <Path fileType="data">/usr/share/ncat</Path>
+            <Path fileType="data">/usr/share/nmap</Path>
+            <Path fileType="data">/usr/share/nping</Path>
+            <Path fileType="man">/usr/share/man</Path>
+            <Path fileType="doc">/usr/share/doc</Path>
+            <Path fileType="data">/usr/share/pixmaps</Path>
+        </Files>
+        <AdditionalFiles>
+            <AdditionalFile owner="root" permission="0644" target="/usr/share/pixmaps/nmap.png">nmap.png</AdditionalFile>
+        </AdditionalFiles>
+    </Package>
+
+    <Package>
+        <Name>zenmap</Name>
+        <IsA>app:gui</IsA>
+        <Summary>zenmap is the graphical frontend for nmap</Summary>
+        <RuntimeDependencies>
+            <Dependency releaseFrom="28">nmap</Dependency>
+            <Dependency>pygtk</Dependency>
+            <Dependency>xdg-utils</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="executable">/usr/bin/zenmap</Path>
+            <Path fileType="man">/usr/share/man/man1/zenmap.1</Path>
+            <Path fileType="doc">/usr/lib/python*/site-packages</Path>
+            <Path fileType="doc">/usr/share/zenmap</Path>
+            <Path fileType="doc">/usr/share/applications</Path>
+        </Files>
+    </Package>
+
+    <History>
+        <Update release="28">
+            <Date>2010-09-11</Date>
+            <Version>5.35</Version>
+            <Comment>Version bump to Defcon release</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="27">
+            <Date>2010-07-07</Date>
+            <Version>5.30_beta1</Version>
+            <Comment>
+                Enable zenmap, split as another package and force xdg-su usage, fixes bug #13696
+                Split zenmap package
+                Disable strip for ncat
+                Add some small fixes
+            </Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="26">
+            <Date>2010-04-06</Date>
+            <Version>5.30_beta1</Version>
+            <Comment>
+                Bump to upstream beta
+                New tool, nping
+                Added 37 new scripts
+                Nmap now honours routing tables
+                A few segfault fixes
+            </Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="25">
+            <Date>2010-01-28</Date>
+            <Version>5.21</Version>
+            <Comment>
+                New bugfix version
+                Fixed an error that occurred when UDP scan was combined with version scan
+                Fixed a bug in http.lua that could lead to an assertion failure
+                Restored the ability of http.head to return a body if the server returns one
+                Fixed the use of our strict.lua library on distributions that install their own strict.lua
+                Fixed handing of nameserver entries in /etc/resolv.conf so it could handle entries containing more than 16 bytes, which can occur with IPv6 addresses
+                Fixed the use of an undefined variable in smb-enum-sessions
+                Fixed a bug with the decoding of NMAP OID component values greater than 127
+            </Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="24">
+            <Date>2010-01-20</Date>
+            <Version>5.20</Version>
+            <Comment>
+                New upstream version
+                30+ new Nmap Scripting Engine scripts
+                Enhanced performance and reduced memory consumption
+                Protocol-specific payloads for more effectie UDP scanning
+                Completely rewritten traceroute engine
+                Massive OS and version detection DB updates (10,000+ signatures)
+            </Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="23">
+            <Date>2009-07-17</Date>
+            <Version>5.00</Version>
+            <Comment>Bump to stable version</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="22">
+            <Date>2009-06-28</Date>
+            <Version>4.90_rc1</Version>
+            <Comment>Bump to release candidate for many GSOC improvements</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="21">
+            <Date>2009-06-13</Date>
+            <Version>4.85_beta10</Version>
+            <Comment>Bump to latest beta for more than 50 significant bug fixes, new features, performance improvements</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="20">
+            <Date>2009-05-19</Date>
+            <Version>4.85_beta9</Version>
+            <Comment>Bump to latest beta</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="19">
+            <Date>2009-05-05</Date>
+            <Version>4.85_beta8</Version>
+            <Comment>Bump to latest beta</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="18">
+            <Date>2009-04-05</Date>
+            <Version>4.85_beta7</Version>
+            <Comment>Update to latest beta for many conficker enhancements</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="17">
+            <Date>2009-02-09</Date>
+            <Version>4.85_beta3</Version>
+            <Comment>Update to latest tarball, beta3 seems stable enough for testing</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="16">
+            <Date>2008-09-13</Date>
+            <Version>4.76</Version>
+            <Comment>Stable update, fixed an assertion failure where raw TCP timing ping probes were wrongly used during a TCP connect scan, update NSE bit library for better Lua compatibility</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="15">
+            <Date>2008-09-09</Date>
+            <Version>4.75</Version>
+            <Comment>Stable update</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="14">
+            <Date>2008-06-30</Date>
+            <Version>4.68</Version>
+            <Comment>Stable update</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="13">
+            <Date>2008-05-04</Date>
+            <Version>4.62</Version>
+            <Comment>Stable update</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="12">
+            <Date>2008-04-25</Date>
+            <Version>4.60</Version>
+            <Comment>Stable update</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="11">
+            <Date>2008-02-04</Date>
+            <Version>4.53</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="10">
+            <Date>2007-12-13</Date>
+            <Version>4.50</Version>
+            <Comment>Version bump</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="9">
+            <Date>2007-04-01</Date>
+            <Version>4.20</Version>
+            <Comment>Dep. fix</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="8">
+            <Date>2006-12-08</Date>
+            <Version>4.20</Version>
+            <Comment>New stable release</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="7">
+            <Date>2006-07-01</Date>
+            <Version>4.11</Version>
+            <Comment>New stable release</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="6">
+            <Date>2006-06-14</Date>
+            <Version>4.10</Version>
+            <Comment>New stable release</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="5">
+            <Date>2006-02-10</Date>
+            <Version>4.01</Version>
+            <Comment>New stable release</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="4">
+            <Date>2006-01-31</Date>
+            <Version>4.0</Version>
+            <Comment>Version bump</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="3">
+            <Date>2005-12-08</Date>
+            <Version>3.95</Version>
+            <Comment>Version bump</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="2">
+            <Date>2005-10-26</Date>
+            <Version>3.93</Version>
+            <Comment>Update to 3.93</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="1">
+            <Date>2005-09-09</Date>
+            <Version>3.90</Version>
+            <Comment>First release.</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+    </History>
+</PISI>
