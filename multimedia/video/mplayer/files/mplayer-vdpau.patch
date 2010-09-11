@@ -1,8 +1,7 @@
-diff --git a/configure b/configure
-index 89a0a9a..c325521 100755
---- a/configure
-+++ b/configure
-@@ -586,7 +586,7 @@ libavparsers=$libavparsers_all
+diff -Nur mplayer-old/configure mplayer/configure
+--- mplayer-old/configure	2010-09-11 21:10:04.497083930 +0300
++++ mplayer/configure	2010-09-11 21:10:17.918211554 +0300
+@@ -608,7 +608,7 @@
  libavbsfs_all=$(sed -n 's/^[^#]*BSF.*(.*, *\(.*\)).*/\1_bsf/p' libavcodec/allcodecs.c | tr '[a-z]' '[A-Z]')
  libavbsfs=$libavbsfs_all
  libavhwaccels_all=$(sed -n 's/^[^#]*HWACCEL.*(.*, *\(.*\)).*/\1_hwaccel/p' libavcodec/allcodecs.c | tr '[a-z]' '[A-Z]')
@@ -11,7 +10,7 @@ index 89a0a9a..c325521 100755
  libavdemuxers_all=$(sed -n 's/^[^#]*DEMUX.*(.*, *\(.*\)).*/\1_demuxer/p' libavformat/allformats.c | tr '[a-z]' '[A-Z]')
  libavdemuxers=$(echo $libavdemuxers_all | sed -e 's/ LIB[A-Z0-9_]*_DEMUXER//g' -e s/REDIR_DEMUXER// -e s/AVISYNTH_DEMUXER//)
  libavmuxers_all=$(sed -n 's/^[^#]*_MUX.*(.*, *\(.*\)).*/\1_muxer/p' libavformat/allformats.c | tr '[a-z]' '[A-Z]')
-@@ -4593,7 +4593,7 @@ if test "$_vdpau" = yes ; then
+@@ -4665,7 +4665,7 @@
  else
    def_vdpau='#define CONFIG_VDPAU 0'
    novomodules="vdpau $novomodules"
@@ -20,11 +19,10 @@ index 89a0a9a..c325521 100755
  fi
  echores "$_vdpau"
  
-diff --git a/etc/codecs.conf b/etc/codecs.conf
-index 8eece64..2db98e4 100644
---- a/etc/codecs.conf
-+++ b/etc/codecs.conf
-@@ -136,6 +136,7 @@ videocodec ffmpeg1
+diff -Nur mplayer-old/etc/codecs.conf mplayer/etc/codecs.conf
+--- mplayer-old/etc/codecs.conf	2010-09-11 21:10:04.378086617 +0300
++++ mplayer/etc/codecs.conf	2010-09-11 21:12:21.894210768 +0300
+@@ -176,6 +176,7 @@
    fourcc m1v1
    driver ffmpeg
    dll "mpeg1video"
@@ -32,7 +30,7 @@ index 8eece64..2db98e4 100644
    out YV12,I420,IYUV
  
  videocodec ffmpeg2
-@@ -173,6 +174,7 @@ videocodec ffmpeg2
+@@ -213,6 +214,7 @@
    driver ffmpeg
    dll "mpeg2video"
    out VAAPI_MPEG2
@@ -40,7 +38,7 @@ index 8eece64..2db98e4 100644
    out YV12,I420,IYUV
    out 422P,444P
  
-@@ -213,6 +215,7 @@ videocodec ffmpeg12
+@@ -253,6 +255,7 @@
    fourcc slif ; SoftLab MPEG-2 I-frames Codec
    driver ffmpeg
    dll "mpegvideo"
@@ -48,7 +46,7 @@ index 8eece64..2db98e4 100644
    out YV12,I420,IYUV
    out 422P,444P
  
-@@ -292,41 +295,6 @@ videocodec ffmpeg12mc
+@@ -332,41 +335,6 @@
    out IDCT_MPEG2
    out MOCO_MPEG2
  
@@ -90,7 +88,7 @@ index 8eece64..2db98e4 100644
  videocodec mpegpes
    info "MPEG-PES output (.mpg or DXR3/IVTV/DVB/V4L2 card)"
    comment "for hardware decoding"
-@@ -903,15 +871,8 @@ videocodec ffwmv3
+@@ -943,15 +911,8 @@
    driver ffmpeg
    dll wmv3
    out VAAPI_WMV3
@@ -107,7 +105,7 @@ index 8eece64..2db98e4 100644
  
  videocodec ffvc1
    info "FFmpeg WVC1"
-@@ -921,16 +882,8 @@ videocodec ffvc1
+@@ -961,16 +922,8 @@
    driver ffmpeg
    dll vc1
    out VAAPI_VC1
@@ -125,7 +123,7 @@ index 8eece64..2db98e4 100644
  
  videocodec ffh264
    info "FFmpeg H.264"
-@@ -943,19 +896,8 @@ videocodec ffh264
+@@ -984,19 +937,8 @@
    driver ffmpeg
    dll h264
    out VAAPI_H264
@@ -146,7 +144,7 @@ index 8eece64..2db98e4 100644
  
  videocodec coreavcwindows
    info "CoreAVC H.264 for x86 - http://corecodec.org/"
-@@ -1013,40 +955,8 @@ videocodec ffodivx
+@@ -1054,40 +996,8 @@
    driver ffmpeg
    dll mpeg4 ;opendivx
    out VAAPI_MPEG4
@@ -178,7 +176,7 @@ index 8eece64..2db98e4 100644
 -  fourcc FFDS
 -  fourcc DCOD,MVXM,EM4A,PM4V
 -  fourcc M4T3,DMK2,DIGI,INMC
--  fourcc EPHV,SN40
+-  fourcc EPHV,SN40,WAWV
 -  fourcc uldx,ULDX,VSPX
 -  fourcc SIPP ; Samsung SHR-6040
 -  driver ffmpeg
@@ -188,11 +186,10 @@ index 8eece64..2db98e4 100644
  
  videocodec ffwv1f
    info "WV1F MPEG-4"
-diff --git a/fmt-conversion.c b/fmt-conversion.c
-index bd32ce8..8994caa 100644
---- a/fmt-conversion.c
-+++ b/fmt-conversion.c
-@@ -91,12 +91,6 @@ static const struct {
+diff -Nur mplayer-old/fmt-conversion.c mplayer/fmt-conversion.c
+--- mplayer-old/fmt-conversion.c	2010-09-11 21:10:04.539083703 +0300
++++ mplayer/fmt-conversion.c	2010-09-11 21:10:17.920209016 +0300
+@@ -91,12 +91,6 @@
  
      {IMGFMT_XVMC_MOCO_MPEG2, PIX_FMT_XVMC_MPEG2_MC},
      {IMGFMT_XVMC_IDCT_MPEG2, PIX_FMT_XVMC_MPEG2_IDCT},
@@ -205,7 +202,7 @@ index bd32ce8..8994caa 100644
  
      /* VA-API formats */
      {IMGFMT_VAAPI_MPEG2,     PIX_FMT_VAAPI_VLD,  CODEC_ID_MPEG2VIDEO},
-@@ -108,6 +102,14 @@ static const struct {
+@@ -108,6 +102,14 @@
      {IMGFMT_VAAPI_WMV3,      PIX_FMT_VAAPI_VLD,  CODEC_ID_WMV3},
      {IMGFMT_VAAPI_VC1,       PIX_FMT_VAAPI_VLD,  CODEC_ID_VC1},
  
@@ -220,11 +217,10 @@ index bd32ce8..8994caa 100644
      {0, PIX_FMT_NONE}
  };
  
-diff --git a/libavcodec/allcodecs.c b/libavcodec/allcodecs.c
-index f17d03a..185541e 100644
---- a/libavcodec/allcodecs.c
-+++ b/libavcodec/allcodecs.c
-@@ -65,6 +65,13 @@ void avcodec_register_all(void)
+diff -Nur mplayer-old/libavcodec/allcodecs.c mplayer/libavcodec/allcodecs.c
+--- mplayer-old/libavcodec/allcodecs.c	2010-09-11 21:10:04.434084547 +0300
++++ mplayer/libavcodec/allcodecs.c	2010-09-11 21:10:17.921209143 +0300
+@@ -65,6 +65,13 @@
      REGISTER_HWACCEL (WMV3_DXVA2, wmv3_dxva2);
      REGISTER_HWACCEL (WMV3_VAAPI, wmv3_vaapi);
  
@@ -236,9 +232,9 @@ index f17d03a..185541e 100644
 +    REGISTER_HWACCEL (WMV3_VDPAU, wmv3_vdpau);
 +
      /* video codecs */
-     REGISTER_DECODER (AASC, aasc);
-     REGISTER_DECODER (AMV, amv);
-@@ -113,7 +120,6 @@ void avcodec_register_all(void)
+     REGISTER_ENCODER (A64MULTI, a64multi);
+     REGISTER_ENCODER (A64MULTI5, a64multi5);
+@@ -116,7 +123,6 @@
      REGISTER_DECODER (H263I, h263i);
      REGISTER_ENCODER (H263P, h263p);
      REGISTER_DECODER (H264, h264);
@@ -246,7 +242,7 @@ index f17d03a..185541e 100644
      REGISTER_ENCDEC  (HUFFYUV, huffyuv);
      REGISTER_DECODER (IDCIN, idcin);
      REGISTER_DECODER (IFF_BYTERUN1, iff_byterun1);
-@@ -137,10 +143,7 @@ void avcodec_register_all(void)
+@@ -140,10 +146,7 @@
      REGISTER_ENCDEC  (MPEG1VIDEO, mpeg1video);
      REGISTER_ENCDEC  (MPEG2VIDEO, mpeg2video);
      REGISTER_ENCDEC  (MPEG4, mpeg4);
@@ -257,7 +253,7 @@ index f17d03a..185541e 100644
      REGISTER_ENCDEC  (MSMPEG4V1, msmpeg4v1);
      REGISTER_ENCDEC  (MSMPEG4V2, msmpeg4v2);
      REGISTER_ENCDEC  (MSMPEG4V3, msmpeg4v3);
-@@ -192,7 +195,6 @@ void avcodec_register_all(void)
+@@ -195,7 +198,6 @@
      REGISTER_DECODER (V210X, v210x);
      REGISTER_DECODER (VB, vb);
      REGISTER_DECODER (VC1, vc1);
@@ -265,7 +261,7 @@ index f17d03a..185541e 100644
      REGISTER_DECODER (VCR1, vcr1);
      REGISTER_DECODER (VMDVIDEO, vmdvideo);
      REGISTER_DECODER (VMNC, vmnc);
-@@ -206,7 +208,6 @@ void avcodec_register_all(void)
+@@ -209,7 +211,6 @@
      REGISTER_ENCDEC  (WMV1, wmv1);
      REGISTER_ENCDEC  (WMV2, wmv2);
      REGISTER_DECODER (WMV3, wmv3);
@@ -273,11 +269,10 @@ index f17d03a..185541e 100644
      REGISTER_DECODER (WNV1, wnv1);
      REGISTER_DECODER (XAN_WC3, xan_wc3);
      REGISTER_DECODER (XL, xl);
-diff --git a/libavcodec/avcodec.h b/libavcodec/avcodec.h
-index 48666f9..7635cf8 100644
---- a/libavcodec/avcodec.h
-+++ b/libavcodec/avcodec.h
-@@ -643,10 +643,6 @@ typedef struct RcOverride{
+diff -Nur mplayer-old/libavcodec/avcodec.h mplayer/libavcodec/avcodec.h
+--- mplayer-old/libavcodec/avcodec.h	2010-09-11 21:10:04.414085905 +0300
++++ mplayer/libavcodec/avcodec.h	2010-09-11 21:10:17.922208992 +0300
+@@ -660,10 +660,6 @@
   */
  #define CODEC_CAP_SMALL_LAST_FRAME 0x0040
  /**
@@ -288,11 +283,10 @@ index 48666f9..7635cf8 100644
   * Codec can output multiple frames per AVPacket
   * Normally demuxers return one frame at a time, demuxers which do not do
   * are connected to a parser to split what they return into proper frames.
-diff --git a/libavcodec/error_resilience.c b/libavcodec/error_resilience.c
-index dc015b9..a36f7ac 100644
---- a/libavcodec/error_resilience.c
-+++ b/libavcodec/error_resilience.c
-@@ -759,7 +759,6 @@ void ff_er_frame_end(MpegEncContext *s){
+diff -Nur mplayer-old/libavcodec/error_resilience.c mplayer/libavcodec/error_resilience.c
+--- mplayer-old/libavcodec/error_resilience.c	2010-09-11 21:10:04.395098006 +0300
++++ mplayer/libavcodec/error_resilience.c	2010-09-11 21:10:17.923208840 +0300
+@@ -759,7 +759,6 @@
  
      if(!s->error_recognition || s->error_count==0 || s->avctx->lowres ||
         s->avctx->hwaccel ||
@@ -300,11 +294,10 @@ index dc015b9..a36f7ac 100644
         s->picture_structure != PICT_FRAME || // we dont support ER of field pictures yet, though it should not crash if enabled
         s->error_count==3*s->mb_width*(s->avctx->skip_top + s->avctx->skip_bottom)) return;
  
-diff --git a/libavcodec/h263dec.c b/libavcodec/h263dec.c
-index d9d6f7e..f7a21ed 100644
---- a/libavcodec/h263dec.c
-+++ b/libavcodec/h263dec.c
-@@ -33,7 +33,6 @@
+diff -Nur mplayer-old/libavcodec/h263dec.c mplayer/libavcodec/h263dec.c
+--- mplayer-old/libavcodec/h263dec.c	2010-09-11 21:10:04.387083855 +0300
++++ mplayer/libavcodec/h263dec.c	2010-09-11 21:10:17.923208840 +0300
+@@ -34,7 +34,6 @@
  #include "h263_parser.h"
  #include "mpeg4video_parser.h"
  #include "msmpeg4.h"
@@ -312,7 +305,7 @@ index d9d6f7e..f7a21ed 100644
  #include "flv.h"
  #include "mpeg4video.h"
  
-@@ -619,11 +618,6 @@ retry:
+@@ -620,11 +619,6 @@
      if(MPV_frame_start(s, avctx) < 0)
          return -1;
  
@@ -324,10 +317,9 @@ index d9d6f7e..f7a21ed 100644
      if (avctx->hwaccel) {
          if (avctx->hwaccel->start_frame(avctx, s->gb.buffer, s->gb.buffer_end - s->gb.buffer) < 0)
              return -1;
-diff --git a/libavcodec/h264.c b/libavcodec/h264.c
-index d1662fc..72e00b6 100644
---- a/libavcodec/h264.c
-+++ b/libavcodec/h264.c
+diff -Nur mplayer-old/libavcodec/h264.c mplayer/libavcodec/h264.c
+--- mplayer-old/libavcodec/h264.c	2010-09-11 21:10:04.405083639 +0300
++++ mplayer/libavcodec/h264.c	2010-09-11 21:10:17.925209095 +0300
 @@ -36,7 +36,6 @@
  #include "golomb.h"
  #include "mathops.h"
@@ -336,7 +328,7 @@ index d1662fc..72e00b6 100644
  
  #include "cabac.h"
  
-@@ -1650,9 +1649,6 @@ static void field_end(H264Context *h){
+@@ -1650,9 +1649,6 @@
      s->current_picture_ptr->qscale_type= FF_QSCALE_TYPE_H264;
      s->current_picture_ptr->pict_type= s->pict_type;
  
@@ -346,7 +338,7 @@ index d1662fc..72e00b6 100644
      if(!s->dropable) {
          ff_h264_execute_ref_pic_marking(h, h->mmco, h->mmco_index);
          h->prev_poc_msb= h->poc_msb;
-@@ -1666,9 +1662,6 @@ static void field_end(H264Context *h){
+@@ -1666,9 +1662,6 @@
              av_log(avctx, AV_LOG_ERROR, "hardware accelerator failed to decode picture\n");
      }
  
@@ -356,7 +348,7 @@ index d1662fc..72e00b6 100644
      /*
       * FIXME: Error handling code does not seem to support interlaced
       * when slices span multiple rows
-@@ -2710,8 +2703,6 @@ static void execute_decode_slices(H264Context *h, int context_count){
+@@ -2710,8 +2703,6 @@
  
      if (s->avctx->hwaccel)
          return;
@@ -365,7 +357,7 @@ index d1662fc..72e00b6 100644
      if(context_count == 1) {
          decode_slice(avctx, &h);
      } else {
-@@ -2847,8 +2838,6 @@ static int decode_nal_units(H264Context *h, const uint8_t *buf, int buf_size){
+@@ -2847,8 +2838,6 @@
              if (h->current_slice == 1) {
                  if (s->avctx->hwaccel && s->avctx->hwaccel->start_frame(s->avctx, NULL, 0) < 0)
                      return -1;
@@ -374,7 +366,7 @@ index d1662fc..72e00b6 100644
              }
  
              s->current_picture_ptr->key_frame |=
-@@ -2863,11 +2852,6 @@ static int decode_nal_units(H264Context *h, const uint8_t *buf, int buf_size){
+@@ -2863,11 +2852,6 @@
                      if (avctx->hwaccel->decode_slice(avctx, &buf[buf_index - consumed], consumed) < 0)
                          return -1;
                  }else
@@ -386,7 +378,7 @@ index d1662fc..72e00b6 100644
                      context_count++;
              }
              break;
-@@ -3396,20 +3380,3 @@ AVCodec h264_decoder = {
+@@ -3396,20 +3380,3 @@
      .flush= flush_dpb,
      .long_name = NULL_IF_CONFIG_SMALL("H.264 / AVC / MPEG-4 AVC / MPEG-4 part 10"),
  };
@@ -407,10 +399,9 @@ index d1662fc..72e00b6 100644
 -    .pix_fmts = (const enum PixelFormat[]){PIX_FMT_VDPAU_H264, PIX_FMT_NONE},
 -};
 -#endif
-diff --git a/libavcodec/mpeg12.c b/libavcodec/mpeg12.c
-index 0af24ad..8a2e93c 100644
---- a/libavcodec/mpeg12.c
-+++ b/libavcodec/mpeg12.c
+diff -Nur mplayer-old/libavcodec/mpeg12.c mplayer/libavcodec/mpeg12.c
+--- mplayer-old/libavcodec/mpeg12.c	2010-09-11 21:10:04.413085219 +0300
++++ mplayer/libavcodec/mpeg12.c	2010-09-11 21:10:17.925209095 +0300
 @@ -35,7 +35,6 @@
  #include "mpeg12data.h"
  #include "mpeg12decdata.h"
@@ -419,7 +410,7 @@ index 0af24ad..8a2e93c 100644
  #include "xvmc_internal.h"
  
  //#undef NDEBUG
-@@ -1226,12 +1225,7 @@ static enum PixelFormat mpeg_get_pixelformat(AVCodecContext *avctx){
+@@ -1226,12 +1225,7 @@
  
      if(avctx->xvmc_acceleration)
          return avctx->get_format(avctx,pixfmt_xvmc_mpg2_420);
@@ -433,7 +424,7 @@ index 0af24ad..8a2e93c 100644
          if(s->chroma_format <  2)
              return avctx->get_format(avctx,ff_hwaccel_pixfmt_list_420);
          else if(s->chroma_format == 2)
-@@ -1324,9 +1318,7 @@ static int mpeg_decode_postinit(AVCodecContext *avctx){
+@@ -1324,9 +1318,7 @@
          avctx->pix_fmt = mpeg_get_pixelformat(avctx);
          avctx->hwaccel = ff_find_hwaccel(avctx->codec->id, avctx->pix_fmt);
          //until then pix_fmt may be changed right after codec init
@@ -444,7 +435,7 @@ index 0af24ad..8a2e93c 100644
              if( avctx->idct_algo == FF_IDCT_AUTO )
                  avctx->idct_algo = FF_IDCT_SIMPLE;
  
-@@ -2065,8 +2057,7 @@ static int vcr2_init_sequence(AVCodecContext *avctx)
+@@ -2065,8 +2057,7 @@
      avctx->pix_fmt = mpeg_get_pixelformat(avctx);
      avctx->hwaccel = ff_find_hwaccel(avctx->codec->id, avctx->pix_fmt);
  
@@ -454,7 +445,7 @@ index 0af24ad..8a2e93c 100644
          if( avctx->idct_algo == FF_IDCT_AUTO )
              avctx->idct_algo = FF_IDCT_SIMPLE;
  
-@@ -2297,9 +2288,6 @@ static int decode_chunks(AVCodecContext *avctx,
+@@ -2297,9 +2288,6 @@
                          s2->error_count += s2->thread_context[i]->error_count;
                  }
  
@@ -464,7 +455,7 @@ index 0af24ad..8a2e93c 100644
                  if (slice_end(avctx, picture)) {
                      if(s2->last_picture_ptr || s2->low_delay) //FIXME merge with the stuff in mpeg_decode_slice
                          *data_size = sizeof(AVPicture);
-@@ -2446,11 +2434,6 @@ static int decode_chunks(AVCodecContext *avctx,
+@@ -2446,11 +2434,6 @@
                      return -1;
                  }
  
@@ -476,7 +467,7 @@ index 0af24ad..8a2e93c 100644
                  if(avctx->thread_count > 1){
                      int threshold= (s2->mb_height*s->slice_count + avctx->thread_count/2) / avctx->thread_count;
                      if(threshold <= mb_y){
-@@ -2578,36 +2561,3 @@ AVCodec mpeg_xvmc_decoder = {
+@@ -2578,36 +2561,3 @@
  };
  
  #endif
@@ -513,11 +504,10 @@ index 0af24ad..8a2e93c 100644
 -};
 -#endif
 -
-diff --git a/libavcodec/mpeg4videodec.c b/libavcodec/mpeg4videodec.c
-index b339f78..1928d03 100644
---- a/libavcodec/mpeg4videodec.c
-+++ b/libavcodec/mpeg4videodec.c
-@@ -2249,20 +2249,3 @@ AVCodec mpeg4_decoder = {
+diff -Nur mplayer-old/libavcodec/mpeg4videodec.c mplayer/libavcodec/mpeg4videodec.c
+--- mplayer-old/libavcodec/mpeg4videodec.c	2010-09-11 21:10:04.428084061 +0300
++++ mplayer/libavcodec/mpeg4videodec.c	2010-09-11 21:10:17.926208944 +0300
+@@ -2248,20 +2248,3 @@
      .long_name= NULL_IF_CONFIG_SMALL("MPEG-4 part 2"),
      .pix_fmts= ff_hwaccel_pixfmt_list_420,
  };
@@ -538,11 +528,10 @@ index b339f78..1928d03 100644
 -    .pix_fmts= (const enum PixelFormat[]){PIX_FMT_VDPAU_MPEG4, PIX_FMT_NONE},
 -};
 -#endif
-diff --git a/libavcodec/mpegvideo.c b/libavcodec/mpegvideo.c
-index 684bdfe..1bd9d5c 100644
---- a/libavcodec/mpegvideo.c
-+++ b/libavcodec/mpegvideo.c
-@@ -116,6 +116,7 @@ const enum PixelFormat ff_pixfmt_list_420[] = {
+diff -Nur mplayer-old/libavcodec/mpegvideo.c mplayer/libavcodec/mpegvideo.c
+--- mplayer-old/libavcodec/mpegvideo.c	2010-09-11 21:10:04.432084571 +0300
++++ mplayer/libavcodec/mpegvideo.c	2010-09-11 21:10:17.927208513 +0300
+@@ -117,6 +117,7 @@
  const enum PixelFormat ff_hwaccel_pixfmt_list_420[] = {
      PIX_FMT_DXVA2_VLD,
      PIX_FMT_VAAPI_VLD,
@@ -550,7 +539,7 @@ index 684bdfe..1bd9d5c 100644
      PIX_FMT_YUV420P,
      PIX_FMT_NONE
  };
-@@ -1056,7 +1057,6 @@ void MPV_frame_end(MpegEncContext *s)
+@@ -1064,7 +1065,6 @@
      if(CONFIG_MPEG_XVMC_DECODER && s->avctx->xvmc_acceleration){
          ff_xvmc_field_end(s);
      }else if(!s->avctx->hwaccel
@@ -558,10 +547,9 @@ index 684bdfe..1bd9d5c 100644
         && s->unrestricted_mv
         && s->current_picture.reference
         && !s->intra_only
-diff --git a/libavcodec/vc1dec.c b/libavcodec/vc1dec.c
-index 8c9cbcd..dbf2ded 100644
---- a/libavcodec/vc1dec.c
-+++ b/libavcodec/vc1dec.c
+diff -Nur mplayer-old/libavcodec/vc1dec.c mplayer/libavcodec/vc1dec.c
+--- mplayer-old/libavcodec/vc1dec.c	2010-09-11 21:10:04.405083639 +0300
++++ mplayer/libavcodec/vc1dec.c	2010-09-11 21:10:17.928209199 +0300
 @@ -37,7 +37,6 @@
  #include "unary.h"
  #include "simple_idct.h"
@@ -570,7 +558,7 @@ index 8c9cbcd..dbf2ded 100644
  
  #undef NDEBUG
  #include <assert.h>
-@@ -3167,13 +3166,6 @@ static int vc1_decode_frame(AVCodecContext *avctx,
+@@ -3167,13 +3166,6 @@
          s->current_picture_ptr= &s->picture[i];
      }
  
@@ -584,7 +572,7 @@ index 8c9cbcd..dbf2ded 100644
      //for advanced profile we may need to parse and unescape data
      if (avctx->codec_id == CODEC_ID_VC1) {
          int buf_size2 = 0;
-@@ -3190,8 +3182,7 @@ static int vc1_decode_frame(AVCodecContext *avctx,
+@@ -3190,8 +3182,7 @@
                  if(size <= 0) continue;
                  switch(AV_RB32(start)){
                  case VC1_CODE_FRAME:
@@ -594,7 +582,7 @@ index 8c9cbcd..dbf2ded 100644
                          buf_start = start;
                      buf_size2 = vc1_unescape_buffer(start + 4, size, buf2);
                      break;
-@@ -3278,10 +3269,7 @@ static int vc1_decode_frame(AVCodecContext *avctx,
+@@ -3278,10 +3269,7 @@
      s->me.qpel_put= s->dsp.put_qpel_pixels_tab;
      s->me.qpel_avg= s->dsp.avg_qpel_pixels_tab;
  
@@ -606,7 +594,7 @@ index 8c9cbcd..dbf2ded 100644
          if (avctx->hwaccel->start_frame(avctx, buf, buf_size) < 0)
              return -1;
          if (avctx->hwaccel->decode_slice(avctx, buf_start, (buf + buf_size) - buf_start) < 0)
-@@ -3371,37 +3359,3 @@ AVCodec wmv3_decoder = {
+@@ -3371,37 +3359,3 @@
      .pix_fmts = ff_hwaccel_pixfmt_list_420
  };
  #endif
@@ -644,10 +632,9 @@ index 8c9cbcd..dbf2ded 100644
 -    .pix_fmts = (const enum PixelFormat[]){PIX_FMT_VDPAU_VC1, PIX_FMT_NONE}
 -};
 -#endif
-diff --git a/libavcodec/vdpau.c b/libavcodec/vdpau.c
-index bd721e8..09ca45e 100644
---- a/libavcodec/vdpau.c
-+++ b/libavcodec/vdpau.c
+diff -Nur mplayer-old/libavcodec/vdpau.c mplayer/libavcodec/vdpau.c
+--- mplayer-old/libavcodec/vdpau.c	2010-09-11 21:10:04.418083343 +0300
++++ mplayer/libavcodec/vdpau.c	2010-09-11 21:10:17.929209047 +0300
 @@ -30,7 +30,6 @@
  #include <assert.h>
  
@@ -717,7 +704,7 @@ index bd721e8..09ca45e 100644
      assert(render);
  
      rf = &render->info.h264.referenceFrames[0];
-@@ -62,7 +103,7 @@ void ff_vdpau_h264_set_reference_frames(MpegEncContext *s)
+@@ -62,7 +103,7 @@
                  continue;
              pic_frame_idx = pic->long_ref ? pic->pic_id : pic->frame_num;
  
@@ -726,7 +713,7 @@ index bd721e8..09ca45e 100644
              assert(render_ref);
  
              rf2 = &render->info.h264.referenceFrames[0];
-@@ -84,81 +125,93 @@ void ff_vdpau_h264_set_reference_frames(MpegEncContext *s)
+@@ -84,81 +125,93 @@
              if (rf >= &render->info.h264.referenceFrames[H264_RF_COUNT])
                  continue;
  
@@ -791,13 +778,8 @@ index bd721e8..09ca45e 100644
  
 -    render = (struct vdpau_render_state *)s->current_picture_ptr->data[0];
 +    render = (struct vdpau_render_state *)s->current_picture_ptr->data[3];
-     assert(render);
- 
--    for (i = 0; i < 2; ++i) {
--        int foc = s->current_picture_ptr->field_poc[i];
--        if (foc == INT_MAX)
--            foc = 0;
--        render->info.h264.field_order_cnt[i] = foc;
++    assert(render);
++
 +    render->bitstream_buffers_used = 0;
 +    return 0;
 +}
@@ -808,16 +790,20 @@ index bd721e8..09ca45e 100644
 +    struct vdpau_render_state *render;
 +
 +    render = (struct vdpau_render_state *)s->current_picture_ptr->data[3];
-+    assert(render);
-+
+     assert(render);
+ 
+-    for (i = 0; i < 2; ++i) {
+-        int foc = s->current_picture_ptr->field_poc[i];
+-        if (foc == INT_MAX)
+-            foc = 0;
+-        render->info.h264.field_order_cnt[i] = foc;
 +    if (render->bitstream_buffers_used) {
 +        ff_draw_horiz_band(s, 0, s->avctx->height);
 +        render->bitstream_buffers_used = 0;
      }
 +    return 0;
 +}
- 
--    render->info.h264.frame_num = h->frame_num;
++
 +static int vdpau_common_decode_slice(AVCodecContext *avctx, const uint8_t *buf, uint32_t buf_size)
 +{
 +    MpegEncContext * const s = avctx->priv_data;
@@ -828,7 +814,8 @@ index bd721e8..09ca45e 100644
 +
 +    if (vdpau_ensure_bitstream_buffers(render) < 0)
 +        return -1;
-+
+ 
+-    render->info.h264.frame_num = h->frame_num;
 +    render->bitstream_buffers[render->bitstream_buffers_used].struct_version  = VDP_BITSTREAM_BUFFER_VERSION;
 +    render->bitstream_buffers[render->bitstream_buffers_used].bitstream       = buf;
 +    render->bitstream_buffers[render->bitstream_buffers_used].bitstream_bytes = buf_size;
@@ -864,7 +851,7 @@ index bd721e8..09ca45e 100644
      render->info.h264.field_pic_flag                         = s->picture_structure != PICT_FRAME;
      render->info.h264.bottom_field_flag                      = s->picture_structure == PICT_BOTTOM_FIELD;
      render->info.h264.num_ref_frames                         = h->sps.ref_frame_count;
-@@ -185,19 +238,44 @@ void ff_vdpau_h264_picture_complete(MpegEncContext *s)
+@@ -185,19 +238,44 @@
      memcpy(render->info.h264.scaling_lists_4x4, h->pps.scaling_matrix4, sizeof(render->info.h264.scaling_lists_4x4));
      memcpy(render->info.h264.scaling_lists_8x8, h->pps.scaling_matrix8, sizeof(render->info.h264.scaling_lists_8x8));
  
@@ -915,7 +902,7 @@ index bd721e8..09ca45e 100644
      assert(render);
  
      /* fill VdpPictureInfoMPEG1Or2 struct */
-@@ -226,36 +304,47 @@ void ff_vdpau_mpeg_picture_complete(MpegEncContext *s, const uint8_t *buf,
+@@ -226,36 +304,47 @@
  
      switch(s->pict_type){
      case  FF_B_TYPE:
@@ -975,7 +962,7 @@ index bd721e8..09ca45e 100644
      render->info.vc1.frame_coding_mode  = v->fcm;
      render->info.vc1.postprocflag       = v->postprocflag;
      render->info.vc1.pulldown           = v->broadcast;
-@@ -296,34 +385,47 @@ void ff_vdpau_vc1_decode_picture(MpegEncContext *s, const uint8_t *buf,
+@@ -296,34 +385,47 @@
  
      switch(s->pict_type){
      case  FF_B_TYPE:
@@ -1033,7 +1020,7 @@ index bd721e8..09ca45e 100644
      assert(render);
  
      /* fill VdpPictureInfoMPEG4Part2 struct */
-@@ -352,21 +454,122 @@ void ff_vdpau_mpeg4_decode_picture(MpegEncContext *s, const uint8_t *buf,
+@@ -352,21 +454,122 @@
  
      switch (s->pict_type) {
      case FF_B_TYPE:
@@ -1161,11 +1148,10 @@ index bd721e8..09ca45e 100644
 +#endif
 +
  /* @}*/
-diff --git a/libavutil/pixdesc.c b/libavutil/pixdesc.c
-index e2bc649..1c2b773 100644
---- a/libavutil/pixdesc.c
-+++ b/libavutil/pixdesc.c
-@@ -787,7 +787,13 @@ const AVPixFmtDescriptor av_pix_fmt_descriptors[PIX_FMT_NB] = {
+diff -Nur mplayer-old/libavutil/pixdesc.c mplayer/libavutil/pixdesc.c
+--- mplayer-old/libavutil/pixdesc.c	2010-09-11 21:10:04.380083800 +0300
++++ mplayer/libavutil/pixdesc.c	2010-09-11 21:10:17.929209047 +0300
+@@ -787,7 +787,13 @@
          .comp = {
              {0,1,1,0,7},        /* Y */
              {0,1,2,0,7},        /* A */
@@ -1180,11 +1166,10 @@ index e2bc649..1c2b773 100644
      },
  };
  
-diff --git a/libavutil/pixfmt.h b/libavutil/pixfmt.h
-index 8ec91c8..2386a81 100644
---- a/libavutil/pixfmt.h
-+++ b/libavutil/pixfmt.h
-@@ -133,6 +133,7 @@ enum PixelFormat {
+diff -Nur mplayer-old/libavutil/pixfmt.h mplayer/libavutil/pixfmt.h
+--- mplayer-old/libavutil/pixfmt.h	2010-09-11 21:10:04.379083672 +0300
++++ mplayer/libavutil/pixfmt.h	2010-09-11 21:10:17.930209175 +0300
+@@ -133,6 +133,7 @@
      PIX_FMT_BGR444BE,  ///< packed BGR 4:4:4, 16bpp, (msb)4A 4B 4G 4R(lsb), big-endian, most significant bits to 1
      PIX_FMT_BGR444LE,  ///< packed BGR 4:4:4, 16bpp, (msb)4A 4B 4G 4R(lsb), little-endian, most significant bits to 1
      PIX_FMT_Y400A,     ///< 8bit gray, 8bit alpha
@@ -1192,11 +1177,10 @@ index 8ec91c8..2386a81 100644
      PIX_FMT_NB,        ///< number of pixel formats, DO NOT USE THIS if you want to link with shared libav* because the number of formats might differ between versions
  };
  
-diff --git a/libmpcodecs/vd_ffmpeg.c b/libmpcodecs/vd_ffmpeg.c
-index 5b003fa..150e82c 100644
---- a/libmpcodecs/vd_ffmpeg.c
-+++ b/libmpcodecs/vd_ffmpeg.c
-@@ -294,7 +294,7 @@ static int init(sh_video_t *sh){
+diff -Nur mplayer-old/libmpcodecs/vd_ffmpeg.c mplayer/libmpcodecs/vd_ffmpeg.c
+--- mplayer-old/libmpcodecs/vd_ffmpeg.c	2010-09-11 21:10:04.524083743 +0300
++++ mplayer/libmpcodecs/vd_ffmpeg.c	2010-09-11 21:10:17.930209175 +0300
+@@ -306,7 +306,7 @@
      }
  #endif /* CONFIG_VAAPI */
  #if CONFIG_VDPAU
@@ -1205,11 +1189,10 @@ index 5b003fa..150e82c 100644
          avctx->get_format = get_format;
      }
  #endif /* CONFIG_VDPAU */
-diff --git a/libvo/vo_vdpau.c b/libvo/vo_vdpau.c
-index 490644d..31c8064 100644
---- a/libvo/vo_vdpau.c
-+++ b/libvo/vo_vdpau.c
-@@ -971,7 +971,7 @@ static int draw_slice(uint8_t *image[], int stride[], int w, int h,
+diff -Nur mplayer-old/libvo/vo_vdpau.c mplayer/libvo/vo_vdpau.c
+--- mplayer-old/libvo/vo_vdpau.c	2010-09-11 21:10:04.516083840 +0300
++++ mplayer/libvo/vo_vdpau.c	2010-09-11 21:10:17.930209175 +0300
+@@ -978,7 +978,7 @@
                        int x, int y)
  {
      VdpStatus vdp_st;
@@ -1218,7 +1201,7 @@ index 490644d..31c8064 100644
      int max_refs = image_format == IMGFMT_VDPAU_H264 ? rndr->info.h264.num_ref_frames : 2;
  
      if (handle_preemption() < 0)
-@@ -1074,10 +1074,10 @@ static uint32_t get_image(mp_image_t *mpi)
+@@ -1081,10 +1081,10 @@
          return VO_FALSE;
      }
      mpi->flags |= MP_IMGFLAG_DIRECT;
