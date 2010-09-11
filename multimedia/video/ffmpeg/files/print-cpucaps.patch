@@ -1,35 +1,51 @@
-diff -Nur ffmpeg-old/libavcodec/x86/cpuid.c ffmpeg/libavcodec/x86/cpuid.c
---- ffmpeg-old/libavcodec/x86/cpuid.c	2010-08-19 20:15:24.216523432 +0300
-+++ ffmpeg/libavcodec/x86/cpuid.c	2010-08-19 20:21:53.267658353 +0300
-@@ -26,6 +26,8 @@
+diff -Nur ffmpeg-old/libavutil/cpu.c ffmpeg/libavutil/cpu.c
+--- ffmpeg-old/libavutil/cpu.c	2010-09-11 20:41:27.623083649 +0300
++++ ffmpeg/libavutil/cpu.c	2010-09-11 20:44:06.247093525 +0300
+@@ -18,10 +18,12 @@
  
- #undef printf
+ #include "cpu.h"
+ #include "config.h"
++#include "log.h"
  
-+static int caps_printed = 0;
-+
- /* ebx saving is necessary for PIC. gcc seems unable to see it alone */
- #define cpuid(index,eax,ebx,ecx,edx)\
-     __asm__ volatile\
-@@ -121,8 +123,10 @@
-         if (rval & FF_MM_SSE3) rval ^= FF_MM_SSE3SLOW|FF_MM_SSE3;
-     }
+ int av_get_cpu_flags(void)
+ {
+     static int flags, checked;
++    static int caps_printed;
  
--#if 0
--    av_log(NULL, AV_LOG_DEBUG, "%s%s%s%s%s%s%s%s%s%s%s%s\n",
-+
+     if (checked)
+         return flags;
+@@ -31,19 +33,15 @@
+     if (ARCH_X86) flags = ff_get_cpu_flags_x86();
+ 
+     checked = 1;
+-    return flags;
+-}
+-
+-#ifdef TEST
+ 
+-#undef printf
++    /* print cpu flags once. we don't touch indentation for easier maintenance */
 +    if(!caps_printed) {
 +        caps_printed = 1;
+ 
+-int main(void)
+-{
+     int cpu_flags = av_get_cpu_flags();
+ 
+-    printf("cpu_flags = 0x%08X\n", cpu_flags);
+-    printf("cpu_flags = %s%s%s%s%s%s%s%s%s%s%s%s\n",
++    //av_log(NULL, AV_LOG_INFO, "CPU Flags detected: 0x%08X\n", cpu_flags);
 +    av_log(NULL, AV_LOG_INFO, "CPU Flags detected: %s%s%s%s%s%s%s%s%s%s%s%s\n",
-         (rval&FF_MM_MMX) ? "MMX ":"",
-         (rval&FF_MM_MMX2) ? "MMX2 ":"",
-         (rval&FF_MM_SSE) ? "SSE ":"",
-@@ -135,7 +139,8 @@
-         (rval&FF_MM_SSE42) ? "SSE4.2 ":"",
-         (rval&FF_MM_3DNOW) ? "3DNow ":"",
-         (rval&FF_MM_3DNOWEXT) ? "3DNowExt ":"");
--#endif
+ #if   ARCH_ARM
+            cpu_flags & AV_CPU_FLAG_IWMMXT   ? "IWMMXT "     : "",
+ #elif ARCH_PPC
+@@ -62,7 +60,7 @@
+            cpu_flags & AV_CPU_FLAG_3DNOW    ? "3DNow "      : "",
+            cpu_flags & AV_CPU_FLAG_3DNOWEXT ? "3DNowExt "   : "");
+ #endif
+-    return 0;
 +    }
-+
-     return rval;
++    return flags;
  }
  
+-#endif

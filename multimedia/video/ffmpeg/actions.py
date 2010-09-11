@@ -11,13 +11,13 @@ from pisi.actionsapi import shelltools
 from pisi.actionsapi import get
 
 WorkDir = "ffmpeg"
-version = "24953"
+version = "25106"
 minimumcpu = "" if get.ARCH() == "x86_64" else "--cpu=atom"
 
 
 def setup():
     # http://gcc.gnu.org/bugzilla/show_bug.cgi?id=11203
-    shelltools.export("CFLAGS","%s -DRUNTIME_CPUDETECT -O3 -ffast-math -fomit-frame-pointer" % get.CFLAGS())
+    shelltools.export("CFLAGS","%s -DRUNTIME_CPUDETECT -O3 -fomit-frame-pointer -fPIC" % get.CFLAGS())
     pisitools.dosed("configure", "die_li.*aac")
 
     # to keep the source tarball small and to prevent sandbox problem of subversion, write svn version by hand
