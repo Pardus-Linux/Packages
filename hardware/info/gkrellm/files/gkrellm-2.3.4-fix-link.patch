@@ -1,0 +1,52 @@
+--- src/Makefile.link	2010-01-05 00:12:07.000000000 +0100
++++ src/Makefile	2010-05-07 10:31:43.000000000 +0200
+@@ -19,7 +19,7 @@
+ MANMODE ?= 644
+ MANDIRMODE ?= 755
+ INSTALL ?= install
+-LINK_FLAGS ?= -Wl,-E
++LINK_FLAGS += -Wl,-E
+ SMC_LIBS ?= -L/usr/X11R6/lib -lSM -lICE
+ 
+ X11_LIBS ?= -lX11
+@@ -135,11 +135,11 @@
+ all:	gkrellm
+ 
+ gkrellm: check_env $(OBJS) $(UNIXOBJS) $(EXTRAOBJS)
+-	$(CC) $(OBJS) $(UNIXOBJS) $(EXTRAOBJS) -o gkrellm $(LIBS) $(LINK_FLAGS)
++	$(CC) $(LINK_FLAGS) $(OBJS) $(UNIXOBJS) $(EXTRAOBJS) -o gkrellm $(LIBS)
+ 
+ static: check_env $(OBJS) $(UNIXOBJS) $(EXTRAOBJS)
+-	$(CC) $(OBJS) $(UNIXOBJS) $(EXTRAOBJS) -o gkrellm.static -static \
+-		$(LIBS) $(LINK_FLAGS)
++	$(CC) $(LINK_FLAGS) $(OBJS) $(UNIXOBJS) $(EXTRAOBJS) -o gkrellm.static -static \
++		$(LIBS)
+ 
+ freebsd2:
+ ifeq ($(HAVE_SSL),1)
+--- server/Makefile.link	2008-10-03 23:52:48.000000000 +0200
++++ server/Makefile	2010-05-07 10:31:53.000000000 +0200
+@@ -26,7 +26,7 @@
+ MANMODE ?= 644
+ MANDIRMODE ?= 755
+ INSTALL ?= install
+-LINK_FLAGS ?= -Wl,-E
++LINK_FLAGS += -Wl,-E
+ EXTRAOBJS =
+ 
+ SHARED_PATH = ../shared
+@@ -117,11 +117,11 @@
+ all:	gkrellmd
+ 
+ gkrellmd: $(OBJS) $(EXTRAOBJS)
+-	$(CC) $(OBJS) $(EXTRAOBJS) -o gkrellmd $(LIBS) $(LINK_FLAGS)
++	$(CC) $(LINK_FLAGS) $(OBJS) $(EXTRAOBJS) -o gkrellmd $(LIBS)
+ 
+ static: $(OBJS) $(EXTRAOBJS)
+-	$(CC) $(OBJS) $(EXTRAOBJS) -o gkrellmd.static -static \
+-		$(LIBS) $(LINK_FLAGS)
++	$(CC) $(LINK_FLAGS) $(OBJS) $(EXTRAOBJS) -o gkrellmd.static -static \
++		$(LIBS)
+ 
+ freebsd2:
+ 	$(MAKE) GTK_CONFIG=gtk12-config \
