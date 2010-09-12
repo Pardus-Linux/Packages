@@ -1,0 +1,62 @@
+Index: fortran/src/Makefile.am
+===================================================================
+--- fortran/src/Makefile.am.orig
++++ fortran/src/Makefile.am
+@@ -70,6 +70,8 @@ libhdf5_fortran_la_SOURCES= H5f90global.
+          H5If.c H5Lf.c H5Of.c H5Pf.c H5Rf.c H5Sf.c H5Tf.c H5Zf.c        \
+          $(PARALLEL_COND_SRC)
+ 
++libhdf5_fortran_la_LIBADD = $(top_builddir)/src/libhdf5.la
++
+ # h5fc is generated during configure.
+ # Remove it only when distclean.
+ DISTCLEANFILES=h5fc
+Index: hl/fortran/src/Makefile.am
+===================================================================
+--- hl/fortran/src/Makefile.am.orig
++++ hl/fortran/src/Makefile.am
+@@ -47,6 +47,7 @@ endif
+ 
+ libhdf5hl_fortran_la_SOURCES=H5LTfc.c  H5IMfc.c H5IMcc.c H5TBfc.c H5LTff.f90  \
+                 H5IMff.f90 H5TBff.f90
++libhdf5hl_fortran_la_LIBADD=$(top_builddir)/hl/src/libhdf5_hl.la $(top_builddir)/fortran/src/libhdf5_fortran.la
+ 
+ # Fortran module files can have different extensions and different names
+ # (e.g., different capitalizations) on different platforms.  Write rules
+Index: hl/c++/src/Makefile.am
+===================================================================
+--- hl/c++/src/Makefile.am.orig
++++ hl/c++/src/Makefile.am
+@@ -39,6 +39,7 @@ endif
+ # Source files for the library
+ # At the moment, only the H5PT Packet Table has a C++ API.
+ libhdf5_hl_cpp_la_SOURCES=H5PacketTable.cpp
++libhdf5_hl_cpp_la_LIBADD=$(top_builddir)/hl/src/libhdf5_hl.la
+ 
+ # Public headers
+ include_HEADERS=H5PacketTable.h
+Index: hl/src/Makefile.am
+===================================================================
+--- hl/src/Makefile.am.orig
++++ hl/src/Makefile.am
+@@ -31,6 +31,7 @@ lib_LTLIBRARIES=libhdf5_hl.la
+ libhdf5_hl_la_LDFLAGS= -version-info $(LT_VERS_INTERFACE):$(LT_VERS_REVISION):$(LT_VERS_AGE) $(AM_LDFLAGS)
+ 
+ libhdf5_hl_la_SOURCES=H5DS.c H5IM.c H5LT.c H5LTanalyze.c H5LTparse.c H5PT.c H5TB.c
++libhdf5_hl_la_LIBADD=$(top_builddir)/src/libhdf5.la
+ 
+ # Public header files (to be installed)
+ include_HEADERS=hdf5_hl.h H5IMpublic.h H5LTpublic.h H5TBpublic.h H5DSpublic.h H5PTpublic.h
+Index: c++/src/Makefile.am
+===================================================================
+--- c++/src/Makefile.am.orig
++++ c++/src/Makefile.am
+@@ -28,7 +28,7 @@ INCLUDES=-I$(top_srcdir)/src
+ lib_LTLIBRARIES=libhdf5_cpp.la
+ 
+ # Add libtool numbers to the HDF5 C++ library (from config/lt_vers.am)
+-libhdf5_cpp_la_LDFLAGS= -version-info $(LT_VERS_INTERFACE):$(LT_VERS_REVISION):$(LT_VERS_AGE) $(AM_LDFLAGS)
++libhdf5_cpp_la_LDFLAGS= -version-info $(LT_VERS_INTERFACE):$(LT_VERS_REVISION):$(LT_VERS_AGE) $(AM_LDFLAGS) $(top_builddir)/src/libhdf5.la
+ 
+ # Shared C++ libraries aren't universally supported.
+ if CXX_SHARED_CONDITIONAL
