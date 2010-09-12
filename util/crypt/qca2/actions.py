@@ -27,11 +27,4 @@ def install():
     pisitools.dodir("/usr/share/doc/qca2-apidocs/html")
     pisitools.insinto("/usr/share/doc/qca2-apidocs/html", "apidocs/html/*")
 
-    # Create symlink for qcatool
-    #pisitools.dosym("/usr/qt/4/bin/qcatool2", "/usr/bin/qcatool2")
-
-    #Use openssl CA list instead of the outdated QCA root CA list
-    #pisitools.remove("/usr/share/qca/certs/rootcerts.pem")
-    #pisitools.dosym("/etc/ssl/certs/ca-bundle.crt", "/usr/share/qca/certs/rootcerts.pem")
-
     pisitools.dodoc("README", "TODO", "COPYING")
