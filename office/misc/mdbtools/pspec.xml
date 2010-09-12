@@ -17,6 +17,8 @@
         <Archive sha1sum="37a50d623a444ec690d2677b12b59c2f11e497c0" type="targz">mirrors://sourceforge/mdbtools/mdbtools-0.6pre1.tar.gz</Archive>
         <BuildDependencies>
             <Dependency>unixODBC</Dependency>
+            <Dependency>libglade-devel</Dependency>
+            <Dependency releaseFrom="10">libgnomeui-devel</Dependency>
         </BuildDependencies>
         <Patches>
             <Patch>mdbtools-0.6_pre1-as-needed.patch</Patch>
@@ -34,6 +36,8 @@
             <Patch level="1">suse/parallelmake.patch</Patch>
 
             <Patch level="1">mdbtools-0.6_pre2-odbc_definitions.patch</Patch>
+
+            <Patch>mdbtools-linkage_fix.diff</Patch>
         </Patches>
     </Source>
 
@@ -45,8 +49,6 @@
         <Files>
             <Path fileType="executable">/usr/bin</Path>
             <Path fileType="library">/usr/lib</Path>
-            <Path fileType="data">/usr/share/gmdb</Path>
-            <Path fileType="data">/usr/share/gnome</Path>
             <Path fileType="man">/usr/share/man</Path>
             <Path fileType="doc">/usr/share/doc</Path>
         </Files>
@@ -61,8 +63,24 @@
         <Files>
             <Path fileType="header">/usr/include</Path>
             <Path fileType="data">/usr/lib/pkgconfig</Path>
-            <!-- FIXME: Remove this if not necessary -->
-            <Path fileType="man">/usr/share/man/man3</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>mdbtools-gui</Name>
+        <Summary>User interface for mdbtools written using Glade.</Summary>
+        <RuntimeDependencies>
+            <Dependency release="2">mdbtools</Dependency>
+            <Dependency>libgnomeui</Dependency>
+            <Dependency>libglade</Dependency>
+            <Dependency>gtk2</Dependency>
+            <Dependency>pango</Dependency>
+            <Dependency>libgnome</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="executable">/bin/gmdb2</Path>
+            <Path fileType="data">/usr/share/gmdb</Path>
+            <Path fileType="data">/usr/share/gnome/help/gmdb</Path>
         </Files>
     </Package>
 
