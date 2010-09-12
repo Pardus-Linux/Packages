@@ -20,7 +20,7 @@ def setup():
                          --with-crypto=nss \
                          --with-distro=pardus \
                          --with-resolvconf=/etc/resolv.conf \
-                         --with-system-ca-path=/etc/ssl/certs \
+                         --with-system-ca-path=/etc/pki/tls/certs \
                          --with-tests")
 
 def build():
