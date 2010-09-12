@@ -1,0 +1,31 @@
+Index: llvm-2.7/Makefile.rules
+===================================================================
+--- llvm-2.7.orig/Makefile.rules
++++ llvm-2.7/Makefile.rules
+@@ -589,12 +589,6 @@ ifdef LOADABLE_MODULE
+   LD.Flags += -module
+ endif
+ 
+-ifdef SHARED_LIBRARY
+-ifneq ($(DARWIN_MAJVERS),4)
+-  LD.Flags += $(RPATH) -Wl,$(LibDir)
+-endif
+-endif
+-
+ ifdef TOOL_VERBOSE
+   C.Flags += -v
+   CXX.Flags += -v
+@@ -622,12 +616,7 @@ endif
+ ifneq ($(HOST_OS),Darwin)
+ ifneq ($(DARWIN_MAJVERS),4)
+ ifdef TOOLNAME
+-  LD.Flags += $(RPATH) -Wl,'$$ORIGIN/../lib'
+-  ifdef EXAMPLE_TOOL
+-    LD.Flags += $(RPATH) -Wl,$(ExmplDir) $(RDYNAMIC)
+-  else
+-    LD.Flags += $(RPATH) -Wl,$(ToolDir) $(RDYNAMIC)
+-  endif
++  LD.Flags += $(RPATH) -Wl,'$$ORIGIN/../lib/llvm' $(RDYNAMIC)
+ endif
+ endif
+ endif

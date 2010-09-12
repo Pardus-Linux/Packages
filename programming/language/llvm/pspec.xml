@@ -1,0 +1,78 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>llvm</Name>
+        <Homepage>http://www.llvm.org/</Homepage>
+        <Packager>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Packager>
+        <License>NCSA</License>
+        <Summary>The Low Level Virtual Machine</Summary>
+        <Description>The LLVM Project is a collection of modular and reusable compiler and toolchain technologies. Despite its name, LLVM has little to do with traditional virtual machines, though it does provide helpful libraries that can be used to build them.</Description>
+        <Archive sha1sum="059fc21b0ec1b649c4a3dec81756e5f92aa131a2" type="targz">http://www.llvm.org/releases/2.7/llvm-2.7.tgz</Archive>
+        <BuildDependencies>
+            <Dependency>tcl-devel</Dependency>
+            <Dependency>ocaml</Dependency>
+            <Dependency>libffi-devel</Dependency>
+            <Dependency>libstdc++</Dependency>
+        </BuildDependencies>
+        <Patches>
+            <Patch level="1">llvm-2.6-timestamp.patch</Patch>
+            <Patch level="1">rpath.patch</Patch>
+            <Patch level="1">relative-links.patch</Patch>
+        </Patches>
+    </Source>
+
+    <Package>
+        <Name>llvm</Name>
+        <IsA>app:console</IsA>
+        <IsA>library</IsA>
+        <RuntimeDependencies>
+            <Dependency>libffi</Dependency>
+            <Dependency>libstdc++</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="executable">/usr/bin</Path>
+            <Path fileType="header">/usr/include</Path>
+            <Path fileType="library">/usr/lib/llvm</Path>
+            <Path fileType="doc">/usr/share/doc</Path>
+            <Path fileType="man">/usr/share/man</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>llvm-ocaml</Name>
+        <IsA>library</IsA>
+        <PartOf>programming.language.ocaml</PartOf>
+        <Summary>OCaml binding for LLVM</Summary>
+        <RuntimeDependencies>
+            <Dependency release="1">llvm</Dependency>
+            <Dependency>ocaml</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="library">/usr/lib/ocaml</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>llvm-docs</Name>
+        <IsA>data:doc</IsA>
+        <Summary>Documentation for LLVM</Summary>
+        <Files>
+            <Path fileType="doc">/usr/share/doc/llvm/html</Path>
+            <Path fileType="doc">/usr/share/doc/llvm/ocamldoc</Path>
+        </Files>
+    </Package>
+
+    <History>
+        <Update release="1">
+            <Date>2010-07-04</Date>
+            <Version>2.7</Version>
+            <Comment>First release</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+    </History>
+</PISI>
