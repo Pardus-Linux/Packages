@@ -89,6 +89,7 @@ def install():
     #Remove phonon, we use KDE's phonon but we have to build Qt with Phonon support for webkit and some other stuff
     pisitools.remove("%s/libphonon*" % qt4.libdir)
     pisitools.removeDir("%s/phonon" % qt4.includedir)
+    pisitools.removeDir("%s/phonon_backend" % qt4.plugindir)
     pisitools.remove("%s/pkgconfig/phonon*" % qt4.libdir)
     pisitools.remove("/usr/share/dbus-1/interfaces/org.kde.Phonon.AudioOutput.xml")
     os.removedirs("%s/usr/share/dbus-1/interfaces" % get.installDIR())
