@@ -28,13 +28,14 @@ def builddiet():
                          --disable-selinux" % get.CFLAGS())
 
     pisitools.dosed("lib/misc/configure.h","rpl_malloc","malloc")
+    pisitools.dosed("lib/misc/configure.h","rpl_realloc","realloc")
 
     autotools.make("-j1 -C include")
     autotools.make("-j1 -C lib LIB_SHARED= VERSIONED_SHLIB=")
     autotools.make("-j1 -C libdm LIB_SHARED= VERSIONED_SHLIB=")
-    autotools.make("-j1 -C tools dmsetup.static lvm.static")
+    autotools.make("-j1 -C tools dmsetup.static lvm.static DIETLIBC_LIBS=\"-lcompat\"")
 
-    pisitools.insinto("/usr/lib/dietlibc/lib-i386/", "libdm/ioctl/libdevmapper.a")
+    pisitools.insinto("/usr/lib/dietlibc/lib-i386", "libdm/ioctl/libdevmapper.a")
     pisitools.insinto("/sbin/", "tools/lvm.static")
     pisitools.insinto("/sbin/", "tools/dmsetup.static")
 
@@ -87,5 +88,5 @@ def install():
 
     #pisitools.move("/sbin/lvmconf","scripts/lvmconf.sh")
 
-    #builddiet()
+    builddiet()
     pisitools.dodoc("COPYING", "COPYING.LIB", "README", "VERSION", "VERSION_DM", "WHATS_NEW", "WHATS_NEW_DM")

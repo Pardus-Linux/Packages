@@ -1,13 +1,13 @@
-Index: LVM2.2.02.70/tools/Makefile.in
+Index: LVM2.2.02.73/tools/Makefile.in
 ===================================================================
---- LVM2.2.02.70.orig/tools/Makefile.in
-+++ LVM2.2.02.70/tools/Makefile.in
+--- LVM2.2.02.73.orig/tools/Makefile.in
++++ LVM2.2.02.73/tools/Makefile.in
 @@ -104,7 +104,7 @@ ifeq ("@DMEVENTD@", "yes")
  	LVMLIBS += -ldevmapper-event
  endif
  
 -LVMLIBS += -ldevmapper
-+LVMLIBS += -ldevmapper -lm
++LVMLIBS += -ldevmapper -ldevmapper-event
  
  EXPORTED_HEADER = $(srcdir)/lvm2cmd.h
  EXPORTED_FN_PREFIX = lvm2
@@ -20,16 +20,3 @@ Index: LVM2.2.02.70/tools/Makefile.in
  		@CLDWHOLEARCHIVE@ liblvm2cmd.a @CLDNOWHOLEARCHIVE@
  
  liblvm2cmd.$(LIB_SUFFIX).$(LIB_VERSION): liblvm2cmd.$(LIB_SUFFIX)
-Index: LVM2.2.02.70/liblvm/Makefile.in
-===================================================================
---- LVM2.2.02.70.orig/liblvm/Makefile.in
-+++ LVM2.2.02.70/liblvm/Makefile.in
-@@ -39,7 +39,7 @@ EXPORTED_FN_PREFIX = lvm
- 
- include $(top_builddir)/make.tmpl
- 
--LIBS += $(LVMINTERNAL_LIBS) -ldevmapper
-+LIBS += $(LVMINTERNAL_LIBS) -ldevmapper -lm
- 
- ifeq ("@DMEVENTD@", "yes")
-   LIBS += -ldevmapper-event

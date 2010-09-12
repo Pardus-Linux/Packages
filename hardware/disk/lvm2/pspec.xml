@@ -12,12 +12,13 @@
         <IsA>app:console</IsA>
         <Summary>Userland logical volume management tools</Summary>
         <Description>LVM2 includes all of the support for handling read/write operations physical and logical volumes.</Description>
-        <Archive sha1sum="6f88114e72204feee491befd5f0e203036b90f11" type="targz">ftp://sources.redhat.com/pub/lvm2/LVM2.2.02.70.tgz</Archive>
+        <Archive sha1sum="297feef08dced7d64bff9f5f8a47c1916fcb2afa" type="targz">ftp://sources.redhat.com/pub/lvm2/LVM2.2.02.73.tgz</Archive>
         <Patches>
+            <Patch level="1">lvm2-no-floor.patch</Patch>
             <Patch level="1">lvm2-diet.patch</Patch>
             <Patch level="1">lvm2-set-default-preferred_names.patch</Patch>
-            <Patch level="1">fix-underlinking.patch</Patch>
             <Patch level="1">fix-build-error.patch</Patch>
+            <Patch level="1">fix-underlinking.patch</Patch>
         </Patches>
     </Source>
 
@@ -42,7 +43,7 @@
         <Summary>Development libraries and headers for device-mapper</Summary>
         <Description>Device-mapper-devel contains files needed to develop applications that use the device-mapper libraries.</Description>
         <RuntimeDependencies>
-            <Dependency release="17" >device-mapper</Dependency>
+            <Dependency release="18" >device-mapper</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="header">/usr/include/libdevmapper.h</Path>
@@ -55,7 +56,7 @@
         <Summary>Device-mapper event daemon</Summary>
         <Description>This package contains the dmeventd daemon for monitoring the state of device-mapper devices.</Description>
         <RuntimeDependencies>
-            <Dependency release="17" >device-mapper</Dependency>
+            <Dependency release="18" >device-mapper</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="executable">/usr/sbin/dmeventd</Path>
@@ -69,7 +70,7 @@
         <Summary>Development libraries and headers for the device-mapper event daemon</Summary>
         <Description>This contains contains files needed to develop applications that use the device-mapper event library.</Description>
         <RuntimeDependencies>
-            <Dependency release="17" >device-mapper-event</Dependency>
+            <Dependency release="18" >device-mapper-event</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="header">/usr/include/libdevmapper-event.h</Path>
@@ -82,7 +83,8 @@
         <Summary>Userland logical volume management tools</Summary>
         <Description>LVM2 includes all of the support for handling read/write operations on physical volumes,creating volume groups from one or more physical volumes and creating one or more logical volumes in volume groups.</Description>
         <RuntimeDependencies>
-            <Dependency release="17" >device-mapper</Dependency>
+            <Dependency release="18" >device-mapper</Dependency>
+            <Dependency release="18" >device-mapper-event</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="executable">/sbin/lvmconf</Path>
@@ -117,9 +119,9 @@
         <Summary>Development libraries and headers</Summary>
         <Description>This package contains files needed to develop applications that use the lvm2 libraries.</Description>
         <RuntimeDependencies>
-            <Dependency release="17">lvm2</Dependency>
-            <Dependency release="17">device-mapper-devel</Dependency>
-            <Dependency release="17">device-mapper-event-devel</Dependency>
+            <Dependency release="18">lvm2</Dependency>
+            <Dependency release="18">device-mapper-devel</Dependency>
+            <Dependency release="18">device-mapper-event-devel</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="header">/usr/include/lvm2cmd.h</Path>
@@ -128,7 +130,45 @@
         </Files>
     </Package>
 
+    <Package>
+        <Name>dietlibc-libdevmapper</Name>
+        <PartOf>system.devel</PartOf>
+        <Summary>Static devmapper library built with dietlibc</Summary>
+        <Description>device mapper contains ioctl library and utilities for use with logical volume management (LVM2) built with dietlibc</Description>
+        <Files>
+            <Path fileType="library">/usr/lib/dietlibc/lib-i386/libdevmapper.a</Path>
+       </Files>
+    </Package>
+
+    <Package>
+        <Name>device-mapper-static</Name>
+        <Summary>Staticaly linked Device-mapper library and utility</Summary>
+        <Description>device mapper contains statically linked libraries and utility for initramfs.</Description>
+        <Files>
+            <Path fileType="executable">/sbin/dmsetup.static</Path>
+       </Files>
+    </Package>
+
+    <Package>
+        <Name>lvm2-static</Name>
+        <Summary>Staticaly linked Logical Volume Management utilities</Summary>
+        <Description>Number of utilities for creating, checking, and repairing logical volumes - statically linked for initramfs.</Description>
+        <Files>
+            <Path fileType="executable">/sbin/lvm.static</Path>
+       </Files>
+    </Package>
+
     <History>
+        <Update release="18">
+            <Date>2010-08-21</Date>
+            <Version>2.02.73</Version>
+            <Comment>
+                -Version update to stable release
+                -Enable initramfs support
+            </Comment>
+            <Name>Mete Alpaslan</Name>
+            <Email>mete@pardus.org.tr</Email>
+        </Update>
         <Update release="17">
             <Date>2010-08-21</Date>
             <Version>2.02.70</Version>
