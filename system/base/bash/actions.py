@@ -10,10 +10,18 @@ from pisi.actionsapi import pisitools
 from pisi.actionsapi import shelltools
 from pisi.actionsapi import get
 
+
+cfgsettings = """-DDEFAULT_PATH_VALUE=\'\"/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin\"\' \
+                 -DSTANDARD_UTILS_PATH=\'\"/bin:/usr/bin:/sbin:/usr/sbin\"\' \
+                 -DSYS_BASHRC=\'\"/etc/bash/bashrc\"\' \
+                 -DNON_INTERACTIVE_LOGIN_SHELLS \
+                 -DSSH_SOURCE_BASHRC"""
+                 #-DSYS_BASH_LOGOUT=\'\"/etc/bash/bash_logout\"\' \
+
 def setup():
     # Recycles pids is neccessary. When bash's last fork's pid was X and new fork's pid is also X,
     # bash has to wait for this same pid. Without Recycles pids bash will not wait.
-    shelltools.export("CFLAGS", "%s -D_GNU_SOURCE -DRECYCLES_PIDS " % get.CFLAGS())
+    shelltools.export("CFLAGS", "%s -D_GNU_SOURCE -DRECYCLES_PIDS %s " % (get.CFLAGS(), cfgsettings))
 
     autotools.autoconf()
     autotools.configure("--without-installed-readline \
