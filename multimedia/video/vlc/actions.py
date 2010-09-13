@@ -94,8 +94,9 @@ def install():
          pisitools.insinto("/usr/share/icons/hicolor/%s/apps/" % icon, "share/icons/%s/vlc*.png" % icon)
 
     # Fix Firefox plugin location
-    pisitools.rename("/usr/lib/mozilla","nsbrowser")
-    pisitools.remove("/usr/lib/nsbrowser/plugins/*.la")
+    pisitools.domove("/usr/lib/mozilla/plugins/*", "/usr/lib/browser-plugins")
+    pisitools.remove("/usr/lib/browser-plugins/*.la")
+    pisitools.removeDir("/usr/lib/mozilla/")
 
     pisitools.dodoc("AUTHORS", "THANKS", "NEWS", "README", "HACKING", "doc/fortunes.txt", "doc/intf-vcd.txt")
 
