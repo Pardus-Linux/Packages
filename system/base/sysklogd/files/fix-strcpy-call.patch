@@ -1,0 +1,14 @@
+Index: sysklogd-1.5/syslogd.c
+===================================================================
+--- sysklogd-1.5.orig/syslogd.c
++++ sysklogd-1.5/syslogd.c
+@@ -2437,7 +2437,8 @@ void init()
+ 		if (*p == '\0' || *p == '#')
+ 			continue;
+ #if CONT_LINE
+-		strcpy(cline, p);
++		/*strcpy(cline, p);*/
++        memmove(cline, p, strlen(p)+1);
+ #endif
+ 		for (p = strchr(cline, '\0'); isspace(*--p););
+ #if CONT_LINE

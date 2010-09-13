@@ -13,15 +13,14 @@
         <Summary>Kernel and system logging daemons</Summary>
         <Description>sysklogd implements two system log daemons. syslogd is responsable for providing logging of messages received from programs and facilities while klogd listens to kernel message sources.</Description>
         <Archive sha1sum="070cce745b023f2ce7ca7d9888af434d6d61c236" type="targz">ftp://metalab.unc.edu/pub/Linux/system/daemons/sysklogd-1.5.tar.gz</Archive>
-        <BuildDependencies>
-            <Dependency versionFrom="2.6.18">kernel-headers</Dependency>
-        </BuildDependencies>
         <Patches>
             <Patch level="1">makefile.patch</Patch>
             <Patch level="1">sysklogd-1.4.2-caen-owl-klogd-drop-root.diff</Patch>
             <Patch level="1">sysklogd-1.4.2-caen-owl-syslogd-bind.diff</Patch>
             <Patch level="1">sysklogd-1.4.2-caen-owl-syslogd-drop-root.diff</Patch>
             <Patch level="1">syslog_dont_sleep.patch</Patch>
+            <Patch level="1">fix-strcpy-call.patch</Patch>
+            <Patch level="1">remove-faulty-fclose.patch</Patch>
         </Patches>
     </Source>
 
@@ -29,10 +28,10 @@
         <Name>sysklogd</Name>
         <RuntimeDependencies>
             <Dependency>perl</Dependency>
-            <Dependency releaseFrom="17">comar-api</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="config">/etc</Path>
+            <Path fileType="config">/etc/logrotate.d</Path>
             <Path fileType="executable">/usr/sbin</Path>
             <Path fileType="doc">/usr/share/doc</Path>
             <Path fileType="man">/usr/share/man</Path>
@@ -40,6 +39,7 @@
         <AdditionalFiles>
             <AdditionalFile owner="root" permission="0755" target="/usr/sbin/syslogd-listfiles">syslogd-listfiles</AdditionalFile>
             <AdditionalFile owner="root" permission="0644" target="/etc/syslog.conf">syslog.conf</AdditionalFile>
+            <AdditionalFile owner="root" permission="0644" target="/etc/logrotate.d/sysklogd">sysklogd-1.5.logrotate</AdditionalFile>
             <AdditionalFile owner="root" permission="0644" target="/etc/conf.d/sysklogd">sysklogd.confd</AdditionalFile>
         </AdditionalFiles>
         <Provides>
@@ -48,6 +48,16 @@
     </Package>
 
     <History>
+        <Update release="14">
+            <Date>2010-09-13</Date>
+            <Version>1.5</Version>
+            <Comment>
+                - Fix 64-bit parsing problem,
+                - Add back logrotate file.
+            </Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
         <Update release="13">
             <Date>2010-01-28</Date>
             <Version>1.5</Version>
