@@ -12,7 +12,7 @@ def setup():
     autotools.autoreconf("-fiv")
     autotools.configure("--disable-schemas-install \
                          --with-pam-dir=/lib/security \
-                         --with-root-certs=/etc/ssl/certs\
+                         --with-root-certs=/etc/pki/tls/certs\
                          --enable-silent-rules")
 
 def build():
