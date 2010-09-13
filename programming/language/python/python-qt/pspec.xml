@@ -2,7 +2,7 @@
 <!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
 <PISI>
     <Source>
-        <Name>PyQt</Name>
+        <Name>python-qt</Name>
         <Homepage>http://www.riverbankcomputing.co.uk/software/pyqt</Homepage>
         <Packager>
             <Name>Gökmen Göksel</Name>
@@ -13,10 +13,10 @@
         <IsA>library</IsA>
         <Summary>A set of Python bindings for the Qt 4.x Toolkit</Summary>
         <Description>Qt is a set of C++ libraries and development tools that includes platform independent abstractions for graphical user interfaces, networking, threads, Unicode, regular expressions, SQL databases, SVG, OpenGL, XML, and user and application settings. PyQt implements 440 of these classes as a set of Python modules.</Description>
-        <Archive sha1sum="0c7c96872b8dfc1822618fbaacae735e91d8405f" type="targz">http://www.riverbankcomputing.co.uk/static/Downloads/PyQt4/PyQt-x11-gpl-4.7.5.tar.gz</Archive>
+        <Archive sha1sum="79170b33e3c4ee5716c48e131dafd30147b01c7c" type="targz">http://www.riverbankcomputing.co.uk/static/Downloads/PyQt4/PyQt-x11-gpl-4.7.6.tar.gz</Archive>
         <BuildDependencies>
             <Dependency versionFrom="4.7.0_beta2">qt-devel</Dependency>
-            <Dependency versionFrom="4.11">sip-devel</Dependency>
+            <Dependency versionFrom="4.11.1">sip-devel</Dependency>
             <Dependency versionFrom="4.7.0_beta2">qt-webkit</Dependency>
             <Dependency versionFrom="4.4.2">phonon-devel</Dependency>
         </BuildDependencies>
@@ -26,19 +26,22 @@
     </Source>
 
     <Package>
-        <Name>PyQt-devel</Name>
-        <Summary>Development files for PyQt</Summary>
+        <Name>python-qt-devel</Name>
+        <Summary>Development files for python-qt</Summary>
         <RuntimeDependencies>
-            <Dependency release="47">PyQt</Dependency>
-            <Dependency release="47">PyQt-webkit</Dependency>
-            <Dependency release="47">PyQt-phonon</Dependency>
-            <Dependency versionFrom="4.11">sip-devel</Dependency>
             <Dependency>qt-devel</Dependency>
+            <Dependency release="47">python-qt</Dependency>
+            <Dependency release="47">python-qt-webkit</Dependency>
+            <Dependency release="47">python-qt-phonon</Dependency>
+            <Dependency versionFrom="4.11.1">sip-devel</Dependency>
         </RuntimeDependencies>
         <Conflicts>
             <Package releaseTo="45">PyQt-webkit</Package>
             <Package releaseTo="45">PyQt-phonon</Package>
         </Conflicts>
+        <Replaces>
+            <Package>PyQt-devel</Package>
+        </Replaces>
         <Files>
             <Path fileType="executable">/usr/bin</Path>
             <Path fileType="data">/usr/share/sip</Path>
@@ -46,11 +49,14 @@
     </Package>
 
     <Package>
-        <Name>PyQt</Name>
+        <Name>python-qt</Name>
         <RuntimeDependencies>
             <Dependency versionFrom="4.7.0_beta2">qt</Dependency>
             <Dependency versionFrom="4.11">sip</Dependency>
         </RuntimeDependencies>
+        <Replaces>
+            <Package>PyQt</Package>
+        </Replaces>
         <Files>
             <Path fileType="library">/usr/lib</Path>
             <Path fileType="doc">/usr/share/doc</Path>
@@ -60,16 +66,19 @@
     </Package>
 
     <Package>
-        <Name>PyQt-webkit</Name>
+        <Name>python-qt-webkit</Name>
         <Summary>Python bindings for QtWebkit library</Summary>
         <RuntimeDependencies>
-            <Dependency releaseFrom="47">PyQt</Dependency>
+            <Dependency releaseFrom="47">python-qt</Dependency>
             <Dependency versionFrom="4.7.0_beta2">qt-webkit</Dependency>
         </RuntimeDependencies>
         <Conflicts>
             <!-- PyQt-webkit is a seperate package -->
             <Package releaseTo="42">PyQt</Package>
         </Conflicts>
+        <Replaces>
+            <Package>PyQt-webkit</Package>
+        </Replaces>
         <Files>
             <Path fileType="library">/usr/lib/python*/site-packages/PyQt4/*WebKit*</Path>
             <Path fileType="library">/usr/lib/python*/site-packages/PyQt4/uic/widget-plugins/*webkit*</Path>
@@ -77,16 +86,19 @@
     </Package>
 
     <Package>
-        <Name>PyQt-phonon</Name>
+        <Name>python-qt-phonon</Name>
         <Summary>Python bindings for Phonon multimedia library</Summary>
         <RuntimeDependencies>
-            <Dependency releaseFrom="47">PyQt</Dependency>
+            <Dependency releaseFrom="47">python-qt</Dependency>
             <Dependency versionFrom="4.4.2">phonon</Dependency>
         </RuntimeDependencies>
         <Conflicts>
             <!-- PyQt-phonon is a seperate package -->
             <Package releaseTo="42">PyQt</Package>
         </Conflicts>
+        <Replaces>
+            <Package>PyQt-phonon</Package>
+        </Replaces>
         <Files>
             <Path fileType="library">/usr/lib/python*/site-packages/PyQt4/*phonon*</Path>
             <Path fileType="library">/usr/lib/python*/site-packages/PyQt4/uic/widget-plugins/*phonon*</Path>
@@ -94,20 +106,28 @@
     </Package>
 
     <Package>
-        <Name>PyQt-docs</Name>
-        <Summary>Documentation for PyQt bindings</Summary>
+        <Name>python-qt-docs</Name>
+        <Summary>Documentation for python-qt bindings</Summary>
         <RuntimeDependencies>
-            <Dependency>PyQt</Dependency>
+            <Dependency>python-qt</Dependency>
         </RuntimeDependencies>
         <Replaces>
             <Package>PyQt-doc</Package>
+            <Package>PyQt-docs</Package>
         </Replaces>
         <Files>
-            <Path fileType="doc">/usr/share/doc/PyQt*/html</Path>
+            <Path fileType="doc">/usr/share/doc/*/html</Path>
         </Files>
     </Package>
 
     <History>
+        <Update release="48">
+            <Date>2010-09-13</Date>
+            <Version>4.7.6</Version>
+            <Comment>Version bump to 4.7.6</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
         <Update release="47">
             <Date>2010-08-31</Date>
             <Version>4.7.5</Version>
