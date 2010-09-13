@@ -68,6 +68,9 @@ def install():
     # pisitools.insinto("/usr/bin", "contrib/client-side/svnmerge.py", "svnmerge")
     # shelltools.chmod("%s/usr/bin/svnmerge" % get.installDIR(), 0755)
 
+    # Install upstream bash completion script
+    pisitools.insinto("/etc/bash_completion.d", "tools/client-side/bash_completion", "subversion")
+
     # Documentation and etc.
     pisitools.insinto("/usr/share/doc/%s" % get.srcNAME(), "contrib")
     pisitools.insinto("/usr/share/doc/%s" % get.srcNAME(), "tools/xslt")
