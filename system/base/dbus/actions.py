@@ -15,6 +15,7 @@ def setup():
                          --with-system-pid-file=/var/run/dbus/pid \
                          --with-system-socket=/var/run/dbus/system_bus_socket \
                          --with-session-socket-dir=/tmp \
+                         --with-systemdsystemunitdir=/lib/systemd/system/ \
                          --with-dbus-user=dbus \
                          --localstatedir=/var \
                          --disable-selinux \
