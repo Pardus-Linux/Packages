@@ -1,0 +1,15 @@
+diff -Naur PyQt-x11-gpl-4.7.6//pyuic/uic/driver.py PyQt-x11-gpl-snapshot-4.7.7-bc395557c0e6//pyuic/uic/driver.py
+--- PyQt-x11-gpl-4.7.6//pyuic/uic/driver.py	2010-09-06 16:16:45.000000000 +0300
++++ PyQt-x11-gpl-snapshot-4.7.7-bc395557c0e6//pyuic/uic/driver.py	2010-09-08 05:38:43.000000000 +0300
+@@ -56,8 +56,10 @@
+ 
+         if self._opts.output == "-":
+             pyfile = sys.stdout
+-        else:
++        elif sys.hexversion >= 0x03000000:
+             pyfile = open(self._opts.output, 'wt', encoding='utf8')
++        else:
++            pyfile = open(self._opts.output, 'wt')
+ 
+         compileUi(self._ui_file, pyfile, self._opts.execute, self._opts.indent,
+                 self._opts.pyqt3_wrapper, self._opts.from_imports)
