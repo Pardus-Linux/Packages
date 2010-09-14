@@ -1,0 +1,173 @@
+Index: xorg-server-1.9.0/hw/xfree86/common/xf86pciBus.c
+===================================================================
+--- xorg-server-1.9.0.orig/hw/xfree86/common/xf86pciBus.c
++++ xorg-server-1.9.0/hw/xfree86/common/xf86pciBus.c
+@@ -1066,6 +1066,113 @@ xf86ConfigActivePciEntity(ScrnInfoPtr pS
+     return TRUE;
+ }
+ 
++#define BUF_LEN 256
++
++static Bool
++isGLDriverActivated(char *impl)
++{
++    char impl_path[BUF_LEN+1];
++    char link_target[BUF_LEN+1];
++
++    snprintf(impl_path, BUF_LEN, "/usr/lib/%s/libGL.so.1.2", impl);
++
++    if (readlink("/etc/alternatives/libGL", link_target, BUF_LEN) > 0
++	    && strcmp(link_target, impl_path)) {
++	return FALSE;
++    }
++
++    return TRUE;
++}
++
++static void
++activateGLDriver(char *impl)
++{
++    char buf[BUF_LEN+1];
++
++    snprintf(buf, BUF_LEN,
++	     "/usr/sbin/alternatives --set libGL /usr/lib/%s/libGL.so.1.2",
++	     impl);
++    System(buf);
++    System("/sbin/ldconfig -X");
++}
++
++static int xchomp(char *line);
++
++static char *
++getGLDriverName(struct pci_device *dev)
++{
++#define DRIVERSDB_FILE "/usr/share/X11/DriversDB"
++    FILE *fp;
++    char *line = NULL;
++    char *driver;
++    char pci_id[9];
++    size_t len;
++
++    fp = fopen(DRIVERSDB_FILE, "r");
++    if (fp == NULL)
++	return NULL;
++
++    snprintf(pci_id, 8, "%04x%04x", dev->vendor_id, dev->device_id);
++
++    while (getline(&line, &len, fp) != -1) {
++	xchomp(line);
++
++	if (!strncmp(pci_id, line, 8)) {
++	    driver = (char *) malloc(strlen(line + 9));
++	    strncpy(driver, line + 9, strlen(line + 9));
++	    return driver;
++	}
++    }
++
++    return NULL;
++}
++
++static Bool
++canLoadFglrx(struct pci_device *dev)
++{
++    if (access("/dev/ati", F_OK))
++	return FALSE;
++
++    if (!isGLDriverActivated("fglrx")) {
++	activateGLDriver("fglrx");
++    }
++
++    return TRUE;
++}
++
++static Bool
++canLoadNvidia(struct pci_device *dev)
++{
++    char *driver_name;
++
++    switch (dev->device_id & 0xfff0) {
++	/* These are not supported by proprietary drivers */
++	case 0x0020:
++	case 0x00A0:
++	case 0x0100:
++	case 0x0150:
++		return FALSE;
++	default: break;
++    }
++
++    driver_name = getGLDriverName(dev);
++
++    if (driver_name == NULL)
++	driver_name = strdup("nvidia-current");
++
++    if (xf86LoadKernelModule(driver_name)) {
++	if (!isGLDriverActivated(driver_name)) {
++	    activateGLDriver(driver_name);
++	}
++
++	free(driver_name);
++	return TRUE;
++    }
++
++    free(driver_name);
++    return FALSE;
++}
++
+ static int
+ videoPtrToDriverList(struct pci_device *dev,
+ 		     char *returnList[], int returnListMax)
+@@ -1074,6 +1181,7 @@ videoPtrToDriverList(struct pci_device *
+     /* Add more entries here if we ever return more than 4 drivers for
+        any device */
+     char *driverList[5] = { NULL, NULL, NULL, NULL, NULL };
++    Bool use_mesa = TRUE;
+ 
+     switch (dev->vendor_id)
+     {
+@@ -1103,10 +1211,14 @@ videoPtrToDriverList(struct pci_device *
+ 	case 0xedd8:		    driverList[0] = "ark"; break;
+ 	case 0x1a03:		    driverList[0] = "ast"; break;
+ 	case 0x1002:
++	    if (canLoadFglrx(dev)) {
+ 		driverList[0] = "fglrx";
+-		driverList[1] = "radeonhd";
+-		driverList[2] = "ati";
+-		break;
++		driverList[1] = "ati";
++		use_mesa = FALSE;
++	    } else {
++		driverList[0] = "ati";
++	    }
++	    break;
+ 	case 0x102c:		    driverList[0] = "chips"; break;
+ 	case 0x1013:		    driverList[0] = "cirrus"; break;
+ 	case 0x3d3d:		    driverList[0] = "glint"; break;
+@@ -1126,11 +1238,15 @@ videoPtrToDriverList(struct pci_device *
+ 	case 0x10c8:		    driverList[0] = "neomagic"; break;
+ 	case 0x12d2:		    driverList[0] = "nv";	break;
+ 	case 0x10de:
+-		driverList[0] = "nvidia";
+-		driverList[1] = "nouveau";
++		i = 0;
++		if (canLoadNvidia(dev)) {
++			driverList[i++] = "nvidia";
++			use_mesa = FALSE;
++		}
++		driverList[i++] = "nouveau";
+ 		/* GeForce 6150SE support broken (bnc #465190/544674) */
+ 		if (dev->device_id != 0x03D0) {
+-			driverList[2] = "nv";
++			driverList[i] = "nv";
+ 		}
+ 		break;
+ 	case 0x1106:
+@@ -1177,6 +1293,9 @@ videoPtrToDriverList(struct pci_device *
+     for (i = 0; (i < returnListMax) && (driverList[i] != NULL); i++) {
+ 	returnList[i] = xnfstrdup(driverList[i]);
+     }
++    if (use_mesa && !isGLDriverActivated("mesa")) {
++	activateGLDriver("mesa");
++    }
+     return i;	/* Number of entries added */
+ }
+ 
