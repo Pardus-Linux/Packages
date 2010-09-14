@@ -31,7 +31,6 @@ def setup():
                          --disable-xnest \
                          --enable-kdrive \
                          --enable-xephyr \
-                         --disable-xsdl \
                          --disable-xfake \
                          --disable-xfbdev \
                          --disable-devel-docs \
