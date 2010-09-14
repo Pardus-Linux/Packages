@@ -1,0 +1,761 @@
+diff -urp rsyslog-4.6.3.orig/config.h.in rsyslog-4.6.3/config.h.in
+--- rsyslog-4.6.3.orig/config.h.in	2010-07-14 17:40:07.083002811 +0200
++++ rsyslog-4.6.3/config.h.in	2010-07-14 17:52:28.206002831 +0200
+@@ -370,6 +370,10 @@
+ #endif
+ 
+ 
++/* If defined, the select() syscall won't be limited to a particular number of
++   file descriptors. */
++#undef USE_UNLIMITED_SELECT
++
+ /* Defined if valgrind support settings are to be enabled (e.g. prevents
+    dlclose()). */
+ #undef VALGRIND
+diff -urp rsyslog-4.6.3.orig/configure rsyslog-4.6.3/configure
+--- rsyslog-4.6.3.orig/configure	2010-07-14 17:40:07.070001784 +0200
++++ rsyslog-4.6.3/configure	2010-07-14 17:52:27.114126870 +0200
+@@ -1012,6 +1012,7 @@ enable_klog
+ enable_unix
+ enable_inet
+ enable_fsstnd
++enable_unlimited_select
+ enable_debug
+ enable_rtinst
+ enable_valgrind
+@@ -1700,6 +1701,8 @@ Optional Features:
+   --disable-unix          Disable support for unix
+   --enable-inet           Enable networking support [default=yes]
+   --disable-fsstnd        Disable support for FSSTND
++  --enable-unlimited-select
++                          Enable unlimited select() syscall [default=no]
+   --enable-debug          Enable debug mode [default=no]
+   --enable-rtinst         Enable runtime instrumentation mode [default=no]
+   --enable-valgrind       Enable valgrind support settings [default=no]
+@@ -6297,13 +6300,13 @@ if test "${lt_cv_nm_interface+set}" = se
+ else
+   lt_cv_nm_interface="BSD nm"
+   echo "int some_variable = 0;" > conftest.$ac_ext
+-  (eval echo "\"\$as_me:6300: $ac_compile\"" >&5)
++  (eval echo "\"\$as_me:6303: $ac_compile\"" >&5)
+   (eval "$ac_compile" 2>conftest.err)
+   cat conftest.err >&5
+-  (eval echo "\"\$as_me:6303: $NM \\\"conftest.$ac_objext\\\"\"" >&5)
++  (eval echo "\"\$as_me:6306: $NM \\\"conftest.$ac_objext\\\"\"" >&5)
+   (eval "$NM \"conftest.$ac_objext\"" 2>conftest.err > conftest.out)
+   cat conftest.err >&5
+-  (eval echo "\"\$as_me:6306: output\"" >&5)
++  (eval echo "\"\$as_me:6309: output\"" >&5)
+   cat conftest.out >&5
+   if $GREP 'External.*some_variable' conftest.out > /dev/null; then
+     lt_cv_nm_interface="MS dumpbin"
+@@ -7508,7 +7511,7 @@ ia64-*-hpux*)
+   ;;
+ *-*-irix6*)
+   # Find out which ABI we are using.
+-  echo '#line 7511 "configure"' > conftest.$ac_ext
++  echo '#line 7514 "configure"' > conftest.$ac_ext
+   if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
+   (eval $ac_compile) 2>&5
+   ac_status=$?
+@@ -8847,11 +8850,11 @@ else
+    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
+    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
+    -e 's:$: $lt_compiler_flag:'`
+-   (eval echo "\"\$as_me:8850: $lt_compile\"" >&5)
++   (eval echo "\"\$as_me:8853: $lt_compile\"" >&5)
+    (eval "$lt_compile" 2>conftest.err)
+    ac_status=$?
+    cat conftest.err >&5
+-   echo "$as_me:8854: \$? = $ac_status" >&5
++   echo "$as_me:8857: \$? = $ac_status" >&5
+    if (exit $ac_status) && test -s "$ac_outfile"; then
+      # The compiler can only warn and ignore the option if not recognized
+      # So say no if there are warnings other than the usual output.
+@@ -9186,11 +9189,11 @@ else
+    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
+    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
+    -e 's:$: $lt_compiler_flag:'`
+-   (eval echo "\"\$as_me:9189: $lt_compile\"" >&5)
++   (eval echo "\"\$as_me:9192: $lt_compile\"" >&5)
+    (eval "$lt_compile" 2>conftest.err)
+    ac_status=$?
+    cat conftest.err >&5
+-   echo "$as_me:9193: \$? = $ac_status" >&5
++   echo "$as_me:9196: \$? = $ac_status" >&5
+    if (exit $ac_status) && test -s "$ac_outfile"; then
+      # The compiler can only warn and ignore the option if not recognized
+      # So say no if there are warnings other than the usual output.
+@@ -9291,11 +9294,11 @@ else
+    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
+    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
+    -e 's:$: $lt_compiler_flag:'`
+-   (eval echo "\"\$as_me:9294: $lt_compile\"" >&5)
++   (eval echo "\"\$as_me:9297: $lt_compile\"" >&5)
+    (eval "$lt_compile" 2>out/conftest.err)
+    ac_status=$?
+    cat out/conftest.err >&5
+-   echo "$as_me:9298: \$? = $ac_status" >&5
++   echo "$as_me:9301: \$? = $ac_status" >&5
+    if (exit $ac_status) && test -s out/conftest2.$ac_objext
+    then
+      # The compiler can only warn and ignore the option if not recognized
+@@ -9346,11 +9349,11 @@ else
+    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
+    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
+    -e 's:$: $lt_compiler_flag:'`
+-   (eval echo "\"\$as_me:9349: $lt_compile\"" >&5)
++   (eval echo "\"\$as_me:9352: $lt_compile\"" >&5)
+    (eval "$lt_compile" 2>out/conftest.err)
+    ac_status=$?
+    cat out/conftest.err >&5
+-   echo "$as_me:9353: \$? = $ac_status" >&5
++   echo "$as_me:9356: \$? = $ac_status" >&5
+    if (exit $ac_status) && test -s out/conftest2.$ac_objext
+    then
+      # The compiler can only warn and ignore the option if not recognized
+@@ -12149,7 +12152,7 @@ else
+   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
+   lt_status=$lt_dlunknown
+   cat > conftest.$ac_ext <<_LT_EOF
+-#line 12152 "configure"
++#line 12155 "configure"
+ #include "confdefs.h"
+ 
+ #if HAVE_DLFCN_H
+@@ -12245,7 +12248,7 @@ else
+   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
+   lt_status=$lt_dlunknown
+   cat > conftest.$ac_ext <<_LT_EOF
+-#line 12248 "configure"
++#line 12251 "configure"
+ #include "confdefs.h"
+ 
+ #if HAVE_DLFCN_H
+@@ -18353,6 +18356,30 @@ fi
+ 
+ 
+ 
++# support for unlimited select() syscall
++# Check whether --enable-unlimited_select was given.
++if test "${enable_unlimited_select+set}" = set; then
++  enableval=$enable_unlimited_select; case "${enableval}" in
++         yes) enable_unlimited_select="yes" ;;
++          no) enable_unlimited_select="no" ;;
++           *) { { $as_echo "$as_me:$LINENO: error: bad value ${enableval} for --enable-unlimited-select" >&5
++$as_echo "$as_me: error: bad value ${enableval} for --enable-unlimited-select" >&2;}
++   { (exit 1); exit 1; }; } ;;
++         esac
++else
++  enable_unlimited_select="no"
++
++fi
++
++if test "$enable_unlimited_select" = "yes"; then
++
++cat >>confdefs.h <<\_ACEOF
++#define USE_UNLIMITED_SELECT 1
++_ACEOF
++
++fi
++
++
+ # debug
+ # Check whether --enable-debug was given.
+ if test "${enable_debug+set}" = set; then
+@@ -22979,6 +23006,7 @@ echo "    Zlib compression support enabl
+ echo "    rsyslog runtime will be built:            $enable_rsyslogrt"
+ echo "    rsyslogd will be built:                   $enable_rsyslogd"
+ echo "    custom module 1 will be built:            $enable_cust1"
++echo "    Unlimited select() support enabled:       $enable_unlimited_select"
+ echo
+ echo "---{ input plugins }---"
+ echo "    Klog functionality enabled:               $enable_klog ($os_type)"
+diff -urp rsyslog-4.6.3.orig/configure.ac rsyslog-4.6.3/configure.ac
+--- rsyslog-4.6.3.orig/configure.ac	2010-07-14 17:40:07.070889188 +0200
++++ rsyslog-4.6.3/configure.ac	2010-07-14 17:48:07.805876793 +0200
+@@ -335,6 +335,21 @@ AC_ARG_ENABLE([fsstnd],
+   ])
+ 
+ 
++# support for unlimited select() syscall
++AC_ARG_ENABLE(unlimited_select,
++        [AS_HELP_STRING([--enable-unlimited-select],[Enable unlimited select() syscall @<:@default=no@:>@])],
++        [case "${enableval}" in
++         yes) enable_unlimited_select="yes" ;;
++          no) enable_unlimited_select="no" ;;
++           *) AC_MSG_ERROR(bad value ${enableval} for --enable-unlimited-select) ;;
++         esac],
++        [enable_unlimited_select="no"]
++)
++if test "$enable_unlimited_select" = "yes"; then
++        AC_DEFINE(USE_UNLIMITED_SELECT, 1, [If defined, the select() syscall won't be limited to a particular number of file descriptors.])
++fi
++
++
+ # debug
+ AC_ARG_ENABLE(debug,
+         [AS_HELP_STRING([--enable-debug],[Enable debug mode @<:@default=no@:>@])],
+@@ -854,6 +869,7 @@ echo "    Zlib compression support enabl
+ echo "    rsyslog runtime will be built:            $enable_rsyslogrt"
+ echo "    rsyslogd will be built:                   $enable_rsyslogd"
+ echo "    custom module 1 will be built:            $enable_cust1"
++echo "    Unlimited select() support enabled:       $enable_unlimited_select"
+ echo
+ echo "---{ input plugins }---"
+ echo "    Klog functionality enabled:               $enable_klog ($os_type)"
+diff -urp rsyslog-4.6.3.orig/gss-misc.c rsyslog-4.6.3/gss-misc.c
+--- rsyslog-4.6.3.orig/gss-misc.c	2010-07-14 17:40:07.108880477 +0200
++++ rsyslog-4.6.3/gss-misc.c	2010-07-14 17:48:07.805876793 +0200
+@@ -51,11 +51,14 @@
+ #include "obj.h"
+ #include "errmsg.h"
+ #include "gss-misc.h"
++#include "glbl.h"
++#include "unlimited_select.h"
+ 
+ MODULE_TYPE_LIB
+ 
+ /* static data */
+ DEFobjStaticHelpers
++DEFobjCurrIf(glbl)
+ DEFobjCurrIf(errmsg)
+ 
+ static void display_status_(char *m, OM_uint32 code, int type)
+@@ -108,28 +111,38 @@ static int read_all(int fd, char *buf, u
+ {
+     int     ret;
+     char   *ptr;
+-    fd_set  rfds;
+     struct timeval tv;
++#ifdef USE_UNLIMITED_SELECT
++    fd_set  *pRfds = malloc(glbl.GetFdSetSize());
++#else
++    fd_set  rfds;
++    fd_set *pRfds = &rfds;
++#endif
+ 
+     for (ptr = buf; nbyte; ptr += ret, nbyte -= ret) {
+-	    FD_ZERO(&rfds);
+-	    FD_SET(fd, &rfds);
++	    FD_ZERO(pRfds);
++	    FD_SET(fd, pRfds);
+ 	    tv.tv_sec = 1;
+ 	    tv.tv_usec = 0;
+ 
+-	    if ((ret = select(FD_SETSIZE, &rfds, NULL, NULL, &tv)) <= 0
+-		|| !FD_ISSET(fd, &rfds))
++	    if ((ret = select(FD_SETSIZE, pRfds, NULL, NULL, &tv)) <= 0
++		|| !FD_ISSET(fd, pRfds)) {
++                    freeFdSet(pRfds);
+ 		    return ret;
++	    }
+ 	    ret = recv(fd, ptr, nbyte, 0);
+ 	    if (ret < 0) {
+ 		    if (errno == EINTR)
+ 			    continue;
++                    freeFdSet(pRfds);
+ 		    return (ret);
+ 	    } else if (ret == 0) {
++                    freeFdSet(pRfds);
+ 		    return (ptr - buf);
+ 	    }
+     }
+ 
++    freeFdSet(pRfds);
+     return (ptr - buf);
+ }
+ 
+@@ -264,6 +277,7 @@ BEGINObjClassExit(gssutil, OBJ_IS_LOADAB
+ CODESTARTObjClassExit(gssutil)
+ 	/* release objects we no longer need */
+ 	objRelease(errmsg, CORE_COMPONENT);
++	objRelease(glbl, CORE_COMPONENT);
+ ENDObjClassExit(gssutil)
+ 
+ 
+@@ -274,6 +288,7 @@ ENDObjClassExit(gssutil)
+ BEGINAbstractObjClassInit(gssutil, 1, OBJ_IS_LOADABLE_MODULE) /* class, version - CHANGE class also in END MACRO! */
+ 	/* request objects we use */
+ 	CHKiRet(objUse(errmsg, CORE_COMPONENT));
++	CHKiRet(objUse(glbl, CORE_COMPONENT));
+ ENDObjClassInit(gssutil)
+ 
+ 
+diff -urp rsyslog-4.6.3.orig/plugins/imgssapi/imgssapi.c rsyslog-4.6.3/plugins/imgssapi/imgssapi.c
+--- rsyslog-4.6.3.orig/plugins/imgssapi/imgssapi.c	2010-07-14 17:40:07.077004561 +0200
++++ rsyslog-4.6.3/plugins/imgssapi/imgssapi.c	2010-07-14 17:48:07.806876641 +0200
+@@ -56,6 +56,7 @@
+ #include "errmsg.h"
+ #include "netstrm.h"
+ #include "glbl.h"
++#include "unlimited_select.h"
+ 
+ 
+ MODULE_TYPE_INPUT
+@@ -414,15 +415,20 @@ OnSessAcceptGSS(tcpsrv_t *pThis, tcps_se
+ 		CHKiRet(netstrm.GetSock(pSess->pStrm, &fdSess)); // TODO: method access!
+ 		if (allowedMethods & ALLOWEDMETHOD_TCP) {
+ 			int len;
+-			fd_set  fds;
+ 			struct timeval tv;
+-		
++#ifdef USE_UNLIMITED_SELECT
++                        fd_set *pFds = malloc(glbl.GetFdSetSize());
++#else
++                        fd_set fds;
++                        fd_set *pFds = &fds;
++#endif
++
+ 			do {
+-				FD_ZERO(&fds);
+-				FD_SET(fdSess, &fds);
++				FD_ZERO(pFds);
++				FD_SET(fdSess, pFds);
+ 				tv.tv_sec = 1;
+ 				tv.tv_usec = 0;
+-				ret = select(fdSess + 1, &fds, NULL, NULL, &tv);
++				ret = select(fdSess + 1, pFds, NULL, NULL, &tv);
+ 			} while (ret < 0 && errno == EINTR);
+ 			if (ret < 0) {
+ 				errmsg.LogError(0, RS_RET_ERR, "TCP session %p will be closed, error ignored\n", pSess);
+@@ -475,6 +481,8 @@ OnSessAcceptGSS(tcpsrv_t *pThis, tcps_se
+ 				pGSess->allowedMethods = ALLOWEDMETHOD_TCP;
+ 				ABORT_FINALIZE(RS_RET_OK); // TODO: define good error codes
+ 			}
++
++                        freeFdSet(pFds);
+ 		}
+ 
+ 		context = &pGSess->gss_context;
+diff -urp rsyslog-4.6.3.orig/plugins/imudp/imudp.c rsyslog-4.6.3/plugins/imudp/imudp.c
+--- rsyslog-4.6.3.orig/plugins/imudp/imudp.c	2010-07-14 17:40:07.078002733 +0200
++++ rsyslog-4.6.3/plugins/imudp/imudp.c	2010-07-14 17:48:07.807876419 +0200
+@@ -45,6 +45,7 @@
+ #include "datetime.h"
+ #include "prop.h"
+ #include "unicode-helper.h"
++#include "unlimited_select.h"
+ 
+ MODULE_TYPE_INPUT
+ 
+@@ -287,12 +288,18 @@ BEGINrunInput
+ 	int maxfds;
+ 	int nfds;
+ 	int i;
+-	fd_set readfds;
+ 	struct sockaddr_storage frominetPrev;
+ 	int bIsPermitted;
+ 	uchar fromHost[NI_MAXHOST];
+ 	uchar fromHostIP[NI_MAXHOST];
+ 	uchar fromHostFQDN[NI_MAXHOST];
++#ifdef USE_UNLIMITED_SELECT
++        fd_set  *pReadfds = malloc(glbl.GetFdSetSize());
++#else
++        fd_set  readfds;
++        fd_set *pReadfds = &readfds;
++#endif
++
+ CODESTARTrunInput
+ 	/* start "name caching" algo by making sure the previous system indicator
+ 	 * is invalidated.
+@@ -311,30 +318,30 @@ CODESTARTrunInput
+ 		 * is given without -a, we do not need to listen at all..
+ 		 */
+ 	        maxfds = 0;
+-	        FD_ZERO (&readfds);
++	        FD_ZERO (pReadfds);
+ 
+ 		/* Add the UDP listen sockets to the list of read descriptors. */
+ 		for (i = 0; i < *udpLstnSocks; i++) {
+ 			if (udpLstnSocks[i+1] != -1) {
+ 				if(Debug)
+ 					net.debugListenInfo(udpLstnSocks[i+1], "UDP");
+-				FD_SET(udpLstnSocks[i+1], &readfds);
++				FD_SET(udpLstnSocks[i+1], pReadfds);
+ 				if(udpLstnSocks[i+1]>maxfds) maxfds=udpLstnSocks[i+1];
+ 			}
+ 		}
+ 		if(Debug) {
+ 			dbgprintf("--------imUDP calling select, active file descriptors (max %d): ", maxfds);
+ 			for (nfds = 0; nfds <= maxfds; ++nfds)
+-				if ( FD_ISSET(nfds, &readfds) )
++				if ( FD_ISSET(nfds, pReadfds) )
+ 					dbgprintf("%d ", nfds);
+ 			dbgprintf("\n");
+ 		}
+ 
+ 		/* wait for io to become ready */
+-		nfds = select(maxfds+1, (fd_set *) &readfds, NULL, NULL, NULL);
++		nfds = select(maxfds+1, (fd_set *) pReadfds, NULL, NULL, NULL);
+ 
+ 	       for(i = 0; nfds && i < *udpLstnSocks; i++) {
+-			if(FD_ISSET(udpLstnSocks[i+1], &readfds)) {
++		       if (FD_ISSET(udpLstnSocks[i+1], pReadfds)) {
+ 		       		processSocket(udpLstnSocks[i+1], &frominetPrev, &bIsPermitted,
+ 					      fromHost, fromHostFQDN, fromHostIP);
+ 			--nfds; /* indicate we have processed one descriptor */
+@@ -343,6 +350,7 @@ CODESTARTrunInput
+ 	       /* end of a run, back to loop for next recv() */
+ 	}
+ 
++	freeFdSet(pReadfds);
+ 	return iRet;
+ ENDrunInput
+ 
+diff -urp rsyslog-4.6.3.orig/plugins/imuxsock/imuxsock.c rsyslog-4.6.3/plugins/imuxsock/imuxsock.c
+--- rsyslog-4.6.3.orig/plugins/imuxsock/imuxsock.c	2010-07-14 17:40:07.075005215 +0200
++++ rsyslog-4.6.3/plugins/imuxsock/imuxsock.c	2010-07-14 17:48:07.807876419 +0200
+@@ -45,6 +45,7 @@
+ #include "glbl.h"
+ #include "msg.h"
+ #include "prop.h"
++#include "unlimited_select.h"
+ 
+ MODULE_TYPE_INPUT
+ 
+@@ -249,7 +250,13 @@ BEGINrunInput
+ 	int nfds;
+ 	int i;
+ 	int fd;
+-	fd_set readfds;
++#ifdef USE_UNLIMITED_SELECT
++        fd_set  *pReadfds = malloc(glbl.GetFdSetSize());
++#else
++        fd_set  readfds;
++        fd_set *pReadfds = &readfds;
++#endif
++
+ CODESTARTrunInput
+ 	/* this is an endless loop - it is terminated when the thread is
+ 	 * signalled to do so. This, however, is handled by the framework,
+@@ -263,11 +270,11 @@ CODESTARTrunInput
+ 		 * is given without -a, we do not need to listen at all..
+ 		 */
+ 	        maxfds = 0;
+-	        FD_ZERO (&readfds);
++	        FD_ZERO (pReadfds);
+ 		/* Copy master connections */
+ 		for (i = startIndexUxLocalSockets; i < nfunix; i++) {
+ 			if (funix[i] != -1) {
+-				FD_SET(funix[i], &readfds);
++				FD_SET(funix[i], pReadfds);
+ 				if (funix[i]>maxfds) maxfds=funix[i];
+ 			}
+ 		}
+@@ -275,22 +282,23 @@ CODESTARTrunInput
+ 		if(Debug) {
+ 			dbgprintf("--------imuxsock calling select, active file descriptors (max %d): ", maxfds);
+ 			for (nfds= 0; nfds <= maxfds; ++nfds)
+-				if ( FD_ISSET(nfds, &readfds) )
++				if ( FD_ISSET(nfds, pReadfds) )
+ 					dbgprintf("%d ", nfds);
+ 			dbgprintf("\n");
+ 		}
+ 
+ 		/* wait for io to become ready */
+-		nfds = select(maxfds+1, (fd_set *) &readfds, NULL, NULL, NULL);
++		nfds = select(maxfds+1, (fd_set *) pReadfds, NULL, NULL, NULL);
+ 
+ 		for (i = 0; i < nfunix && nfds > 0; i++) {
+-			if ((fd = funix[i]) != -1 && FD_ISSET(fd, &readfds)) {
++			if ((fd = funix[i]) != -1 && FD_ISSET(fd, pReadfds)) {
+ 				readSocket(fd, i);
+ 				--nfds; /* indicate we have processed one */
+ 			}
+ 		}
+ 	}
+ 
++	freeFdSet(pReadfds);
+ 	RETiRet;
+ ENDrunInput
+ 
+diff -urp rsyslog-4.6.3.orig/runtime/Makefile.am rsyslog-4.6.3/runtime/Makefile.am
+--- rsyslog-4.6.3.orig/runtime/Makefile.am	2010-07-14 17:40:07.085002507 +0200
++++ rsyslog-4.6.3/runtime/Makefile.am	2010-07-14 17:48:07.808876476 +0200
+@@ -15,6 +15,7 @@ librsyslog_la_SOURCES = \
+ 	nsd.h \
+ 	glbl.h \
+ 	glbl.c \
++	unlimited_select.h \
+ 	conf.c \
+ 	conf.h \
+ 	parser.h \
+diff -urp rsyslog-4.6.3.orig/runtime/Makefile.in rsyslog-4.6.3/runtime/Makefile.in
+--- rsyslog-4.6.3.orig/runtime/Makefile.in	2010-07-14 17:40:07.089002039 +0200
++++ rsyslog-4.6.3/runtime/Makefile.in	2010-07-14 17:52:31.734011670 +0200
+@@ -383,6 +383,7 @@ librsyslog_la_SOURCES = \
+ 	nsd.h \
+ 	glbl.h \
+ 	glbl.c \
++	unlimited_select.h \
+ 	conf.c \
+ 	conf.h \
+ 	parser.h \
+diff -urp rsyslog-4.6.3.orig/runtime/glbl.c rsyslog-4.6.3/runtime/glbl.c
+--- rsyslog-4.6.3.orig/runtime/glbl.c	2010-07-14 17:40:07.088001702 +0200
++++ rsyslog-4.6.3/runtime/glbl.c	2010-07-14 17:48:07.808876476 +0200
+@@ -72,6 +72,9 @@ static uchar *pszDfltNetstrmDrvr = NULL;
+ static uchar *pszDfltNetstrmDrvrCAF = NULL; /* default CA file for the netstrm driver */
+ static uchar *pszDfltNetstrmDrvrKeyFile = NULL; /* default key file for the netstrm driver (server) */
+ static uchar *pszDfltNetstrmDrvrCertFile = NULL; /* default cert file for the netstrm driver (server) */
++#ifdef USE_UNLIMITED_SELECT
++static int iFdSetSize = howmany(FD_SETSIZE, __NFDBITS) * sizeof (fd_mask); /* size of select() bitmask in bytes */
++#endif
+ 
+ 
+ /* define a macro for the simple properties' set and get functions
+@@ -104,6 +107,9 @@ SIMP_PROP(DisableDNS, bDisableDNS, int)
+ SIMP_PROP(LocalDomain, LocalDomain, uchar*)
+ SIMP_PROP(StripDomains, StripDomains, char**)
+ SIMP_PROP(LocalHosts, LocalHosts, char**)
++#ifdef USE_UNLIMITED_SELECT
++SIMP_PROP(FdSetSize, iFdSetSize, int)
++#endif
+ 
+ SIMP_PROP_SET(LocalFQDNName, LocalFQDNName, uchar*)
+ SIMP_PROP_SET(LocalHostName, LocalHostName, uchar*)
+@@ -261,6 +267,9 @@ CODESTARTobjQueryInterface(glbl)
+ 	SIMP_PROP(DfltNetstrmDrvrCAF)
+ 	SIMP_PROP(DfltNetstrmDrvrKeyFile)
+ 	SIMP_PROP(DfltNetstrmDrvrCertFile)
++#ifdef USE_UNLIMITED_SELECT
++	SIMP_PROP(FdSetSize)
++#endif
+ #undef	SIMP_PROP
+ finalize_it:
+ ENDobjQueryInterface(glbl)
+@@ -295,6 +304,9 @@ static rsRetVal resetConfigVariables(uch
+ 	bOptimizeUniProc = 1;
+ 	bHUPisRestart = 0;
+ 	bPreserveFQDN = 0;
++#ifdef USE_UNLIMITED_SELECT
++	iFdSetSize = howmany(FD_SETSIZE, __NFDBITS) * sizeof (fd_mask);
++#endif
+ 	return RS_RET_OK;
+ }
+ 
+diff -urp rsyslog-4.6.3.orig/runtime/glbl.h rsyslog-4.6.3/runtime/glbl.h
+--- rsyslog-4.6.3.orig/runtime/glbl.h	2010-07-14 17:40:07.089002039 +0200
++++ rsyslog-4.6.3/runtime/glbl.h	2010-07-14 17:48:07.808876476 +0200
+@@ -62,9 +62,10 @@ BEGINinterface(glbl) /* name must also b
+ 	/* added v3, 2009-06-30 */
+ 	rsRetVal (*GenerateLocalHostNameProperty)(void);
+ 	prop_t* (*GetLocalHostNameProp)(void);
++	SIMP_PROP(FdSetSize, int)
+ #undef	SIMP_PROP
+ ENDinterface(glbl)
+-#define glblCURR_IF_VERSION 3 /* increment whenever you change the interface structure! */
++#define glblCURR_IF_VERSION 103 /* increment whenever you change the interface structure! */
+ /* version 2 had PreserveFQDN added - rgerhards, 2008-12-08 */
+ 
+ /* the remaining prototypes */
+diff -urp rsyslog-4.6.3.orig/runtime/nsdsel_ptcp.c rsyslog-4.6.3/runtime/nsdsel_ptcp.c
+--- rsyslog-4.6.3.orig/runtime/nsdsel_ptcp.c	2010-07-14 17:40:07.089002039 +0200
++++ rsyslog-4.6.3/runtime/nsdsel_ptcp.c	2010-07-14 17:48:07.809877302 +0200
+@@ -36,6 +36,7 @@
+ #include "errmsg.h"
+ #include "nsd_ptcp.h"
+ #include "nsdsel_ptcp.h"
++#include "unlimited_select.h"
+ 
+ /* static data */
+ DEFobjStaticHelpers
+@@ -47,14 +48,23 @@ DEFobjCurrIf(glbl)
+  */
+ BEGINobjConstruct(nsdsel_ptcp) /* be sure to specify the object type also in END macro! */
+ 	pThis->maxfds = 0;
++#ifdef USE_UNLIMITED_SELECT
++        pThis->pReadfds = calloc(1, glbl.GetFdSetSize());
++        pThis->pWritefds = calloc(1, glbl.GetFdSetSize());
++#else
+ 	FD_ZERO(&pThis->readfds);
+ 	FD_ZERO(&pThis->writefds);
++#endif
+ ENDobjConstruct(nsdsel_ptcp)
+ 
+ 
+ /* destructor for the nsdsel_ptcp object */
+ BEGINobjDestruct(nsdsel_ptcp) /* be sure to specify the object type also in END and CODESTART macros! */
+ CODESTARTobjDestruct(nsdsel_ptcp)
++#ifdef USE_UNLIMITED_SELECT
++	freeFdSet(pThis->pReadfds);
++	freeFdSet(pThis->pWritefds);
++#endif
+ ENDobjDestruct(nsdsel_ptcp)
+ 
+ 
+@@ -65,20 +75,27 @@ Add(nsdsel_t *pNsdsel, nsd_t *pNsd, nsds
+ 	DEFiRet;
+ 	nsdsel_ptcp_t *pThis = (nsdsel_ptcp_t*) pNsdsel;
+ 	nsd_ptcp_t *pSock = (nsd_ptcp_t*) pNsd;
++#ifdef USE_UNLIMITED_SELECT
++        fd_set *pReadfds = pThis->pReadfds;
++        fd_set *pWritefds = pThis->pWritefds;
++#else
++        fd_set *pReadfds = &pThis->readfds;
++        fd_set *pWritefds = &pThis->writefds;
++#endif
+ 
+ 	ISOBJ_TYPE_assert(pSock, nsd_ptcp);
+ 	ISOBJ_TYPE_assert(pThis, nsdsel_ptcp);
+ 
+ 	switch(waitOp) {
+ 		case NSDSEL_RD:
+-			FD_SET(pSock->sock, &pThis->readfds);
++			FD_SET(pSock->sock, pReadfds);
+ 			break;
+ 		case NSDSEL_WR:
+-			FD_SET(pSock->sock, &pThis->writefds);
++			FD_SET(pSock->sock, pWritefds);
+ 			break;
+ 		case NSDSEL_RDWR:
+-			FD_SET(pSock->sock, &pThis->readfds);
+-			FD_SET(pSock->sock, &pThis->writefds);
++			FD_SET(pSock->sock, pReadfds);
++			FD_SET(pSock->sock, pWritefds);
+ 			break;
+ 	}
+ 
+@@ -98,6 +115,13 @@ Select(nsdsel_t *pNsdsel, int *piNumRead
+ 	DEFiRet;
+ 	int i;
+ 	nsdsel_ptcp_t *pThis = (nsdsel_ptcp_t*) pNsdsel;
++#ifdef USE_UNLIMITED_SELECT
++        fd_set *pReadfds = pThis->pReadfds;
++        fd_set *pWritefds = pThis->pWritefds;
++#else
++        fd_set *pReadfds = &pThis->readfds;
++        fd_set *pWritefds = &pThis->writefds;
++#endif
+ 
+ 	ISOBJ_TYPE_assert(pThis, nsdsel_ptcp);
+ 	assert(piNumReady != NULL);
+@@ -106,13 +130,13 @@ Select(nsdsel_t *pNsdsel, int *piNumRead
+ 		// TODO: name in dbgprintf!
+ 		dbgprintf("--------<NSDSEL_PTCP> calling select, active fds (max %d): ", pThis->maxfds);
+ 		for(i = 0; i <= pThis->maxfds; ++i)
+-			if(FD_ISSET(i, &pThis->readfds) || FD_ISSET(i, &pThis->writefds))
++			if(FD_ISSET(i, pReadfds) || FD_ISSET(i, pWritefds))
+ 				dbgprintf("%d ", i);
+ 		dbgprintf("\n");
+ 	}
+ 
+ 	/* now do the select */
+-	*piNumReady = select(pThis->maxfds+1, &pThis->readfds, &pThis->writefds, NULL, NULL);
++	*piNumReady = select(pThis->maxfds+1, pReadfds, pWritefds, NULL, NULL);
+ 
+ 	RETiRet;
+ }
+@@ -125,6 +149,13 @@ IsReady(nsdsel_t *pNsdsel, nsd_t *pNsd, 
+ 	DEFiRet;
+ 	nsdsel_ptcp_t *pThis = (nsdsel_ptcp_t*) pNsdsel;
+ 	nsd_ptcp_t *pSock = (nsd_ptcp_t*) pNsd;
++#ifdef USE_UNLIMITED_SELECT
++        fd_set *pReadfds = pThis->pReadfds;
++        fd_set *pWritefds = pThis->pWritefds;
++#else
++        fd_set *pReadfds = &pThis->readfds;
++        fd_set *pWritefds = &pThis->writefds;
++#endif
+ 
+ 	ISOBJ_TYPE_assert(pThis, nsdsel_ptcp);
+ 	ISOBJ_TYPE_assert(pSock, nsd_ptcp);
+@@ -132,14 +163,14 @@ IsReady(nsdsel_t *pNsdsel, nsd_t *pNsd, 
+ 
+ 	switch(waitOp) {
+ 		case NSDSEL_RD:
+-			*pbIsReady = FD_ISSET(pSock->sock, &pThis->readfds);
++			*pbIsReady = FD_ISSET(pSock->sock, pReadfds);
+ 			break;
+ 		case NSDSEL_WR:
+-			*pbIsReady = FD_ISSET(pSock->sock, &pThis->writefds);
++			*pbIsReady = FD_ISSET(pSock->sock, pWritefds);
+ 			break;
+ 		case NSDSEL_RDWR:
+-			*pbIsReady =   FD_ISSET(pSock->sock, &pThis->readfds)
+-				     | FD_ISSET(pSock->sock, &pThis->writefds);
++			*pbIsReady =   FD_ISSET(pSock->sock, pReadfds)
++				     | FD_ISSET(pSock->sock, pWritefds);
+ 			break;
+ 	}
+ 
+diff -urp rsyslog-4.6.3.orig/runtime/nsdsel_ptcp.h rsyslog-4.6.3/runtime/nsdsel_ptcp.h
+--- rsyslog-4.6.3.orig/runtime/nsdsel_ptcp.h	2010-07-14 17:40:07.093002059 +0200
++++ rsyslog-4.6.3/runtime/nsdsel_ptcp.h	2010-07-14 17:48:07.809877302 +0200
+@@ -31,8 +31,13 @@ typedef nsdsel_if_t nsdsel_ptcp_if_t; /*
+ struct nsdsel_ptcp_s {
+ 	BEGINobjInstance;	/* Data to implement generic object - MUST be the first data element! */
+ 	int maxfds;
++#ifdef USE_UNLIMITED_SELECT
++	fd_set *pReadfds;
++	fd_set *pWritefds;
++#else
+ 	fd_set readfds;
+ 	fd_set writefds;
++#endif
+ };
+ 
+ /* interface is defined in nsd.h, we just implement it! */
+diff -urpN rsyslog-4.6.3.orig/runtime/unlimited_select.h rsyslog-4.6.3/runtime/unlimited_select.h
+--- rsyslog-4.6.3.orig/runtime/unlimited_select.h	1970-01-01 01:00:00.000000000 +0100
++++ rsyslog-4.6.3/runtime/unlimited_select.h	2010-07-14 17:48:07.810877080 +0200
+@@ -0,0 +1,45 @@
++/* unlimited_select.h
++ * Tweak the macros for accessing fd_set so that the select() syscall
++ * won't be limited to a particular number of file descriptors.
++ *
++ * Copyright 2009 Rainer Gerhards and Adiscon GmbH.
++ *
++ * This file is part of rsyslog.
++ *
++ * Rsyslog is free software: you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation, either version 3 of the License, or
++ * (at your option) any later version.
++ *
++ * Rsyslog is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with Rsyslog.  If not, see <http://www.gnu.org/licenses/>.
++ *
++ * A copy of the GPL can be found in the file "COPYING" in this distribution.
++ */
++
++#ifndef	UNLIMITED_SELECT_H_INCLUDED
++
++#include <string.h>
++#include <stdlib.h>
++#include <sys/select.h>
++#include "glbl.h"
++
++#ifdef USE_UNLIMITED_SELECT
++# undef FD_ZERO
++# define FD_ZERO(set) memset((set), 0, glbl.GetFdSetSize());
++#endif
++
++#ifdef USE_UNLIMITED_SELECT
++void freeFdSet(fd_set *p) {
++        free(p);
++}
++#else
++# define freeFdSet(x)
++#endif
++
++#endif /* #ifndef UNLIMITED_SELECT_H_INCLUDED */
+diff -urp rsyslog-4.6.3.orig/tools/syslogd.c rsyslog-4.6.3/tools/syslogd.c
+--- rsyslog-4.6.3.orig/tools/syslogd.c	2010-07-14 17:40:07.067881333 +0200
++++ rsyslog-4.6.3/tools/syslogd.c	2010-07-14 17:48:07.811876509 +0200
+@@ -1842,6 +1842,9 @@ static rsRetVal setMaxFiles(void __attri
+ 				iFiles, errStr, (long) maxFiles.rlim_max);
+ 		ABORT_FINALIZE(RS_RET_ERR_RLIM_NOFILE);
+ 	}
++#ifdef USE_UNLIMITED_SELECT
++	glbl.SetFdSetSize(howmany(iFiles, __NFDBITS) * sizeof (fd_mask));
++#endif
+ 	DBGPRINTF("Max number of files set to %d [kernel max %ld].\n", iFiles, (long) maxFiles.rlim_max);
+ 
+ finalize_it:

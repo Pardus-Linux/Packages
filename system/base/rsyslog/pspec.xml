@@ -1,0 +1,60 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>rsyslog</Name>
+        <Homepage>http://www.rsyslog.com</Homepage>
+        <Packager>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Packager>
+        <License>GPLv3+</License>
+        <IsA>service</IsA>
+        <Summary>Enhanced system logging and kernel message trapping daemons</Summary>
+        <Description>rsyslog is an enhanced multi-threaded syslogd supporting, among others, MySQL, syslog/tcp, RFC 3195, permitted sender lists, filtering on any message part, and fine grain output format control. It is quite compatible with stock sysklogd and can be used as a drop-in replacement.</Description>
+        <Archive sha1sum="23e8c219d143a605210c51df947515f403f50e2a" type="targz">http://download.rsyslog.com/rsyslog/rsyslog-4.6.3.tar.gz</Archive>
+        <BuildDependencies>
+            <Dependency>zlib-devel</Dependency>
+        </BuildDependencies>
+        <Patches>
+            <Patch level="1">rsyslog-4.6.3-unlimited-select.patch</Patch>
+        </Patches>
+    </Source>
+
+    <Package>
+        <Name>rsyslog</Name>
+        <RuntimeDependencies>
+            <Dependency>zlib</Dependency>
+        </RuntimeDependencies>
+        <Replaces>
+            <Package>sysklogd</Package>
+        </Replaces>
+        <Files>
+            <Path fileType="executable">/sbin/rsyslogd</Path>
+            <Path fileType="library">/usr/lib/rsyslog</Path>
+            <Path fileType="man">/usr/share/man</Path>
+            <Path fileType="doc">/usr/share/doc</Path>
+            <Path fileType="config">/etc/logrotate.d</Path>
+            <Path fileType="config">/etc/conf.d</Path>
+            <Path fileType="config">/etc/rsyslog.conf</Path>
+        </Files>
+        <AdditionalFiles>
+            <AdditionalFile owner="root" permission="0644" target="/etc/logrotate.d/rsyslog">rsyslog.logrotate</AdditionalFile>
+            <AdditionalFile owner="root" permission="0644" target="/etc/rsyslog.conf">rsyslog.conf</AdditionalFile>
+            <AdditionalFile owner="root" permission="0644" target="/etc/conf.d/rsyslog">rsyslog.sysconfig</AdditionalFile>
+        </AdditionalFiles>
+        <Provides>
+            <COMAR script="service.py">System.Service</COMAR>
+        </Provides>
+    </Package>
+
+    <History>
+        <Update release="1">
+            <Date>2010-07-09</Date>
+            <Version>4.6.3</Version>
+            <Comment>Initial release.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+    </History>
+</PISI>
