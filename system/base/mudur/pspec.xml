@@ -12,25 +12,20 @@
         <IsA>app:console</IsA>
         <Summary>Pardus boot and initialization system</Summary>
         <Description>mudur handles mounting of the filesystems, loading of the device drivers, starting of the system services, and other jobs during the Pardus boot and shutdown sequences.</Description>
-        <Archive sha1sum="1a5b7bf46e3630f533411fb2a2124c71fa86759a" type="tarbz2">http://cekirdek.pardus.org.tr/~ozan/dist/sources/mudur-3.1.6.tar.bz2</Archive>
-        <Patches>
-            <Patch>devtmpfs.patch</Patch>
-            <Patch>safe-load_file.patch</Patch>
-            <Patch>fix-loadfile.diff</Patch>
-            <Patch>fix-reboot-on-live-media.patch</Patch>
-            <Patch>remove-ldconf-hacks.patch</Patch>
-        </Patches>
+        <Archive sha1sum="a415d44fe15d48b2fdafbe7a9379f5339b89757e" type="tarbz2">http://cekirdek.pardus.org.tr/~ozan/dist/sources/mudur-4.0.tar.bz2</Archive>
     </Source>
 
     <Package>
         <Name>mudur</Name>
         <RuntimeDependencies>
             <Dependency>kbd</Dependency>
+            <Dependency>udev</Dependency>
             <Dependency>bash</Dependency>
             <Dependency>dbus</Dependency>
             <Dependency>comar</Dependency>
             <Dependency>python</Dependency>
             <Dependency>procps</Dependency>
+            <Dependency>rsyslog</Dependency>
             <Dependency>sysvinit</Dependency>
             <Dependency>coreutils</Dependency>
             <Dependency>net-tools</Dependency>
@@ -40,7 +35,6 @@
             <Dependency>pardus-python</Dependency>
             <Dependency>wireless-tools</Dependency>
             <Dependency>module-init-tools</Dependency>
-            <Dependency versionFrom="157">udev</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="config">/etc/conf.d</Path>
@@ -51,10 +45,6 @@
             <Path fileType="executable">/bin</Path>
             <Path fileType="localedata">/usr/share/locale</Path>
         </Files>
-        <AdditionalFiles>
-            <AdditionalFile owner="root" permission="0755" target="/sbin/adduser">adduser.py</AdditionalFile>
-            <AdditionalFile owner="root" permission="0755" target="/sbin/deluser">deluser.py</AdditionalFile>
-        </AdditionalFiles>
         <Provides>
             <COMAR script="pakhandler.py">System.PackageHandler</COMAR>
             <COMAR script="package.py">System.Package</COMAR>
@@ -64,6 +54,13 @@
     </Package>
 
     <History>
+        <Update release="117">
+            <Date>2010-09-14</Date>
+            <Version>4.0</Version>
+            <Comment>Version bump</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
         <Update release="116">
             <Date>2010-09-08</Date>
             <Version>3.1.6</Version>
