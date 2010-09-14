@@ -22,7 +22,12 @@ def setup():
                          --disable-glw \
                          --disable-glut \
                          --enable-gallium \
+                         --enable-gallium-llvm \
+                         --disable-gallium-svga \
+                         --disable-gallium-i915 \
+                         --disable-gallium-i965 \
                          --enable-gallium-radeon \
+                         --disable-gallium-r600 \
                          --enable-gallium-nouveau \
                          --with-driver=dri \
                          --with-dri-driverdir=/usr/lib/xorg/modules/dri \

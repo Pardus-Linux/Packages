@@ -13,7 +13,7 @@
         <IsA>app:console</IsA>
         <Summary>Mesa graphics libraries and utilities</Summary>
         <Description>Mesa is an open-source implementation of the OpenGL specification - a system for rendering interactive 3D graphics.</Description>
-        <Archive sha1sum="f9092eef613c63532e90da8a578d363da167a707" type="tarbz2">http://cekirdek.pardus.org.tr/~fatih/dist/mesa/mesa-7.9_pre20100908gitb4bb668.tar.bz2</Archive>
+        <Archive sha1sum="67ec259546da09424793491dedc7702288cf0e37" type="tarbz2">http://cekirdek.pardus.org.tr/~fatih/dist/mesa/mesa-7.9_pre20100914gitb0bc026.tar.bz2</Archive>
         <BuildDependencies>
             <Dependency>libXdamage-devel</Dependency>
             <Dependency>libXext-devel</Dependency>
@@ -21,13 +21,15 @@
             <Dependency>libXxf86vm-devel</Dependency>
             <Dependency>libdrm-devel</Dependency>
             <Dependency>libtalloc-devel</Dependency>
+            <Dependency>llvm</Dependency>
             <Dependency releaseFrom="27">xorg-proto</Dependency>
         </BuildDependencies>
-        <!--
         <Patches>
+            <Patch level="1">0001-glx-add-const-qualifiers-to-__indirect_glMultiDrawAr.patch</Patch>
+            <!--
             <Patch level="1">mesa-7.1-link-shared.patch</Patch>
+            -->
         </Patches>
-        -->
     </Source>
 
     <Package>
@@ -68,7 +70,12 @@
         <Name>mesa-devel</Name>
         <Summary>Development files for mesa</Summary>
         <RuntimeDependencies>
-            <Dependency release="26">mesa</Dependency>
+            <Dependency release="27">mesa</Dependency>
+            <Dependency>libXdamage-devel</Dependency>
+            <Dependency>libXext-devel</Dependency>
+            <Dependency>libXfixes-devel</Dependency>
+            <Dependency>libXxf86vm-devel</Dependency>
+            <Dependency>libdrm-devel</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="header">/usr/include</Path>
@@ -77,6 +84,17 @@
     </Package>
 
     <History>
+        <Update release="27">
+            <Date>2010-09-14</Date>
+            <Version>7.9_pre20100914</Version>
+            <Comment>
+                - Sync with master 7.9 branch
+                - Enable Gallium LLVM support
+                - Add missing dependencies
+            </Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
         <Update release="26">
             <Date>2010-09-08</Date>
             <Version>7.9_pre20100908</Version>
