@@ -171,3 +171,36 @@ Index: xorg-server-1.9.0/hw/xfree86/common/xf86pciBus.c
      return i;	/* Number of entries added */
  }
  
+Index: xorg-server-1.9.0/hw/xfree86/common/xf86Init.c
+===================================================================
+--- xorg-server-1.9.0.orig/hw/xfree86/common/xf86Init.c
++++ xorg-server-1.9.0/hw/xfree86/common/xf86Init.c
+@@ -423,13 +423,6 @@ InitOutput(ScreenInfo *pScreenInfo, int
+     xf86OSPMClose = xf86OSPMOpen();
+ #endif
+ 
+-    /* Load all modules specified explicitly in the config file */
+-    if ((modulelist = xf86ModulelistFromConfig(&optionlist))) {
+-      xf86LoadModules(modulelist, optionlist);
+-      free(modulelist);
+-      free(optionlist);
+-    }
+-
+     /* Load all driver modules specified in the config file */
+     /* If there aren't any specified in the config file, autoconfig them */
+     /* FIXME: Does not handle multiple active screen sections, but I'm not
+@@ -441,6 +434,14 @@ InitOutput(ScreenInfo *pScreenInfo, int
+             return ;
+         }
+     }
++
++    /* Load all modules specified explicitly in the config file */
++    if ((modulelist = xf86ModulelistFromConfig(&optionlist))) {
++      xf86LoadModules(modulelist, optionlist);
++      free(modulelist);
++      free(optionlist);
++    }
++
+     if ((modulelist = xf86DriverlistFromConfig())) {
+       xf86LoadModules(modulelist, NULL);
+       free(modulelist);
