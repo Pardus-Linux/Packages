@@ -1,0 +1,35 @@
+diff -up dhcp-4.2.0/client/Makefile.am.PIE-RELRO dhcp-4.2.0/client/Makefile.am
+--- dhcp-4.2.0/client/Makefile.am.PIE-RELRO	2010-09-07 17:22:32.000000000 +0200
++++ dhcp-4.2.0/client/Makefile.am	2010-09-07 17:23:08.000000000 +0200
+@@ -6,6 +6,8 @@ dhclient_SOURCES = clparse.c dhclient.c 
+ 		   scripts/solaris scripts/openwrt
+ dhclient_LDADD = ../common/libdhcp.a ../omapip/libomapi.a \
+ 		 ../bind/lib/libdns.a ../bind/lib/libisc.a $(CAPNG_LDADD)
++dhclient_LDFLAGS = -pie -Wl,-z,relro -Wl,-z,now
++
+ man_MANS = dhclient.8 dhclient-script.8 dhclient.conf.5 dhclient.leases.5
+ EXTRA_DIST = $(man_MANS)
+ 
+diff -up dhcp-4.2.0/relay/Makefile.am.PIE-RELRO dhcp-4.2.0/relay/Makefile.am
+--- dhcp-4.2.0/relay/Makefile.am.PIE-RELRO	2009-10-28 05:12:30.000000000 +0100
++++ dhcp-4.2.0/relay/Makefile.am	2010-09-07 17:23:38.000000000 +0200
+@@ -4,6 +4,8 @@ sbin_PROGRAMS = dhcrelay
+ dhcrelay_SOURCES = dhcrelay.c
+ dhcrelay_LDADD = ../common/libdhcp.a ../omapip/libomapi.a \
+ 		 ../bind/lib/libdns.a ../bind/lib/libisc.a
++dhcrelay_LDFLAGS = -pie -Wl,-z,relro -Wl,-z,now
++
+ man_MANS = dhcrelay.8
+ EXTRA_DIST = $(man_MANS)
+ 
+diff -up dhcp-4.2.0/server/Makefile.am.PIE-RELRO dhcp-4.2.0/server/Makefile.am
+--- dhcp-4.2.0/server/Makefile.am.PIE-RELRO	2010-03-24 22:49:47.000000000 +0100
++++ dhcp-4.2.0/server/Makefile.am	2010-09-07 17:24:08.000000000 +0200
+@@ -10,6 +10,7 @@ dhcpd_CFLAGS = $(LDAP_CFLAGS)
+ dhcpd_LDADD = ../common/libdhcp.a ../omapip/libomapi.a \
+ 	      ../dhcpctl/libdhcpctl.a ../bind/lib/libdns.a \
+ 	      ../bind/lib/libisc.a
++dhcpd_LDFLAGS = -pie -Wl,-z,relro -Wl,-z,now
+ 
+ man_MANS = dhcpd.8 dhcpd.conf.5 dhcpd.leases.5
+ EXTRA_DIST = $(man_MANS)
