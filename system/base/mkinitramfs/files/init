@@ -385,8 +385,18 @@ parse_cmdline() {
             quiet)
                 QUIET=1
             ;;
+            blacklist=*)
+                modules=${x#blacklist=}
+                for module in ${modules//,/ }; do
+                    echo "blacklist $module" >> /etc/modprobe.d/cmdline.conf
+                done
+            ;;
         esac
     done
+
+    if [ -f /etc/modprobe.d/cmdline.conf ]; then
+        cp /etc/modprobe.d/cmdline.conf /dev/.modprobe.initramfs.conf
+    fi
 }
 
 
