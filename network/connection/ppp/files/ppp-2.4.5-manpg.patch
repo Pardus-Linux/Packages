@@ -1,27 +1,25 @@
-Index: ppp-2.4.5/pppd/plugins/rp-pppoe/Makefile.linux
-===================================================================
---- ppp-2.4.5.orig/pppd/plugins/rp-pppoe/Makefile.linux
-+++ ppp-2.4.5/pppd/plugins/rp-pppoe/Makefile.linux
+diff -up ppp-2.4.5/pppd/plugins/rp-pppoe/Makefile.linux.manpg ppp-2.4.5/pppd/plugins/rp-pppoe/Makefile.linux
+--- ppp-2.4.5/pppd/plugins/rp-pppoe/Makefile.linux.manpg	2010-04-07 14:47:48.211413928 +0200
++++ ppp-2.4.5/pppd/plugins/rp-pppoe/Makefile.linux	2010-04-07 14:47:48.281414608 +0200
 @@ -16,6 +16,7 @@
  
  DESTDIR = $(INSTROOT)@DESTDIR@
  BINDIR = $(DESTDIR)/sbin
 +MANDIR = $(DESTDIR)/share/man/man8
- LIBDIR = $(DESTDIR)/lib/pppd/$(PPPDVERSION)
+ LIBDIR = $(DESTDIR)/lib/$(shell gcc -print-multi-os-directory 2> /dev/null)/pppd/$(PPPDVERSION)
  
  PPPDVERSION = $(shell awk -F '"' '/VERSION/ { print $$2; }' ../../patchlevel.h)
 @@ -46,6 +47,7 @@ install: all
- 	$(INSTALL) -s -c -m 4550 rp-pppoe.so $(LIBDIR)
+ 	$(INSTALL) -c -m 4550 rp-pppoe.so $(LIBDIR)
  	$(INSTALL) -d -m 755 $(BINDIR)
- 	$(INSTALL) -s -c -m 555 pppoe-discovery $(BINDIR)
+ 	$(INSTALL) -c -m 555 pppoe-discovery $(BINDIR)
 +	$(INSTALL) -c -m 444 pppoe-discovery.8 $(MANDIR)
  
  clean:
  	rm -f *.o *.so pppoe-discovery
-Index: ppp-2.4.5/pppd/plugins/rp-pppoe/pppoe-discovery.8
-===================================================================
---- /dev/null
-+++ ppp-2.4.5/pppd/plugins/rp-pppoe/pppoe-discovery.8
+diff -up ppp-2.4.5/pppd/plugins/rp-pppoe/pppoe-discovery.8.manpg ppp-2.4.5/pppd/plugins/rp-pppoe/pppoe-discovery.8
+--- ppp-2.4.5/pppd/plugins/rp-pppoe/pppoe-discovery.8.manpg	2010-04-07 14:49:31.059416743 +0200
++++ ppp-2.4.5/pppd/plugins/rp-pppoe/pppoe-discovery.8	2010-04-07 14:50:11.008416347 +0200
 @@ -0,0 +1,86 @@
 +.\" pppoe-discovery.8 written by
 +.\" Ben Hutchings <ben@decadentplace.org.uk>, based on pppoe.8.

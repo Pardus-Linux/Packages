@@ -11,6 +11,9 @@ from pisi.actionsapi import pisitools
 from pisi.actionsapi import get
 
 def setup():
+    # Fix pppoe and pppol2tp build problems
+    shelltools.unlink("include/linux/if_pppol2tp.h")
+
     autotools.configure()
 
 def build():

@@ -1,14 +1,14 @@
 --- ppp-2.4.3/pppd/plugins/rp-pppoe/discovery.c.fix	2004-11-04 11:07:37.000000000 +0100
 +++ ppp-2.4.3/pppd/plugins/rp-pppoe/discovery.c	2004-11-22 16:00:24.522462124 +0100
 @@ -13,6 +13,8 @@
- 
  #include "pppoe.h"
+ #include "pppd/pppd.h"
  
 +void warn __P((char *, ...));   /* log a warning message */
 +
- #ifdef HAVE_SYSLOG_H
- #include <syslog.h>
- #endif
+ #include <string.h>
+ #include <stdlib.h>
+ #include <errno.h>
 --- ppp-2.4.3/pppd/ipv6cp.c.fix	2004-11-13 03:28:15.000000000 +0100
 +++ ppp-2.4.3/pppd/ipv6cp.c	2004-11-22 16:00:27.049114044 +0100
 @@ -151,6 +151,7 @@
@@ -30,30 +30,6 @@
  /*
   * ipv6_check_options - check that any IP-related options are OK,
   * and assign appropriate defaults.
---- ppp-2.4.3/include/linux/if_pppox.h.fix	2001-12-15 01:34:24.000000000 +0100
-+++ ppp-2.4.3/include/linux/if_pppox.h	2004-11-22 16:00:27.049114044 +0100
-@@ -18,7 +18,7 @@
- 
- 
- #include <asm/types.h>
--#include <asm/byteorder.h>
-+#include <endian.h>
- 
- #ifdef  __KERNEL__
- #include <linux/if_ether.h>
-@@ -97,10 +97,10 @@
- #define PTT_GEN_ERR  	__constant_htons(0x0203)
- 
- struct pppoe_hdr {
--#if defined(__LITTLE_ENDIAN_BITFIELD)
-+#if __BYTE_ORDER == __LITTLE_ENDIAN
- 	__u8 ver : 4;
- 	__u8 type : 4;
--#elif defined(__BIG_ENDIAN_BITFIELD)
-+#elif __BYTE_ORDER == __BIG_ENDIAN
- 	__u8 type : 4;
- 	__u8 ver : 4;
- #else
 --- ppp-2.4.3/pppdump/deflate.c.fix	2004-02-02 04:36:46.000000000 +0100
 +++ ppp-2.4.3/pppdump/deflate.c	2004-11-22 16:02:18.071820020 +0100
 @@ -39,6 +39,7 @@
