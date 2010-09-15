@@ -25,8 +25,8 @@ def install():
     autotools.make("DESTDIR=%s install-nsdejavu" % get.installDIR())
 
     #Fix plugin path
-    shelltools.makedirs("%s/%s" % (get.installDIR(), browserPath))
-    pisitools.domove("/usr/lib/netscape/plugins/nsdejavu.so", browserPath)
+    pisitools.dodir(browserPath)
+    pisitools.domove("/usr/lib/netscape/plugins/nsdejavu.so.0", browserPath, "nsdejavu.so")
     pisitools.removeDir("/usr/lib/netscape")
 
     #Make symbolic link in /opt like all other browser plugins
