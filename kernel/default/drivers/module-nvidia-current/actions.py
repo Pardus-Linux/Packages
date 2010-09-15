@@ -32,6 +32,9 @@ def setup():
 
     shelltools.echo("ld.so.conf", base)
 
+    # Fix for 2.6.36
+    pisitools.dosed("kernel/nv.c", r"^ *\.ioctl     = nv_kern_ioctl,$", "")
+
 def build():
     shelltools.export("SYSSRC", "/lib/modules/%s/build" % KDIR)
     shelltools.cd("kernel")
