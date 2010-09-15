@@ -1,0 +1,55 @@
+From: Chris Bagwell <chris@cnpbagwell.com>
+Date: Sun, 12 Sep 2010 07:08:40 +0000 (-0700)
+Subject: Input: wacom - request tablet data for Bamboo Pens
+X-Git-Url: http://git.kernel.org/?p=linux%2Fkernel%2Fgit%2Fdtor%2Finput.git;a=commitdiff_plain;h=3dc9f40de4dddf9147b80cf15be633189a2b70f4
+
+Input: wacom - request tablet data for Bamboo Pens
+
+Bamboo P&T need to use second form of usb_set_report() to
+ask to report tablet data.
+
+With previous addition of Bamboo Touch, BTN_TOOL_TRIPLETAP is now used
+for both TABLETPC2FG and BAMBOO_PT types.  So reduced check to
+match type=TABLETPC2FG.
+
+This change shows redundant check for !TABLETPC2FG in else statement.
+
+Signed-off-by: Chris Bagwell <chris@cnpbagwell.com>
+Acked-by: Ping Cheng <pingc@wacom.com>
+Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+---
+
+diff --git a/drivers/input/tablet/wacom_sys.c b/drivers/input/tablet/wacom_sys.c
+index fc6fd53..1e3af29 100644
+--- a/drivers/input/tablet/wacom_sys.c
++++ b/drivers/input/tablet/wacom_sys.c
+@@ -319,8 +319,9 @@ static int wacom_query_tablet_data(struct usb_interface *intf, struct wacom_feat
+ 	if (!rep_data)
+ 		return error;
+ 
+-	/* ask to report tablet data if it is 2FGT or not a Tablet PC */
+-	if (features->device_type == BTN_TOOL_TRIPLETAP) {
++	/* ask to report tablet data if it is 2FGT Tablet PC or
++	 * not a Tablet PC */
++	if (features->type == TABLETPC2FG) {
+ 		do {
+ 			rep_data[0] = 3;
+ 			rep_data[1] = 4;
+@@ -332,7 +333,7 @@ static int wacom_query_tablet_data(struct usb_interface *intf, struct wacom_feat
+ 					WAC_HID_FEATURE_REPORT, report_id,
+ 					rep_data, 3);
+ 		} while ((error < 0 || rep_data[1] != 4) && limit++ < 5);
+-	} else if (features->type != TABLETPC && features->type != TABLETPC2FG) {
++	} else if (features->type != TABLETPC) {
+ 		do {
+ 			rep_data[0] = 2;
+ 			rep_data[1] = 2;
+@@ -364,7 +365,7 @@ static int wacom_retrieve_hid_descriptor(struct usb_interface *intf,
+ 	features->pressure_fuzz = 0;
+ 	features->distance_fuzz = 0;
+ 
+-	/* only Tablet PCs need to retrieve the info */
++	/* only Tablet PCs and Bamboo P&T need to retrieve the info */
+ 	if ((features->type != TABLETPC) && (features->type != TABLETPC2FG) &&
+ 	    (features->type != BAMBOO_PT))
+ 		goto out;

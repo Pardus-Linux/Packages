@@ -1,0 +1,69 @@
+From: Henrik Rydberg <rydberg@euromail.se>
+Date: Sun, 5 Sep 2010 19:25:11 +0000 (-0700)
+Subject: Input: wacom - add fuzz parameters to features
+X-Git-Url: http://git.kernel.org/?p=linux%2Fkernel%2Fgit%2Fdtor%2Finput.git;a=commitdiff_plain;h=fed87e655a2c20468d628b37424af58287803afe
+
+Input: wacom - add fuzz parameters to features
+
+The signal-to-noise ratio varies between devices, but currently all
+devices are treated the same way. Add fuzz parameters to the feature
+struct, allowing for tailored treatment of devices.
+
+Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
+Acked-by: Ping Cheng <pingc@wacom.com>
+Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+---
+
+diff --git a/drivers/input/tablet/wacom_sys.c b/drivers/input/tablet/wacom_sys.c
+index 42ba369..e510e4f 100644
+--- a/drivers/input/tablet/wacom_sys.c
++++ b/drivers/input/tablet/wacom_sys.c
+@@ -333,8 +333,12 @@ static int wacom_retrieve_hid_descriptor(struct usb_interface *intf,
+ 	struct usb_host_interface *interface = intf->cur_altsetting;
+ 	struct hid_descriptor *hid_desc;
+ 
+-	/* default device to penabled */
++	/* default features */
+ 	features->device_type = BTN_TOOL_PEN;
++	features->x_fuzz = 4;
++	features->y_fuzz = 4;
++	features->pressure_fuzz = 0;
++	features->distance_fuzz = 0;
+ 
+ 	/* only Tablet PCs need to retrieve the info */
+ 	if ((features->type != TABLETPC) && (features->type != TABLETPC2FG))
+diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/wacom_wac.c
+index 6e29bad..6d7e164 100644
+--- a/drivers/input/tablet/wacom_wac.c
++++ b/drivers/input/tablet/wacom_wac.c
+@@ -951,9 +951,12 @@ void wacom_setup_input_capabilities(struct input_dev *input_dev,
+ 
+ 	__set_bit(BTN_TOUCH, input_dev->keybit);
+ 
+-	input_set_abs_params(input_dev, ABS_X, 0, features->x_max, 4, 0);
+-	input_set_abs_params(input_dev, ABS_Y, 0, features->y_max, 4, 0);
+-	input_set_abs_params(input_dev, ABS_PRESSURE, 0, features->pressure_max, 0, 0);
++	input_set_abs_params(input_dev, ABS_X, 0, features->x_max,
++			     features->x_fuzz, 0);
++	input_set_abs_params(input_dev, ABS_Y, 0, features->y_max,
++			     features->y_fuzz, 0);
++	input_set_abs_params(input_dev, ABS_PRESSURE, 0, features->pressure_max,
++			     features->pressure_fuzz, 0);
+ 
+ 	__set_bit(ABS_MISC, input_dev->absbit);
+ 
+diff --git a/drivers/input/tablet/wacom_wac.h b/drivers/input/tablet/wacom_wac.h
+index 99e1a54..d769e9a 100644
+--- a/drivers/input/tablet/wacom_wac.h
++++ b/drivers/input/tablet/wacom_wac.h
+@@ -73,6 +73,10 @@ struct wacom_features {
+ 	int y_phy;
+ 	unsigned char unit;
+ 	unsigned char unitExpo;
++	int x_fuzz;
++	int y_fuzz;
++	int pressure_fuzz;
++	int distance_fuzz;
+ };
+ 
+ struct wacom_shared {

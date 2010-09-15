@@ -1,0 +1,52 @@
+From: Chris Bagwell <chris@cnpbagwell.com>
+Date: Sun, 12 Sep 2010 07:09:27 +0000 (-0700)
+Subject: Input: wacom - move Bamboo Touch irq to its own function
+X-Git-Url: http://git.kernel.org/?p=linux%2Fkernel%2Fgit%2Fdtor%2Finput.git;a=commitdiff_plain;h=e1d38e49ad97eec5024342e1244279b645e36688
+
+Input: wacom - move Bamboo Touch irq to its own function
+
+This is in preparation of pen support in same irq handler.
+
+Signed-off-by: Chris Bagwell <chris@cnpbagwell.com>
+Acked-by: Ping Cheng <pingc@wacom.com>
+Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+---
+
+diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/wacom_wac.c
+index 2f4411a..2f7ed9a 100644
+--- a/drivers/input/tablet/wacom_wac.c
++++ b/drivers/input/tablet/wacom_wac.c
+@@ -855,7 +855,7 @@ static int wacom_tpc_irq(struct wacom_wac *wacom, size_t len)
+ 	return retval;
+ }
+ 
+-static int wacom_bpt_irq(struct wacom_wac *wacom, size_t len)
++static int wacom_bpt_touch(struct wacom_wac *wacom)
+ {
+ 	struct wacom_features *features = &wacom->features;
+ 	struct input_dev *input = wacom->input;
+@@ -863,9 +863,6 @@ static int wacom_bpt_irq(struct wacom_wac *wacom, size_t len)
+ 	int sp = 0, sx = 0, sy = 0, count = 0;
+ 	int i;
+ 
+-	if (len != WACOM_PKGLEN_BBTOUCH)
+-		return 0;
+-
+ 	for (i = 0; i < 2; i++) {
+ 		int p = data[9 * i + 2];
+ 		input_mt_slot(input, i);
+@@ -907,6 +904,14 @@ static int wacom_bpt_irq(struct wacom_wac *wacom, size_t len)
+ 	return 0;
+ }
+ 
++static int wacom_bpt_irq(struct wacom_wac *wacom, size_t len)
++{
++	if (len == WACOM_PKGLEN_BBTOUCH)
++		return wacom_bpt_touch(wacom);
++
++	return 0;
++}
++
+ void wacom_wac_irq(struct wacom_wac *wacom_wac, size_t len)
+ {
+ 	bool sync;

@@ -1,0 +1,69 @@
+From: Henrik Rydberg <rydberg@euromail.se>
+Date: Sun, 5 Sep 2010 19:57:13 +0000 (-0700)
+Subject: Input: wacom - add a quirk for low resolution Bamboo devices
+X-Git-Url: http://git.kernel.org/?p=linux%2Fkernel%2Fgit%2Fdtor%2Finput.git;a=commitdiff_plain;h=f4ccbef2886968ed409939531f6dd0474d53a12a
+
+Input: wacom - add a quirk for low resolution Bamboo devices
+
+The Bamboo Touch reports a sub-screen resolution of 480x320.  The
+signal-to-noise ratio is only about 100, so filtering is needed in
+order to reduce the jitter to a usable level. However, the low
+resolution leads to round-off errors in the EWMA filter, resulting in
+extremely jerky pointer motion. This patch explicitly sets a higher
+resolution for those devices, and tells this to the completion handler
+via a low-resolution quirk.
+
+Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
+Acked-by: Ping Cheng <pingc@wacom.com>
+Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+---
+
+diff --git a/drivers/input/tablet/wacom_wac.c b/drivers/input/tablet/wacom_wac.c
+index 4e9b1dd..2f4411a 100644
+--- a/drivers/input/tablet/wacom_wac.c
++++ b/drivers/input/tablet/wacom_wac.c
+@@ -857,6 +857,7 @@ static int wacom_tpc_irq(struct wacom_wac *wacom, size_t len)
+ 
+ static int wacom_bpt_irq(struct wacom_wac *wacom, size_t len)
+ {
++	struct wacom_features *features = &wacom->features;
+ 	struct input_dev *input = wacom->input;
+ 	unsigned char *data = wacom->data;
+ 	int sp = 0, sx = 0, sy = 0, count = 0;
+@@ -871,6 +872,10 @@ static int wacom_bpt_irq(struct wacom_wac *wacom, size_t len)
+ 		if (p) {
+ 			int x = get_unaligned_be16(&data[9 * i + 3]) & 0x7ff;
+ 			int y = get_unaligned_be16(&data[9 * i + 5]) & 0x7ff;
++			if (features->quirks & WACOM_QUIRK_BBTOUCH_LOWRES) {
++				x <<= 5;
++				y <<= 5;
++			}
+ 			input_report_abs(input, ABS_MT_PRESSURE, p);
+ 			input_report_abs(input, ABS_MT_POSITION_X, x);
+ 			input_report_abs(input, ABS_MT_POSITION_Y, y);
+@@ -1010,8 +1015,13 @@ void wacom_setup_device_quirks(struct wacom_features *features)
+ 	/* quirks for bamboo touch */
+ 	if (features->type == BAMBOO_PT &&
+ 	    features->device_type == BTN_TOOL_TRIPLETAP) {
++		features->x_max <<= 5;
++		features->y_max <<= 5;
++		features->x_fuzz <<= 5;
++		features->y_fuzz <<= 5;
+ 		features->pressure_max = 256;
+ 		features->pressure_fuzz = 16;
++		features->quirks |= WACOM_QUIRK_BBTOUCH_LOWRES;
+ 	}
+ }
+ 
+diff --git a/drivers/input/tablet/wacom_wac.h b/drivers/input/tablet/wacom_wac.h
+index a23d6a5..00ca015 100644
+--- a/drivers/input/tablet/wacom_wac.h
++++ b/drivers/input/tablet/wacom_wac.h
+@@ -40,6 +40,7 @@
+ 
+ /* device quirks */
+ #define WACOM_QUIRK_MULTI_INPUT		0x0001
++#define WACOM_QUIRK_BBTOUCH_LOWRES	0x0002
+ 
+ /* largest reported tracking id */
+ #define MAX_TRACKING_ID			0xfff
