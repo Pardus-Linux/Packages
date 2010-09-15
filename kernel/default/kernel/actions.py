@@ -25,7 +25,7 @@ def build():
     kerneltools.build(debugSymbols=False)
 
     # Build perf
-    autotools.make("%s all" % perf_make)
+    #autotools.make("%s all" % perf_make)
 
 def install():
     kerneltools.install()
@@ -49,4 +49,4 @@ def install():
 
     # FIXME: Provide perf wrapper
     #pisitools.insinto("/usr/bin", "tools/perf/perf", "perf.%s-%s" % (get.srcNAME(), get.srcVERSION()))
-    autotools.rawInstall("%s DESTDIR=%s install" % (perf_make, get.installDIR()))
+    #autotools.rawInstall("%s DESTDIR=%s install" % (perf_make, get.installDIR()))
