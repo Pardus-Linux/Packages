@@ -10,12 +10,22 @@ from pisi.actionsapi import pisitools
 from pisi.actionsapi import shelltools
 from pisi.actionsapi import get
 
+import os
+
 WorkDir = "glibc-2.12-26-g9a98163"
 
 defaultflags = "-O3 -U_FORTIFY_SOURCE -fno-strict-aliasing -mno-tls-direct-seg-refs"
 sysflags = get.CFLAGS().replace("-fstack-protector", "").replace("-D_FORTIFY_SOURCE=2", "")
 buildflags = "%s %s" % (sysflags, defaultflags)
 
+
+def removePardusSection(_dir):
+    for k in shelltools.ls(_dir):
+        # FIXME: should we do this only on nonshared or all ?
+        # if ("crt" in k and k.endswith(".o")) or k.endswith("nonshared.a"):
+        if ("crt" in k and k.endswith(".o")) or k.endswith(".a"):
+            i = os.path.join(_dir, k)
+            shelltools.system('objcopy -R ".comment.PARDUS.OPTs" -R ".note.gnu.build-id" %s' % i)
 
 def set_variables():
     shelltools.export("LANGUAGE","C")
@@ -95,11 +105,17 @@ def install():
 
     shelltools.cd("..")
 
+    # Remove our options section from crt stuff
+    removePardusSection("%s/usr/lib/" % get.installDIR())
+
     pisitools.dodoc("BUGS", "ChangeLog*", "CONFORMANCE", "FAQ", "NEWS", "NOTES", "PROJECTS", "README*", "LICENSES")
 
     # remove zoneinfo files since they are coming from timezone packages
-    pisitools.removeDir("/usr/share/zoneinfo")
+    # we disable timezone build with a patch, keeping these lines for easier maintenance
+    if shelltools.isDirectory("%s/usr/share/zoneinfo" % get.installDIR()):
+        pisitools.removeDir("/usr/share/zoneinfo")
 
     for i in ["zdump", "zic"]:
-        pisitools.remove("/usr/sbin/%s" % i)
+        if shelltools.isFile("%s/usr/sbin/%s" % (get.installDIR(), i)):
+            pisitools.remove("/usr/sbin/%s" % i)
 

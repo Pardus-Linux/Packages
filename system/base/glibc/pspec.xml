@@ -66,11 +66,27 @@
             <Patch>gentoo/0085_all_glibc-disable-ldconfig.patch</Patch>
             <Patch level="1">gentoo/1160_all_glibc-2.8-nscd-one-fork.patch</Patch>
             <Patch>gentoo/5021_all_2.9-fnmatch.patch</Patch>
+            <Patch level="1">gentoo/0030_all_glibc-respect-env-CPPFLAGS.patch</Patch>
+            <Patch level="1">gentoo/0044_all_glibc-2.10-resolv-nameserver-fallback.patch</Patch>
+            <Patch level="1">gentoo/0055_all_glibc-2.12-static-shared-getpagesize.patch</Patch>
+            <Patch level="1">gentoo/0060_all_glibc-2.12-sse4-x86-static-strspn.patch</Patch>
+            <Patch level="1">gentoo/0070_all_glibc-2.12-asm-gnu-indirect.patch</Patch>
+            <Patch level="1">gentoo/1010_all_glibc-queue-header-updates.patch</Patch>
+            <Patch level="1">gentoo/1020_all_glibc-longjmp-chk-hidden-fortify.patch</Patch>
+            <Patch level="1">gentoo/1030_all_glibc-manual-no-perl.patch</Patch>
+            <Patch level="1">gentoo/1040_all_2.3.3-localedef-fix-trampoline.patch</Patch>
+            <Patch level="1">gentoo/1070_all_glibc-fadvise64_64.patch</Patch>
+            <Patch>gentoo/1085_all_glibc-2.9-check_native-headers.patch</Patch>
+            <Patch level="1">gentoo/1120_all_glibc-2.11-longjmp-chk-fallback.patch</Patch>
+            <Patch level="1">gentoo/5063_all_glibc-dont-build-timezone.patch</Patch>
 
 
             <!-- Pardus spesific patches -->
             <!-- Fix paths in 64bit -->
             <Patch level="1">pure64.patch</Patch>
+
+            <!-- for make 3.82 sed -i 's/ot \$/ot:\n\ttouch $@\n$/' manual/Makefile -->
+            <Patch level="1">make_3.82.patch</Patch>
 
             <!-- systemd patches -->
             <Patch level="1">systemd_listen_fd_in_nscd.patch</Patch>
@@ -82,10 +98,6 @@
         <RuntimeDependencies>
             <Dependency>gettext</Dependency>
         </RuntimeDependencies>
-        <Conflicts>
-            <Package>glibc-locales</Package>
-            <Package>memusage</Package>
-        </Conflicts>
         <Files>
             <Path fileType="config">/etc</Path>
             <Path fileType="library">/lib</Path>
@@ -94,8 +106,9 @@
             <Path fileType="executable">/usr/sbin</Path>
             <Path fileType="man">/usr/share/man</Path>
             <Path fileType="localedata">/usr/share/i18n</Path>
-            <Path fileType="localedata">/usr/share/locale</Path>
-            <Path fileType="header">/usr/include</Path>
+            <Path fileType="localedata">/usr/lib/locale/tr_*</Path>
+            <Path fileType="localedata">/usr/share/locale/tr*</Path>
+            <Path fileType="localedata">/usr/share/locale/locale.alias</Path>
             <Path fileType="executable">/sbin</Path>
             <Path fileType="data">/var</Path>
         </Files>
@@ -110,8 +123,24 @@
     </Package>
 
     <Package>
-        <Name>glibc-doc</Name>
+        <Name>glibc-devel</Name>
+        <PartOf>system.devel</PartOf>
+        <RuntimeDependencies>
+            <Dependency>glibc</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="header">/usr/include</Path>
+            <Path fileType="library">/usr/lib/*.o</Path>
+            <Path fileType="library">/usr/lib/*.a</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-docs</Name>
         <PartOf>system.doc</PartOf>
+        <Replaces>
+            <Package>glibc-doc</Package>
+        </Replaces>
         <Files>
             <Path fileType="doc">/usr/share/doc</Path>
             <Path fileType="info">/usr/share/info</Path>
@@ -123,11 +152,8 @@
         <IsA>locale:aa</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/aa_DJ</Path>
-            <Path fileType="localedata">/usr/lib/locale/aa_DJ.utf8</Path>
-            <Path fileType="localedata">/usr/lib/locale/aa_ER</Path>
-            <Path fileType="localedata">/usr/lib/locale/aa_ER@saaho</Path>
-            <Path fileType="localedata">/usr/lib/locale/aa_ET</Path>
+            <Path fileType="localedata">/usr/lib/locale/aa_*</Path>
+            <Path fileType="localedata">/usr/share/locale/aa*</Path>
         </Files>
     </Package>
 
@@ -136,8 +162,8 @@
         <IsA>locale:af</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/af_ZA</Path>
-            <Path fileType="localedata">/usr/lib/locale/af_ZA.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/af_*</Path>
+            <Path fileType="localedata">/usr/share/locale/af*</Path>
         </Files>
     </Package>
 
@@ -146,7 +172,8 @@
         <IsA>locale:am</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/am_ET</Path>
+            <Path fileType="localedata">/usr/lib/locale/am_*</Path>
+            <Path fileType="localedata">/usr/share/locale/am*</Path>
         </Files>
     </Package>
 
@@ -155,8 +182,8 @@
         <IsA>locale:an</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/an_ES</Path>
-            <Path fileType="localedata">/usr/lib/locale/an_ES.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/an_*</Path>
+            <Path fileType="localedata">/usr/share/locale/an*</Path>
         </Files>
     </Package>
 
@@ -165,41 +192,8 @@
         <IsA>locale:ar</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/ar_AE</Path>
-            <Path fileType="localedata">/usr/lib/locale/ar_AE.utf8</Path>
-            <Path fileType="localedata">/usr/lib/locale/ar_BH</Path>
-            <Path fileType="localedata">/usr/lib/locale/ar_BH.utf8</Path>
-            <Path fileType="localedata">/usr/lib/locale/ar_DZ</Path>
-            <Path fileType="localedata">/usr/lib/locale/ar_DZ.utf8</Path>
-            <Path fileType="localedata">/usr/lib/locale/ar_EG</Path>
-            <Path fileType="localedata">/usr/lib/locale/ar_EG.utf8</Path>
-            <Path fileType="localedata">/usr/lib/locale/ar_IN</Path>
-            <Path fileType="localedata">/usr/lib/locale/ar_IQ</Path>
-            <Path fileType="localedata">/usr/lib/locale/ar_IQ.utf8</Path>
-            <Path fileType="localedata">/usr/lib/locale/ar_JO</Path>
-            <Path fileType="localedata">/usr/lib/locale/ar_JO.utf8</Path>
-            <Path fileType="localedata">/usr/lib/locale/ar_KW</Path>
-            <Path fileType="localedata">/usr/lib/locale/ar_KW.utf8</Path>
-            <Path fileType="localedata">/usr/lib/locale/ar_LB</Path>
-            <Path fileType="localedata">/usr/lib/locale/ar_LB.utf8</Path>
-            <Path fileType="localedata">/usr/lib/locale/ar_LY</Path>
-            <Path fileType="localedata">/usr/lib/locale/ar_LY.utf8</Path>
-            <Path fileType="localedata">/usr/lib/locale/ar_MA</Path>
-            <Path fileType="localedata">/usr/lib/locale/ar_MA.utf8</Path>
-            <Path fileType="localedata">/usr/lib/locale/ar_OM</Path>
-            <Path fileType="localedata">/usr/lib/locale/ar_OM.utf8</Path>
-            <Path fileType="localedata">/usr/lib/locale/ar_QA</Path>
-            <Path fileType="localedata">/usr/lib/locale/ar_QA.utf8</Path>
-            <Path fileType="localedata">/usr/lib/locale/ar_SA</Path>
-            <Path fileType="localedata">/usr/lib/locale/ar_SA.utf8</Path>
-            <Path fileType="localedata">/usr/lib/locale/ar_SD</Path>
-            <Path fileType="localedata">/usr/lib/locale/ar_SD.utf8</Path>
-            <Path fileType="localedata">/usr/lib/locale/ar_SY</Path>
-            <Path fileType="localedata">/usr/lib/locale/ar_SY.utf8</Path>
-            <Path fileType="localedata">/usr/lib/locale/ar_TN</Path>
-            <Path fileType="localedata">/usr/lib/locale/ar_TN.utf8</Path>
-            <Path fileType="localedata">/usr/lib/locale/ar_YE</Path>
-            <Path fileType="localedata">/usr/lib/locale/ar_YE.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/ar_*</Path>
+            <Path fileType="localedata">/usr/share/locale/ar*</Path>
         </Files>
     </Package>
 
@@ -208,7 +202,8 @@
         <IsA>locale:as</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/as_IN.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/as_*</Path>
+            <Path fileType="localedata">/usr/share/locale/as*</Path>
         </Files>
     </Package>
 
@@ -217,8 +212,8 @@
         <IsA>locale:ast</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/ast_ES</Path>
-            <Path fileType="localedata">/usr/lib/locale/ast_ES.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/ast_*</Path>
+            <Path fileType="localedata">/usr/share/locale/ast*</Path>
         </Files>
     </Package>
 
@@ -227,7 +222,8 @@
         <IsA>locale:az</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/az_AZ.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/az_*</Path>
+            <Path fileType="localedata">/usr/share/locale/az*</Path>
         </Files>
     </Package>
 
@@ -236,9 +232,8 @@
         <IsA>locale:be</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/be_BY</Path>
-            <Path fileType="localedata">/usr/lib/locale/be_BY.utf8</Path>
-            <Path fileType="localedata">/usr/lib/locale/be_BY@latin</Path>
+            <Path fileType="localedata">/usr/lib/locale/be_*</Path>
+            <Path fileType="localedata">/usr/share/locale/be*</Path>
         </Files>
     </Package>
 
@@ -247,9 +242,8 @@
         <IsA>locale:ber</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/ber_DZ</Path>
-            <Path fileType="localedata">/usr/lib/locale/ber_DZ.utf8</Path>
-            <Path fileType="localedata">/usr/lib/locale/ber_MA</Path>
+            <Path fileType="localedata">/usr/lib/locale/ber_*</Path>
+            <Path fileType="localedata">/usr/share/locale/ber*</Path>
         </Files>
     </Package>
 
@@ -259,8 +253,8 @@
         <IsA>locale:bg</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/bg_BG</Path>
-            <Path fileType="localedata">/usr/lib/locale/bg_BG.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/bg_*</Path>
+            <Path fileType="localedata">/usr/share/locale/bg*</Path>
         </Files>
     </Package>
 
@@ -269,8 +263,8 @@
         <IsA>locale:bn</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/bn_BD</Path>
-            <Path fileType="localedata">/usr/lib/locale/bn_IN</Path>
+            <Path fileType="localedata">/usr/lib/locale/bn_*</Path>
+            <Path fileType="localedata">/usr/share/locale/bn*</Path>
         </Files>
     </Package>
 
@@ -279,9 +273,8 @@
         <IsA>locale:br</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/br_FR</Path>
-            <Path fileType="localedata">/usr/lib/locale/br_FR@euro</Path>
-            <Path fileType="localedata">/usr/lib/locale/br_FR.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/br_*</Path>
+            <Path fileType="localedata">/usr/share/locale/br*</Path>
         </Files>
     </Package>
 
@@ -290,8 +283,8 @@
         <IsA>locale:bo</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/bo_CN</Path>
-            <Path fileType="localedata">/usr/lib/locale/bo_IN</Path>
+            <Path fileType="localedata">/usr/lib/locale/bo_*</Path>
+            <Path fileType="localedata">/usr/share/locale/bo*</Path>
         </Files>
     </Package>
 
@@ -300,8 +293,8 @@
         <IsA>locale:bs</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/bs_BA</Path>
-            <Path fileType="localedata">/usr/lib/locale/bs_BA.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/bs_*</Path>
+            <Path fileType="localedata">/usr/share/locale/bs*</Path>
         </Files>
     </Package>
 
@@ -310,7 +303,8 @@
         <IsA>locale:byn</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/byn_ER</Path>
+            <Path fileType="localedata">/usr/lib/locale/byn_*</Path>
+            <Path fileType="localedata">/usr/share/locale/byn*</Path>
         </Files>
     </Package>
 
@@ -319,15 +313,8 @@
         <IsA>locale:ca</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/ca_ES</Path>
-            <Path fileType="localedata">/usr/lib/locale/ca_ES@euro</Path>
-            <Path fileType="localedata">/usr/lib/locale/ca_ES.utf8</Path>
-            <Path fileType="localedata">/usr/lib/locale/ca_AD</Path>
-            <Path fileType="localedata">/usr/lib/locale/ca_AD.utf8</Path>
-            <Path fileType="localedata">/usr/lib/locale/ca_FR</Path>
-            <Path fileType="localedata">/usr/lib/locale/ca_FR.utf8</Path>
-            <Path fileType="localedata">/usr/lib/locale/ca_IT</Path>
-            <Path fileType="localedata">/usr/lib/locale/ca_IT.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/ca_*</Path>
+            <Path fileType="localedata">/usr/share/locale/ca*</Path>
         </Files>
     </Package>
 
@@ -336,8 +323,8 @@
         <IsA>locale:cs</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/cs_CZ</Path>
-            <Path fileType="localedata">/usr/lib/locale/cs_CZ.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/cs_*</Path>
+            <Path fileType="localedata">/usr/share/locale/cs*</Path>
         </Files>
     </Package>
 
@@ -346,7 +333,8 @@
         <IsA>locale:csb</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/csb_PL</Path>
+            <Path fileType="localedata">/usr/lib/locale/csb_*</Path>
+            <Path fileType="localedata">/usr/share/locale/csb*</Path>
         </Files>
     </Package>
 
@@ -355,7 +343,18 @@
         <IsA>locale:crh</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/crh_UA</Path>
+            <Path fileType="localedata">/usr/lib/locale/crh_*</Path>
+            <Path fileType="localedata">/usr/share/locale/crh*</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-cv</Name>
+        <IsA>locale:cv</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/cv_*</Path>
+            <Path fileType="localedata">/usr/share/locale/cv*</Path>
         </Files>
     </Package>
 
@@ -364,8 +363,8 @@
         <IsA>locale:cy</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/cy_GB</Path>
-            <Path fileType="localedata">/usr/lib/locale/cy_GB.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/cy_*</Path>
+            <Path fileType="localedata">/usr/share/locale/cy*</Path>
         </Files>
     </Package>
 
@@ -374,8 +373,8 @@
         <IsA>locale:da</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/da_DK</Path>
-            <Path fileType="localedata">/usr/lib/locale/da_DK.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/da_*</Path>
+            <Path fileType="localedata">/usr/share/locale/da*</Path>
         </Files>
     </Package>
 
@@ -384,20 +383,18 @@
         <IsA>locale:de</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/de_AT</Path>
-            <Path fileType="localedata">/usr/lib/locale/de_AT@euro</Path>
-            <Path fileType="localedata">/usr/lib/locale/de_AT.utf8</Path>
-            <Path fileType="localedata">/usr/lib/locale/de_BE</Path>
-            <Path fileType="localedata">/usr/lib/locale/de_BE@euro</Path>
-            <Path fileType="localedata">/usr/lib/locale/de_BE.utf8</Path>
-            <Path fileType="localedata">/usr/lib/locale/de_CH</Path>
-            <Path fileType="localedata">/usr/lib/locale/de_CH.utf8</Path>
-            <Path fileType="localedata">/usr/lib/locale/de_DE</Path>
-            <Path fileType="localedata">/usr/lib/locale/de_DE@euro</Path>
-            <Path fileType="localedata">/usr/lib/locale/de_DE.utf8</Path>
-            <Path fileType="localedata">/usr/lib/locale/de_LU</Path>
-            <Path fileType="localedata">/usr/lib/locale/de_LU@euro</Path>
-            <Path fileType="localedata">/usr/lib/locale/de_LU.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/de_*</Path>
+            <Path fileType="localedata">/usr/share/locale/de*</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-dv</Name>
+        <IsA>locale:dv</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/dv_*</Path>
+            <Path fileType="localedata">/usr/share/locale/dv*</Path>
         </Files>
     </Package>
 
@@ -406,7 +403,8 @@
         <IsA>locale:dz</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/dz_BT</Path>
+            <Path fileType="localedata">/usr/lib/locale/dz_*</Path>
+            <Path fileType="localedata">/usr/share/locale/dz*</Path>
         </Files>
     </Package>
 
@@ -415,10 +413,8 @@
         <IsA>locale:el</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/el_GR</Path>
-            <Path fileType="localedata">/usr/lib/locale/el_GR.utf8</Path>
-            <Path fileType="localedata">/usr/lib/locale/el_CY</Path>
-            <Path fileType="localedata">/usr/lib/locale/el_CY.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/el_*</Path>
+            <Path fileType="localedata">/usr/share/locale/el*</Path>
         </Files>
     </Package>
 
@@ -427,9 +423,8 @@
         <IsA>locale:et</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/et_EE</Path>
-            <Path fileType="localedata">/usr/lib/locale/et_EE.iso885915</Path>
-            <Path fileType="localedata">/usr/lib/locale/et_EE.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/et_*</Path>
+            <Path fileType="localedata">/usr/share/locale/et*</Path>
         </Files>
     </Package>
 
@@ -438,9 +433,8 @@
         <IsA>locale:eu</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/eu_ES</Path>
-            <Path fileType="localedata">/usr/lib/locale/eu_ES@euro</Path>
-            <Path fileType="localedata">/usr/lib/locale/eu_ES.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/eu_*</Path>
+            <Path fileType="localedata">/usr/share/locale/eu*</Path>
         </Files>
     </Package>
 
@@ -450,33 +444,61 @@
         <PartOf>system.locale</PartOf>
         <Files>
             <Path fileType="localedata">/usr/lib/locale/en_AG</Path>
+            <Path fileType="localedata">/usr/share/locale/en_AG</Path>
             <Path fileType="localedata">/usr/lib/locale/en_AU</Path>
+            <Path fileType="localedata">/usr/share/locale/en_AU</Path>
             <Path fileType="localedata">/usr/lib/locale/en_AU.utf8</Path>
+            <Path fileType="localedata">/usr/share/locale/en_AU.utf8</Path>
             <Path fileType="localedata">/usr/lib/locale/en_BW</Path>
+            <Path fileType="localedata">/usr/share/locale/en_BW</Path>
             <Path fileType="localedata">/usr/lib/locale/en_BW.utf8</Path>
+            <Path fileType="localedata">/usr/share/locale/en_BW.utf8</Path>
             <Path fileType="localedata">/usr/lib/locale/en_CA</Path>
+            <Path fileType="localedata">/usr/share/locale/en_CA</Path>
             <Path fileType="localedata">/usr/lib/locale/en_CA.utf8</Path>
+            <Path fileType="localedata">/usr/share/locale/en_CA.utf8</Path>
             <Path fileType="localedata">/usr/lib/locale/en_DK</Path>
+            <Path fileType="localedata">/usr/share/locale/en_DK</Path>
             <Path fileType="localedata">/usr/lib/locale/en_DK.utf8</Path>
+            <Path fileType="localedata">/usr/share/locale/en_DK.utf8</Path>
             <Path fileType="localedata">/usr/lib/locale/en_GB</Path>
+            <Path fileType="localedata">/usr/share/locale/en_GB</Path>
             <Path fileType="localedata">/usr/lib/locale/en_GB.utf8</Path>
+            <Path fileType="localedata">/usr/share/locale/en_GB.utf8</Path>
             <Path fileType="localedata">/usr/lib/locale/en_HK</Path>
+            <Path fileType="localedata">/usr/share/locale/en_HK</Path>
             <Path fileType="localedata">/usr/lib/locale/en_HK.utf8</Path>
+            <Path fileType="localedata">/usr/share/locale/en_HK.utf8</Path>
             <Path fileType="localedata">/usr/lib/locale/en_IE</Path>
+            <Path fileType="localedata">/usr/share/locale/en_IE</Path>
             <Path fileType="localedata">/usr/lib/locale/en_IE@euro</Path>
+            <Path fileType="localedata">/usr/share/locale/en_IE@euro</Path>
             <Path fileType="localedata">/usr/lib/locale/en_IE.utf8</Path>
+            <Path fileType="localedata">/usr/share/locale/en_IE.utf8</Path>
             <Path fileType="localedata">/usr/lib/locale/en_IN</Path>
+            <Path fileType="localedata">/usr/share/locale/en_IN</Path>
             <Path fileType="localedata">/usr/lib/locale/en_NG</Path>
+            <Path fileType="localedata">/usr/share/locale/en_NG</Path>
             <Path fileType="localedata">/usr/lib/locale/en_NZ</Path>
+            <Path fileType="localedata">/usr/share/locale/en_NZ</Path>
             <Path fileType="localedata">/usr/lib/locale/en_NZ.utf8</Path>
+            <Path fileType="localedata">/usr/share/locale/en_NZ.utf8</Path>
             <Path fileType="localedata">/usr/lib/locale/en_PH</Path>
+            <Path fileType="localedata">/usr/share/locale/en_PH</Path>
             <Path fileType="localedata">/usr/lib/locale/en_PH.utf8</Path>
+            <Path fileType="localedata">/usr/share/locale/en_PH.utf8</Path>
             <Path fileType="localedata">/usr/lib/locale/en_SG</Path>
+            <Path fileType="localedata">/usr/share/locale/en_SG</Path>
             <Path fileType="localedata">/usr/lib/locale/en_SG.utf8</Path>
+            <Path fileType="localedata">/usr/share/locale/en_SG.utf8</Path>
             <Path fileType="localedata">/usr/lib/locale/en_ZA</Path>
+            <Path fileType="localedata">/usr/share/locale/en_ZA</Path>
             <Path fileType="localedata">/usr/lib/locale/en_ZA.utf8</Path>
+            <Path fileType="localedata">/usr/share/locale/en_ZA.utf8</Path>
             <Path fileType="localedata">/usr/lib/locale/en_ZW</Path>
+            <Path fileType="localedata">/usr/share/locale/en_ZW</Path>
             <Path fileType="localedata">/usr/lib/locale/en_ZW.utf8</Path>
+            <Path fileType="localedata">/usr/share/locale/en_ZW.utf8</Path>
         </Files>
     </Package>
 
@@ -485,47 +507,8 @@
         <IsA>locale:es</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/es_AR</Path>
-            <Path fileType="localedata">/usr/lib/locale/es_AR.utf8</Path>
-            <Path fileType="localedata">/usr/lib/locale/es_BO</Path>
-            <Path fileType="localedata">/usr/lib/locale/es_BO.utf8</Path>
-            <Path fileType="localedata">/usr/lib/locale/es_CL</Path>
-            <Path fileType="localedata">/usr/lib/locale/es_CL.utf8</Path>
-            <Path fileType="localedata">/usr/lib/locale/es_CO</Path>
-            <Path fileType="localedata">/usr/lib/locale/es_CO.utf8</Path>
-            <Path fileType="localedata">/usr/lib/locale/es_CR</Path>
-            <Path fileType="localedata">/usr/lib/locale/es_CR.utf8</Path>
-            <Path fileType="localedata">/usr/lib/locale/es_DO</Path>
-            <Path fileType="localedata">/usr/lib/locale/es_DO.utf8</Path>
-            <Path fileType="localedata">/usr/lib/locale/es_EC</Path>
-            <Path fileType="localedata">/usr/lib/locale/es_EC.utf8</Path>
-            <Path fileType="localedata">/usr/lib/locale/es_ES</Path>
-            <Path fileType="localedata">/usr/lib/locale/es_ES@euro</Path>
-            <Path fileType="localedata">/usr/lib/locale/es_ES.utf8</Path>
-            <Path fileType="localedata">/usr/lib/locale/es_GT</Path>
-            <Path fileType="localedata">/usr/lib/locale/es_GT.utf8</Path>
-            <Path fileType="localedata">/usr/lib/locale/es_HN</Path>
-            <Path fileType="localedata">/usr/lib/locale/es_HN.utf8</Path>
-            <Path fileType="localedata">/usr/lib/locale/es_MX</Path>
-            <Path fileType="localedata">/usr/lib/locale/es_MX.utf8</Path>
-            <Path fileType="localedata">/usr/lib/locale/es_NI</Path>
-            <Path fileType="localedata">/usr/lib/locale/es_NI.utf8</Path>
-            <Path fileType="localedata">/usr/lib/locale/es_PA</Path>
-            <Path fileType="localedata">/usr/lib/locale/es_PA.utf8</Path>
-            <Path fileType="localedata">/usr/lib/locale/es_PE</Path>
-            <Path fileType="localedata">/usr/lib/locale/es_PE.utf8</Path>
-            <Path fileType="localedata">/usr/lib/locale/es_PR</Path>
-            <Path fileType="localedata">/usr/lib/locale/es_PR.utf8</Path>
-            <Path fileType="localedata">/usr/lib/locale/es_PY</Path>
-            <Path fileType="localedata">/usr/lib/locale/es_PY.utf8</Path>
-            <Path fileType="localedata">/usr/lib/locale/es_SV</Path>
-            <Path fileType="localedata">/usr/lib/locale/es_SV.utf8</Path>
-            <Path fileType="localedata">/usr/lib/locale/es_US</Path>
-            <Path fileType="localedata">/usr/lib/locale/es_US.utf8</Path>
-            <Path fileType="localedata">/usr/lib/locale/es_UY</Path>
-            <Path fileType="localedata">/usr/lib/locale/es_UY.utf8</Path>
-            <Path fileType="localedata">/usr/lib/locale/es_VE</Path>
-            <Path fileType="localedata">/usr/lib/locale/es_VE.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/es_*</Path>
+            <Path fileType="localedata">/usr/share/locale/es*</Path>
         </Files>
     </Package>
 
@@ -534,7 +517,8 @@
         <IsA>locale:fa</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/fa_IR</Path>
+            <Path fileType="localedata">/usr/lib/locale/fa_*</Path>
+            <Path fileType="localedata">/usr/share/locale/fa*</Path>
         </Files>
     </Package>
 
@@ -543,9 +527,8 @@
         <IsA>locale:fi</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/fi_FI</Path>
-            <Path fileType="localedata">/usr/lib/locale/fi_FI@euro</Path>
-            <Path fileType="localedata">/usr/lib/locale/fi_FI.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/fi_*</Path>
+            <Path fileType="localedata">/usr/share/locale/fi*</Path>
         </Files>
     </Package>
 
@@ -554,7 +537,8 @@
         <IsA>locale:fil</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/fil_PH</Path>
+            <Path fileType="localedata">/usr/lib/locale/fil_*</Path>
+            <Path fileType="localedata">/usr/share/locale/fil*</Path>
         </Files>
     </Package>
 
@@ -563,7 +547,8 @@
         <IsA>locale:fur</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/fur_IT</Path>
+            <Path fileType="localedata">/usr/lib/locale/fur_*</Path>
+            <Path fileType="localedata">/usr/share/locale/fur*</Path>
         </Files>
     </Package>
 
@@ -572,8 +557,8 @@
         <IsA>locale:fo</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/fo_FO</Path>
-            <Path fileType="localedata">/usr/lib/locale/fo_FO.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/fo_*</Path>
+            <Path fileType="localedata">/usr/share/locale/fo*</Path>
         </Files>
     </Package>
 
@@ -582,19 +567,8 @@
         <IsA>locale:fr</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/fr_BE</Path>
-            <Path fileType="localedata">/usr/lib/locale/fr_BE@euro</Path>
-            <Path fileType="localedata">/usr/lib/locale/fr_BE.utf8</Path>
-            <Path fileType="localedata">/usr/lib/locale/fr_CA</Path>
-            <Path fileType="localedata">/usr/lib/locale/fr_CA.utf8</Path>
-            <Path fileType="localedata">/usr/lib/locale/fr_CH</Path>
-            <Path fileType="localedata">/usr/lib/locale/fr_CH.utf8</Path>
-            <Path fileType="localedata">/usr/lib/locale/fr_FR</Path>
-            <Path fileType="localedata">/usr/lib/locale/fr_FR@euro</Path>
-            <Path fileType="localedata">/usr/lib/locale/fr_FR.utf8</Path>
-            <Path fileType="localedata">/usr/lib/locale/fr_LU</Path>
-            <Path fileType="localedata">/usr/lib/locale/fr_LU@euro</Path>
-            <Path fileType="localedata">/usr/lib/locale/fr_LU.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/fr_*</Path>
+            <Path fileType="localedata">/usr/share/locale/fr*</Path>
         </Files>
     </Package>
 
@@ -603,8 +577,8 @@
         <IsA>locale:fy</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/fy_DE</Path>
-            <Path fileType="localedata">/usr/lib/locale/fy_NL</Path>
+            <Path fileType="localedata">/usr/lib/locale/fy_*</Path>
+            <Path fileType="localedata">/usr/share/locale/fy*</Path>
         </Files>
     </Package>
 
@@ -613,9 +587,8 @@
         <IsA>locale:ga</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/ga_IE</Path>
-            <Path fileType="localedata">/usr/lib/locale/ga_IE@euro</Path>
-            <Path fileType="localedata">/usr/lib/locale/ga_IE.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/ga_*</Path>
+            <Path fileType="localedata">/usr/share/locale/ga*</Path>
         </Files>
     </Package>
 
@@ -624,8 +597,8 @@
         <IsA>locale:gd</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/gd_GB</Path>
-            <Path fileType="localedata">/usr/lib/locale/gd_GB.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/gd_*</Path>
+            <Path fileType="localedata">/usr/share/locale/gd*</Path>
         </Files>
     </Package>
 
@@ -634,10 +607,8 @@
         <IsA>locale:gez</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/gez_ER</Path>
-            <Path fileType="localedata">/usr/lib/locale/gez_ER@abegede</Path>
-            <Path fileType="localedata">/usr/lib/locale/gez_ET</Path>
-            <Path fileType="localedata">/usr/lib/locale/gez_ET@abegede</Path>
+            <Path fileType="localedata">/usr/lib/locale/gez_*</Path>
+            <Path fileType="localedata">/usr/share/locale/gez*</Path>
         </Files>
     </Package>
 
@@ -646,9 +617,8 @@
         <IsA>locale:gl</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/gl_ES</Path>
-            <Path fileType="localedata">/usr/lib/locale/gl_ES@euro</Path>
-            <Path fileType="localedata">/usr/lib/locale/gl_ES.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/gl_*</Path>
+            <Path fileType="localedata">/usr/share/locale/gl*</Path>
         </Files>
     </Package>
 
@@ -657,7 +627,8 @@
         <IsA>locale:gu</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/gu_IN</Path>
+            <Path fileType="localedata">/usr/lib/locale/gu_*</Path>
+            <Path fileType="localedata">/usr/share/locale/gu*</Path>
         </Files>
     </Package>
 
@@ -666,8 +637,8 @@
         <IsA>locale:gv</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/gv_GB</Path>
-            <Path fileType="localedata">/usr/lib/locale/gv_GB.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/gv_*</Path>
+            <Path fileType="localedata">/usr/share/locale/gv*</Path>
         </Files>
     </Package>
 
@@ -676,7 +647,8 @@
         <IsA>locale:ha</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/ha_NG</Path>
+            <Path fileType="localedata">/usr/lib/locale/ha_*</Path>
+            <Path fileType="localedata">/usr/share/locale/ha*</Path>
         </Files>
     </Package>
 
@@ -685,8 +657,8 @@
         <IsA>locale:hsb</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/hsb_DE</Path>
-            <Path fileType="localedata">/usr/lib/locale/hsb_DE.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/hsb_*</Path>
+            <Path fileType="localedata">/usr/share/locale/hsb*</Path>
         </Files>
     </Package>
 
@@ -695,8 +667,8 @@
         <IsA>locale:hy</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/hy_AM</Path>
-            <Path fileType="localedata">/usr/lib/locale/hy_AM.armscii8</Path>
+            <Path fileType="localedata">/usr/lib/locale/hy_*</Path>
+            <Path fileType="localedata">/usr/share/locale/hy*</Path>
         </Files>
     </Package>
 
@@ -705,8 +677,8 @@
         <IsA>locale:he</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/he_IL</Path>
-            <Path fileType="localedata">/usr/lib/locale/he_IL.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/he_*</Path>
+            <Path fileType="localedata">/usr/share/locale/he*</Path>
         </Files>
     </Package>
 
@@ -715,7 +687,8 @@
         <IsA>locale:hi</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/hi_IN</Path>
+            <Path fileType="localedata">/usr/lib/locale/hi_*</Path>
+            <Path fileType="localedata">/usr/share/locale/hi*</Path>
         </Files>
     </Package>
 
@@ -724,7 +697,8 @@
         <IsA>locale:hne</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/hne_IN</Path>
+            <Path fileType="localedata">/usr/lib/locale/hne_*</Path>
+            <Path fileType="localedata">/usr/share/locale/hne*</Path>
         </Files>
     </Package>
 
@@ -733,8 +707,8 @@
         <IsA>locale:hr</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/hr_HR</Path>
-            <Path fileType="localedata">/usr/lib/locale/hr_HR.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/hr_*</Path>
+            <Path fileType="localedata">/usr/share/locale/hr*</Path>
         </Files>
     </Package>
 
@@ -743,7 +717,8 @@
         <IsA>locale:ht</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/ht_HT</Path>
+            <Path fileType="localedata">/usr/lib/locale/ht_*</Path>
+            <Path fileType="localedata">/usr/share/locale/ht*</Path>
         </Files>
     </Package>
 
@@ -752,8 +727,8 @@
         <IsA>locale:hu</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/hu_HU</Path>
-            <Path fileType="localedata">/usr/lib/locale/hu_HU.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/hu_*</Path>
+            <Path fileType="localedata">/usr/share/locale/hu*</Path>
         </Files>
     </Package>
 
@@ -762,8 +737,8 @@
         <IsA>locale:id</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/id_ID</Path>
-            <Path fileType="localedata">/usr/lib/locale/id_ID.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/id_*</Path>
+            <Path fileType="localedata">/usr/share/locale/id*</Path>
         </Files>
     </Package>
 
@@ -772,7 +747,8 @@
         <IsA>locale:ig</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/ig_NG</Path>
+            <Path fileType="localedata">/usr/lib/locale/ig_*</Path>
+            <Path fileType="localedata">/usr/share/locale/ig*</Path>
         </Files>
     </Package>
 
@@ -781,8 +757,8 @@
         <IsA>locale:is</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/is_IS</Path>
-            <Path fileType="localedata">/usr/lib/locale/is_IS.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/is_*</Path>
+            <Path fileType="localedata">/usr/share/locale/is*</Path>
         </Files>
     </Package>
 
@@ -791,11 +767,8 @@
         <IsA>locale:it</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/it_CH</Path>
-            <Path fileType="localedata">/usr/lib/locale/it_CH.utf8</Path>
-            <Path fileType="localedata">/usr/lib/locale/it_IT</Path>
-            <Path fileType="localedata">/usr/lib/locale/it_IT@euro</Path>
-            <Path fileType="localedata">/usr/lib/locale/it_IT.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/it_*</Path>
+            <Path fileType="localedata">/usr/share/locale/it*</Path>
         </Files>
     </Package>
 
@@ -804,7 +777,8 @@
         <IsA>locale:ik</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/ik_CA</Path>
+            <Path fileType="localedata">/usr/lib/locale/ik_*</Path>
+            <Path fileType="localedata">/usr/share/locale/ik*</Path>
         </Files>
     </Package>
 
@@ -813,7 +787,8 @@
         <IsA>locale:iu</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/iu_CA</Path>
+            <Path fileType="localedata">/usr/lib/locale/iu_*</Path>
+            <Path fileType="localedata">/usr/share/locale/iu*</Path>
         </Files>
     </Package>
 
@@ -822,8 +797,8 @@
         <IsA>locale:iw</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/iw_IL</Path>
-            <Path fileType="localedata">/usr/lib/locale/iw_IL.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/iw_*</Path>
+            <Path fileType="localedata">/usr/share/locale/iw*</Path>
         </Files>
     </Package>
 
@@ -832,8 +807,8 @@
         <IsA>locale:ja</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/ja_JP.eucjp</Path>
-            <Path fileType="localedata">/usr/lib/locale/ja_JP.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/ja_*</Path>
+            <Path fileType="localedata">/usr/share/locale/ja*</Path>
         </Files>
     </Package>
 
@@ -842,8 +817,8 @@
         <IsA>locale:ka</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/ka_GE</Path>
-            <Path fileType="localedata">/usr/lib/locale/ka_GE.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/ka_*</Path>
+            <Path fileType="localedata">/usr/share/locale/ka*</Path>
         </Files>
     </Package>
 
@@ -852,8 +827,8 @@
         <IsA>locale:kk</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/kk_KZ</Path>
-            <Path fileType="localedata">/usr/lib/locale/kk_KZ.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/kk_*</Path>
+            <Path fileType="localedata">/usr/share/locale/kk*</Path>
         </Files>
     </Package>
 
@@ -862,8 +837,8 @@
         <IsA>locale:kl</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/kl_GL</Path>
-            <Path fileType="localedata">/usr/lib/locale/kl_GL.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/kl_*</Path>
+            <Path fileType="localedata">/usr/share/locale/kl*</Path>
         </Files>
     </Package>
 
@@ -872,7 +847,8 @@
         <IsA>locale:kn</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/kn_IN</Path>
+            <Path fileType="localedata">/usr/lib/locale/kn_*</Path>
+            <Path fileType="localedata">/usr/share/locale/kn*</Path>
         </Files>
     </Package>
 
@@ -881,8 +857,18 @@
         <IsA>locale:ko</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/ko_KR.euckr</Path>
-            <Path fileType="localedata">/usr/lib/locale/ko_KR.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/ko_*</Path>
+            <Path fileType="localedata">/usr/share/locale/ko*</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-kok</Name>
+        <IsA>locale:kok</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/kok_*</Path>
+            <Path fileType="localedata">/usr/share/locale/kok*</Path>
         </Files>
     </Package>
 
@@ -891,7 +877,8 @@
         <IsA>locale:km</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/km_KH</Path>
+            <Path fileType="localedata">/usr/lib/locale/km_*</Path>
+            <Path fileType="localedata">/usr/share/locale/km*</Path>
         </Files>
     </Package>
 
@@ -900,7 +887,8 @@
         <IsA>locale:ks</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/ks_IN@devanagari</Path>
+            <Path fileType="localedata">/usr/lib/locale/ks_*</Path>
+            <Path fileType="localedata">/usr/share/locale/ks*</Path>
         </Files>
     </Package>
 
@@ -909,8 +897,8 @@
         <IsA>locale:ku</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/ku_TR</Path>
-            <Path fileType="localedata">/usr/lib/locale/ku_TR.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/ku_*</Path>
+            <Path fileType="localedata">/usr/share/locale/ku*</Path>
         </Files>
     </Package>
 
@@ -919,7 +907,8 @@
         <IsA>locale:ky</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/ky_KG</Path>
+            <Path fileType="localedata">/usr/lib/locale/ky_*</Path>
+            <Path fileType="localedata">/usr/share/locale/ky*</Path>
         </Files>
     </Package>
 
@@ -928,8 +917,8 @@
         <IsA>locale:kw</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/kw_GB</Path>
-            <Path fileType="localedata">/usr/lib/locale/kw_GB.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/kw_*</Path>
+            <Path fileType="localedata">/usr/share/locale/kw*</Path>
         </Files>
     </Package>
 
@@ -938,8 +927,8 @@
         <IsA>locale:lg</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/lg_UG</Path>
-            <Path fileType="localedata">/usr/lib/locale/lg_UG.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/lg_*</Path>
+            <Path fileType="localedata">/usr/share/locale/lg*</Path>
         </Files>
     </Package>
 
@@ -948,7 +937,8 @@
         <IsA>locale:lo</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/lo_LA</Path>
+            <Path fileType="localedata">/usr/lib/locale/lo_*</Path>
+            <Path fileType="localedata">/usr/share/locale/lo*</Path>
         </Files>
     </Package>
 
@@ -957,8 +947,8 @@
         <IsA>locale:lt</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/lt_LT</Path>
-            <Path fileType="localedata">/usr/lib/locale/lt_LT.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/lt_*</Path>
+            <Path fileType="localedata">/usr/share/locale/lt*</Path>
         </Files>
     </Package>
 
@@ -967,8 +957,8 @@
         <IsA>locale:li</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/li_BE</Path>
-            <Path fileType="localedata">/usr/lib/locale/li_NL</Path>
+            <Path fileType="localedata">/usr/lib/locale/li_*</Path>
+            <Path fileType="localedata">/usr/share/locale/li*</Path>
         </Files>
     </Package>
 
@@ -977,8 +967,8 @@
         <IsA>locale:lv</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/lv_LV</Path>
-            <Path fileType="localedata">/usr/lib/locale/lv_LV.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/lv_*</Path>
+            <Path fileType="localedata">/usr/share/locale/lv*</Path>
         </Files>
     </Package>
 
@@ -987,7 +977,8 @@
         <IsA>locale:mai</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/mai_IN</Path>
+            <Path fileType="localedata">/usr/lib/locale/mai_*</Path>
+            <Path fileType="localedata">/usr/share/locale/mai*</Path>
         </Files>
     </Package>
 
@@ -996,8 +987,8 @@
         <IsA>locale:mg</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/mg_MG</Path>
-            <Path fileType="localedata">/usr/lib/locale/mg_MG.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/mg_*</Path>
+            <Path fileType="localedata">/usr/share/locale/mg*</Path>
         </Files>
     </Package>
 
@@ -1006,8 +997,8 @@
         <IsA>locale:mi</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/mi_NZ</Path>
-            <Path fileType="localedata">/usr/lib/locale/mi_NZ.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/mi_*</Path>
+            <Path fileType="localedata">/usr/share/locale/mi*</Path>
         </Files>
     </Package>
 
@@ -1016,8 +1007,8 @@
         <IsA>locale:mk</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/mk_MK</Path>
-            <Path fileType="localedata">/usr/lib/locale/mk_MK.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/mk_*</Path>
+            <Path fileType="localedata">/usr/share/locale/mk*</Path>
         </Files>
     </Package>
 
@@ -1026,7 +1017,8 @@
         <IsA>locale:ml</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/ml_IN</Path>
+            <Path fileType="localedata">/usr/lib/locale/ml_*</Path>
+            <Path fileType="localedata">/usr/share/locale/ml*</Path>
         </Files>
     </Package>
 
@@ -1035,7 +1027,8 @@
         <IsA>locale:mn</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/mn_MN</Path>
+            <Path fileType="localedata">/usr/lib/locale/mn_*</Path>
+            <Path fileType="localedata">/usr/share/locale/mn*</Path>
         </Files>
     </Package>
 
@@ -1044,7 +1037,8 @@
         <IsA>locale:mr</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/mr_IN</Path>
+            <Path fileType="localedata">/usr/lib/locale/mr_*</Path>
+            <Path fileType="localedata">/usr/share/locale/mr*</Path>
         </Files>
     </Package>
 
@@ -1053,8 +1047,8 @@
         <IsA>locale:ms</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/ms_MY</Path>
-            <Path fileType="localedata">/usr/lib/locale/ms_MY.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/ms_*</Path>
+            <Path fileType="localedata">/usr/share/locale/ms*</Path>
         </Files>
     </Package>
 
@@ -1063,8 +1057,28 @@
         <IsA>locale:mt</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/mt_MT</Path>
-            <Path fileType="localedata">/usr/lib/locale/mt_MT.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/mt_*</Path>
+            <Path fileType="localedata">/usr/share/locale/mt*</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-my</Name>
+        <IsA>locale:my</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/my_*</Path>
+            <Path fileType="localedata">/usr/share/locale/my*</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-nan</Name>
+        <IsA>locale:nan</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/nan_*</Path>
+            <Path fileType="localedata">/usr/share/locale/nan*</Path>
         </Files>
     </Package>
 
@@ -1073,8 +1087,8 @@
         <IsA>locale:nb</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/nb_NO</Path>
-            <Path fileType="localedata">/usr/lib/locale/nb_NO.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/nb_*</Path>
+            <Path fileType="localedata">/usr/share/locale/nb*</Path>
         </Files>
     </Package>
 
@@ -1083,8 +1097,8 @@
         <IsA>locale:nds</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/nds_DE</Path>
-            <Path fileType="localedata">/usr/lib/locale/nds_NL</Path>
+            <Path fileType="localedata">/usr/lib/locale/nds_*</Path>
+            <Path fileType="localedata">/usr/share/locale/nds*</Path>
         </Files>
     </Package>
 
@@ -1093,7 +1107,8 @@
         <IsA>locale:ne</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/ne_NP</Path>
+            <Path fileType="localedata">/usr/lib/locale/ne_*</Path>
+            <Path fileType="localedata">/usr/share/locale/ne*</Path>
         </Files>
     </Package>
 
@@ -1102,13 +1117,8 @@
         <IsA>locale:nl</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/nl_AW</Path>
-            <Path fileType="localedata">/usr/lib/locale/nl_BE</Path>
-            <Path fileType="localedata">/usr/lib/locale/nl_BE@euro</Path>
-            <Path fileType="localedata">/usr/lib/locale/nl_BE.utf8</Path>
-            <Path fileType="localedata">/usr/lib/locale/nl_NL</Path>
-            <Path fileType="localedata">/usr/lib/locale/nl_NL@euro</Path>
-            <Path fileType="localedata">/usr/lib/locale/nl_NL.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/nl_*</Path>
+            <Path fileType="localedata">/usr/share/locale/nl*</Path>
         </Files>
     </Package>
 
@@ -1117,8 +1127,18 @@
         <IsA>locale:nn</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/nn_NO</Path>
-            <Path fileType="localedata">/usr/lib/locale/nn_NO.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/nn_*</Path>
+            <Path fileType="localedata">/usr/share/locale/nn*</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-no</Name>
+        <IsA>locale:no</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/no_*</Path>
+            <Path fileType="localedata">/usr/share/locale/no*</Path>
         </Files>
     </Package>
 
@@ -1127,7 +1147,8 @@
         <IsA>locale:nr</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/nr_ZA</Path>
+            <Path fileType="localedata">/usr/lib/locale/nr_*</Path>
+            <Path fileType="localedata">/usr/share/locale/nr*</Path>
         </Files>
     </Package>
 
@@ -1136,7 +1157,8 @@
         <IsA>locale:nso</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/nso_ZA</Path>
+            <Path fileType="localedata">/usr/lib/locale/nso_*</Path>
+            <Path fileType="localedata">/usr/share/locale/nso*</Path>
         </Files>
     </Package>
 
@@ -1145,8 +1167,8 @@
         <IsA>locale:oc</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/oc_FR</Path>
-            <Path fileType="localedata">/usr/lib/locale/oc_FR.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/oc_*</Path>
+            <Path fileType="localedata">/usr/share/locale/oc*</Path>
         </Files>
     </Package>
 
@@ -1155,9 +1177,8 @@
         <IsA>locale:om</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/om_ET</Path>
-            <Path fileType="localedata">/usr/lib/locale/om_KE</Path>
-            <Path fileType="localedata">/usr/lib/locale/om_KE.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/om_*</Path>
+            <Path fileType="localedata">/usr/share/locale/om*</Path>
         </Files>
     </Package>
 
@@ -1166,7 +1187,8 @@
         <IsA>locale:or</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/or_IN</Path>
+            <Path fileType="localedata">/usr/lib/locale/or_*</Path>
+            <Path fileType="localedata">/usr/share/locale/or*</Path>
         </Files>
     </Package>
 
@@ -1175,8 +1197,8 @@
         <IsA>locale:pa</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/pa_IN</Path>
-            <Path fileType="localedata">/usr/lib/locale/pa_PK</Path>
+            <Path fileType="localedata">/usr/lib/locale/pa_*</Path>
+            <Path fileType="localedata">/usr/share/locale/pa*</Path>
         </Files>
     </Package>
 
@@ -1185,7 +1207,8 @@
         <IsA>locale:pap</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/pap_AN</Path>
+            <Path fileType="localedata">/usr/lib/locale/pap_*</Path>
+            <Path fileType="localedata">/usr/share/locale/pap*</Path>
         </Files>
     </Package>
 
@@ -1194,8 +1217,18 @@
         <IsA>locale:pl</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/pl_PL</Path>
-            <Path fileType="localedata">/usr/lib/locale/pl_PL.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/pl_*</Path>
+            <Path fileType="localedata">/usr/share/locale/pl*</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glibc-locales-ps</Name>
+        <IsA>locale:ps</IsA>
+        <PartOf>system.locale</PartOf>
+        <Files>
+            <Path fileType="localedata">/usr/lib/locale/ps_*</Path>
+            <Path fileType="localedata">/usr/share/locale/ps*</Path>
         </Files>
     </Package>
 
@@ -1204,11 +1237,8 @@
         <IsA>locale:pt</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/pt_BR</Path>
-            <Path fileType="localedata">/usr/lib/locale/pt_BR.utf8</Path>
-            <Path fileType="localedata">/usr/lib/locale/pt_PT</Path>
-            <Path fileType="localedata">/usr/lib/locale/pt_PT@euro</Path>
-            <Path fileType="localedata">/usr/lib/locale/pt_PT.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/pt_*</Path>
+            <Path fileType="localedata">/usr/share/locale/pt*</Path>
         </Files>
     </Package>
 
@@ -1217,8 +1247,8 @@
         <IsA>locale:ro</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/ro_RO</Path>
-            <Path fileType="localedata">/usr/lib/locale/ro_RO.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/ro_*</Path>
+            <Path fileType="localedata">/usr/share/locale/ro*</Path>
         </Files>
     </Package>
 
@@ -1227,11 +1257,8 @@
         <IsA>locale:ru</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/ru_RU</Path>
-            <Path fileType="localedata">/usr/lib/locale/ru_RU.koi8r</Path>
-            <Path fileType="localedata">/usr/lib/locale/ru_RU.utf8</Path>
-            <Path fileType="localedata">/usr/lib/locale/ru_UA</Path>
-            <Path fileType="localedata">/usr/lib/locale/ru_UA.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/ru_*</Path>
+            <Path fileType="localedata">/usr/share/locale/ru*</Path>
         </Files>
     </Package>
 
@@ -1240,7 +1267,8 @@
         <IsA>locale:rw</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/rw_RW</Path>
+            <Path fileType="localedata">/usr/lib/locale/rw_*</Path>
+            <Path fileType="localedata">/usr/share/locale/rw*</Path>
         </Files>
     </Package>
 
@@ -1249,7 +1277,8 @@
         <IsA>locale:sa</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/sa_IN</Path>
+            <Path fileType="localedata">/usr/lib/locale/sa_*</Path>
+            <Path fileType="localedata">/usr/share/locale/sa*</Path>
         </Files>
     </Package>
 
@@ -1258,7 +1287,8 @@
         <IsA>locale:sc</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/sc_IT</Path>
+            <Path fileType="localedata">/usr/lib/locale/sc_*</Path>
+            <Path fileType="localedata">/usr/share/locale/sc*</Path>
         </Files>
     </Package>
 
@@ -1267,8 +1297,8 @@
         <IsA>locale:sd</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/sd_IN</Path>
-            <Path fileType="localedata">/usr/lib/locale/sd_IN@devanagari</Path>
+            <Path fileType="localedata">/usr/lib/locale/sd_*</Path>
+            <Path fileType="localedata">/usr/share/locale/sd*</Path>
         </Files>
     </Package>
 
@@ -1277,7 +1307,8 @@
         <IsA>locale:se</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/se_NO</Path>
+            <Path fileType="localedata">/usr/lib/locale/se_*</Path>
+            <Path fileType="localedata">/usr/share/locale/se*</Path>
         </Files>
     </Package>
 
@@ -1286,7 +1317,8 @@
         <IsA>locale:shs</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/shs_CA</Path>
+            <Path fileType="localedata">/usr/lib/locale/shs_*</Path>
+            <Path fileType="localedata">/usr/share/locale/shs*</Path>
         </Files>
     </Package>
 
@@ -1295,7 +1327,8 @@
         <IsA>locale:si</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/si_LK</Path>
+            <Path fileType="localedata">/usr/lib/locale/si_*</Path>
+            <Path fileType="localedata">/usr/share/locale/si*</Path>
         </Files>
     </Package>
 
@@ -1304,7 +1337,8 @@
         <IsA>locale:sid</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/sid_ET</Path>
+            <Path fileType="localedata">/usr/lib/locale/sid_*</Path>
+            <Path fileType="localedata">/usr/share/locale/sid*</Path>
         </Files>
     </Package>
 
@@ -1313,8 +1347,8 @@
         <IsA>locale:sk</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/sk_SK</Path>
-            <Path fileType="localedata">/usr/lib/locale/sk_SK.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/sk_*</Path>
+            <Path fileType="localedata">/usr/share/locale/sk*</Path>
         </Files>
     </Package>
 
@@ -1323,8 +1357,8 @@
         <IsA>locale:sl</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/sl_SI</Path>
-            <Path fileType="localedata">/usr/lib/locale/sl_SI.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/sl_*</Path>
+            <Path fileType="localedata">/usr/share/locale/sl*</Path>
         </Files>
     </Package>
 
@@ -1333,11 +1367,8 @@
         <IsA>locale:sr</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/sr_CS</Path>
-            <Path fileType="localedata">/usr/lib/locale/sr_CS.utf8</Path>
-            <Path fileType="localedata">/usr/lib/locale/sr_RS</Path>
-            <Path fileType="localedata">/usr/lib/locale/sr_RS@latin</Path>
-            <Path fileType="localedata">/usr/lib/locale/sr_ME</Path>
+            <Path fileType="localedata">/usr/lib/locale/sr_*</Path>
+            <Path fileType="localedata">/usr/share/locale/sr*</Path>
         </Files>
     </Package>
 
@@ -1346,13 +1377,8 @@
         <IsA>locale:so</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/so_DJ</Path>
-            <Path fileType="localedata">/usr/lib/locale/so_DJ.utf8</Path>
-            <Path fileType="localedata">/usr/lib/locale/so_ET</Path>
-            <Path fileType="localedata">/usr/lib/locale/so_KE</Path>
-            <Path fileType="localedata">/usr/lib/locale/so_KE.utf8</Path>
-            <Path fileType="localedata">/usr/lib/locale/so_SO</Path>
-            <Path fileType="localedata">/usr/lib/locale/so_SO.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/so_*</Path>
+            <Path fileType="localedata">/usr/share/locale/so*</Path>
         </Files>
     </Package>
 
@@ -1361,8 +1387,8 @@
         <IsA>locale:sq</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/sq_AL</Path>
-            <Path fileType="localedata">/usr/lib/locale/sq_AL.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/sq_*</Path>
+            <Path fileType="localedata">/usr/share/locale/sq*</Path>
         </Files>
     </Package>
 
@@ -1371,8 +1397,8 @@
         <IsA>locale:st</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/st_ZA</Path>
-            <Path fileType="localedata">/usr/lib/locale/st_ZA.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/st_*</Path>
+            <Path fileType="localedata">/usr/share/locale/st*</Path>
         </Files>
     </Package>
 
@@ -1381,7 +1407,8 @@
         <IsA>locale:ss</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/ss_ZA</Path>
+            <Path fileType="localedata">/usr/lib/locale/ss_*</Path>
+            <Path fileType="localedata">/usr/share/locale/ss*</Path>
         </Files>
     </Package>
 
@@ -1390,11 +1417,8 @@
         <IsA>locale:sv</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/sv_FI</Path>
-            <Path fileType="localedata">/usr/lib/locale/sv_FI@euro</Path>
-            <Path fileType="localedata">/usr/lib/locale/sv_FI.utf8</Path>
-            <Path fileType="localedata">/usr/lib/locale/sv_SE</Path>
-            <Path fileType="localedata">/usr/lib/locale/sv_SE.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/sv_*</Path>
+            <Path fileType="localedata">/usr/share/locale/sv*</Path>
         </Files>
     </Package>
 
@@ -1403,7 +1427,8 @@
         <IsA>locale:ta</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/ta_IN</Path>
+            <Path fileType="localedata">/usr/lib/locale/ta_*</Path>
+            <Path fileType="localedata">/usr/share/locale/ta*</Path>
         </Files>
     </Package>
 
@@ -1412,7 +1437,8 @@
         <IsA>locale:te</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/te_IN</Path>
+            <Path fileType="localedata">/usr/lib/locale/te_*</Path>
+            <Path fileType="localedata">/usr/share/locale/te*</Path>
         </Files>
     </Package>
 
@@ -1421,8 +1447,8 @@
         <IsA>locale:tg</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/tg_TJ</Path>
-            <Path fileType="localedata">/usr/lib/locale/tg_TJ.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/tg_*</Path>
+            <Path fileType="localedata">/usr/share/locale/tg*</Path>
         </Files>
     </Package>
 
@@ -1431,8 +1457,8 @@
         <IsA>locale:th</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/th_TH</Path>
-            <Path fileType="localedata">/usr/lib/locale/th_TH.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/th_*</Path>
+            <Path fileType="localedata">/usr/share/locale/th*</Path>
         </Files>
     </Package>
 
@@ -1441,7 +1467,8 @@
         <IsA>locale:tk</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/tk_TM</Path>
+            <Path fileType="localedata">/usr/lib/locale/tk_*</Path>
+            <Path fileType="localedata">/usr/share/locale/tk*</Path>
         </Files>
     </Package>
 
@@ -1450,8 +1477,8 @@
         <IsA>locale:ti</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/ti_ER</Path>
-            <Path fileType="localedata">/usr/lib/locale/ti_ET</Path>
+            <Path fileType="localedata">/usr/lib/locale/ti_*</Path>
+            <Path fileType="localedata">/usr/share/locale/ti*</Path>
         </Files>
     </Package>
 
@@ -1460,7 +1487,8 @@
         <IsA>locale:tig</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/tig_ER</Path>
+            <Path fileType="localedata">/usr/lib/locale/tig_*</Path>
+            <Path fileType="localedata">/usr/share/locale/tig*</Path>
         </Files>
     </Package>
 
@@ -1469,8 +1497,8 @@
         <IsA>locale:tl</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/tl_PH</Path>
-            <Path fileType="localedata">/usr/lib/locale/tl_PH.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/tl_*</Path>
+            <Path fileType="localedata">/usr/share/locale/tl*</Path>
         </Files>
     </Package>
 
@@ -1479,8 +1507,8 @@
         <IsA>locale:tt</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/tt_RU.utf8</Path>
-            <Path fileType="localedata">/usr/lib/locale/tt_RU@iqtelif.UTF-8</Path>
+            <Path fileType="localedata">/usr/lib/locale/tt_*</Path>
+            <Path fileType="localedata">/usr/share/locale/tt*</Path>
         </Files>
     </Package>
 
@@ -1489,7 +1517,8 @@
         <IsA>locale:tn</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/tn_ZA</Path>
+            <Path fileType="localedata">/usr/lib/locale/tn_*</Path>
+            <Path fileType="localedata">/usr/share/locale/tn*</Path>
         </Files>
     </Package>
 
@@ -1498,7 +1527,8 @@
         <IsA>locale:ts</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/ts_ZA</Path>
+            <Path fileType="localedata">/usr/lib/locale/ts_*</Path>
+            <Path fileType="localedata">/usr/share/locale/ts*</Path>
         </Files>
     </Package>
 
@@ -1507,7 +1537,8 @@
         <IsA>locale:ug</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/ug_CN</Path>
+            <Path fileType="localedata">/usr/lib/locale/ug_*</Path>
+            <Path fileType="localedata">/usr/share/locale/ug*</Path>
         </Files>
     </Package>
 
@@ -1516,8 +1547,8 @@
         <IsA>locale:uk</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/uk_UA</Path>
-            <Path fileType="localedata">/usr/lib/locale/uk_UA.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/uk_*</Path>
+            <Path fileType="localedata">/usr/share/locale/uk*</Path>
         </Files>
     </Package>
 
@@ -1526,7 +1557,8 @@
         <IsA>locale:ur</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/ur_PK</Path>
+            <Path fileType="localedata">/usr/lib/locale/ur_*</Path>
+            <Path fileType="localedata">/usr/share/locale/ur*</Path>
         </Files>
     </Package>
 
@@ -1535,8 +1567,8 @@
         <IsA>locale:uz</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/uz_UZ</Path>
-            <Path fileType="localedata">/usr/lib/locale/uz_UZ@cyrillic</Path>
+            <Path fileType="localedata">/usr/lib/locale/uz_*</Path>
+            <Path fileType="localedata">/usr/share/locale/uz*</Path>
         </Files>
     </Package>
 
@@ -1545,7 +1577,8 @@
         <IsA>locale:ve</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/ve_ZA</Path>
+            <Path fileType="localedata">/usr/lib/locale/ve_*</Path>
+            <Path fileType="localedata">/usr/share/locale/ve*</Path>
         </Files>
     </Package>
 
@@ -1554,8 +1587,8 @@
         <IsA>locale:vi</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/vi_VN</Path>
-            <Path fileType="localedata">/usr/lib/locale/vi_VN.tcvn</Path>
+            <Path fileType="localedata">/usr/lib/locale/vi_*</Path>
+            <Path fileType="localedata">/usr/share/locale/vi*</Path>
         </Files>
     </Package>
 
@@ -1564,9 +1597,8 @@
         <IsA>locale:wa</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/wa_BE</Path>
-            <Path fileType="localedata">/usr/lib/locale/wa_BE@euro</Path>
-            <Path fileType="localedata">/usr/lib/locale/wa_BE.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/wa_*</Path>
+            <Path fileType="localedata">/usr/share/locale/wa*</Path>
         </Files>
     </Package>
 
@@ -1575,7 +1607,8 @@
         <IsA>locale:wo</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/wo_SN</Path>
+            <Path fileType="localedata">/usr/lib/locale/wo_*</Path>
+            <Path fileType="localedata">/usr/share/locale/wo*</Path>
         </Files>
     </Package>
 
@@ -1584,8 +1617,8 @@
         <IsA>locale:xh</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/xh_ZA</Path>
-            <Path fileType="localedata">/usr/lib/locale/xh_ZA.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/xh_*</Path>
+            <Path fileType="localedata">/usr/share/locale/xh*</Path>
         </Files>
     </Package>
 
@@ -1594,8 +1627,8 @@
         <IsA>locale:yi</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/yi_US</Path>
-            <Path fileType="localedata">/usr/lib/locale/yi_US.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/yi_*</Path>
+            <Path fileType="localedata">/usr/share/locale/yi*</Path>
         </Files>
     </Package>
 
@@ -1604,7 +1637,8 @@
         <IsA>locale:yo</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/yo_NG</Path>
+            <Path fileType="localedata">/usr/lib/locale/yo_*</Path>
+            <Path fileType="localedata">/usr/share/locale/yo*</Path>
         </Files>
     </Package>
 
@@ -1613,18 +1647,8 @@
         <IsA>locale:zh</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/zh_CN</Path>
-            <Path fileType="localedata">/usr/lib/locale/zh_CN.gb18030</Path>
-            <Path fileType="localedata">/usr/lib/locale/zh_CN.gbk</Path>
-            <Path fileType="localedata">/usr/lib/locale/zh_CN.utf8</Path>
-            <Path fileType="localedata">/usr/lib/locale/zh_HK</Path>
-            <Path fileType="localedata">/usr/lib/locale/zh_HK.utf8</Path>
-            <Path fileType="localedata">/usr/lib/locale/zh_SG</Path>
-            <Path fileType="localedata">/usr/lib/locale/zh_SG.utf8</Path>
-            <Path fileType="localedata">/usr/lib/locale/zh_SG.gbk</Path>
-            <Path fileType="localedata">/usr/lib/locale/zh_TW</Path>
-            <Path fileType="localedata">/usr/lib/locale/zh_TW.euctw</Path>
-            <Path fileType="localedata">/usr/lib/locale/zh_TW.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/zh_*</Path>
+            <Path fileType="localedata">/usr/share/locale/zh*</Path>
         </Files>
     </Package>
 
@@ -1633,12 +1657,30 @@
         <IsA>locale:zu</IsA>
         <PartOf>system.locale</PartOf>
         <Files>
-            <Path fileType="localedata">/usr/lib/locale/zu_ZA</Path>
-            <Path fileType="localedata">/usr/lib/locale/zu_ZA.utf8</Path>
+            <Path fileType="localedata">/usr/lib/locale/zu_*</Path>
+            <Path fileType="localedata">/usr/share/locale/zu*</Path>
         </Files>
     </Package>
 
     <History>
+        <Update release="55">
+            <Date>2010-09-13</Date>
+            <Version>2.12_20100706</Version>
+            <Comment>
+                Fix ifunc thunk for strspn on x86 in static libc, fixes sed segfault on busybox
+                Remove build-id and PARDUS.OPTs sections from crt files, we only need options of the elf itself
+                Fix getpagesize on static builds
+                Update queue headers to this century
+                Remove perl dependency for build, if it is not there, docs won't be built
+                Fix build with make 3.82
+                Don't build timezone data since it comes with timezone package now
+                Add new locales
+                Rename glibc-doc to glibc-docs
+                Split glibc-devel
+            </Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
         <Update release="54">
             <Date>2010-08-01</Date>
             <Version>2.12_20100706</Version>
