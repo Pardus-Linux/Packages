@@ -10,7 +10,7 @@ from pisi.actionsapi import autotools
 from pisi.actionsapi import pisitools
 from pisi.actionsapi import get
 
-WorkDir = "%s_%s" % (get.srcNAME(), get.srcVERSION())
+#WorkDir = "%s_%s" % (get.srcNAME(), get.srcVERSION())
 
 def build():
     autotools.make('RPM_OPT_FLAGS="%s"' % get.CFLAGS())
