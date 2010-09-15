@@ -1,7 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright 2005-2008 TUBITAK/UEKAE
 # Licensed under the GNU General Public License, version 2.
 # See the file http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
 
@@ -22,28 +21,33 @@ def setup():
     pisitools.dosed("sshd_config", "(?m)^(^#X11Forwarding ).*", r"X11Forwarding yes")
     pisitools.dosed("sshd_config", "(?m)^(^#UseDNS ).*", r"UseDNS no")
     pisitools.dosed("sshd_config", "(?m)^(^#PermitRootLogin ).*", r"PermitRootLogin no")
+
     autotools.autoreconf("-fi")
 
+    # Kerberos support is a must, libedit is optional
+    # Update configure parameters when both are ready
     autotools.configure("--sysconfdir=/etc/ssh \
-                         --disable-strip \
-                         --libexecdir=/usr/lib/misc \
+                         --libexecdir=/usr/libexec/openssh \
                          --datadir=/usr/share/openssh \
+                         --disable-strip \
+                         --with-tcp-wrappers \
+                         --with-authorized-keys-command \
+                         --with-pam \
                          --with-privsep-path=/var/empty \
                          --with-privsep-user=sshd \
                          --with-md5-passwords \
-                         --without-kerberos5 \
-                         --with-tcp-wrappers \
-                         --without-skey \
-                         --without-opensc \
-                         --with-pam \
                          --with-ipaddr-display \
-                         --with-consolekit")
+                         --without-zlib-version-check \
+                         --without-ssl-engine \
+                         --without-kerberos5 \
+                         --without-libedit \
+                         --without-skey")
 
 def build():
     autotools.make()
 
 def install():
-    autotools.rawInstall("DESTDIR=%s" % get.installDIR(), "install")
+    autotools.rawInstall("DESTDIR=%s" % get.installDIR())
 
     # fixes #10992
     pisitools.dobin("contrib/ssh-copy-id")
@@ -52,5 +56,7 @@ def install():
     shelltools.chmod("%s/etc/ssh/sshd_config" % get.installDIR(), 0600)
     # special request by merensan
     shelltools.echo("%s/etc/ssh/ssh_config" % get.installDIR(), "ServerAliveInterval 5")
+
+    pisitools.dodir("/var/empty/sshd")
 
     pisitools.dodoc("ChangeLog", "CREDITS", "OVERVIEW", "README*", "TODO", "sshd_config")

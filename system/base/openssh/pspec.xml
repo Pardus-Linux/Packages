@@ -5,17 +5,17 @@
         <Name>openssh</Name>
         <Homepage>http://www.openssh.com/</Homepage>
         <Packager>
-            <Name>Bahadır Kandemir</Name>
-            <Email>bahadir@pardus.org.tr</Email>
+            <Name>H. İbrahim Güngör</Name>
+            <Email>ibrahim@pardus.org.tr</Email>
         </Packager>
         <License>BSD</License>
         <IsA>app:console</IsA>
         <IsA>service</IsA>
-        <IsA>library</IsA>
         <Summary>Port of OpenBSD's free SSH release</Summary>
         <Description>OpenSSH is a FREE version of the SSH connectivity tools that technical users of the Internet rely on. Users of telnet, rlogin, and ftp may not realize that their password is transmitted across the Internet unencrypted, but it is. OpenSSH encrypts all traffic (including passwords) to effectively eliminate eavesdropping, connection hijacking, and other attacks.</Description>
-        <Archive sha1sum="8273a0237db98179fbdc412207ff8eb14ff3d6de" type="targz">http://ftp.belnet.be/packages/openbsd/OpenSSH/portable/openssh-5.2p1.tar.gz</Archive>
+        <Archive sha1sum="347dd39c91c3529f41dae63714d452fb95efea1e" type="targz">http://ftp.belnet.be/packages/openbsd/OpenSSH/portable/openssh-5.6p1.tar.gz</Archive>
         <BuildDependencies>
+            <Dependency>audit</Dependency>
             <Dependency>tcp-wrappers</Dependency>
             <Dependency>ConsoleKit</Dependency>
             <Dependency>openssl</Dependency>
@@ -24,14 +24,25 @@
             <Dependency>pam</Dependency>
         </BuildDependencies>
         <Patches>
-            <Patch level="1" compressionType="gz">openssh-5.2p1-hpn13v5.diff.gz</Patch>
-            <Patch level="1" compressionType="gz">openssh-5.2p1-consolekit.patch.gz</Patch>
+            <Patch level="1">fedora/openssh-5.6p1-keygen.patch</Patch>
+            <Patch level="1">fedora/openssh-4.3p1-fromto-remote.patch</Patch>
+            <Patch level="1">fedora/openssh-5.1p1-log-in-chroot.patch</Patch>
+            <Patch level="1">fedora/openssh-5.6p1-exit-deadlock.patch</Patch>
+            <Patch level="1">fedora/openssh-5.1p1-askpass-progress.patch</Patch>
+            <Patch level="1">fedora/openssh-4.3p2-askpass-grab-info.patch</Patch>
+            <Patch level="1">fedora/openssh-5.2p1-allow-ip-opts.patch</Patch>
+            <Patch level="1">fedora/openssh-5.1p1-scp-manpage.patch</Patch>
+            <Patch level="1">fedora/openssh-5.2p1-edns.patch</Patch>
+            <Patch level="1">fedora/openssh-5.3p1-randclean.patch</Patch>
+            <Patch level="1">fedora/openssh-5.5p1-x11.patch</Patch>
+            <Patch level="1">fedora/openssh-5.6p1-biguid.patch</Patch>
         </Patches>
     </Source>
 
     <Package>
         <Name>openssh</Name>
         <RuntimeDependencies>
+            <Dependency>audit</Dependency>
             <Dependency>tcp-wrappers</Dependency>
             <Dependency>ConsoleKit</Dependency>
             <Dependency>openssl</Dependency>
@@ -40,14 +51,15 @@
             <Dependency>pam</Dependency>
         </RuntimeDependencies>
         <Files>
+            <Path fileType="config">/etc</Path>
             <Path fileType="executable">/usr/bin</Path>
             <Path fileType="executable">/usr/sbin</Path>
+            <Path fileType="executable">/usr/libexec</Path>
             <Path fileType="library">/usr/lib</Path>
-            <Path fileType="doc">/usr/share/doc</Path>
-            <Path fileType="man">/usr/share/man</Path>
-            <Path fileType="config">/etc</Path>
             <Path fileType="data">/usr/share/openssh</Path>
             <Path fileType="data">/var/empty</Path>
+            <Path fileType="man">/usr/share/man</Path>
+            <Path fileType="doc">/usr/share/doc</Path>
         </Files>
         <AdditionalFiles>
            <AdditionalFile owner="root" permission="0644" target="/etc/pam.d/sshd">sshd.pam</AdditionalFile>
@@ -58,6 +70,19 @@
     </Package>
 
     <History>
+        <Update release="30">
+            <Date>2010-09-15</Date>
+            <Version>5.6_p1</Version>
+            <Comment>
+                * Version bump,
+                * Extend configure parameters, remove deprecated ones,
+                * Overhaul service script, dont trust default encryption type on ssh-keygen,
+                * Use 2048 instead of 1024 bits for RSA1 key, 2048 is considered sufficient, most distributions use 2048 bits rsa1 host key,
+                * Change libexecdir from /usr/lib/misc to /usr/libexec/openssh.
+            </Comment>
+            <Name>H. İbrahim Güngör</Name>
+            <Email>ibrahim@pardus.org.tr</Email>
+        </Update>
         <Update release="29">
             <Date>2010-06-08</Date>
             <Version>5.2_p1</Version>
