@@ -12,27 +12,20 @@
         <IsA>app:console</IsA>
         <Summary>A tool to create the initramfs image</Summary>
         <Description>mkinitramfs contains a tool to create the initramfs image with busybox.</Description>
-        <Archive sha1sum="07d6a4f698a55775162422dde40286820460e181" type="tarbz2">http://www.busybox.net/downloads/busybox-1.16.2.tar.bz2</Archive>
-        <Patches>
-            <Patch>config.patch</Patch>
-
-            <!-- This patch is essential for udhcp to request root-path from dhcpd and required by ptsp-->
-            <Patch level="1">udhcp-rootpath-rq.patch</Patch>
-
-            <Patch level="1">suppress-job-control-warning.patch</Patch>
-            <Patch level="1">modprobe-proc-cmdline.patch</Patch>
-        </Patches>
+        <Archive sha1sum="253b258445ebea2f14edba5e332613e809f8facd" type="binary">http://cekirdek.pardus.org.tr/~onur/distfiles/README.mkinitramfs</Archive>
     </Source>
 
     <Package>
         <Name>mkinitramfs</Name>
         <RuntimeDependencies>
             <Dependency>disktype</Dependency>
+            <Dependency>busybox</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="config">/etc</Path>
             <Path fileType="executable">/sbin</Path>
             <Path fileType="executable">/lib/initramfs</Path>
+            <Path fileType="doc">/usr/share/doc/mkinitramfs</Path>
         </Files>
         <AdditionalFiles>
             <AdditionalFile owner="root" permission="0755" target="/sbin/mkinitramfs">mkinitramfs</AdditionalFile>
@@ -45,6 +38,17 @@
     </Package>
 
     <History>
+        <Update release="77">
+            <Date>2010-09-15</Date>
+            <Version>1.0.0</Version>
+            <Comment>
+                Busybox is an external package now, depend on it
+                Use new busybox path in mkinitramfs
+                Set version to 1.0.0 , we will continue from here
+            </Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
         <Update release="76">
             <Date>2010-09-14</Date>
             <Version>1.16.2</Version>
