@@ -1,0 +1,346 @@
+Index: yali/gui/ScrInstall.py
+===================================================================
+--- yali/gui/ScrInstall.py	(revision 31882)
++++ yali/gui/ScrInstall.py	(working copy)
+@@ -13,6 +13,9 @@
+ import os
+ import glob
+ import zipfile
++from multiprocessing import Process, Queue
++from Queue import Empty
++
+ import gettext
+ __trans = gettext.translation('yali', fallback=True)
+ _ = __trans.ugettext
+@@ -34,7 +37,7 @@
+ from yali.gui.Ui.installwidget import Ui_InstallWidget
+ from yali.gui.YaliDialog import QuestionDialog, EjectAndRetryDialog
+ 
+-EventPisi, EventSetProgress, EventError, EventAllFinished, EventPackageInstallFinished, EventRetry = range(1001,1007)
++EventConfigure, EventInstall, EventSetProgress, EventError, EventAllFinished, EventPackageInstallFinished, EventRetry = range(1001,1008)
+ 
+ def iter_slide_pics():
+     def pat(pic):
+@@ -51,10 +54,6 @@
+         for pic in pics:
+             yield pic
+ 
+-def objectSender(pack):
+-    global currentObject
+-    QCoreApplication.postEvent(currentObject, pack)
+-
+ ##
+ # Partitioning screen.
+ class Widget(QtGui.QWidget, ScreenWidget):
+@@ -88,6 +87,9 @@
+         self.timer = QTimer(self)
+         QObject.connect(self.timer, SIGNAL("timeout()"),self.slotChangePix)
+ 
++        self.pollTimer = QTimer(self)
++        QObject.connect(self.pollTimer, SIGNAL("timeout()"),self.checkQueueEvent)
++
+         if ctx.consts.lang == "tr":
+             self.ui.progress.setFormat("%%p")
+ 
+@@ -105,13 +107,14 @@
+         ctx.mainScreen.dontAskCmbAgain = True
+         ctx.mainScreen.themeShortCut.setEnabled(False)
+ 
+-        # Thread object
+-        global currentObject
+-        currentObject = self
+-
+         # start installer thread
+         ctx.logger.debug("PkgInstaller is creating...")
+-        self.pkg_installer = PkgInstaller()
++        self.queue = Queue()
++        self.pkg_installer = PkgInstaller(self.queue)
++
++        # start installer polling
++        self.pollTimer.start(500)
++
+         ctx.logger.debug("Calling PkgInstaller.start...")
+         self.pkg_installer.start()
+         ctx.yali.info.updateAndShow(_("Installing packages..."))
+@@ -122,51 +125,60 @@
+         # start 30 seconds
+         self.timer.start(1000 * 30)
+ 
+-    def customEvent(self, qevent):
++    def checkQueueEvent(self):
+ 
+-        # EventPisi
+-        if qevent.eventType() == EventPisi:
+-            p, event = qevent.data()
++        while True:
++            try:
++                data = self.queue.get_nowait()
++                event = data[0]
++            except Empty, e:
++                return
+ 
+-            if event == pisi.ui.installing:
++            ctx.logger.debug("checkQueueEvent: Processing %s event..." % event)
++
++            if event == EventInstall:
++                p = data[1]
+                 self.ui.info.setText(_("Installing <b>%s</b><br>%s") % (p.name, p.summary))
+                 ctx.logger.debug("Pisi: %s installing" % p.name)
+                 self.cur += 1
+                 self.ui.progress.setValue(self.cur)
+-            elif event == pisi.ui.configuring:
++            elif event == EventConfigure:
++                p = data[1]
+                 self.ui.info.setText(_("Configuring <b>%s</b>") % p.name)
+                 ctx.logger.debug("Pisi: %s configuring" % p.name)
+                 self.cur += 1
+                 self.ui.progress.setValue(self.cur)
+ 
+-        # EventSetProgress
+-        elif qevent.eventType() == EventSetProgress:
+-            total = qevent.data()
+-            self.ui.progress.setMaximum(total)
++            # EventSetProgress
++            elif event == EventSetProgress:
++                total = data[1]
++                self.ui.progress.setMaximum(total)
+ 
+-        # EventPackageInstallFinished
+-        elif qevent.eventType() == EventPackageInstallFinished:
+-            self.packageInstallFinished()
++            # EventPackageInstallFinished
++            elif event == EventPackageInstallFinished:
++                self.packageInstallFinished()
+ 
+-        # EventError
+-        elif qevent.eventType() == EventError:
+-            err = qevent.data()
+-            self.installError(err)
++            # EventError
++            elif event == EventError:
++                err = data[1]
++                self.installError(err)
+ 
+-        # EventRetry
+-        elif qevent.eventType() == EventRetry:
+-            package = qevent.data()
+-            self.timer.stop()
+-            ctx.yali.retryAnswer = EjectAndRetryDialog(_("Warning"),
+-                                                       _("Failed installing <b>%s</b>") % package,
+-                                                       _("Do you want to retry?"))
++            # EventRetry
++            elif event == EventRetry:
++                package = data[1]
++                self.timer.stop()
++                self.pollTimer.stop()
++                ctx.yali.retryAnswer = EjectAndRetryDialog(_("Warning"),
++                                                           _("Failed installing <b>%s</b>") % package,
++                                                           _("Do you want to retry?"))
+ 
+-            self.timer.start(1000 * 30)
+-            ctx.yali.waitCondition.wakeAll()
++                self.timer.start(1000 * 30)
++                self.pollTimer.start(500)
++                ctx.yali.waitCondition.wakeAll()
+ 
+-        # EventAllFinished
+-        elif qevent.eventType() == EventAllFinished:
+-            self.finished()
++            # EventAllFinished
++            elif event == EventAllFinished:
++                self.finished()
+ 
+     def slotChangePix(self):
+         slide = self.iter_pics.next()
+@@ -174,7 +186,6 @@
+         self.ui.desc.setText(slide["desc"])
+ 
+     def packageInstallFinished(self):
+-
+         ctx.yali.fillFstab()
+ 
+         # Configure Pending...
+@@ -195,15 +206,19 @@
+         ctx.yali.info.updateMessage(_("Configuring packages..."))
+ 
+         # start configurator thread
+-        self.pkg_configurator = PkgConfigurator()
++        self.pkg_configurator = PkgConfigurator(self.queue)
++
+         self.pkg_configurator.start()
+ 
+     def execute(self):
+         # stop slide show
+         self.timer.stop()
++        self.pollTimer.stop()
+         return True
+ 
+     def finished(self):
++        self.pollTimer.stop()
++
+         if self.hasErrors:
+             return
+         ctx.yali.info.hide()
+@@ -222,15 +237,16 @@
+         import yali.gui.runner
+         yali.gui.runner.showException(1, errorstr)
+ 
+-class PkgInstaller(QThread):
++class PkgInstaller(Process):
+ 
+-    def __init__(self):
++    def __init__(self, q):
++        Process.__init__(self)
++        self.queue = q
+         ctx.logger.debug("PkgInstaller started.")
+-        QThread.__init__(self)
+ 
+     def run(self):
+         ctx.logger.debug("PkgInstaller is running.")
+-        ui = PisiUI()
++        ui = PisiUI(self.queue)
+         ctx.logger.debug("PisiUI is creating..")
+         yali.pisiiface.initialize(ui)
+         ctx.logger.debug("Pisi initialize is calling..")
+@@ -264,12 +280,9 @@
+ 
+         # show progress
+         total = len(order)
+-        ctx.logger.debug("Creating PisiEvent..")
+-        qevent = PisiEvent(QEvent.User, EventSetProgress)
+-        ctx.logger.debug("Setting data on just created PisiEvent (EventSetProgress)..")
+-        qevent.setData(total * 2)
+-        ctx.logger.debug("Posting PisiEvent to the widget..")
+-        objectSender(qevent)
++        ctx.logger.debug("Sending EventSetProgress")
++        data = [EventSetProgress, total*2]
++        self.queue.put_nowait(data)
+         ctx.logger.debug("Found %d packages in repo.." % total)
+         try:
+             while True:
+@@ -281,12 +294,9 @@
+                     # Lock the mutex
+                     ctx.yali.mutex.lock()
+ 
+-                    # Send event for asking retry
+-                    qevent = PisiEvent(QEvent.User, EventRetry)
+-
+                     # Send failed package name
+-                    qevent.setData(os.path.basename(str(e)))
+-                    objectSender(qevent)
++                    data = [EventRetry, os.path.basename(str(e))]
++                    self.queue.put_nowait(data)
+ 
+                     # wait for the result
+                     ctx.yali.waitCondition.wait(ctx.yali.mutex)
+@@ -304,28 +314,28 @@
+             # Lock the mutex
+             ctx.yali.mutex.lock()
+ 
+-            # User+10: error
+-            qevent = PisiEvent(QEvent.User, EventError)
+-            qevent.setData(e)
+-            objectSender(qevent)
++            # Send error
++            data = [EventError, e]
++            self.queue.put_nowait(data)
+ 
+             # wait for the result
+             ctx.yali.waitCondition.wait(ctx.yali.mutex)
+ 
+         ctx.logger.debug("Package install finished ...")
+         # Package Install finished lets configure them
+-        qevent = PisiEvent(QEvent.User, EventPackageInstallFinished)
+-        objectSender(qevent)
++        data = [EventPackageInstallFinished]
++        self.queue.put_nowait(data)
+ 
+-class PkgConfigurator(QThread):
++class PkgConfigurator(Process):
+ 
+-    def __init__(self):
++    def __init__(self, q):
++        Process.__init__(self)
++        self.queue = q
+         ctx.logger.debug("PkgConfigurator started.")
+-        QThread.__init__(self)
+ 
+     def run(self):
+         ctx.logger.debug("PkgConfigurator is running.")
+-        ui = PisiUI()
++        ui = PisiUI(self.queue)
+         yali.pisiiface.initialize(ui=ui, with_comar=True)
+ 
+         try:
+@@ -333,10 +343,8 @@
+             ctx.logger.debug("exec : yali.pisiiface.configurePending() called")
+             yali.pisiiface.configurePending()
+         except Exception, e:
+-            # User+10: error
+-            qevent = PisiEvent(QEvent.User, EventError)
+-            qevent.setData(e)
+-            objectSender(qevent)
++            data = [EventError, e]
++            self.queue.put_nowait(data)
+ 
+         # Remove cd repository and install add real
+         if yali.sysutils.checkYaliParams(param=ctx.consts.dvd_install_param):
+@@ -344,40 +352,31 @@
+         else:
+             yali.pisiiface.switchToPardusRepo(ctx.consts.cd_repo_name)
+ 
+-        qevent = PisiEvent(QEvent.User, EventAllFinished)
+-        objectSender(qevent)
++        data = [EventAllFinished]
++        self.queue.put_nowait(data)
+ 
+-class PisiUI(QObject, pisi.ui.UI):
++class PisiUI(pisi.ui.UI):
+ 
+-    def __init__(self, *args):
++    def __init__(self, queue):
+         pisi.ui.UI.__init__(self)
+-        apply(QObject.__init__, (self,) + args)
++        self.queue = queue
+         self.lastPackage = ''
+ 
+     def notify(self, event, **keywords):
+-        if event == pisi.ui.installing or event == pisi.ui.configuring:
+-            qevent = PisiEvent(QEvent.User, EventPisi)
+-            data = [keywords['package'], event]
++        if event == pisi.ui.installing:
++            ctx.logger.debug("PisiUI.notify event: Install")
++            data = [EventInstall, keywords['package']]
+             self.lastPackage = keywords['package'].name
+-            qevent.setData(data)
+-            objectSender(qevent)
+-        QtGui.QApplication.processEvents()
++            self.queue.put_nowait(data)
+ 
+-    def display_progress(self, operation, percent, info, **keywords):
+-        pass
++        elif event == pisi.ui.configuring:
++            ctx.logger.debug("PisiUI.notify event: Configure")
++            data = [EventConfigure, keywords['package']]
++            self.lastPackage = keywords['package'].name
++            self.queue.put_nowait(data)
+ 
+-class PisiEvent(QEvent):
++    def error(self, msg):
++        ctx.logger.debug("PisiUI.error: %s" % unicode(msg))
+ 
+-    def __init__(self, _, event):
+-        QEvent.__init__(self, _)
+-        self.event = event
+-
+-    def eventType(self):
+-        return self.event
+-
+-    def setData(self,data):
+-        self._data = data
+-
+-    def data(self):
+-        return self._data
+-
++    def warning(self, msg):
++        ctx.logger.debug("PisiUI.warning: %s" % unicode(msg))
