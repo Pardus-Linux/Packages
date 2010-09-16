@@ -1,18 +1,23 @@
---- pykdeuic4	2009-12-31 15:34:46.000000000 +0200
-+++ python/pykde4/tools/pykdeuic4/pykdeuic4.py	2010-09-08 18:29:18.061000017 +0300
-@@ -33,13 +33,23 @@
+Index: python/pykde4/tools/pykdeuic4/pykdeuic4.py
+===================================================================
+--- python/pykde4/tools/pykdeuic4/pykdeuic4.py.orig
++++ python/pykde4/tools/pykdeuic4/pykdeuic4.py
+@@ -24,6 +24,11 @@ from PyQt4.uic.Compiler import indenter,
+ from PyQt4.uic.Compiler import qtproxies
+ from PyQt4.uic.objcreator import MATCH,NO_MATCH
+ 
++if sys.hexversion >= 0x03000000:
++   from PyQt4.uic.port_v3.as_string import as_string
++else:
++   from PyQt4.uic.port_v2.as_string import as_string
++
+ header = """#!/usr/bin/env python
+ # coding=UTF-8
+ #
+@@ -33,13 +38,15 @@ header = """#!/usr/bin/env python
  from PyKDE4 import kdecore
  from PyKDE4 import kdeui
  """
-+
-+import re
-+_esc_regex = re.compile(r"(\"|\'|\\)")
-+def _escape(text):
-+    # This escapes any escaped single or double quote or backslash.
-+    x = _esc_regex.sub(r"\\\1", text)
-+
-+    # This replaces any '\n' with an escaped version and a real line break.
-+    return re.sub(r'\n', r'\\n"\n"', x)
 +
  # Override how messages are translated.
  original_i18n_string = qtproxies.i18n_string
@@ -21,11 +26,12 @@
          original_i18n_string.__init__(self,string)
      def __str__(self):
 -        return "kdecore.i18n(\"%s\")" % (qtproxies.escape(self.string),)
-+        return "kdecore.i18n(\"%s\")" % (_escape(self.string),)
++        return "kdecore.i18n(%s)" % (as_string(self.string, encode=False),)
++
  qtproxies.i18n_string = kde_i18n_string
  
  def kdeFilter():
-@@ -71,7 +81,7 @@
+@@ -71,7 +78,7 @@ def processUI(uifile, output_filename=No
      indenter.indentwidth = indent
      comp = compiler.UICompiler()
      comp.factory._cwFilters.append(kdeFilter())
