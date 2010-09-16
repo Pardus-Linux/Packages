@@ -2,19 +2,7 @@ Index: python/pykde4/tools/pykdeuic4/pykdeuic4.py
 ===================================================================
 --- python/pykde4/tools/pykdeuic4/pykdeuic4.py.orig
 +++ python/pykde4/tools/pykdeuic4/pykdeuic4.py
-@@ -24,6 +24,11 @@ from PyQt4.uic.Compiler import indenter,
- from PyQt4.uic.Compiler import qtproxies
- from PyQt4.uic.objcreator import MATCH,NO_MATCH
- 
-+if sys.hexversion >= 0x03000000:
-+   from PyQt4.uic.port_v3.as_string import as_string
-+else:
-+   from PyQt4.uic.port_v2.as_string import as_string
-+
- header = """#!/usr/bin/env python
- # coding=UTF-8
- #
-@@ -33,13 +38,15 @@ header = """#!/usr/bin/env python
+@@ -33,13 +33,15 @@ header = """#!/usr/bin/env python
  from PyKDE4 import kdecore
  from PyKDE4 import kdeui
  """
@@ -26,12 +14,12 @@ Index: python/pykde4/tools/pykdeuic4/pykdeuic4.py
          original_i18n_string.__init__(self,string)
      def __str__(self):
 -        return "kdecore.i18n(\"%s\")" % (qtproxies.escape(self.string),)
-+        return "kdecore.i18n(%s)" % (as_string(self.string, encode=False),)
++        return "kdecore.i18n(%s)" % (qtproxies.as_string(self.string, encode=False),)
 +
  qtproxies.i18n_string = kde_i18n_string
  
  def kdeFilter():
-@@ -71,7 +78,7 @@ def processUI(uifile, output_filename=No
+@@ -71,7 +73,7 @@ def processUI(uifile, output_filename=No
      indenter.indentwidth = indent
      comp = compiler.UICompiler()
      comp.factory._cwFilters.append(kdeFilter())
