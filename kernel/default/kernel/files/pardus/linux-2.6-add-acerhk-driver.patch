@@ -2873,7 +2873,7 @@ Index: drivers/input/acerhk.c
 +
 +/* {{{ file operations */
 +
-+static int acerhk_ioctl( struct inode *inode, struct file *file,
++static long acerhk_ioctl(struct file *file,
 +                         unsigned int cmd, unsigned long arg )
 +{
 +  int retval;
@@ -2983,13 +2983,13 @@ Index: drivers/input/acerhk.c
 +#endif
 +
 +static struct file_operations acerhk_fops = {
-+  owner:        THIS_MODULE,
-+  ioctl:        acerhk_ioctl,
-+  open:         acerhk_open,
++  owner:                    THIS_MODULE,
++  unlocked_ioctl:           acerhk_ioctl,
++  open:                     acerhk_open,
 +#ifdef ACERDEBUG
-+  write:        acerhk_write,
++  write:                    acerhk_write,
 +#endif
-+  release:      acerhk_release,
++  release:                  acerhk_release,
 +};
 +
 +static struct miscdevice acerhk_misc_dev = {

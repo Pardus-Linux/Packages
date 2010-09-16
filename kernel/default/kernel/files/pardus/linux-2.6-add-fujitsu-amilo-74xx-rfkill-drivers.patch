@@ -1,7 +1,7 @@
-Index: linux-2.6.30/drivers/platform/x86/fsam7400.c
+Index: linux-2.6.35/drivers/platform/x86/fsam7400.c
 ===================================================================
 --- /dev/null
-+++ linux-2.6.30/drivers/platform/x86/fsam7400.c
++++ linux-2.6.35/drivers/platform/x86/fsam7400.c
 @@ -0,0 +1,373 @@
 +/*******************************************************************************
 +  
@@ -376,11 +376,11 @@ Index: linux-2.6.30/drivers/platform/x86/fsam7400.c
 +         1         2         3         4         5         6         7
 +12345678901234567890123456789012345678901234567890123456789012345678901234567890
 +*/
-Index: linux-2.6.30/drivers/platform/x86/fsam7440.c
+Index: linux-2.6.35/drivers/platform/x86/fsam7440.c
 ===================================================================
 --- /dev/null
-+++ linux-2.6.30/drivers/platform/x86/fsam7440.c
-@@ -0,0 +1,234 @@
++++ linux-2.6.35/drivers/platform/x86/fsam7440.c
+@@ -0,0 +1,228 @@
 +/***************************************************************************
 + *   Copyright (C) 2005 by Alejandro Vidal Mata & Javier Vidal Mata        *
 + *                                                                         *
@@ -416,12 +416,6 @@ Index: linux-2.6.30/drivers/platform/x86/fsam7440.c
 +
 +#include <linux/compiler.h>
 +#include <linux/version.h>
-+
-+#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,20)
-+#include <linux/config.h>
-+#else
-+#include <linux/autoconf.h>
-+#endif
 +
 +#include <linux/errno.h>
 +#include <linux/kernel.h>
@@ -615,17 +609,18 @@ Index: linux-2.6.30/drivers/platform/x86/fsam7440.c
 +module_init(amilom7440_init);
 +module_exit(amilom7440_exit);
 +
-Index: linux-2.6.30/drivers/platform/x86/Kconfig
+Index: linux-2.6.35/drivers/platform/x86/Kconfig
 ===================================================================
---- linux-2.6.30.orig/drivers/platform/x86/Kconfig
-+++ linux-2.6.30/drivers/platform/x86/Kconfig
-@@ -450,4 +450,13 @@ config ACPI_TOSHIBA
+--- linux-2.6.35.orig/drivers/platform/x86/Kconfig
++++ linux-2.6.35/drivers/platform/x86/Kconfig
+@@ -590,4 +590,14 @@ config INTEL_IPS
+ 	  functionality.  If in doubt, say Y here; it will only load on
+ 	  supported platforms.
  
- 	  If you have a legacy free Toshiba laptop (such as the Libretto L1
- 	  series), say Y.
 +
 +config FSAM7400
 +	tristate "Software RF kill switch for Fujitsu Siemens Amilo M 7400"
++    depends on CHECK_SIGNATURE
 +	default m
 +
 +config FSAM7440
@@ -633,13 +628,14 @@ Index: linux-2.6.30/drivers/platform/x86/Kconfig
 +	default m
 +
  endif # X86_PLATFORM_DEVICES
-Index: linux-2.6.30/drivers/platform/x86/Makefile
+Index: linux-2.6.35/drivers/platform/x86/Makefile
 ===================================================================
---- linux-2.6.30.orig/drivers/platform/x86/Makefile
-+++ linux-2.6.30/drivers/platform/x86/Makefile
-@@ -20,3 +20,5 @@ obj-$(CONFIG_INTEL_MENLOW)	+= intel_menl
- obj-$(CONFIG_ACPI_WMI)		+= wmi.o
- obj-$(CONFIG_ACPI_ASUS)		+= asus_acpi.o
- obj-$(CONFIG_ACPI_TOSHIBA)	+= toshiba_acpi.o
+--- linux-2.6.35.orig/drivers/platform/x86/Makefile
++++ linux-2.6.35/drivers/platform/x86/Makefile
+@@ -30,4 +30,5 @@ obj-$(CONFIG_INTEL_SCU_IPC)	+= intel_scu
+ obj-$(CONFIG_RAR_REGISTER)	+= intel_rar_register.o
+ obj-$(CONFIG_INTEL_IPS)		+= intel_ips.o
+ obj-$(CONFIG_GPIO_INTEL_PMIC)	+= intel_pmic_gpio.o
+-
 +obj-$(CONFIG_FSAM7400)	+= fsam7400.o
 +obj-$(CONFIG_FSAM7440)	+= fsam7440.o
