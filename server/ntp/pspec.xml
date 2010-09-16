@@ -1,0 +1,235 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>ntp</Name>
+        <Homepage>http://www.ntp.org</Homepage>
+        <Packager>
+            <Name>H. İbrahim Güngör</Name>
+            <Email>ibrahim@pardus.org.tr</Email>
+        </Packager>
+        <License>MIT</License>
+        <License>BSD</License>
+        <License>GPLv2+</License>
+        <IsA>service</IsA>
+        <Summary>NTP daemon and client</Summary>
+        <Description>Network Time Protocol utilities and daemons that will synchronize your computer's time to Coordinated Universal Time (UTC) via the NTP protocol and NTP servers.</Description>
+        <Archive sha1sum="04b5e3c3755fe9e5bcec5bd5d29255cfef2102c4" type="targz">http://www.eecis.udel.edu/~ntp/ntp_spool/ntp4/ntp-4.2/ntp-4.2.6p2.tar.gz</Archive>
+        <Archive sha1sum="9b6baf20b5943651a6bf8d6cf9a78e318573b541" type="targz">http://cekirdek.pardus.org.tr/~ibrahim/dist/ntpstat-0.2.tgz</Archive>
+        <AdditionalFiles>
+            <AdditionalFile permission="0755" target="fix-man-pages">fix-man-pages.sh</AdditionalFile>
+        </AdditionalFiles>
+        <BuildDependencies>
+            <Dependency>avahi-devel</Dependency>
+            <!--<Dependency>libedit</Dependency>-->
+            <Dependency>net-snmp-devel</Dependency>
+            <Dependency>perl-HTML-Parser</Dependency>
+        </BuildDependencies>
+        <Patches>
+            <Patch level="1">fedora/ntp-4.2.6p1-sleep.patch</Patch>
+            <Patch level="1">fedora/ntp-4.2.6p1-droproot.patch</Patch>
+            <Patch level="1">fedora/ntp-4.2.6p1-bcast.patch</Patch>
+            <Patch level="1">fedora/ntp-4.2.6p1-cmsgalign.patch</Patch>
+            <Patch level="1">fedora/ntp-4.2.6p2-tentative.patch</Patch>
+            <Patch level="1">fedora/ntp-4.2.6p1-retcode.patch</Patch>
+            <Patch level="1">fedora/ntp-4.2.6p1-rtnetlink.patch</Patch>
+            <Patch level="1">fedora/ntp-4.2.6p2-html2man.patch</Patch>
+            <Patch level="1">fedora/ntp-4.2.6p2-htmldoc.patch</Patch>
+            <Patch level="1">fedora/ntp-4.2.6p1-nano.patch</Patch>
+            <Patch level="1">fedora/ntp-4.2.4p7-getprecision.patch</Patch>
+            <Patch level="1">fedora/ntp-4.2.6p1-logdefault.patch</Patch>
+            <Patch level="1">fedora/ntp-4.2.6p2-mlock.patch</Patch>
+
+            <!-- ntpstat patches -->
+            <Patch level="0">fedora/ntpstat-0.2-clksrc.patch</Patch>
+            <Patch level="0">fedora/ntpstat-0.2-multipacket.patch</Patch>
+            <Patch level="0">fedora/ntpstat-0.2-sysvars.patch</Patch>
+            <Patch level="0">fedora/ntpstat-0.2-maxerror.patch</Patch>
+        </Patches>
+    </Source>
+
+    <Package>
+        <Name>ntp-server</Name>
+        <Summary>NTP server</Summary>
+        <RuntimeDependencies>
+            <Dependency>avahi-compat-libdns_sd</Dependency>
+            <!--<Dependency>libedit</Dependency>-->
+            <Dependency>net-snmp</Dependency>
+            <Dependency release="16">ntp-client</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="config">/etc/ntp.conf</Path>
+            <Path fileType="config">/etc/conf.d</Path>
+            <Path fileType="config">/etc/ntp/crypto</Path>
+            <Path fileType="executable">/usr/bin/ntpstat</Path>
+            <Path fileType="executable">/usr/sbin</Path>
+            <Path fileType="doc">/usr/share/doc</Path>
+            <Path fileType="man">/usr/share/man</Path>
+            <Path fileType="data">/var/lib/ntp</Path>
+        </Files>
+        <AdditionalFiles>
+            <AdditionalFile owner="root" permission="0644" target="/etc/ntp.conf">fedora/ntp.conf</AdditionalFile>
+            <AdditionalFile owner="root" permission="0644" target="/etc/conf.d/ntpd">fedora/ntpd.sysconfig</AdditionalFile>
+            <AdditionalFile owner="root" permission="0600" target="/etc/ntp/crypto/pw">fedora/ntp.cryptopw</AdditionalFile>
+        </AdditionalFiles>
+        <Provides>
+            <COMAR script="ntp-server-package.py">System.Package</COMAR>
+            <COMAR script="ntpd-service.py" name="ntpd">System.Service</COMAR>
+        </Provides>
+    </Package>
+
+    <Package>
+        <Name>ntp-client</Name>
+        <IsA>app:console</IsA>
+        <PartOf>util.admin</PartOf>
+        <Summary>NTP client</Summary>
+        <Description>Network Time Protocol utility synchronize computers time to Coordinated Universal Time (UTC) via the NTP protocol and NTP servers</Description>
+        <Files>
+            <Path fileType="config">/etc/conf.d/ntpdate</Path>
+            <Path fileType="config">/etc/ntp/step-tickers</Path>
+            <Path fileType="config">/etc/ntp/keys</Path>
+            <Path fileType="executable">/usr/sbin/ntpdate</Path>
+            <Path fileType="man">/usr/share/man/man8/ntpdate.8*</Path>
+        </Files>
+        <AdditionalFiles>
+            <AdditionalFile owner="root" permission="0644" target="/etc/conf.d/ntpdate">fedora/ntpdate.sysconfig</AdditionalFile>
+            <AdditionalFile owner="root" permission="0644" target="/etc/ntp/step-tickers">fedora/ntp.step-tickers</AdditionalFile>
+            <AdditionalFile owner="root" permission="0600" target="/etc/ntp/keys">fedora/ntp.keys</AdditionalFile>
+        </AdditionalFiles>
+        <Provides>
+            <COMAR script="ntpdate-service.py" name="ntpdate">System.Service</COMAR>
+            <!-- FIXME: SUID bit is needed by TASMA date & time module -->
+            <COMAR script="ntpdate-package.py">System.Package</COMAR>
+        </Provides>
+    </Package>
+
+    <Package>
+        <Name>ntp-docs</Name>
+        <IsA>data:doc</IsA>
+        <Summary>NTP documentation</Summary>
+        <RuntimeDependencies>
+            <Dependency release="16">ntp-client</Dependency>
+        </RuntimeDependencies>
+        <Conflicts>
+            <Package releaseTo="13">ntp-server</Package>
+        </Conflicts>
+        <Files>
+            <Path fileType="doc">/usr/share/doc/ntp/html</Path>
+        </Files>
+    </Package>
+
+    <History>
+        <Update release="16">
+            <Date>2010-09-15</Date>
+            <Version>4.2.6_p2</Version>
+            <Comment>Version bump, activate ntpstat.</Comment>
+            <Name>H. İbrahim Güngör</Name>
+            <Email>ibrahim@pardus.org.tr</Email>
+        </Update>
+        <Update release="15">
+            <Date>2010-06-18</Date>
+            <Version>4.2.6_p1</Version>
+            <Comment>Bring SUID bit back for ntpdate (#12965)</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="14">
+            <Date>2010-05-06</Date>
+            <Version>4.2.6_p1</Version>
+            <Comment>Version bump</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="13" type="security">
+            <Date>2009-12-17</Date>
+            <Version>4.2.4_p7</Version>
+            <Comment>Add patch to fix mode7 package denial of service (CVE-2009-2563)</Comment>
+            <Name>Eren Türkay</Name>
+            <Email>eren@pardus.org.tr</Email>
+        </Update>
+        <Update release="12">
+            <Date>2009-12-17</Date>
+            <Version>4.2.4_p7</Version>
+            <Comment>Fix wrong ntp-client PartOf</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="11" type="security">
+            <Date>2009-05-20</Date>
+            <Version>4.2.4_p7</Version>
+            <Comment>Fix autokey Stack Buffer Overflow Vulnerability (CVE-2009-1252), (bug#9780)</Comment>
+            <Name>Taner Taş</Name>
+            <Email>taner@pardus.org.tr</Email>
+        </Update>
+        <Update release="10" type="security">
+            <Date>2009-04-09</Date>
+            <Version>4.2.4_p6</Version>
+            <Comment>Fix ntpq peer information buffer overflow (CVE-2009-0159), (bug#9532).</Comment>
+            <Name>Pınar Yanardağ</Name>
+            <Email>pinar@pardus.org.tr</Email>
+        </Update>
+        <Update release="9" type="security">
+            <Date>2009-01-08</Date>
+            <Version>4.2.4_p6</Version>
+            <Comment>Fix incorrect checks for malformed signatures (CVE-2009-0021), (bug#8995)</Comment>
+            <Name>Pınar Yanardağ</Name>
+            <Email>pinar@pardus.org.tr</Email>
+        </Update>
+        <Update release="8">
+            <Date>2008-03-12</Date>
+            <Version>4.2.4</Version>
+            <Comment>Adapt to new avahi package.</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="7">
+            <Date>2007-05-23</Date>
+            <Version>4.2.4</Version>
+            <Comment>Updated Service script.</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+         <Update release="6">
+            <Date>2007-03-31</Date>
+            <Version>4.2.4</Version>
+            <Comment>Add missing mDNSResponder dependency</Comment>
+            <Name>Ekin Meroğlu</Name>
+            <Email>ekin@pardus.org.tr</Email>
+        </Update>
+        <Update release="5" type="security">
+            <Date>2007-01-08</Date>
+            <Version>4.2.4</Version>
+            <Comment>Version bump to stable and bugfix #4722</Comment>
+            <Name>Ali Erdinç Köroğlu</Name>
+            <Email>erdinc@pardus.org.tr</Email>
+        </Update>
+        <Update release="4" type="security">
+            <Date>2006-11-30</Date>
+            <Version>4.2.2_p4</Version>
+            <Comment>Sync with Fedora patches</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="3">
+            <Date>2006-11-26</Date>
+            <Version>4.2.2_p4</Version>
+            <Comment>Add missing dependency for ntp-client</Comment>
+            <Name>Furkan Duman</Name>
+            <Email>coderlord@gmail.com</Email>
+        </Update>
+        <Update release="2">
+            <Date>2006-11-21</Date>
+            <Version>4.2.2_p4</Version>
+            <Comment>Add missing dependency</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="1">
+            <Date>2006-11-20</Date>
+            <Version>4.2.2_p4</Version>
+            <Comment>First release.</Comment>
+            <Name>Ali Erdinç Köroğlu</Name>
+            <Email>erdinc@pardus.org.tr</Email>
+        </Update>
+    </History>
+</PISI>
