@@ -13,7 +13,9 @@ from pisi.actionsapi import get
 shelltools.export("HOME", get.workDIR())
 
 def setup():
-    autotools.configure("--exec-prefix= \
+    autotools.configure("--exec-prefix=\"\" \
+                         --sbindir=/sbin \
+                         --with-systemdsystemunitdir=/lib/systemd/system \
                          --libexecdir=/lib/udev \
                          --libdir=/usr/lib \
                          --disable-introspection \
