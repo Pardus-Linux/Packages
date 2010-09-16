@@ -3,8 +3,8 @@
 
 import os
 import sys
-import comar
 from comar.service import loadConfig
+from pardus.sysutils import get_kernel_option
 
 config_files = ("/etc/default/xdm",
                 "/etc/conf.d/xdm")
@@ -44,11 +44,8 @@ if __name__ == "__main__":
     if cursor_theme:
         env["XCURSOR_THEME"] = cursor_theme
 
-    link = comar.Link()
-    # ready method will return False if sth is wrong or safe
-    # mode is requested by user. But, what if we have no cards
-    # and zorg returns False?
-    if not link.Xorg.Display["zorg"].ready(boot, timeout=5*60):
+    if "safe" in get_kernel_option("xorg"):
+        # FIXME Select fbdev when KMS is used
         env["XORGCONFIG"] = safe_xorg_conf
 
     os.execl(dm_path, dm_path, "-nodaemon")
