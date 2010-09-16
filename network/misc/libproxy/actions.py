@@ -9,7 +9,7 @@ from pisi.actionsapi import pisitools
 from pisi.actionsapi import get
 
 def setup():
-    cmaketools.configure()
+    cmaketools.configure("-DWITH_MOZJS=0")
 
 def build():
     cmaketools.make()
