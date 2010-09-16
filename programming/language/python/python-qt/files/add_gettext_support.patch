@@ -2,23 +2,18 @@ Index: pyuic/uic/driver.py
 ===================================================================
 --- pyuic/uic/driver.py.orig
 +++ pyuic/uic/driver.py
-@@ -2,7 +2,24 @@ import sys
+@@ -2,7 +2,19 @@ import sys
  import logging
  
  from PyQt4.uic import compileUi, loadUi
 +from PyQt4.uic.Compiler import qtproxies
  
-+if sys.hexversion >= 0x03000000:
-+    from PyQt4.uic.port_v3.as_string import as_string
-+else:
-+    from PyQt4.uic.port_v2.as_string import as_string
-+
 +original_i18n_string = qtproxies.i18n_string
 +class i18n_string(qtproxies.i18n_string):
 +    def __init__(self,string):
 +        original_i18n_string.__init__(self,string)
 +    def __str__(self):
-+        return "i18n(%s)" % (as_string(self.string, encode=False),)
++        return "i18n(%s)" % (qtproxies.as_string(self.string, encode=False),)
 +
 +_gettext_header = """import gettext
 +__trans = gettext.translation('%s', fallback=True)
@@ -27,7 +22,7 @@ Index: pyuic/uic/driver.py
  
  class Driver(object):
      """ This encapsulates access to the pyuic functionality so that it can be
-@@ -16,6 +33,8 @@ class Driver(object):
+@@ -16,6 +28,8 @@ class Driver(object):
          name of the .ui file.
          """
  
@@ -36,7 +31,7 @@ Index: pyuic/uic/driver.py
          if opts.debug:
              logger = logging.getLogger(self.LOGGER_NAME)
              handler = logging.StreamHandler()
-@@ -23,6 +42,10 @@ class Driver(object):
+@@ -23,6 +37,10 @@ class Driver(object):
              logger.addHandler(handler)
              logger.setLevel(logging.DEBUG)
  
@@ -47,7 +42,7 @@ Index: pyuic/uic/driver.py
          self._opts = opts
          self._ui_file = ui_file
  
-@@ -60,7 +83,7 @@ class Driver(object):
+@@ -60,7 +78,7 @@ class Driver(object):
              pyfile = open(self._opts.output, 'wt', encoding='utf8')
  
          compileUi(self._ui_file, pyfile, self._opts.execute, self._opts.indent,
