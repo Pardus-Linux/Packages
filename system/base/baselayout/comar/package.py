@@ -5,6 +5,8 @@ import grp
 import pwd
 import shutil
 
+import libuser
+
 ### Helper methods
 
 def hav(method, args):
@@ -28,6 +30,20 @@ def deleteUser(user):
         hav("deleteUser", (uid, False))
     except KeyError:
         pass
+
+def setGroupId(group_name, gid):
+    ctx = libuser.admin()
+    group = ctx.lookupGroupByName(group_name)
+    if group:
+        group.set(libuser.GIDNUMBER, [gid])
+        ctx.modifyGroup(group)
+
+def setUserId(user_name, uid):
+    ctx = libuser.admin()
+    user = ctx.lookupUserByName(nick)
+    if user:
+        user.set(libuser.UIDNUMBER, [uid])
+        ctx.modifyUser(user)
 
 def migrateUsers():
     # build user -> group map for migration (hopefully we'll drop this in 2012)
@@ -141,8 +157,6 @@ def postInstall(fromVersion, fromRelease, toVersion, toRelease):
                 (152, "rtkit"),
                 # NetworkManager user for OpenConnect VPN helper
                 (153, "nm-openconnect"),
-                (154, "qemu"),
-                (155, "kvm"),
                 (160, "usbmuxd"),
                 (161, "openvpn"),
                 (162, "privoxy"),
@@ -160,14 +174,12 @@ def postInstall(fromVersion, fromRelease, toVersion, toRelease):
 
     for gid, groupName in groups:
         try:
-            grp.getgrnam(groupName)
+            group = grp.getgrnam(groupName)
         except KeyError:
             hav("addGroup", (gid, groupName))
         else:
-            # Group already exists, remove and add back
-            # FIXME: Implement setGroup in usermgr.py for this
-            deleteGroup(groupName)
-            hav("addGroup", (gid, groupName))
+            if group.gr_gid != gid:
+                setGroupId(groupName, gid)
 
 
     ##################################
@@ -175,8 +187,8 @@ def postInstall(fromVersion, fromRelease, toVersion, toRelease):
     # addUser(uid, nick, realname, homedir, shell, password, groups, grantedauths, blockedauths)
 
     users = (
-                (7,   "lp", "CUPS user", "/var/spool/cups", "/sbin/nologin", "", ["lp"], [], []),
-                (14,  "lpadmin", "CUPS administrator", "/var/spool/cups", "/sbin/nologin", "", ["lpadmin"], [], []),
+                (4,   "lp", "CUPS user", "/var/spool/cups", "/sbin/nologin", "", ["lp"], [], []),
+                (15,  "lpadmin", "CUPS administrator", "/var/spool/cups", "/sbin/nologin", "", ["lpadmin"], [], []),
                 (20,  "dialout", "Dialout", "/dev/null", "/bin/false", "", ["dialout"], [], []),
                 (22,  "sshd", "Privilege-separated SSH", "/var/empty/sshd", "/sbin/nologin", "", ["sshd"], [], []),
                 (30,  "squid", "Squid", "/var/cache/squid", "/bin/false", "", ["squid"], [], []),
@@ -216,7 +228,6 @@ def postInstall(fromVersion, fromRelease, toVersion, toRelease):
                 (152, "memcached", "Memcached daemon", "/var/run/memcached", "/bin/false", "", ["memcached"], [], []),
                 (153, "rtkit", "RealtimeKit", "/proc", "/sbin/nologin", "", ["rtkit"], [], []),
                 (154, "nm-openconnect", "NetworkManager user for OpenConnect", "/", "/sbin/nologin", "", ["nm-openconnect"], [], []),
-                (155, "qemu", "QEMU", "/", "/sbin/nologin", "", ["qemu", "kvm"], [], []),
                 (160, "usbmuxd", "usbmuxd daemon", "/dev/null", "/bin/false", "", ["usbmuxd"], [], []),
                 (161, "openvpn", "OpenVPN", "/etc/openvpn", "/sbin/nologin", "", ["openvpn"], [], []),
                 (162, "privoxy", "Privoxy", "/etc/privoxy", "/sbin/nologin", "", ["privoxy"], [], []),
@@ -227,8 +238,16 @@ def postInstall(fromVersion, fromRelease, toVersion, toRelease):
             )
 
     for uid, nick, realname, homedir, shell, password, groups, grantedauths, blockedauths in users:
-        deleteUser(nick)
-        hav("addUser", (uid, nick, realname, homedir, shell, password, groups, grantedauths, blockedauths))
+        try:
+            user = pwd.getpwnam(nick)
+        except KeyError:
+            hav("addUser", (uid, nick, realname, homedir, shell, password, groups, grantedauths, blockedauths))
+        else:
+            if user.pw_uid == uid:
+                # setUser(uid, realname, homedir, shell, passwd, groups)
+                hav("setUser", (uid, realname, homedir, shell, password, groups))
+            else:
+                setUserId(nick, uid)
 
     # Migrate users to their new groups if any
     migrateUsers()
