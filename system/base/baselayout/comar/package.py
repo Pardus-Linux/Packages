@@ -9,7 +9,7 @@ import libuser
 
 ### Helper methods
 
-def hav(method, args):
+def hav(method, *args):
     try:
         call("baselayout", "User.Manager", method, args)
     except:
@@ -19,7 +19,7 @@ def deleteGroup(group):
     try:
         gid = grp.getgrnam(group)[2]
         # deleteGroup(gid)
-        hav("deleteGroup", (gid))
+        hav("deleteGroup", gid)
     except KeyError:
         pass
 
@@ -27,7 +27,7 @@ def deleteUser(user):
     try:
         uid = pwd.getpwnam(user)[2]
         # deleteUser(uid, delete_files)
-        hav("deleteUser", (uid, False))
+        hav("deleteUser", uid, False)
     except KeyError:
         pass
 
@@ -71,7 +71,7 @@ def migrateUsers():
     # Migrate regular user groups
     for user, group in migration:
         # setUser(uid, realname, homedir, shell, passwd, groups)
-        hav("setUser", (user, "", "", "", "", group))
+        hav("setUser", user, "", "", "", "", group)
 
 
 ### COMAR methods
@@ -94,9 +94,9 @@ def postInstall(fromVersion, fromRelease, toVersion, toRelease):
 
     # First delete/add polkit group/user, because we use polkit-python in addgroup/delete methods of COMAR
     # deleteGroup("polkit")
-    # hav("addGroup", (103, "polkit"))
+    # hav("addGroup", 103, "polkit")
     # deleteUser("polkit")
-    # hav("addUser", (103, "polkit", "PolicyKit", "/dev/null", "/bin/false", "", ["polkit"], [], []))
+    # hav("addUser", 103, "polkit", "PolicyKit", "/dev/null", "/bin/false", "", ["polkit"], [], [])
 
     ##################################
     # Merge new system groups
@@ -176,7 +176,7 @@ def postInstall(fromVersion, fromRelease, toVersion, toRelease):
         try:
             group = grp.getgrnam(groupName)
         except KeyError:
-            hav("addGroup", (gid, groupName))
+            hav("addGroup", gid, groupName)
         else:
             if group.gr_gid != gid:
                 setGroupId(groupName, gid)
@@ -241,11 +241,11 @@ def postInstall(fromVersion, fromRelease, toVersion, toRelease):
         try:
             user = pwd.getpwnam(nick)
         except KeyError:
-            hav("addUser", (uid, nick, realname, homedir, shell, password, groups, grantedauths, blockedauths))
+            hav("addUser", uid, nick, realname, homedir, shell, password, groups, grantedauths, blockedauths)
         else:
             if user.pw_uid == uid:
                 # setUser(uid, realname, homedir, shell, passwd, groups)
-                hav("setUser", (uid, realname, homedir, shell, password, groups))
+                hav("setUser", uid, realname, homedir, shell, password, groups)
             else:
                 setUserId(nick, uid)
 
