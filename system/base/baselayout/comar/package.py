@@ -33,10 +33,9 @@ def migrateUsers():
     # build user -> group map for migration (hopefully we'll drop this in 2012)
     migration = []
     migrationMap = {
-                    "cdrom"     : "removable",
-                    "plugdev"   : "removable",
-                    "lp"        : "pnp",
-                    "scanner"   : "pnp",
+                    "removable"     : ["cdrom", "plugdev"],
+                    "pnp"           : ["lp"],
+                    "pnpadmin"      : ["lpadmin"],
                    }
     for user in pwd.getpwall():
         groups = set()
@@ -45,10 +44,10 @@ def migrateUsers():
                 if user.pw_name in group.gr_mem:
                     groups.add(group.gr_name)
 
-            for oldGroup, newGroup in migrationMap.items():
+            for oldGroup, newGroups in migrationMap.items():
                 if oldGroup in groups:
-                    groups.remove(oldGroup)
-                    groups.add(newGroup)
+                    #groups.remove(oldGroup)
+                    groups.update(newGroups)
 
             if groups:
                 migration.append((user.pw_uid, list(groups)))
@@ -78,16 +77,21 @@ def postInstall(fromVersion, fromRelease, toVersion, toRelease):
         shutil.copy("/usr/share/baselayout/ld.so.conf", "/etc")
 
     # First delete/add polkit group/user, because we use polkit-python in addgroup/delete methods of COMAR
-    deleteGroup("polkit")
-    hav("addGroup", (103, "polkit"))
-
-    deleteUser("polkit")
-    hav("addUser", (103, "polkit", "PolicyKit", "/dev/null", "/bin/false", "", ["polkit"], [], []))
+    # deleteGroup("polkit")
+    # hav("addGroup", (103, "polkit"))
+    # deleteUser("polkit")
+    # hav("addUser", (103, "polkit", "PolicyKit", "/dev/null", "/bin/false", "", ["polkit"], [], []))
 
     ##################################
     # Merge new system groups
     # addGroup(gid, name)
     groups = (
+                (7,   "lp"),
+                (11,  "cdrom"),
+                (14,  "lpadmin"),
+                (19,  "floppy"),
+                (20,  "dialout"),
+                (22,  "sshd"),
                 (30,  "squid"),
                 (50,  "named"),
                 # For systemd/var-lock.mount
@@ -98,6 +102,7 @@ def postInstall(fromVersion, fromRelease, toVersion, toRelease):
                 (90,  "dovecot"),
                 (100, "users"),
                 (102, "hal"),
+                (103, "polkit"),
                 (104, "postfix"),
                 (105, "postdrop"),
                 (106, "smmsp"),
@@ -147,8 +152,6 @@ def postInstall(fromVersion, fromRelease, toVersion, toRelease):
                 # COMAR profile groups
                 (200, "pnp"),
                 (201, "removable"),
-                (202, "netuser"),
-                (203, "netadmin"),
                 (204, "power"),
                 (205, "pnpadmin"),
                 # for RT jackaudio
@@ -172,7 +175,10 @@ def postInstall(fromVersion, fromRelease, toVersion, toRelease):
     # addUser(uid, nick, realname, homedir, shell, password, groups, grantedauths, blockedauths)
 
     users = (
+                (7,   "lp", "CUPS user", "/var/spool/cups", "/sbin/nologin", "", ["lp"], [], []),
+                (14,  "lpadmin", "CUPS administrator", "/var/spool/cups", "/sbin/nologin", "", ["lpadmin"], [], []),
                 (20,  "dialout", "Dialout", "/dev/null", "/bin/false", "", ["dialout"], [], []),
+                (22,  "sshd", "Privilege-separated SSH", "/var/empty/sshd", "/sbin/nologin", "", ["sshd"], [], []),
                 (30,  "squid", "Squid", "/var/cache/squid", "/bin/false", "", ["squid"], [], []),
                 (40,  "named", "Bind", "/var/bind", "/bin/false", "", ["named"], [], []),
                 (60,  "mysql", "MySQL", "/var/lib/mysql", "/bin/false", "", ["mysql"], [], []),
@@ -180,6 +186,7 @@ def postInstall(fromVersion, fromRelease, toVersion, toRelease):
                 (80,  "apache", "Apache", "/dev/null", "/bin/false", "", ["apache", "svn"], [], []),
                 (90,  "dovecot", "Dovecot", "/dev/null", "/bin/false", "", ["dovecot"], [], []),
                 (102, "hal", "HAL", "/dev/null", "/bin/false", "", ["hal"], [], []),
+                (103, "polkit", "PolicyKit", "/dev/null", "/bin/false", "", ["polkit"], [], []),
                 (104, "postfix", "Postfix", "/var/spool/postfix", "/bin/false", "", ["postfix"], [], []),
                 (106, "smmsp", "smmsp", "/var/spool/mqueue", "/bin/false", "", ["smmsp"], [], []),
                 (109, "firebird", "Firebird", "/opt/firebird", "/bin/false", "", ["firebird"], [], []),
