@@ -10,21 +10,19 @@
 
 import os
 import glob
-import time
 import fcntl
 import random
 import shutil
 import hashlib
 
 from string import ascii_letters, digits
+from pardus.fileutils import FileLock
 
-#import python-polkit bindings
 try:
     import polkit
 except ImportError:
     pass
 
-from pardus.fileutils import FileLock
 
 # faces
 
@@ -168,11 +166,11 @@ uid_maximum = 65000
 
 def setFace(uid, homedir):
     files = []
-    for dir in FACES:
-        if os.path.exists(dir):
-            for filename in os.listdir(dir):
+    for directory in FACES:
+        if os.path.exists(directory):
+            for filename in os.listdir(directory):
                 if filename.endswith(".png"):
-                    files.append(os.path.join(dir, filename))
+                    files.append(os.path.join(directory, filename))
     if len(files):
         icon = os.path.join(homedir, ".face.icon")
         shutil.copy(random.choice(files), icon)
@@ -393,7 +391,7 @@ def addUser(uid, name, realname, homedir, shell, password, groups, grants, block
     if not shell:
         shell = "/bin/bash"
     if not groups:
-        groups = [ "nogroup" ]
+        groups = ["nogroup"]
     for item in groups:
         checkGroupName(item)
     checkName(name)
@@ -463,8 +461,7 @@ def setUser(uid, realname, homedir, shell, password, groups):
             checkRealName(realname)
             u.realname = realname
         if homedir:
-            # Not implemented, ask Gürer
-            pass
+            u.homedir = homedir
         if shell:
             u.shell = shell
         if password:
@@ -499,7 +496,7 @@ def deleteUser(uid, deletefiles):
         del db.users[uid]
         db.sync()
         if deletefiles:
-            os.system('rm -rf "%s"' % home)
+            os.system('/bin/rm -rf "%s"' % home)
 
 
 def groupList():
