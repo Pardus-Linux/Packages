@@ -7,7 +7,6 @@ from pisi.actionsapi import autotools
 from pisi.actionsapi import get
 
 def setup():
-    autotools.autoreconf("-vif")
     autotools.configure("--enable-bittorrent \
                          --enable-metalink \
                          --enable-epoll \
