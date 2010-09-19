@@ -117,4 +117,4 @@ fi
     #pisitools.dosed("%s/opt/OpenOffice.org/lib/ooo-%s/program/soffice" % (get.installDIR(), baseVersion()), "export SAL_ENABLE_FILE_LOCKING", "export SAL_ENABLE_FILE_LOCKING\n%s\n" % plastikWorkaround)
 
     #install our own sofficerc file
-    pisitools.insinto("/opt/OpenOffice.org/lib/ooo-%s/program" % baseVersion(), "sofficerc.pardus", "sofficerc")
+    #pisitools.insinto("/opt/OpenOffice.org/lib/ooo-%s/program" % baseVersion(), "sofficerc.pardus", "sofficerc")
