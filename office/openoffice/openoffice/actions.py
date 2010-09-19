@@ -97,13 +97,6 @@ def install():
     pisitools.remove(unoPath)
     pisitools.domove("/opt/OpenOffice.org/lib/ooo-%s/basis%s/program/unohelper.py" % (baseVersion(), baseVersion()), "/usr/lib/%s/site-packages" % get.curPYTHON())
 
-    #install pdfimport, report-builder, wiki-publisher and presenter screen as extensions
-    pisitools.insinto("/opt/OpenOffice.org/lib/ooo-%s/share/extension/install/" % baseVersion(), "build/*/solver/*/unxlng*.pro/bin/report-builder.oxt")
-    pisitools.insinto("/opt/OpenOffice.org/lib/ooo-%s/share/extension/install/" % baseVersion(), "build/*/solver/*/unxlng*.pro/bin/wiki-publisher.oxt")
-    pisitools.insinto("/opt/OpenOffice.org/lib/ooo-%s/share/extension/install/" % baseVersion(), "build/*/solver/*/unxlng*.pro/bin/presentation-minimizer.oxt")
-    pisitools.insinto("/opt/OpenOffice.org/lib/ooo-%s/share/extension/install/" % baseVersion(), "build/*/solver/*/unxlng*.pro/bin/presenter-screen.oxt")
-    pisitools.insinto("/opt/OpenOffice.org/lib/ooo-%s/share/extension/install/" % baseVersion(), "build/*/solver/*/unxlng*.pro/bin/pdfimport.oxt")
-
     #install man files
     pisitools.domove("/opt/OpenOffice.org/share/man/man1/*", "/usr/share/man/man1")
     pisitools.removeDir("/opt/OpenOffice.org/share/man")
