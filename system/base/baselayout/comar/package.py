@@ -50,7 +50,7 @@ def migrateUsers():
     migration = []
     migrationMap = {
                     "removable"     : ["cdrom", "plugdev"],
-                    "pnp"           : ["lp"],
+                    "pnp"           : ["lp", "floppy"],
                     "pnpadmin"      : ["lpadmin"],
                    }
     for user in pwd.getpwall():
