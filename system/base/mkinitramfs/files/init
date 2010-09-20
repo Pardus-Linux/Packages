@@ -155,11 +155,13 @@ find_live_mount() {
     then
         for x in $*
         do
-            FS_TYPE=`disktype $ROOT_DEVICE | grep KERNELMODULE | awk '{print $2}'`
-            if [ -f /lib/modules/*/$FS_TYPE.ko ]
+            # this is used for non Linux fs detection
+            FS_TYPE=`disktype $1 | grep KERNELMODULE | awk '{print $2}'`
+            if [ -n "$FS_TYPE" -a -f /lib/modules/*/$FS_TYPE.ko ]
             then
                 modprobe $FS_TYPE 1> /dev/null 2>&1
             fi
+
             mount -r ${x} /newroot/mnt/cdrom > /dev/null 2>&1
 
             if [ "$?" = "0" ]
