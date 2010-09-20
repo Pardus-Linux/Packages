@@ -6,8 +6,6 @@
 
 from pisi.actionsapi import autotools
 from pisi.actionsapi import pisitools
-from pisi.actionsapi import shelltools
-from pisi.actionsapi import get
 from pisi.actionsapi import qt4
 
 def setup():
@@ -22,4 +20,7 @@ def install():
 
     pisitools.doman("doc/man/*/*")
     pisitools.dohtml("doc/html/*")
+
+    pisitools.rename("/usr/share/man/man3/deprecated.3", "qwt-deprecated.3")
+
     pisitools.insinto("/usr/share/doc/qwt/examples", "examples")
