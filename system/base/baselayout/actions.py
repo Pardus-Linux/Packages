@@ -21,13 +21,6 @@ def install():
 
     shelltools.echo("%s/etc/pardus-release" % get.installDIR(), "Pardus 2011 Alpha 2")
 
-    # This is now done in the package
-    """
-    # Install some files to /usr/share/baselayout instead of /etc to keep from overwriting the user's settings,
-    for f in ("passwd", "shadow", "group", "fstab", "hosts", "ld.so.conf", "resolv.conf", "inittab.live"):
-        pisitools.domove("/etc/%s" % f, "/usr/share/baselayout")
-    """
-
     # Install baselayout documentation
     pisitools.doman("man/*.*")
 
