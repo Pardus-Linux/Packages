@@ -31,7 +31,7 @@ test -f /etc/env.d/03locale && . /etc/env.d/03locale
 
 export LC_ALL PATH XCURSOR_THEME
 
-if test -eq "x$1" "x--boot" && grep -qw "xorg=safe"; then
+if test "x$1" = "x--boot" && grep -qw "xorg=safe" /proc/cmdline; then
     export XORGCONFIG=/usr/share/X11/xorg-safe.conf
 fi
 
