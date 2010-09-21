@@ -13,7 +13,7 @@ def postInstall(fromVersion, fromRelease, toVersion, toRelease):
             config.saveDeviceInfo(device)
             config.saveXorgConfig(device)
 
-    if fromRelease and int(fromRelease) < 80:
+    if fromRelease and int(fromRelease) < 81:
         from zorg import config
 
         layout, variant = config.getKeymapOld()
