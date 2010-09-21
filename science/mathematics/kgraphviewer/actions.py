@@ -10,7 +10,7 @@ from pisi.actionsapi import pisitools
 from pisi.actionsapi import get
 from pisi.actionsapi import kde4
 
-WorkDir = get.srcNAME()
+WorkDir = "%s-%s-kde4.3.3" % (get.srcNAME(), get.srcVERSION())
 NoStrip=["/usr/share"]
 
 def setup():
