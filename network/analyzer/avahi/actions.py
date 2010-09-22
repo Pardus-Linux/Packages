@@ -24,6 +24,7 @@ def setup():
                          --enable-compat-howl \
                          --enable-compat-libdns_sd \
                          --localstatedir=/var \
+                         --with-systemdsystemunitdir=/lib/systemd/system \
                          --with-avahi-user=avahi \
                          --with-avahi-group=avahi \
                          --with-autoipd-user=avahi-autoipd \
