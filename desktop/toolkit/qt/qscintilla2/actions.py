@@ -46,7 +46,10 @@ def build():
 def install():
     # installs not managed by the build system
     shelltools.cd("Qt4/")
-    pisitools.dolib("libqscintilla2.so*")
+    libraryFile = shelltools.ls("libqscintilla2.so.?.?.?")[0]
+    pisitools.dolib(libraryFile)
+    pisitools.dosym("/usr/lib/%s" % libraryFile, "/usr/lib/libqscintilla2.so")
+    pisitools.dosym("/usr/lib/%s" % libraryFile, "/usr/lib/%s" % libraryFile[:-4])
 
     pisitools.dodir("/usr/include")
     shelltools.copytree("Qsci", "%s/usr/include/Qsci" % get.installDIR())
