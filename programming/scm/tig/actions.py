@@ -22,6 +22,7 @@ def install():
     autotools.install(argument="install-doc-man")
 
     pisitools.insinto("/etc/bash_completion.d", "contrib/tig-completion.bash", "tig")
+    pisitools.insinto("/etc", "contrib/tigrc")
 
-    pisitools.dodoc("BUGS", "COPYING", "NEWS", "README", "SITES", "TODO", "manual.txt", "contrib/tigrc")
+    pisitools.dodoc("BUGS", "COPYING", "NEWS", "README", "SITES", "TODO", "manual.txt")
     pisitools.dohtml("*.html")
