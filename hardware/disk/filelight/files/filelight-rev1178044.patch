@@ -1,0 +1,3493 @@
+diff -Naur '--exclude=.svn' /home/memre/workspace/packages/source/filelight-1.9rc3/CMakeLists.txt filelight/CMakeLists.txt
+--- /home/memre/workspace/packages/source/filelight-1.9rc3/CMakeLists.txt	2009-08-21 05:40:27.000000000 +0300
++++ filelight/CMakeLists.txt	2010-09-22 10:13:29.344000026 +0300
+@@ -22,13 +22,13 @@
+ 
+ find_package(KDE4 REQUIRED)
+ 
+-add_definitions(${QT_DEFINITIONS} ${KDE4_DEFINITIONS} -fPIC)
++add_definitions(${QT_DEFINITIONS} ${KDE4_DEFINITIONS})
+ 
+ include(KDE4Defaults)
+ 
+ include(MacroLibrary)
+ 
+-include_directories( src/ ${KDE4_INCLUDES} ${KDE4_INCLUDE_DIR} ${QT_INCLUDES} )
++include_directories(src/ ${KDE4_INCLUDES} ${KDE4_INCLUDE_DIR} ${QT_INCLUDES})
+ 
+ add_subdirectory(src)
+ add_subdirectory(misc)
+diff -Naur '--exclude=.svn' /home/memre/workspace/packages/source/filelight-1.9rc3/Messages.sh filelight/Messages.sh
+--- /home/memre/workspace/packages/source/filelight-1.9rc3/Messages.sh	2009-08-18 21:26:53.000000000 +0300
++++ filelight/Messages.sh	2010-09-22 10:13:29.342000026 +0300
+@@ -1,4 +1,4 @@
+ #!bin/sh
+ $EXTRACTRC `find . -name \*.rc -o -name \*.ui` >> rc.cpp
+ $XGETTEXT `find . -name \*.cpp -o -name \*.h` -o $podir/filelight.pot
+-
++rm -f rc.cpp
+diff -Naur '--exclude=.svn' /home/memre/workspace/packages/source/filelight-1.9rc3/misc/CMakeLists.txt filelight/misc/CMakeLists.txt
+--- /home/memre/workspace/packages/source/filelight-1.9rc3/misc/CMakeLists.txt	2009-03-29 17:08:12.000000000 +0300
++++ filelight/misc/CMakeLists.txt	2010-09-22 10:13:29.269000026 +0300
+@@ -18,10 +18,10 @@
+ # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ #######################################################################
+ 
+-install(FILES filelight_part.desktop DESTINATION ${SERVICES_INSTALL_DIR})
++install(FILES filelightpart.desktop DESTINATION ${SERVICES_INSTALL_DIR})
+ install(FILES filelight.desktop DESTINATION ${XDG_APPS_INSTALL_DIR})
+ install(FILES filelightrc DESTINATION ${CMAKE_INSTALL_PREFIX}/share/config)
+-install(FILES filelight_partui.rc DESTINATION ${DATA_INSTALL_DIR}/filelightpart)
++install(FILES filelightpartui.rc DESTINATION ${DATA_INSTALL_DIR}/filelightpart)
+ install(FILES filelightui.rc DESTINATION ${DATA_INSTALL_DIR}/filelight)
+ 
+ kde4_install_icons(${ICON_INSTALL_DIR})
+diff -Naur '--exclude=.svn' /home/memre/workspace/packages/source/filelight-1.9rc3/misc/filelight.desktop filelight/misc/filelight.desktop
+--- /home/memre/workspace/packages/source/filelight-1.9rc3/misc/filelight.desktop	2009-10-08 12:24:27.000000000 +0300
++++ filelight/misc/filelight.desktop	2010-09-22 10:13:29.264000026 +0300
+@@ -1,63 +1,67 @@
+ # KDE Config File
+ [Desktop Entry]
+ Name=Filelight
+-Name[bg]=Filelight
+ Name[da]=Filelight
+ Name[de]=Filelight
+ Name[en_GB]=Filelight
+ Name[es]=Filelight
+ Name[et]=Filelight
++Name[fi]=Filelight
+ Name[fr]=Filelight
+-Name[ga]=Filelight
+ Name[gl]=Filelight
+-Name[ja]=Filelight
+-Name[km]=Filelight
++Name[ms]=Filelight
++Name[nb]=Filelight
+ Name[nds]=Filelight
++Name[nl]=Filelight
++Name[nn]=Filelight
+ Name[pt]=Filelight
+ Name[pt_BR]=Filelight
+ Name[sv]=Filelight
+-Name[tr]=Filelight
+ Name[uk]=Filelight
+ Name[x-test]=xxFilelightxx
++Name[zh_TW]=Filelight
+ GenericName=Disk Usage Statistics
+-GenericName[bg]=Статистика на ползването на диска
+ GenericName[da]=Statistik over diskforbrug
++GenericName[de]=Statistiken über Festplattenbelegung
+ GenericName[en_GB]=Disk Usage Statistics
+-GenericName[es]=Estadísticas sobre el uso del disco
++GenericName[es]=Estadísticas de uso de discos
+ GenericName[et]=Kettakasutuse statistika
+-GenericName[fr]=Statistiques d'utilisation des disques durs.
+-GenericName[gl]=Estatísticas da utilización do disco
+-GenericName[ja]=ディスクの使用状況
+-GenericName[km]=ស្ថិតិ​កា​រប្រើ​ថាស
++GenericName[fi]=Levykäytön tilastot
++GenericName[fr]=Statistiques d'utilisation du disque
++GenericName[gl]=Estatísticas de uso dos discos
++GenericName[ms]=Statistik Penggunaan Cakera
++GenericName[nb]=Bruksstatistikk
+ GenericName[nds]=Fastplaatbruuk-Statistik
+-GenericName[pt]=Estatísticas de Utilização do Disco
++GenericName[nl]=Schijfgebruikstatistieken
++GenericName[pt]=Estatísticas da Utilização do Disco
+ GenericName[pt_BR]=Estatísticas do uso do disco
+ GenericName[sv]=Statistik över diskanvändning
+-GenericName[tr]=Disk Kullanım İstatistikleri
+ GenericName[uk]=Статистика використання диска
+ GenericName[x-test]=xxDisk Usage Statisticsxx
++GenericName[zh_TW]=磁碟用量統計
+ Type=Application
+ Exec=filelight %f
+ Icon=filelight
+ Comment=View disk usage information
+-Comment[bg]=Преглед на данни за използването на диска
+ Comment[da]=Vis information om diskforbrug
+ Comment[de]=Nutzungsinformationen zu Festplatten anzeigen
+ Comment[en_GB]=View disk usage information
+-Comment[es]=Ver información de uso del disco
++Comment[es]=Muestra información sobre el uso de discos
+ Comment[et]=Kettakasutuse teabe kuvamine
+-Comment[fr]=Voir de l'information sur l'utilisation des disques durs
+-Comment[ga]=Amharc ar fhaisnéis maidir le húsáid diosca
+-Comment[gl]=Mostra información do uso do disco
+-Comment[ja]=ディスクの使用状況を表示します
+-Comment[km]=មើល​ព័ត៌មាន​ប្រើ​ថាស​រឹង
++Comment[fi]=Näytä tietoa levykäytöstä
++Comment[fr]=Voir les informations concernant l'utilisation de l'espace disque
++Comment[gl]=Ver a información de uso dos discos
++Comment[ms]=Papar maklumat penggunaan cakera
++Comment[nb]=Vis informasjon om diskbruk
+ Comment[nds]=Wiest Informatschonen över den Bruuk vun de Fastplaat
+-Comment[pt]=Ver informações de utilização do disco
+-Comment[pt_BR]=Visualize a informação de uso do disco
++Comment[nl]=Schijfgebruikinformatie bekijken
++Comment[nn]=Viser informasjon om diskbruk
++Comment[pt]=Ver a informação da utilização do disco
++Comment[pt_BR]=Exibe as informações de utilização do disco
+ Comment[sv]=Visa information om hårddiskanvändning
+-Comment[tr]=Disk kullanım bilgisini görüntüler
+ Comment[uk]=Перегляд інформації про використання дисків
+ Comment[x-test]=xxView disk usage informationxx
++Comment[zh_TW]=檢視磁碟用量資訊
+ Terminal=false
+ MimeType=inode/directory;
+ Categories=Qt;KDE;Utility;
+diff -Naur '--exclude=.svn' /home/memre/workspace/packages/source/filelight-1.9rc3/misc/filelight_part.desktop filelight/misc/filelight_part.desktop
+--- /home/memre/workspace/packages/source/filelight-1.9rc3/misc/filelight_part.desktop	2009-10-08 12:24:27.000000000 +0300
++++ filelight/misc/filelight_part.desktop	1970-01-01 02:00:00.000000000 +0200
+@@ -1,27 +0,0 @@
+-[Desktop Entry]
+-Encoding=UTF-8
+-Name=RadialMap View
+-Name[bg]=Изглед с радиална карта
+-Name[da]=Radialkort-visning
+-Name[de]=Radialansicht
+-Name[en_GB]=RadialMap View
+-Name[es]=Vista del mapa radial
+-Name[et]=Radiaalvaade
+-Name[fr]=Vue RadialMap
+-Name[ga]=Mapa Gathach
+-Name[gl]=Vista en mapa radial
+-Name[ja]=放射状マップ表示
+-Name[km]=ទិដ្ឋភាព RadialMap
+-Name[nds]=RadialMap View
+-Name[pt]=Vista em Mapa Radial
+-Name[pt_BR]=Visualização em mapa radial
+-Name[sv]=Radiell avbildningsvy
+-Name[tr]=RadialMap Görüntüleme
+-Name[uk]=Перегляд RadialMap
+-Name[x-test]=xxRadialMap Viewxx
+-MimeType=inode/directory;
+-ServiceTypes=KParts/ReadOnlyPart
+-X-KDE-Library=filelightpart
+-# X-KDE-PluginKeyword=filelightpart
+-Type=Service
+-Icon=view_filelight
+diff -Naur '--exclude=.svn' /home/memre/workspace/packages/source/filelight-1.9rc3/misc/filelightpart.desktop filelight/misc/filelightpart.desktop
+--- /home/memre/workspace/packages/source/filelight-1.9rc3/misc/filelightpart.desktop	1970-01-01 02:00:00.000000000 +0200
++++ filelight/misc/filelightpart.desktop	2010-09-22 10:13:29.267000026 +0300
+@@ -0,0 +1,23 @@
++[Desktop Entry]
++Encoding=UTF-8
++Name=Radial Map
++Name[da]=Radialkort
++Name[de]=Kreisförmige Darstellung
++Name[en_GB]=Radial Map
++Name[es]=Mapa radial
++Name[et]=Radiaalkaart
++Name[fr]=Carte radiale
++Name[gl]=Mapa radial
++Name[ms]=Peta Radial
++Name[nl]=Radiale grafiek
++Name[pt]=Mapa Radial
++Name[pt_BR]=Mapa radial
++Name[sv]=Radiell avbildning
++Name[uk]=Радіальна карта
++Name[x-test]=xxRadial Mapxx
++Name[zh_TW]=放射狀地圖
++MimeType=inode/directory;
++ServiceTypes=KParts/ReadOnlyPart
++X-KDE-Library=filelightpart
++Type=Service
++Icon=view_filelight
+diff -Naur '--exclude=.svn' /home/memre/workspace/packages/source/filelight-1.9rc3/misc/filelight_partui.rc filelight/misc/filelight_partui.rc
+--- /home/memre/workspace/packages/source/filelight-1.9rc3/misc/filelight_partui.rc	2009-02-12 22:56:28.000000000 +0200
++++ filelight/misc/filelight_partui.rc	1970-01-01 02:00:00.000000000 +0200
+@@ -1,40 +0,0 @@
+-<!DOCTYPE kpartgui>
+-<kpartgui name="filelight_part" version="2">
+-<MenuBar>
+-  <Menu name="view">
+-    <Action name="view_zoom_in" group="view_merge_group"/>
+-    <Action name="view_zoom_out" group="view_merge_group"/>
+-  </Menu>
+-  <Menu name="settings">
+-    <Action name="options_configure" group="settings_configure"/>
+-  </Menu>
+-</MenuBar>
+-
+-<State name="scan_started">
+-  <disable>
+-    <Action name="view_zoom_in"/>
+-    <Action name="view_zoom_out"/>
+-    <Action name="configure_filelight"/>
+-  </disable>
+-</State>
+-
+-<State name="scan_complete">
+-  <enable>
+-    <Action name="view_zoom_in"/>
+-    <Action name="view_zoom_out"/>
+-    <Action name="options_configure"/>
+-  </enable>
+-</State>
+-
+-<State name="scan_failed">
+-  <!-- only for full failure situations -->
+-  <enable>
+-    <Action name="options_configure"/>
+-  </enable>
+-  <disable>
+-    <Action name="view_zoom_in"/>
+-    <Action name="view_zoom_out"/>
+-  </disable>
+-</State>
+-
+-</kpartgui>
+diff -Naur '--exclude=.svn' /home/memre/workspace/packages/source/filelight-1.9rc3/misc/filelightpartui.rc filelight/misc/filelightpartui.rc
+--- /home/memre/workspace/packages/source/filelight-1.9rc3/misc/filelightpartui.rc	1970-01-01 02:00:00.000000000 +0200
++++ filelight/misc/filelightpartui.rc	2010-09-22 10:13:29.265000026 +0300
+@@ -0,0 +1,44 @@
++<!DOCTYPE kpartgui>
++<kpartgui name="filelightpart" version="2">
++<MenuBar>
++  <Menu name="view">
++    <Action name="view_zoom_in" group="view_merge_group"/>
++    <Action name="view_zoom_out" group="view_merge_group"/>
++  </Menu>
++  <Menu name="settings">
++    <Action name="options_configure" group="settings_configure"/>
++  </Menu>
++</MenuBar>
++<ToolBar name="viewToolBar" hidden="true"><text>View Toolbar</text>
++    <Action name="view_zoom_in"/>
++    <Action name="view_zoom_out"/>
++</ToolBar>
++
++<State name="scan_started">
++  <disable>
++    <Action name="view_zoom_in"/>
++    <Action name="view_zoom_out"/>
++    <Action name="configure_filelight"/>
++  </disable>
++</State>
++
++<State name="scan_complete">
++  <enable>
++    <Action name="view_zoom_in"/>
++    <Action name="view_zoom_out"/>
++    <Action name="options_configure"/>
++  </enable>
++</State>
++
++<State name="scan_failed">
++  <!-- only for full failure situations -->
++  <enable>
++    <Action name="options_configure"/>
++  </enable>
++  <disable>
++    <Action name="view_zoom_in"/>
++    <Action name="view_zoom_out"/>
++  </disable>
++</State>
++
++</kpartgui>
+diff -Naur '--exclude=.svn' /home/memre/workspace/packages/source/filelight-1.9rc3/misc/filelightui.rc filelight/misc/filelightui.rc
+--- /home/memre/workspace/packages/source/filelight-1.9rc3/misc/filelightui.rc	2009-03-28 01:37:04.000000000 +0200
++++ filelight/misc/filelightui.rc	2010-09-22 10:13:29.267000026 +0300
+@@ -2,7 +2,7 @@
+ <kpartgui name="filelight" version="4">
+ <MenuBar>
+   <Menu name="file" noMerge="1"><text>&amp;Scan</text>
+-   <Action name="scan_directory"/>
++   <Action name="scan_folder"/>
+     <Separator/>
+     <Action name="scan_home"/>
+     <Action name="scan_root"/>
+@@ -18,7 +18,7 @@
+   <Menu name="view" noMerge="1"><text>&amp;View</text></Menu>
+ </MenuBar>
+ 
+-<ToolBar name="mainToolBar" noMerge="1"><text>Main Toolbar</text>
++<ToolBar name="mainToolBar"><text>Main Toolbar</text>
+     <Action name="go_back"/>
+     <Action name="go_forward"/>
+     <Action name="go_up"/>
+@@ -26,7 +26,7 @@
+     <Action name="scan_rescan"/>
+     <Action name="scan_stop"/>
+ </ToolBar>
+-<ToolBar name="locationToolBar" fullWidth="true" noMerge="1"><text>Location Toolbar</text>
++<ToolBar name="locationToolBar" fullWidth="true"><text>Location Toolbar</text>
+     <Action name="clear_location"/>
+     <Action name="location_bar"/>
+     <Action name="go"/>
+@@ -37,7 +37,7 @@
+     <Action name="scan_stop"/>
+   </enable>
+   <disable>
+-    <Action name="scan_directory"/>
++    <Action name="scan_folder"/>
+     <Action name="scan_home"/>
+     <Action name="scan_root"/>
+     <Action name="scan_recent"/>
+@@ -54,7 +54,7 @@
+ 
+ <State name="scan_complete">
+   <enable>
+-    <Action name="scan_directory"/>
++    <Action name="scan_folder"/>
+     <Action name="scan_home"/>
+     <Action name="scan_root"/>
+     <Action name="scan_recent"/>
+@@ -75,10 +75,11 @@
+ <State name="scan_failed">
+   <!-- only for full failure situations -->
+   <enable>
+-    <Action name="scan_directory"/>
++    <Action name="scan_folder"/>
+     <Action name="scan_home"/>
+     <Action name="scan_root"/>
+     <Action name="scan_recent"/>
++    <Action name="scan_rescan"/>
+     <Action name="clear_location"/>
+     <Action name="location_bar"/>
+     <Action name="go"/>
+@@ -86,7 +87,6 @@
+   </enable>
+   <disable>
+     <Action name="scan_stop"/>
+-    <Action name="scan_rescan"/>
+     <Action name="go_up"/>
+     <Action name="view_zoom_in"/>
+     <Action name="view_zoom_out"/>
+diff -Naur '--exclude=.svn' /home/memre/workspace/packages/source/filelight-1.9rc3/src/app/historyAction.cpp filelight/src/app/historyAction.cpp
+--- /home/memre/workspace/packages/source/filelight-1.9rc3/src/app/historyAction.cpp	2009-03-28 04:16:59.000000000 +0200
++++ filelight/src/app/historyAction.cpp	2010-09-22 10:13:28.665000024 +0300
+@@ -22,12 +22,11 @@
+ #include "historyAction.h"
+ 
+ #include <KAction>
++#include <KActionCollection>
+ #include <KConfig>
++#include <KConfigGroup>
+ #include <KLocale>
+-#include <KActionCollection>
+ #include <KStandardShortcut>
+-#include <KConfigGroup>
+-
+ 
+ inline HistoryAction::HistoryAction(const KIcon &icon, const QString &text, KActionCollection *ac)
+         : KAction(icon, text, ac)
+@@ -62,14 +61,14 @@
+ 
+ HistoryCollection::HistoryCollection(KActionCollection *ac, QObject *parent)
+         : QObject(parent)
+-        , m_b(new HistoryAction(KIcon("go-previous"), i18n("Back"), ac))
+-        , m_f(new HistoryAction(KIcon("go-next"), i18n("Forward"), ac))
++        , m_b(new HistoryAction(KIcon(QLatin1String( "go-previous" )), i18nc("Go to the last path viewed", "Back"), ac))
++        , m_f(new HistoryAction(KIcon(QLatin1String( "go-next" )), i18nc("Go to forward in the history of paths viewed", "Forward"), ac))
+         , m_receiver(0)
+ {
+-    ac->addAction("go_back", m_b);
+-    ac->addAction("go_forward", m_f);
+-    connect(m_b, SIGNAL(activated()), SLOT(pop()));
+-    connect(m_f, SIGNAL(activated()), SLOT(pop()));
++    ac->addAction(QLatin1String( "go_back" ), m_b);
++    ac->addAction(QLatin1String( "go_forward" ), m_f);
++    connect(m_b, SIGNAL(triggered(bool)), SLOT(pop()));
++    connect(m_f, SIGNAL(triggered(bool)), SLOT(pop()));
+ }
+ 
+ void HistoryCollection::push(const KUrl &url) //slot
+diff -Naur '--exclude=.svn' /home/memre/workspace/packages/source/filelight-1.9rc3/src/app/historyAction.h filelight/src/app/historyAction.h
+--- /home/memre/workspace/packages/source/filelight-1.9rc3/src/app/historyAction.h	2009-03-28 04:16:59.000000000 +0200
++++ filelight/src/app/historyAction.h	2010-09-22 10:13:28.665000024 +0300
+@@ -23,8 +23,8 @@
+ #define HISTORYACTION_H
+ 
+ #include <KAction>
+-#include <KUrl>
+ #include <QStringList>
++#include <KUrl>
+ 
+ class KConfigGroup;
+ class KActionCollection;
+@@ -42,7 +42,7 @@
+ 
+ public:
+     virtual void setEnabled(bool b = true) {
+-        KAction::setEnabled(b ? !m_list.isEmpty() : false);
++        KAction::setEnabled(b && !m_list.isEmpty());
+     }
+ 
+     void clear() {
+diff -Naur '--exclude=.svn' /home/memre/workspace/packages/source/filelight-1.9rc3/src/app/main.cpp filelight/src/app/main.cpp
+--- /home/memre/workspace/packages/source/filelight-1.9rc3/src/app/main.cpp	2009-02-21 11:44:24.000000000 +0200
++++ filelight/src/app/main.cpp	2010-09-22 10:13:28.666000024 +0300
+@@ -22,11 +22,11 @@
+ #include "define.h"
+ #include "mainWindow.h"
+ 
+-#include <kaboutdata.h>
+-#include <kapplication.h>
+-#include <kcmdlineargs.h>
+-#include <klocale.h>
+-#include <kurl.h>
++#include <KAboutData>
++#include <KApplication>
++#include <KCmdLineArgs>
++#include <KLocale>
++#include <KUrl>
+ 
+ static KAboutData about(
+     APP_NAME,
+@@ -53,7 +53,9 @@
+     KCmdLineArgs::init(argc, argv, &about);
+ 
+     KCmdLineOptions options;
+-    options.add("+[path]", ki18n("Scan 'path'"));
++    KLocale *tmpLocale = new KLocale(QLatin1String("filelight"));
++    options.add(ki18nc("Path in the file system to scan", "+[path]").toString(tmpLocale).toLocal8Bit(), ki18n("Scan 'path'"));
++    delete tmpLocale;
+     KCmdLineArgs::addCmdLineOptions(options);
+ 
+     KApplication app;
+diff -Naur '--exclude=.svn' /home/memre/workspace/packages/source/filelight-1.9rc3/src/app/mainWindow.cpp filelight/src/app/mainWindow.cpp
+--- /home/memre/workspace/packages/source/filelight-1.9rc3/src/app/mainWindow.cpp	2009-05-30 02:10:16.000000000 +0300
++++ filelight/src/app/mainWindow.cpp	2010-09-22 10:13:28.666000024 +0300
+@@ -29,7 +29,7 @@
+ #include <KHistoryComboBox>
+ #include <KRecentFilesAction>
+ #include <KConfig>
+-#include <KDirSelectDialog> //slotScanDirectory
++#include <KDirSelectDialog> //slotScanFolder
+ #include <KEditToolBar>     //for editToolbar dialog
+ #include <QLineEdit>
+ #include <KStandardShortcut>
+@@ -55,8 +55,8 @@
+ 
+ MainWindow::MainWindow() : KParts::MainWindow(), m_part(0)
+ {
+-    setXMLFile("filelightui.rc");
+-    KPluginFactory *factory = KPluginLoader("filelightpart").factory();
++//     setXMLFile("filelightui.rc");
++    KPluginFactory *factory = KPluginLoader(QLatin1String( "filelightpart" )).factory();
+ 
+     if (!factory) {
+         KMessageBox::error(this, i18n("Unable to load the Filelight Part.\nPlease make sure Filelight was correctly installed."));
+@@ -72,28 +72,23 @@
+         createGUI(m_part);
+         setCentralWidget(m_part->widget());
+ 
+-        stateChanged("scan_failed"); //bah! doesn't affect the parts' actions, should I add them to the actionCollection here?
+-
+-        //QList<QObject *> buttons = toolBar()->findChildren<QObject *>("KToolBarButton"); //FIXME
+-        //if (buttons.isEmpty())
+-        //    KMessageBox::error(this, i18n("Filelight is not installed properly, consequently its menus and toolbars will appear reduced or even empty"));
+-        //delete &buttons;
++        stateChanged(QLatin1String( "scan_failed" )); //bah! doesn't affect the parts' actions, should I add them to the actionCollection here?
+ 
+         connect(m_part, SIGNAL(started(KIO::Job*)), SLOT(scanStarted()));
+         connect(m_part, SIGNAL(completed()), SLOT(scanCompleted()));
+         connect(m_part, SIGNAL(canceled(const QString&)), SLOT(scanFailed()));
+ 
+-        //TODO test these
+         connect(m_part, SIGNAL(canceled(const QString&)), m_histories, SLOT(stop()));
+         connect(BrowserExtension::childObject(m_part), SIGNAL(openUrlNotify()), SLOT(urlAboutToChange()));
+ 
+         const KConfigGroup config = KGlobal::config()->group("general");
+         m_combo->setHistoryItems(config.readPathEntry("comboHistory", QStringList()));
+-        applyMainWindowSettings(config, "window");
+     } else {
+         KMessageBox::error(this, i18n("Unable to create part widget."));
+         std::exit(1);
+     }
++
++    setAutoSaveSettings(QLatin1String( "window" ));
+ }
+ 
+ inline void MainWindow::setupActions() //singleton function
+@@ -106,7 +101,7 @@
+     m_combo->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed));
+     m_combo->setDuplicatesEnabled(false);
+ 
+-    KStandardAction::open(this, SLOT(slotScanDirectory()), ac);
++    KStandardAction::open(this, SLOT(slotScanFolder()), ac);
+     KStandardAction::quit(this, SLOT(close()), ac);
+     KStandardAction::up(this, SLOT(slotUp()), ac);
+     KStandardAction::configureToolbars(this, SLOT(configToolbars()), ac);
+@@ -114,38 +109,37 @@
+ 
+     KAction* action;
+ 
+-    action = ac->addAction("scan_home", this, SLOT(slotScanHomeDirectory()));
+-    action->setText(i18n("Scan &Home Directory"));
+-    action->setIcon(KIcon("user-home"));
++    action = ac->addAction(QLatin1String( "scan_home" ), this, SLOT(slotScanHomeFolder()));
++    action->setText(i18n("Scan &Home Folder"));
++    action->setIcon(KIcon(QLatin1String( "user-home" )));
+     action->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Home));
+ 
+-    action = ac->addAction("scan_root", this, SLOT(slotScanRootDirectory()));
+-    action->setText(i18n("Scan &Root Directory"));
+-    action->setIcon(KIcon("folder-red"));
++    action = ac->addAction(QLatin1String( "scan_root" ), this, SLOT(slotScanRootFolder()));
++    action->setText(i18n("Scan &Root Folder"));
++    action->setIcon(KIcon(QLatin1String( "folder-red" )));
+ 
+-    action = ac->addAction("scan_rescan", m_part, SLOT(rescan()));
++    action = ac->addAction(QLatin1String( "scan_rescan" ), m_part, SLOT(rescan()));
+     action->setText(i18n("Rescan"));
+-    action->setIcon(KIcon("view-refresh"));
++    action->setIcon(KIcon(QLatin1String( "view-refresh" )));
+     action->setShortcut(KStandardShortcut::reload());
+ 
+ 
+-    action = ac->addAction("scan_stop", this, SLOT(slotAbortScan()));
++    action = ac->addAction(QLatin1String( "scan_stop" ), this, SLOT(slotAbortScan()));
+     action->setText(i18n("Stop"));
+-    action->setIcon(KIcon("process-stop"));
++    action->setIcon(KIcon(QLatin1String( "process-stop" )));
+     action->setShortcut(Qt::Key_Escape);
+ 
+-    //new KAction(i18n("Go"), "key_enter", 0, m_combo, SIGNAL(returnPressed()), ac, "go");
+-    action = ac->addAction("go", m_combo, SIGNAL(returnPressed()));
++    action = ac->addAction(QLatin1String( "go" ), m_combo, SIGNAL(returnPressed()));
+     action->setText(i18n("Go"));
+-    action->setIcon(KIcon("go-jump-locationbar"));
++    action->setIcon(KIcon(QLatin1String( "go-jump-locationbar" )));
+ 
+-    action = ac->addAction("location_bar", 0, 0);
++    action = ac->addAction(QLatin1String( "location_bar" ), 0, 0);
+     action->setText(i18n("Location Bar"));
+     action->setDefaultWidget(m_combo);
+ 
+-    action = ac->addAction("scan_directory", this, SLOT(slotScanDirectory()));
+-    action->setText(i18n("Scan Directory"));
+-    action->setIcon(KIcon("folder"));
++    action = ac->addAction(QLatin1String( "scan_folder" ), this, SLOT(slotScanFolder()));
++    action->setText(i18n("Scan Folder"));
++    action->setIcon(KIcon(QLatin1String( "folder" )));
+ 
+     m_recentScans = new KRecentFilesAction(i18n("&Recent Scans"), ac);
+     m_recentScans->setMaxItems(8);
+@@ -166,7 +160,6 @@
+ 
+     KConfigGroup config = KGlobal::config()->group("general");
+ 
+-    saveMainWindowSettings(KGlobal::config()->group("window"));
+     m_recentScans->saveEntries(config);
+     config.writePathEntry("comboHistory", m_combo->historyItems());
+     config.sync();
+@@ -190,16 +183,16 @@
+     KShortcutsDialog::configure(actionCollection(), KShortcutsEditor::LetterShortcutsAllowed, this, true);
+ }
+ 
+-inline void MainWindow::slotScanDirectory()
++inline void MainWindow::slotScanFolder()
+ {
+-    slotScanUrl(KFileDialog::getExistingDirectoryUrl(m_part->url(), this, QString("Select directory to scan...")));
++    slotScanUrl(KFileDialog::getExistingDirectoryUrl(m_part->url(), this, i18n("Select Folder to Scan")));
+ }
+ 
+-inline void MainWindow::slotScanHomeDirectory() {
+-    slotScanPath(qgetenv("HOME"));
++inline void MainWindow::slotScanHomeFolder() {
++    slotScanPath(QDir::homePath());
+ }
+-inline void MainWindow::slotScanRootDirectory() {
+-    slotScanPath("/");
++inline void MainWindow::slotScanRootFolder() {
++    slotScanPath(QDir::rootPath());
+ }
+ inline void MainWindow::slotUp()                {
+     slotScanUrl(m_part->url().upUrl());
+@@ -209,20 +202,20 @@
+ {
+     QString path = m_combo->lineEdit()->text();
+ 
+-    if (path[0] != '/')
+-        path = "~/" + path;
+-    //HACK: is this a safe assumption?
+-    // Rather find out how to make KHistoryComboBox
+-    // autocomplete only absolute paths.
++    KUrl url = KUrl(path);
++
++    if (url.isRelative())
++        path = QLatin1String( "~/" ) + path; // KUrlCompletion completes relative to ~, not CWD
+ 
+     path = KShell::tildeExpand(path);
++
+     if (slotScanPath(path))
+         m_combo->addToHistory(path);
+ }
+ 
+ inline bool MainWindow::slotScanPath(const QString &path)
+ {
+-    return slotScanUrl(KUrl::KUrl(path));
++    return slotScanUrl(KUrl(path));
+ }
+ 
+ bool MainWindow::slotScanUrl(const KUrl &url)
+@@ -240,18 +233,18 @@
+ 
+ inline void MainWindow::slotAbortScan()
+ {
+-    if (m_part->closeURL()) action("scan_stop")->setEnabled(false);
++    if (m_part->closeUrl()) action("scan_stop")->setEnabled(false);
+ }
+ 
+ inline void MainWindow::scanStarted()
+ {
+-    stateChanged("scan_started");
++    stateChanged(QLatin1String( "scan_started" ));
+     m_combo->clearFocus();
+ }
+ 
+ inline void MainWindow::scanFailed()
+ {
+-    stateChanged("scan_failed");
++    stateChanged(QLatin1String( "scan_failed" ));
+     setActionMenuTextOnly(qobject_cast<KAction *>(action("go_up")), QString());
+     m_combo->lineEdit()->clear();
+ }
+@@ -261,11 +254,11 @@
+     KAction *goUp  = qobject_cast<KAction *>(action("go_up"));
+     const KUrl url = m_part->url();
+ 
+-    stateChanged("scan_complete");
++    stateChanged(QLatin1String( "scan_complete" ));
+ 
+     m_combo->lineEdit()->setText(m_part->prettyUrl());
+ 
+-    if (url.path(KUrl::LeaveTrailingSlash) == "/") {
++    if (url.path(KUrl::LeaveTrailingSlash) == QLatin1String( "/" )) {
+         goUp->setEnabled(false);
+         setActionMenuTextOnly(goUp, QString());
+     }
+diff -Naur '--exclude=.svn' /home/memre/workspace/packages/source/filelight-1.9rc3/src/app/mainWindow.h filelight/src/app/mainWindow.h
+--- /home/memre/workspace/packages/source/filelight-1.9rc3/src/app/mainWindow.h	2009-02-12 22:56:28.000000000 +0200
++++ filelight/src/app/mainWindow.h	2010-09-22 10:13:28.665000024 +0300
+@@ -26,10 +26,8 @@
+ 
+ class KSqueezedTextLabel;
+ class KHistoryComboBox;
+-class KAction;
+ class KRecentFilesAction;
+ 
+-class ScanProgressBox;
+ class HistoryCollection;
+ 
+ 
+@@ -51,9 +49,9 @@
+ private slots:
+     void slotUp();
+     void slotComboScan();
+-    void slotScanDirectory();
+-    void slotScanHomeDirectory();
+-    void slotScanRootDirectory();
++    void slotScanFolder();
++    void slotScanHomeFolder();
++    void slotScanRootFolder();
+     bool slotScanUrl(const KUrl&);
+     bool slotScanPath(const QString&);
+     void slotAbortScan();
+diff -Naur '--exclude=.svn' /home/memre/workspace/packages/source/filelight-1.9rc3/src/define.h filelight/src/define.h
+--- /home/memre/workspace/packages/source/filelight-1.9rc3/src/define.h	2009-10-10 14:44:10.000000000 +0300
++++ filelight/src/define.h	2010-09-22 10:13:29.074000026 +0300
+@@ -30,7 +30,7 @@
+ #undef PRETTYNAME
+ 
+ #define APP_NAME "filelight"
+-#define APP_VERSION "1.9rc3"
++#define APP_VERSION "1.9"
+ #define APP_PRETTYNAME "Filelight"
+ 
+ #endif
+diff -Naur '--exclude=.svn' /home/memre/workspace/packages/source/filelight-1.9rc3/src/part/CMakeLists.txt filelight/src/part/CMakeLists.txt
+--- /home/memre/workspace/packages/source/filelight-1.9rc3/src/part/CMakeLists.txt	2009-03-29 17:08:12.000000000 +0300
++++ filelight/src/part/CMakeLists.txt	2010-09-22 10:13:29.072000026 +0300
+@@ -43,4 +43,5 @@
+                       ${KDE4_KFILE_LIBS}
+                       ${KDE4_SOLID_LIBS})
+ 
++
+ install(TARGETS filelightpart DESTINATION ${PLUGIN_INSTALL_DIR})
+diff -Naur '--exclude=.svn' /home/memre/workspace/packages/source/filelight-1.9rc3/src/part/Config.cpp filelight/src/part/Config.cpp
+--- /home/memre/workspace/packages/source/filelight-1.9rc3/src/part/Config.cpp	2009-02-20 19:42:05.000000000 +0200
++++ filelight/src/part/Config.cpp	2010-09-22 10:13:29.068000026 +0300
+@@ -19,7 +19,6 @@
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ ***********************************************************************/
+ 
+-
+ #include "Config.h"
+ 
+ #include <KConfig>
+@@ -28,7 +27,6 @@
+ #include <KSharedConfig>
+ #include <KSharedPtr>
+ 
+-
+ bool Config::scanAcrossMounts;
+ bool Config::scanRemoteMounts;
+ bool Config::scanRemovableMedia;
+diff -Naur '--exclude=.svn' /home/memre/workspace/packages/source/filelight-1.9rc3/src/part/Config.h filelight/src/part/Config.h
+--- /home/memre/workspace/packages/source/filelight-1.9rc3/src/part/Config.h	2009-02-20 19:42:05.000000000 +0200
++++ filelight/src/part/Config.h	2010-09-22 10:13:29.069000026 +0300
+@@ -22,14 +22,13 @@
+ #ifndef Config_H
+ #define Config_H
+ 
+-#include <QStringList>
++#include <QtCore/QStringList>
+ 
+ class KConfig;
+ 
+-
+ namespace Filelight
+ {
+-enum MapScheme { Rainbow, HighContrast, KDE, FileDensity, ModTime };
++enum MapScheme { Rainbow, KDE, HighContrast, FileDensity, ModTime };
+ 
+ class Config
+ {
+diff -Naur '--exclude=.svn' /home/memre/workspace/packages/source/filelight-1.9rc3/src/part/dialog.ui filelight/src/part/dialog.ui
+--- /home/memre/workspace/packages/source/filelight-1.9rc3/src/part/dialog.ui	2009-05-30 01:44:37.000000000 +0300
++++ filelight/src/part/dialog.ui	2010-09-22 10:13:29.072000026 +0300
+@@ -1,7 +1,7 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+ <ui version="4.0">
+  <class>Dialog</class>
+- <widget class="KDialog" name="Dialog">
++ <widget class="QWidget" name="Dialog">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+@@ -13,9 +13,12 @@
+   <property name="windowTitle">
+    <string>Settings - Filelight</string>
+   </property>
+-  <layout class="QVBoxLayout">
++  <layout class="QVBoxLayout" name="verticalLayout_3">
++   <property name="margin">
++    <number>0</number>
++   </property>
+    <item>
+-    <widget class="QTabWidget" name="tabWidget">
++    <widget class="KTabWidget" name="tabWidget">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+@@ -42,7 +45,7 @@
+           </sizepolicy>
+          </property>
+          <property name="text">
+-          <string>Do &amp;not scan these directories:</string>
++          <string>Do &amp;not scan these folders:</string>
+          </property>
+          <property name="textFormat">
+           <enum>Qt::PlainText</enum>
+@@ -50,6 +53,9 @@
+          <property name="wordWrap">
+           <bool>false</bool>
+          </property>
++         <property name="buddy">
++          <cstring>m_listBox</cstring>
++         </property>
+         </widget>
+        </item>
+        <item>
+@@ -58,7 +64,7 @@
+        <item>
+         <layout class="QHBoxLayout">
+          <item>
+-          <spacer name="spacer2">
++          <spacer name="m_removeAddSpacer">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+@@ -102,7 +108,7 @@
+         </layout>
+        </item>
+        <item>
+-        <widget class="Line" name="line1">
++        <widget class="Line" name="m_scanningSeparatorLine">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+@@ -126,7 +132,7 @@
+        <item>
+         <layout class="QGridLayout">
+          <item row="1" column="0" rowspan="2">
+-          <spacer name="spacer3">
++          <spacer name="m_excludeCheckBoxSpacer">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+@@ -283,35 +289,35 @@
+         </widget>
+        </item>
+        <item>
+-        <widget class="QCheckBox" name="varyLabelFontSizes">
+-         <property name="enabled">
+-          <bool>true</bool>
+-         </property>
++        <widget class="QCheckBox" name="useAntialiasing">
+          <property name="whatsThis">
+-          <string>The font size of exploded labels can be varied relative to the depth of the directories they represent. This helps you spot the important labels more easily. Set a sensible minimum font size.</string>
++          <string>Anti-aliasing the filemap makes it clearer and prettier, unfortunately it also makes rendering very slow.</string>
+          </property>
+          <property name="text">
+-          <string>Var&amp;y label font sizes</string>
++          <string>&amp;Use anti-aliasing</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+-        <widget class="QCheckBox" name="useAntialiasing">
++        <widget class="QCheckBox" name="showSmallFiles">
+          <property name="whatsThis">
+-          <string>Anti-aliasing the filemap makes it clearer and prettier, unfortunately it also makes rendering very slow.</string>
++          <string>Some files are too small to be rendered on the filemap. Selecting this option makes these files visible by merging them all into a single &quot;multi-segment&quot;.</string>
+          </property>
+          <property name="text">
+-          <string>&amp;Use anti-aliasing</string>
++          <string>Show small files</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+-        <widget class="QCheckBox" name="showSmallFiles">
++        <widget class="QCheckBox" name="varyLabelFontSizes">
++         <property name="enabled">
++          <bool>true</bool>
++         </property>
+          <property name="whatsThis">
+-          <string>Some files are too small to be rendered on the filemap. Selecting this option makes these files visible by merging them all into a single &quot;multi-segment&quot;.</string>
++          <string>The font size of exploded labels can be varied relative to the depth of the directories they represent. This helps you spot the important labels more easily. Set a sensible minimum font size.</string>
+          </property>
+          <property name="text">
+-          <string>Show small files</string>
++          <string>Var&amp;y label font sizes</string>
+          </property>
+         </widget>
+        </item>
+@@ -337,7 +343,7 @@
+           </spacer>
+          </item>
+          <item>
+-          <widget class="QLabel" name="textLabel2">
++          <widget class="QLabel" name="minFontPitchLabel">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
+@@ -390,52 +396,6 @@
+      </widget>
+     </widget>
+    </item>
+-   <item>
+-    <layout class="QHBoxLayout">
+-     <property name="sizeConstraint">
+-      <enum>QLayout::SetFixedSize</enum>
+-     </property>
+-     <item>
+-      <widget class="QPushButton" name="m_resetButton">
+-       <property name="whatsThis">
+-        <string>Reset any changes you have made since you opened this dialog.</string>
+-       </property>
+-       <property name="text">
+-        <string>&amp;Reset</string>
+-       </property>
+-       <property name="autoDefault">
+-        <bool>false</bool>
+-       </property>
+-      </widget>
+-     </item>
+-     <item>
+-      <spacer name="spacer1">
+-       <property name="orientation">
+-        <enum>Qt::Horizontal</enum>
+-       </property>
+-       <property name="sizeType">
+-        <enum>QSizePolicy::Expanding</enum>
+-       </property>
+-       <property name="sizeHint" stdset="0">
+-        <size>
+-         <width>120</width>
+-         <height>30</height>
+-        </size>
+-       </property>
+-      </spacer>
+-     </item>
+-     <item>
+-      <widget class="QPushButton" name="m_closeButton">
+-       <property name="text">
+-        <string>&amp;Close</string>
+-       </property>
+-       <property name="default">
+-        <bool>true</bool>
+-       </property>
+-      </widget>
+-     </item>
+-    </layout>
+-   </item>
+   </layout>
+  </widget>
+  <layoutdefault spacing="6" margin="11"/>
+@@ -446,12 +406,16 @@
+    <header>kbuttongroup.h</header>
+    <container>1</container>
+   </customwidget>
++  <customwidget>
++   <class>KTabWidget</class>
++   <extends>QTabWidget</extends>
++   <header>ktabwidget.h</header>
++   <container>1</container>
++  </customwidget>
+  </customwidgets>
+  <tabstops>
+   <tabstop>tabWidget</tabstop>
+   <tabstop>varyLabelFontSizes</tabstop>
+-  <tabstop>m_resetButton</tabstop>
+-  <tabstop>m_closeButton</tabstop>
+   <tabstop>m_removeButton</tabstop>
+   <tabstop>m_addButton</tabstop>
+   <tabstop>scanAcrossMounts</tabstop>
+@@ -459,54 +423,4 @@
+   <tabstop>dontScanRemovableMedia</tabstop>
+  </tabstops>
+  <resources/>
+- <connections>
+-  <connection>
+-   <sender>scanAcrossMounts</sender>
+-   <signal>toggled(bool)</signal>
+-   <receiver>Dialog</receiver>
+-   <slot>toggleScanAcrossMounts(bool)</slot>
+-   <hints>
+-    <hint type="sourcelabel">
+-     <x>20</x>
+-     <y>20</y>
+-    </hint>
+-    <hint type="destinationlabel">
+-     <x>20</x>
+-     <y>20</y>
+-    </hint>
+-   </hints>
+-  </connection>
+-  <connection>
+-   <sender>dontScanRemoteMounts</sender>
+-   <signal>toggled(bool)</signal>
+-   <receiver>Dialog</receiver>
+-   <slot>toggleDontScanRemoteMounts(bool)</slot>
+-   <hints>
+-    <hint type="sourcelabel">
+-     <x>20</x>
+-     <y>20</y>
+-    </hint>
+-    <hint type="destinationlabel">
+-     <x>20</x>
+-     <y>20</y>
+-    </hint>
+-   </hints>
+-  </connection>
+-  <connection>
+-   <sender>dontScanRemovableMedia</sender>
+-   <signal>toggled(bool)</signal>
+-   <receiver>Dialog</receiver>
+-   <slot>toggleDontScanRemovableMedia(bool)</slot>
+-   <hints>
+-    <hint type="sourcelabel">
+-     <x>20</x>
+-     <y>20</y>
+-    </hint>
+-    <hint type="destinationlabel">
+-     <x>20</x>
+-     <y>20</y>
+-    </hint>
+-   </hints>
+-  </connection>
+- </connections>
+ </ui>
+diff -Naur '--exclude=.svn' /home/memre/workspace/packages/source/filelight-1.9rc3/src/part/fileTree.cpp filelight/src/part/fileTree.cpp
+--- /home/memre/workspace/packages/source/filelight-1.9rc3/src/part/fileTree.cpp	2009-02-02 20:07:44.000000000 +0200
++++ filelight/src/part/fileTree.cpp	2010-09-22 10:13:29.066000026 +0300
+@@ -24,23 +24,20 @@
+ #include <KGlobal>
+ #include <KLocale>
+ 
+-#include <QFile>
+-
+-
+ //static definitions
+ const uint File::DENOMINATOR[4] = { 1<<0, 1<<10, 1<<20, 1<<30 };
+ static const char PREFIX[4]   = { 'K', 'M', 'G', 'T' };
+ 
+ 
+ QString
+-File::fullPath(const Directory *root /*= 0*/) const
++File::fullPath(const Folder *root /*= 0*/) const
+ {
+     QString path;
+ 
+     if (root == this)
+         root = 0; //prevent returning empty string when there is something we could return
+ 
+-    for (const Directory *d = (Directory*)this; d != root && d; d = d->parent())
++    for (const Folder *d = (Folder*)this; d != root && d; d = d->parent())
+         path.prepend(d->name());
+ 
+     return path;
+@@ -55,6 +52,12 @@
+ QString
+ File::humanReadableSize(uint size, UnitPrefix key /*= mega*/) //static
+ {
++    Q_UNUSED( key );
++    // TODO: LocalLister::scan() divides by 1024, to be able to use only 32bit for size
++    // TODO: ensure again three significant figures
++    return KGlobal::locale()->formatByteSize(1024*(quint64)size);
++
++#if 0
+     if (size == 0)
+         return "0 B";
+ 
+@@ -84,4 +87,5 @@
+     }
+ 
+     return s;
++#endif
+ }
+diff -Naur '--exclude=.svn' /home/memre/workspace/packages/source/filelight-1.9rc3/src/part/fileTree.h filelight/src/part/fileTree.h
+--- /home/memre/workspace/packages/source/filelight-1.9rc3/src/part/fileTree.h	2009-02-21 03:13:30.000000000 +0200
++++ filelight/src/part/fileTree.h	2010-09-22 10:13:29.067000026 +0300
+@@ -22,16 +22,13 @@
+ #ifndef FILETREE_H
+ #define FILETREE_H
+ 
+-#include <QByteArray> //qstrdup
+-#include <QFile>    //decodeName()
++#include <QtCore/QByteArray> //qstrdup
++#include <QtCore/QFile> //decodeName()
+ 
+ #include <stdlib.h>
+ 
+-
+ //TODO these are pointlessly general purpose now, make them incredibly specific
+ 
+-
+-
+ typedef unsigned long int FileSize;
+ typedef unsigned long int Dirsize;  //**** currently unused
+ 
+@@ -219,13 +216,13 @@
+ };
+ 
+ 
+-class Directory;
++class Folder;
+ class QString;
+ 
+ class File
+ {
+ public:
+-    friend class Directory;
++    friend class Folder;
+ 
+     enum UnitPrefix { kilo, mega, giga, tera };
+ 
+@@ -237,7 +234,7 @@
+         delete [] m_name;
+     }
+ 
+-    const Directory *parent() const {
++    const Folder *parent() const {
+         return m_parent;
+     }
+     const char *name8Bit() const {
+@@ -250,20 +247,20 @@
+         return QFile::decodeName(m_name);
+     }
+ 
+-    virtual bool isDirectory() const {
++    virtual bool isFolder() const {
+         return false;
+     }
+ 
+-    QString fullPath(const Directory* = 0) const;
++    QString fullPath(const Folder* = 0) const;
+     QString humanReadableSize(UnitPrefix key = mega) const;
+ 
+ public:
+     static QString humanReadableSize(uint size, UnitPrefix Key = mega);
+ 
+ protected:
+-    File(const char *name, FileSize size, Directory *parent) : m_parent(parent), m_name(qstrdup(name)), m_size(size) {}
++    File(const char *name, FileSize size, Folder *parent) : m_parent(parent), m_name(qstrdup(name)), m_size(size) {}
+ 
+-    Directory *m_parent; //0 if this is treeRoot
++    Folder *m_parent; //0 if this is treeRoot
+     char      *m_name;
+     FileSize   m_size;   //in units of KiB
+ 
+@@ -273,20 +270,20 @@
+ };
+ 
+ 
+-class Directory : public Chain<File>, public File
++class Folder : public Chain<File>, public File
+ {
+ public:
+-    Directory(const char *name) : File(name, 0), m_children(0) {} //DON'T pass the full path!
++    Folder(const char *name) : File(name, 0), m_children(0) {} //DON'T pass the full path!
+ 
+     uint children() const {
+         return m_children;
+     }
+-    virtual bool isDirectory() const {
++    virtual bool isFolder() const {
+         return true;
+     }
+ 
+-    ///appends a Directory
+-    void append(Directory *d, const char *name=0)
++    ///appends a Folder
++    void append(Folder *d, const char *name=0)
+     {
+         if (name) {
+             delete [] d->m_name;
+@@ -315,8 +312,8 @@
+     uint m_children;
+ 
+ private:
+-    Directory(const Directory&); //undefined
+-    void operator=(const Directory&); //undefined
++    Folder(const Folder&); //undefined
++    void operator=(const Folder&); //undefined
+ };
+ 
+ #endif
+diff -Naur '--exclude=.svn' /home/memre/workspace/packages/source/filelight-1.9rc3/src/part/localLister.cpp filelight/src/part/localLister.cpp
+--- /home/memre/workspace/packages/source/filelight-1.9rc3/src/part/localLister.cpp	2009-05-30 01:44:37.000000000 +0300
++++ filelight/src/part/localLister.cpp	2010-09-22 10:13:29.070000026 +0300
+@@ -26,11 +26,13 @@
+ #include "scan.h"
+ 
+ #include <KDebug>
+-#include <KMessageBox>
+-
+-#include <QApplication> //postEvent()
+-#include <QFile>
+-#include <QByteArray>
++#include <Solid/StorageVolume>
++#include <Solid/StorageAccess>
++#include <Solid/Device>
++
++#include <QtGui/QApplication> //postEvent()
++#include <QtCore/QFile>
++#include <QtCore/QByteArray>
+ 
+ #include <kde_file.h>
+ #include <dirent.h>
+@@ -48,7 +50,7 @@
+ QStringList LocalLister::s_remoteMounts;
+ QStringList LocalLister::s_localMounts;
+ 
+-LocalLister::LocalLister(const QString &path, Chain<Directory> *cachedTrees, QObject *parent)
++LocalLister::LocalLister(const QString &path, Chain<Folder> *cachedTrees, ScanManager *parent)
+         : QThread()
+         , m_path(path)
+         , m_trees(cachedTrees)
+@@ -64,7 +66,7 @@
+     for (QStringList::ConstIterator it = list.constBegin(); it != list.constEnd(); ++it)
+         if ((*it).startsWith(path))
+             //prevent scanning of these directories
+-            m_trees->append(new Directory((*it).toLocal8Bit()));
++            m_trees->append(new Folder((*it).toUtf8()));
+ }
+ 
+ void
+@@ -72,13 +74,13 @@
+ {
+     //recursively scan the requested path
+     const QByteArray path = QFile::encodeName(m_path);
+-    Directory *tree = scan(path, path);
++    Folder *tree = scan(path, path);
+ 
+     //delete the list of trees useful for this scan,
+     //in a sucessful scan the contents would now be transferred to 'tree'
+     delete m_trees;
+ 
+-    if (ScanManager::s_abort) //scan was cancelled
++    if (m_parent->m_abort) //scan was cancelled
+     {
+         kDebug() << "Scan successfully aborted";
+         delete tree;
+@@ -89,52 +91,8 @@
+     kDebug() << "Thread terminating ...";
+ }
+ 
+-// from system.h in GNU coreutils package
+-/* Extract or fake data from a `struct stat'.
+-ST_BLKSIZE: Preferred I/O blocksize for the file, in bytes.
+-ST_NBLOCKS: Number of blocks in the file, including indirect blocks.
+-ST_NBLOCKSIZE: Size of blocks used when calculating ST_NBLOCKS.  */
+-#ifndef HAVE_STRUCT_STAT_ST_BLOCKS
+-#define ST_BLKSIZE(statbuf) DEV_BSIZE
+-#if defined _POSIX_SOURCE || !defined BSIZE /* fileblocks.c uses BSIZE.  */
+-#define ST_NBLOCKS(statbuf) ((statbuf).st_size / ST_NBLOCKSIZE + ((statbuf).st_size % ST_NBLOCKSIZE != 0))
+-#else /* !_POSIX_SOURCE && BSIZE */
+-#define ST_NBLOCKS(statbuf) (S_ISREG ((statbuf).st_mode) || S_ISDIR ((statbuf).st_mode) ? st_blocks ((statbuf).st_size) : 0)
+-#endif /* !_POSIX_SOURCE && BSIZE */
+-#else /* HAVE_STRUCT_STAT_ST_BLOCKS */
+-/* Some systems, like Sequents, return st_blksize of 0 on pipes.
+-   Also, when running `rsh hpux11-system cat any-file', cat would
+-   determine that the output stream had an st_blksize of 2147421096.
+-   So here we arbitrarily limit the `optimal' block size to 4MB.
+-   If anyone knows of a system for which the legitimate value for
+-   st_blksize can exceed 4MB, please report it as a bug in this code.  */
+-#define ST_BLKSIZE(statbuf) ((0 < (statbuf).st_blksize && (statbuf).st_blksize <= (1 << 22)) /* 4MiB */ ? (statbuf).st_blksize : DEV_BSIZE)
+-#if defined hpux || defined __hpux__ || defined __hpux
+-/* HP-UX counts st_blocks in 1024-byte units.
+-   This loses when mixing HP-UX and BSD filesystems with NFS.  */
+-#define ST_NBLOCKSIZE 1024
+-#else /* !hpux */
+-#if defined _AIX && defined _I386
+-/* AIX PS/2 counts st_blocks in 4K units.  */
+-#define ST_NBLOCKSIZE (4 * 1024)
+-#else /* not AIX PS/2 */
+-#if defined _CRAY
+-#define ST_NBLOCKS(statbuf) (S_ISREG ((statbuf).st_mode) || S_ISDIR ((statbuf).st_mode) ? (statbuf).st_blocks * ST_BLKSIZE(statbuf)/ST_NBLOCKSIZE : 0)
+-#endif /* _CRAY */
+-#endif /* not AIX PS/2 */
+-#endif /* !hpux */
+-#endif /* HAVE_STRUCT_STAT_ST_BLOCKS */
+-
+-#ifndef ST_NBLOCKS
+-#define ST_NBLOCKS(statbuf) ((statbuf).st_blocks)
+-#endif
+-
+-#ifndef ST_NBLOCKSIZE
+-#define ST_NBLOCKSIZE 512
+-#endif
+-
+-#ifndef NULL
+-#define NULL 0
++#ifndef S_BLKSIZE
++#define S_BLKSIZE 512
+ #endif
+ 
+ 
+@@ -158,7 +116,7 @@
+     case ENOMEM:
+         out("Insufficient memory to complete the operation");
+     case ENOTDIR:
+-        out("A component of the path is not a directory");
++        out("A component of the path is not a folder");
+     case EBADF:
+         out("Bad file descriptor");
+     case EFAULT:
+@@ -172,10 +130,10 @@
+ #undef out
+ }
+ 
+-Directory*
++Folder*
+ LocalLister::scan(const QByteArray &path, const QByteArray &dirname)
+ {
+-    Directory *cwd = new Directory(dirname);
++    Folder *cwd = new Folder(dirname);
+     DIR *dir = opendir(path);
+ 
+     if (!dir) {
+@@ -187,7 +145,7 @@
+     dirent *ent;
+     while ((ent = KDE_readdir(dir)))
+     {
+-        if (ScanManager::s_abort)
++        if (m_parent->m_abort)
+             return cwd;
+ 
+         if (qstrcmp(ent->d_name, ".") == 0 || qstrcmp(ent->d_name, "..") == 0)
+@@ -213,24 +171,24 @@
+ 
+         if (S_ISREG(statbuf.st_mode)) //file
+             //using units of KiB as 32bit max is 4GiB and 64bit ints are expensive
+-            cwd->append(ent->d_name, (ST_NBLOCKS(statbuf) * ST_NBLOCKSIZE) / 1024);
++            cwd->append(ent->d_name, (statbuf.st_blocks * S_BLKSIZE) / 1024);
+ 
+-        else if (S_ISDIR(statbuf.st_mode)) //directory
++        else if (S_ISDIR(statbuf.st_mode)) //folder
+         {
+-            Directory *d = 0;
++            Folder *d = 0;
+             QByteArray new_dirname = ent->d_name;
+             new_dirname += '/';
+             new_path    += '/';
+ 
+             //check to see if we've scanned this section already
+ 
+-            for (Iterator<Directory> it = m_trees->iterator(); it != m_trees->end(); ++it)
++            for (Iterator<Folder> it = m_trees->iterator(); it != m_trees->end(); ++it)
+             {
+                 if (new_path == (*it)->name8Bit())
+                 {
+                     kDebug() << "Tree pre-completed: " << (*it)->name();
+                     d = it.remove();
+-                    ScanManager::s_files += d->children();
++                    m_parent->m_files += d->children();
+                     //**** ideally don't have this redundant extra somehow
+                     cwd->append(d, new_dirname);
+                 }
+@@ -241,7 +199,7 @@
+                     cwd->append(d);
+         }
+ 
+-        ++ScanManager::s_files;
++        ++m_parent->m_files;
+     }
+ 
+     closedir(dir);
+@@ -249,105 +207,36 @@
+     return cwd;
+ }
+ 
+-bool
+-LocalLister::readMounts()
++void LocalLister::readMounts()
+ {
+-#define INFO_PARTITIONS "/proc/partitions"
+-#define INFO_MOUNTED_PARTITIONS "/etc/mtab" /* on Linux... */
+-
+-    ////////////
+-    //BIG FAT TODO TODO TODO
+-    // Use Solid for this
+-
+-    //**** SHAMBLES
+-    //  ** mtab should have priority as mount points don't have to follow fstab
+-    //  ** no removable media detection
+-    //  ** no updates if mounts change
+-    //  ** you want a KDE extension that handles this for you really
+-
+-    struct fstab *fstab_ent;
+-#ifdef HAVE_MNTENT_H
+-    struct mntent *mnt_ent;
+-#endif
+-    QString str;
+-
+-
+-#ifdef HAVE_MNTENT_H
+-    FILE *fp;
+-    if (setfsent() == 0 || !(fp = setmntent(INFO_MOUNTED_PARTITIONS, "r")))
+-#else
+-    if (setfsent() == 0)
+-#endif
+-        return false;
+-
+-#define FS_NAME   fstab_ent->fs_spec    // device-name
+-#define FS_FILE   fstab_ent->fs_file    // mount-point
+-#define FS_TYPE   fstab_ent->fs_vfstype // fs-type
+-#define FS_MNTOPS fstab_ent->fs_mntops  // mount-options
+-
++    const Solid::StorageAccess *partition;
++    const Solid::StorageVolume *volume;
+     QStringList remoteFsTypes;
+-    remoteFsTypes << "smbfs" ;
+-#ifdef MNTTYPE_NFS
+-    remoteFsTypes << MNTTYPE_NFS;
+-#else
+-    remoteFsTypes << "nfs";
+-#endif
+-    // What about afs?
+-
+-    while ((fstab_ent = getfsent()) != NULL)
+-    {
+-        str = QString(FS_FILE);
+-        if (str == "/") continue;
+-        str += '/';
+-
+-        if (remoteFsTypes.contains(FS_TYPE))
+-            s_remoteMounts.append(str); //**** NO! can't be sure won't have trailing slash, need to do a check first dummy!!
++    remoteFsTypes << QLatin1String( "smbfs" ) << QLatin1String( "nfs" ) << QLatin1String( "afs" ); //TODO: expand
+ 
+-        else
+-            s_localMounts.append(str); //**** NO! can't be sure won't have trailing slash, need to do a check first dummy!!
+-
+-        kDebug() << "FSTAB: " << FS_TYPE << "\n";
+-    }
+-
+-    endfsent();  /* close fstab.. */
+-
+-#undef  FS_NAME
+-#undef  FS_FILE
+-#undef  FS_TYPE
+-#undef  FS_MNTOPS
+-
+-#define FS_NAME   mnt_ent->mnt_fsname // device-name
+-#define FS_FILE   mnt_ent->mnt_dir    // mount-point
+-#define FS_TYPE   mnt_ent->mnt_type	  // fs-type
+-#define FS_MNTOPS mnt_ent->mnt_opts   // mount-options
+-
+-    //scan mtab, **** mtab should take priority, but currently it isn't
+-
+-#ifdef HAVE_MNTENT_H
+-    while ((mnt_ent = getmntent(fp)) != NULL)
+-    {
+-        bool b = false;
+-
+-        str = QString(FS_FILE);
+-        if (str == "/") continue;
+-        str += '/';
+-
+-        if (remoteFsTypes.contains(FS_TYPE))
+-            if (b = !s_remoteMounts.contains(str))
+-                s_remoteMounts.append(str); //**** NO! can't be sure won't have trailing slash, need to do a check first dummy!!
+-
+-            else if (b = !s_localMounts.contains(str))
+-                s_localMounts.append(str); //**** NO! can't be sure won't have trailing slash, need to do a check first dummy!!
+-
+-        if (b) kDebug() << "MTAB: " << FS_TYPE << "\n";
++    foreach (const Solid::Device &device, Solid::Device::listFromType(Solid::DeviceInterface::StorageAccess))
++    { // Iterate over all the partitions available.
++        if (!device.is<Solid::StorageAccess>()) continue; // It happens.
++        if (!device.is<Solid::StorageVolume>()) continue;
++
++        partition = device.as<Solid::StorageAccess>();
++        if (!partition->isAccessible() || partition->filePath() == QLatin1String( "/" ) || partition->filePath().isEmpty()) continue;
++
++        volume = device.as<Solid::StorageVolume>();
++        if (remoteFsTypes.contains(volume->fsType())) {
++                if (!s_remoteMounts.contains(partition->filePath())) {
++                    s_remoteMounts.append(partition->filePath());
++                }
++        } else if (!s_localMounts.contains(partition->filePath())) {
++            s_localMounts.append(partition->filePath());
++        }
+     }
+ 
+-    endmntent(fp); /* Close mtab. */
+-#endif
+-
+-
+-    return true;
+-}
++    kDebug() << "Found the following remote filesystems: " << s_remoteMounts;
++    kDebug() << "Found the following local filesystems: " << s_localMounts;
+ }
+ 
++}//namespace Filelight
++
+ #include "localLister.moc"
++
+diff -Naur '--exclude=.svn' /home/memre/workspace/packages/source/filelight-1.9rc3/src/part/localLister.h filelight/src/part/localLister.h
+--- /home/memre/workspace/packages/source/filelight-1.9rc3/src/part/localLister.h	2009-02-21 03:13:30.000000000 +0200
++++ filelight/src/part/localLister.h	2010-09-22 10:13:29.071000026 +0300
+@@ -22,34 +22,36 @@
+ #ifndef LOCALLISTER_H
+ #define LOCALLISTER_H
+ 
+-#include <QThread>
+-#include <QByteArray>
++#include <QtCore/QByteArray>
++#include <QtCore/QThread>
+ 
+-class Directory;
++class Folder;
+ template<class T> class Chain;
+ 
+ namespace Filelight
+ {
++class ScanManager;
++
+ class LocalLister : public QThread
+ {
+     Q_OBJECT
+ 
+ public:
+-    LocalLister(const QString &path, Chain<Directory> *cachedTrees, QObject *parent);
++    LocalLister(const QString &path, Chain<Folder> *cachedTrees, ScanManager *parent);
+ 
+-    static bool readMounts();
++    static void readMounts();
+ 
+ signals:
+-    void branchCompleted(Directory* tree, bool finished);
++    void branchCompleted(Folder* tree, bool finished);
+ 
+ private:
+     QString m_path;
+-    Chain<Directory> *m_trees;
+-    QObject *m_parent;
++    Chain<Folder> *m_trees;
++    ScanManager *m_parent;
+ 
+ private:
+     virtual void run();
+-    Directory *scan(const QByteArray&, const QByteArray&);
++    Folder *scan(const QByteArray&, const QByteArray&);
+ 
+ private:
+     static QStringList s_localMounts, s_remoteMounts; //TODO namespace
+diff -Naur '--exclude=.svn' /home/memre/workspace/packages/source/filelight-1.9rc3/src/part/part.cpp filelight/src/part/part.cpp
+--- /home/memre/workspace/packages/source/filelight-1.9rc3/src/part/part.cpp	2009-04-29 17:31:57.000000000 +0300
++++ filelight/src/part/part.cpp	2010-09-22 10:13:29.068000026 +0300
+@@ -35,16 +35,13 @@
+ #include <KActionCollection>
+ #include <KLocale>
+ #include <KMessageBox>  //::start()
+-#include <KParts/BrowserExtension>
+-#include <KParts/GenericFactory>
+-#include <KStatusBar>
+ #include <KStandardAction>
++#include <KStatusBar>
++#include <KParts/GenericFactory>
+ 
+-#include <QFile>        //encodeName()
+-#include <QTimer>       //postInit() hack
+-#include <Q3VBox>
+-#include <QByteArray>
+-#include <QPixmap>
++#include <QtCore/QFile>        //encodeName()
++#include <QtCore/QTimer>       //postInit() hack
++#include <QtCore/QByteArray>
+ 
+ #include <unistd.h>       //access()
+ #include <iostream>
+@@ -52,7 +49,20 @@
+ namespace Filelight {
+ 
+ K_PLUGIN_FACTORY(filelightPartFactory, registerPlugin<Part>();)  // produce a factory
+-K_EXPORT_PLUGIN(filelightPartFactory("filelightpart"))
++K_EXPORT_PLUGIN(filelightPartFactory(KAboutData(
++               "filelightpart",
++               0,
++               ki18n("Filelight"),
++               APP_VERSION,
++               ki18n("Displays file usage in an easy to understand way."),
++               KAboutData::License_GPL,
++               ki18n("(c) 2002-2004 Max Howell\n\
++                (c) 2008-2009 Martin T. Sandsmark"),
++               KLocalizedString(),
++               "http://iskrembilen.com/",
++               "sandsmark@iskrembilen.com").
++               setProgramIconName(QLatin1String( "filelight" )).
++               setCatalogName( "filelight" )))
+ 
+ BrowserExtension::BrowserExtension(Part *parent)
+         : KParts::BrowserExtension(parent)
+@@ -65,13 +75,11 @@
+         , m_ext(new BrowserExtension(this))
+         , m_statusbar(new StatusBarExtension(this))
+         , m_map(0)
+-        , m_manager(new ScanManager(this))
+         , m_started(false)
+ {
+     Config::read();
+-    KGlobal::locale()->insertCatalog("filelight");
+     setComponentData(filelightPartFactory::componentData());
+-    setXMLFile("filelight_partui.rc");
++    setXMLFile(QLatin1String( "filelightpartui.rc" ));
+ 
+     setWidget(new QWidget(parentWidget));
+     widget()->setBackgroundRole(QPalette::Base);
+@@ -80,10 +88,12 @@
+     m_layout = new QGridLayout(widget());
+     widget()->setLayout(m_layout);
+ 
++    m_manager = new ScanManager(widget());
++
+     m_map = new RadialMap::Widget(widget());
+     m_layout->addWidget(m_map);
+ 
+-    m_stateWidget = new ProgressBox(statusBar(), this);
++    m_stateWidget = new ProgressBox(statusBar(), this, m_manager);
+     m_layout->addWidget(m_stateWidget);
+     m_stateWidget->hide();
+ 
+@@ -94,15 +104,15 @@
+     KStandardAction::zoomOut(m_map, SLOT(zoomOut()), actionCollection());
+     KStandardAction::preferences(this, SLOT(configFilelight()), actionCollection());
+ 
+-    connect(m_map, SIGNAL(created(const Directory*)), SIGNAL(completed()));
+-    connect(m_map, SIGNAL(created(const Directory*)), SLOT(mapChanged(const Directory*)));
++    connect(m_map, SIGNAL(created(const Folder*)), SIGNAL(completed()));
++    connect(m_map, SIGNAL(created(const Folder*)), SLOT(mapChanged(const Folder*)));
+     connect(m_map, SIGNAL(activated(const KUrl&)), SLOT(updateURL(const KUrl&)));
+ 
+     // TODO make better system
+     connect(m_map, SIGNAL(giveMeTreeFor(const KUrl&)), SLOT(updateURL(const KUrl&)));
+     connect(m_map, SIGNAL(giveMeTreeFor(const KUrl&)), SLOT(openUrl(const KUrl&)));
+ 
+-    connect(m_manager, SIGNAL(completed(Directory*)), SLOT(scanCompleted(Directory*)));
++    connect(m_manager, SIGNAL(completed(Folder*)), SLOT(scanCompleted(Folder*)));
+     connect(m_manager, SIGNAL(aboutToEmptyCache()), m_map, SLOT(invalidate()));
+ 
+     QTimer::singleShot(0, this, SLOT(postInit()));
+@@ -113,16 +123,12 @@
+ {
+     if (url().isEmpty()) //if url is not empty openUrl() has been called immediately after ctor, which happens
+     {
+-        m_summary = new SummaryWidget(widget());
+-        m_summary->setObjectName("summaryWidget");
+-        connect(m_summary, SIGNAL(activated(const KUrl&)), SLOT(openUrl(const KUrl&)));
+         m_map->hide();
+-        m_summary->show();
+-        m_layout->addWidget(m_summary);
++        showSummary();
+ 
+         //FIXME KXMLGUI is b0rked, it should allow us to set this
+         //BEFORE createGUI is called but it doesn't
+-        stateChanged("scan_failed");
++        stateChanged(QLatin1String( "scan_failed" ));
+     }
+ }
+ 
+@@ -140,7 +146,7 @@
+     uri.cleanPath(KUrl::SimplifyDirSeparators);
+     const QString path = uri.path(KUrl::AddTrailingSlash);
+     const QByteArray path8bit = QFile::encodeName(path);
+-    const bool isLocal = uri.protocol() == "file";
++    const bool isLocal = uri.protocol() == QLatin1String( "file" );
+ 
+     if (uri.isEmpty())
+     {
+@@ -150,13 +156,13 @@
+     {
+         KMSG(i18n("The entered URL cannot be parsed; it is invalid."));
+     }
+-    else if (path[0] != '/')
++    else if (path[0] != QLatin1Char( '/' ))
+     {
+         KMSG(i18n("Filelight only accepts absolute paths, eg. /%1", path));
+     }
+     else if (isLocal && access(path8bit, F_OK) != 0) //stat(path, &statbuf) == 0
+     {
+-        KMSG(i18n("Directory not found: %1", path));
++        KMSG(i18n("Folder not found: %1", path));
+     }
+     else if (isLocal && access(path8bit, R_OK | X_OK) != 0)
+     {
+@@ -178,7 +184,7 @@
+ }
+ 
+ bool
+-Part::closeURL()
++Part::closeUrl()
+ {
+     if (m_manager->abort())
+         statusBar()->showMessage(i18n("Aborting Scan..."));
+@@ -186,11 +192,9 @@
+     m_map->hide();
+     m_stateWidget->hide();
+ 
+-    m_summary->show();
+-
+-    setUrl(KUrl());
++    showSummary();
+ 
+-    return true;
++    return ReadOnlyPart::closeUrl();
+ }
+ 
+ void
+@@ -200,6 +204,8 @@
+     emit m_ext->openUrlNotify(); //must be done first
+     emit m_ext->setLocationBarUrl(u.prettyUrl());
+ 
++    if (m_manager->running())
++        m_manager->abort();
+ 
+     if (u == url())
+         m_manager->emptyCache(); //same as rescan()
+@@ -219,39 +225,25 @@
+     dialog->show(); //deletes itself
+ }
+ 
+-KAboutData*
+-Part::createAboutData()
+-{
+-    return new KAboutData(
+-               "filelight",
+-               0,
+-               ki18n("Filelight"),
+-               APP_VERSION,
+-               ki18n("Displays file usage in an easy to understand way."),
+-               KAboutData::License_GPL,
+-               ki18n("(c) 2002-2004 Max Howell\n\
+-			    (c) 2008-2009 Martin T. Sandsmark"),
+-               ki18n("Please report bugs."),
+-               "http://iskrembilen.com/",
+-               "sandsmark@iskrembilen.com");
+-}
+-
+ bool
+ Part::start(const KUrl &url)
+ {
+     if (!m_started) {
+         connect(m_map, SIGNAL(mouseHover(const QString&)), statusBar(), SLOT(message(const QString&)));
+-        connect(m_map, SIGNAL(created(const Directory*)), statusBar(), SLOT(clear()));
++        connect(m_map, SIGNAL(created(const Folder*)), statusBar(), SLOT(clear()));
+         m_started = true;
+     }
+ 
+-    m_numberOfFiles->setText("");
++    if (m_manager->running())
++        m_manager->abort();
++
++    m_numberOfFiles->setText(QString());
+ 
+     if (m_manager->start(url)) {
+         setUrl(url);
+ 
+         const QString s = i18n("Scanning: %1", prettyUrl());
+-        stateChanged("scan_started");
++        stateChanged(QLatin1String( "scan_started" ));
+         emit started(0); //as a Part, we have to do this
+         emit setWindowCaption(s);
+         statusBar()->showMessage(s);
+@@ -268,6 +260,13 @@
+ void
+ Part::rescan()
+ {
++    if (m_summary && !m_summary->isHidden()) {
++        delete m_summary;
++        m_summary = 0;
++        showSummary();
++        return;
++    }
++
+     //FIXME we have to empty the cache because otherwise rescan picks up the old tree..
+     m_manager->emptyCache(); //causes canvas to invalidate
+     m_map->hide();
+@@ -276,7 +275,7 @@
+ }
+ 
+ void
+-Part::scanCompleted(Directory *tree)
++Part::scanCompleted(Folder *tree)
+ {
+     if (tree) {
+         statusBar()->showMessage(i18n("Scan completed, generating map..."));
+@@ -285,10 +284,10 @@
+         m_map->show();
+         m_map->create(tree);
+ 
+-        stateChanged("scan_complete");
++        stateChanged(QLatin1String( "scan_complete" ));
+     }
+     else {
+-        stateChanged("scan_failed");
++        stateChanged(QLatin1String( "scan_failed" ));
+         emit canceled(i18n("Scan failed: %1", prettyUrl()));
+         emit setWindowCaption(QString());
+ 
+@@ -299,14 +298,31 @@
+ }
+ 
+ void
+-Part::mapChanged(const Directory *tree)
++Part::mapChanged(const Folder *tree)
+ {
+     //IMPORTANT -> url() has already been set
+ 
+     emit setWindowCaption(prettyUrl());
+ 
+-    m_numberOfFiles->setText(QString::number(tree->children()) + " files");
++    const int fileCount = tree->children();
++    const QString text = ( fileCount == 0 ) ?
++        i18n("No files.") :
++        i18np("1 file", "%1 files",fileCount);
+ 
++    m_numberOfFiles->setText(text);
++}
++
++void
++Part::showSummary()
++{
++    if (m_summary == 0) {
++        m_summary = new SummaryWidget(widget());
++        m_summary->setObjectName(QLatin1String( "summaryWidget" ));
++        connect(m_summary, SIGNAL(activated(const KUrl&)), SLOT(openUrl(const KUrl&)));
++        m_summary->show();
++        m_layout->addWidget(m_summary);
++    }
++    else m_summary->show();
+ }
+ 
+ } //namespace Filelight
+diff -Naur '--exclude=.svn' /home/memre/workspace/packages/source/filelight-1.9rc3/src/part/part.h filelight/src/part/part.h
+--- /home/memre/workspace/packages/source/filelight-1.9rc3/src/part/part.h	2009-04-29 17:31:57.000000000 +0300
++++ filelight/src/part/part.h	2010-09-22 10:13:29.069000026 +0300
+@@ -27,14 +27,14 @@
+ #include <KParts/Part>
+ #include <KUrl>
+ 
+-#include <QLabel>
++#include <QtGui/QLabel>
+ 
+ class KAboutData;
+ using KParts::StatusBarExtension;
+ namespace RadialMap {
+ class Widget;
+ }
+-class Directory;
++class Folder;
+ 
+ 
+ namespace Filelight
+@@ -58,14 +58,12 @@
+     virtual bool openFile() {
+         return false;    //pure virtual in base class
+     }
+-    virtual bool closeURL();
++    virtual bool closeUrl();
+ 
+     QString prettyUrl() const {
+-        return url().protocol() == "file" ? url().path() : url().prettyUrl();
++        return url().protocol() == QLatin1String( "file" ) ? url().path() : url().prettyUrl();
+     }
+ 
+-    static KAboutData *createAboutData();
+-
+ public slots:
+     virtual bool openUrl(const KUrl&);
+     void configFilelight();
+@@ -73,13 +71,14 @@
+ 
+ private slots:
+     void postInit();
+-    void scanCompleted(Directory*);
+-    void mapChanged(const Directory*);
++    void scanCompleted(Folder*);
++    void mapChanged(const Folder*);
+ 
+ private:
+     KStatusBar *statusBar() {
+         return m_statusbar->statusBar();
+     }
++    void showSummary();
+ 
+     QLayout            *m_layout;
+     QWidget            *m_summary;
+diff -Naur '--exclude=.svn' /home/memre/workspace/packages/source/filelight-1.9rc3/src/part/progressBox.cpp filelight/src/part/progressBox.cpp
+--- /home/memre/workspace/packages/source/filelight-1.9rc3/src/part/progressBox.cpp	2009-02-12 22:56:28.000000000 +0200
++++ filelight/src/part/progressBox.cpp	2010-09-22 10:13:29.070000026 +0300
+@@ -28,15 +28,16 @@
+ #include <KIO/Job>
+ #include <KLocale>
+ 
+-#include <QLabel>
++#include <QtGui/QLabel>
+ 
+ 
+-ProgressBox::ProgressBox(QWidget *parent, QObject *part)
++ProgressBox::ProgressBox(QWidget *parent, QObject *part, Filelight::ScanManager *m)
+         : QLabel(parent)
++        , m_manager(m)
+ {
+     hide();
+ 
+-    setObjectName("ProgressBox");
++    setObjectName(QLatin1String( "ProgressBox" ));
+ 
+     setAlignment(Qt::AlignCenter);
+     setFont(KGlobalSettings::fixedFont());
+@@ -62,7 +63,7 @@
+ void
+ ProgressBox::report() //slot
+ {
+-    setText(Filelight::ScanManager::files());
++    setText(m_manager->files());
+ }
+ 
+ void
+diff -Naur '--exclude=.svn' /home/memre/workspace/packages/source/filelight-1.9rc3/src/part/progressBox.h filelight/src/part/progressBox.h
+--- /home/memre/workspace/packages/source/filelight-1.9rc3/src/part/progressBox.h	2009-02-02 20:07:44.000000000 +0200
++++ filelight/src/part/progressBox.h	2010-09-22 10:13:29.071000026 +0300
+@@ -22,20 +22,19 @@
+ #ifndef PROGRESSBOX_H
+ #define PROGRESSBOX_H
+ 
+-#include <QLabel>
+-#include <QTimer>
++#include <QtGui/QLabel>
++#include <QtCore/QTimer>
+ 
+-namespace KIO {
+-class Job;
++namespace Filelight {
++class ScanManager;
+ }
+ 
+-
+ class ProgressBox : public QLabel
+ {
+     Q_OBJECT
+ 
+ public:
+-    ProgressBox(QWidget*, QObject*);
++    ProgressBox(QWidget*, QObject*, Filelight::ScanManager*);
+ 
+     void setText(int);
+ 
+@@ -47,6 +46,7 @@
+ 
+ private:
+     QTimer m_timer;
++    Filelight::ScanManager* m_manager;
+ };
+ 
+ #endif
+diff -Naur '--exclude=.svn' /home/memre/workspace/packages/source/filelight-1.9rc3/src/part/radialMap/builder.cpp filelight/src/part/radialMap/builder.cpp
+--- /home/memre/workspace/packages/source/filelight-1.9rc3/src/part/radialMap/builder.cpp	2009-03-09 20:48:48.000000000 +0200
++++ filelight/src/part/radialMap/builder.cpp	2010-09-22 10:13:28.934000026 +0300
+@@ -20,18 +20,20 @@
+ ***********************************************************************/
+ 
+ #include "builder.h"
+-#include "part/Config.h"
+-#include "part/fileTree.h"
+-#include <kglobal.h> //locale object
+-#include <klocale.h>
++
+ #include "widget.h"
++#include <part/Config.h>
++#include <part/fileTree.h>
++
++#include <KGlobal> //locale object
++#include <KLocale>
+ 
+ 
+ //**** REMOVE NEED FOR the +1 with MAX_RING_DEPTH uses
+ //**** add some angle bounds checking (possibly in Segment ctor? can I delete in a ctor?)
+ //**** this class is a mess
+ 
+-RadialMap::Builder::Builder(RadialMap::Map *m, const Directory* const d, bool fast)
++RadialMap::Builder::Builder(RadialMap::Map *m, const Folder* const d, bool fast)
+         : m_map(m)
+         , m_root(d)
+         , m_minSize(static_cast<unsigned int>((d->size() * 3) / (PI * m->height() - m->MAP_2MARGIN)))
+@@ -56,7 +58,7 @@
+ 
+ 
+ void
+-RadialMap::Builder::findVisibleDepth(const Directory* const dir, const unsigned int depth)
++RadialMap::Builder::findVisibleDepth(const Folder* const dir, const unsigned int depth)
+ {
+     //**** because I don't use the same minimumSize criteria as in the visual function
+     //     this can lead to incorrect visual representation
+@@ -79,8 +81,8 @@
+     if (*m_depth >= stopDepth) return;
+ 
+     for (ConstIterator<File> it = dir->constIterator(); it != dir->end(); ++it)
+-        if ((*it)->isDirectory() && (*it)->size() > m_minSize)
+-            findVisibleDepth((Directory *)*it, depth + 1); //if no files greater than min size the depth is still recorded
++        if ((*it)->isFolder() && (*it)->size() > m_minSize)
++            findVisibleDepth((Folder *)*it, depth + 1); //if no files greater than min size the depth is still recorded
+ }
+ 
+ void
+@@ -98,7 +100,7 @@
+ 
+ //**** segments currently overlap at edges (i.e. end of first is start of next)
+ bool
+-RadialMap::Builder::build(const Directory* const dir, const unsigned int depth, unsigned int a_start, const unsigned int a_end)
++RadialMap::Builder::build(const Folder* const dir, const unsigned int depth, unsigned int a_start, const unsigned int a_end)
+ {
+     //first iteration: dir == m_root
+ 
+@@ -117,12 +119,12 @@
+ 
+             (m_signature + depth)->append(s);
+ 
+-            if ((*it)->isDirectory())
++            if ((*it)->isFolder())
+             {
+                 if (depth != *m_depth)
+                 {
+                     //recurse
+-                    s->m_hasHiddenChildren = build((Directory*)*it, depth + 1, a_start, a_start + a_len);
++                    s->m_hasHiddenChildren = build((Folder*)*it, depth + 1, a_start, a_start + a_len);
+                 }
+                 else s->m_hasHiddenChildren = true;
+             }
+@@ -133,8 +135,8 @@
+ 
+             hiddenSize += (*it)->size();
+ 
+-            if ((*it)->isDirectory()) //**** considered virtual, but dir wouldn't count itself!
+-                hiddenFileCount += static_cast<const Directory*>(*it)->children(); //need to add one to count the dir as well
++            if ((*it)->isFolder()) //**** considered virtual, but dir wouldn't count itself!
++                hiddenFileCount += static_cast<const Folder*>(*it)->children(); //need to add one to count the dir as well
+ 
+             ++hiddenFileCount;
+         }
+@@ -152,7 +154,7 @@
+                                 hiddenFileCount,
+                                 File::humanReadableSize(hiddenSize/hiddenFileCount));
+ 
+-        (m_signature + depth)->append(new Segment(new File(s.toLocal8Bit(), hiddenSize), a_start, a_end - a_start, true));
++        (m_signature + depth)->append(new Segment(new File(s.toUtf8(), hiddenSize), a_start, a_end - a_start, true));
+     }
+ 
+     return false;
+diff -Naur '--exclude=.svn' /home/memre/workspace/packages/source/filelight-1.9rc3/src/part/radialMap/builder.h filelight/src/part/radialMap/builder.h
+--- /home/memre/workspace/packages/source/filelight-1.9rc3/src/part/radialMap/builder.h	2009-02-02 20:07:44.000000000 +0200
++++ filelight/src/part/radialMap/builder.h	2010-09-22 10:13:28.934000026 +0300
+@@ -25,7 +25,7 @@
+ #include "radialMap.h"   //Segment, defines
+ 
+ template <class T> class Chain;
+-class Directory;
++class Folder;
+ 
+ 
+ namespace RadialMap
+@@ -37,15 +37,15 @@
+ class Builder
+ {
+ public:
+-    Builder(Map*, const Directory* const, bool fast=false);
++    Builder(Map*, const Folder* const, bool fast=false);
+ 
+ private:
+-    void findVisibleDepth(const Directory* const dir, const uint=0);
++    void findVisibleDepth(const Folder* const dir, const uint=0);
+     void setLimits(const uint&);
+-    bool build(const Directory* const, const uint=0, uint=0, const uint=5760);
++    bool build(const Folder* const, const uint=0, uint=0, const uint=5760);
+ 
+     Map             *m_map;
+-    const Directory* const m_root;
++    const Folder* const m_root;
+     const uint       m_minSize;
+     uint            *m_depth;
+     Chain<Segment>  *m_signature;
+diff -Naur '--exclude=.svn' /home/memre/workspace/packages/source/filelight-1.9rc3/src/part/radialMap/CMakeLists.txt filelight/src/part/radialMap/CMakeLists.txt
+--- /home/memre/workspace/packages/source/filelight-1.9rc3/src/part/radialMap/CMakeLists.txt	2009-03-29 17:08:12.000000000 +0300
++++ filelight/src/part/radialMap/CMakeLists.txt	2010-09-22 10:13:28.934000026 +0300
+@@ -28,4 +28,5 @@
+ 
+ kde4_add_library(radialmap STATIC ${radialmap_STAT_SRCS} )
+ 
++set_target_properties(radialmap PROPERTIES COMPILE_FLAGS -fPIC)
+ 
+diff -Naur '--exclude=.svn' /home/memre/workspace/packages/source/filelight-1.9rc3/src/part/radialMap/labels.cpp filelight/src/part/radialMap/labels.cpp
+--- /home/memre/workspace/packages/source/filelight-1.9rc3/src/part/radialMap/labels.cpp	2009-05-30 01:10:58.000000000 +0300
++++ filelight/src/part/radialMap/labels.cpp	2010-09-22 10:13:28.933000026 +0300
+@@ -19,7 +19,6 @@
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ ***********************************************************************/
+ 
+-#include <KStringHandler>
+ #include <QFont>
+ #include <QFontMetrics>
+ #include <QPainter>
+@@ -48,7 +47,7 @@
+     const int angle;
+ 
+     int x1, y1, x2, y2, x3;
+-    int tx, ty;
++    int tx, ty, tw, th;
+ 
+     QString qs;
+ };
+@@ -86,12 +85,12 @@
+     if (m_focus && m_focus->file() != m_tree) //separate behavior for selected vs unselected segments
+     {
+         //don't bother with files
+-        if (m_focus->file() && !m_focus->file()->isDirectory())
++        if (m_focus && m_focus->file() && !m_focus->file()->isFolder())
+             return;
+ 
+         //find the range of levels we will be potentially drawing labels for
+         //startLevel is the level above whatever m_focus is in
+-        for (const Directory *p = (const Directory*)m_focus->file(); p != m_tree; ++startLevel)
++        for (const Folder *p = (const Folder*)m_focus->file(); p != m_tree; ++startLevel)
+             p = p->parent();
+ 
+         //range=2 means 2 levels to draw labels for
+@@ -309,8 +308,6 @@
+ 
+     //5. Render labels
+ 
+-    paint.setPen(QPen(Qt::black, 1));
+-
+     for (it = list.begin(); it != list.end(); ++it) {
+         if (varySizes) {
+             //**** how much overhead in making new QFont each time?
+@@ -320,9 +317,10 @@
+             paint.setFont(font);
+         }
+ 
+-        paint.drawEllipse((*it)->x1 - 3, (*it)->y1 - 3, 7, 7); //**** CPU intensive! better to use a pixmap
++        paint.drawEllipse((*it)->x1 - 3, (*it)->y1 - 3, 6, 6); //**** CPU intensive! better to use a pixmap
+         paint.drawLine((*it)->x1,  (*it)->y1, (*it)->x2, (*it)->y2);
+         paint.drawLine((*it)->x2, (*it)->y2, (*it)->x3, (*it)->y2);
++
+         paint.drawText((*it)->tx, (*it)->ty, (*it)->qs);
+     }
+ 
+diff -Naur '--exclude=.svn' /home/memre/workspace/packages/source/filelight-1.9rc3/src/part/radialMap/map.cpp filelight/src/part/radialMap/map.cpp
+--- /home/memre/workspace/packages/source/filelight-1.9rc3/src/part/radialMap/map.cpp	2009-10-08 04:18:15.000000000 +0300
++++ filelight/src/part/radialMap/map.cpp	2010-09-22 10:13:28.934000026 +0300
+@@ -19,16 +19,15 @@
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ ***********************************************************************/
+ 
++#include <QtGui/QApplication>    //make()
++#include <QtGui/QImage>          //make() & paint()
++#include <QtGui/QFont>           //ctor
++#include <QtGui/QFontMetrics>    //ctor
++#include <QtGui/QPainter>
++
+ #include <KCursor>         //make()
+-#include <KLocale>
+ #include <KDebug>
+ #include <KGlobalSettings> //kdeColours
+-#include <qimageblitz/qimageblitz.h>    //desaturate()
+-#include <QPainter>
+-#include <QApplication>    //make()
+-#include <QImage>          //make() & paint()
+-#include <QFont>           //ctor
+-#include <QFontMetrics>    //ctor
+ 
+ #include "builder.h"
+ #include "part/Config.h"
+@@ -43,7 +42,6 @@
+         , m_ringBreadth(MIN_RING_BREADTH)
+         , m_innerRadius(0)
+         , m_summary(summary)
+-        , m_scheme(QPalette::Active, KColorScheme::View)
+ {
+ 
+     //FIXME this is all broken. No longer is a maximum depth!
+@@ -65,12 +63,8 @@
+     m_visibleDepth = Config::defaultRingDepth;
+ }
+ 
+-void RadialMap::Map::make(const Directory *tree, bool refresh)
++void RadialMap::Map::make(const Folder *tree, bool refresh)
+ {
+-    //**** determineText seems like pointless optimization
+-    //   but is it good to keep the text consistent?
+-    //   even if it makes it a lie?
+-
+     //slow operation so set the wait cursor
+     QApplication::setOverrideCursor(Qt::WaitCursor);
+ 
+@@ -83,19 +77,18 @@
+     //colour the segments
+     colorise();
+ 
+-    //paint the pixmap
+-    paint();
+-
+-    //determine centerText
+-    if (!refresh)
+-    {
++    if (!refresh) {
++        //determine centerText
+         int i;
+         for (i = 2; i > 0; --i)
+             if (tree->size() > File::DENOMINATOR[i])
+                 break;
+-
++    
+         m_centerText = tree->humanReadableSize((File::UnitPrefix)i);
+     }
++    
++    //paint the pixmap
++    paint();
+ 
+     QApplication::restoreOverrideCursor();
+ }
+@@ -178,7 +171,7 @@
+         for (Iterator<Segment> it = m_signature[i].iterator(); it != m_signature[i].end(); ++it)
+         {
+             if (m_summary){ // Summary view has its own colors.
+-                if ((*it)->file()->name() == "Used") {
++                if ((*it)->file()->name() == QLatin1String("Used")) {
+                     cb = QApplication::palette().highlight().color();
+                     cb.getHsv(&h, &s1, &v1);
+ 
+@@ -223,7 +216,6 @@
+                 }
+ 
+                 case Filelight::HighContrast:
+-
+                     cp.setHsv(0, 0, 0); //values of h, s and v are irrelevant
+                     cb.setHsv(180, 0, int(255.0 * contrast));
+                     (*it)->setPalette(cp, cb);
+@@ -245,12 +237,12 @@
+                     cb.setHsv(h, s2, (v2 < 90) ? 90 : v2); //too dark if < 100
+                     cp.setHsv(h, 17, v1);
+                 }
+-                else if (!(*it)->file()->isDirectory()) //file
++                else if (!(*it)->file()->isFolder()) //file
+                 {
+                     cb.setHsv(h, 17, v1);
+                     cp.setHsv(h, 17, v2);
+                 }
+-                else //directory
++                else //folder
+                 {
+                     cb.setHsv(h, s1, v1); //v was 225
+                     cp.setHsv(h, s2, v2); //v was 225 - delta
+@@ -274,11 +266,13 @@
+ 
+ void RadialMap::Map::paint(bool antialias)
+ {
++    KColorScheme scheme(QPalette::Active, KColorScheme::View);
++
+     QPainter paint;
+     QRect rect = m_rect;
+ 
+     rect.adjust(5, 5, -5, -5);
+-    m_pixmap.fill(m_scheme.background().color());
++    m_pixmap.fill(scheme.background().color());
+ 
+     //m_rect.moveRight(1); // Uncommenting this breaks repainting when recreating map from cache
+ 
+@@ -286,10 +280,15 @@
+     //**** best option you can think of is to make the circles slightly less perfect,
+     //  ** i.e. slightly eliptic when resizing inbetween
+ 
+-    paint.begin(&m_pixmap);
++    if (!paint.begin(&m_pixmap)) {
++        kWarning() << "Failed to initialize painting, returning...";
++        return;
++    }
+ 
+-    if (antialias && Config::antialias)
++    if (antialias && Config::antialias) {
++        paint.translate(0.7, 0.7);
+         paint.setRenderHint(QPainter::Antialiasing);
++    }
+ 
+     int step = m_ringBreadth;
+     int excess = -1;
+@@ -376,8 +375,8 @@
+ 
+     //  if(excess > 0) rect.addCoords(excess, excess, 0, 0); //ugly
+ 
+-    paint.setPen(Qt::gray);
+-    paint.setBrush(Qt::white);
++    paint.setPen(scheme.foreground().color());
++    paint.setBrush(scheme.background().color());
+     paint.drawEllipse(rect);
+     paint.drawText(rect, Qt::AlignCenter, m_centerText);
+ 
+diff -Naur '--exclude=.svn' /home/memre/workspace/packages/source/filelight-1.9rc3/src/part/radialMap/map.h filelight/src/part/radialMap/map.h
+--- /home/memre/workspace/packages/source/filelight-1.9rc3/src/part/radialMap/map.h	2009-05-30 00:00:09.000000000 +0300
++++ filelight/src/part/radialMap/map.h	2010-09-22 10:13:28.933000026 +0300
+@@ -24,12 +24,12 @@
+ 
+ #include "part/fileTree.h"
+ 
+-#include <QPixmap>
+-#include <QRect>
+-#include <QString>
+-
+ #include <KColorScheme>
+ 
++#include <QtGui/QPixmap>
++#include <QtCore/QRect>
++#include <QtCore/QString>
++
+ namespace RadialMap {
+ class Segment;
+ 
+@@ -39,7 +39,7 @@
+     Map(bool summary);
+     ~Map();
+ 
+-    void make(const Directory *, bool = false);
++    void make(const Folder *, bool = false);
+     bool resize(const QRect&);
+ 
+     bool isNull() const {
+@@ -74,7 +74,6 @@
+     uint         m_innerRadius;  ///radius of inner circle
+     QString      m_centerText;
+     bool         m_summary;
+-    KColorScheme m_scheme;
+ 
+     uint MAP_2MARGIN;
+ };
+diff -Naur '--exclude=.svn' /home/memre/workspace/packages/source/filelight-1.9rc3/src/part/radialMap/radialMap.h filelight/src/part/radialMap/radialMap.h
+--- /home/memre/workspace/packages/source/filelight-1.9rc3/src/part/radialMap/radialMap.h	2009-02-02 20:07:44.000000000 +0200
++++ filelight/src/part/radialMap/radialMap.h	2010-09-22 10:13:28.932000026 +0300
+@@ -22,11 +22,10 @@
+ #ifndef RADIALMAP_H
+ #define RADIALMAP_H
+ 
+-#include <qcolor.h>
++#include <QColor>
+ 
+ class File;
+ 
+-
+ namespace RadialMap
+ {
+ class Segment //all angles are in 16ths of degrees
+diff -Naur '--exclude=.svn' /home/memre/workspace/packages/source/filelight-1.9rc3/src/part/radialMap/segmentTip.cpp filelight/src/part/radialMap/segmentTip.cpp
+--- /home/memre/workspace/packages/source/filelight-1.9rc3/src/part/radialMap/segmentTip.cpp	2009-08-19 03:46:19.000000000 +0300
++++ filelight/src/part/radialMap/segmentTip.cpp	2010-09-22 10:13:28.933000026 +0300
+@@ -24,17 +24,15 @@
+ #include "part/fileTree.h"
+ #include "part/Config.h"
+ 
+-#include <cstdlib>
+-
+ #include <KApplication>    //installing eventFilters
+ #include <KGlobal>
+-#include <KGlobalSettings>
+ #include <KLocale>
+ #include <KWindowSystem>
+ 
+-#include <QPainter>
+-#include <QEvent>
+-#include <QToolTip>
++#include <QtGui/QPainter>
++#include <QtGui/QToolTip>
++
++#include <cstdlib>
+ 
+ namespace RadialMap {
+ 
+@@ -65,7 +63,7 @@
+ }
+ 
+ void
+-SegmentTip::updateTip(const File* const file, const Directory* const root)
++SegmentTip::updateTip(const File* const file, const Folder* const root)
+ {
+     const QString s1  = file->fullPath(root);
+     QString s2        = file->humanReadableSize();
+@@ -75,23 +73,23 @@
+     uint maxw         = 0;
+     uint h            = fontMetrics().height()*2 + 2*MARGIN;
+ 
+-    if (pc > 0) s2 += QString(" (%1%)").arg(loc->formatNumber(pc, 0));
++    if (pc > 0) s2 += QString(QLatin1String( " (%1%)" )).arg(loc->formatNumber(pc, 0));
+ 
+     m_text  = s1;
+-    m_text += '\n';
++    m_text += QLatin1Char( '\n' );
+     m_text += s2;
+ 
+-    if (file->isDirectory())
++    if (file->isFolder())
+     {
+-        int files  = static_cast<const Directory*>(file)->children();
++        int files  = static_cast<const Folder*>(file)->children();
+         const uint pc = uint((100 * files) / (double)root->children());
+         QString s3    = i18np("File: %1", "Files: %1", files);
+ 
+-        if (pc > 0) s3 += QString(" (%1%)").arg(loc->formatNumber(pc, 0));
++        if (pc > 0) s3 += QString(QLatin1String( " (%1%)" )).arg(loc->formatNumber(pc, 0));
+ 
+         maxw    = fontMetrics().width(s3);
+         h      += fontMetrics().height();
+-        m_text += '\n';
++        m_text += QLatin1Char( '\n' );
+         m_text += s3;
+     }
+ 
+@@ -130,12 +128,12 @@
+     switch (e->type())
+     {
+     case QEvent::Leave:
+-    case QEvent::KeyPress:
+-    case QEvent::KeyRelease:
+-    case QEvent::FocusIn:
+     case QEvent::FocusOut:
+     case QEvent::Wheel:
+         hide(); //FALL THROUGH
++    case QEvent::FocusIn:
++    case QEvent::KeyPress:
++    case QEvent::KeyRelease:
+     default:
+         return false; //allow this event to passed to target
+     }
+diff -Naur '--exclude=.svn' /home/memre/workspace/packages/source/filelight-1.9rc3/src/part/radialMap/segmentTip.h filelight/src/part/radialMap/segmentTip.h
+--- /home/memre/workspace/packages/source/filelight-1.9rc3/src/part/radialMap/segmentTip.h	2009-05-12 21:21:42.000000000 +0300
++++ filelight/src/part/radialMap/segmentTip.h	2010-09-22 10:13:28.934000026 +0300
+@@ -22,11 +22,11 @@
+ #ifndef SEGMENTTIP_H
+ #define SEGMENTTIP_H
+ 
+-#include <QEvent>
+-#include <QWidget>
++#include <QtCore/QEvent>
++#include <QtGui/QWidget>
+ 
+ class File;
+-class Directory;
++class Folder;
+ 
+ namespace RadialMap
+ {
+@@ -35,7 +35,7 @@
+ public:
+     SegmentTip(uint);
+ 
+-    void updateTip(const File*, const Directory*);
++    void updateTip(const File*, const Folder*);
+     void moveTo(QPoint, bool);
+ 
+ private:
+diff -Naur '--exclude=.svn' /home/memre/workspace/packages/source/filelight-1.9rc3/src/part/radialMap/widget.cpp filelight/src/part/radialMap/widget.cpp
+--- /home/memre/workspace/packages/source/filelight-1.9rc3/src/part/radialMap/widget.cpp	2009-05-29 21:35:06.000000000 +0300
++++ filelight/src/part/radialMap/widget.cpp	2010-09-22 10:13:28.933000026 +0300
+@@ -21,20 +21,20 @@
+ 
+ #include "widget.h"
+ 
+-#include <KCursor>        //ctor
+-#include <KLocale>
+-#include <KUrl>
+-#include <QApplication>   //sendEvent
+-#include <QBitmap>        //ctor - finding cursor size
+-#include <QCursor>        //slotPostMouseEvent()
+-#include <QTimer>         //member
+-#include <QWidget>
+-
+ #include "part/Config.h"
+ #include "part/fileTree.h"
+ #include "radialMap.h" //constants
+ #include "map.h"
+ 
++#include <KCursor>        //ctor
++#include <KUrl>
++
++#include <QtGui/QApplication>   //sendEvent
++#include <QtGui/QBitmap>        //ctor - finding cursor size
++#include <QtGui/QCursor>        //slotPostMouseEvent()
++#include <QtCore/QTimer>         //member
++#include <QtGui/QWidget>
++
+ 
+ RadialMap::Widget::Widget(QWidget *parent, bool isSummary)
+         : QWidget(parent)
+@@ -43,15 +43,16 @@
+         , m_map(isSummary)
+         , m_rootSegment(0) //TODO we don't delete it, *shrug*
+         , m_isSummary(isSummary)
++        , m_toBeDeleted(0)
+ {
+     setAcceptDrops(true);
+-    setMinimumSize(100,100);//TODO: set a sane minimumsize, not just a random one.
++    setMinimumSize(350, 250);
+ 
+     const QBitmap *cursor = QCursor(Qt::PointingHandCursor).bitmap();
+     m_tip = new SegmentTip(cursor ? cursor->height() : 16);
+ 
+-    connect(this, SIGNAL(created(const Directory*)), SLOT(sendFakeMouseEvent()));
+-    connect(this, SIGNAL(created(const Directory*)), SLOT(update()));
++    connect(this, SIGNAL(created(const Folder*)), SLOT(sendFakeMouseEvent()));
++    connect(this, SIGNAL(created(const Folder*)), SLOT(update()));
+     connect(&m_timer, SIGNAL(timeout()), SLOT(resizeTimeout()));
+ }
+ 
+@@ -64,7 +65,7 @@
+ KUrl
+ RadialMap::Widget::url(File const * const file) const
+ {
+-    return KUrl::KUrl(file ? file->fullPath() : m_tree->fullPath());
++    return KUrl(file ? file->fullPath() : m_tree->fullPath());
+ }
+ 
+ void
+@@ -96,7 +97,7 @@
+ }
+ 
+ void
+-RadialMap::Widget::create(const Directory *tree)
++RadialMap::Widget::create(const Folder *tree)
+ {
+     //it is not the responsibility of create() to invalidate first
+     //skip invalidation at your own risk
+@@ -121,7 +122,7 @@
+ }
+ 
+ void
+-RadialMap::Widget::createFromCache(const Directory *tree)
++RadialMap::Widget::createFromCache(const Folder *tree)
+ {
+     //no scan was necessary, use cached tree, however we MUST still emit invalidate
+     invalidate();
+@@ -157,6 +158,7 @@
+         {
+         case 1:
+             m_map.make(m_tree, true); //true means refresh only
++            m_focus=0;
+             break;
+ 
+         case 2:
+diff -Naur '--exclude=.svn' /home/memre/workspace/packages/source/filelight-1.9rc3/src/part/radialMap/widgetEvents.cpp filelight/src/part/radialMap/widgetEvents.cpp
+--- /home/memre/workspace/packages/source/filelight-1.9rc3/src/part/radialMap/widgetEvents.cpp	2009-08-21 05:40:27.000000000 +0300
++++ filelight/src/part/radialMap/widgetEvents.cpp	2010-09-22 10:13:28.934000026 +0300
+@@ -24,30 +24,31 @@
+ #include "radialMap.h"   //class Segment
+ #include "widget.h"
+ 
+-#include <cmath>         //::segmentAt()
+-
+ #include <KCursor>     //::mouseMoveEvent()
+ #include <KDebug>
+ #include <KIconLoader> //::mousePressEvent()
+-#include <KIO/Job>     //::mousePressEvent()
+ #include <KJob>
++#include <KIO/Job>     //::mousePressEvent()
+ #include <KIO/DeleteJob>
+ #include <KIO/JobUiDelegate>
+ #include <KLocale>
+ #include <KMessageBox> //::mousePressEvent()
+ #include <KMenu>  //::mousePressEvent()
+ #include <KRun>        //::mousePressEvent()
++#include <KToolInvocation>
+ #include <KUrl>
+ 
+-#include <QApplication> //QApplication::setOverrideCursor()
+-#include <QClipboard>
+-#include <QPainter>
+-#include <QTimer>      //::resizeEvent()
+-#include <QDropEvent>
+-#include <QPaintEvent>
+-#include <QResizeEvent>
+-#include <QMouseEvent>
+-#include <QDragEnterEvent>
++#include <QtGui/QApplication> //QApplication::setOverrideCursor()
++#include <QtGui/QClipboard>
++#include <QtGui/QPainter>
++#include <QtCore/QTimer>      //::resizeEvent()
++#include <QtGui/QDropEvent>
++#include <QtGui/QPaintEvent>
++#include <QtGui/QResizeEvent>
++#include <QtGui/QMouseEvent>
++#include <QtGui/QDragEnterEvent>
++
++#include <cmath>         //::segmentAt()
+ 
+ void RadialMap::Widget::resizeEvent(QResizeEvent*)
+ {
+@@ -76,7 +77,11 @@
+     //exploded labels
+     if (!m_map.isNull() && !m_timer.isActive())
+     {
+-        if (Config::antialias) paint.setRenderHint(QPainter::Antialiasing);
++        if (Config::antialias) {
++            paint.setRenderHint(QPainter::Antialiasing);
++            //make lines appear on pixel boundaries
++            paint.translate(0.5, 0.5);
++        }
+         paintExplodedLabels(paint);
+     }
+ }
+@@ -159,6 +164,15 @@
+     }
+ }
+ 
++void RadialMap::Widget::enterEvent(QEvent *e)
++{
++    if (!m_focus) return;
++
++    setCursor(Qt::PointingHandCursor);
++    emit mouseHover(m_focus->file()->fullPath());
++    update();
++}
++
+ void RadialMap::Widget::mousePressEvent(QMouseEvent *e)
+ {
+     //m_tip is hidden already by event filter
+@@ -167,11 +181,11 @@
+     if (m_focus && !m_focus->isFake())
+     {
+         const KUrl url   = Widget::url(m_focus->file());
+-        const bool isDir = m_focus->file()->isDirectory();
++        const bool isDir = m_focus->file()->isFolder();
+ 
+         // Actions in the right click menu
+-        QAction* openKonqueror = 0;
+-        QAction* openKonsole = 0;
++        QAction* openFileManager = 0;
++        QAction* openTerminal = 0;
+         QAction* centerMap = 0;
+         QAction* openFile = 0;
+         QAction* copyClipboard = 0;
+@@ -183,31 +197,31 @@
+             popup.addTitle(m_focus->file()->fullPath(m_tree));
+ 
+             if (isDir) {
+-                openKonqueror = popup.addAction(KIcon("konqueror"), i18n("Open &Konqueror Here"));
++                openFileManager = popup.addAction(KIcon(QLatin1String( "system-file-manager" )), i18n("Open &File Manager Here"));
+ 
+-                if (url.protocol() == "file")
+-                    openKonsole = popup.addAction(KIcon("utilities-terminal"), i18n("Open &Konsole Here"));
++                if (url.protocol() == QLatin1String("file" ))
++                    openTerminal = popup.addAction(KIcon(QLatin1String( "utilities-terminal" )), i18n("Open &Terminal Here"));
+ 
+                 if (m_focus->file() != m_tree) {
+                     popup.addSeparator();
+-                    centerMap = popup.addAction(KIcon("zoom-in"), i18n("&Center Map Here"));
++                    centerMap = popup.addAction(KIcon(QLatin1String( "zoom-in" )), i18n("&Center Map Here"));
+                 }
+             }
+             else
+-                openFile = popup.addAction(KIcon("document-open"), i18n("&Open"));
++                openFile = popup.addAction(KIcon(QLatin1String( "document-open" )), i18nc("Scan/open the path of the selected element", "&Open"));
+ 
+             popup.addSeparator();
+-            copyClipboard = popup.addAction(KIcon("edit-copy"), i18n("&Copy to clipboard"));
++            copyClipboard = popup.addAction(KIcon(QLatin1String( "edit-copy" )), i18n("&Copy to clipboard"));
+ 
+             popup.addSeparator();
+-            deleteItem = popup.addAction(KIcon("edit-delete"), i18n("&Delete"));
++            deleteItem = popup.addAction(KIcon(QLatin1String( "edit-delete" )), i18n("&Delete"));
+ 
+             QAction* clicked = popup.exec(e->globalPos(), 0);
+ 
+-            if (openKonqueror && clicked == openKonqueror) {
+-                KRun::runCommand(QString("kfmclient openURL \"%1\"").arg(url.url()), this);
+-            } else if (openKonsole && clicked == openKonsole) {
+-                KRun::runCommand(QString("konsole --workdir \"%1\"").arg(url.path()), this);
++            if (openFileManager && clicked == openFileManager) {
++                KRun::runUrl(url.url(),QLatin1String( "inode/directory" ), this);
++            } else if (openTerminal && clicked == openTerminal) {
++                KToolInvocation::invokeTerminal(QString(),url.path());
+             } else if (centerMap && clicked == centerMap) {
+                 goto section_two;
+             } else if (openFile && clicked == openFile) {
+@@ -217,13 +231,14 @@
+                 url.populateMimeData(mimedata);
+                 QApplication::clipboard()->setMimeData(mimedata , QClipboard::Clipboard);
+             } else if (clicked == deleteItem) {
+-                const KUrl url = Widget::url(m_focus->file());
+-                const QString message = m_focus->file()->isDirectory()
+-                                        ? i18n("<qt>The directory at <i>'%1'</i> will be <b>recursively</b> and <b>permanently</b> deleted.</qt>", url.prettyUrl())
++                m_toBeDeleted = m_focus;
++                const KUrl url = Widget::url(m_toBeDeleted->file());
++                const QString message = m_toBeDeleted->file()->isFolder()
++                                        ? i18n("<qt>The folder at <i>'%1'</i> will be <b>recursively</b> and <b>permanently</b> deleted.</qt>", url.prettyUrl())
+                                         : i18n("<qt><i>'%1'</i> will be <b>permanently</b> deleted.</qt>", url.prettyUrl());
+                 const int userIntention = KMessageBox::warningContinueCancel(
+                                               this, message,
+-                                              QString(), KGuiItem(i18n("&Delete"), "edit-delete"));
++                                              QString(), KGuiItem(i18n("&Delete"), QLatin1String( "edit-delete" )));
+ 
+                 if (userIntention == KMessageBox::Continue) {
+                     KIO::Job *job = KIO::del(url);
+@@ -250,7 +265,7 @@
+             else if (m_focus->file() != m_tree) { // is left click
+                 // KIconEffect::visualActivate(this, rect); // TODO: recreate this
+                 emit activated(url); //activate first, this will cause UI to prepare itself
+-                createFromCache((Directory *)m_focus->file());
++                createFromCache((Folder *)m_focus->file());
+             }
+             else
+                 emit giveMeTreeFor(url.upUrl());
+@@ -261,9 +276,18 @@
+ void RadialMap::Widget::deleteJobFinished(KJob *job)
+ {
+     QApplication::restoreOverrideCursor();
+-    if (!job->error())
+-        invalidate();
+-    else
++    if (!job->error() && m_toBeDeleted) {
++        const Folder *dir = m_toBeDeleted->file()->parent();
++        for (Iterator<File> it = dir->iterator(); it != dir->end(); ++it) {
++            if (m_toBeDeleted->file() == (*it))
++                it.remove();
++        }
++        m_map.make(m_tree, true);
++        repaint();
++
++        //delete m_toBeDeleted->file(); // TODO: this seems to be cleaned up elsewhere? Make sure of it.
++        m_toBeDeleted = 0;
++    } else
+         KMessageBox::error(this, job->errorString(), i18n("Error while deleting"));
+ }
+ 
+@@ -279,3 +303,10 @@
+     KUrl::List uriList = KUrl::List::fromMimeData(e->mimeData());
+     e->setAccepted(!uriList.isEmpty());
+ }
++
++void RadialMap::Widget::changeEvent(QEvent *e)
++{
++    if (e->type() == QEvent::ApplicationPaletteChange ||
++        e->type() == QEvent::PaletteChange)
++        m_map.paint();
++}
+diff -Naur '--exclude=.svn' /home/memre/workspace/packages/source/filelight-1.9rc3/src/part/radialMap/widget.h filelight/src/part/radialMap/widget.h
+--- /home/memre/workspace/packages/source/filelight-1.9rc3/src/part/radialMap/widget.h	2009-05-29 21:35:06.000000000 +0300
++++ filelight/src/part/radialMap/widget.h	2010-09-22 10:13:28.934000026 +0300
+@@ -22,22 +22,21 @@
+ #ifndef WIDGET_H
+ #define WIDGET_H
+ 
++#include <KJob>
+ #include <KUrl>
+-#include <QTimer>
+-#include <QPixmap>
+-#include <QResizeEvent>
+-#include <QDragEnterEvent>
+-#include <QDropEvent>
+-#include <QMouseEvent>
+-#include <QPaintEvent>
+ 
+-#include <KJob>
++#include <QtGui/QDragEnterEvent>
++#include <QtGui/QDropEvent>
++#include <QtGui/QMouseEvent>
++#include <QtGui/QPaintEvent>
++#include <QtGui/QResizeEvent>
++#include <QtCore/QTimer>
+ 
+ #include "segmentTip.h"
+ #include "map.h"
+ 
+ template <class T> class Chain;
+-class Directory;
++class Folder;
+ class File;
+ namespace KIO {
+ class Job;
+@@ -74,7 +73,7 @@
+ public slots:
+     void zoomIn();
+     void zoomOut();
+-    void create(const Directory*);
++    void create(const Folder*);
+     void invalidate();
+     void refresh(int);
+ 
+@@ -82,22 +81,24 @@
+     void resizeTimeout();
+     void sendFakeMouseEvent();
+     void deleteJobFinished(KJob*);
+-    void createFromCache(const Directory*);
++    void createFromCache(const Folder*);
+ 
+ signals:
+     void activated(const KUrl&);
+     void invalidated(const KUrl&);
+-    void created(const Directory*);
++    void created(const Folder*);
+     void mouseHover(const QString&);
+     void giveMeTreeFor(const KUrl&);
+ 
+ protected:
+-    virtual void paintEvent(QPaintEvent*);
+-    virtual void resizeEvent(QResizeEvent*);
+-    virtual void mouseMoveEvent(QMouseEvent*);
+-    virtual void mousePressEvent(QMouseEvent*);
++    virtual void changeEvent(QEvent*);
+     virtual void dragEnterEvent(QDragEnterEvent*);
+     virtual void dropEvent(QDropEvent*);
++    virtual void mouseMoveEvent(QMouseEvent*);
++    virtual void mousePressEvent(QMouseEvent*);
++    virtual void paintEvent(QPaintEvent*);
++    virtual void resizeEvent(QResizeEvent*);
++    virtual void enterEvent(QEvent*);
+ 
+ protected:
+     const Segment *segmentAt(QPoint&) const; //FIXME const reference for a library others can use
+@@ -111,7 +112,7 @@
+ private:
+     void paintExplodedLabels(QPainter&) const;
+ 
+-    const Directory *m_tree;
++    const Folder *m_tree;
+     const Segment   *m_focus;
+     QPoint           m_offset;
+     QTimer           m_timer;
+@@ -119,6 +120,7 @@
+     SegmentTip       *m_tip;
+     Segment          *m_rootSegment;
+     const bool       m_isSummary;
++    const Segment    *m_toBeDeleted;
+ };
+ }
+ 
+diff -Naur '--exclude=.svn' /home/memre/workspace/packages/source/filelight-1.9rc3/src/part/remoteLister.cpp filelight/src/part/remoteLister.cpp
+--- /home/memre/workspace/packages/source/filelight-1.9rc3/src/part/remoteLister.cpp	2009-10-04 03:51:22.000000000 +0300
++++ filelight/src/part/remoteLister.cpp	2010-09-22 10:13:29.071000026 +0300
+@@ -26,10 +26,9 @@
+ #include <KDebug>
+ #include <KDirLister>
+ 
+-#include <QApplication>
+-#include <QLinkedList>
+-#include <QTimer>
+-#include <QWidget>
++#include <QtCore/QLinkedList>
++#include <QtCore/QTimer>
++#include <QtGui/QWidget>
+ 
+ namespace Filelight
+ {
+@@ -37,24 +36,24 @@
+ //TODO: delete all this stuff!
+ 
+ // You need to use a single DirLister.
+-// One per directory breaks KIO (seemingly) and also uses un-godly amounts of memory!
++// One per folder breaks KIO (seemingly) and also uses un-godly amounts of memory!
+ 
+ struct Store {
+ 
+     typedef QLinkedList<Store*> List;
+ 
+-    /// location of the directory
++    /// location of the folder
+     const KUrl url;
+-    /// the directory on which we are operating
+-    Directory *directory;
++    /// the folder on which we are operating
++    Folder *folder;
+     /// so we can reference the parent store
+     Store *parent;
+-    /// directories in this directory that need to be scanned before we can propagate()
++    /// directories in this folder that need to be scanned before we can propagate()
+     List stores;
+ 
+-    Store() : directory(0), parent(0) {}
++    Store() : folder(0), parent(0) {}
+     Store(const KUrl &u, const QString &name, Store *s)
+-            : url(u), directory(new Directory(name.toLocal8Bit() + '/')), parent(s) {}
++            : url(u), folder(new Folder(name.toUtf8() + '/')), parent(s) {}
+ 
+ 
+     Store* propagate()
+@@ -64,7 +63,7 @@
+         kDebug() << "propagate: " << url << endl;
+ 
+         if (parent) {
+-            parent->directory->append(directory);
++            parent->folder->append(folder);
+             if (parent->stores.isEmpty()) {
+                 return parent->propagate();
+             }
+@@ -72,7 +71,7 @@
+                 return parent;
+         }
+ 
+-        //we reached the root, let's get our next directory scanned
++        //we reached the root, let's get our next folder scanned
+         return this;
+     }
+ 
+@@ -82,10 +81,11 @@
+ };
+ 
+ 
+-RemoteLister::RemoteLister(const KUrl &url, QWidget *parent)
++RemoteLister::RemoteLister(const KUrl &url, QWidget *parent, ScanManager* manager)
+         : KDirLister(parent)
+         , m_root(new Store(url, url.url(), 0))
+         , m_store(m_root)
++        , m_manager(manager)
+ {
+     setAutoUpdate(false); // Don't use KDirWatchers
+     setShowingDotFiles(true); // Stupid KDirLister API function names
+@@ -98,7 +98,7 @@
+ 
+ RemoteLister::~RemoteLister()
+ {
+-    Directory *tree = isFinished() ? m_store->directory : 0;
++    Folder *tree = isFinished() ? m_store->folder : 0;
+ 
+     emit branchCompleted(tree, false);
+     delete m_root;
+@@ -126,7 +126,7 @@
+ void
+ RemoteLister::_completed()
+ {
+-    //m_directory is set to the directory we should operate on
++    //m_folder is set to the folder we should operate on
+ 
+     const KFileItemList items = KDirLister::items();
+     for (KFileItemList::ConstIterator it = items.begin(), end = items.end(); it != end; ++it)
+@@ -134,14 +134,14 @@
+         if (it->isDir())
+             m_store->stores += new Store(it->url(), it->name(), m_store);
+         else
+-            m_store->directory->append(it->name().toLocal8Bit(), it->size() / 1024);
++            m_store->folder->append(it->name().toUtf8(), it->size() / 1024);
+ 
+-        ScanManager::s_files++;
++        m_manager->m_files++;
+     }
+ 
+ 
+     if (m_store->stores.isEmpty())
+-        //no directories to scan, so we need to append ourselves to the parent directory
++        //no directories to scan, so we need to append ourselves to the parent folder
+         //propagate() will return the next ancestor that has stores left to be scanned, or root if we are done
+         m_store = m_store->propagate();
+ 
+diff -Naur '--exclude=.svn' /home/memre/workspace/packages/source/filelight-1.9rc3/src/part/remoteLister.h filelight/src/part/remoteLister.h
+--- /home/memre/workspace/packages/source/filelight-1.9rc3/src/part/remoteLister.h	2009-02-17 22:23:44.000000000 +0200
++++ filelight/src/part/remoteLister.h	2010-09-22 10:13:29.071000026 +0300
+@@ -28,15 +28,17 @@
+ 
+ namespace Filelight
+ {
++class ScanManager;
++
+ class RemoteLister : public KDirLister
+ {
+     Q_OBJECT
+ public:
+-    RemoteLister(const KUrl &url, QWidget *parent);
++    RemoteLister(const KUrl &url, QWidget *parent, ScanManager* manager);
+     ~RemoteLister();
+ 
+ signals:
+-    void branchCompleted(Directory* tree, bool finished);
++    void branchCompleted(Folder* tree, bool finished);
+ 
+ private slots:
+     void completed();
+@@ -45,6 +47,7 @@
+ 
+ private:
+     class Store *m_root, *m_store;
++    ScanManager* m_manager;
+ };
+ }
+ 
+diff -Naur '--exclude=.svn' /home/memre/workspace/packages/source/filelight-1.9rc3/src/part/scan.cpp filelight/src/part/scan.cpp
+--- /home/memre/workspace/packages/source/filelight-1.9rc3/src/part/scan.cpp	2009-10-08 03:49:05.000000000 +0300
++++ filelight/src/part/scan.cpp	2010-09-22 10:13:29.072000026 +0300
+@@ -25,31 +25,30 @@
+ #include "fileTree.h"
+ #include "localLister.h"
+ 
+-#include <KCursor>
+ #include <KDebug>
+ 
+-#include <QApplication>
++#include <QtGui/QApplication>
+ 
+ namespace Filelight
+ {
+-bool ScanManager::s_abort = false;
+-uint ScanManager::s_files = 0;
+ 
+ ScanManager::ScanManager(QObject *parent)
+         : QObject(parent)
++        , m_abort(false)
++        , m_files(0)
+         , m_mutex()
+         , m_thread(0)
+-        , m_cache(new Chain<Directory>)
++        , m_cache(new Chain<Folder>)
+ {
+     Filelight::LocalLister::readMounts();
+-    connect(this, SIGNAL(branchCompleted(Directory*, bool)), this, SLOT(cacheTree(Directory*, bool)), Qt::QueuedConnection);
++    connect(this, SIGNAL(branchCompleted(Folder*, bool)), this, SLOT(cacheTree(Folder*, bool)), Qt::QueuedConnection);
+ }
+ 
+ ScanManager::~ScanManager()
+ {
+     if (m_thread) {
+         kDebug() << "Attempting to abort scan operation..." << endl;
+-        s_abort = true;
++        m_abort = true;
+         m_thread->wait();
+     }
+ 
+@@ -60,7 +59,6 @@
+ 
+ bool ScanManager::running() const
+ {
+-    //FIXME not complete
+     return m_thread && m_thread->isRunning();
+ }
+ 
+@@ -73,20 +71,18 @@
+     kDebug() << "Scan requested for: " << url.prettyUrl() << endl;
+ 
+     if (running()) {
+-        //shouldn't happen, but lets prevent mega-disasters just in case eh?
+-        kWarning() << "Attempted to run 2 scans concurrently!\n";
+-        //TODO give user an error
+-        return false;
++        kWarning() << "Tried to launch two concurrent scans, aborting old one...";
++        abort();
+     }
+ 
+-    s_files = 0;
+-    s_abort = false;
++    m_files = 0;
++    m_abort = false;
+ 
+-    if (url.protocol() == "file")
++    if (url.protocol() == QLatin1String( "file" ))
+     {
+         const QString path = url.path(KUrl::AddTrailingSlash);
+ 
+-        Chain<Directory> *trees = new Chain<Directory>;
++        Chain<Folder> *trees = new Chain<Folder>;
+ 
+         /* CHECK CACHE
+         *   user wants: /usr/local/
+@@ -96,7 +92,7 @@
+         *   cached:     /usr/local/, /usr/include/
+         */
+ 
+-        for (Iterator<Directory> it = m_cache->iterator(); it != m_cache->end(); ++it)
++        for (Iterator<Folder> it = m_cache->iterator(); it != m_cache->end(); ++it)
+         {
+             QString cachePath = (*it)->name();
+ 
+@@ -106,8 +102,8 @@
+ 
+                 kDebug() << "Cache-(a)hit: " << cachePath << endl;
+ 
+-                QStringList split = path.mid(cachePath.length()).split('/');
+-                Directory *d = *it;
++                QStringList split = path.mid(cachePath.length()).split(QLatin1Char( '/' ));
++                Folder *d = *it;
+                 Iterator<File> jt;
+ 
+                 while (!split.isEmpty() && d != NULL) //if NULL we have got lost so abort!!
+@@ -116,12 +112,12 @@
+ 
+                     const Link<File> *end = d->end();
+                     QString s = split.first();
+-                    s += '/';
++                    s += QLatin1Char( '/' );
+ 
+                     for (d = 0; jt != end; ++jt)
+                         if (s == (*jt)->name())
+                         {
+-                            d = (Directory*)*jt;
++                            d = (Folder*)*jt;
+                             break;
+                         }
+ 
+@@ -141,7 +137,7 @@
+                 }
+                 else
+                 {
+-                    //something went wrong, we couldn't find the directory we were expecting
++                    //something went wrong, we couldn't find the folder we were expecting
+                     kError() << "Didn't find " << path << " in the cache!\n";
+                     delete it.remove(); //safest to get rid of it
+                     break; //do a full scan
+@@ -158,7 +154,7 @@
+         QApplication::setOverrideCursor(Qt::BusyCursor);
+         //starts listing by itself
+         m_thread = new Filelight::LocalLister(path, trees, this);
+-        connect(m_thread, SIGNAL(branchCompleted(Directory*, bool)), this, SLOT(cacheTree(Directory*, bool)), Qt::QueuedConnection);
++        connect(m_thread, SIGNAL(branchCompleted(Folder*, bool)), this, SLOT(cacheTree(Folder*, bool)), Qt::QueuedConnection);
+         m_thread->start();
+ 
+         return true;
+@@ -167,10 +163,10 @@
+     m_url = url;
+     QApplication::setOverrideCursor(Qt::BusyCursor);
+     //will start listing straight away
+-    Filelight::RemoteLister *remoteLister = new Filelight::RemoteLister(url, (QWidget*)parent());
+-    connect(remoteLister, SIGNAL(branchCompleted(Directory*, bool)), this, SLOT(cacheTree(Directory*, bool)), Qt::QueuedConnection);
++    Filelight::RemoteLister *remoteLister = new Filelight::RemoteLister(url, (QWidget*)parent(), this);
++    connect(remoteLister, SIGNAL(branchCompleted(Folder*, bool)), this, SLOT(cacheTree(Folder*, bool)), Qt::QueuedConnection);
+     remoteLister->setParent(this);
+-    remoteLister->setObjectName("remote_lister");
++    remoteLister->setObjectName(QLatin1String( "remote_lister" ));
+     remoteLister->openUrl(url);
+     return true;
+ }
+@@ -178,17 +174,17 @@
+ bool
+ ScanManager::abort()
+ {
+-    s_abort = true;
++    m_abort = true;
+ 
+-    delete findChild<RemoteLister *>("remote_lister");
++    delete findChild<RemoteLister *>(QLatin1String( "remote_lister" ));
+ 
+-    return m_thread && m_thread->isRunning();
++    return m_thread && m_thread->wait();
+ }
+ 
+ void
+ ScanManager::emptyCache()
+ {
+-    s_abort = true;
++    m_abort = true;
+ 
+     if (m_thread && m_thread->isRunning())
+         m_thread->wait();
+@@ -199,7 +195,7 @@
+ }
+ 
+ void
+-ScanManager::cacheTree(Directory *tree, bool finished)
++ScanManager::cacheTree(Folder *tree, bool finished)
+ {
+     QMutexLocker locker(&m_mutex); // This gets released once it is destroyed.
+ 
+@@ -216,7 +212,7 @@
+     if (tree) {
+         //we don't cache foreign stuff
+         //we don't recache stuff (thus only type 1000 events)
+-        if (m_url.protocol() == "file" && finished)
++        if (m_url.protocol() == QLatin1String( "file" ) && finished)
+             //TODO sanity check the cache
+             m_cache->append(tree);
+     }
+diff -Naur '--exclude=.svn' /home/memre/workspace/packages/source/filelight-1.9rc3/src/part/scan.h filelight/src/part/scan.h
+--- /home/memre/workspace/packages/source/filelight-1.9rc3/src/part/scan.h	2009-02-02 20:07:44.000000000 +0200
++++ filelight/src/part/scan.h	2010-09-22 10:13:29.072000026 +0300
+@@ -23,11 +23,11 @@
+ #define SCAN_H
+ 
+ #include <KUrl>
+-#include <QObject>
+-#include <QMutex>
++#include <QtCore/QObject>
++#include <QtCore/QMutex>
+ 
+ class QThread;
+-class Directory;
++class Folder;
+ template<class T> class Chain;
+ 
+ namespace Filelight
+@@ -46,28 +46,28 @@
+     bool start(const KUrl&);
+     bool running() const;
+ 
+-    static uint files() {
+-        return s_files;
++    uint files() const {
++        return m_files;
+     }
+ 
+ public slots:
+     bool abort();
+     void emptyCache();
+-    void cacheTree(Directory*, bool);
++    void cacheTree(Folder*, bool);
+ 
+ signals:
+-    void completed(Directory*);
++    void completed(Folder*);
+     void aboutToEmptyCache();
+-    void branchCompleted(Directory* tree, bool finished);
++    void branchCompleted(Folder* tree, bool finished);
+ 
+ private:
+-    static bool s_abort;
+-    static uint s_files;
++    bool m_abort;
++    uint m_files;
+ 
+     KUrl m_url;
+     QMutex m_mutex;
+     QThread *m_thread;
+-    Chain<Directory> *m_cache;
++    Chain<Folder> *m_cache;
+ 
+ };
+ }
+diff -Naur '--exclude=.svn' /home/memre/workspace/packages/source/filelight-1.9rc3/src/part/settingsDialog.cpp filelight/src/part/settingsDialog.cpp
+--- /home/memre/workspace/packages/source/filelight-1.9rc3/src/part/settingsDialog.cpp	2009-05-30 01:44:37.000000000 +0300
++++ filelight/src/part/settingsDialog.cpp	2010-09-22 10:13:29.071000026 +0300
+@@ -23,29 +23,23 @@
+ #include "Config.h"
+ 
+ #include <KDirSelectDialog>
+-#include <KIconLoader>
+ #include <KLocale>
+ #include <KMessageBox>
+-#include <KNumInput>
+ 
+-#include <QApplication> //Getting desktop width
+-#include <QCheckBox>
+-#include <QPushButton>
+-#include <QRadioButton>
+-#include <QSlider>
+-#include <QVBoxLayout>
+-#include <QCloseEvent>
++#include <QtGui/QRadioButton>
++#include <QtGui/QCloseEvent>
++#include <QtCore/QDir>
+ 
+ SettingsDialog::SettingsDialog(QWidget *parent) : KDialog(parent)
+ {
+-    setButtons(0);//TODO, use the kdialog buttons
++    setButtons(KDialog::Reset | KDialog::Close);
+ 
+-    setupUi(this);
++    setupUi(this->mainWidget());
+     QVBoxLayout *vbox = new QVBoxLayout;
+     //colourSchemeGroup->setFrameShape(QFrame::NoFrame);
+ 
+     vbox->addWidget(new QRadioButton(i18n("Rainbow"), this), Filelight::Rainbow);
+-    vbox->addWidget(new QRadioButton(i18n("KDE Colors"), this), Filelight::KDE);
++    vbox->addWidget(new QRadioButton(i18n("System Colors"), this), Filelight::KDE);
+     vbox->addWidget(new QRadioButton(i18n("High Contrast"), this), Filelight::HighContrast);
+ 
+     colourSchemeGroup->setLayout(vbox);
+@@ -55,10 +49,10 @@
+ 
+     connect(&m_timer, SIGNAL(timeout()), SIGNAL(mapIsInvalid()));
+ 
+-    connect(m_addButton,    SIGNAL(clicked()), SLOT(addDirectory()));
+-    connect(m_removeButton, SIGNAL(clicked()), SLOT(removeDirectory()));
+-    connect(m_resetButton,  SIGNAL(clicked()), SLOT(reset()));
+-    connect(m_closeButton,  SIGNAL(clicked()), SLOT(close()));
++    connect(m_addButton,    SIGNAL(clicked()), SLOT(addFolder()));
++    connect(m_removeButton, SIGNAL(clicked()), SLOT(removeFolder()));
++    connect(this,  SIGNAL(resetClicked()), SLOT(reset()));
++    connect(this,  SIGNAL(closeClicked()), SLOT(close()));
+ 
+     connect(colourSchemeGroup, SIGNAL(clicked(int)), SLOT(changeScheme(int)));
+     connect(contrastSlider, SIGNAL(valueChanged(int)), SLOT(changeContrast(int)));
+@@ -67,6 +61,12 @@
+     connect(scanAcrossMounts,       SIGNAL(toggled(bool)), SLOT(startTimer()));
+     connect(dontScanRemoteMounts,   SIGNAL(toggled(bool)), SLOT(startTimer()));
+     connect(dontScanRemovableMedia, SIGNAL(toggled(bool)), SLOT(startTimer()));
++    connect(scanAcrossMounts,       SIGNAL(toggled(bool)),
++            SLOT(toggleScanAcrossMounts(bool)));
++    connect(dontScanRemoteMounts,   SIGNAL(toggled(bool)),
++            SLOT(toggleDontScanRemoteMounts(bool)));
++    connect(dontScanRemovableMedia, SIGNAL(toggled(bool)),
++            SLOT(toggleDontScanRemovableMedia(bool)));
+ 
+     connect(useAntialiasing,    SIGNAL(toggled(bool)), SLOT(toggleUseAntialiasing(bool)));
+     connect(varyLabelFontSizes, SIGNAL(toggled(bool)), SLOT(toggleVaryLabelFontSizes(bool)));
+@@ -74,10 +74,8 @@
+ 
+     connect(minFontPitch, SIGNAL (valueChanged(int)), SLOT(changeMinFontPitch(int)));
+ 
+-    m_addButton->setIcon(SmallIcon("folder-open"));
+-    m_removeButton->setIcon(SmallIcon("list-remove"));
+-    m_resetButton->setIcon(SmallIcon("edit-undo"));
+-    m_closeButton->setIcon(SmallIcon("dialog-close"));
++    m_addButton->setIcon(KIcon(QLatin1String( "folder-open" )));
++    m_removeButton->setIcon(KIcon(QLatin1String( "list-remove" )));
+ }
+ 
+ 
+@@ -108,7 +106,7 @@
+     m_listBox->addItems(Config::skipList);
+     m_listBox->setCurrentRow(0);
+ 
+-    m_removeButton->setEnabled(m_listBox->count() == 0);
++    m_removeButton->setEnabled(m_listBox->count() > 0);
+ 
+     //tab 2
+     if (colourSchemeGroup->selected() != Config::scheme) //TODO: This is probably wrong
+@@ -124,6 +122,7 @@
+     useAntialiasing->setChecked(Config::antialias);
+ 
+     varyLabelFontSizes->setChecked(Config::varyLabelFontSizes);
++    minFontPitchLabel->setEnabled(Config::varyLabelFontSizes);
+     minFontPitch->setEnabled(Config::varyLabelFontSizes);
+     minFontPitch->setValue(Config::minFontPitch);
+     showSmallFiles->setChecked(Config::showSmallFiles);
+@@ -151,29 +150,30 @@
+ 
+ 
+ 
+-void SettingsDialog::addDirectory()
++void SettingsDialog::addFolder()
+ {
+-    const KUrl url = KDirSelectDialog::selectDirectory(KUrl("/"), false, this, "Select directory...");
++    const KUrl url = KDirSelectDialog::selectDirectory(KUrl(QDir::rootPath()), false, this, i18n( "Select Folder to Scan" ));
+ 
+     //TODO error handling!
+     //TODO wrong protocol handling!
+ 
+     if (!url.isEmpty())
+     {
+-        const QString path = url.path(KUrl::RemoveTrailingSlash);
++        const QString path = url.path(KUrl::AddTrailingSlash);
+ 
+         if (!Config::skipList.contains(path))
+         {
+             Config::skipList.append(path);
+             m_listBox->addItem(path);
++            if (m_listBox->currentItem() == 0) m_listBox->setCurrentRow(0);
+             m_removeButton->setEnabled(true);
+         }
+-        else KMessageBox::sorry(this, i18n("That directory is already set to be excluded from scans"));
++        else KMessageBox::sorry(this, i18n("That folder is already set to be excluded from scans"));
+     }
+ }
+ 
+ 
+-void SettingsDialog::removeDirectory()
++void SettingsDialog::removeFolder()
+ {
+     Config::skipList.removeAll(m_listBox->currentItem()->text()); //removes all entries that match
+ 
+@@ -181,7 +181,8 @@
+     m_listBox->clear();
+     m_listBox->addItems(Config::skipList);
+ 
+-    m_removeButton->setEnabled(m_listBox->count() == 0);
++    m_removeButton->setEnabled(m_listBox->count() > 0);
++    if (m_listBox->count() > 0) m_listBox->setCurrentRow(0);
+ }
+ 
+ 
+@@ -209,6 +210,7 @@
+ void SettingsDialog::toggleVaryLabelFontSizes(bool b)
+ {
+     Config::varyLabelFontSizes = b;
++    minFontPitchLabel->setEnabled(b);
+     minFontPitch->setEnabled(b);
+     emit canvasIsDirty(0);
+ }
+diff -Naur '--exclude=.svn' /home/memre/workspace/packages/source/filelight-1.9rc3/src/part/settingsDialog.h filelight/src/part/settingsDialog.h
+--- /home/memre/workspace/packages/source/filelight-1.9rc3/src/part/settingsDialog.h	2009-05-30 01:44:37.000000000 +0300
++++ filelight/src/part/settingsDialog.h	2010-09-22 10:13:29.072000026 +0300
+@@ -24,8 +24,8 @@
+ 
+ #include "ui_dialog.h" //generated by uic
+ 
+-#include <QTimer>
+-#include <QCloseEvent>
++#include <QtCore/QTimer>
++#include <QtGui/QCloseEvent>
+ 
+ 
+ class SettingsDialog : public KDialog, public Ui::Dialog
+@@ -40,8 +40,8 @@
+     virtual void reject();
+ 
+ public slots:
+-    void addDirectory();
+-    void removeDirectory();
++    void addFolder();
++    void removeFolder();
+     void toggleScanAcrossMounts(bool);
+     void toggleDontScanRemoteMounts(bool);
+     void toggleDontScanRemovableMedia(bool);
+diff -Naur '--exclude=.svn' /home/memre/workspace/packages/source/filelight-1.9rc3/src/part/summaryWidget.cpp filelight/src/part/summaryWidget.cpp
+--- /home/memre/workspace/packages/source/filelight-1.9rc3/src/part/summaryWidget.cpp	2009-08-21 05:40:27.000000000 +0300
++++ filelight/src/part/summaryWidget.cpp	2010-09-22 10:13:29.067000026 +0300
+@@ -27,7 +27,6 @@
+ #include "radialMap/widget.h"
+ #include "summaryWidget.moc"
+ 
+-#include <KCursor>
+ #include <KDebug>
+ #include <KIconEffect> //MyRadialMap::mousePressEvent()
+ #include <KIconLoader>
+@@ -39,26 +38,25 @@
+ 
+ #include <KDiskFreeSpaceInfo>
+ 
+-#include <QLabel>
+-#include <QLayout>
+-#include <QApplication>
+-#include <QByteArray>
+-#include <Q3ValueList>
+-#include <QMouseEvent>
+-#include <QTextOStream>
++#include <QtGui/QLabel>
++#include <QtGui/QApplication>
++#include <QtCore/QByteArray>
++#include <QtCore/QList>
++#include <QtGui/QMouseEvent>
++#include <QtGui/QLayout>
+ 
+ struct Disk
+ {
+     QString mount;
+     QString icon;
+ 
+-    int size;
+-    int used;
+-    int free; //NOTE used+avail != size (clustersize!)
++    qint64 size;
++    qint64 used;
++    qint64 free; //NOTE used+avail != size (clustersize!)
+ };
+ 
+ 
+-struct DiskList : Q3ValueList<Disk>
++struct DiskList : QList<Disk>
+ {
+     DiskList();
+ };
+@@ -74,7 +72,7 @@
+ 
+     virtual void setCursor(const QCursor &c)
+     {
+-        if (focusSegment() && focusSegment()->file()->name() == "Used")
++        if (focusSegment() && focusSegment()->file()->name() == QLatin1String( "Used" ))
+             RadialMap::Widget::setCursor(c);
+         else
+             unsetCursor();
+@@ -85,11 +83,11 @@
+         const RadialMap::Segment *segment = focusSegment();
+ 
+         //we will allow right clicks to the center circle
+-        if (segment == rootSegment())
++        if (segment == rootSegment() && e->button() == Qt::RightButton)
+             RadialMap::Widget::mousePressEvent(e);
+ 
+         //and clicks to the used segment
+-        else if (segment && segment->file()->name() == "Used") {
++        else if (e->button() == Qt::LeftButton ) {
+             const QRect rect(e->x() - 20, e->y() - 20, 40, 40);
+ //            KIconEffect::visualActivate(this, rect); TODO: Re-enable
+             emit activated(url());
+@@ -112,12 +110,13 @@
+ {
+     DiskList disks;
+ 
+-    const QByteArray free = i18n("Free").toLocal8Bit();
+-    const QByteArray used = i18n("Used").toLocal8Bit();
++    const QByteArray free = i18nc("Free space on the disks/partitions", "Free").toUtf8();
++    const QByteArray used = i18nc("Used space on the disks/partitions", "Used").toUtf8();
+ 
+     KIconLoader loader;
++    QString text;
+ 
+-    for (DiskList::ConstIterator it = disks.begin(), end = disks.end(); it != end; ++it)
++    for (DiskList::ConstIterator it = disks.constBegin(), end = disks.constEnd(); it != end; ++it)
+     {
+         Disk const &disk = *it;
+ 
+@@ -133,7 +132,9 @@
+         QHBoxLayout* horizontalLayout = new QHBoxLayout(info);
+ 
+         // Create the text and icon under the radialMap.
+-        QLabel *label = new QLabel(disk.mount, this);
++        text = QLatin1String( "<b>" ) + disk.mount + i18nc("Percent used disk space on the partition", "</b> (%1% Used)", disk.used*100/disk.size);
++
++        QLabel *label = new QLabel(text, this);
+         horizontalLayout->addWidget(label);
+         QLabel *icon = new QLabel(this);
+         icon->setPixmap(KIcon(disk.icon).pixmap(16,16));
+@@ -146,7 +147,7 @@
+         //                                                      row (=n/2)           column (0 or 1)
+         qobject_cast<QGridLayout*>(layout())->addWidget(volume, layout()->count()/2, layout()->count() % 2);
+ 
+-        Directory *tree = new Directory(disk.mount.toLocal8Bit());
++        Folder *tree = new Folder(disk.mount.toUtf8());
+         tree->append(free, disk.free);
+         tree->append(used, disk.used);
+ 
+diff -Naur '--exclude=.svn' /home/memre/workspace/packages/source/filelight-1.9rc3/src/part/summaryWidget.h filelight/src/part/summaryWidget.h
+--- /home/memre/workspace/packages/source/filelight-1.9rc3/src/part/summaryWidget.h	2009-02-24 16:00:11.000000000 +0200
++++ filelight/src/part/summaryWidget.h	2010-09-22 10:13:29.068000026 +0300
+@@ -22,10 +22,10 @@
+ #ifndef SUMMARYWIDGET_H
+ #define SUMMARYWIDGET_H
+ 
+-#include <QWidget>
+-
+ #include <KUrl>
+ 
++#include <QtGui/QWidget>
++
+ class SummaryWidget : public QWidget
+ {
+     Q_OBJECT
