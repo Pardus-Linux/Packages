@@ -15,6 +15,7 @@ def setup():
     autotools.configure("--disable-static \
                          --enable-pam-module \
                          --localstatedir=/var \
+                         --with-systemdsystemunitdir=/lib/systemd/system \
                          --with-pid-file=/var/run/ConsoleKit/pid")
 
 def build():
