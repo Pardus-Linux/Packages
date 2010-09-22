@@ -29,4 +29,4 @@ def install():
         pisitools.dosym("../../../bin/ccache", "/usr/lib/ccache/bin/%s" % cc)
         pisitools.dosym("../../../bin/ccache", "/usr/lib/ccache/bin/%s-%s" % (get.HOST(), cc))
 
-    pisitools.dodoc("COPYING", "README.txt")
+    pisitools.dodoc("LICENSE.txt", "README.txt")
