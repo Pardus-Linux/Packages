@@ -1,0 +1,33 @@
+From 230ded7f8962788414e661f3e1445f2e16b2928c Mon Sep 17 00:00:00 2001
+From: Jan Niehusmann <jan@gondor.com>
+Date: Wed, 15 Sep 2010 15:39:41 -0700
+Subject: [PATCH] Change inotify suggestion to suggest CONFIG_INOTIFY_USER instead
+
+running powertop on 2.6.36-rc4, I noticed it suggests to enable
+CONFIG_INOTIFY, although I do have inotify support enabled.
+
+Reason is that the CONFIG_INOTIFY option was removed. What is still
+available is CONFIG_INOTIFY_USER, and I think that's what should be
+tested by powertop. CONFIG_INOTIFY_USER is available since 2.6.18.
+---
+ powertop.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/powertop.c b/powertop.c
+index 4af13da..42ef69c 100644
+--- a/powertop.c
++++ b/powertop.c
+@@ -1244,8 +1244,8 @@ int main(int argc, char **argv)
+ 		suggest_kernel_config("CONFIG_CPU_FREQ_STAT", 1,
+ 				    _("Suggestion: Enable the CONFIG_CPU_FREQ_STAT kernel configuration option.\n"
+ 				      "This option allows PowerTOP to show P-state percentages \n" "P-states correspond to CPU frequencies."), 2);
+-		suggest_kernel_config("CONFIG_INOTIFY", 1,
+-				    _("Suggestion: Enable the CONFIG_INOTIFY kernel configuration option.\n"
++		suggest_kernel_config("CONFIG_INOTIFY_USER", 1,
++				    _("Suggestion: Enable the CONFIG_INOTIFY_USER kernel configuration option.\n"
+ 				      "This option allows programs to wait for changes in files and directories\n"
+ 				      "instead of having to poll for these changes"), 5);
+ 
+-- 
+1.6.1
+
