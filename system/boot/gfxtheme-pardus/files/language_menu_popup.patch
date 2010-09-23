@@ -1,0 +1,98 @@
+diff -Nur pardus-old/src/common.inc pardus/src/common.inc
+--- pardus-old/src/common.inc	2010-09-23 13:36:01.032041443 +0300
++++ pardus/src/common.inc	2010-09-23 15:38:08.862044127 +0300
+@@ -722,6 +722,7 @@
+       } ifelse
+ 
+     } if
++    lang.displayed not { panel.lang } if
+   } if
+ 
+ } def
+@@ -1154,6 +1155,8 @@
+       1 add
+     } forall
+     tmp dup setlang pop setkeymap
++    % FIXME: lang panel pops up when there is no default, remark this if wanted otherwise
++    /lang.displayed true def
+   } {
+     pop
+     "en_US" dup setlang pop setkeymap
+diff -Nur pardus-old/src/dia_lang.inc pardus/src/dia_lang.inc
+--- pardus-old/src/dia_lang.inc	2010-09-23 13:36:01.033041290 +0300
++++ pardus/src/dia_lang.inc	2010-09-23 15:36:45.517078654 +0300
+@@ -12,6 +12,7 @@
+ % fallback if there is no "languages"
+ /lang.items [ "en_US" ] def
+ /lang.names [ "English (US)" ] def
++/lang.displayed false def
+ 
+ /.la.locale 0 def
+ /.la.rtl    1 def
+@@ -240,6 +241,16 @@
+ 
+ 
+ % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
++% Clean up after language menu has been undrawn.
++%
++% ( ) => ( )
++%
++/lang.cleanup {
++  /lang.displayed true def
++} def
++
++
++% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ % Show language menu.
+ %
+ % ( ) => ( )
+@@ -250,6 +261,7 @@
+   window.xmenu
+   dup .xmenu xmenu.lang put
+   dup .xmenu.update /lang.update put
++  dup .xmenu.cleanup /lang.cleanup put
+   dup window.init
+       window.show
+ } def
+diff -Nur pardus-old/src/window.inc pardus/src/window.inc
+--- pardus-old/src/window.inc	2010-09-23 13:36:01.032041443 +0300
++++ pardus/src/window.inc	2010-09-23 15:36:45.518080738 +0300
+@@ -93,6 +93,7 @@
+ /.ed.pw_field    newfield
+ /.xmenu          newfield
+ /.xmenu.update   newfield
++/.xmenu.cleanup  newfield
+ 
+ % window types
+ /t_dialog 100 def
+@@ -257,6 +258,10 @@
+       dup .saved.areas get free
+       dup .saved.areas .undef put
+     } if
++    % specific cleanup actions
++    window.current .type get
++    dup t_xmenu eq { xmenu.cleanup } if
++    pop
+     % free input field memory
+     dup .ed get .undef ne {
+       dup .ed get 2 get free		% background
+diff -Nur pardus-old/src/xmenu.inc pardus/src/xmenu.inc
+--- pardus-old/src/xmenu.inc	2010-09-23 13:36:01.032041443 +0300
++++ pardus/src/xmenu.inc	2010-09-23 15:36:45.519082820 +0300
+@@ -226,6 +226,16 @@
+ 
+ 
+ % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
++% Clean up after menu has been undrawn.
++%
++% ( ) ==> ( )
++%
++/xmenu.cleanup {
++  window.current .xmenu.cleanup get dup .undef ne { exec } { pop } ifelse
++} def
++
++
++% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ % Draw xmenu.
+ %
+ % ( window ) ==> ( )
