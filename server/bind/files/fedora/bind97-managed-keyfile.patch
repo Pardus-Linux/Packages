@@ -1,0 +1,20 @@
+diff -up bind-9.7.0rc2/bin/named/server.c.managed-keyfile bind-9.7.0rc2/bin/named/server.c
+--- bind-9.7.0rc2/bin/named/server.c.managed-keyfile	2010-02-15 16:17:26.051369348 +0100
++++ bind-9.7.0rc2/bin/named/server.c	2010-02-15 16:24:16.408368990 +0100
+@@ -3020,6 +3020,7 @@ configure_zone(const cfg_obj_t *config, 
+  */
+ 
+ #define KEYZONE "managed-keys.bind"
++#define KEYFILE "dynamic/managed-keys.bind"
+ 
+ static isc_result_t
+ add_keydata_zone(dns_view_t *view, isc_mem_t *mctx) {
+@@ -3040,7 +3041,7 @@ add_keydata_zone(dns_view_t *view, isc_m
+ 	CHECK(dns_zone_setorigin(zone, &zname));
+ 	dns_name_free(&zname, mctx);
+ 
+-	CHECK(dns_zone_setfile(zone, KEYZONE));
++	CHECK(dns_zone_setfile(zone, KEYFILE));
+ 
+ 	if (view->hints == NULL)
+ 		dns_view_sethints(view, ns_g_server->in_roothints);

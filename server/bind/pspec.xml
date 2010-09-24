@@ -1,0 +1,340 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>bind</Name>
+        <Homepage>http://www.isc.org/products/BIND/bind9.html</Homepage>
+        <Packager>
+            <Name>H. İbrahim Güngör</Name>
+            <Email>ibrahim@pardus.org.tr</Email>
+        </Packager>
+        <License>as-is</License>
+        <IsA>service</IsA>
+        <Summary>The Berkeley Internet Name Domain (BIND) DNS (Domain Name System) server</Summary>
+        <Description>BIND is an implementation of the DNS protocols, bind includes a DNS server (named), a resolver library and tools for verifying that the DNS server is operating properly.</Description>
+        <Archive sha1sum="b24ea0e8a67b841601b803f54070610036931e64" type="targz">http://ftp.isc.org/isc/bind9/9.7.1-P2/bind-9.7.1-P2.tar.gz</Archive>
+        <BuildDependencies>
+            <Dependency>libcap</Dependency>
+        </BuildDependencies>
+        <Patches>
+            <Patch level="1">nslookup-pardus.patch</Patch>
+
+            <!-- Common patches -->
+            <Patch level="1">fedora/bind-nonexec.patch</Patch>
+            <Patch level="1">fedora/bind-9.5-PIE.patch</Patch>
+            <Patch level="1">fedora/bind-96-dyndb.patch</Patch>
+
+            <!-- SDB (Simple Database Backend)
+            <Patch level="1">fedora/bind-96-old-api.patch</Patch>
+            <Patch level="1">fedora/bind-9.3.2b2-sdbsrc.patch</Patch>
+            <Patch level="1">fedora/bind-9.5-sdb.patch</Patch>
+            <Patch level="1">fedora/bind-9.3.2b1-fix_sdb_ldap.patch</Patch>
+            <Patch level="1">fedora/bind-9.5-sdb-sqlite-bld.patch</Patch>
+            -->
+
+            <Patch level="1">fedora/bind-9.5-overflow.patch</Patch>
+            <Patch level="1">fedora/bind-9.5-dlz-64bit.patch</Patch>
+            <Patch level="1">fedora/bind-9.5-libidn.patch</Patch>
+            <Patch level="1">fedora/bind-9.5-libidn2.patch</Patch>
+            <Patch level="1">fedora/bind-9.5-libidn3.patch</Patch>
+            <Patch level="1">fedora/bind-9.5-parallel-build.patch</Patch>
+            <Patch level="1">fedora/bind95-rh461409.patch</Patch>
+
+            <Patch level="1">fedora/bind-96-libtool2.patch</Patch>
+            <Patch level="1">fedora/bind-95-rh452060.patch</Patch>
+            <Patch level="0">fedora/bind93-rh490837.patch</Patch>
+            <Patch level="1">fedora/bind97-dist-pkcs11.patch</Patch>
+            <Patch level="1">fedora/bind97-rh478718.patch</Patch>
+            <Patch level="1">fedora/bind97-rh570851.patch</Patch>
+        </Patches>
+    </Source>
+
+    <Package>
+        <Name>bind-libs</Name>
+        <PartOf>server.library</PartOf>
+        <Summary>bind-libs contains the libraries used by both the bind server package and the tools package</Summary>
+        <RuntimeDependencies>
+            <Dependency>libcap</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="library">/usr/lib</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>bind-devel</Name>
+        <PartOf>server.library</PartOf>
+        <Summary>bind header and development files</Summary>
+        <RuntimeDependencies>
+            <Dependency>bind-libs</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="header">/usr/include</Path>
+            <Path fileType="executable">/usr/bin/isc-config.sh</Path>
+            <Path fileType="man">/usr/share/man/man1/isc-config*</Path>
+            <Path fileType="man">/usr/share/man/man3/lwres*</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>bind-tools</Name>
+        <IsA>app:console</IsA>
+        <PartOf>network.analyzer</PartOf>
+        <Summary>Utilities for querying DNS name servers</Summary>
+        <RuntimeDependencies>
+            <Dependency>bind-libs</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="executable">/usr/bin</Path>
+            <Path fileType="man">/usr/share/man/man1</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>bind-chroot</Name>
+        <Summary>A chroot runtime environment for the ISC BIND DNS server 'named'.</Summary>
+        <RuntimeDependencies>
+            <Dependency>bind</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="config">/var/named/chroot/etc</Path>
+            <Path fileType="data">/var/named/chroot</Path>
+        </Files>
+        <Provides>
+            <COMAR script="chroot_package.py">System.Package</COMAR>
+        </Provides>
+    </Package>
+
+    <Package>
+        <Name>bind</Name>
+        <RuntimeDependencies>
+            <Dependency>bind-libs</Dependency>
+            <Dependency>libcap</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="config">/etc</Path>
+            <Path fileType="executable">/usr/sbin</Path>
+            <Path fileType="data">/var</Path>
+            <Path fileType="man">/usr/share/man/man3</Path>
+            <Path fileType="man">/usr/share/man/man5</Path>
+            <Path fileType="man">/usr/share/man/man8</Path>
+            <Path fileType="doc">/usr/share/doc</Path>
+        </Files>
+        <AdditionalFiles>
+            <AdditionalFile owner="root" permission="0644" target="/etc/bind/named.conf">named.conf</AdditionalFile>
+            <AdditionalFile owner="root" permission="0644" target="/etc/conf.d/named">named.confd</AdditionalFile>
+            <AdditionalFile owner="root" permission="0644" target="/var/named/named.ca">gentoo/named.ca</AdditionalFile>
+            <AdditionalFile owner="root" permission="0644" target="/var/named/pri/127.zone">gentoo/127.zone</AdditionalFile>
+            <AdditionalFile owner="root" permission="0644" target="/var/named/pri/localhost.zone">gentoo/localhost.zone</AdditionalFile>
+            <AdditionalFile owner="root" permission="0644" target="/etc/logrotate.d/named">fedora/named.logrotate</AdditionalFile>
+        </AdditionalFiles>
+        <Provides>
+            <COMAR script="service.py">System.Service</COMAR>
+            <COMAR script="bind_package.py">System.Package</COMAR>
+        </Provides>
+    </Package>
+
+    <History>
+        <Update release="28">
+            <Date>2010-09-16</Date>
+            <Version>9.7.1_p2</Version>
+            <Comment>Version bump.</Comment>
+            <Name>H. İbrahim Güngör</Name>
+            <Email>ibrahim@pardus.org.tr</Email>
+        </Update>
+        <Update release="27">
+            <Date>2010-03-31</Date>
+            <Version>9.7.0_p1</Version>
+            <Comment>Version bump, add libcap dependency</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="26">
+            <Date>2010-03-12</Date>
+            <Version>9.7.0</Version>
+            <Comment>Version bump.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="25" type="security">
+            <Date>2010-01-21</Date>
+            <Version>9.6.1_p3</Version>
+            <Comment>Version bump to fix bogus NXDOMAIN response caused by NSEC/NSEC3 validation code. CVE-2010-0097, #12105</Comment>
+            <Name>Eren Türkay</Name>
+            <Email>eren@pardus.org.tr</Email>
+        </Update>
+        <Update release="24">
+            <Date>2009-12-17</Date>
+            <Version>9.6.1_p2</Version>
+            <Comment>Fix wrong bind-tools PartOf</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="23" type="security">
+            <Date>2009-12-03</Date>
+            <Version>9.6.1_p2</Version>
+            <Comment>Security patch release (Bug#11620)</Comment>
+            <Name>Taner Taş</Name>
+            <Email>taner@pardus.org.tr</Email>
+        </Update>
+        <Update release="22">
+            <Date>2009-05-05</Date>
+            <Version>9.6.0_p1</Version>
+            <Comment>First 9.6 release</Comment>
+            <Name>Taner Taş</Name>
+            <Email>taner@pardus.org.tr</Email>
+        </Update>
+       <Update release="21" type="security">
+            <Date>2009-04-13</Date>
+            <Version>9.4.3_p2</Version>
+            <Comment>Security patch release</Comment>
+            <Name>Taner Taş</Name>
+            <Email>taner@pardus.org.tr</Email>
+        </Update>
+        <Update release="20" type="security">
+            <Date>2009-01-07</Date>
+            <Version>9.4.3_p1</Version>
+            <Comment>Version bump to fix incorrect checks for malformed signatures (CVE-2009-0025)</Comment>
+            <Name>Pınar Yanardağ</Name>
+            <Email>pinar@pardus.org.tr</Email>
+        </Update>
+        <Update release="19">
+            <Date>2008-08-16</Date>
+            <Version>9.4.2_p2</Version>
+            <Comment>Fix bug 7801 by modifying libbind-9.3.1rc1-fix_h_errno.patch</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="18" type="security">
+            <Date>2008-08-02</Date>
+            <Version>9.4.2_p2</Version>
+            <Comment>
+                Security bump to new patchset:
+                    + significantly remedying the port allocation issues
+                    + allowing TCP queries and zone transfers while issuing as many outstanding UDP queries as possible
+                    + additional security of port randomization at the same level as P1
+            </Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="17" type="security">
+            <Date>2008-07-09</Date>
+            <Version>9.4.2_p1</Version>
+            <Comment>Security bump for CVE-2008-1447</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="16" type="security">
+            <Date>2008-03-23</Date>
+            <Version>9.4.1_p1</Version>
+            <Comment>Take in CVE-2008-0122.patch</Comment>
+            <Name>Eren Türkay</Name>
+            <Email>turkay.eren@gmail.com</Email>
+        </Update>
+        <Update release="15" type="security">
+            <Date>2008-01-25</Date>
+            <Version>9.4.1_p1</Version>
+            <Comment>Revert to 9.4.1_p1</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="14" type="security">
+            <Date>2008-01-18</Date>
+            <Version>9.4.2</Version>
+            <Comment>Fix CVE-2008-0122</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="13">
+            <Date>2007-11-28</Date>
+            <Version>9.4.2</Version>
+            <Comment>Version bump</Comment>
+            <Name>Ali Erdinç Köroğlu</Name>
+            <Email>erdinc@pardus.org.tr</Email>
+        </Update>
+        <Update release="12">
+            <Date>2007-11-05</Date>
+            <Version>9.4.1_p1</Version>
+            <Comment>Update named.ca to reflect IP changes</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="11" type="security">
+            <Date>2007-07-24</Date>
+            <Version>9.4.1_p1</Version>
+            <Comment>Stable update to fix CVE-2007-2925 and CVE-2007-2926</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="10">
+            <Date>2007-05-23</Date>
+            <Version>9.4.1</Version>
+            <Comment>Updated Service script.</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="9">
+            <Date>2007-05-09</Date>
+            <Version>9.4.1</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="8">
+            <Date>2007-01-26</Date>
+            <Version>9.3.4</Version>
+            <Comment>Version bump to stable and bugfix #4731</Comment>
+            <Name>Ali Erdinç Köroğlu</Name>
+            <Email>erdinc@pardus.org.tr</Email>
+        </Update>
+        <Update release="7">
+            <Date>2006-12-23</Date>
+            <Version>9.3.3</Version>
+            <Comment>Version bump to stable</Comment>
+            <Name>Ali Erdinç Köroğlu</Name>
+            <Email>erdinc@pardus.org.tr</Email>
+        </Update>
+        <Update release="6">
+            <Date>2006-11-04</Date>
+            <Version>9.3.2_p2</Version>
+            <Comment>Stable update to fix OpenSSL RSA forgery vulnerability</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="5">
+            <Date>2006-09-17</Date>
+            <Version>9.3.2</Version>
+            <Comment>Revert last</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="4" type="security">
+            <Date>2006-09-13</Date>
+            <Version>9.3.2_p1</Version>
+            <Comment>Version bump</Comment>
+            <Name>Ali Erdinç Köroğlu</Name>
+            <Email>erdinc@pardus.org.tr</Email>
+        </Update>
+        <Update release="3">
+            <Date>2006-04-09</Date>
+            <Version>9.3.2</Version>
+            <Comment>New release</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="2">
+            <Date>2005-11-12</Date>
+            <Version>9.3.1</Version>
+            <Comment>Version Upgrade</Comment>
+            <Name>Timu EREN</Name>
+            <Email>selamtux@gmail.com</Email>
+        </Update>
+        <Update release="1">
+            <Date>2005-09-30</Date>
+            <Version>9.2.3</Version>
+            <Comment>First release.</Comment>
+            <Name>Timu EREN</Name>
+            <Email>selamtux@gmail.com</Email>
+        </Update>
+    </History>
+</PISI>
