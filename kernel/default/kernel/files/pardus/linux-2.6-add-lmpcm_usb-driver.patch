@@ -1,8 +1,31 @@
-Index: linux-2.6.29/drivers/input/mouse/lmpcm_usb.c
-===================================================================
---- /dev/null
-+++ drivers/input/mouse/lmpcm_usb.c
-@@ -0,0 +1,466 @@
+--- a/drivers/input/mouse/Kconfig
++++ b/drivers/input/mouse/Kconfig
+@@ -303,4 +303,12 @@ config MOUSE_MAPLE
+ 	  To compile this driver as a module choose M here: the module will be
+ 	  called maplemouse.
+ 
++config MOUSE_LMPCM_USB
++	tristate "Logitech MediaPlay Cordless Mouse USB Driver"
++	default m
++	depends on USB
++	help
++	  Say Y (or M) if you want to use a Logitech MediaPlay Cordless
++	  Mouse USB.
++
+ endif
+--- a/drivers/input/mouse/Makefile
++++ b/drivers/input/mouse/Makefile
+@@ -19,6 +19,7 @@ obj-$(CONFIG_MOUSE_PXA930_TRKBALL)	+= px
+ obj-$(CONFIG_MOUSE_RISCPC)		+= rpcmouse.o
+ obj-$(CONFIG_MOUSE_SERIAL)		+= sermouse.o
+ obj-$(CONFIG_MOUSE_VSXXXAA)		+= vsxxxaa.o
++obj-$(CONFIG_MOUSE_LMPCM_USB)		+= lmpcm_usb.o
+ 
+ psmouse-objs := psmouse-base.o synaptics.o
+ 
+--- /dev/null	2010-09-20 17:04:34.426434595 +0300
++++ b/drivers/input/mouse/lmpcm_usb.c
+@@ -0,0 +1,464 @@
 +/*
 + *  Copyright (c) 2004-2005 David Oliveira
 + *
@@ -37,7 +60,7 @@ Index: linux-2.6.29/drivers/input/mouse/lmpcm_usb.c
 +#include <linux/usb.h>
 +
 +
-+#define DRIVER_VERSION	"v0.5.7"
++#define DRIVER_VERSION	"v0.5.8"
 +#define DRIVER_AUTHOR	"David Oliveira <d.oliveira@prozone.org>"
 +#define DRIVER_DESC	"USB Logitech MediaPlay Cordless Mouse driver"
 +#define DRIVER_LICENSE	"GPL"
@@ -114,7 +137,7 @@ Index: linux-2.6.29/drivers/input/mouse/lmpcm_usb.c
 +		usb_free_urb(lmpcm->urb);
 +
 +	if ( lmpcm->data )
-+		usb_buffer_free(lmpcm->usbdev,8,lmpcm->data,lmpcm->data_dma);
++		usb_free_coherent(lmpcm->usbdev,8,lmpcm->data,lmpcm->data_dma);
 +
 +	kfree(lmpcm);	
 +
@@ -155,7 +178,7 @@ Index: linux-2.6.29/drivers/input/mouse/lmpcm_usb.c
 +
 +	// Create data required for urb transfer
 +
-+	if (!(lmpcm->data = usb_buffer_alloc(dev,8,ATOMIC,&lmpcm->data_dma))) {
++	if (!(lmpcm->data = usb_alloc_coherent(dev,8,ATOMIC,&lmpcm->data_dma))) {
 +		lmpcm_free(lmpcm);
 +		return NULL;
 +	}
@@ -248,20 +271,18 @@ Index: linux-2.6.29/drivers/input/mouse/lmpcm_usb.c
 +
 +static void usb_lmpcm_close(struct input_dev *dev) {
 +
-+	//lmpcm_t *mouse = dev->private;
 +	lmpcm_t *mouse = input_get_drvdata(dev);
-+
 +
 +	if (!--mouse->open)
 +		usb_kill_urb(mouse->urb);
 +
 +}
 +
-+static void input_device_init ( struct input_dev *inputdev, struct usb_interface *intf, void *private, struct usb_device *dev ) {
++static void input_device_init ( struct input_dev *inputdev, struct usb_interface *intf, struct usb_device *dev ) {
 +
 +	char path[64];
 +
-+	lmpcm_t *mouse = (lmpcm_t *) private;
++	lmpcm_t *mouse = (lmpcm_t *) input_get_drvdata(inputdev);
 +
 +	int
 +		x,
@@ -358,7 +379,7 @@ Index: linux-2.6.29/drivers/input/mouse/lmpcm_usb.c
 +
 +	// Initialize input device
 +
-+	input_device_init(mouse->inputdev,intf,mouse,dev);
++	input_device_init(mouse->inputdev,intf,dev);
 +
 +
 +	// Set device name
@@ -453,8 +474,8 @@ Index: linux-2.6.29/drivers/input/mouse/lmpcm_usb.c
 +	// Register usb driver
 +
 +	rv = usb_register(&usb_lmpcm_driver);
-+
-+	pr_info(DRIVER_VERSION ":" DRIVER_DESC);
++	if ( rv == 0 )
++		printk(KERN_INFO KBUILD_MODNAME ": " DRIVER_VERSION ":" DRIVER_DESC "\n");
 +
 +	return rv;
 +}
@@ -469,32 +490,3 @@ Index: linux-2.6.29/drivers/input/mouse/lmpcm_usb.c
 +
 +module_init(usb_lmpcm_init);
 +module_exit(usb_lmpcm_exit);
-Index: drivers/input/mouse/Kconfig
-===================================================================
---- drivers/input/mouse/Kconfig.orig
-+++ drivers/input/mouse/Kconfig
-@@ -303,4 +303,12 @@ config MOUSE_MAPLE
- 	  To compile this driver as a module choose M here: the module will be
- 	  called maplemouse.
- 
-+config MOUSE_LMPCM_USB
-+	tristate "Logitech MediaPlay Cordless Mouse USB Driver"
-+	default m
-+	depends on USB
-+	help
-+	  Say Y (or M) if you want to use a Logitech MediaPlay Cordless
-+	  Mouse USB.
-+
- endif
-Index: drivers/input/mouse/Makefile
-===================================================================
---- drivers/input/mouse/Makefile.orig
-+++ drivers/input/mouse/Makefile
-@@ -19,6 +19,7 @@ obj-$(CONFIG_MOUSE_PXA930_TRKBALL)	+= px
- obj-$(CONFIG_MOUSE_RISCPC)		+= rpcmouse.o
- obj-$(CONFIG_MOUSE_SERIAL)		+= sermouse.o
- obj-$(CONFIG_MOUSE_VSXXXAA)		+= vsxxxaa.o
-+obj-$(CONFIG_MOUSE_LMPCM_USB)		+= lmpcm_usb.o
- 
- psmouse-objs := psmouse-base.o synaptics.o
- 
