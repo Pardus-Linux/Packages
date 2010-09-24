@@ -1,0 +1,28 @@
+#! /bin/sh
+#
+# Tiny startup wrapper for the Eclipse 3.0.x series
+#
+# Copyright (c) 2004, Karl Trygve Kalleberg <karltk@gentoo.org>
+# Copyright (c) 2004, Gentoo Foundation
+#
+# Licensed under the GNU General Public License, version 2
+#
+
+if [ -f $HOME/.eclipserc ] ; then
+	. $HOME/.eclipserc
+fi
+
+if [ -z "${ECLIPSE_HOME}" ] ; then
+	ECLIPSE_HOME=/opt/eclipse
+	ECLIPSE_BIN=${ECLIPSE_HOME}/eclipse
+fi
+
+if [ ! -x ${ECLIPSE_BIN} ] ; then
+	echo "Failed to find executable '${ECLIPSE_BIN}'" > /dev/stderr
+	exit -1
+fi
+
+# Fix upstream  buttons not being clickable bug reportes as  #290395, #291257
+export GDK_NATIVE_WINDOWS=true
+
+${ECLIPSE_BIN} $@
