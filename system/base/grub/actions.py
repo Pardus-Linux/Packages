@@ -10,11 +10,15 @@ from pisi.actionsapi import pisitools
 from pisi.actionsapi import shelltools
 from pisi.actionsapi import get
 
+# use it only for 64bit builds for now, since ncurses does not provide static files grub shell borks, in tab completion for example
+# staticflag = "-static"
+staticflag = ""
+
 def setup():
     # do not delete, testing if this line is necessary
     # shelltools.export("CFLAGS", "%s -fno-stack-protector -DNDEBUG -fno-strict-aliasing -minline-all-stringops" % get.CFLAGS())
-    shelltools.export("CFLAGS", "")
-    shelltools.export("LDFLAGS", "-static")
+    shelltools.export("CFLAGS", "-Os -g -fno-strict-aliasing %s" % staticflag)
+    shelltools.export("LDFLAGS", "")
     shelltools.export("grub_cv_prog_objcopy_absolute", "yes")
 
     if not get.ARCH() == "x86_64":
