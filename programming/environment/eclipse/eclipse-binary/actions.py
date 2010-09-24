@@ -14,4 +14,5 @@ WorkDir = "."
 def install():
     pisitools.dodir("/opt")
     shelltools.copytree("eclipse", "%s/opt/eclipse" % get.installDIR())
+    pisitools.dosym("/opt/eclipse/eclipse","/usr/bin/eclipse")
 
