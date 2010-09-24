@@ -40,7 +40,7 @@ def setGroupId(group_name, gid):
 
 def setUserId(user_name, uid):
     ctx = libuser.admin()
-    user = ctx.lookupUserByName(nick)
+    user = ctx.lookupUserByName(user_name)
     if user:
         user.set(libuser.UIDNUMBER, [uid])
         ctx.modifyUser(user)
