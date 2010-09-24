@@ -33,14 +33,6 @@ def install():
     # This were explicitly not installed in Pardus 2008, so I remove it.
     pisitools.remove("/lib/udev/rules.d/79-fstab_import.rules")
 
-    # FIXME: We have GROUP conversions here!
-    # Only some gentoo and 50-udev-default.rules are affected by the renamings below
-
-    pisitools.dosed("%s/lib/udev/rules.d/60-floppy.rules" % get.installDIR(), '-G floppy', '-G pnp')
-    pisitools.dosed("%s/lib/udev/rules.d/50-udev-default.rules" % get.installDIR(), 'GROUP="floppy"', 'GROUP="pnp"')
-    pisitools.dosed("%s/lib/udev/rules.d/50-udev-default.rules" % get.installDIR(), 'GROUP="lp"', 'GROUP="pnp"')
-    pisitools.dosed("%s/lib/udev/rules.d/50-udev-default.rules" % get.installDIR(), 'GROUP="cdrom"', 'GROUP="removable"')
-
     # create needed directories
     for d in ("", "net", "pts", "shm", "hugepages"):
         pisitools.dodir("/lib/udev/devices/%s" % d)
