@@ -17,7 +17,7 @@ def build():
     autotools.make()
 
 def install():
-    pisitools.insinto("/usr/share/fonts/liberation-fonts", "liberation-fonts-ttf-*/*.ttf")
+    pisitools.insinto("/usr/share/fonts/liberation-fonts", "*ttf*/*.ttf")
     pisitools.dosym("../conf.avail/59-liberation-fonts.conf", "/etc/fonts/conf.d/59-liberation-fonts.conf")
 
     pisitools.dodoc("COPYING", "*.txt", "AUTHORS", "ChangeLog", "README")
