@@ -188,15 +188,14 @@ def setRepoActivities(repos=None):
             pisi.api.set_repo_activity(repo, active)
 
 @privileged
-def setRepositories(repos=None):
-    if repos:
-        oldRepos = pisi.db.repodb.RepoDB().list_repos(only_active=False)
+def setRepositories(repos):
+    oldRepos = pisi.db.repodb.RepoDB().list_repos(only_active=False)
 
-        for repo in oldRepos:
-            pisi.api.remove_repo(repo)
+    for repo in oldRepos:
+        pisi.api.remove_repo(repo)
 
-        for repo in repos:
-            pisi.api.add_repo(repo[0], repo[1])
+    for repo in repos:
+        pisi.api.add_repo(repo[0], repo[1])
 
 @privileged
 # ex: setConfig("general", "bandwidth_limit", "30")
