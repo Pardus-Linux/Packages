@@ -22,16 +22,13 @@ def setup():
                     -DWITH_OXYGEN=ON \
                     -DWITH_LIBINDICATE=OFF \
                     -DEMBED_DATA=OFF \
-                    -DDATA_INSTALL_DIR=/usr/share/kde4/apps \
-                    -DLINGUAS='cs da de en_US fr hu it nb_NO tr_TR ru'")
+                    -DDATA_INSTALL_DIR=/usr/share/kde4/apps")
 
 def build():
     kde4.make()
 
 def install():
     kde4.install()
-
-    pisitools.dobin("scripts/manageusers.py")
 
     pisitools.dodir("/var/cache/quassel")
     shelltools.chmod("%s/var/cache/quassel" % get.installDIR(), 0770)
