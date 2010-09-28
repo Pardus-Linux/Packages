@@ -49,6 +49,7 @@ def setup():
                             -no-sql-sqlite2 \
                             -system-sqlite \
                             -plugin-sql-sqlite \
+                            -plugin-sql-odbc \
                             -plugin-sql-mysql \
                             -plugin-sql-psql \
                             -plugin-sql-ibase \
@@ -89,13 +90,13 @@ def install():
     #Remove phonon, we use KDE's phonon but we have to build Qt with Phonon support for webkit and some other stuff
     pisitools.remove("%s/libphonon*" % qt4.libdir)
     pisitools.removeDir("%s/phonon" % qt4.includedir)
-    pisitools.removeDir("%s/phonon_backend" % qt4.plugindir)
+    #pisitools.removeDir("%s/phonon_backend" % qt4.plugindir)
     pisitools.remove("%s/pkgconfig/phonon*" % qt4.libdir)
     pisitools.remove("/usr/share/dbus-1/interfaces/org.kde.Phonon.AudioOutput.xml")
     os.removedirs("%s/usr/share/dbus-1/interfaces" % get.installDIR())
 
-    pisitools.remove("%s/phononbackends/gstreamer.desktop" % kde4.servicesdir)
-    os.removedirs("%s/%s/phononbackends" % (get.installDIR(), kde4.servicesdir))
+    #pisitools.remove("%s/phononbackends/gstreamer.desktop" % kde4.servicesdir)
+    #os.removedirs("%s/%s/phononbackends" % (get.installDIR(), kde4.servicesdir))
 
     # Turkish translations
     shelltools.export("LD_LIBRARY_PATH", "%s%s" % (get.installDIR(), qt4.libdir))
