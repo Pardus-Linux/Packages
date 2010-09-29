@@ -14,6 +14,7 @@ KeepSpecial=["perl"]
 
 def setup():
     shelltools.export("LC_ALL", "C")
+    shelltools.export("BUILD_BZIP2", "0")
 
     shelltools.system('sh Configure -des \
                       -Darchname=%s-linux \
