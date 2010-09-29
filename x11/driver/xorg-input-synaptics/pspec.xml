@@ -12,9 +12,7 @@
         <IsA>driver</IsA>
         <Summary>X.Org synaptics input driver</Summary>
         <Description>xorg-input-synaptics contains the X.Org driver for Synaptics touchpad devices.</Description>
-        <Archive sha1sum="3ce93f2f70d1d4980209accfe6b1f50a74559af1" type="tarbz2">http://cekirdek.pardus.org.tr/~fatih/dist/xorg/xf86-input-synaptics-1.2.99.1_20100820gitabb448a.tar.bz2</Archive>
-        <!-- <Archive sha1sum="20ee874ef3dd391dbcfb03285b1b352c0234a00f" type="tarbz2">mirrors://xorg/individual/driver/xf86-input-synaptics-1.2.2.tar.bz2</Archive> -->
-
+        <Archive sha1sum="132fff19a3a1768e7ab403f44ebc28e0480a4120" type="tarbz2">mirrors://xorg/individual/driver/xf86-input-synaptics-1.3.0.tar.bz2</Archive>
         <BuildDependencies>
             <Dependency>libXi-devel</Dependency>
             <Dependency>libXtst-devel</Dependency>
@@ -28,6 +26,7 @@
             <Patch level="1">105_correct_multifinger_click.patch</Patch>
             -->
             <Patch level="1">106_always_enable_vert_edge_scroll.patch</Patch>
+            <Patch level="1">115_evdev_only.patch</Patch>
         </Patches>
     </Source>
 
@@ -39,18 +38,23 @@
             <Dependency versionFrom="1.8.99">xorg-server</Dependency>
         </RuntimeDependencies>
         <Files>
+            <Path fileType="data">/lib/udev</Path>
             <Path fileType="executable">/usr/bin</Path>
             <Path fileType="library">/usr/lib/xorg</Path>
             <Path fileType="data">/usr/share/X11</Path>
             <Path fileType="man">/usr/share/man</Path>
         </Files>
+        <AdditionalFiles>
+            <AdditionalFile owner="root" permission="0644" target="/usr/share/X11/xorg.conf.d/51-touchpad-quirks.conf">51-touchpad-quirks.conf</AdditionalFile>
+            <AdditionalFile owner="root" permission="0644" target="/lib/udev/rules.d/70-touchpad-quirks.rules">70-touchpad-quirks.rules</AdditionalFile>
+        </AdditionalFiles>
     </Package>
 
     <Package>
         <Name>xorg-input-synaptics-devel</Name>
         <Summary>Development files for xorg-input-synaptics</Summary>
         <RuntimeDependencies>
-            <Dependency release="10">xorg-input-synaptics</Dependency>
+            <Dependency release="11">xorg-input-synaptics</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="header">/usr/include</Path>
@@ -59,6 +63,16 @@
     </Package>
 
     <History>
+        <Update release="11">
+            <Date>2010-09-29</Date>
+            <Version>1.3.0</Version>
+            <Comment>
+                - Bump to the new stable release
+                - Add quirk for Dell Mini
+            </Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
         <Update release="10">
             <Date>2010-08-20</Date>
             <Version>1.2.99.1_20100820</Version>
