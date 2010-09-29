@@ -98,6 +98,12 @@
             <!-- Fix temporary filename creation. -->
             <Patch level="1">fedora/cups-str3382.patch</Patch>
 
+            <!-- Force the use of gnutls despite thread-safety concerns -->
+            <Patch level="1">fedora/cups-force-gnutls.patch</Patch>
+
+            <!-- Perform locking for gnutls and avoid libgcrypt's broken locking -->
+            <Patch level="1">fedora/cups-serialize-gnutls.patch</Patch>
+
             <!-- Use mode 0755 for binaries and libraries where appropriate. -->
             <Patch level="1">fedora/cups-0755.patch</Patch>
 
@@ -182,12 +188,12 @@
             <Dependency>poppler-utils</Dependency>
             <Dependency>mit-kerberos</Dependency>
             <Dependency>cyrus-sasl</Dependency>
+            <Dependency>avahi-libs</Dependency>
             <Dependency>libtasn1</Dependency>
             <Dependency>libpaper</Dependency>
             <Dependency>openslp</Dependency>
             <Dependency>gnutls</Dependency>
             <Dependency>libpng</Dependency>
-            <Dependency>avahi</Dependency>
             <Dependency>jpeg</Dependency>
             <Dependency>tiff</Dependency>
         </RuntimeDependencies>
@@ -236,7 +242,6 @@
             <AdditionalFile owner="root" permission="0644" target="/usr/share/cups/model/postscript.ppd">ubuntu/postscript.ppd</AdditionalFile>
 
             <!-- Udev rules for ACL management -->
-            <!-- FIXME: GROUP conversion here (lp->pnp) -->
             <AdditionalFile owner="root" permission="0644" target="/lib/udev/rules.d/70-cups-libusb.rules">cups-libusb.rules</AdditionalFile>
         </AdditionalFiles>
         <Provides>
@@ -263,7 +268,7 @@
         <Summary>Development files for cups</Summary>
         <RuntimeDependencies>
             <Dependency>gnutls-devel</Dependency>
-            <Dependency release="76">cups</Dependency>
+            <Dependency release="77">cups</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="header">/usr/include</Path>
@@ -272,6 +277,13 @@
     </Package>
 
     <History>
+        <Update release="77">
+            <Date>2010-09-29</Date>
+            <Version>1.4.4</Version>
+            <Comment>Fix group leftovers, add fedora patches to fix gnutls threading issues and enable threading.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
         <Update release="76">
             <Date>2010-09-20</Date>
             <Version>1.4.4</Version>

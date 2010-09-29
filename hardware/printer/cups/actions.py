@@ -26,7 +26,7 @@ def setup():
                          --with-docdir=/usr/share/cups/html \
                          --with-dbusdir=/etc/dbus-1 \
                          --with-pdftops=pdftops \
-                         --with-optim="%s -fstack-protector-all" \
+                         --with-optim="%s -fstack-protector-all -DLDAP_DEPRECATED=1" \
                          --with-php=/usr/bin/php-cgi \
                          --without-java \
                          --localstatedir=/var \
@@ -45,9 +45,9 @@ def setup():
                          --enable-dnssd \
                          --enable-browsing \
                          --enable-ldap \
+                         --enable-threads \
                          --enable-gnutls \
                          --disable-launchd \
-                         --disable-threads \
                          --without-rcdir' % get.CFLAGS())
 
 
@@ -64,7 +64,5 @@ def install():
 
     # Serial backend needs to run as root
     shelltools.chmod("%s/usr/lib/cups/backend/serial" % get.installDIR(), 0700)
-
-    #pisitools.removeDir("/etc/xinetd.d/")
 
     pisitools.dodoc("CHANGES.txt", "CREDITS.txt", "LICENSE.txt", "README.txt")

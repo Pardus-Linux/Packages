@@ -16,8 +16,8 @@ def start():
 
     # Load ppdev and lp drivers if wanted
     if config.get("LOAD_LP_MODULE") == "yes":
-        os.system("modprobe -q lp")
-        os.system("modprobe -q ppdev")
+        os.system("/sbin/modprobe -q lp")
+        os.system("/sbin/modprobe -q ppdev")
 
     startService(command="/usr/sbin/cupsd",
                  donotify=True)
