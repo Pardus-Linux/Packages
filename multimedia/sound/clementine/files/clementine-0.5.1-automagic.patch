@@ -1,0 +1,101 @@
+From adb1b24808144d73555d63a0e432f84312513ee9 Mon Sep 17 00:00:00 2001
+From: Nikoli <nikoli@lavabit.com>
+Date: Tue, 21 Sep 2010 17:42:32 +0400
+Subject: [PATCH] fix automagic
+
+---
+ CMakeLists.txt       |   22 +++++++++++++---------
+ src/CMakeLists.txt   |    4 ++--
+ tests/CMakeLists.txt |    4 ++--
+ 3 files changed, 17 insertions(+), 13 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index eddbbbc..9e7296f 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -112,6 +112,10 @@ if(NOT GETTEXT_XGETTEXT_EXECUTABLE)
+ endif(NOT GETTEXT_XGETTEXT_EXECUTABLE)
+ 
+ # Optional bits
++option(ENABLE_LIBGPOD "iPod classic support" ON)
++option(ENABLE_IMOBILEDEVICE "iPod Touch, iPhone, iPad support" ON)
++option(ENABLE_LIBMTP "MTP support" ON)
++option(ENABLE_GIO "GIO backend" ON)
+ option(ENABLE_VISUALISATIONS "Use libprojectm visualisations" ON)
+ option(BUNDLE_PROJECTM_PRESETS "Install Clementine's own copies of libprojectm presets - disable this if you want to use a system package instead" ON)
+ 
+@@ -119,21 +123,21 @@ if(NOT APPLE AND NOT WIN32)
+   option(ENABLE_WIIMOTEDEV "Enable Wii remote support in Clementine" ON)
+ endif(NOT APPLE AND NOT WIN32)
+ 
+-if(LIBGPOD_FOUND)
++if(ENABLE_LIBGPOD AND LIBGPOD_FOUND)
+   set(HAVE_LIBGPOD ON)
+-endif(LIBGPOD_FOUND)
++endif(ENABLE_LIBGPOD AND LIBGPOD_FOUND)
+ 
+-if(GIO_FOUND)
++if(ENABLE_GIO AND GIO_FOUND)
+   set(HAVE_GIO ON)
+-endif(GIO_FOUND)
++endif(ENABLE_GIO AND GIO_FOUND)
+ 
+-if(IMOBILEDEVICE_FOUND AND PLIST_FOUND AND LIBGPOD_FOUND AND USBMUXD_FOUND)
++if(ENABLE_IMOBILEDEVICE AND IMOBILEDEVICE_FOUND AND PLIST_FOUND AND HAVE_LIBGPOD AND USBMUXD_FOUND)
+   set(HAVE_IMOBILEDEVICE ON)
+-endif(IMOBILEDEVICE_FOUND AND PLIST_FOUND AND LIBGPOD_FOUND AND USBMUXD_FOUND)
++endif(ENABLE_IMOBILEDEVICE AND IMOBILEDEVICE_FOUND AND PLIST_FOUND AND HAVE_LIBGPOD AND USBMUXD_FOUND)
+ 
+-if(LIBMTP_FOUND)
++if(ENABLE_LIBMTP AND LIBMTP_FOUND)
+   set(HAVE_LIBMTP ON)
+-endif(LIBMTP_FOUND)
++endif(ENABLE_LIBMTP AND LIBMTP_FOUND)
+ 
+ if(ENABLE_VISUALISATIONS)
+   # When/if upstream accepts our patches then these options can be used to link
+@@ -228,7 +232,7 @@ add_custom_target(uninstall
+ # Show a summary of what we have enabled
+ summary_add("devices: iPod classic support" HAVE_LIBGPOD)
+ summary_add("devices: iPod Touch, iPhone, iPad support" HAVE_IMOBILEDEVICE)
+-summary_add("devices: MTP support" LIBMTP_FOUND)
++summary_add("devices: MTP support" HAVE_LIBMTP)
+ summary_add("devices: GIO backend" HAVE_GIO)
+ summary_add("Wiimote support" ENABLE_WIIMOTEDEV)
+ summary_add("Visualisations" ENABLE_VISUALISATIONS)
+diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
+index 84e7487..cf7264e 100644
+--- a/src/CMakeLists.txt
++++ b/src/CMakeLists.txt
+@@ -680,9 +680,9 @@ if(HAVE_IMOBILEDEVICE)
+   link_directories(${USBMUXD_LIBRARY_DIRS})
+ endif(HAVE_IMOBILEDEVICE)
+ 
+-if(LIBMTP_FOUND)
++if(HAVE_LIBMTP)
+   target_link_libraries(clementine_lib ${LIBMTP_LIBRARIES})
+-endif(LIBMTP_FOUND)
++endif(HAVE_LIBMTP)
+ 
+ if (APPLE)
+   target_link_libraries(clementine_lib
+diff --git a/tests/CMakeLists.txt b/tests/CMakeLists.txt
+index 920676e..e3d0a75 100644
+--- a/tests/CMakeLists.txt
++++ b/tests/CMakeLists.txt
+@@ -7,9 +7,9 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../src)
+ include_directories(${CMAKE_CURRENT_BINARY_DIR}/../src)
+ include_directories(${QT_QTTEST_INCLUDE_DIR})
+ 
+-if(LIBGPOD_FOUND)
++if(HAVE_LIBGPOD)
+   include_directories(${LIBGPOD_INCLUDE_DIRS})
+-endif(LIBGPOD_FOUND)
++endif(HAVE_LIBGPOD)
+ 
+ set(GTEST-SOURCES
+     ../3rdparty/gmock/gtest/src/gtest.cc
+-- 
+1.7.2.2
+
+
