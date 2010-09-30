@@ -12,6 +12,9 @@ from pisi.actionsapi import get
 WorkDir = "%s+-%s" % (get.srcNAME(), get.srcVERSION())
 docompile = False if get.ARCH() == "x86_64" else True
 
+def setup():
+    pisitools.dosed("memtest.lds", "0x5000", "0x100000")
+
 def build():
     if docompile:
         autotools.make()
