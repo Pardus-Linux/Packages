@@ -52,14 +52,14 @@ Index: xorg-server-1.9.0/hw/xfree86/common/xf86pciBus.c
 +    if (fp == NULL)
 +	return NULL;
 +
-+    snprintf(pci_id, 8, "%04x%04x", dev->vendor_id, dev->device_id);
++    snprintf(pci_id, 9, "%04x%04x", dev->vendor_id, dev->device_id);
 +
 +    while (getline(&line, &len, fp) != -1) {
 +	xchomp(line);
 +
 +	if (!strncmp(pci_id, line, 8)) {
-+	    driver = (char *) malloc(strlen(line + 9));
-+	    strncpy(driver, line + 9, strlen(line + 9));
++	    driver = (char *) malloc(strlen(line + 9) + 1);
++	    strncpy(driver, line + 9, strlen(line + 9) + 1);
 +	    return driver;
 +	}
 +    }
