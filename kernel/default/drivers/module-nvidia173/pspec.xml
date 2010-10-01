@@ -1,0 +1,400 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>module-nvidia173</Name>
+        <Homepage>http://www.nvidia.com</Homepage>
+        <Packager>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Packager>
+        <License>NVIDIA</License>
+        <IsA>driver</IsA>
+        <Summary>NVIDIA drivers for GeForce 5 series GPUs</Summary>
+        <Description>NVIDIA graphics drivers provide optimized 2D/3D performance.</Description>
+        <Archive sha1sum="c6b42a4dd9ae4f4b5e99241ac0a3a72a9bef89a5" type="binary">ftp://download.nvidia.com/XFree86/Linux-x86/173.14.28/NVIDIA-Linux-x86-173.14.28-pkg0.run</Archive>
+        <Archive sha1sum="d42b40f0740d402ac63735184ba73e1ee19b27ee" type="binary">ftp://download.nvidia.com/XFree86/Linux-x86_64/173.14.28/NVIDIA-Linux-x86_64-173.14.28-pkg0.run</Archive>
+        <BuildDependencies>
+            <Dependency release="142">kernel-module-headers</Dependency>
+        </BuildDependencies>
+    </Source>
+
+    <Package>
+        <Name>module-nvidia173</Name>
+        <Summary>Kernel module for NVIDIA driver 173.14.xx releases</Summary>
+        <RuntimeDependencies>
+            <Dependency release="142">kernel</Dependency>
+            <Dependency versionFrom="1.85">zorg</Dependency>
+            <Dependency version="173.14.28">module-nvidia173-userspace</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="library" permanent="true">/lib/modules</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>module-nvidia173-userspace</Name>
+        <Summary>Userspace documentation, tools, udev and modprobe rules for the kernel driver nvidia173</Summary>
+        <Conflicts>
+            <Package releaseTo="35">module-nvidia173</Package>
+        </Conflicts>
+        <Files>
+            <Path fileType="data">/etc/modprobe.d</Path>
+        </Files>
+        <AdditionalFiles>
+            <AdditionalFile owner="root" permission="0644" target="/etc/modprobe.d/nvidia173.conf">modprobe.conf</AdditionalFile>
+        </AdditionalFiles>
+    </Package>
+
+
+    <Package>
+        <Name>xorg-video-nvidia173</Name>
+        <PartOf>x11.driver</PartOf>
+        <RuntimeDependencies>
+            <AnyDependency>
+                <Dependency version="173.14.28">module-nvidia173</Dependency>
+                <Dependency version="173.14.28">module-pae-nvidia173</Dependency>
+            </AnyDependency>
+            <Dependency>libXext</Dependency>
+            <Dependency releaseFrom="78">xorg-server</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="library">/usr/lib</Path>
+            <Path fileType="data">/usr/share</Path>
+            <Path fileType="doc">/usr/share/doc</Path>
+        </Files>
+        <Provides>
+            <COMAR script="package.py">System.Package</COMAR>
+            <COMAR script="xorg.driver.py">Xorg.Driver</COMAR>
+        </Provides>
+    </Package>
+
+    <History>
+        <Update release="43">
+            <Date>2010-10-01</Date>
+            <Version>173.14.28</Version>
+            <Comment>Modify package to use alternatives system</Comment>
+            <Requires>
+                <Action package="module-nvidia173-userspace">reverseDependencyUpdate</Action>
+                <Action package="module-nvidia173">systemRestart</Action>
+            </Requires>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="42">
+            <Date>2010-10-01</Date>
+            <Version>173.14.28</Version>
+            <Comment>New prerelease</Comment>
+            <Requires>
+                <Action package="module-nvidia173-userspace">reverseDependencyUpdate</Action>
+                <Action package="module-nvidia173">systemRestart</Action>
+            </Requires>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="41">
+            <Date>2010-08-06</Date>
+            <Version>173.14.27</Version>
+            <Comment>New stable release</Comment>
+            <Requires>
+                <Action package="module-nvidia173-userspace">reverseDependencyUpdate</Action>
+                <Action package="module-nvidia173">systemRestart</Action>
+            </Requires>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="40">
+            <Date>2010-02-17</Date>
+            <Version>173.14.25</Version>
+            <Comment>New stable release</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="39">
+            <Date>2010-01-28</Date>
+            <Version>173.14.22</Version>
+            <Comment>Blacklist nouveau and run mkinitramfs when enabling driver</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="38">
+            <Date>2009-12-16</Date>
+            <Version>173.14.22</Version>
+            <Comment>
+                - New stable release for use with xorg-server 1.7
+                - Use AnyDependency for kernel module
+                - Use correct name for document directory
+            </Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="37">
+            <Date>2009-10-01</Date>
+            <Version>173.14.20</Version>
+            <Comment>Bump to new pre-release</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="36">
+            <Date>2009-07-16</Date>
+            <Version>173.14.18</Version>
+            <Comment>Depend on the new sub-package.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="35">
+            <Date>2009-07-13</Date>
+            <Version>173.14.18</Version>
+            <Comment>Fixed dual head configuration</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="34">
+            <Date>2009-07-11</Date>
+            <Version>173.14.18</Version>
+            <Comment>Fixed postInstall method failing when no package attribute exists</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="33">
+            <Date>2009-07-08</Date>
+            <Version>173.14.18</Version>
+            <Comment>Update comar script for new zorg</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="32">
+            <Date>2009-07-03</Date>
+            <Version>173.14.18</Version>
+            <Comment>
+                - Update comar script for new zorg
+                - Add missing libXext dependency
+            </Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="31">
+            <Date>2009-05-28</Date>
+            <Version>173.14.18</Version>
+            <Comment>
+                - Bump to new stable
+                - Split kernel module
+                - Prepare for new zorg
+                - Remove rt.patch
+                - Add patch for 2.6.30
+            </Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="30">
+            <Date>2008-11-01</Date>
+            <Version>173.14.12</Version>
+            <Comment>Rename package to nvidia-drivers173 and downgrade to 173.x series. New versions will be packaged as nvidia-drivers177.</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="29">
+            <Date>2008-10-12</Date>
+            <Version>177.80</Version>
+            <Comment>Bump to new stable release</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="28">
+            <Date>2008-09-24</Date>
+            <Version>177.76</Version>
+            <Comment>Bump to new beta</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="27">
+            <Date>2008-07-30</Date>
+            <Version>173.14.12</Version>
+            <Comment>Version bump</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="26">
+            <Date>2008-06-17</Date>
+            <Version>173.14.09</Version>
+            <Comment>Version bump</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="25">
+            <Date>2008-06-13</Date>
+            <Version>173.14.05</Version>
+            <Comment>Fix positions of monitors and write output names with freqs</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="24">
+            <Date>2008-06-06</Date>
+            <Version>173.14.05</Version>
+            <Comment>Use syslog for errors and set monitor positions for twinview</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="23">
+            <Date>2008-05-29</Date>
+            <Version>173.14.05</Version>
+            <Comment>Version bump</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="22">
+            <Date>2008-05-28</Date>
+            <Version>173.08</Version>
+            <Comment>Remove libwfb module from package. nvidia-installer does not install it if xorg-server provides it.</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="21">
+            <Date>2008-05-12</Date>
+            <Version>173.08</Version>
+            <Comment>Add dual head options</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="20">
+            <Date>2008-05-10</Date>
+            <Version>173.08</Version>
+            <Comment>Load/unload kernel module in enable/disable methods</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="19">
+            <Date>2008-04-26</Date>
+            <Version>173.08</Version>
+            <Comment>Install kernel module as nvidia_new.ko and store its name for new zorg to load when enabled.</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="18">
+            <Date>2008-04-14</Date>
+            <Version>173.08</Version>
+            <Comment>Version bump</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="17">
+            <Date>2008-03-29</Date>
+            <Version>169.12</Version>
+            <Comment>Remove NVIDIA utilities since they are packaged separately.</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="16">
+            <Date>2008-03-23</Date>
+            <Version>169.12</Version>
+            <Comment>Bump. Make it a single package. Remove conflicts with the other nvidia packages. Add Xorg.Driver script.</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="15">
+            <Date>2008-01-22</Date>
+            <Version>169.09</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="14">
+            <Date>2007-12-20</Date>
+            <Version>169.07</Version>
+            <Comment>Bump to stable release</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="13">
+            <Date>2007-11-17</Date>
+            <Version>169.04</Version>
+            <Comment>Bump to new beta</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="12">
+            <Date>2007-11-03</Date>
+            <Version>100.14.23</Version>
+            <Comment>Add libGL.so.1.2 symlink, fixes bug 6490</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="11">
+            <Date>2007-10-19</Date>
+            <Version>100.14.23</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="10">
+            <Date>2007-09-19</Date>
+            <Version>100.14.19</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="9">
+            <Date>2007-08-20</Date>
+            <Version>100.14.11</Version>
+            <Comment>Create a symbolic link under /usr/lib for nvidia-cfg library</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih.asici@gmail.com</Email>
+        </Update>
+        <Update release="8">
+            <Date>2007-06-22</Date>
+            <Version>100.14.11</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="7">
+            <Date>2007-06-09</Date>
+            <Version>100.14.09</Version>
+            <Comment>Version bump</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="6">
+            <Date>2007-05-22</Date>
+            <Version>100.14.06</Version>
+            <Comment>Version bump</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="5">
+            <Date>2007-04-09</Date>
+            <Version>1.0_9755</Version>
+            <Comment>Don't mess with /etc/modules.autoload.d/kernel-2.6</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="4">
+            <Date>2007-04-09</Date>
+            <Version>1.0_9755</Version>
+            <Comment>Fix post install script</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="3">
+            <Date>2007-04-06</Date>
+            <Version>1.0_9755</Version>
+            <Comment>Correctly install wfb module</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="2">
+            <Date>2007-03-08</Date>
+            <Version>1.0_9755</Version>
+            <Comment>New release.</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="1">
+            <Date>2006-12-25</Date>
+            <Version>1.0_9746</Version>
+            <Comment>First release.</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+    </History>
+</PISI>
