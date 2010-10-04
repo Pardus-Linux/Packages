@@ -11,7 +11,7 @@ from pisi.actionsapi import shelltools
 from pisi.actionsapi import get
 
 WorkDir = "ffmpeg"
-version = "25106"
+version = "25334"
 minimumcpu = "" if get.ARCH() == "x86_64" else "--cpu=atom"
 
 
