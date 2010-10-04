@@ -48,15 +48,15 @@ diff -Nur mplayer-old/configure mplayer/configure
    --enable-xvmc            enable XvMC acceleration [disable]
    --enable-vdpau           enable VDPAU acceleration [autodetect]
 @@ -603,8 +607,7 @@
- libavbsfs_all=$(sed -n 's/^[^#]*BSF.*(.*, *\(.*\)).*/\1_bsf/p' libavcodec/allcodecs.c | tr '[a-z]' '[A-Z]')
+ libavbsfs_all=$(sed -n 's/^[^#]*BSF.*(.*, *\(.*\)).*/\1_bsf/p' ffmpeg/libavcodec/allcodecs.c | tr '[a-z]' '[A-Z]')
  libavbsfs=$libavbsfs_all
- libavhwaccels_all=$(sed -n 's/^[^#]*HWACCEL.*(.*, *\(.*\)).*/\1_hwaccel/p' libavcodec/allcodecs.c | tr '[a-z]' '[A-Z]')
+ libavhwaccels_all=$(sed -n 's/^[^#]*HWACCEL.*(.*, *\(.*\)).*/\1_hwaccel/p' ffmpeg/libavcodec/allcodecs.c | tr '[a-z]' '[A-Z]')
 -# Disable all hardware accelerators for now.
 -libavhwaccels=
 +libavhwaccels=$(for h in $libavhwaccels_all; do case $h in (*_VAAPI_HWACCEL) echo $h;; esac; done)
- libavdemuxers_all=$(sed -n 's/^[^#]*DEMUX.*(.*, *\(.*\)).*/\1_demuxer/p' libavformat/allformats.c | tr '[a-z]' '[A-Z]')
+ libavdemuxers_all=$(sed -n 's/^[^#]*DEMUX.*(.*, *\(.*\)).*/\1_demuxer/p' ffmpeg/libavformat/allformats.c | tr '[a-z]' '[A-Z]')
  libavdemuxers=$(echo $libavdemuxers_all | sed -e 's/ LIB[A-Z0-9_]*_DEMUXER//g' -e s/REDIR_DEMUXER// -e s/AVISYNTH_DEMUXER//)
- libavmuxers_all=$(sed -n 's/^[^#]*_MUX.*(.*, *\(.*\)).*/\1_muxer/p' libavformat/allformats.c | tr '[a-z]' '[A-Z]')
+ libavmuxers_all=$(sed -n 's/^[^#]*_MUX.*(.*, *\(.*\)).*/\1_muxer/p' ffmpeg/libavformat/allformats.c | tr '[a-z]' '[A-Z]')
 @@ -621,11 +624,15 @@
  _libavcodec_mpegaudio_hp=yes
  _mencoder=yes
@@ -1257,7 +1257,7 @@ diff -Nur mplayer-old/libvo/vo_vaapi.c mplayer/libvo/vo_vaapi.c
 +#include "libavcodec/vaapi.h"
 +#include "gui/interface.h"
 +#include "stats.h"
-+#include "libass/ass_mp.h"
++#include "ass_mp.h"
 +#include <stdarg.h>
 +
 +#if CONFIG_GL

@@ -15,8 +15,8 @@ import os
 
 WorkDir = "mplayer"
 gcc_version = "4.3.5"
-mp_version = "32161"
-ff_version = "25106"
+mp_version = "32438"
+ff_version = "25334"
 
 
 def fixPermissions(dest):
@@ -36,8 +36,8 @@ def setup():
     shelltools.echo("version.sh", 'echo "#define MP_TITLE \\\"%s \\\"VERSION\\\" (C) 2000-2010 MPlayer Team\\n\\\"" >> version.h')
     shelltools.chmod("version.sh", 0755)
 
-    shelltools.export("CFLAGS", "%s -O3 -ffast-math -fomit-frame-pointer" % get.CFLAGS())
-    shelltools.export("CXXFLAGS", "%s -O3 -ffast-math -fomit-frame-pointer" % get.CXXFLAGS())
+    shelltools.export("CFLAGS", "%s -O3" % get.CFLAGS())
+    shelltools.export("CXXFLAGS", "%s -O3" % get.CXXFLAGS())
 
     autotools.rawConfigure('--prefix=/usr \
                             --confdir=/usr/share/mplayer \
