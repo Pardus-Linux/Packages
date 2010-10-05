@@ -1,6 +1,6 @@
-diff -ur kdelibs-4.3.80/solid/solid/backends/hal/halstorageaccess.cpp kdelibs-4.3.80-policykit-workaround/solid/solid/backends/hal/halstorageaccess.cpp
---- kdelibs-4.3.80/solid/solid/backends/hal/halstorageaccess.cpp	2009-12-01 01:27:28.000000000 +0100
-+++ kdelibs-4.3.80-policykit-workaround/solid/solid/backends/hal/halstorageaccess.cpp	2009-12-03 03:49:55.000000000 +0100
+diff -up kdelibs-4.4.80/solid/solid/backends/hal/halstorageaccess.cpp.policykit-workaround kdelibs-4.4.80/solid/solid/backends/hal/halstorageaccess.cpp
+--- kdelibs-4.4.80/solid/solid/backends/hal/halstorageaccess.cpp.policykit-workaround	2010-04-22 10:04:55.000000000 +0200
++++ kdelibs-4.4.80/solid/solid/backends/hal/halstorageaccess.cpp	2010-05-21 22:07:08.043211300 +0200
 @@ -17,6 +17,8 @@
  
  */
@@ -10,29 +10,29 @@ diff -ur kdelibs-4.3.80/solid/solid/backends/hal/halstorageaccess.cpp kdelibs-4.
  #include "halstorageaccess.h"
  
  #include "halfstabhandling.h"
-@@ -177,11 +179,21 @@
+@@ -201,11 +203,21 @@ void StorageAccess::slotDBusError(const 
  {
      // TODO: Better error reporting here
      if (m_setupInProgress) {
 +        if (error.name() == "org.freedesktop.Hal.Device.PermissionDeniedByPolicy") {
 +            if (callPrivilegedMount())
-+              return;
++                return;
 +            // if we fail to run kdesu, fall through and emit the original PermissionDeniedByPolicy error
 +        }
          m_setupInProgress = false;
-         emit setupDone(Solid::UnauthorizedOperation,
+         m_device->broadcastActionDone("setupDone", Solid::UnauthorizedOperation,
                         QString(error.name()+": "+error.message()),
                         m_device->udi());
      } else if (m_teardownInProgress) {
 +        if (error.name() == "org.freedesktop.Hal.Device.PermissionDeniedByPolicy") {
 +            if (callPrivilegedUnmount())
-+              return;
++                return;
 +            // if we fail to run kdesu, fall through and emit the original PermissionDeniedByPolicy error
 +        }
          m_teardownInProgress = false;
-         emit teardownDone(Solid::UnauthorizedOperation,
+         m_device->broadcastActionDone("teardownDone", Solid::UnauthorizedOperation,
                            QString(error.name()+": "+error.message()),
-@@ -311,8 +323,9 @@
+@@ -347,8 +359,9 @@ bool StorageAccess::callHalVolumeMount()
  #else
      QString uid="uid=";
  #endif
@@ -44,7 +44,7 @@ diff -ur kdelibs-4.3.80/solid/solid/backends/hal/halstorageaccess.cpp kdelibs-4.
      }
  
  #ifdef Q_OS_FREEBSD
-@@ -354,6 +367,59 @@
+@@ -390,6 +403,59 @@ bool StorageAccess::callHalVolumeMount()
                                SLOT(slotDBusError(const QDBusError &)));
  }
  
@@ -104,10 +104,10 @@ diff -ur kdelibs-4.3.80/solid/solid/backends/hal/halstorageaccess.cpp kdelibs-4.
  bool StorageAccess::callHalVolumeUnmount()
  {
      QDBusConnection c = QDBusConnection::systemBus();
-diff -ur kdelibs-4.3.80/solid/solid/backends/hal/halstorageaccess.h kdelibs-4.3.80-policykit-workaround/solid/solid/backends/hal/halstorageaccess.h
---- kdelibs-4.3.80/solid/solid/backends/hal/halstorageaccess.h	2009-12-01 01:27:28.000000000 +0100
-+++ kdelibs-4.3.80-policykit-workaround/solid/solid/backends/hal/halstorageaccess.h	2009-12-03 03:49:55.000000000 +0100
-@@ -70,6 +70,9 @@
+diff -up kdelibs-4.4.80/solid/solid/backends/hal/halstorageaccess.h.policykit-workaround kdelibs-4.4.80/solid/solid/backends/hal/halstorageaccess.h
+--- kdelibs-4.4.80/solid/solid/backends/hal/halstorageaccess.h.policykit-workaround	2010-04-22 10:04:55.000000000 +0200
++++ kdelibs-4.4.80/solid/solid/backends/hal/halstorageaccess.h	2010-05-21 22:03:25.933210697 +0200
+@@ -78,6 +78,9 @@ private:
      bool callSystemMount();
      bool callSystemUnmount();
  

@@ -1,0 +1,28 @@
+Subject: Use the KDE configuration tool for Compiz instead of the Gtk one
+From: Jaroslaw Zachwieja <grok@warwick.ac.uk>
+Signed-off-by: Lubos Lunak
+Patch-upstream: no (maybe later)
+Bug: bnc#609396
+
+--- phonon/kded-module/phononserver.cpp	2010-05-27 14:45:22.785788783 +0100
++++ phonon/kded-module/phononserver.cpp	2010-05-27 15:12:09.003725702 +0100
+@@ -781,8 +781,17 @@
+ 
+ void PhononServer::askToRemoveDevices(const QStringList &devList, const QList<int> &indexes)
+ {
+-    const QString &dontAskAgainName = QLatin1String("phonon_forget_devices_") +
+-        devList.join(QLatin1String("_"));
++    KSharedConfigPtr config = KGlobal::config();
++    KConfigGroup phononGroup = config->group("phonon");
++    bool alwaysForget = phononGroup.readEntry("phononAlwaysForget", false);
++    QString dontAskAgainName;
++    if (alwaysForget) {
++        dontAskAgainName = QLatin1String("phonon_forget_devices_always");
++        KMessageBox::saveDontShowAgainYesNo(dontAskAgainName, KMessageBox::Yes);
++    } else {
++        dontAskAgainName = QLatin1String("phonon_forget_devices_") +
++            devList.join(QLatin1String("_"));
++    }
+     KMessageBox::ButtonCode result;
+     if (!KMessageBox::shouldBeShownYesNo(dontAskAgainName, result)) {
+         if (result == KMessageBox::Yes) {

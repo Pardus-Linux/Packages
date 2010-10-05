@@ -12,20 +12,20 @@
         <Summary>KDE4 Workspace consists of what is the desktop of the KDE4</Summary>
         <Description>kdebase-workspace contains the main KDE components like kdm (the login manager of KDE), khotkeys (a hotkey daemon), klipper (a cut &amp; paste history utility), kmenuedit (the menu editor), krandrtray (resize and rotate X screens), krunner (a command run interface), ksysguard (a performance monitor), kwin (the window manager of KDE), kxkb (a utility to switch keyboard maps), plasma (the KDE desktop, panels and widgets workspace application) and systemsettings (the configuration editor).</Description>
         <Archive type="tarbz2" sha1sum="c26b64352c783dcc3baa1c4d274958eb328891af">http://cekirdek.pardus.org.tr/~ozan/dist/sources/kded_kosd-0.5.tar.bz2</Archive>
-        <Archive sha1sum="b902ae08b2b64613b18ba8be478b244a569f8e0f" type="tarbz2">mirrors://kde/stable/4.5.1/src/kdebase-workspace-4.5.1.tar.bz2</Archive>
+        <Archive sha1sum="0a2ef4f3391e94371481226374c609fb52587243" type="tarbz2">mirrors://kde/stable/4.5.2/src/kdebase-workspace-4.5.2.tar.bz2</Archive>
         <BuildDependencies>
             <Dependency>polkit-qt_1-devel</Dependency>
             <Dependency versionFrom="4.4.2">phonon-devel</Dependency>
-            <Dependency versionFrom="4.5.1">kdepimlibs-devel</Dependency>
-            <Dependency versionFrom="4.5.1">kdelibs-devel</Dependency>
-            <Dependency versionFrom="4.7.0_beta2">qt-devel</Dependency>
-            <Dependency versionFrom="4.7.0_beta2">qt-webkit</Dependency>
+            <Dependency versionFrom="4.5.2">kdepimlibs-devel</Dependency>
+            <Dependency versionFrom="4.5.2">kdelibs-devel</Dependency>
+            <Dependency versionFrom="4.7.0">qt-devel</Dependency>
+            <Dependency versionFrom="4.7.0">qt-webkit</Dependency>
             <Dependency>strigi-devel</Dependency>
             <!-- Needed by calendar and akonadi dataengines -->
             <Dependency>akonadi-devel</Dependency>
             <Dependency versionFrom="2.5.0">soprano-devel</Dependency>
-            <Dependency versionFrom="4.5.1">python-kde-devel</Dependency>
-            <Dependency>bluez</Dependency>
+            <Dependency versionFrom="4.5.2">python-kde-devel</Dependency>
+            <Dependency>bluez-libs-devel</Dependency>
             <Dependency>libraw1394-devel</Dependency>
             <Dependency>qimageblitz-devel</Dependency>
             <Dependency>openldap-client</Dependency>
@@ -58,36 +58,44 @@
             <!-- lm_sensors is needed by ksysguard and system monitor plasmoid-->
             <Dependency>lm_sensors</Dependency>
             <Dependency releaseFrom="2">gpsd-devel</Dependency>
+            <Dependency>liblazy-devel</Dependency>
             <!-- Temporarily disabled
             <Dependency>qedje</Dependency>
-            <Dependency>liblazy</Dependency>
             <Dependency releaseFrom="4">qzion</Dependency>
             -->
         </BuildDependencies>
         <Patches>
-            <!--
-            <Patch>suse/plasma-plaindesktop.diff</Patch>
-            <Patch>suse/plasma-dashboard-leave.diff</Patch>
-            <Patch>suse/plasma-dont-hide-jobs.diff</Patch>
-            FIXME: Known bug: If we have multiple activities, since there are 2 containments (one for each desktop containment in each activity) this patch refuses to ask for a default panel 
+            <!-- SuSE -->
+            <!-- Those should be rebased 
             <Patch>suse/plasma-new-default-panel.diff</Patch>
-            <Patch>suse/kdm-cope-with-new-grub.diff</Patch>
             <Patch>suse/kdm-audit-log.diff</Patch>
-            <Patch>suse/kdm-suspend-hal.diff</Patch>
             <Patch>suse/kdm-wordbreak.diff</Patch>
             <Patch>suse/kdm-make_it_cool.diff</Patch>
+            <Patch>suse/systemsettings-root-kcm.diff</Patch>
+            -->
+            <!--- KDM guy says those patches are just wrong!
             <Patch>suse/kdm-dont-grab-mouse.diff</Patch>
             <Patch level="1">suse/kdm-fix-generic-greeter.diff</Patch>
             <Patch level="1">suse/kdm-fix-labelcolors.diff</Patch>
-            <Patch>suse/systemsettings-root-kcm.diff</Patch>
             <Patch level="1">suse/same-pam-generic-classic.diff</Patch>
-            <Patch>suse/rotate-wacom-pointers.diff</Patch>
+            -->
+            <Patch>suse/plasma-dashboard-leave.diff</Patch>
+            <Patch>suse/kdm-cope-with-new-grub.diff</Patch>
+            <Patch>suse/kdm-suspend-hal.diff</Patch>
             <Patch>suse/suspend-lock.diff</Patch>
+            <Patch>suse/kdm-all-users-nopass.diff</Patch>
+            <Patch>suse/plasma-branding-defaults-corona.diff</Patch>
+            <Patch level="1">suse/plasma-notifications-kill-timer.diff</Patch>
 
+            <!-- Fedora -->
             <Patch level="1">fedora/kdebase-workspace-4.2.85-klipper-url.patch</Patch>
             <Patch level="1">fedora/kdebase-workspace-4.3.3-kde171685.patch</Patch>
+            <Patch level="1">fedora/kdebase-workspace-4.4.92-kdm_plymouth081.patch</Patch>
+            <Patch level="1">fedora/kdebase-workspace-4.4.4-kdebug183143.patch</Patch>
+            <Patch level="1">fedora/kdebase-workspace-4.4.80-battery-plasmoid-showremainingtime.patch</Patch>
+            <Patch level="1">fedora/kdebase-workspace-4.4.85-kdebug238325.patch</Patch>
+            <Patch level="1">fedora/kdebase-workspace-4.5.1-kfontview_dt_validate.patch</Patch>
 
-            -->
             <!-- Pardus patches -->
             <Patch>pardus/pardus-kdm-settings.diff</Patch>
             <Patch>pardus/brandicon.patch</Patch>
@@ -98,7 +106,7 @@
             <Patch level="1">pardus/kickoff-favorites.diff</Patch>
 
             <!-- TODO: PORT Show Device Notification from HotPlug DataEngine -->
-            <!--<Patch level="1">pardus/showDeviceNotification.patch</Patch>-->
+            <Patch>pardus/showDeviceNotification.patch</Patch>
 
             <!-- Use InitialPreference in solid action desktop files and use this value to determine action priority -->
             <!-- TODO: PORT -->
@@ -118,6 +126,16 @@
             <Patch>pardus/default-panel-plasmoids.diff</Patch>
             -->
 
+            <Patch level="1">pardus/add-date-to-date-plasmoid.diff</Patch>
+            <!-- Adjust brightness upon wheel events over battery monitor like KMix -->
+            <Patch level="1">pardus/plasma-battery-set-brightness-upon-wheelevent.patch</Patch>
+
+            <!-- Hide GRUB's otheroptions from shutdown dialog in ksmserver -->
+            <Patch level="1">pardus/ksmserver-hide-grub-otheroptions.patch</Patch>
+
+            <!-- ksplashx: Keep XDM background if available -->
+            <Patch level="1">pardus/ksplashx-keep-xdm-background.patch</Patch>
+
             <!--
             Increase height of the panel 15px, make default alignment AlignCenter, decrease panel width 10px from each side
             <Patch>pardus/default-panel-geometry-tweaks.diff</Patch>
@@ -134,27 +152,12 @@
             Drop caption from systemsettings.desktop which avoids the translation of the caption
             <Patch level="1">pardus/drop-caption-from-systemsettings-desktop.patch</Patch>
 
-            Disable NetworkManager compilation
-            /// TODO: PORT <Patch level="1">pardus/disable-NetworkManager-compilation.patch</Patch>
-
-            Adjust brightness upon wheel events over battery monitor like KMix
-            <Patch level="1">pardus/plasma-battery-set-brightness-upon-wheelevent.patch</Patch>
-
             <Patch>pardus/kde-42-to-43-script.diff</Patch>
 
             <Patch level="1">pardus/disable-kdm-active-session-popup-on-livemediums.diff</Patch>
 
             Change kxftconfig defaults
             <Patch level="1">pardus/kxftconfig-defaults.patch</Patch>
-
-            Hide GRUB's otheroptions from shutdown dialog in ksmserver
-            <Patch level="1">pardus/ksmserver-hide-grub-otheroptions.patch</Patch>
-
-             ksplashx: Keep XDM background if available
-            <Patch level="1">pardus/ksplashx-keep-xdm-background.patch</Patch>
-
-            ksplash: Close the splash prematurely only on double-click (disable for now)
-            <Patch level="1">pardus/ksplash-close-the-splash-on-dblclick-r1090602.patch</Patch>
 
             plasma_runner_windows: be more careful when matching
             <Patch level="1">pardus/plasma_runner_windows-be-more-careful-when-matching-r1101769.patch</Patch>
@@ -165,17 +168,11 @@
             Add .kde4->.kde3.5 symlink in startkde for kde3-kde4 migration
             <Patch>pardus/add-kde35-symlink.diff</Patch>
 
-            <Patch level="1">pardus/add-date-to-date-plasmoid.diff</Patch>
-
              Add kded_kosd to CMakeLists.txt
             <Patch level="1">pardus/kded-kosd-cmakelists.patch</Patch>
 
              Display brightness OSD and handle non-hardware events
             <Patch level="1">pardus/brightness_fn_keys_and_osd.diff</Patch>
-
-            <Patch>fix-crash-moving-widget-from-panel-to-desktop-b1133542.diff</Patch>
-            <Patch>fix-weather-widget-crash-b1133012.diff</Patch>
-
             -->
         </Patches>
     </Source>
@@ -183,13 +180,13 @@
         <Name>kdebase-workspace</Name>
         <IsA>app:gui</IsA>
         <RuntimeDependencies>
-            <Dependency versionFrom="4.7.0_beta2">qt</Dependency>
+            <Dependency versionFrom="4.7.0">qt</Dependency>
             <Dependency>qt-webkit</Dependency>
             <!-- Needed by wallpapeclock plasma plugin -->
             <Dependency>python-qt-webkit</Dependency>
-            <Dependency versionFrom="4.5.1">kdelibs</Dependency>
-            <Dependency versionFrom="4.5.1">kdepimlibs</Dependency>
-            <Dependency versionFrom="4.5.1">python-kde</Dependency>
+            <Dependency versionFrom="4.5.2">kdelibs</Dependency>
+            <Dependency versionFrom="4.5.2">kdepimlibs</Dependency>
+            <Dependency versionFrom="4.5.2">python-kde</Dependency>
             <Dependency>polkit-qt_1</Dependency>
             <Dependency versionFrom="2.4.3">soprano</Dependency>
             <Dependency versionFrom="4.3.80_20100330">phonon</Dependency>
@@ -199,7 +196,6 @@
             <Dependency>qimageblitz</Dependency>
             <Dependency>openldap-client</Dependency>
             <!--<Dependency>google-gadgets-qt</Dependency>-->
-            <!-- needed by datetime KCM to setup time using NTP -->
             <Dependency>libXScrnSaver</Dependency>
             <Dependency>strigi</Dependency>
             <Dependency>fontconfig</Dependency>
@@ -231,9 +227,10 @@
             <Dependency releaseFrom="2">gpsd</Dependency>
             <Dependency>lm_sensors</Dependency>
             <Dependency>akonadi</Dependency>
+            <!-- needed by datetime KCM to setup time using NTP -->
             <Dependency>ntp-client</Dependency>
-            <!--
             <Dependency>liblazy</Dependency>
+            <!--
             <Dependency>qedje</Dependency>
             <Dependency releaseFrom="4">qzion</Dependency>
             -->
@@ -300,14 +297,12 @@
         <Name>kdebase-workspace-devel</Name>
         <Summary>Development files for kdebase-workspace</Summary>
         <RuntimeDependencies>
-            <Dependency release="118">kdebase-workspace</Dependency>
+            <Dependency release="119">kdebase-workspace</Dependency>
             <Dependency>akonadi-devel</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="header">/usr/include</Path>
             <Path fileType="data">/usr/lib/cmake</Path>
-            <!-- FIXME: Remove this if not necessary -->
-            <Path fileType="man">/usr/share/man/man3</Path>
         </Files>
     </Package>
 
@@ -330,7 +325,7 @@
         <Summary>KDE4 Login Manager</Summary>
         <Description>kdm provides the graphical login screen, shown shortly after boot up, log out, and when user switching.</Description>
         <RuntimeDependencies>
-            <Dependency versionFrom="4.5.1">kdelibs</Dependency>
+            <Dependency versionFrom="4.5.2">kdelibs</Dependency>
             <!--<Dependency releaseFrom="3">kdm-pardus-theme</Dependency>-->
             <Dependency>xinit</Dependency>
         </RuntimeDependencies>
@@ -482,8 +477,8 @@
             <Path fileType="data">/usr/kde/4/share/config/*aurorae*</Path>
         </Files>
     </Package>
-
     -->
+
     <Package>
         <Name>kdebase-wallpapers</Name>
         <IsA>data</IsA>
@@ -528,6 +523,13 @@
     </Package>
 
     <History>
+        <Update release="119">
+            <Date>2010-10-04</Date>
+            <Version>4.5.2</Version>
+            <Comment>Version bump to 4.5.2</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
         <Update release="118">
             <Date>2010-09-01</Date>
             <Version>4.5.1</Version>

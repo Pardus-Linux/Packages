@@ -1,0 +1,58 @@
+Index: kdebase-4.4.80/apps/kdepasswd/kcm/main.cpp
+===================================================================
+--- kdebase-4.4.80.orig/apps/kdepasswd/kcm/main.cpp	2010-05-25 19:38:25.713529516 +0200
++++ kdebase-4.4.80/apps/kdepasswd/kcm/main.cpp	2010-05-25 19:40:36.291654080 +0200
+@@ -20,8 +20,15 @@
+  *
+  */
+ 
++
+ #include "main.h"
+ 
++// for getpwuid(getuid())
++#include <unistd.h>
++#include <sys/types.h>
++#include <pwd.h>
++
++
+ #include <QtGui/QLayout>
+ #include <QtGui/QLabel>
+ #include <QtGui/QLineEdit>
+@@ -143,7 +150,14 @@
+ 
+ 	_kes->setProfile(_kes->defaultProfileName());
+ 
+-	_mw->leRealname->setText( _kes->getSetting( KEMailSettings::RealName ));
++	QString realName = _kes->getSetting( KEMailSettings::RealName );
++	 if (realName.isEmpty()) {
++	   QString gecos( getpwuid(getuid())->pw_gecos );
++	   realName = gecos.left(gecos.indexOf(','));
++	   _kes->setSetting( KEMailSettings::RealName, realName );
++	 }
++	_mw->leRealname->setText( realName );
++
+ 	_mw->leEmail->setText( _kes->getSetting( KEMailSettings::EmailAddress ));
+ 	_mw->leOrganization->setText( _kes->getSetting( KEMailSettings::Organization ));
+ 	_mw->leSMTP->setText( _kes->getSetting( KEMailSettings::OutServer ));
+Index: kdebase-4.4.80/apps/kdepasswd/kcm/main_widget.ui
+===================================================================
+--- kdebase-4.4.80.orig/apps/kdepasswd/kcm/main_widget.ui	2010-05-25 19:38:36.362904328 +0200
++++ kdebase-4.4.80/apps/kdepasswd/kcm/main_widget.ui	2010-05-25 19:41:33.101654172 +0200
+@@ -128,12 +128,15 @@
+          <bool>false</bool>
+         </property>
+         <property name="buddy">
+-         <cstring>leRealname</cstring>
++	  <cstring>leRealname</cstring>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+-       <widget class="KLineEdit" name="leRealname">
++	<widget class="KLineEdit" name="leRealname">
++	  <property name="enabled">
++	    <bool>false</bool>
++	  </property>
+         <property name="showClearButton" stdset="0">
+          <bool>true</bool>
+         </property>
