@@ -1,40 +1,56 @@
-Index: plasma/generic/dataengines/hotplug/hotplugengine.cpp
-===================================================================
---- plasma/generic/dataengines/hotplug/hotplugengine.cpp.orig
-+++ plasma/generic/dataengines/hotplug/hotplugengine.cpp
-@@ -27,6 +27,7 @@
- #include <KLocale>
- #include <KStandardDirs>
- #include <KDesktopFile>
+diff -Naur plasma/generic/applets/devicenotifier-orig//devicenotifier.cpp plasma/generic/applets/devicenotifier/devicenotifier.cpp
+--- plasma/generic/applets/devicenotifier-orig//devicenotifier.cpp	2010-07-29 00:04:56.000000000 +0300
++++ plasma/generic/applets/devicenotifier/devicenotifier.cpp	2010-10-06 16:47:35.247000779 +0300
+@@ -31,6 +31,7 @@
+ #include <KCModuleProxy>
+ #include <KCModuleInfo>
+ #include <kdesktopfileactions.h>
 +#include <KNotification>
- #include <Plasma/DataContainer>
  
- //solid specific includes
-@@ -35,6 +36,7 @@
- #include <Solid/DeviceInterface>
+ //Plasma
+ #include <Plasma/ToolTipManager>
+@@ -40,6 +41,8 @@
  #include <Solid/StorageDrive>
- #include <Solid/StorageVolume>
+ #include <Solid/OpticalDisc>
+ #include <Solid/OpticalDrive>
 +#include <Solid/GenericInterface>
++#include <Solid/DeviceNotifier>
  
- //#define HOTPLUGENGINE_TIMING
- 
-@@ -51,7 +53,7 @@ HotplugEngine::HotplugEngine(QObject* pa
- 
- HotplugEngine::~HotplugEngine()
+ //Own
+ #include "notifierdialog.h"
+@@ -77,6 +80,7 @@
+ DeviceNotifier::~DeviceNotifier()
  {
--
+     delete m_dialog;
 +    pluggedDevices.clear();
  }
  
- void HotplugEngine::init()
-@@ -157,6 +159,20 @@ QStringList HotplugEngine::predicatesFor
- void HotplugEngine::onDeviceAdded(const QString &udi)
- {
-     Solid::Device device(udi);
+ void DeviceNotifier::init()
+@@ -101,6 +105,11 @@
+     connect(m_deviceNotificationsEngine, SIGNAL(sourceAdded(const QString&)),
+             this, SLOT(newNotification(const QString&)));
+ 
++    connect(Solid::DeviceNotifier::instance(), SIGNAL(deviceAdded(const QString &)),
++            this, SLOT(onDeviceAdded(const QString &)));
++    connect(Solid::DeviceNotifier::instance(), SIGNAL(deviceRemoved(const QString &)),
++            this, SLOT(onDeviceRemoved(const QString &)));
 +
+     setStatus(Plasma::PassiveStatus);
+     //feed the list with what is already reported by the engine
+     fillPreviousDevices();
+@@ -319,12 +328,31 @@
+ {
+     DataEngine::Data data = m_solidEngine->query(udi);
+     Solid::Device device = Solid::Device(udi);
++
+     deviceAdded(device, data["added"].toBool());
+ }
+ 
++void DeviceNotifier::onDeviceAdded(const QString &udi)
++{
++    Solid::Device device = Solid::Device(udi);
 +    QString deviceInfo = device.vendor() + " " + device.product();
 +
-+    // Notify when a new device plugged-in
 +    Solid::GenericInterface *interface = device.as<Solid::GenericInterface>();
 +    if (!pluggedDevices.contains(udi)) {
 +        if (interface) {
@@ -45,39 +61,64 @@ Index: plasma/generic/dataengines/hotplug/hotplugengine.cpp
 +        }
 +    }
 +
-     onDeviceAdded(device);
++}
++
+ void DeviceNotifier::deviceAdded(const Solid::Device &device, bool hotplugged)
+ {
+     const QString udi = device.udi();
++
+     if (m_showDevices == NonRemovableOnly) {
+         Solid::Device parentDevice = device.parent();
+         Solid::StorageDrive *drive = parentDevice.as<Solid::StorageDrive>();
+@@ -410,6 +438,15 @@
+     }
  }
  
-@@ -231,6 +247,12 @@ void HotplugEngine::onDeviceRemoved(cons
- {
-     //kDebug() << "remove hardware:" << udi;
- 
++void DeviceNotifier::onDeviceRemoved(const QString &udi)
++{
 +    if (pluggedDevices.contains(udi)) {
 +        QString deviceInfo = pluggedDevices[udi];
 +        KNotification::event (KNotification::Notification, i18n("Device <b>%1</b> plugged out.", deviceInfo));
 +        pluggedDevices.remove(udi);
 +    }
++}
 +
-     if (m_startList.contains(udi)) {
-         m_startList.remove(udi);
-         return;
-Index: plasma/generic/dataengines/hotplug/hotplugengine.h
-===================================================================
---- plasma/generic/dataengines/hotplug/hotplugengine.h.orig
-+++ plasma/generic/dataengines/hotplug/hotplugengine.h
-@@ -22,6 +22,7 @@
- #define HOTPLUGENGINE_H
+ void DeviceNotifier::resetDevices()
+ {
+     while (m_lastPlugged.count() > 0) {
+diff -Naur plasma/generic/applets/devicenotifier-orig//devicenotifier.h plasma/generic/applets/devicenotifier/devicenotifier.h
+--- plasma/generic/applets/devicenotifier-orig//devicenotifier.h	2010-06-24 19:28:21.000000000 +0300
++++ plasma/generic/applets/devicenotifier/devicenotifier.h	2010-10-06 16:44:59.691000550 +0300
+@@ -22,6 +22,8 @@
+ #ifndef DEVICENOTIFIER_H
+ #define DEVICENOTIFIER_H
  
- #include <QObject>
 +#include <QHash>
++
+ //Solid
+ #include <Solid/Device>
  
- #include <Plasma/DataEngine>
+@@ -147,12 +149,14 @@
+         * @param udi the udi of the new source
+         **/
+         void onSourceAdded(const QString &udi);
++        void onDeviceAdded(const QString &udi);
  
-@@ -48,6 +49,7 @@ class HotplugEngine : public Plasma::Dat
-     private:
-         void onDeviceAdded(Solid::Device &dev, bool added = true);
-         void findPredicates();
+         /**
+         * @internal slot called when a source/device is removed in the hotplug engine
+         * @param udi the udi of the removed source
+         **/
+         void onSourceRemoved(const QString &udi);
++        void onDeviceRemoved(const QString &udi);
+ 
+         /**
+         * slot called when a source of the hotplug engine is updated
+@@ -185,6 +189,8 @@
+          */
+         void deviceAdded(const Solid::Device &device, bool hotplugged = true);
+ 
 +        QHash<QString, QString> pluggedDevices;
-         QStringList predicatesForDevice(Solid::Device &device);
- 
-     private Q_SLOTS:
++
+         /**
+         * @internal Used to fill the notifier from previous plugged devices
+         **/
