@@ -25,7 +25,8 @@
         </BuildDependencies>
         <Patches>
             <!-- Stable patch -->
-            <Patch level="1" compressionType="bz2">kernel/patch-2.6.36-rc5.bz2</Patch>
+            <Patch level="1" compressionType="bz2">kernel/patch-2.6.36-rc6.bz2</Patch>
+            <Patch level="1" compressionType="bz2">kernel/patch-2.6.36-rc6-git4.bz2</Patch>
 
 
             <!-- Moblin patches -->
@@ -61,14 +62,32 @@
             <!-- Don't install scsi headers to avoid conflict with glibc -->
             <Patch level="1">ubuntu/ubuntu-maverick.git-c7a74029969b912241591b2889961b17514ca61f.patch</Patch>
 
-            <!-- aufs-2.1-35 support -->
+            <!-- aufs-2.1-35 support (buggy)
             <Patch level="1">aufs/aufs-2.1-35.patch</Patch>
             <Patch level="1">aufs/aufs2-base.patch</Patch>
             <Patch level="1">aufs/aufs2-kbuild.patch</Patch>
             <Patch level="1">aufs/aufs2-build.patch</Patch>
+            -->
+
+            <!-- unionfs support -->
+            <Patch level="1" compressionType="gz">unionfs/unionfs-2.5.6_for_2.6.36-rc5.diff.gz</Patch>
+            <Patch level="1">unionfs/unionfs-2.5.6-fix-compat.diff</Patch>
 
 
             <!-- Fedora Kernel Patches -->
+
+            <!-- acpi: Fix battery status on some devices -->
+            <Patch level="1">fedora/acpi-update-battery-information-on-notification-0x81.patch</Patch>
+
+            <!-- pci: Fix PCI problems with CRS -->
+            <Patch level="1">fedora/pci-v2-1-4-resources-ensure-alignment-callback-doesn-t-allocate-below-available-start.patch</Patch>
+            <Patch level="1">fedora/pci-v2-2-4-x86-PCI-allocate-space-from-the-end-of-a-region-not-the-beginning.patch</Patch>
+            <Patch level="1">fedora/pci-v2-3-4-resources-allocate-space-within-a-region-from-the-top-down.patch</Patch>
+            <Patch level="1">fedora/pci-v2-4-4-PCI-allocate-bus-resources-from-the-top-down.patch</Patch>
+
+            <!-- btusb: Add new macbookpro IDs -->
+            <Patch level="1">fedora/btusb-macbookpro-7-1.patch</Patch>
+            <Patch level="1">fedora/btusb-macbookpro-6-2.patch</Patch>
 
             <!-- Add preliminary support for Wacom Bamboo pen and touch devices -->
             <Patch level="1">fedora/wacom-01-add-fuzz-parameters-to-features.patch</Patch>
@@ -80,9 +99,6 @@
             <Patch level="1">fedora/wacom-07-move-bamboo-touch-irq-to-its-own-function.patch</Patch>
             <Patch level="1">fedora/wacom-08-add-support-for-bamboo-pen.patch</Patch>
             <Patch level="1">fedora/wacom-09-disable-bamboo-touchpad-when-pen-is-being-used.patch</Patch>
-
-            <!-- https://bugzilla.kernel.org/show_bug.cgi?id=16315 -->
-            <Patch level="1">fedora/fix-icebp-breakpoints.patch</Patch>
 
             <!-- Add Apple IR driver -->
             <Patch level="1">fedora/add-appleir-usb-driver.patch</Patch>
@@ -117,6 +133,9 @@
             <!-- Silence some useless messages that still get printed with 'quiet' -->
             <Patch level="1">fedora/linux-2.6-silence-noise.patch</Patch>
 
+            <!-- fbcon: Silence fbcon logo if quiet -->
+            <Patch level="1">fedora/linux-2.6-silence-fbcon-logo.patch</Patch>
+
             <!-- Allow to use 480600 baud on 16C950 UARTs -->
             <Patch level="1">fedora/linux-2.6-serial-460800.patch</Patch>
 
@@ -125,6 +144,9 @@
 
             <!-- hdpvr: Enable IR -->
             <Patch level="1">fedora/hdpvr-ir-enable.patch</Patch>
+
+            <!-- e1000e: Enable networking on montevina -->
+            <Patch level="1">fedora/linux-2.6-e1000-ich9-montevina.patch</Patch>
 
 
             <!-- DRM stuff -->
@@ -335,10 +357,13 @@
 
     <History>
         <Update release="143">
-            <Date>2010-09-22</Date>
-            <Version>2.6.36_rc5</Version>
+            <Date>2010-10-06</Date>
+            <Version>2.6.36_rc6</Version>
             <Comment>
-                - Version bump to 2.6.36_rc5,
+                - Version bump to 2.6.36_rc6,
+                - Fix i7core_edac oops (#14371),
+                - Add Unionfs support,
+                - Disable CONFIG_PARIDE,
                 - Enable CONFIG_NET_CLS_CGROUP for lxc container support.
             </Comment>
             <Name>Ozan Çağlayan</Name>

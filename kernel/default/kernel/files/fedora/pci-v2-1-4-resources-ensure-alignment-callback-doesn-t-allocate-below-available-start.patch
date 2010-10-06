@@ -1,0 +1,28 @@
+diff --git a/kernel/resource.c b/kernel/resource.c
+index 7b36976..ace2269 100644
+--- a/kernel/resource.c
++++ b/kernel/resource.c
+@@ -371,6 +371,7 @@ static int find_resource(struct resource *root, struct resource *new,
+ {
+ 	struct resource *this = root->child;
+ 	struct resource tmp = *new;
++	resource_size_t start;
+ 
+ 	tmp.start = root->start;
+ 	/*
+@@ -391,8 +392,13 @@ static int find_resource(struct resource *root, struct resource *new,
+ 		if (tmp.end > max)
+ 			tmp.end = max;
+ 		tmp.start = ALIGN(tmp.start, align);
+-		if (alignf)
+-			tmp.start = alignf(alignf_data, &tmp, size, align);
++		if (alignf) {
++			start = alignf(alignf_data, &tmp, size, align);
++			if (tmp.start <= start && start <= tmp.end)
++				tmp.start = start;
++			else
++				tmp.start = tmp.end;
++		}
+ 		if (tmp.start < tmp.end && tmp.end - tmp.start >= size - 1) {
+ 			new->start = tmp.start;
+ 			new->end = tmp.start + size - 1;
