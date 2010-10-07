@@ -12,7 +12,7 @@
         <IsA>service</IsA>
         <Summary>A fast, multi-threaded, multi-user SQL database server</Summary>
         <Description>MySQL is a multithreaded, multi-user, robust SQL Database Management System (DBMS).</Description>
-        <Archive sha1sum="fb5982fb73bb2eb0494615352a7510f75114c6d9" type="targz">http://mysql.mirror.iweb.ca/Downloads/MySQL-5.1/mysql-5.1.50.tar.gz</Archive>
+        <Archive sha1sum="45aa05a6a70d67b379272ec19ad3023230c94079" type="targz">http://mysql.mirror.iweb.ca/Downloads/MySQL-5.1/mysql-5.1.51.tar.gz</Archive>
         <BuildDependencies>
             <Dependency>ed</Dependency>
         </BuildDependencies>
@@ -31,7 +31,6 @@
             <Patch level="1">mysql-missing-string-code.patch</Patch>
             <Patch level="1">mysql-lowercase-bug.patch</Patch>
             <Patch level="1">mysql-chain-certs.patch</Patch>
-            <Patch level="1">mysql-missing-header.patch</Patch>
         </Patches>
     </Source>
 
@@ -72,7 +71,7 @@
     <Package>
         <Name>mysql-client</Name>
         <RuntimeDependencies>
-            <Dependency versionFrom="5.1.50">mysql-lib</Dependency>
+            <Dependency versionFrom="5.1.51">mysql-lib</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="executable">/usr/bin</Path>
@@ -82,12 +81,11 @@
     <Package>
         <Name>mysql-server</Name>
         <RuntimeDependencies>
-            <Dependency versionFrom="5.1.50">mysql-lib</Dependency>
-            <Dependency versionFrom="5.1.50">mysql-client</Dependency>
+            <Dependency versionFrom="5.1.51">mysql-lib</Dependency>
+            <Dependency versionFrom="5.1.51">mysql-client</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="config">/etc</Path>
-            <Path fileType="data">/var</Path>
             <Path fileType="executable">/usr/sbin</Path>
             <Path fileType="executable">/usr/bin/mysql_install_db</Path>
             <Path fileType="executable">/usr/bin/mysqlmanagerc</Path>
@@ -113,8 +111,9 @@
             <Path fileType="data">/usr/share/mysql/mysql_system_tables.sql</Path>
             <Path fileType="data">/usr/share/mysql/mysql_test_data_timezone.sql</Path>
             <Path fileType="data">/usr/share/mysql/ndb-config-2-node.ini</Path>
-            <Path fileType="doc">/usr/share/doc</Path>
             <Path fileType="info">/usr/share/info</Path>
+            <Path fileType="data">/var</Path>
+            <Path fileType="doc">/usr/share/doc</Path>
         </Files>
         <AdditionalFiles>
             <AdditionalFile owner="root" permission="0644" target="/etc/mysql/my.cnf">my.cnf</AdditionalFile>
@@ -133,17 +132,27 @@
     </Package>
 
     <History>
-        <Update release="50" type="security">
-            <Date>2010-09-02</Date>
-            <Version>5.1.50</Version>
-            <Comment>Version bump to latest stable release that fixes multiple vulnerabilities.</Comment>
+        <Update release="51" type="security">
+            <Date>2010-10-06</Date>
+            <Version>5.1.51</Version>
+            <Comment>Fix multiple security vulnerabilities (#14547).</Comment>
             <Name>H. İbrahim Güngör</Name>
             <Email>ibrahim@pardus.org.tr</Email>
         </Update>
-        <Update release="49">
+        <Update release="50" type="security">
+            <Date>2010-09-01</Date>
+            <Version>5.1.50</Version>
+            <Comment>Version bump to latest stable release that fixes multiple vulnerabilities (#14195).</Comment>
+            <Name>H. İbrahim Güngör</Name>
+            <Email>ibrahim@pardus.org.tr</Email>
+        </Update>
+        <Update release="49" type="security">
             <Date>2010-08-10</Date>
             <Version>5.1.48</Version>
-            <Comment>Version bump, fix abi check error when gcc >= 4.5.</Comment>
+            <Comment>
+                * Version bump, fix abi check error when gcc >= 4.5,
+                * Fix denial fo service via ALTER DATABASE command (CVE-2010-2008)(#13957)
+            </Comment>
             <Name>H. İbrahim Güngör</Name>
             <Email>ibrahim@pardus.org.tr</Email>
         </Update>
