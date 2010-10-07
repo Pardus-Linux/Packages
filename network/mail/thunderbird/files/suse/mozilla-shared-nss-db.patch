@@ -1,0 +1,172 @@
+From: Hans Petter Jansson <hpj@copyleft.no>
+      Wolfgang Rosenauer <wr@rosenauer.org>
+Subject: use libnsssharedhelper if available at compile time
+         (can be disabled by exporting MOZ_XRE_NO_NSSHELPER=1)
+References:
+
+diff --git a/config/autoconf.mk.in b/config/autoconf.mk.in
+--- a/config/autoconf.mk.in
++++ b/config/autoconf.mk.in
+@@ -548,16 +548,20 @@ MOZ_ENABLE_LIBNOTIFY	= @MOZ_ENABLE_LIBNO
+ 
+ GLIB_CFLAGS	= @GLIB_CFLAGS@
+ GLIB_LIBS	= @GLIB_LIBS@
+ GLIB_GMODULE_LIBS	= @GLIB_GMODULE_LIBS@
+ LIBIDL_CFLAGS = @LIBIDL_CFLAGS@
+ LIBIDL_LIBS = @LIBIDL_LIBS@
+ STATIC_LIBIDL = @STATIC_LIBIDL@
+ 
++MOZ_ENABLE_NSSHELPER = @MOZ_ENABLE_NSSHELPER@
++NSSHELPER_CFLAGS = @NSSHELPER_CFLAGS@
++NSSHELPER_LIBS = @NSSHELPER_LIBS@
++
+ MOZ_NATIVE_MAKEDEPEND	= @SYSTEM_MAKEDEPEND@
+ 
+ MOZ_AUTO_DEPS	= @MOZ_AUTO_DEPS@
+ COMPILER_DEPEND = @COMPILER_DEPEND@
+ MDDEPDIR        := @MDDEPDIR@
+ 
+ MOZ_DEMANGLE_SYMBOLS = @MOZ_DEMANGLE_SYMBOLS@
+ 
+diff --git a/configure.in b/configure.in
+--- a/configure.in
++++ b/configure.in
+@@ -7756,16 +7756,31 @@ AC_SUBST(MOZ_CAIRO_LIBS)
+ 
+ dnl qcms
+ dnl ========================================================
+ 
+ QCMS_LIBS='$(DEPTH)/gfx/qcms/$(LIB_PREFIX)mozqcms.$(LIB_SUFFIX)'
+ AC_SUBST(QCMS_LIBS)
+ 
+ dnl ========================================================
++dnl Check for nss-shared-helper
++dnl ========================================================
++
++  PKG_CHECK_MODULES(NSSHELPER, nss-shared-helper, 
++   [MOZ_ENABLE_NSSHELPER=1],
++   [MOZ_ENABLE_NSSHELPER=])
++
++if test "$MOZ_ENABLE_NSSHELPER"; then
++  AC_DEFINE(MOZ_ENABLE_NSSHELPER)
++fi
++AC_SUBST(MOZ_ENABLE_NSSHELPER)
++AC_SUBST(NSSHELPER_CFLAGS)
++AC_SUBST(NSSHELPER_LIBS)
++
++dnl ========================================================
+ dnl disable xul
+ dnl ========================================================
+ MOZ_ARG_DISABLE_BOOL(xul,
+ [  --disable-xul           Disable XUL],
+     MOZ_XUL= )
+ if test "$MOZ_XUL"; then
+   AC_DEFINE(MOZ_XUL)
+ else
+diff --git a/security/manager/ssl/src/Makefile.in b/security/manager/ssl/src/Makefile.in
+--- a/security/manager/ssl/src/Makefile.in
++++ b/security/manager/ssl/src/Makefile.in
+@@ -133,19 +133,20 @@ REQUIRES	= nspr \
+ 		  $(NULL)
+ 
+ EXTRA_DEPS = $(NSS_DEP_LIBS)
+ 
+ DEFINES += -DNSS_ENABLE_ECC
+ 
+ # Use local includes because they are inserted before INCLUDES
+ # so that Mozilla's nss.h is used, not glibc's
+-LOCAL_INCLUDES += $(NSS_CFLAGS)
++LOCAL_INCLUDES += $(NSS_CFLAGS) $(NSSHELPER_CFLAGS)
+ 
+ EXTRA_DSO_LDOPTS += \
+ 		$(MOZ_UNICHARUTIL_LIBS) \
+ 		$(MOZ_COMPONENT_LIBS) \
+ 		$(MOZ_JS_LIBS) \
++		$(NSSHELPER_LIBS) \
+ 		$(NSS_LIBS) \
+ 		$(NULL)
+ 
+ include $(topsrcdir)/config/rules.mk
+ 
+diff --git a/security/manager/ssl/src/nsNSSComponent.cpp b/security/manager/ssl/src/nsNSSComponent.cpp
+--- a/security/manager/ssl/src/nsNSSComponent.cpp
++++ b/security/manager/ssl/src/nsNSSComponent.cpp
+@@ -39,16 +39,23 @@
+  * use your version of this file under the terms of the MPL, indicate your
+  * decision by deleting the provisions above and replace them with the notice
+  * and other provisions required by the GPL or the LGPL. If you do not delete
+  * the provisions above, a recipient may use your version of this file under
+  * the terms of any one of the MPL, the GPL or the LGPL.
+  *
+  * ***** END LICENSE BLOCK ***** */
+ 
++#ifdef MOZ_ENABLE_NSSHELPER
++#pragma GCC visibility push(default)
++#include <nss-shared-helper.h>
++#pragma GCC visibility pop
++#include "prenv.h"
++#endif
++
+ #include "nsNSSComponent.h"
+ #include "nsNSSCallbacks.h"
+ #include "nsNSSIOLayer.h"
+ #include "nsSSLThread.h"
+ #include "nsCertVerificationThread.h"
+ 
+ #include "nsNetUtil.h"
+ #include "nsAppDirectoryServiceDefs.h"
+@@ -1600,17 +1607,31 @@ nsNSSComponent::InitializeNSS(PRBool sho
+     // The call to ConfigureInternalPKCS11Token needs to be done before NSS is initialized, 
+     // but affects only static data.
+     // If we could assume i18n will not change between profiles, one call per application
+     // run were sufficient. As I can't predict what happens in the future, let's repeat
+     // this call for every re-init of NSS.
+ 
+     ConfigureInternalPKCS11Token();
+ 
+-    SECStatus init_rv = ::NSS_InitReadWrite(profileStr.get());
++    SECStatus init_rv = SECFailure;
++#ifdef MOZ_ENABLE_NSSHELPER
++    if (PR_GetEnv("MOZ_XRE_NO_NSSHELPER")) {
++      init_rv = ::NSS_InitReadWrite(profileStr.get());
++    } else {
++      init_rv = ::nsshelp_open_db ("Thunderbird", profileStr.get(), 0);
++
++      if (init_rv != SECSuccess) {
++        PR_LOG(gPIPNSSLog, PR_LOG_DEBUG, ("can not init NSS using nsshelp_open_db in %s\n", profileStr.get()));
++        init_rv = ::NSS_InitReadWrite(profileStr.get());
++      }
++    }
++#else
++    init_rv = ::NSS_InitReadWrite(profileStr.get());
++#endif
+ 
+     if (init_rv != SECSuccess) {
+       PR_LOG(gPIPNSSLog, PR_LOG_DEBUG, ("can not init NSS r/w in %s\n", profileStr.get()));
+ 
+       if (supress_warning_preference) {
+         which_nss_problem = problem_none;
+       }
+       else {
+diff --git a/toolkit/library/Makefile.in b/toolkit/library/Makefile.in
+--- a/toolkit/library/Makefile.in
++++ b/toolkit/library/Makefile.in
+@@ -189,17 +189,17 @@ else
+ EXTRA_DSO_LDOPTS += \
+ 	$(MOZ_COMPONENT_LIBS) \
+ 	$(MOZ_JS_LIBS) \
+ 	$(NULL)
+ endif
+ 
+ DEFINES += -DIMPL_XREAPI
+ 
+-EXTRA_DSO_LDOPTS += $(NSPR_LIBS)
++EXTRA_DSO_LDOPTS += $(NSPR_LIBS) $(NSSHELPER_LIBS)
+ 
+ ifeq ($(MOZ_WIDGET_TOOLKIT),cocoa)
+ CXXFLAGS	+= $(TK_CFLAGS)
+ EXTRA_DSO_LDOPTS += \
+ 	-framework SystemConfiguration \
+ 	-framework QuickTime \
+ 	-framework IOKit \
+ 	-lcrypto \

@@ -1,0 +1,86 @@
+From: Hans Petter Jansson <hpj@copyleft.no>
+      Wolfgang Rosenauer <wr@rosenauer.org>
+Subject: use libnsssharedhelper if available at compile time
+         (can be disabled by exporting MOZ_XRE_NO_NSSHELPER=1)
+References:
+
+diff --git a/config/autoconf.mk.in b/config/autoconf.mk.in
+--- a/config/autoconf.mk.in
++++ b/config/autoconf.mk.in
+@@ -464,16 +464,20 @@ MOZ_PANGO_LIBS          = @MOZ_PANGO_LIB
+ XT_LIBS			= @XT_LIBS@
+ 
+ MOZ_ALSA_LIBS           = @MOZ_ALSA_LIBS@
+ 
+ GLIB_CFLAGS	= @GLIB_CFLAGS@
+ GLIB_LIBS	= @GLIB_LIBS@
+ GLIB_GMODULE_LIBS	= @GLIB_GMODULE_LIBS@
+ 
++MOZ_ENABLE_NSSHELPER = @MOZ_ENABLE_NSSHELPER@
++NSSHELPER_CFLAGS = @NSSHELPER_CFLAGS@
++NSSHELPER_LIBS = @NSSHELPER_LIBS@
++
+ MOZ_NATIVE_MAKEDEPEND	= @SYSTEM_MAKEDEPEND@
+ 
+ MOZ_AUTO_DEPS	= @MOZ_AUTO_DEPS@
+ COMPILER_DEPEND = @COMPILER_DEPEND@
+ MDDEPDIR        := @MDDEPDIR@
+ 
+ MOZ_DEMANGLE_SYMBOLS = @MOZ_DEMANGLE_SYMBOLS@
+ 
+diff --git a/configure.in b/configure.in
+--- a/configure.in
++++ b/configure.in
+@@ -6841,16 +6841,31 @@ AC_SUBST(MOZ_CAIRO_LIBS)
+ 
+ dnl qcms
+ dnl ========================================================
+ 
+ QCMS_LIBS='$(DEPTH)/mozilla/gfx/qcms/$(LIB_PREFIX)mozqcms.$(LIB_SUFFIX)'    
+ AC_SUBST(QCMS_LIBS)
+ 
+ dnl ========================================================
++dnl Check for nss-shared-helper
++dnl ========================================================
++
++  PKG_CHECK_MODULES(NSSHELPER, nss-shared-helper, 
++   [MOZ_ENABLE_NSSHELPER=1],
++   [MOZ_ENABLE_NSSHELPER=])
++
++if test "$MOZ_ENABLE_NSSHELPER"; then
++  AC_DEFINE(MOZ_ENABLE_NSSHELPER)
++fi
++AC_SUBST(MOZ_ENABLE_NSSHELPER)
++AC_SUBST(NSSHELPER_CFLAGS)
++AC_SUBST(NSSHELPER_LIBS)
++
++dnl ========================================================
+ dnl disable xul
+ dnl ========================================================
+ MOZ_ARG_DISABLE_BOOL(xul,
+ [  --disable-xul           Disable XUL],
+     MOZ_XUL= )
+ if test "$MOZ_XUL"; then
+   AC_DEFINE(MOZ_XUL)
+ fi
+diff --git a/mail/app/Makefile.in b/mail/app/Makefile.in
+--- a/mail/app/Makefile.in
++++ b/mail/app/Makefile.in
+@@ -127,16 +127,17 @@ APP_XPCOM_LIBS = $(XPCOM_LIBS)
+ endif
+ 
+ LIBS += \
+ 	$(STATIC_COMPONENTS_LINKER_PATH) \
+ 	$(MOZ_JS_LIBS) \
+ 	$(EXTRA_DSO_LIBS) \
+ 	$(APP_XPCOM_LIBS) \
+ 	$(NSPR_LIBS) \
++	$(NSSHELPER_LIBS) \
+ 	$(TK_LIBS) \
+ 	$(NULL)
+ 
+ # Add explicit X11 dependency when building against X11 toolkits
+ ifneq (,$(filter gtk gtk2 xlib,$(MOZ_WIDGET_TOOLKIT)))
+ LIBS += $(XLDFLAGS) $(XLIBS)
+ endif
+ 

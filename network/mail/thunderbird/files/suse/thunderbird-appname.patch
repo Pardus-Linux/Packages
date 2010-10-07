@@ -1,0 +1,26 @@
+diff --git a/mail/components/shell/nsMailGNOMEIntegration.cpp b/mail/components/shell/nsMailGNOMEIntegration.cpp
+--- b/mail/components/shell/nsMailGNOMEIntegration.cpp
++++ a/mail/components/shell/nsMailGNOMEIntegration.cpp
+@@ -93,16 +93,22 @@ nsMailGNOMEIntegration::Init()
+   rv = NS_GetSpecialDirectory(NS_XPCOM_CURRENT_PROCESS_DIR,
+                               getter_AddRefs(appPath));
+   NS_ENSURE_SUCCESS(rv, rv);
+ 
+   rv = appPath->AppendNative(NS_LITERAL_CSTRING(MOZ_APP_NAME));
+   NS_ENSURE_SUCCESS(rv, rv);
+ 
+   rv = appPath->GetNativePath(mAppPath);
++
++  /* This path of thunderbird is hardcoded for the default path setting
++   * And the above code is not used.
++   */
++  mAppPath.Assign ("/usr/bin/thunderbird");
++
+   return rv;
+ }
+ 
+ NS_IMPL_ISUPPORTS1(nsMailGNOMEIntegration, nsIShellService)
+ 
+ 
+ NS_IMETHODIMP
+ nsMailGNOMEIntegration::IsDefaultClient(PRBool aStartupCheck, PRUint16 aApps, PRBool * aIsDefaultClient)

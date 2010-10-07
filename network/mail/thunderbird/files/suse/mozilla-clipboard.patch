@@ -1,0 +1,82 @@
+From: Martin Stránský
+Subject: Fix crash in clipboard handling
+References:
+https://bugzilla.mozilla.org/show_bug.cgi?id=495392
+
+
+Index: mozilla/widget/src/gtk2/nsClipboard.cpp
+===================================================================
+--- mozilla/widget/src/gtk2/nsClipboard.cpp.orig
++++ mozilla/widget/src/gtk2/nsClipboard.cpp
+@@ -448,11 +448,11 @@ nsClipboard::HasDataMatchingFlavors(cons
+             if (!atom_name)
+                 continue;
+ 
+-            if (!strcmp(atom_name, aFlavorList[i]))
++            if (!g_strcmp0(atom_name, aFlavorList[i]))
+                 *_retval = PR_TRUE;
+ 
+             // X clipboard wants image/jpeg, not image/jpg
+-            if (!strcmp(aFlavorList[i], kJPEGImageMime) && !strcmp(atom_name, "image/jpeg"))
++            if (!g_strcmp0(aFlavorList[i], kJPEGImageMime) && !strcmp(atom_name, "image/jpeg"))
+                 *_retval = PR_TRUE;
+ 
+             g_free(atom_name);
+Index: mozilla/widget/src/gtk2/nsDragService.cpp
+===================================================================
+--- mozilla/widget/src/gtk2/nsDragService.cpp.orig
++++ mozilla/widget/src/gtk2/nsDragService.cpp
+@@ -801,15 +801,14 @@ nsDragService::IsDataFlavorSupported(con
+         name = gdk_atom_name(atom);
+         PR_LOG(sDragLm, PR_LOG_DEBUG,
+                ("checking %s against %s\n", name, aDataFlavor));
+-        if (name && (strcmp(name, aDataFlavor) == 0)) {
++        if (g_strcmp0(name, aDataFlavor) == 0) {
+             PR_LOG(sDragLm, PR_LOG_DEBUG, ("good!\n"));
+             *_retval = PR_TRUE;
+         }
+         // check for automatic text/uri-list -> text/x-moz-url mapping
+         if (*_retval == PR_FALSE && 
+-            name &&
+-            (strcmp(name, gTextUriListType) == 0) &&
+-            (strcmp(aDataFlavor, kURLMime) == 0)) {
++            (g_strcmp0(name, gTextUriListType) == 0) &&
++            (g_strcmp0(aDataFlavor, kURLMime) == 0)) {
+             PR_LOG(sDragLm, PR_LOG_DEBUG,
+                    ("good! ( it's text/uri-list and \
+                    we're checking against text/x-moz-url )\n"));
+@@ -817,9 +816,8 @@ nsDragService::IsDataFlavorSupported(con
+         }
+         // check for automatic _NETSCAPE_URL -> text/x-moz-url mapping
+         if (*_retval == PR_FALSE && 
+-            name &&
+-            (strcmp(name, gMozUrlType) == 0) &&
+-            (strcmp(aDataFlavor, kURLMime) == 0)) {
++            (g_strcmp0(name, gMozUrlType) == 0) &&
++            (g_strcmp0(aDataFlavor, kURLMime) == 0)) {
+             PR_LOG(sDragLm, PR_LOG_DEBUG,
+                    ("good! ( it's _NETSCAPE_URL and \
+                    we're checking against text/x-moz-url )\n"));
+@@ -827,10 +825,9 @@ nsDragService::IsDataFlavorSupported(con
+         }
+         // check for auto text/plain -> text/unicode mapping
+         if (*_retval == PR_FALSE && 
+-            name &&
+-            (strcmp(name, kTextMime) == 0) &&
+-            ((strcmp(aDataFlavor, kUnicodeMime) == 0) ||
+-             (strcmp(aDataFlavor, kFileMime) == 0))) {
++            (g_strcmp0(name, kTextMime) == 0) &&
++            ((g_strcmp0(aDataFlavor, kUnicodeMime) == 0) ||
++             (g_strcmp0(aDataFlavor, kFileMime) == 0))) {
+             PR_LOG(sDragLm, PR_LOG_DEBUG,
+                    ("good! ( it's text plain and we're checking \
+                    against text/unicode or application/x-moz-file)\n"));
+@@ -951,7 +948,7 @@ nsDragService::IsTargetContextList(void)
+         GdkAtom atom = GDK_POINTER_TO_ATOM(tmp->data);
+         gchar *name = NULL;
+         name = gdk_atom_name(atom);
+-        if (name && strcmp(name, gMimeListType) == 0)
++        if (name && g_strcmp0(name, gMimeListType) == 0)
+             retval = PR_TRUE;
+         g_free(name);
+         if (retval)

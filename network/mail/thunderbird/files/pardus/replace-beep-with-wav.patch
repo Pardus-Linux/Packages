@@ -1,0 +1,52 @@
+diff -Naur mozilla-orig/mailnews/base/src/nsStatusBarBiffManager.cpp mozilla/mailnews/base/src/nsStatusBarBiffManager.cpp
+--- mozilla-orig/mailnews/base/src/nsStatusBarBiffManager.cpp	2008-11-24 16:09:11.000000000 +0200
++++ mozilla/mailnews/base/src/nsStatusBarBiffManager.cpp	2008-11-24 16:10:59.000000000 +0200
+@@ -81,7 +81,7 @@
+ #define PREF_NEW_MAIL_SOUND_TYPE         "mail.biff.play_sound.type"
+ #define SYSTEM_SOUND_TYPE 0
+ #define CUSTOM_SOUND_TYPE 1
+-#define DEFAULT_SYSTEM_SOUND "_moz_mailbeep"
++#define DEFAULT_SYSTEM_SOUND "file:///usr/lib/MozillaThunderbird/sound.wav"
+ 
+ nsresult nsStatusBarBiffManager::Init()
+ {
+@@ -117,17 +117,23 @@
+   // lazily create the sound instance
+   if (!mSound)
+     mSound = do_CreateInstance("@mozilla.org/sound;1");
+-      
++
+   PRInt32 newMailSoundType = SYSTEM_SOUND_TYPE;
+   rv = pref->GetIntPref(PREF_NEW_MAIL_SOUND_TYPE, &newMailSoundType);
+   NS_ENSURE_SUCCESS(rv,rv);
+ 
+   PRBool customSoundPlayed = PR_FALSE;
+ 
+-  if (newMailSoundType == CUSTOM_SOUND_TYPE) {
+-    nsXPIDLCString soundURLSpec;
++  nsXPIDLCString soundURLSpec;
++  if (newMailSoundType == CUSTOM_SOUND_TYPE)
+     rv = pref->GetCharPref(PREF_NEW_MAIL_SOUND_URL, getter_Copies(soundURLSpec));
+-    if (NS_SUCCEEDED(rv) && !soundURLSpec.IsEmpty()) {
++
++  else {
++    rv = pref->GetCharPref(PREF_NEW_MAIL_SOUND_URL, getter_Copies(soundURLSpec));
++    soundURLSpec = DEFAULT_SYSTEM_SOUND;
++  }
++
++  if (NS_SUCCEEDED(rv) && !soundURLSpec.IsEmpty()) {
+       if (!strncmp(soundURLSpec.get(), "file://", 7)) {
+         nsCOMPtr<nsIURI> fileURI;
+         rv = NS_NewURI(getter_AddRefs(fileURI), soundURLSpec);
+@@ -154,9 +160,8 @@
+         if (NS_SUCCEEDED(rv))
+           customSoundPlayed = PR_TRUE;
+       }
+-    }
+-  }    
+-  
++  }
++
+   // if nothing played, play the default system sound
+   if (!customSoundPlayed) {
+     rv = mSound->PlaySystemSound(DEFAULT_SYSTEM_SOUND);

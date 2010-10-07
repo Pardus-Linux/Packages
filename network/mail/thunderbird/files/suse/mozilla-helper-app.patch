@@ -1,0 +1,75 @@
+From: Wolfgang Rosenauer <wr@rosenauer.org>
+Subject: no helper app for application/octet-stream but recognized extensions
+References:
+https://bugzilla.novell.com/show_bug.cgi?id=406979
+https://bugzilla.mozilla.org/show_bug.cgi?id=327323
+
+--- a/mozilla/uriloader/exthandler/unix/nsMIMEInfoUnix.cpp
++++ b/mozilla/uriloader/exthandler/unix/nsMIMEInfoUnix.cpp
+@@ -47,6 +47,7 @@
+ #include "nsMIMEInfoUnix.h"
+ #include "nsGNOMERegistry.h"
+ #include "nsIGnomeVFSService.h"
++#include "nsAutoPtr.h"
+ #ifdef MOZ_ENABLE_DBUS
+ #include "nsDBusHandlerApp.h"
+ #endif
+@@ -74,13 +75,16 @@ NS_IMETHODIMP
+ nsMIMEInfoUnix::GetHasDefaultHandler(PRBool *_retval)
+ {
+   *_retval = PR_FALSE;
+-  nsCOMPtr<nsIGnomeVFSService> vfs = do_GetService(NS_GNOMEVFSSERVICE_CONTRACTID);
+-  if (vfs) {
+-    nsCOMPtr<nsIGnomeVFSMimeApp> app;
+-    if (NS_SUCCEEDED(vfs->GetAppForMimeType(mType, getter_AddRefs(app))) && app)
+-      *_retval = PR_TRUE;
++  nsRefPtr<nsMIMEInfoBase> mimeInfo = nsGNOMERegistry::GetFromType(mType);
++  if (!mimeInfo) {
++    nsCAutoString ext;
++    GetPrimaryExtension(ext);
++    mimeInfo = nsGNOMERegistry::GetFromExtension(ext);
+   }
+ 
++  if (mimeInfo)
++    *_retval = PR_TRUE;
++
+   if (*_retval)
+     return NS_OK;
+ 
+@@ -113,6 +117,16 @@ nsMIMEInfoUnix::LaunchDefaultWithFile(ns
+     nsCOMPtr<nsIGnomeVFSMimeApp> app;
+     if (NS_SUCCEEDED(vfs->GetAppForMimeType(mType, getter_AddRefs(app))) && app)
+       return app->Launch(nativePath);
++
++    // If we haven't got an app we try to get a valid one by searching for the
++    // extension mapped type
++    nsRefPtr<nsMIMEInfoBase> mimeInfo = nsGNOMERegistry::GetFromExtension(nativePath);
++    if (mimeInfo) {
++      nsCAutoString type;
++      mimeInfo->GetType(type);
++      if (NS_SUCCEEDED(vfs->GetAppForMimeType(type, getter_AddRefs(app))) && app)
++        return app->Launch(nativePath);
++    }
+   }
+ 
+   if (!mDefaultApplication)
+--- a/mozilla/uriloader/exthandler/unix/nsOSHelperAppService.cpp
++++ b/mozilla/uriloader/exthandler/unix/nsOSHelperAppService.cpp
+@@ -1580,8 +1580,16 @@ nsOSHelperAppService::GetMIMEInfoFromOS(
+       return retval;
+     }
+ 
+-    // Copy the attributes of retval onto miByExt, to return it
++    // Copy the attributes of retval (mimeinfo from type) onto miByExt, to
++    // return it 
++    // but reset to just collected mDefaultAppDescription (from ext)
++    // and preserve the primary extension as well
++    nsAutoString byExtDefault;
++    miByExt->GetDefaultDescription(byExtDefault);
++    retval->SetDefaultDescription(byExtDefault);
+     retval->CopyBasicDataTo(miByExt);
++    if (!aFileExt.IsEmpty())
++      miByExt->SetPrimaryExtension(aFileExt);
+ 
+     miByExt.swap(retval);
+   }
