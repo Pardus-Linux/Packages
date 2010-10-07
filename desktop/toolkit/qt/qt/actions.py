@@ -48,6 +48,11 @@ def setup():
                             -glib \
                             -no-sql-sqlite2 \
                             -system-sqlite \
+                            -system-zlib \
+                            -system-libpng \
+                            -system-libjpeg \
+                            -system-libtiff \
+                            -system-libmng \
                             -plugin-sql-sqlite \
                             -plugin-sql-odbc \
                             -plugin-sql-mysql \
