@@ -14,7 +14,7 @@ import os
 
 WorkDir = "glibc-2.12-26-g9a98163"
 
-defaultflags = "-O3 -g -U_FORTIFY_SOURCE -fno-strict-aliasing -mno-tls-direct-seg-refs"
+defaultflags = "-O3 -U_FORTIFY_SOURCE -fno-strict-aliasing -mno-tls-direct-seg-refs"
 sysflags = get.CFLAGS().replace("-fstack-protector", "").replace("-D_FORTIFY_SOURCE=2", "").replace("-funwind-tables", "").replace("-fasynchronous-unwind-tables", "")
 
 multibuild = (get.ARCH() == "x86_64")
