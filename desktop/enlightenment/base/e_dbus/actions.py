@@ -8,7 +8,7 @@ from pisi.actionsapi import autotools
 from pisi.actionsapi import pisitools
 from pisi.actionsapi import get
 
-KeepSpecial = ["libtool"]
+WorkDir = "e_dbus-1.0.0.beta"
 
 def setup():
     autotools.autoreconf("-fi")
