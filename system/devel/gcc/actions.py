@@ -24,6 +24,7 @@ arch = get.ARCH().replace("x86_64", "x86-64")
 
 opt_unwind = "--with-system-libunwind" if get.ARCH() == "x86_64" else "--without-system-libunwind"
 opt_arch = "--with-arch_32=i686" if get.ARCH() == "x86_64" else "--with-arch=i686"
+opt_multilib = "--enable-multilib" if get.ARCH() == "x86_64" else ""
 
 # WARNING: even -fomit-frame-pointer may break the build, stack protector, fortify source etc. are off limits
 cflags = "-O2 -g -pipe"
@@ -64,7 +65,6 @@ def setup():
                        --with-gxx-include-dir=/usr/include/c++ \
                        --build=%s \
                        --disable-libgcj \
-                       --disable-multilib \
                        --disable-nls \
                        --disable-mudflap \
                        --disable-libmudflap \
@@ -83,11 +83,12 @@ def setup():
                        --without-included-gettext \
                        %s \
                        %s \
+                       %s \
                        --with-tune=generic \
                        --with-system-zlib \
                        --with-tune=generic \
                        --with-pkgversion="Pardus Linux" \
-                       --with-bugurl=http://bugs.pardus.org.tr' % (get.HOST(), opt_arch, opt_unwind))
+                       --with-bugurl=http://bugs.pardus.org.tr' % (get.HOST(), opt_arch, opt_unwind, opt_multilib))
                        # FIXME: this is supposed to be detected automatically
                        #--enable-long-long \
                        # --enable-gnu-unique-object \  enable with binutils > 2.20.51.0.2
@@ -131,4 +132,6 @@ def install():
     for i in gdbpy_files:
         pisitools.domove("/usr/lib/%s" % shelltools.baseName(i), gdbpy_dir)
 
+    if arch == "x86-64":
+        pisitools.remove("/usr/lib32/libstdc++*gdb.py*")
 
