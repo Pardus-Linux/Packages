@@ -9,27 +9,30 @@ from pisi.actionsapi import pisitools
 from pisi.actionsapi import shelltools
 from pisi.actionsapi import get
 
+WorkDir = "ecore-1.0.0.beta"
+
 def setup():
-    shelltools.system("./autogen.sh \
-                         --prefix=/usr \
-                         --disable-static \
+    shelltools.export("AUTOPOINT", "/bin/true")
+
+    autotools.autoreconf("-vfi")
+    autotools.configure("--disable-static \
                          --disable-rpath \
                          --enable-glib \
-                         --enable-ecore-txt \
                          --enable-ecore-evas \
                          --enable-ecore-con \
                          --enable-ecore-ipc \
-                         --enable-ecore-config \
                          --enable-ecore-file \
                          --enable-ecore-input \
                          --enable-ecore-imf \
-                         --enable-ecore-xim \
                          --enable-ecore-x \
+                         --enable-ecore-fb \
+                         --enable-ecore-directfb \
+                         --enable-ecore-evas-fb \
+                         --enable-ecore-evas-directfb \
                          --enable-ecore-evas-software-buffer \
                          --enable-ecore-evas-software-x11 \
                          --enable-ecore-evas-xrender-x11 \
                          --enable-ecore-evas-opengl-x11 \
-                         --enable-ecore-evas-opengl-glew \
                          --enable-openssl \
                          --enable-inotify \
                          --enable-poll \
