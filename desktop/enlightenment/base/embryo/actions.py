@@ -9,11 +9,11 @@ from pisi.actionsapi import pisitools
 from pisi.actionsapi import shelltools
 from pisi.actionsapi import get
 
+WorkDir = "embryo-1.0.0.beta"
+
 def setup():
-    #autotools.autoreconf("-fi")
-    shelltools.system("./autogen.sh \
-                        --prefix=/usr \
-                        --disable-static")
+    autotools.autoreconf("-fi")
+    autotools.configure("--disable-static")
 
 def build():
     autotools.make()
@@ -21,4 +21,4 @@ def build():
 def install():
     autotools.rawInstall("DESTDIR=%s" % get.installDIR())
 
-    pisitools.dodoc("AUTHORS", "COPYING*", "README")
+    pisitools.dodoc("AUTHORS", "COPYING", "README")
