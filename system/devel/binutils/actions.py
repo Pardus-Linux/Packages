@@ -12,6 +12,7 @@ from pisi.actionsapi import get
 
 # linker = "gold"
 linker = "ld"
+multilib = "--enable-multilib" if get.ARCH() == "x86_64" else ""
 
 # WorkDir = "binutils-2.20.51"
 
@@ -27,9 +28,11 @@ def setup():
                          --with-pkgversion="Pardus Linux" \
                          --with-bugurl=http://bugs.pardus.org.tr/ \
                          --with-separate-debug-dir=/usr/lib/debug \
+                         %s \
                          --disable-nls \
-                         --disable-werror' % (get.HOST(), linker))
+                         --disable-werror' % (get.HOST(), linker, multilib))
                          # --with-pic \
+                         # --enable-targets="i386-linux" \
 
 def build():
     autotools.make("all")
