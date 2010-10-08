@@ -13,10 +13,8 @@ def setup():
     shelltools.export("AUTOPOINT", "/bin/true")
 
     autotools.autoreconf("-fi")
-    autotools.configure("--prefix=/usr \
-                         --disable-static \
+    autotools.configure("--disable-static \
                          --enable-shared \
-                         --enable-nls \
                          --enable-pam \
                          --disable-rpath \
                          --disable-illume \
