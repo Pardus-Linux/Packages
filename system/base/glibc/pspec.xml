@@ -101,8 +101,10 @@
         <Files>
             <Path fileType="config">/etc</Path>
             <Path fileType="library">/lib</Path>
+            <Path fileType="library">/lib32</Path>
             <Path fileType="executable">/usr/bin</Path>
-            <Path fileType="library">/usr/lib/</Path>
+            <Path fileType="library">/usr/lib</Path>
+            <Path fileType="library">/usr/lib32</Path>
             <Path fileType="executable">/usr/sbin</Path>
             <Path fileType="man">/usr/share/man</Path>
             <Path fileType="localedata">/usr/share/i18n</Path>
@@ -131,7 +133,9 @@
         <Files>
             <Path fileType="header">/usr/include</Path>
             <Path fileType="library">/usr/lib/*.o</Path>
+            <Path fileType="library">/usr/lib32/*.o</Path>
             <Path fileType="library">/usr/lib/*.a</Path>
+            <Path fileType="library">/usr/lib32/*.a</Path>
         </Files>
     </Package>
 
@@ -146,6 +150,26 @@
             <Path fileType="info">/usr/share/info</Path>
         </Files>
     </Package>
+
+    <!-- FIXME: We'll see this later on
+    <Package>
+        <Name>glibc-32bit</Name>
+        <PartOf>system.devel</PartOf>
+        <Summary>32bit base library</Summary>
+        <Description>glibc-32bit is 32bit base libraries for running and compiling in 32bit under 64bit environment.</Description>
+        <Files>
+            <Path fileType="config">/etc/ld.so.conf.d/60-glibc-32bit.conf</Path>
+            <Path fileType="executable">/usr/bin/lddlibc4</Path>
+            <Path fileType="library">/usr/lib/misc/getconf/*LP32*</Path>
+            <Path fileType="library">/lib/ld-linux.so.2</Path>
+            <Path fileType="library">/lib32</Path>
+            <Path fileType="library">/usr/lib32</Path>
+        </Files>
+        <AdditionalFiles>
+            <AdditionalFile owner="root" permission="0644" target="/etc/ld.so.conf.d/60-glibc-32bit.conf">60-glibc-32bit.conf</AdditionalFile>
+        </AdditionalFiles>
+    </Package>
+    -->
 
     <Package>
         <Name>glibc-locales-aa</Name>
@@ -1663,6 +1687,16 @@
     </Package>
 
     <History>
+        <Update release="56">
+            <Date>2010-10-04</Date>
+            <Version>2.12_20100706</Version>
+            <Comment>
+                Switch to multilib style instead of pure64
+                Use lib32 dirs and /lib/ld-linux.so.2 for m32 under x86-64
+            </Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
         <Update release="55">
             <Date>2010-09-13</Date>
             <Version>2.12_20100706</Version>

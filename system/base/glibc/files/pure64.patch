@@ -1,7 +1,7 @@
-diff -Nur glibc-20081113T2206-old/sysdeps/unix/sysv/linux/configure glibc-20081113T2206/sysdeps/unix/sysv/linux/configure
---- glibc-20081113T2206-old/sysdeps/unix/sysv/linux/configure	2010-03-01 23:14:25.018169444 +0200
-+++ glibc-20081113T2206/sysdeps/unix/sysv/linux/configure	2010-03-01 23:14:28.895043998 +0200
-@@ -371,15 +371,15 @@
+diff -Nur glibc-2.12-26-g9a98163-old//sysdeps/unix/sysv/linux/configure glibc-2.12-26-g9a98163/sysdeps/unix/sysv/linux/configure
+--- glibc-2.12-26-g9a98163-old//sysdeps/unix/sysv/linux/configure	2010-10-07 18:17:36.930000915 +0300
++++ glibc-2.12-26-g9a98163/sysdeps/unix/sysv/linux/configure	2010-10-07 18:26:17.222001095 +0300
+@@ -332,15 +332,15 @@
  # in /lib and /etc.
  case "$prefix" in
  /usr | /usr/)
@@ -20,10 +20,28 @@ diff -Nur glibc-20081113T2206-old/sysdeps/unix/sysv/linux/configure glibc-200811
        # Locale data can be shared between 32bit and 64bit libraries
        libc_cv_localedir='${exec_prefix}/lib/locale'
      fi
-diff -Nur glibc-20081113T2206-old/sysdeps/unix/sysv/linux/configure.in glibc-20081113T2206/sysdeps/unix/sysv/linux/configure.in
---- glibc-20081113T2206-old/sysdeps/unix/sysv/linux/configure.in	2010-03-01 23:14:25.024169651 +0200
-+++ glibc-20081113T2206/sysdeps/unix/sysv/linux/configure.in	2010-03-01 23:14:28.895043998 +0200
-@@ -159,15 +159,15 @@
+@@ -349,6 +349,17 @@
+     libc_cv_slibdir="/lib"
+     ;;
+   esac
++  # Use lib32 dirs in x86 on multi arch
++  if test "$multi_arch" = "yes"; then
++    case $machine in
++      *86)
++        libc_cv_slibdir="/lib32";
++        libdir='${exec_prefix}/lib32'
++      ;;
++      *)
++      ;;
++    esac
++  fi
+   # Allow the user to override the path with --sysconfdir
+   if test $sysconfdir = '${prefix}/etc'; then
+     libc_cv_sysconfdir=/etc
+diff -Nur glibc-2.12-26-g9a98163-old//sysdeps/unix/sysv/linux/configure.in glibc-2.12-26-g9a98163/sysdeps/unix/sysv/linux/configure.in
+--- glibc-2.12-26-g9a98163-old//sysdeps/unix/sysv/linux/configure.in	2010-10-07 18:17:36.931000942 +0300
++++ glibc-2.12-26-g9a98163/sysdeps/unix/sysv/linux/configure.in	2010-10-07 18:26:19.014001288 +0300
+@@ -146,15 +146,15 @@
  # in /lib and /etc.
  case "$prefix" in
  /usr | /usr/)
@@ -42,9 +60,27 @@ diff -Nur glibc-20081113T2206-old/sysdeps/unix/sysv/linux/configure.in glibc-200
        # Locale data can be shared between 32bit and 64bit libraries
        libc_cv_localedir='${exec_prefix}/lib/locale'
      fi
-diff -Nur glibc-20081113T2206-old/sysdeps/unix/sysv/linux/x86_64/ldconfig.h glibc-20081113T2206/sysdeps/unix/sysv/linux/x86_64/ldconfig.h
---- glibc-20081113T2206-old/sysdeps/unix/sysv/linux/x86_64/ldconfig.h	2010-03-01 23:14:25.004169612 +0200
-+++ glibc-20081113T2206/sysdeps/unix/sysv/linux/x86_64/ldconfig.h	2010-03-01 23:16:02.392053938 +0200
+@@ -163,6 +163,17 @@
+     libc_cv_slibdir="/lib"
+     ;;
+   esac
++  # Use lib32 dirs in x86 on multi arch
++  if test "$multi_arch" = "yes"; then
++    case $machine in
++      *86)
++        libc_cv_slibdir="/lib32";
++        libdir='${exec_prefix}/lib32'
++      ;;
++      *)
++      ;;
++    esac
++  fi
+   # Allow the user to override the path with --sysconfdir
+   if test $sysconfdir = '${prefix}/etc'; then
+     libc_cv_sysconfdir=/etc
+diff -Nur glibc-2.12-26-g9a98163-old//sysdeps/unix/sysv/linux/x86_64/ldconfig.h glibc-2.12-26-g9a98163/sysdeps/unix/sysv/linux/x86_64/ldconfig.h
+--- glibc-2.12-26-g9a98163-old//sysdeps/unix/sysv/linux/x86_64/ldconfig.h	2010-10-07 18:17:36.931000942 +0300
++++ glibc-2.12-26-g9a98163/sysdeps/unix/sysv/linux/x86_64/ldconfig.h	2010-10-07 18:16:05.240001108 +0300
 @@ -19,8 +19,8 @@
  #include <sysdeps/generic/ldconfig.h>
  
@@ -52,13 +88,13 @@ diff -Nur glibc-20081113T2206-old/sysdeps/unix/sysv/linux/x86_64/ldconfig.h glib
 -  { "/lib/ld-linux.so.2", FLAG_ELF_LIBC6 }, \
 -  { "/lib64/ld-linux-x86-64.so.2", FLAG_ELF_LIBC6 },
 +  { "/lib/ld-linux-x86-64.so.2", FLAG_ELF_LIBC6 }, \
-+  { "/lib32/ld-linux.so.2", FLAG_ELF_LIBC6 },
++  { "/lib/ld-linux.so.2", FLAG_ELF_LIBC6 },
  #define SYSDEP_KNOWN_LIBRARY_NAMES \
    { "libc.so.6", FLAG_ELF_LIBC6 },	\
    { "libm.so.6", FLAG_ELF_LIBC6 },
-diff -Nur glibc-20081113T2206-old/sysdeps/unix/sysv/linux/x86_64/ldd-rewrite.sed glibc-20081113T2206/sysdeps/unix/sysv/linux/x86_64/ldd-rewrite.sed
---- glibc-20081113T2206-old/sysdeps/unix/sysv/linux/x86_64/ldd-rewrite.sed	2010-03-01 23:14:25.005170020 +0200
-+++ glibc-20081113T2206/sysdeps/unix/sysv/linux/x86_64/ldd-rewrite.sed	2010-03-02 00:54:14.332208466 +0200
+diff -Nur glibc-2.12-26-g9a98163-old//sysdeps/unix/sysv/linux/x86_64/ldd-rewrite.sed glibc-2.12-26-g9a98163/sysdeps/unix/sysv/linux/x86_64/ldd-rewrite.sed
+--- glibc-2.12-26-g9a98163-old//sysdeps/unix/sysv/linux/x86_64/ldd-rewrite.sed	2010-10-07 18:17:36.931000942 +0300
++++ glibc-2.12-26-g9a98163/sysdeps/unix/sysv/linux/x86_64/ldd-rewrite.sed	2010-10-07 18:16:05.240001108 +0300
 @@ -1,3 +1,3 @@
  /LD_TRACE_LOADED_OBJECTS=1/a\
  add_env="$add_env LD_LIBRARY_VERSION=\\$verify_out"
