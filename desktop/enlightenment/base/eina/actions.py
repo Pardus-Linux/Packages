@@ -8,11 +8,12 @@ from pisi.actionsapi import autotools
 from pisi.actionsapi import pisitools
 from pisi.actionsapi import get
 
+WorkDir = "eina-1.0.0.beta"
+
 def setup():
     autotools.autoreconf("-fi")
     autotools.configure("--disable-static\
-                         --disable-magic-debug \
-                         --enable-pthread")
+                         --disable-magic-debug")
 
 def build():
     autotools.make()
@@ -22,4 +23,4 @@ def install():
 
     pisitools.removeDir("/usr/bin")
 
-    pisitools.dodoc("AUTHORS", "ChangeLog", "*COPYING", "NEWS", "README")
+    pisitools.dodoc("AUTHORS", "ChangeLog", "COPYING", "README")
