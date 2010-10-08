@@ -9,6 +9,8 @@ from pisi.actionsapi import pisitools
 from pisi.actionsapi import shelltools
 from pisi.actionsapi import get
 
+WorkDir = "eeze-1.0.0.beta"
+
 def setup():
     shelltools.system("./autogen.sh \
                        --prefix=/usr \
@@ -20,4 +22,4 @@ def build():
 def install():
     autotools.rawInstall("DESTDIR=%s" % get.installDIR())
 
-    pisitools.dodoc("AUTHORS", "COPYING*", "README", "TODO")
+    pisitools.dodoc("AUTHORS", "COPYING", "README", "TODO")
