@@ -6,12 +6,11 @@
 
 from pisi.actionsapi import autotools
 from pisi.actionsapi import pisitools
-from pisi.actionsapi import shelltools
 from pisi.actionsapi import get
 
-def setup():
-    shelltools.touch("README")
+WorkDir = "eet-1.4.0.beta"
 
+def setup():
     autotools.autoreconf("-fi")
     autotools.configure("--disable-static \
                          --disable-gnutls")
