@@ -8,21 +8,26 @@ from pisi.actionsapi import autotools
 from pisi.actionsapi import pisitools
 from pisi.actionsapi import get
 
+WorkDir = "evas-1.0.0.beta"
+
 def setup():
     autotools.autoreconf("-fi")
-    # asyns/pipe rendering is disabled due to bugs shown in x86 and arm.
+
+    # async/pipe rendering is disabled due to bugs shown in x86 and arm.
     # Upstream is aware and has recommended to not to enable them.
     # http://trac.enlightenment.org/e/changeset/51691/trunk/evas/README.in
     autotools.configure("--enable-gl-x11 \
-                         --enable-fribidi \
-                         --enable-buffer \
                          --enable-software-xlib \
                          --enable-xrender-x11 \
-                         --enable-pthreads \
+                         --enable-fb \
+                         --enable-directfb \
                          --enable-async-events \
                          --enable-async-preload \
                          --disable-pipe-render \
                          --disable-async-render \
+                         --enable-fribidi \
+                         --enable-buffer \
+                         --enable-pthreads \
                          --with-x \
                          --disable-static")
 
