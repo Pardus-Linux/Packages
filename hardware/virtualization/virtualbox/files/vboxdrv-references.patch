@@ -1,0 +1,38 @@
+#!/bin/sh /usr/share/dpatch/dpatch-run
+## 04-vboxdrv-references.dpatch by Daniel Hahler <ubuntu@thequod.de>
+##
+## DP: Change error messages for vboxdrv failure, according to
+## DP: virtualbox-ose-source (DKMS).
+
+@DPATCH@
+
+Index: VirtualBox-2.2.0_OSE/src/VBox/VMM/VM.cpp
+===================================================================
+--- VirtualBox-2.2.0_OSE.orig/src/VBox/VMM/VM.cpp
++++ VirtualBox-2.2.0_OSE/src/VBox/VMM/VM.cpp
+@@ -302,10 +302,8 @@ VMMR3DECL(int)   VMR3Create(uint32_t cCP
+             {
+                 case VERR_VM_DRIVER_LOAD_ERROR:
+ #ifdef RT_OS_LINUX
+-                    pszError = N_("VirtualBox kernel driver not loaded. The vboxdrv kernel module "
+-                                  "was either not loaded or /dev/vboxdrv is not set up properly. "
+-                                  "Re-setup the kernel module by executing "
+-                                  "'/etc/init.d/vboxdrv setup' as root");
++                    pszError = N_("VirtualBox kernel driver not loaded. "
++                                  "Please install the module-virtualbox package.");
+ #else
+                     pszError = N_("VirtualBox kernel driver not loaded");
+ #endif
+@@ -344,10 +342,8 @@ VMMR3DECL(int)   VMR3Create(uint32_t cCP
+                 case VERR_INVALID_HANDLE: /** @todo track down and fix this error. */
+                 case VERR_VM_DRIVER_NOT_INSTALLED:
+ #ifdef RT_OS_LINUX
+-                    pszError = N_("VirtualBox kernel driver not installed. The vboxdrv kernel module "
+-                                  "was either not loaded or /dev/vboxdrv was not created for some "
+-                                  "reason. Re-setup the kernel module by executing "
+-                                  "'/etc/init.d/vboxdrv setup' as root");
++                    pszError = N_("VirtualBox kernel driver not installed. "
++                                  "Please install the module-virtualbox package.");
+ #else
+                     pszError = N_("VirtualBox kernel driver not installed");
+ #endif
