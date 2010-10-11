@@ -11,5 +11,5 @@ from pisi.actionsapi import kde4
 WorkDir = "./"
 
 def install():
-    pisitools.insinto("%s/share/apps/kdm/themes/" % kde4.prefix, "kdm-pardus-theme", "pardus")
+    pisitools.insinto("%s/kdm/themes/" % kde4.appsdir, "kdm-pardus-theme", "pardus")
 
