@@ -59,10 +59,16 @@ def mknod(nodfile, nodtype, major, minor, perms=0666):
     os.mknod(nodfile, perms | devtype, os.makedev(major, minor))
 
 def copy(source, destination):
+    # First let's check for the target directory and create if
+    # it doesn't exist
+    destdir = os.path.dirname(destination)
+    if not os.path.isdir(destdir):
+        mkdir(destdir)
+
     try:
         shutil.copy2(source, destination)
     except IOError:
-        printWarn("Could not find file %s" % source)
+        printWarn("Could not find %s" % source)
 
 def touch(_file):
     if os.path.exists(_file):
@@ -84,12 +90,13 @@ def run(*cmd):
     return subprocess.call(cmd, shell=True, stdout=f, stderr=f)
 
 def printFail(msg):
-    print msg
+    print "ERROR: %s" % msg
+
     tempdir.cleanup()
     sys.exit(1)
 
 def printWarn(msg):
-    print msg
+    print "WARNING: %s" % msg
 
 def setKernelVersion(Version=""):
     if Version == "":
@@ -121,19 +128,21 @@ class BaseSystem:
                             "kmsg"      : ["c", 1, 11],
                            }
 
-        self.baseFileList = {"/bin/busybox"                 : "/bin/",
-                             "/bin/busybox.links"           : "/bin/",
-                             "/lib/initramfs/hotplug"       : "/sbin/",
-                             "/usr/bin/disktype"            : "/bin/",
-                             "/lib/initramfs/init"          : "/",
-                             "/lib/initramfs/udhcpc.script" : "/etc/",
-                             "/lib/initramfs/profile.rc"    : "/etc/profile",
+        self.baseFileList = {
+                                 "/bin/busybox"                 : "/bin/",
+                                 "/bin/busybox.links"           : "/bin/",
+                                 "/usr/bin/disktype"            : "/bin/",
+                                 "/lib/initramfs/init"          : "/",
+                                 "/lib/initramfs/hotplug"       : "/sbin/",
+                                 "/lib/initramfs/udhcpc.script" : "/etc/",
+                                 "/lib/initramfs/profile.rc"    : "/etc/profile",
                             }
 
         self.modprobeBlacklistFileList = dict([(k,"/etc/modprobe.d") for k in glob.glob("/etc/modprobe.d/blacklist*conf")])
 
-        self.suspendFileList = {"/etc/suspend.conf": "/etc/",
-                                "/usr/sbin/resume": "/bin/"
+        self.suspendFileList = {
+                                    "/etc/suspend.conf"         : "/etc/",
+                                    "/usr/sbin/resume"          : "/bin/",
                                }
 
 
@@ -236,11 +245,11 @@ class KernelModule:
         self.scsiDirs = ["kernel/drivers/scsi"]
         self.scsiModules = ["mptfc", "mptsas", "mptscsih", "mptspi", "zfcp"]
 
+        self.mdDirs = ["kernel/drivers/md"]
         self.ataDirs = ["kernel/drivers/ata"]
         self.mmcDirs = ["kernel/drivers/mmc"]
-        self.blockDirs = ["kernel/drivers/block"]
         self.ideDirs = ["kernel/drivers/ide"]
-        self.mdDirs = ["kernel/drivers/md"]
+        self.blockDirs = ["kernel/drivers/block"]
 
         self.firewireModules = ["sd_mod", "ieee1394", "ohci1394", "sbp2", "firewire-ohci", "firewire-sbp2"]
         self.i2oModules = ["i2o_block"]
@@ -427,9 +436,10 @@ class KernelModule:
         self.appendFirmwares()
         self.depmod()
 
-class Splash:
+class Bootsplash:
     def __init__(self):
         self.themeDir = "/etc/bootsplash/themes"
+        self.splashUtil = "/sbin/splash"
         self.defaultTheme = "Pardus"
         self.defaultResolutions = ["1024x768"]
         self.targetDir = config["tmpDir"]
@@ -439,27 +449,35 @@ class Splash:
         self.availableResolutions = []
         self.availableThemes = []
 
-    def findThemes(self):
-        self.availableThemes = os.listdir(self.themeDir)
+    def install(self):
+        if os.path.exists(self.themeDir) and os.path.exists(self.splashUtil):
+            for f in os.listdir("%s/%s/config" % (self.themeDir, self.theme)):
+                self.availableResolutions.append(f.replace("bootsplash-", "").replace(".cfg", ""))
 
-    def findResolutions(self):
-        res = []
-        for i in os.listdir("%s/%s/config" % (self.themeDir, self.theme)):
-            res.append(i.replace("bootsplash-", "").replace(".cfg", ""))
+            self.resolutions = self.availableResolutions
 
-        self.availableResolutions = res
+            # /sbin/splash -s -f
+            # /etc/bootsplash/themes/$FBSPLASH_THEME/config/bootsplash-$FBSPLASH_RES.cfg > $MOUNT_IMAGE/bootsplash
+            cmd = "%s -s -f %s/%s/config/bootsplash-%s.cfg >> %s/bootsplash"
+            for resolution in self.resolutions:
+                capture(cmd % (self.splashUtil,
+                               self.themeDir,
+                               self.theme,
+                               resolution,
+                               self.targetDir))
 
-    def make(self):
-        # /sbin/splash -s -f /etc/bootsplash/themes/$FBSPLASH_THEME/config/bootsplash-$FBSPLASH_RES.cfg > $MOUNT_IMAGE/bootsplash
-        cmd = "/sbin/splash -s -f %s/%s/config/bootsplash-%s.cfg >> %s/bootsplash"
-        for i in self.resolutions:
-            capture(cmd % (self.themeDir, self.theme, i, self.targetDir))
-            # print cmd % (self.themeDir, self.theme, i, self.targetDir)
+class Plymouth:
+    def __init__(self):
+        self.fileList = "/usr/share/plymouth/initramfs.files"
+        self.targetDir = config["tmpDir"]
 
-    def makeDefaults(self):
-        self.findResolutions()
-        self.resolutions = self.availableResolutions
-        self.make()
+    def install(self):
+        """Will install plymouth related stuff."""
+        if os.path.exists(self.fileList):
+            with open(self.fileList, "r") as files:
+                for _file in files:
+                    filename = _file.strip()
+                    copy(filename.strip(), os.path.join(self.targetDir, filename[1:]))
 
 class Initramfs:
     def __init__(self):
@@ -497,34 +515,48 @@ if __name__ == "__main__":
     parser = OptionParser()
     parser.add_option("-k", "--kernel", dest="kernelVersion", type="string",
             help="kernel version to create initramfs for")
+
     parser.add_option("-t", "--type", dest="type", type="string", default="kernel",
             help="kernel type to create initramfs for")
+
     parser.add_option("-o", "--output", dest="destDir", type="string", metavar="DIR", default="/boot",
             help="create initramfs in DIR")
+
     parser.add_option("-c", "--configfile", dest="configFile", type="string", metavar="FILE", default="/etc/initramfs.conf",
             help="use FILE for initramfs config file, default is /etc/initramfs.conf")
+
     parser.add_option("-r", "--rootdir", dest="rootDir", type="string", metavar="DIR", default="/",
             help="use DIR as basedir for kernel modules")
+
     parser.add_option("-f", "--filename", dest="filename", type="string", metavar="FILE",
             help="use FILE for initramfs file name")
+
     parser.add_option("-d", "--debug", action="store_true", dest="debug", default=False,
             help="print extra debug info")
+
     parser.add_option("--blacklist", dest="blackList", type="string", metavar="FILES", default="",
             help="define modules to be blacklisted, seperated by comma. Example: e100,rtl819,ahci")
+
     parser.add_option("--network", action="store_true", dest="networkModule", default=False,
             help="add network modules")
+
     parser.add_option("--nodrm", action="store_true", dest="excludeDRM", default=False,
             help="Don't include KMS capable DRM modules")
+
     parser.add_option("--network-generic", action="store_true", dest="networkModuleBasic", default=False,
             help="add only generic network modules")
+
     parser.add_option("--keeptmp", action="store_true", dest="keepTmp", default=False,
-            help="wheter to keep temporary dir after operation")
-    #parser.add_option("-n", "--dry-run", action="store_true", dest="dryrun", default=False,
-    #        help="do not perform any action, just show what will be done")
-    #parser.add_option("--list-modules", action="store_true", dest="listModules", default=False,
-    #        help="do not perform any action, just show what will be done")
-    #parser.add_option("--list-base", action="store_true", dest="listBase", default=False,
-    #        help="do not perform any action, just show what will be done")
+            help="whether to keep temporary dir after operation")
+
+    parser.add_option("-n", "--dry-run", action="store_true", dest="dryrun", default=False,
+            help="do not perform any action, just show what will be done")
+
+    parser.add_option("--list-modules", action="store_true", dest="listModules", default=False,
+            help="do not perform any action, just show what will be done")
+
+    parser.add_option("--list-base", action="store_true", dest="listBase", default=False,
+            help="do not perform any action, just show what will be done")
 
     (opts, args) = parser.parse_args()
 
@@ -534,7 +566,7 @@ if __name__ == "__main__":
     config["rootDir"] = os.path.abspath(opts.rootDir)
 
     config["debug"] = opts.debug
-    #config["dryrun"] = opts.dryrun
+    config["dryrun"] = opts.dryrun
     tempdir.keepTmp = opts.keepTmp
 
     config["kernelType"] = opts.type
@@ -553,8 +585,13 @@ if __name__ == "__main__":
     basesystem = BaseSystem()
     basesystem.create()
 
-    #splash = Splash()
-    #splash.makeDefaults()
+    # Check for bootsplash and install if found
+    bootsplash = Bootsplash()
+    bootsplash.install()
+
+    # Check for plymouth and install if found
+    plymouth = Plymouth()
+    plymouth.install()
 
     kernelmodule = KernelModule()
     kernelmodule.autoGenerate()

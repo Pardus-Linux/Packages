@@ -75,6 +75,8 @@ probe_devices() {
 
     [ "x$1" = "x--with-kms" ] && probe_kms
 
+    test -x /bin/plymouth && /bin/plymouth --show-splash
+
     probe_pci_devices
     probe_usb_devices
 
@@ -417,6 +419,9 @@ mount -t devtmpfs devtmpfs /dev
 mkdir -m 0755 /dev/pts
 mount -t devpts -o gid=5,mode=620 devpts /dev/pts
 
+# Initialize plymouth daemon if found
+test -x /sbin/plymouthd && /sbin/plymouthd --attach-to-session
+
 # First parse config file, then cmdline to allow overwriting internal config
 if [ -f "$INITRAMFSCONF" ]
 then
@@ -446,9 +451,9 @@ fi
 # Probe devices
 probe_devices --with-kms
 
+[ "${VIRTIO}" -eq "1" ] && probe_virtio
 [ "${RAID}" -eq "1" ] && probe_raid
 [ "${LVM}" -eq "1" ] && probe_lvm
-[ "${VIRTIO}" -eq "1" ] && probe_virtio
 
 if [ "${RESUME_DEVICE}" != "" ]
 then
@@ -532,4 +537,5 @@ mount --move /sys /newroot/sys
 
 # And we start
 info "Switching to the real root"
+test -x /bin/plymouth && /bin/plymouth --newroot=/newroot
 exec /bin/switch_root -c /dev/console /newroot ${INIT} ${LEVEL}
