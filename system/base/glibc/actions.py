@@ -46,12 +46,14 @@ ldconf32bit = """/lib32
 
 ### helper functions ###
 def removePardusSection(_dir):
-    for k in shelltools.ls(_dir):
-        # FIXME: should we do this only on nonshared or all ?
-        # if ("crt" in k and k.endswith(".o")) or k.endswith("nonshared.a"):
-        if ("crt" in k and k.endswith(".o")) or k.endswith(".a"):
-            i = os.path.join(_dir, k)
-            shelltools.system('objcopy -R ".comment.PARDUS.OPTs" -R ".note.gnu.build-id" %s' % i)
+    for root, dirs, files in os.walk(_dir):
+        for name in files:
+            # FIXME: should we do this only on nonshared or all ?
+            # if ("crt" in k and k.endswith(".o")) or k.endswith("nonshared.a"):
+            if ("crt" in k and k.endswith(".o")) or k.endswith(".a"):
+                i = os.path.join(root, name)
+                shelltools.system('objcopy -R ".comment.PARDUS.OPTs" -R ".note.gnu.build-id" %s' % i)
+
 
 def set_variables(cfg):
     shelltools.export("LANGUAGE","C")
