@@ -26,7 +26,7 @@ def setup():
     shelltools.system("rm -rf Modules/_ctypes/libffi*")
 
     # Bump required autoconf version
-    pisitools.dosed("configure.in", r"\(2.65\)", "(2.67)")
+    pisitools.dosed("configure.in", r"\(2.65\)", "(2.68)")
 
     autotools.autoreconf("-vif")
     autotools.configure("--with-fpectl \
