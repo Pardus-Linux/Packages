@@ -30,10 +30,15 @@ opt_multilib = "--enable-multilib" if get.ARCH() == "x86_64" else ""
 cflags = "-O2 -g -pipe"
 
 def removePardusSection(_dir):
-    for k in shelltools.ls(_dir):
-        if k.startswith("crt") and k.endswith(".o"):
-            i = os.path.join(_dir, k)
-            shelltools.system('objcopy -R ".comment.PARDUS.OPTs" %s' % i)
+    for root, dirs, files in os.walk(_dir):
+        for name in files:
+            # FIXME: should we do this only on nonshared or all ?
+            # if ("crt" in k and k.endswith(".o")) or k.endswith("nonshared.a"):
+            if ("crt" in k and k.endswith(".o")) or k.endswith(".a"):
+                i = os.path.join(root, name)
+                shelltools.system('objcopy -R ".comment.PARDUS.OPTs" -R ".note.gnu.build-id" %s' % i)
+
+
 
 def exportFlags():
     # we set real flags with new configure settings, these are just safe optimizations
@@ -122,7 +127,10 @@ def install():
     pisitools.dosym("/usr/bin/cpp", "/lib/cpp")
 
     # Remove our options section from crt stuff
-    removePardusSection("%s/usr/lib/gcc/%s/%s/" % (get.installDIR(), get.HOST(), verMajor))
+    removePardusSection("%s/usr/lib/" % get.installDIR())
+    if get.ARCH() == "x86_64":
+        removePardusSection("%s/usr/lib32/" % get.installDIR())
+
 
     # autoload gdb pretty printers
     gdbpy_dir = "/usr/share/gdb/auto-load/usr/lib/"
