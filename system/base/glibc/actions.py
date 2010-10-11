@@ -49,8 +49,8 @@ def removePardusSection(_dir):
     for root, dirs, files in os.walk(_dir):
         for name in files:
             # FIXME: should we do this only on nonshared or all ?
-            # if ("crt" in k and k.endswith(".o")) or k.endswith("nonshared.a"):
-            if ("crt" in k and k.endswith(".o")) or k.endswith(".a"):
+            # if ("crt" in name and name.endswith(".o")) or name.endswith("nonshared.a"):
+            if ("crt" in name and name.endswith(".o")) or name.endswith(".a"):
                 i = os.path.join(root, name)
                 shelltools.system('objcopy -R ".comment.PARDUS.OPTs" -R ".note.gnu.build-id" %s' % i)
 
