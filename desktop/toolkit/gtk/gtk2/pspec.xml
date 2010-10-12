@@ -11,13 +11,13 @@
         <License>LGPLv2.1</License>
         <Summary>The GIMP Toolkit version 2</Summary>
         <Description>GTK+ is a multi-platform toolkit for creating graphical user interfaces. Offering a complete set of widgets, GTK+ is suitable for projects ranging from small one-off projects to complete application suites.</Description>
-        <Archive sha1sum="a80953b4e81c6a5bc2a986852f7fe60c8704cc02" type="tarbz2">mirrors://gnome/gtk+/2.20/gtk+-2.20.1.tar.bz2</Archive>
+        <Archive sha1sum="3af12d8eb3520516b25fa82873f87473dfb42cc0" type="tarbz2">mirrors://gnome/gtk+/2.22/gtk+-2.22.0.tar.bz2</Archive>
         <BuildDependencies>
+            <Dependency>gdk-pixbuf-devel</Dependency>
             <Dependency>atk-devel</Dependency>
             <Dependency>cups-devel</Dependency>
             <Dependency>libXi-devel</Dependency>
             <Dependency>pango-devel</Dependency>
-            <Dependency>jasper-devel</Dependency>
             <Dependency>libXext-devel</Dependency>
             <Dependency>libXrandr-devel</Dependency>
             <Dependency>libXfixes-devel</Dependency>
@@ -28,32 +28,25 @@
             <Dependency>libXinerama-devel</Dependency>
             <Dependency>libXcomposite-devel</Dependency>
             <Dependency>cairo-devel</Dependency>
-            <Dependency>libpng-devel</Dependency>
-            <Dependency>tiff-devel</Dependency>
-            <Dependency>jpeg-devel</Dependency>
+            <Dependency>gobject-introspection-devel</Dependency>
         </BuildDependencies>
         <Patches>
             <!-- Upstream added a warning message for XID collisions for being able
             to debug related crashes but the warning floods .xsession-errors. (#10078) -->
             <Patch level="1">remove-spurious-xid-warnings.patch</Patch>
-
-            <!-- Show a default network printer in case of an absent default local one -->
-            <!-- <Patch>default_printer.patch</Patch> -->
-
-            <!-- Fix wrong 'may not be connected' warnings for a printer -->
-            <Patch>gtk2-remove-connecting-reason.patch</Patch>
-            <Patch level="1">gtk+-2.20.1-libpng-fix.patch</Patch>
+            <Patch level="1">gtk-lib64.patch</Patch>
+            <Patch level="1">gir_build_workaround.patch</Patch>
         </Patches>
     </Source>
 
     <Package>
         <Name>gtk2</Name>
         <RuntimeDependencies>
+            <Dependency>gdk-pixbuf</Dependency>
             <Dependency>atk</Dependency>
             <Dependency>cups</Dependency>
             <Dependency>libXi</Dependency>
             <Dependency>pango</Dependency>
-            <Dependency>jasper</Dependency>
             <Dependency>libXext</Dependency>
             <Dependency>libXrandr</Dependency>
             <Dependency>libXfixes</Dependency>
@@ -64,9 +57,6 @@
             <Dependency>libXinerama</Dependency>
             <Dependency>libXcomposite</Dependency>
             <Dependency>cairo</Dependency>
-            <Dependency>libpng</Dependency>
-            <Dependency>tiff</Dependency>
-            <Dependency>jpeg</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="config">/etc</Path>
@@ -81,7 +71,6 @@
             <AdditionalFile owner="root" permission="0644" target="/etc/gtk-2.0/gtkrc">gtkrc</AdditionalFile>
         </AdditionalFiles>
         <Provides>
-            <COMAR script="package.py">System.Package</COMAR>
             <COMAR script="pakhandler.py">System.PackageHandler</COMAR>
         </Provides>
     </Package>
@@ -112,7 +101,7 @@
         <Name>gtk2-devel</Name>
         <Summary>Development files for gtk2</Summary>
         <RuntimeDependencies>
-            <Dependency release="66">gtk2</Dependency>
+            <Dependency release="67">gtk2</Dependency>
             <Dependency>atk-devel</Dependency>
             <Dependency>pango-devel</Dependency>
             <Dependency>cairo-devel</Dependency>
@@ -121,10 +110,18 @@
             <Path fileType="header">/usr/include</Path>
             <Path fileType="library">/usr/lib/pkgconfig</Path>
             <Path fileType="data">/usr/share/aclocal</Path>
+            <Path fileType="data">/usr/share/gir-1.0</Path>
         </Files>
     </Package>
 
     <History>
+        <Update release="67">
+            <Date>2010-10-12</Date>
+            <Version>2.22.0</Version>
+            <Comment>Version bump.</Comment>
+            <Name>Burak Çalışkan</Name>
+            <Email>burakclskn@gmail.com</Email>
+        </Update>
         <Update release="66">
             <Date>2010-08-30</Date>
             <Version>2.20.1</Version>

@@ -12,18 +12,18 @@ from pisi.actionsapi import shelltools
 
 WorkDir = "gtk+-%s" % get.srcVERSION()
 
+shelltools.export("HOME", get.workDIR())
+
 def setup():
-    autotools.configure("--with-libjpeg \
-                         --with-libtiff \
-                         --with-libjasper\
-                         --with-libpng \
-                         --with-gdktarget=x11 \
+    autotools.automake()
+    autotools.configure("--with-gdktarget=x11 \
                          --enable-xinerama \
                          --with-xinput=yes \
                          --enable-xkb \
                          --enable-shm \
-                         --disable-introspection \
-                         --with-included-loaders=png")
+                         --enable-silent-rules \
+                         --enable-introspection \
+                         --disable-papi")
     pisitools.dosed("libtool"," -shared ", " -Wl,--as-needed -shared ")
 
 def build():

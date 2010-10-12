@@ -19,7 +19,7 @@ def updateData(filepath):
             if immoduleFound:
                 return
 
-        if fnmatch.fnmatch(path, "usr/lib/gtk*/*immodules/*.so") and not immoduleFound:
+        if fnmatch.fnmatch(path, "usr/lib/gtk-2.0/*immodules/*.so") and not immoduleFound:
             os.system("/usr/bin/gtk-query-immodules-2.0 > /etc/gtk-2.0/gtk.immodules")
             immoduleFound = True
             if iconFound:
