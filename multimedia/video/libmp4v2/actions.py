@@ -17,7 +17,7 @@ WorkDir = "mp4v2-%s" % get.srcVERSION()
 shelltools.export("HOME", get.workDIR())
 
 def setup():
-    autotools.autoreconf("-vfi")
+    #autotools.autoreconf("-vfi")
     autotools.configure("--disable-dependency-tracking \
                          --disable-static \
                          --enable-util \
