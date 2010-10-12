@@ -9,15 +9,14 @@ from pisi.actionsapi import autotools
 from pisi.actionsapi import pisitools
 from pisi.actionsapi import get
 
-WorkDir = "unifdef-%s/Debian" % get.srcVERSION()
 
 def setup():
-    autotools.configure()
+    pisitools.dosed("Makefile", "prefix =.*", "prefix = /usr")
 
 def build():
     autotools.make('CC="%s" CFLAGS="%s"' % (get.CC(), get.CFLAGS()))
 
 def install():
     autotools.rawInstall('DESTDIR="%s"' % get.installDIR())
-    pisitools.dobin("src/unifdefall.sh")
 
+    pisitools.dodoc("README", "COPYING", "Changelog")
