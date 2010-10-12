@@ -1,0 +1,867 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>libreoffice</Name>
+        <Homepage>http://www.documentfoundation.org</Homepage>
+        <Packager>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Packager>
+        <License>LGPLv2.1</License>
+        <Icon>ooo-gulls</Icon>
+        <IsA>app:gui</IsA>
+        <Summary>LibreOffice office suite</Summary>
+        <Description>LibreOffice is an open source, multi-platform office productivity suite. It includes key desktop applications such as a word processor, a spreadsheet application, a presentation creator-viewer, a formula editor and a drawing program, with a user interface and feature set similar to other office suites. Sophisticated and flexible, LibreOffice also works transparently with a variety of file formats, including those of Microsoft Office.</Description>
+        <Archive sha1sum="3c64c6ba4de31e67dd31b9357ad41f0e23dede57" type="tarlzma">http://cekirdek.pardus.org.tr/~gokcen/files/oo/libreoffice-build-3.2.99.1.tar.lzma</Archive>
+        <AdditionalFiles>
+            <AdditionalFile target="src/openabout_pardus.bmp" permission="0644">splashes/openabout_pardus.bmp</AdditionalFile>
+            <AdditionalFile target="src/openintro_pardus.bmp" permission="0644">splashes/openintro_pardus.bmp</AdditionalFile>
+            <!-- Our own configuration file for splash screen with white progress bar -->
+            <AdditionalFile target="sofficerc.pardus" permission="0644">sofficerc.pardus</AdditionalFile>
+        </AdditionalFiles>
+        <BuildDependencies>
+            <Dependency>agg-devel</Dependency>
+            <Dependency>ant</Dependency>
+            <Dependency>atk-devel</Dependency>
+            <Dependency>boost-devel</Dependency>
+            <Dependency>cairo-devel</Dependency>
+            <Dependency>cppunit-devel</Dependency>
+            <Dependency>cups-devel</Dependency>
+            <Dependency>db4-java</Dependency>
+            <Dependency>fontconfig-devel</Dependency>
+            <Dependency>freetype-devel</Dependency>
+            <Dependency>gconf-devel</Dependency>
+            <Dependency>gperf</Dependency>
+            <Dependency>gst-ffmpeg</Dependency>
+            <Dependency>gst-plugins-base-devel</Dependency>
+            <Dependency>gst-plugins-good</Dependency>
+            <Dependency>gst-plugins-ugly</Dependency>
+            <Dependency>gstreamer-devel</Dependency>
+            <Dependency>gtk2-devel</Dependency>
+            <Dependency releaseFrom="7">hsqldb-lib</Dependency>
+            <Dependency>hunspell-devel</Dependency>
+            <Dependency>icu4c-devel</Dependency>
+            <Dependency>imagemagick-devel</Dependency>
+            <Dependency>jpeg-devel</Dependency>
+            <Dependency>junit</Dependency>
+            <Dependency>kdelibs-devel</Dependency>
+            <Dependency>libICE-devel</Dependency>
+            <Dependency>libSM-devel</Dependency>
+            <Dependency>libXaw-devel</Dependency>
+            <Dependency>libXext-devel</Dependency>
+            <Dependency>libXinerama-devel</Dependency>
+            <Dependency>libXrandr-devel</Dependency>
+            <Dependency>libXt-devel</Dependency>
+            <Dependency>libwpd-devel</Dependency>
+            <Dependency>libwpg-devel</Dependency>
+            <Dependency>libwps-devel</Dependency>
+            <Dependency>libxslt-devel</Dependency>
+            <Dependency>lpsolve-devel</Dependency>
+            <Dependency>mdbtools-devel</Dependency>
+            <Dependency>mesa-devel</Dependency>
+            <Dependency>neon-devel</Dependency>
+            <Dependency>nspr-devel</Dependency>
+            <Dependency>nss-devel</Dependency>
+            <Dependency>openclipart</Dependency>
+            <Dependency>openldap-client</Dependency>
+            <Dependency>orbit2-devel</Dependency>
+            <Dependency>pango-devel</Dependency>
+            <Dependency>perl-Archive-Zip</Dependency>
+            <Dependency>poppler-devel</Dependency>
+            <Dependency>qt-devel</Dependency>
+            <Dependency>recode-devel</Dependency>
+            <Dependency>redland-devel</Dependency>
+            <Dependency>sun-jdk</Dependency>
+            <Dependency>tomcat-servlet-api</Dependency>
+            <Dependency>unixODBC-devel</Dependency>
+            <Dependency>vigra-devel</Dependency>
+            <!-- We use with-system-mozilla -->
+            <Dependency>xulrunner-devel</Dependency>
+            <Dependency>gnome-vfs-devel</Dependency>
+            <Dependency>libXmu-devel</Dependency>
+            <Dependency>sane-backends-devel</Dependency>
+        </BuildDependencies>
+        <Patches>
+            <Patch>disable-clipart.patch</Patch>
+            <Patch>pardus-xdg-email-mailer.diff</Patch>
+            <Patch level="1">pardus2009-conf.diff</Patch>
+            <Patch>fix-kde4-includedir.diff</Patch>
+
+            <!-- Update wrong auto corrections for Turkish bug#5812
+            <Patch>updated-turkish-autocorrections.diff</Patch>
+            <Patch>pardus-use-small-galaxy-icons.diff</Patch>
+            -->
+
+            <!-- Upstream patch for xulrunner-1.9.1 -->
+            <Patch>xulrunner-1.9.1.diff</Patch>
+
+            <Patch>fix-jpeg-lib64-dir.diff</Patch>
+
+            <Patch>fix-mono-jit-not-found.diff</Patch>
+        </Patches>
+    </Source>
+
+    <Package>
+        <Name>libreoffice</Name>
+        <RuntimeDependencies>
+            <Dependency>agg</Dependency>
+            <Dependency>atk</Dependency>
+            <Dependency>boost</Dependency>
+            <Dependency>cairo</Dependency>
+            <Dependency>cups</Dependency>
+            <Dependency>db4-java</Dependency>
+            <Dependency>fontconfig</Dependency>
+            <Dependency>freetype</Dependency>
+            <Dependency>gconf</Dependency>
+            <Dependency>gperf</Dependency>
+            <Dependency>gst-ffmpeg</Dependency>
+            <Dependency>gst-plugins-base</Dependency>
+            <Dependency>gst-plugins-good</Dependency>
+            <Dependency>gst-plugins-ugly</Dependency>
+            <Dependency>gstreamer</Dependency>
+            <Dependency>gtk2</Dependency>
+            <Dependency releaseFrom="7">hsqldb-lib</Dependency>
+            <Dependency>hunspell</Dependency>
+            <Dependency>icu4c</Dependency>
+            <Dependency>jpeg</Dependency>
+            <Dependency>kdelibs</Dependency>
+            <Dependency>libICE</Dependency>
+            <Dependency>libSM</Dependency>
+            <Dependency>libXaw</Dependency>
+            <Dependency>libXext</Dependency>
+            <Dependency>libXinerama</Dependency>
+            <Dependency>libXrandr</Dependency>
+            <Dependency>libXt</Dependency>
+            <Dependency>libwpd</Dependency>
+            <Dependency>libwpg</Dependency>
+            <Dependency>libwps</Dependency>
+            <Dependency>libxslt</Dependency>
+            <Dependency>lpsolve</Dependency>
+            <Dependency>mdbtools</Dependency>
+            <Dependency>mesa</Dependency>
+            <Dependency>neon</Dependency>
+            <Dependency>nspr</Dependency>
+            <Dependency>nss</Dependency>
+            <Dependency>openldap-client</Dependency>
+            <Dependency>orbit2</Dependency>
+            <Dependency>pango</Dependency>
+            <Dependency>poppler</Dependency>
+            <Dependency>qt</Dependency>
+            <Dependency>redland</Dependency>
+            <Dependency>sun-jre</Dependency>
+            <Dependency>tomcat-servlet-api</Dependency>
+            <Dependency>unixODBC</Dependency>
+            <Dependency>vigra</Dependency>
+            <Dependency>xulrunner</Dependency>
+        </RuntimeDependencies>
+        <Replaces>
+            <Package>openoffice3</Package>
+            <Package>openoffice</Package>
+        </Replaces>
+        <Files>
+            <Path fileType="config">/etc</Path>
+            <Path fileType="executable">/opt/LibreOffice/bin</Path>
+            <Path fileType="data">/opt/LibreOffice/share</Path>
+            <Path fileType="library">/opt/LibreOffice/lib/ooo-*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/gallery</Path>
+            <Path fileType="man">/opt/LibreOffice/man</Path>
+            <Path fileType="man">/opt/LibreOffice/share/man</Path>
+            <Path fileType="executable">/opt/LibreOffice/sbin</Path>
+            <Path fileType="data">/usr/share</Path>
+            <Path fileType="data">/usr/bin</Path>
+            <Path fileType="doc">/usr/share/doc</Path>
+        </Files>
+        <AdditionalFiles>
+            <!-- Main desktop files for ooo mimetypes and menu icons -->
+            <!-- These files are grabbed from ooo-build, the reason to add as additional files instead of installing directly from tarball is 
+            difficulty of desktop file translation (using intltool) and making any change to a desktop file -->
+            <AdditionalFile target="/usr/share/applications/ooo-database.desktop" permission="0644" owner="root">desktops/database.desktop</AdditionalFile>
+            <AdditionalFile target="/usr/share/applications/ooo-drawing.desktop" permission="0644" owner="root">desktops/drawing.desktop</AdditionalFile>
+            <AdditionalFile target="/usr/share/applications/ooo-formula.desktop" permission="0644" owner="root">desktops/formula.desktop</AdditionalFile>
+            <AdditionalFile target="/usr/share/applications/ooo-presentation.desktop" permission="0644" owner="root">desktops/presentation.desktop</AdditionalFile>
+            <AdditionalFile target="/usr/share/applications/ooo-spreadsheet.desktop" permission="0644" owner="root">desktops/spreadsheet.desktop</AdditionalFile>
+            <AdditionalFile target="/usr/share/applications/ooo-textdoc.desktop" permission="0644" owner="root">desktops/textdoc.desktop</AdditionalFile>
+            <AdditionalFile target="/usr/share/applications/ooo-web.desktop" permission="0644" owner="root">desktops/web.desktop</AdditionalFile>
+            <AdditionalFile target="/usr/share/applications/ooo-extension-manager.desktop" permission="0644" owner="root">desktops/ooo-extension-manager.desktop</AdditionalFile>
+            <AdditionalFile target="/usr/share/applications/ooo-start-center.desktop" permission="0645" owner="root">desktops/startcenter.desktop</AdditionalFile>
+
+            <!-- Wrapper for all ooo programs 
+            <AdditionalFile target="/opt/LibreOffice/bin/ooo-wrapper.py" permission="0755" owner="root">ooo-wrapper.py</AdditionalFile>
+            -->
+
+            <!-- mimetype for openxml formats -->
+            <AdditionalFile target="/usr/share/mime/packages/ooo-2.0-openxml.xml" permission="0644" owner="root">mimetypes/ooo-2.0-openxml.xml</AdditionalFile>
+        </AdditionalFiles>
+    </Package>
+
+    <Package>
+        <Name>libreoffice-clipart</Name>
+        <RuntimeDependencies>
+            <Dependency versionFrom="3.2.99.1">libreoffice</Dependency>
+            <Dependency releaseFrom="2">openclipart</Dependency>
+        </RuntimeDependencies>
+        <Replaces>
+            <Package>openoffice-clipart</Package>
+        </Replaces>
+        <Files>
+            <!-- Galleries with number >= 70 are generated from openclipart images -->
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/gallery/sg[7-9][0-9].???</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>libreoffice-kde</Name>
+        <Summary>KDE support for LibreOffice</Summary>
+        <Description>libreoffice-kde provides context menu options for "Create New" entry of Dolphin.</Description>
+        <RuntimeDependencies>
+            <Dependency versionFrom="3.2.99.1">libreoffice</Dependency>
+        </RuntimeDependencies>
+        <Replaces>
+            <Package>openoffice-kde3</Package>
+            <Package>openoffice-kde4</Package>
+            <Package>openoffice-kde</Package>
+        </Replaces>
+        <Files>
+            <Path fileType="data">/usr/share/templates</Path>
+            <Path fileType="data">/usr/share/mimelnk</Path>
+        </Files>
+        <AdditionalFiles>
+            <!-- KDE4 templates for 'Create New...' context menu of Dolphin -->
+            <AdditionalFile target="/usr/share/templates/oowriter.desktop" permission="0644" owner="root">kdefiles/oowriter.desktop</AdditionalFile>
+            <AdditionalFile target="/usr/share/templates/.source/oowriter.odt" permission="0644" owner="root">kdefiles/oowriter.odt</AdditionalFile>
+            <AdditionalFile target="/usr/share/templates/ooimpress.desktop" permission="0644" owner="root">kdefiles/ooimpress.desktop</AdditionalFile>
+            <AdditionalFile target="/usr/share/templates/.source/ooimpress.odp" permission="0644" owner="root">kdefiles/ooimpress.odp</AdditionalFile>
+            <AdditionalFile target="/usr/share/templates/oocalc.desktop" permission="0644" owner="root">kdefiles/oocalc.desktop</AdditionalFile>
+            <AdditionalFile target="/usr/share/templates/.source/oocalc.ods" permission="0644" owner="root">kdefiles/oocalc.ods</AdditionalFile>
+
+            <!-- mimetype files for flat opendocument files: fodt, fodp... -->
+            <AdditionalFile target="/usr/share/mimelnk/application/mimetypes/ooo-2.0-vnd.oasis.opendocument.graphics.desktop" permission="0644" owner="root">mimetypes/ooo-2.0-vnd.oasis.opendocument.graphics.desktop</AdditionalFile>
+            <AdditionalFile target="/usr/share/mimelnk/application/mimetypes/ooo-2.0-vnd.oasis.opendocument.presentation.desktop" permission="0644" owner="root">mimetypes/ooo-2.0-vnd.oasis.opendocument.presentation.desktop</AdditionalFile>
+            <AdditionalFile target="/usr/share/mimelnk/application/mimetypes/ooo-2.0-vnd.oasis.opendocument.spreadsheet.desktop" permission="0644" owner="root">mimetypes/ooo-2.0-vnd.oasis.opendocument.spreadsheet.desktop</AdditionalFile>
+            <AdditionalFile target="/usr/share/mimelnk/application/mimetypes/ooo-2.0-vnd.oasis.opendocument.text.desktop" permission="0644" owner="root">mimetypes/ooo-2.0-vnd.oasis.opendocument.text.desktop</AdditionalFile>
+
+            <!-- mimetype files for ms office 2007 formats -->
+            <AdditionalFile target="/usr/share/mimelnk/application/mimetypes/ooo-2.0-vnd.openxmlformats-officedocument.presentationml.presentation.desktop" permission="0644" owner="root">mimetypes/ooo-2.0-vnd.openxmlformats-officedocument.presentationml.presentation.desktop</AdditionalFile>
+            <AdditionalFile target="/usr/share/mimelnk/application/mimetypes/ooo-2.0-vnd.openxmlformats-officedocument.spreadsheetml.sheet.desktop" permission="0644" owner="root">mimetypes/ooo-2.0-vnd.openxmlformats-officedocument.spreadsheetml.sheet.desktop</AdditionalFile>
+            <AdditionalFile target="/usr/share/mimelnk/application/mimetypes/ooo-2.0-vnd.openxmlformats-officedocument.wordprocessingml.document.desktop" permission="0644" owner="root">mimetypes/ooo-2.0-vnd.openxmlformats-officedocument.wordprocessingml.document.desktop</AdditionalFile>
+
+            <!--mimetype file for .oxt extension format -->
+            <AdditionalFile target="/usr/share/mimelnk/application/mimetypes/ooo-2.0-vnd.openofficeorg.extension.desktop" permission="0644" owner="root">mimetypes/ooo-2.0-vnd.openofficeorg.extension.desktop</AdditionalFile>
+        </AdditionalFiles>
+    </Package>
+
+    <Package>
+        <Name>libreoffice-python</Name>
+        <Summary>Python support for LibreOffice</Summary>
+        <Description>libreoffice-python is Python binding for the LibreOffice UNO component model. Allows scripts both external to LibreOffice and within the internal LibreOffice scripting module to be written in python.</Description>
+        <RuntimeDependencies>
+            <Dependency versionFrom="3.2.99.1">libreoffice</Dependency>
+        </RuntimeDependencies>
+        <Replaces>
+            <Package>openoffice3-python</Package>
+            <Package>openoffice-python</Package>
+        </Replaces>
+        <Files>
+            <Path fileType="library">/usr/lib/python*/site-packages</Path>
+            <Path fileType="library">/opt/LibreOffice/lib/ooo-*/basis?.?/program/libpyuno.so</Path>
+            <Path fileType="library">/opt/LibreOffice/lib/ooo-*/basis?.?/program/officehelper.py</Path>
+            <Path fileType="library">/opt/LibreOffice/lib/ooo-*/basis?.?/program/pythonloader.py</Path>
+            <Path fileType="library">/opt/LibreOffice/lib/ooo-*/basis?.?/program/pythonloader.unorc</Path>
+            <Path fileType="library">/opt/LibreOffice/lib/ooo-*/basis?.?/program/pythonloader.uno.so</Path>
+            <Path fileType="library">/opt/LibreOffice/lib/ooo-*/basis?.?/program/pyuno.so</Path>
+            <Path fileType="library">/opt/LibreOffice/lib/ooo-*/basis?.?/program/pythonscript.py</Path>
+            <Path fileType="library">/opt/LibreOffice/lib/ooo-*/basis?.?/share/Scripts/python</Path>
+            <Path fileType="library">/opt/LibreOffice/lib/ooo-*/basis?.?/share/registry/modules/org/openoffice/Office/Scripting/Scripting-python.xcu</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>libreoffice-help-en</Name>
+        <IsA>locale:en</IsA>
+        <Summary>English LibreOffice help files</Summary>
+        <RuntimeDependencies>
+            <Dependency versionFrom="3.2.99.1">libreoffice</Dependency>
+        </RuntimeDependencies>
+        <Replaces>
+            <Package>openoffice3-help-en</Package>
+            <Package>openoffice-help-en</Package>
+            <Package>openoffice-help</Package>
+        </Replaces>
+        <Files>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/help/en</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>libreoffice-help-de</Name>
+        <IsA>locale:de</IsA>
+        <Summary>German LibreOffice help files</Summary>
+        <RuntimeDependencies>
+            <Dependency versionFrom="3.2.99.1">libreoffice</Dependency>
+        </RuntimeDependencies>
+        <Replaces>
+            <Package>openoffice3-help-de</Package>
+            <Package>openoffice-help-de</Package>
+            <Package>openoffice-help</Package>
+        </Replaces>
+        <Files>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/help/de</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>libreoffice-help-es</Name>
+        <IsA>locale:es</IsA>
+        <Summary>Spanish LibreOffice help files</Summary>
+        <RuntimeDependencies>
+            <Dependency versionFrom="3.2.99.1">libreoffice</Dependency>
+        </RuntimeDependencies>
+        <Replaces>
+            <Package>openoffice3-help-es</Package>
+            <Package>openoffice-help-es</Package>
+            <Package>openoffice-help</Package>
+        </Replaces>
+        <Files>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/help/es</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>libreoffice-help-fr</Name>
+        <IsA>locale:fr</IsA>
+        <Summary>French LibreOffice help files</Summary>
+        <RuntimeDependencies>
+            <Dependency versionFrom="3.2.99.1">libreoffice</Dependency>
+        </RuntimeDependencies>
+        <Replaces>
+            <Package>openoffice3-help-fr</Package>
+            <Package>openoffice-help-fr</Package>
+            <Package>openoffice-help</Package>
+        </Replaces>
+        <Files>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/help/fr</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>libreoffice-help-it</Name>
+        <IsA>locale:it</IsA>
+        <Summary>Italian LibreOffice help files</Summary>
+        <RuntimeDependencies>
+            <Dependency versionFrom="3.2.99.1">libreoffice</Dependency>
+        </RuntimeDependencies>
+        <Replaces>
+            <Package>openoffice3-help-it</Package>
+            <Package>openoffice-help-it</Package>
+            <Package>openoffice-help</Package>
+        </Replaces>
+        <Files>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/help/it</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>libreoffice-help-hu</Name>
+        <IsA>locale:hu</IsA>
+        <Summary>Hungarian LibreOffice help files</Summary>
+        <RuntimeDependencies>
+            <Dependency versionFrom="3.2.99.1">libreoffice</Dependency>
+        </RuntimeDependencies>
+        <Replaces>
+            <Package>openoffice-help-hu</Package>
+        </Replaces>
+        <Files>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/help/hu</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>libreoffice-help-nl</Name>
+        <IsA>locale:nl</IsA>
+        <Summary>Dutch LibreOffice help files</Summary>
+        <RuntimeDependencies>
+            <Dependency versionFrom="3.2.99.1">libreoffice</Dependency>
+        </RuntimeDependencies>
+        <Replaces>
+            <Package>openoffice3-help-nl</Package>
+            <Package>openoffice-help-nl</Package>
+            <Package>openoffice-help</Package>
+        </Replaces>
+        <Files>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/help/nl</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>libreoffice-help-pt-BR</Name>
+        <IsA>locale:pt_BR</IsA>
+        <Summary>Brazilian Portuguese LibreOffice help files</Summary>
+        <RuntimeDependencies>
+            <Dependency versionFrom="3.2.99.1">libreoffice</Dependency>
+        </RuntimeDependencies>
+        <Replaces>
+            <Package>openoffice3-help-pt-BR</Package>
+            <Package>openoffice-help-pt-BR</Package>
+            <Package>openoffice-help</Package>
+        </Replaces>
+        <Files>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/help/pt-BR</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>libreoffice-help-sv</Name>
+        <IsA>locale:sv</IsA>
+        <Summary>Swedish LibreOffice help files</Summary>
+        <RuntimeDependencies>
+            <Dependency versionFrom="3.2.99.1">libreoffice</Dependency>
+        </RuntimeDependencies>
+        <Replaces>
+            <Package>openoffice3-help-sv</Package>
+            <Package>openoffice-help-sv</Package>
+            <Package>openoffice-help</Package>
+        </Replaces>
+        <Files>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/help/sv</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>libreoffice-help-tr</Name>
+        <IsA>locale:tr</IsA>
+        <Summary>Turkish LibreOffice help files</Summary>
+        <RuntimeDependencies>
+            <Dependency versionFrom="3.2.99.1">libreoffice</Dependency>
+        </RuntimeDependencies>
+        <Replaces>
+            <Package>openoffice3-help-tr</Package>
+            <Package>openoffice-help-tr</Package>
+            <Package>openoffice-help</Package>
+        </Replaces>
+        <Files>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/help/tr</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>libreoffice-extension-pdfimport</Name>
+        <Summary>PDF Importer for LibreOffice Draw</Summary>
+        <Description>libreoffice-extension-pdfimpor imports PDF into drawing documents to preserve layout and enable basic editing of PDF documents.</Description>
+        <RuntimeDependencies>
+            <Dependency versionFrom="3.2.99.1">libreoffice</Dependency>
+        </RuntimeDependencies>
+        <Conflicts>
+            <Package release="84">openoffice</Package>
+        </Conflicts>
+        <Replaces>
+            <Package>openoffice3-extension-pdfimport</Package>
+            <Package>openoffice-extension-pdfimport</Package>
+        </Replaces>
+        <Files>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/share/extensions/pdfimport</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>libreoffice-extension-presenter-screen</Name>
+        <Summary>Presenter Screen for LibreOffice Impress</Summary>
+        <Description>libreoffice-extension-presenter-screen provides information on a second screen, that typically is not visible to the audience when delivering a presentation. e.g. slide notes.</Description>
+        <RuntimeDependencies>
+            <Dependency versionFrom="3.2.99.1">libreoffice</Dependency>
+        </RuntimeDependencies>
+        <Conflicts>
+            <Package release="84">openoffice</Package>
+        </Conflicts>
+        <Replaces>
+            <Package>openoffice3-extension-presenter-screen</Package>
+            <Package>openoffice-extension-presenter-screen</Package>
+        </Replaces>
+        <Files>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/share/extensions/presenter-screen</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>libreoffice-extension-presentation-minimizer</Name>
+        <Summary>Shrink the file size of LibreOffice presentations</Summary>
+        <Description>libreoffice-extension-presentation-minimizer is used to reduce the file size of the current presentation. Images will be compressed, and data that is no longer needed will be removed.</Description>
+        <RuntimeDependencies>
+            <Dependency versionFrom="3.2.99.1">libreoffice</Dependency>
+        </RuntimeDependencies>
+        <Conflicts>
+            <Package release="84">openoffice</Package>
+        </Conflicts>
+        <Replaces>
+            <Package>openoffice3-extension-presentation-minimizer</Package>
+            <Package>openoffice-extension-presentation-minimizer</Package>
+        </Replaces>
+        <Files>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/share/extensions/presentation-minimizer</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>libreoffice-extension-report-builder</Name>
+        <Summary>Create database reports</Summary>
+        <Description>libreoffice-extension-report-builder creates database reports from LibreOffice Base. The report builder can define group and page headers as well as group, page footers and calculation fields to accomplish complex database reports.</Description>
+        <RuntimeDependencies>
+            <Dependency versionFrom="3.2.99.1">libreoffice</Dependency>
+        </RuntimeDependencies>
+        <Conflicts>
+            <Package release="84">openoffice</Package>
+        </Conflicts>
+        <Replaces>
+            <Package>openoffice3-extension-report-builder</Package>
+            <Package>openoffice-extension-report-builder</Package>
+        </Replaces>
+        <Files>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/share/extensions/report-builder</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>libreoffice-extension-wiki-publisher</Name>
+        <Summary>Create Wiki articles on MediaWiki servers</Summary>
+        <Description>libreoffice-extension-wiki-publisher enables you to create Wiki articles on MediaWiki servers without having to know the syntax of the MediaWiki markup language. Publish your new and existing documents transparently with LibreOffice Writer to a wiki page.</Description>
+        <RuntimeDependencies>
+            <Dependency versionFrom="3.2.99.1">libreoffice</Dependency>
+        </RuntimeDependencies>
+        <Conflicts>
+            <Package release="84">openoffice</Package>
+        </Conflicts>
+        <Replaces>
+            <Package>openoffice3-extension-wiki-publisher</Package>
+            <Package>openoffice-extension-wiki-publisher</Package>
+        </Replaces>
+        <Files>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/share/extensions/wiki-publisher</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>libreoffice-langpack-de</Name>
+        <IsA>locale:de</IsA>
+        <Summary>German language files for LibreOffice</Summary>
+        <RuntimeDependencies>
+            <Dependency versionFrom="3.2.99.1">libreoffice</Dependency>
+            <Dependency>hunspell-dict-de</Dependency>
+        </RuntimeDependencies>
+        <Replaces>
+            <Package>openoffice3-langpack-de</Package>
+            <Package>openoffice-langpack-de</Package>
+        </Replaces>
+        <Files>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/presets/config/*_de.*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/program/resource/*de.res</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/autocorr/acor_de-*.dat</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/autotext/de</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/basic/Depot/*_de.xba</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/config/soffice.cfg/modules/*/accelerator/de</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/layout/de</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/registry/modules/org/openoffice/Setup/Langpack-de.xcu</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/registry/res/de</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/samples/de</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/template/de/lyt-aqua.otp</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/template/de/lyt-brown.otp</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/template/wizard/letter/de</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/wordbook/de</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/program/resource/ooode.res</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/licenses/LICENSE_de*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/readmes/README_de*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/share/readme/LICENSE_de*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/share/readme/README_de*</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>libreoffice-langpack-de-extras</Name>
+        <IsA>locale:de</IsA>
+        <Summary>Extra German presentation backgrounds for LibreOffice</Summary>
+        <Replaces>
+            <Package>openoffice3-langpack-de</Package>
+            <Package>openoffice-langpack-de-extras</Package>
+        </Replaces>
+        <Files>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/template/de</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>libreoffice-langpack-es</Name>
+        <IsA>locale:es</IsA>
+        <Summary>Spanish language files for LibreOffice</Summary>
+        <RuntimeDependencies>
+            <Dependency versionFrom="3.2.99.1">libreoffice</Dependency>
+            <Dependency>hunspell-dict-es</Dependency>
+        </RuntimeDependencies>
+        <Replaces>
+            <Package>openoffice3-langpack-es</Package>
+            <Package>openoffice-langpack-es</Package>
+        </Replaces>
+        <Files>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/presets/config/*_es.*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/program/resource/*es.res</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/autocorr/acor_es-*.dat</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/autotext/es</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/basic/Depot/*_es.xba</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/config/soffice.cfg/modules/*/accelerator/es</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/layout/es</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/registry/modules/org/openoffice/Setup/Langpack-es.xcu</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/registry/res/es</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/samples/es</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/template/es</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/template/wizard/letter/es</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/wordbook/es</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/program/resource/*es.res</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/licenses/LICENSE_es*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/readmes/README_es*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/share/readme/LICENSE_es*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/share/readme/README_es*</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>libreoffice-langpack-fr</Name>
+        <IsA>locale:fr</IsA>
+        <Summary>French language files for LibreOffice</Summary>
+        <RuntimeDependencies>
+            <Dependency versionFrom="3.2.99.1">libreoffice</Dependency>
+            <Dependency>hunspell-dict-fr</Dependency>
+        </RuntimeDependencies>
+        <Replaces>
+            <Package>openoffice3-langpack-fr</Package>
+            <Package>openoffice-langpack-fr</Package>
+        </Replaces>
+        <Files>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/presets/config/*_fr.*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/program/resource/*fr.res</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/autocorr/acor_fr-*.dat</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/autotext/fr</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/basic/Depot/*_fr.xba</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/config/soffice.cfg/modules/*/accelerator/fr</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/layout/fr</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/registry/modules/org/openoffice/Setup/Langpack-fr.xcu</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/registry/res/fr</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/samples/fr</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/template/fr</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/template/wizard/letter/fr</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/wordbook/fr</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/program/resource/*fr.res</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/licenses/LICENSE_fr*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/readmes/README_fr*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/share/readme/LICENSE_fr*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/share/readme/README_fr*</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>libreoffice-langpack-hu</Name>
+        <IsA>locale:hu</IsA>
+        <Summary>Hungarian language files for LibreOffice</Summary>
+        <RuntimeDependencies>
+            <Dependency versionFrom="3.2.99.1">libreoffice</Dependency>
+            <!--<Dependency>hunspell-dict-hu</Dependency>-->
+        </RuntimeDependencies>
+        <Replaces>
+            <Package>openoffice-langpack-hu</Package>
+        </Replaces>
+        <Files>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/presets/config/*_hu.*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/program/resource/*hu.res</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/autocorr/acor_hu-*.dat</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/autotext/hu</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/layout/hu</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/registry/modules/org/openoffice/Setup/Langpack-hu.xcu</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/registry/res/hu</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/samples/hu</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/template/hu</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/template/wizard/letter/hu</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/wordbook/hu</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/licenses/LICENSE_hu*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/program/resource/*hu.res</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/readmes/README_hu*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/share/readme/LICENSE_hu*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/share/readme/README_hu*</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>libreoffice-langpack-it</Name>
+        <IsA>locale:it</IsA>
+        <Summary>Italian language files for LibreOffice</Summary>
+        <RuntimeDependencies>
+            <Dependency versionFrom="3.2.99.1">libreoffice</Dependency>
+            <Dependency>hunspell-dict-it</Dependency>
+        </RuntimeDependencies>
+        <Replaces>
+            <Package>openoffice3-langpack-it</Package>
+            <Package>openoffice-langpack-it</Package>
+        </Replaces>
+        <Files>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/presets/config/*_it.*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/program/resource/*it.res</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/autocorr/acor_it-*.dat</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/autotext/it</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/basic/Depot/*_it.xba</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/config/soffice.cfg/modules/*/accelerator/it</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/layout/it</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/registry/modules/org/openoffice/Setup/Langpack-it.xcu</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/registry/res/it</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/samples/it</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/template/it</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/template/wizard/letter/it</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/wordbook/it</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/program/resource/*it.res</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/licenses/LICENSE_it*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/readmes/README_it*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/share/readme/LICENSE_it*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/share/readme/README_it*</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>libreoffice-langpack-nl</Name>
+        <IsA>locale:nl</IsA>
+        <Summary>Dutch language files for LibreOffice</Summary>
+        <RuntimeDependencies>
+            <Dependency versionFrom="3.2.99.1">libreoffice</Dependency>
+            <Dependency>hunspell-dict-nl</Dependency>
+        </RuntimeDependencies>
+        <Replaces>
+            <Package>openoffice3-langpack-nl</Package>
+            <Package>openoffice-langpack-nl</Package>
+        </Replaces>
+        <Files>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/presets/config/*_nl.*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/program/resource/*nl.res</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/autocorr/acor_nl-*.dat</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/autotext/nl</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/basic/Depot/*_nl.xba</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/config/soffice.cfg/modules/*/accelerator/nl</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/layout/nl</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/registry/modules/org/openoffice/Setup/Langpack-nl.xcu</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/registry/res/nl</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/samples/nl</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/template/nl</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/template/wizard/letter/nl</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/wordbook/nl</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/program/resource/*nl.res</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/licenses/LICENSE_nl*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/readmes/README_nl*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/share/readme/LICENSE_nl*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/share/readme/README_nl*</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>libreoffice-langpack-pt-BR</Name>
+        <IsA>locale:pt_BR</IsA>
+        <Summary>Brazilian Portuguese language files for LibreOffice</Summary>
+        <RuntimeDependencies>
+            <Dependency versionFrom="3.2.99.1">libreoffice</Dependency>
+            <Dependency>hunspell-dict-pt</Dependency>
+        </RuntimeDependencies>
+        <Replaces>
+            <Package>openoffice3-langpack-pt-BR</Package>
+            <Package>openoffice-langpack-pt-BR</Package>
+        </Replaces>
+        <Files>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/presets/config/*_pt-BR.*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/program/resource/*pt-BR.res</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/autocorr/acor_pt-*.dat</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/autotext/pt-BR</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/basic/Depot/*_pt.xba</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/config/soffice.cfg/modules/*/accelerator/pt*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/layout/pt-BR</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/registry/modules/org/openoffice/Setup/Langpack-pt-BR.xcu</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/registry/res/pt-BR</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/samples/pt-BR</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/template/pt-BR</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/template/wizard/letter/pt-BR</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/wordbook/pt-BR</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/program/resource/*pt-BR.res</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/licenses/LICENSE_pt-BR*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/readmes/README_pt-BR*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/share/readme/LICENSE_pt-BR*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/share/readme/README_pt-BR*</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>libreoffice-langpack-sv</Name>
+        <IsA>locale:sv</IsA>
+        <Summary>Swedish language files for LibreOffice</Summary>
+        <RuntimeDependencies>
+            <Dependency versionFrom="3.2.99.1">libreoffice</Dependency>
+            <Dependency>hunspell-dict-sv</Dependency>
+        </RuntimeDependencies>
+        <Replaces>
+            <Package>openoffice3-langpack-sv</Package>
+            <Package>openoffice-langpack-sv</Package>
+        </Replaces>
+        <Files>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/presets/config/*_sv.*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/program/resource/*sv.res</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/autocorr/acor_sv-*.dat</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/autotext/sv</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/basic/Depot/*_sv.xba</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/config/soffice.cfg/modules/*/accelerator/sv</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/layout/sv</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/registry/modules/org/openoffice/Setup/Langpack-sv.xcu</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/registry/res/sv</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/samples/sv</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/template/sv</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/template/wizard/letter/sv</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/wordbook/sv</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/program/resource/*sv.res</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/licenses/LICENSE_sv*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/readmes/README_sv*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/share/readme/LICENSE_sv*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/share/readme/README_sv*</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>libreoffice-langpack-tr</Name>
+        <IsA>locale:tr</IsA>
+        <Summary>Turkish language files for LibreOffice</Summary>
+        <RuntimeDependencies>
+            <Dependency versionFrom="3.2.99.1">libreoffice</Dependency>
+        </RuntimeDependencies>
+        <Replaces>
+            <Package>openoffice3-langpack-tr</Package>
+            <Package>openoffice-langpack-tr</Package>
+        </Replaces>
+        <Files>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/presets/config/*_tr.*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/program/resource/*tr.res</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/autocorr/acor_tr-*.dat</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/autotext/tr</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/basic/Depot/*_tr.xba</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/config/soffice.cfg/modules/*/accelerator/tr</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/layout/tr</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/registry/modules/org/openoffice/Setup/Langpack-tr.xcu</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/registry/res/tr</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/samples/tr</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/template/tr</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/template/wizard/letter/tr</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/wordbook/tr</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/program/resource/*tr.res</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/licenses/LICENSE_tr*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/readmes/README_tr*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/share/readme/LICENSE_tr*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/share/readme/README_tr*</Path>
+        </Files>
+    </Package>
+
+    <History>
+        <Update release="1">
+            <Date>2010-09-30</Date>
+            <Version>3.2.99.1</Version>
+            <Comment>First release</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+    </History>
+</PISI>
