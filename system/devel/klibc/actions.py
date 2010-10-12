@@ -18,8 +18,8 @@ NoStrip = "/"
 KDIR = kerneltools.getKernelVersion()
 klibcarch = "x86_64" if get.ARCH() == "x86_64" else "i386"
 
-docs = {"usr/klibc/arch/README": "README.arch",
-        "usr/dash/README.klibc": "README.dash",
+docs = {"usr/klibc/arch/README.klibc.arch": "README.arch",
+        "usr/dash/README.dash": "README.dash",
         "usr/dash/TOUR": "TOUR.dash",
         "usr/gzip/README": "README.gzip",
         "usr/gzip/COPYING": "COPYING.gzip",
@@ -34,7 +34,7 @@ def fixperms(d):
 
 def setup():
     # we include headers for a while
-    # shelltools.sym("/lib/modules/%s/build" % KDIR, "linux")
+    shelltools.sym("/lib/modules/%s/build" % KDIR, "linux")
 
     # set the build directory
     shelltools.echo("MCONFIG", "KRNLOBJ = /lib/modules/%s/build" % KDIR)
@@ -72,13 +72,14 @@ def install():
     asmSrcDir = "linux/arch/x86/include/asm"
     asmTargetDir = "/usr/lib/klibc/include/asm"
 
+    # FIXME: we probably don't need old kernel workarounds anymore
     # just a workaround for installer bug with 2.6.24, will make it sane later
-    pisitools.remove(asmTargetDir)
-    pisitools.dosym("asm-x86", asmTargetDir)
+    #pisitools.remove(asmTargetDir)
+    #pisitools.dosym("asm-x86", asmTargetDir)
 
     # yet another new kernel compatibility workaround for 2.6.28 and above
-    for f in shelltools.ls(asmSrcDir):
-        pisitools.insinto(asmTargetDir, "%s/%s" % (asmSrcDir, f))
+    #for f in shelltools.ls(asmSrcDir):
+    #    pisitools.insinto(asmTargetDir, "%s/%s" % (asmSrcDir, f))
 
     fixperms("%s/usr/lib/klibc/include" % get.installDIR())
 
