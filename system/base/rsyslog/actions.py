@@ -11,7 +11,8 @@ from pisi.actionsapi import pisitools
 from pisi.actionsapi import get
 
 def setup():
-    shelltools.export("CFLAGS", '%s -DSYSLOGD_PIDNAME=\\\"syslogd.pid\\\"' % get.CFLAGS())
+    shelltools.export("CFLAGS", '%s -fpie -DSYSLOGD_PIDNAME=\\\"syslogd.pid\\\"' % get.CFLAGS())
+    shelltools.export("LDFLAGS", "-pie -Wl,-z,relro -Wl,-z,now")
 
     autotools.configure("--disable-static \
                          --disable-mysql \
@@ -21,6 +22,7 @@ def setup():
                          --disable-gnutls \
                          --disable-testbench \
                          --sbindir=/sbin \
+                         --with-systemdsystemunitdir=/lib/systemd/system \
                          --enable-mail \
                          --enable-imfile \
                          --enable-unlimited-select")
