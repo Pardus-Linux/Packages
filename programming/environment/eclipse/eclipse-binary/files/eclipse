@@ -22,7 +22,11 @@ if [ ! -x ${ECLIPSE_BIN} ] ; then
 	exit -1
 fi
 
+# Remove the exporting of this env. because it prevents eclipse starting up gracefully
+# In Pardus, we don't hit the issues mentioned below:
 # Fix upstream  buttons not being clickable bug reportes as  #290395, #291257
-export GDK_NATIVE_WINDOWS=true
+# export GDK_NATIVE_WINDOWS=true
 
-${ECLIPSE_BIN} $@
+# Showing libxul.so to the eclipse, so it's able to start intro view that needs to utilize
+# from browser related functionalities located in the library
+${ECLIPSE_BIN} -vmargs -Dorg.eclipse.swt.browser.XULRunnerPath=/usr/lib/xulrunner-2.0.0  $@ 
