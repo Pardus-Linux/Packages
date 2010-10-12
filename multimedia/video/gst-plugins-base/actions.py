@@ -13,6 +13,7 @@ from pisi.actionsapi import get
 shelltools.export("HOME", get.workDIR())
 
 def setup():
+    autotools.autoreconf("-vfi")
     autotools.configure("--disable-static \
                          --disable-rpath \
                          --disable-examples \
