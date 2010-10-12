@@ -14,8 +14,10 @@ import os
 
 WorkDir = "glibc-2.12-26-g9a98163"
 
-defaultflags = "-O3 -U_FORTIFY_SOURCE -fno-strict-aliasing -mno-tls-direct-seg-refs"
-sysflags = get.CFLAGS().replace("-fstack-protector", "").replace("-D_FORTIFY_SOURCE=2", "").replace("-funwind-tables", "").replace("-fasynchronous-unwind-tables", "")
+defaultflags = "-O3 -g -U_FORTIFY_SOURCE -fno-strict-aliasing -mno-tls-direct-seg-refs"
+# this is getting ridiculous, also gdb3 breaks resulting binary
+#sysflags = get.CFLAGS().replace("-fstack-protector", "").replace("-D_FORTIFY_SOURCE=2", "").replace("-funwind-tables", "").replace("-fasynchronous-unwind-tables", "")
+sysflags = "-mtune=generic -march=x86-64" if get.ARCH() == "x86_64" else "-mtune=atom -march=i686"
 
 multibuild = (get.ARCH() == "x86_64")
 pkgworkdir = "%s/%s" % (get.workDIR(), WorkDir)
