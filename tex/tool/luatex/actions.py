@@ -77,7 +77,7 @@ def setup():
                         --disable-xdvipdfmx \
                         --disable-xetex		\
                         --without-x			\
-                        --without-system-kpathsea	\
+                        --with-system-kpathsea	\
                         --with-system-gd	\
                         --with-system-libpng	\
                         --with-system-teckit \
@@ -93,7 +93,6 @@ def setup():
         shelltools.cd("%s/source/%s" % (GetWorkdir, i))
         autotools.configure()
 
-
 def build():
     for i in ["libs/obsdcompat", "texk/kpathsea"]:
         shelltools.cd("%s/source/%s" % (GetWorkdir, i))
@@ -106,4 +105,5 @@ def install():
     shelltools.cd("%s/source/texk/web2c" % GetWorkdir)
 
     autotools.rawInstall("DESTDIR=%s bin_PROGRAMS='luatex' SUBDIRS='' nodist_man_MANS=''" % get.installDIR()) 
+
     pisitools.dodoc("%s/README" % GetWorkdir, "%s/manual/*.pdf" % GetWorkdir)
