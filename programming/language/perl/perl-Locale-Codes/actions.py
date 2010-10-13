@@ -25,7 +25,7 @@ def install():
     #This files are included in Perl 5.12.1
     for locale in ["Currency", "Constants", "Country" , "Script", "Language"]:
         pisitools.remove("/usr/share/man/man3/Locale::%s.3pm" % locale)
-        pisitools.remove("/usr/lib/perl5/vendor_perl/5.12.1/Locale/%s.pm" % locale)
+        pisitools.remove("/usr/lib/perl5/vendor_perl/%s/Locale/%s.pm" % (get.curPERL(), locale))
 
     pisitools.dodoc("README")
 
