@@ -1,0 +1,30 @@
+Index: ModemManager-0.4/libqcdm/tests/test-qcdm.c
+===================================================================
+--- ModemManager-0.4.orig/libqcdm/tests/test-qcdm.c
++++ ModemManager-0.4/libqcdm/tests/test-qcdm.c
+@@ -28,9 +28,7 @@ typedef struct {
+     gpointer com_data;
+ } TestData;
+ 
+-typedef void (*TCFunc)(void);
+-
+-#define TESTCASE(t, d) g_test_create_case (#t, 0, d, NULL, (TCFunc) t, NULL)
++#define TESTCASE(t, d) g_test_create_case (#t, 0, d, NULL, (GTestFixtureFunc) t, NULL)
+ 
+ static TestData *
+ test_data_new (const char *port)
+Index: ModemManager-0.4/src/tests/test-modem-helpers.c
+===================================================================
+--- ModemManager-0.4.orig/src/tests/test-modem-helpers.c
++++ ModemManager-0.4/src/tests/test-modem-helpers.c
+@@ -791,9 +791,7 @@ test_data_free (TestData *data)
+ }
+ 
+ 
+-typedef void (*TCFunc)(void);
+-
+-#define TESTCASE(t, d) g_test_create_case (#t, 0, d, NULL, (TCFunc) t, NULL)
++#define TESTCASE(t, d) g_test_create_case (#t, 0, d, NULL, (GTestFixtureFunc) t, NULL)
+ 
+ int main (int argc, char **argv)
+ {
