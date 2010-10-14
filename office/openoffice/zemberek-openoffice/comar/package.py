@@ -3,7 +3,7 @@
 import os
 import glob
 
-unopkg = "/opt/OpenOffice.org/bin/unopkg"
+unopkg = "/usr/bin/unopkg"
 extPath = glob.glob("/usr/share/zemberek/zemberek*.oxt")[0]
 extID = "net.zemberek.ooo.spellchecker"
 
