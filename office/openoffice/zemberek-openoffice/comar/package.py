@@ -20,5 +20,5 @@ def preRemove():
 
     ret = os.system("%s remove --shared %s" % (unopkg, extID))
 
-    #if ret != 0:
-    #    raise Exception("Could not remove OO.org extension: %s" % extID)
+    if ret != 0:
+        raise Exception("Could not remove OO.org extension: %s" % extID)
