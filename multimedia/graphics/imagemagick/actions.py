@@ -15,6 +15,7 @@ WorkDir = "ImageMagick-%s-%s" % (get.srcVERSION()[:-2], get.srcVERSION()[-1])
 KeepSpecial=["libtool"]
 
 def setup():
+    #libtools.libtoolize("-fi")
     autotools.autoreconf("-vif")
 
     pisitools.dosed("configure", "DOCUMENTATION_RELATIVE_PATH=.*", "DOCUMENTATION_RELATIVE_PATH=%s/html" % get.srcNAME())
