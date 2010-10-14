@@ -14,7 +14,7 @@ def setup():
     cmaketools.configure("-DBoost_USE_MULTITHREAD=ON")
 
 def build():
-    cmaketools.make()
+    cmaketools.make("-j1")
 
 def install():
     cmaketools.install()
