@@ -1,0 +1,132 @@
+--- 3rdparty/flann/CMakeLists.txt.bak	2010-04-08 08:32:22.000000000 -0400
++++ 3rdparty/flann/CMakeLists.txt	2010-04-08 08:33:43.000000000 -0400
+@@ -89,8 +89,8 @@
+ INSTALL (
+     TARGETS flann  # flann_s
+     RUNTIME DESTINATION bin
+-    LIBRARY DESTINATION lib
+-    ARCHIVE DESTINATION lib
++    LIBRARY DESTINATION lib${LIB_SUFFIX}
++    ARCHIVE DESTINATION lib${LIB_SUFFIX}
+ )
+ 
+ # INSTALL (
+--- CMakeLists.txt.bak	2010-04-08 08:33:56.000000000 -0400
++++ CMakeLists.txt	2010-04-08 08:38:05.000000000 -0400
+@@ -467,8 +467,9 @@
+ 
+     string(REGEX MATCH "[0-9].[0-9]" PYTHON_VERSION_MAJOR_MINOR "${PYTHON_VERSION_FULL}")
+     if(UNIX)
+-        set(PYTHON_PLUGIN_INSTALL_PATH lib/python${PYTHON_VERSION_MAJOR_MINOR}/site-packages/opencv)
+-        set(PYTHON_PACKAGES_PATH lib/python${PYTHON_VERSION_MAJOR_MINOR}/site-packages)
++        execute_process(COMMAND ${PYTHON_EXECUTABLE} -c "from distutils.sysconfig import get_python_lib; print get_python_lib(1)"
++                        OUTPUT_VARIABLE PYTHON_PACKAGES_PATH OUTPUT_STRIP_TRAILING_WHITESPACE)
++        set(PYTHON_PLUGIN_INSTALL_PATH ${PYTHON_PACKAGES_PATH}/opencv)
+     endif()
+     if(WIN32)
+         get_filename_component(PYTHON_PATH "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Python\\PythonCore\\${PYTHON_VERSION_MAJOR_MINOR}\\InstallPath]" ABSOLUTE CACHE)
+@@ -977,7 +978,7 @@
+ configure_file("${CMAKE_CURRENT_SOURCE_DIR}/opencv.pc.cmake.in" "${CMAKE_BINARY_DIR}/unix-install/opencv.pc" @ONLY IMMEDIATE)
+ 
+ if(UNIX)
+-    install(FILES ${CMAKE_BINARY_DIR}/unix-install/opencv.pc DESTINATION lib/pkgconfig)
++    install(FILES ${CMAKE_BINARY_DIR}/unix-install/opencv.pc DESTINATION lib${LIB_SUFFIX}/pkgconfig)
+ endif()
+ 
+ 
+@@ -1036,7 +1037,7 @@
+                 install(FILES ${CMAKE_BINARY_DIR}/bin/Debug/${m}${OPENCV_DLLVERSION}d.dll
+             DESTINATION bin COMPONENT main)
+                 install(FILES ${CMAKE_BINARY_DIR}/lib/Debug/${m}${OPENCV_DLLVERSION}d.lib
+-            DESTINATION lib COMPONENT main)
++            DESTINATION lib${LIB_SUFFIX} COMPONENT main)
+             endforeach()     
+         endif()
+ 
+--- interfaces/ffopencv/CMakeLists.txt.bak	2010-04-08 08:38:31.000000000 -0400
++++ interfaces/ffopencv/CMakeLists.txt	2010-04-08 08:39:29.000000000 -0400
+@@ -40,6 +40,6 @@
+ 
+ install(TARGETS ${the_target}
+ 	RUNTIME DESTINATION bin COMPONENT main
+-	ARCHIVE DESTINATION lib COMPONENT main
+-	LIBRARY DESTINATION lib COMPONENT main
++	ARCHIVE DESTINATION lib${LIB_SUFFIX} COMPONENT main
++	LIBRARY DESTINATION lib${LIB_SUFFIX} COMPONENT main
+     )
+--- src/cv/CMakeLists.txt.bak	2010-04-08 08:39:44.000000000 -0400
++++ src/cv/CMakeLists.txt	2010-04-08 08:40:21.000000000 -0400
+@@ -71,8 +71,8 @@
+ 
+ install(TARGETS ${the_target}
+     RUNTIME DESTINATION bin COMPONENT main
+-    LIBRARY DESTINATION lib COMPONENT main
+-    ARCHIVE DESTINATION lib COMPONENT main)
++    LIBRARY DESTINATION lib${LIB_SUFFIX} COMPONENT main
++    ARCHIVE DESTINATION lib${LIB_SUFFIX} COMPONENT main)
+ 
+ install(FILES ${lib_hdrs}
+     DESTINATION include/opencv
+--- src/cvaux/CMakeLists.txt.bak	2010-04-08 13:22:59.000000000 -0400
++++ src/cvaux/CMakeLists.txt	2010-04-08 13:23:34.000000000 -0400
+@@ -76,8 +76,8 @@
+ 
+ install(TARGETS ${the_target}
+ 	RUNTIME DESTINATION bin COMPONENT main
+-	LIBRARY DESTINATION lib COMPONENT main
+-	ARCHIVE DESTINATION lib COMPONENT main)
++	LIBRARY DESTINATION lib${LIB_SUFFIX} COMPONENT main
++	ARCHIVE DESTINATION lib${LIB_SUFFIX} COMPONENT main)
+ 
+ install(FILES ${aux_hdrs_ext}
+         DESTINATION include/opencv
+--- src/cxcore/CMakeLists.txt.bak	2010-04-08 08:40:39.000000000 -0400
++++ src/cxcore/CMakeLists.txt	2010-04-08 13:11:36.000000000 -0400
+@@ -71,8 +71,8 @@
+ 
+ install(TARGETS ${the_target}
+     RUNTIME DESTINATION bin COMPONENT main
+-    LIBRARY DESTINATION lib COMPONENT main
+-    ARCHIVE DESTINATION lib COMPONENT main)
++    LIBRARY DESTINATION lib${LIB_SUFFIX} COMPONENT main
++    ARCHIVE DESTINATION lib${LIB_SUFFIX} COMPONENT main)
+ 
+ # install each module headers separately
+ install(FILES ${lib_hdrs}
+--- src/highgui/CMakeLists.txt.bak	2010-04-08 13:11:52.000000000 -0400
++++ src/highgui/CMakeLists.txt	2010-04-08 13:18:15.000000000 -0400
+@@ -282,8 +282,8 @@
+ 
+ install(TARGETS ${the_target}
+ 	RUNTIME DESTINATION bin COMPONENT main
+-	LIBRARY DESTINATION lib COMPONENT main
+-	ARCHIVE DESTINATION lib COMPONENT main)
++	LIBRARY DESTINATION lib${LIB_SUFFIX} COMPONENT main
++	ARCHIVE DESTINATION lib${LIB_SUFFIX} COMPONENT main)
+ 
+ install(FILES ${highgui_ext_hdrs}
+         DESTINATION include/opencv
+--- src/ml/CMakeLists.txt.bak	2010-04-08 13:18:32.000000000 -0400
++++ src/ml/CMakeLists.txt	2010-04-08 13:18:57.000000000 -0400
+@@ -61,8 +61,8 @@
+ 
+ install(TARGETS ${the_target}
+ 	RUNTIME DESTINATION bin COMPONENT main
+-	LIBRARY DESTINATION lib COMPONENT main
+-	ARCHIVE DESTINATION lib COMPONENT main)
++	LIBRARY DESTINATION lib${LIB_SUFFIX} COMPONENT main
++	ARCHIVE DESTINATION lib${LIB_SUFFIX} COMPONENT main)
+ 
+ install(FILES ${lib_hdrs}
+         DESTINATION include/opencv
+--- tests/cxts/CMakeLists.txt.bak	2010-04-08 13:19:09.000000000 -0400
++++ tests/cxts/CMakeLists.txt	2010-04-08 13:19:33.000000000 -0400
+@@ -63,6 +63,6 @@
+ if(WIN32)
+ install(TARGETS ${the_target}
+     RUNTIME DESTINATION bin COMPONENT main
+-	LIBRARY DESTINATION lib COMPONENT main
+-	ARCHIVE DESTINATION lib COMPONENT main)
++	LIBRARY DESTINATION lib${LIB_SUFFIX} COMPONENT main
++	ARCHIVE DESTINATION lib${LIB_SUFFIX} COMPONENT main)
+ endif()
