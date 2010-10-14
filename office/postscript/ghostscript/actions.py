@@ -67,5 +67,6 @@ def install():
     # Install docs
     pisitools.remove("/usr/share/doc/ghostscript/*.htm*")
     pisitools.remove("/usr/share/doc/ghostscript/*.css")
+
     pisitools.dohtml("doc/*")
-    pisitools.dodoc("doc/README", "doc/COPYING")
+    pisitools.dodoc("doc/AUTHORS", "doc/COPYING")
