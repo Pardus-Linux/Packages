@@ -1,0 +1,59 @@
+Index: utils/loadndisdriver.c
+===================================================================
+--- utils/loadndisdriver.c.orig	2010-02-11 03:09:32.000000000 +0100
++++ utils/loadndisdriver.c	2010-09-09 12:53:57.348385587 +0200
+@@ -505,7 +505,7 @@ static int get_ioctl_device()
+ 
+ int main(int argc, char *argv[0])
+ {
+-	int i, ioctl_device, res;
++	int i, ioctl_device=-1, res;
+ 	char *cmd;
+ 
+ 	openlog(PROG_NAME, LOG_PERROR | LOG_CONS, LOG_KERN | LOG_DEBUG);
+Index: driver/loader.c
+===================================================================
+--- driver/loader.c.orig	2010-02-11 03:09:32.000000000 +0100
++++ driver/loader.c	2010-09-09 13:15:48.148260473 +0200
+@@ -21,6 +21,7 @@
+ #include <linux/module.h>
+ #include <linux/kmod.h>
+ #include <linux/miscdevice.h>
++#include <linux/smp_lock.h>
+ #include <asm/uaccess.h>
+ 
+ /*
+@@ -750,7 +751,7 @@ struct wrap_device *get_wrap_device(void
+ }
+ 
+ /* called with loader_mutex is down */
+-static int wrapper_ioctl(struct inode *inode, struct file *file,
++static long wrapper_ioctl(struct file *file,
+ 			 unsigned int cmd, unsigned long arg)
+ {
+ 	struct load_driver *load_driver;
+@@ -759,6 +760,7 @@ static int wrapper_ioctl(struct inode *i
+ 	int ret;
+ 	void __user *addr = (void __user *)arg;
+ 
++        lock_kernel();
+ 	ENTER1("cmd: %u", cmd);
+ 
+ 	ret = 0;
+@@ -820,6 +822,7 @@ static int wrapper_ioctl(struct inode *i
+ 		break;
+ 	}
+ 	complete(&loader_complete);
++        unlock_kernel();
+ 	EXIT1(return ret);
+ }
+ 
+@@ -831,7 +834,7 @@ static int wrapper_ioctl_release(struct
+ 
+ static struct file_operations wrapper_fops = {
+ 	.owner          = THIS_MODULE,
+-	.ioctl		= wrapper_ioctl,
++	.unlocked_ioctl		= wrapper_ioctl,
+ 	.release	= wrapper_ioctl_release,
+ };
+ 

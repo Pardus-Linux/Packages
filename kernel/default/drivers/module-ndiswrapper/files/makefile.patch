@@ -1,0 +1,69 @@
+Index: utils/Makefile
+===================================================================
+--- utils/Makefile.orig	2010-02-11 03:09:32.000000000 +0100
++++ utils/Makefile	2010-09-09 12:53:57.348385587 +0200
+@@ -5,7 +5,7 @@ usrsbindir = $(DESTDIR)/usr/sbin
+ DRIVER_DIR ?= ../driver
+ 
+ CC = gcc
+-CFLAGS = -g -Wall -I$(DRIVER_DIR)
++CFLAGS += -I$(DRIVER_DIR)
+ 
+ DISTFILES=Makefile ndiswrapper loadndisdriver.c ndiswrapper-buginfo
+ 
+Index: Makefile
+===================================================================
+--- Makefile.orig
++++ Makefile
+@@ -10,9 +10,9 @@ DISTFILES=AUTHORS ChangeLog INSTALL Make
+ DIST_SUBDIRS=utils driver
+ 
+ DESTDIR =
+-mandir = $(DESTDIR)$(shell [ -d /usr/man/man8 ] && echo /usr/man || echo /usr/share/man )
++mandir = $(DESTDIR)$(shell [ -d /usr/share/man/man8 ] && echo /usr/share/man || echo /usr/man )
+ 
+-KVERS ?= $(shell uname -r)
++KVERS ?=
+ 
+ .PHONY: all
+ 
+Index: driver/Makefile
+===================================================================
+--- driver/Makefile.orig
++++ driver/Makefile
+@@ -12,7 +12,7 @@ DISTFILES = \
+ # By default, we try to compile the modules for the currently running
+ # kernel.  But it's the first approximation, as we will re-read the
+ # version from the kernel sources.
+-KVERS ?= $(shell uname -r)
++KVERS ?=
+ 
+ # KBUILD is the path to the Linux kernel build tree.  It is usually the
+ # same as the kernel source tree, except when the kernel was compiled in
+@@ -34,15 +34,9 @@ ifeq (,$(wildcard $(VERSION_H)))
+ $(error Cannot find kernel version in $(KBUILD), is it configured?)
+ endif
+ 
+-KVERS := $(shell sed -ne 's/"//g;s/^\#define UTS_RELEASE //p' $(VERSION_H))
+-
+-ifdef DIST_DESTDIR
+-DESTDIR = $(DIST_DESTDIR)
+-else
+ DESTDIR ?= /
+-endif
+ 
+-INST_DIR ?= $(shell echo $(DESTDIR)/lib/modules/$(KVERS)/misc | sed 's^//^/^g')
++INST_DIR ?= $(shell echo $(DESTDIR)/lib/modules/$(KVERS)/updates | sed 's^//^/^g')
+ 
+ SRC_DIR=$(shell pwd)
+ 
+@@ -198,9 +192,6 @@ install: config_check modules
+ 	echo $(INST_DIR)
+ 	mkdir -p $(INST_DIR)
+ 	install -m 0644 $(MODULE) $(INST_DIR)
+-ifndef DIST_DESTDIR
+-	-/sbin/depmod -a $(KVERS) -b $(DESTDIR)
+-endif
+ 
+ dist:
+ 	@for file in $(DISTFILES); do \
