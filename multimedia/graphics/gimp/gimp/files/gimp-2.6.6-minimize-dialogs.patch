@@ -1,0 +1,349 @@
+diff -up gimp-2.6.6/app/display/gimpdisplay-foreach.c.minimize-dialogs gimp-2.6.6/app/display/gimpdisplay-foreach.c
+--- gimp-2.6.6/app/display/gimpdisplay-foreach.c.minimize-dialogs	2008-11-20 23:43:04.000000000 +0100
++++ gimp-2.6.6/app/display/gimpdisplay-foreach.c	2009-03-30 14:24:05.145595522 +0200
+@@ -227,6 +227,35 @@ gimp_displays_reconnect (Gimp      *gimp
+   g_list_free (contexts);
+ }
+ 
++gint
++gimp_displays_get_num_visible (Gimp *gimp)
++{
++  GList *list;
++  gint   visible = 0;
++
++  g_return_val_if_fail (GIMP_IS_GIMP (gimp), 0);
++
++  for (list = GIMP_LIST (gimp->displays)->list;
++       list;
++       list = g_list_next (list))
++    {
++      GimpDisplay *display = list->data;
++
++      if (GTK_WIDGET_DRAWABLE (display->shell))
++        {
++          GdkWindowState state = gdk_window_get_state (display->shell->window);
++
++          if ((state & (GDK_WINDOW_STATE_WITHDRAWN |
++                        GDK_WINDOW_STATE_ICONIFIED)) == 0)
++            {
++              visible++;
++            }
++        }
++    }
++
++  return visible;
++}
++
+ void
+ gimp_displays_set_busy (Gimp *gimp)
+ {
+diff -up gimp-2.6.6/app/display/gimpdisplay-foreach.h.minimize-dialogs gimp-2.6.6/app/display/gimpdisplay-foreach.h
+--- gimp-2.6.6/app/display/gimpdisplay-foreach.h.minimize-dialogs	2008-11-20 23:43:04.000000000 +0100
++++ gimp-2.6.6/app/display/gimpdisplay-foreach.h	2009-03-30 14:24:05.146606054 +0200
+@@ -28,6 +28,8 @@ void            gimp_displays_reconnect 
+                                                 GimpImage *old,
+                                                 GimpImage *new);
+ 
++gint            gimp_displays_get_num_visible  (Gimp      *gimp);
++
+ void            gimp_displays_set_busy         (Gimp      *gimp);
+ void            gimp_displays_unset_busy       (Gimp      *gimp);
+ 
+diff -up gimp-2.6.6/app/display/gimpdisplayshell.c.minimize-dialogs gimp-2.6.6/app/display/gimpdisplayshell.c
+--- gimp-2.6.6/app/display/gimpdisplayshell.c.minimize-dialogs	2009-03-15 21:57:09.000000000 +0100
++++ gimp-2.6.6/app/display/gimpdisplayshell.c	2009-03-30 14:24:05.147606111 +0200
+@@ -59,6 +59,7 @@
+ 
+ #include "gimpcanvas.h"
+ #include "gimpdisplay.h"
++#include "gimpdisplay-foreach.h"
+ #include "gimpdisplayoptions.h"
+ #include "gimpdisplayshell.h"
+ #include "gimpdisplayshell-appearance.h"
+@@ -615,12 +616,12 @@ gimp_display_shell_window_state_event (G
+                                        GdkEventWindowState *event)
+ {
+   GimpDisplayShell *shell = GIMP_DISPLAY_SHELL (widget);
++  Gimp             *gimp  = shell->display->gimp;
+ 
+   shell->window_state = event->new_window_state;
+ 
+   if (event->changed_mask & GDK_WINDOW_STATE_FULLSCREEN)
+     {
+-      Gimp            *gimp = shell->display->gimp;
+       GimpActionGroup *group;
+       gboolean         fullscreen;
+ 
+@@ -644,6 +645,19 @@ gimp_display_shell_window_state_event (G
+ 
+   if (event->changed_mask & GDK_WINDOW_STATE_ICONIFIED)
+     {
++      gboolean iconified = (event->new_window_state &
++                            GDK_WINDOW_STATE_ICONIFIED) != 0;
++
++      if (iconified)
++        {
++          if (gimp_displays_get_num_visible (gimp) == 0)
++            gimp_dialog_factories_hide_with_display ();
++        }
++      else
++        {
++          gimp_dialog_factories_show_with_display ();
++        }
++
+       gimp_display_shell_progress_window_state_changed (shell);
+     }
+ 
+diff -up gimp-2.6.6/app/widgets/gimpdialogfactory.c.minimize-dialogs gimp-2.6.6/app/widgets/gimpdialogfactory.c
+--- gimp-2.6.6/app/widgets/gimpdialogfactory.c.minimize-dialogs	2008-11-20 23:43:05.000000000 +0100
++++ gimp-2.6.6/app/widgets/gimpdialogfactory.c	2009-03-30 14:24:05.148606028 +0200
+@@ -45,6 +45,13 @@
+ #include "gimp-log.h"
+ 
+ 
++typedef enum
++{
++  GIMP_DIALOGS_SHOWN,
++  GIMP_DIALOGS_HIDDEN_EXPLICITLY,  /* user used the Tab key to hide dialogs */
++  GIMP_DIALOGS_HIDDEN_WITH_DISPLAY /* dialogs are hidden with the display   */
++} GimpDialogsState;
++
+ enum
+ {
+   DOCK_ADDED,
+@@ -103,7 +110,7 @@ G_DEFINE_TYPE (GimpDialogFactory, gimp_d
+ 
+ static guint factory_signals[LAST_SIGNAL] = { 0 };
+ 
+-static gboolean dialogs_shown = TRUE;  /* FIXME */
++static GimpDialogsState dialogs_state = GIMP_DIALOGS_SHOWN;
+ 
+ 
+ static void
+@@ -1079,7 +1086,7 @@ gimp_dialog_factory_hide_dialog (GtkWidg
+ 
+   gtk_widget_hide (dialog);
+ 
+-  if (! dialogs_shown)
++  if (dialogs_state != GIMP_DIALOGS_SHOWN)
+     g_object_set_data (G_OBJECT (dialog), GIMP_DIALOG_VISIBILITY_KEY,
+                        GINT_TO_POINTER (GIMP_DIALOG_VISIBILITY_INVISIBLE));
+ }
+@@ -1122,30 +1129,66 @@ gimp_dialog_factories_session_clear (voi
+                         NULL);
+ }
+ 
+-void
+-gimp_dialog_factories_toggle (void)
++static void
++gimp_dialog_factories_set_state (GimpDialogsState state)
+ {
+   GimpDialogFactoryClass *factory_class;
+ 
+   factory_class = g_type_class_peek (GIMP_TYPE_DIALOG_FACTORY);
+ 
+-  if (dialogs_shown)
++  dialogs_state = state;
++
++  if (state == GIMP_DIALOGS_SHOWN)
+     {
+-      dialogs_shown = FALSE;
+       g_hash_table_foreach (factory_class->factories,
+-                            (GHFunc) gimp_dialog_factories_hide_foreach,
++                            (GHFunc) gimp_dialog_factories_show_foreach,
+                             NULL);
+     }
+   else
+     {
+-      dialogs_shown = TRUE;
+       g_hash_table_foreach (factory_class->factories,
+-                            (GHFunc) gimp_dialog_factories_show_foreach,
++                            (GHFunc) gimp_dialog_factories_hide_foreach,
+                             NULL);
+     }
+ }
+ 
+ void
++gimp_dialog_factories_show_with_display (void)
++{
++  if (dialogs_state == GIMP_DIALOGS_HIDDEN_WITH_DISPLAY)
++    {
++      gimp_dialog_factories_set_state (GIMP_DIALOGS_SHOWN);
++    }
++}
++
++void
++gimp_dialog_factories_hide_with_display (void)
++{
++  if (dialogs_state == GIMP_DIALOGS_SHOWN)
++    {
++      gimp_dialog_factories_set_state (GIMP_DIALOGS_HIDDEN_WITH_DISPLAY);
++    }
++}
++
++void
++gimp_dialog_factories_toggle (void)
++{
++  switch (dialogs_state)
++    {
++    case GIMP_DIALOGS_SHOWN:
++      gimp_dialog_factories_set_state (GIMP_DIALOGS_HIDDEN_EXPLICITLY);
++      break;
++
++    case GIMP_DIALOGS_HIDDEN_EXPLICITLY:
++      gimp_dialog_factories_set_state (GIMP_DIALOGS_SHOWN);
++      break;
++
++    case GIMP_DIALOGS_HIDDEN_WITH_DISPLAY:
++      break;
++    }
++}
++
++void
+ gimp_dialog_factories_set_busy (void)
+ {
+   GimpDialogFactoryClass *factory_class;
+diff -up gimp-2.6.6/app/widgets/gimpdialogfactory.h.minimize-dialogs gimp-2.6.6/app/widgets/gimpdialogfactory.h
+--- gimp-2.6.6/app/widgets/gimpdialogfactory.h.minimize-dialogs	2008-11-20 23:43:05.000000000 +0100
++++ gimp-2.6.6/app/widgets/gimpdialogfactory.h	2009-03-30 14:24:05.149601894 +0200
+@@ -103,74 +103,77 @@ struct _GimpDialogFactoryClass
+ };
+ 
+ 
+-GType               gimp_dialog_factory_get_type  (void) G_GNUC_CONST;
++GType               gimp_dialog_factory_get_type    (void) G_GNUC_CONST;
+ 
+-GimpDialogFactory * gimp_dialog_factory_new       (const gchar       *name,
+-                                                   GimpContext       *context,
+-                                                   GimpMenuFactory   *menu_factory,
+-                                                   GimpDialogNewFunc  new_dock_func,
+-                                                   gboolean           toggle_visibility);
+-
+-GimpDialogFactory * gimp_dialog_factory_from_name (const gchar       *name);
+-
+-void        gimp_dialog_factory_set_constructor   (GimpDialogFactory *factory,
+-                                                   GimpDialogConstructor constructor);
+-
+-void        gimp_dialog_factory_register_entry    (GimpDialogFactory *factory,
+-                                                   const gchar       *identifier,
+-                                                   const gchar       *name,
+-                                                   const gchar       *blurb,
+-                                                   const gchar       *stock_id,
+-                                                   const gchar       *help_id,
+-                                                   GimpDialogNewFunc  new_func,
+-                                                   gint               view_size,
+-                                                   gboolean           singleton,
+-                                                   gboolean           session_managed,
+-                                                   gboolean           remember_size,
+-                                                   gboolean           remember_if_open);
++GimpDialogFactory * gimp_dialog_factory_new         (const gchar       *name,
++                                                     GimpContext       *context,
++                                                     GimpMenuFactory   *menu_factory,
++                                                     GimpDialogNewFunc  new_dock_func,
++                                                     gboolean           toggle_visibility);
++
++GimpDialogFactory * gimp_dialog_factory_from_name   (const gchar       *name);
++
++void        gimp_dialog_factory_set_constructor     (GimpDialogFactory *factory,
++                                                     GimpDialogConstructor constructor);
++
++void        gimp_dialog_factory_register_entry      (GimpDialogFactory *factory,
++                                                     const gchar       *identifier,
++                                                     const gchar       *name,
++                                                     const gchar       *blurb,
++                                                     const gchar       *stock_id,
++                                                     const gchar       *help_id,
++                                                     GimpDialogNewFunc  new_func,
++                                                     gint               view_size,
++                                                     gboolean           singleton,
++                                                     gboolean           session_managed,
++                                                     gboolean           remember_size,
++                                                     gboolean           remember_if_open);
+ GimpDialogFactoryEntry * gimp_dialog_factory_find_entry
+-                                                  (GimpDialogFactory *factory,
+-                                                   const gchar       *identifier);
++                                                    (GimpDialogFactory *factory,
++                                                     const gchar       *identifier);
+ 
+ GimpSessionInfo * gimp_dialog_factory_find_session_info
+-                                                  (GimpDialogFactory *factory,
+-                                                   const gchar       *identifier);
++                                                    (GimpDialogFactory *factory,
++                                                     const gchar       *identifier);
+ 
+-GtkWidget * gimp_dialog_factory_dialog_new        (GimpDialogFactory *factory,
+-                                                   GdkScreen         *screen,
+-                                                   const gchar       *identifier,
+-                                                   gint               view_size,
+-                                                   gboolean           present);
+-GtkWidget * gimp_dialog_factory_dialog_raise      (GimpDialogFactory *factory,
+-                                                   GdkScreen         *screen,
+-                                                   const gchar       *identifiers,
+-                                                   gint               view_size);
+-GtkWidget * gimp_dialog_factory_dockable_new      (GimpDialogFactory *factory,
+-                                                   GimpDock          *dock,
+-                                                   const gchar       *identifier,
+-                                                   gint               view_size);
+-GtkWidget * gimp_dialog_factory_dock_new          (GimpDialogFactory *factory,
+-                                                   GdkScreen         *screen);
+-
+-void        gimp_dialog_factory_add_dialog        (GimpDialogFactory *factory,
+-                                                   GtkWidget         *dialog);
+-void        gimp_dialog_factory_add_foreign       (GimpDialogFactory *factory,
+-                                                   const gchar       *identifier,
+-                                                   GtkWidget         *dialog);
+-void        gimp_dialog_factory_remove_dialog     (GimpDialogFactory *factory,
+-                                                   GtkWidget         *dialog);
+-
+-void        gimp_dialog_factory_show_toolbox      (GimpDialogFactory *toolbox_factory);
+-
+-void        gimp_dialog_factory_hide_dialog       (GtkWidget         *dialog);
+-
+-void        gimp_dialog_factories_session_save    (GimpConfigWriter  *writer);
+-void        gimp_dialog_factories_session_restore (void);
+-void        gimp_dialog_factories_session_clear   (void);
+-
+-void        gimp_dialog_factories_toggle          (void);
+-void        gimp_dialog_factories_set_busy        (void);
+-void        gimp_dialog_factories_unset_busy      (void);
++GtkWidget * gimp_dialog_factory_dialog_new          (GimpDialogFactory *factory,
++                                                     GdkScreen         *screen,
++                                                     const gchar       *identifier,
++                                                     gint               view_size,
++                                                     gboolean           present);
++GtkWidget * gimp_dialog_factory_dialog_raise        (GimpDialogFactory *factory,
++                                                     GdkScreen         *screen,
++                                                     const gchar       *identifiers,
++                                                     gint               view_size);
++GtkWidget * gimp_dialog_factory_dockable_new        (GimpDialogFactory *factory,
++                                                     GimpDock          *dock,
++                                                     const gchar       *identifier,
++                                                     gint               view_size);
++GtkWidget * gimp_dialog_factory_dock_new            (GimpDialogFactory *factory,
++                                                     GdkScreen         *screen);
++
++void        gimp_dialog_factory_add_dialog          (GimpDialogFactory *factory,
++                                                     GtkWidget         *dialog);
++void        gimp_dialog_factory_add_foreign         (GimpDialogFactory *factory,
++                                                     const gchar       *identifier,
++                                                     GtkWidget         *dialog);
++void        gimp_dialog_factory_remove_dialog       (GimpDialogFactory *factory,
++                                                     GtkWidget         *dialog);
++
++void        gimp_dialog_factory_show_toolbox        (GimpDialogFactory *toolbox_factory);
++
++void        gimp_dialog_factory_hide_dialog         (GtkWidget         *dialog);
++
++void        gimp_dialog_factories_session_save      (GimpConfigWriter  *writer);
++void        gimp_dialog_factories_session_restore   (void);
++void        gimp_dialog_factories_session_clear     (void);
++
++void        gimp_dialog_factories_show_with_display (void);
++void        gimp_dialog_factories_hide_with_display (void);
++void        gimp_dialog_factories_toggle            (void);
++
++void        gimp_dialog_factories_set_busy          (void);
++void        gimp_dialog_factories_unset_busy        (void);
+ 
+ GimpDialogFactory *
+             gimp_dialog_factory_from_widget (GtkWidget               *dialog,
