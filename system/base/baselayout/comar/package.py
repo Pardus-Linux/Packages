@@ -163,6 +163,7 @@ def postInstall(fromVersion, fromRelease, toVersion, toRelease):
                 (163, "kvm"),
                 (164, "qemu"),
                 (165, "kdm"),
+                (166, "polipo"),
                 # COMAR profile groups
                 (200, "pnp"),
                 (201, "removable"),
@@ -232,6 +233,7 @@ def postInstall(fromVersion, fromRelease, toVersion, toRelease):
                 (161, "openvpn", "OpenVPN", "/etc/openvpn", "/sbin/nologin", "", ["openvpn"], [], []),
                 (162, "privoxy", "Privoxy", "/etc/privoxy", "/sbin/nologin", "", ["privoxy"], [], []),
                 (163, "qemu", "qemu user", "/", "/sbin/nologin", "", ["qemu", "kvm"], [], []),
+                (164, "polipo", "polipo user", "/", "/sbin/nologin", "", ["polipo"], [], []),
                 (165, "kdm", "kdm", "/var", "/sbin/nologin", "", ["kdm"], [], []),
                 (200, "pnp", "PnP", "/dev/null", "/bin/false", "", ["pnp"], [], []),
                 (250, "mpd", "Music Player Daemon", "/var/lib/mpd", "/bin/false", "", ["audio", "pulse", "pulse-access", "pulse-rt"], [], []),
