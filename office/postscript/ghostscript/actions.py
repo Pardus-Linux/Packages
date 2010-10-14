@@ -21,7 +21,6 @@ def setup():
 
     autotools.configure("--disable-compile-inits \
                          --disable-gtk \
-                         --disable-cairo \
                          --enable-dynamic \
                          --enable-cups \
                          --with-system-libtiff \
@@ -52,7 +51,7 @@ def install():
     autotools.rawInstall("DESTDIR=%s" % get.installDIR(), "soinstall")
 
     # For cjk stuff
-    pisitools.dodir("/usr/share/ghostscript/Resource/Init")
+    #pisitools.dodir("/usr/share/ghostscript/Resource/Init")
 
     # Install missing header
     pisitools.insinto("/usr/include/ghostscript", "base/errors.h")
@@ -63,6 +62,7 @@ def install():
 
     # Remove ijs examples
     pisitools.remove("/usr/bin/ijs_*_example")
+
 
     # Install docs
     pisitools.remove("/usr/share/doc/ghostscript/*.htm*")
