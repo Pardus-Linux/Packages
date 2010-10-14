@@ -31,12 +31,13 @@ def setup():
                          --enable-test \
                          --enable-pcmcia \
                          --enable-configfiles \
+                         --with-systemdsystemunitdir=/lib/systemd/system \
                          --with-ouifile=/usr/share/misc/oui.txt \
                          --disable-hid2hci \
                          --libexecdir=/lib \
                          --localstatedir=/var")
 def build():
-    autotools.make("V=1")
+    autotools.make()
 
 def install():
     autotools.rawInstall("DESTDIR=%s" % get.installDIR())
