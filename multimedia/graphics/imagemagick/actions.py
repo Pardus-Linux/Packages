@@ -5,17 +5,13 @@
 # Licensed under the GNU General Public License, version 2.
 # See the file http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
 
-from pisi.actionsapi import perlmodules
 from pisi.actionsapi import autotools
 from pisi.actionsapi import pisitools
-from pisi.actionsapi import libtools
 from pisi.actionsapi import get
 
-WorkDir = "ImageMagick-%s-%s" % (get.srcVERSION()[:-2], get.srcVERSION()[-1])
 KeepSpecial=["libtool"]
 
 def setup():
-    #libtools.libtoolize("-fi")
     autotools.autoreconf("-vif")
 
     pisitools.dosed("configure", "DOCUMENTATION_RELATIVE_PATH=.*", "DOCUMENTATION_RELATIVE_PATH=%s/html" % get.srcNAME())
