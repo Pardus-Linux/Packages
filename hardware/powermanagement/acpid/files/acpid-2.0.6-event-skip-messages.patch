@@ -1,0 +1,15 @@
+--- a/event.c.orig
++++ b/event.c
+@@ -124,8 +124,11 @@ acpid_read_conf(const char *confdir)
+ 
+ 		/* skip any files that don't match the run-parts convention */
+ 		if (regexec(&preg, dirent->d_name, 0, NULL, 0) != 0) {
+-			acpid_log(LOG_INFO, "skipping conf file %s/%s\n", 
++			if(strcmp(dirent->d_name, ".") != 0 &&
++			   strcmp(dirent->d_name, "..") != 0) {
++				acpid_log(LOG_INFO, "skipping conf file %s/%s\n", 
+ 				confdir, dirent->d_name);
++			}
+ 			continue;
+ 		}
+ 
