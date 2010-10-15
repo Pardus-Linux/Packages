@@ -4,8 +4,8 @@
 
 case $ACTION in
     add)
-        if [ "x${LOAD_VBOXVFS_MODULE-true}" == "xtrue" ]; then
-            /sbin/modprobe -s vboxvfs
+        if [ "x${LOAD_VBOXSF_MODULE-true}" == "xtrue" ]; then
+            /sbin/modprobe -s vboxsf
         fi
         if [ -x /usr/sbin/VBoxService ]; then
             /usr/sbin/VBoxService $VBOXSERVICE_OPTS
