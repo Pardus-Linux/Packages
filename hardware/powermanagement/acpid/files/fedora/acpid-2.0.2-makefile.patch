@@ -1,0 +1,36 @@
+Index: acpid-2.0.6/Makefile
+===================================================================
+--- acpid-2.0.6.orig/Makefile
++++ acpid-2.0.6/Makefile
+@@ -31,8 +31,9 @@ MAN8GZ = $(MAN8:.8=.8.gz)
+ 
+ DOCS = COPYING Changelog README TESTPLAN TODO 
+ 
+-CFLAGS = -W -Wall -Werror -Wundef -Wshadow -D_GNU_SOURCE $(OPT) \
+-	-fno-strict-aliasing -g $(DEFS)
++CFLAGS = -W -Wall -Werror -Wundef -Wshadow -D_GNU_SOURCE -O2 $(OPT) \
++	-fno-strict-aliasing -g $(DEFS) $(RPM_OPT_FLAGS) -fPIE
++LDFLAGS = -pie -Wl,-z,relro
+ DEFS = -DVERSION="\"$(VERSION)\""
+ 
+ all: $(PROGS)
+@@ -46,8 +47,8 @@ man: $(MAN8)
+ 
+ install_docs:
+ 	mkdir -p $(DESTDIR)/$(DOCDIR)
+-	for a in $(DOCS); do install -m 0644 $$a $(DESTDIR)/$(DOCDIR) ; done
+-	cp -a samples $(DESTDIR)/$(DOCDIR)
++	#for a in $(DOCS); do install -m 0644 $$a $(DESTDIR)/$(DOCDIR) ; done
++	#cp -a samples $(DESTDIR)/$(DOCDIR)
+ 
+ install: $(PROGS) man install_docs
+ 	mkdir -p $(DESTDIR)/$(SBINDIR)
+@@ -55,7 +56,7 @@ install: $(PROGS) man install_docs
+ 	install -m 0750 acpid $(DESTDIR)/$(SBINDIR)
+ 	install -m 0755 acpi_listen $(DESTDIR)/$(BINDIR)
+ 	mkdir -p $(DESTDIR)/$(MANDIR)/man8
+-	install -m 0644 $(MAN8GZ) $(DESTDIR)/$(MANDIR)/man8
++	install -m 0644 $(MAN8) $(DESTDIR)/$(MANDIR)/man8
+ # You might want to run mandb(8) after install in case your system uses it.
+ 
+ DISTTMP=/tmp
