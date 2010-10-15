@@ -36,9 +36,6 @@ def install():
     # Install udev rule
     pisitools.insinto("/lib/udev/rules.d", "tools/udev/libsane.rules", "65-libsane.rules")
 
-    # we add hplip backend here not to let it turn into newconfig all the time
-    shelltools.echo("%s/etc/sane.d/dll.conf" % get.installDIR(), "\n# Added for hplip backends\nhpaio\n")
-
     # Add epson epkowa and brother2 backends also
     shelltools.echo("%s/etc/sane.d/dll.conf" % get.installDIR(),
                     "# Epson 'epkowa' backend\n" +
