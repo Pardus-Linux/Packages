@@ -7,13 +7,14 @@
 from pisi.actionsapi import autotools
 from pisi.actionsapi import pisitools
 from pisi.actionsapi import get
+from pisi.actionsapi import shelltools
 
-WorkDir="GConf-%s" % get.srcVERSION()
+shelltools.export("HOME", get.workDIR())
 
 def setup():
-    autotools.configure("--disable-static")
-
-    pisitools.dosed("libtool"," -shared "," -Wl,--as-needed -shared ")
+    autotools.autoreconf("-fiv")
+    autotools.configure("--disable-static\
+                         --enable-silent-rules")
 
 def build():
     autotools.make()
