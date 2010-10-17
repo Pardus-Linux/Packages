@@ -164,6 +164,7 @@ def postInstall(fromVersion, fromRelease, toVersion, toRelease):
                 (164, "qemu"),
                 (165, "kdm"),
                 (166, "polipo"),
+                (167, "nginx"),
                 # COMAR profile groups
                 (200, "pnp"),
                 (201, "removable"),
@@ -235,6 +236,7 @@ def postInstall(fromVersion, fromRelease, toVersion, toRelease):
                 (163, "qemu", "qemu user", "/", "/sbin/nologin", "", ["qemu", "kvm"], [], []),
                 (164, "polipo", "polipo user", "/", "/sbin/nologin", "", ["polipo"], [], []),
                 (165, "kdm", "kdm", "/var", "/sbin/nologin", "", ["kdm"], [], []),
+                (166, "nginx", "nginx user", "/etc/nginx", "/sbin/nologin", "", ["nginx"], [], []),
                 (200, "pnp", "PnP", "/dev/null", "/bin/false", "", ["pnp"], [], []),
                 (250, "mpd", "Music Player Daemon", "/var/lib/mpd", "/bin/false", "", ["audio", "pulse", "pulse-access", "pulse-rt"], [], []),
             )
