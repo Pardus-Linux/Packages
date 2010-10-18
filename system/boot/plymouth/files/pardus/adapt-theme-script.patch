@@ -1,46 +1,11 @@
-Index: plymouth-0.8.3_20100929/scripts/plymouth-set-default-theme.in
+Index: plymouth-0.8.3_20101018/scripts/plymouth-set-default-theme.in
 ===================================================================
---- plymouth-0.8.3_20100929.orig/scripts/plymouth-set-default-theme.in
-+++ plymouth-0.8.3_20100929/scripts/plymouth-set-default-theme.in
-@@ -17,7 +17,7 @@ fi
- 
- function usage ()
- {
--  echo "usage: plymouth-set-default-theme { --list | --reset | <theme-name> [ --rebuild-initrd ] | --help }"
-+  echo "usage: plymouth-set-default-theme { --list | --reset | <theme-name> [ --rebuild-initramfs ] | --help }"
- }
- 
- function show_help() {
-@@ -25,11 +25,11 @@ function show_help() {
- Plymouth theme chooser
- $(usage)
- 
--  -h, --help             Show this help message
--  -l, --list             Show available themes
--  -r. --reset            Reset to default theme
--  -R, --rebuild-initrd   Rebuild initrd (necessary after changing theme)
--  <theme-name>           Name of new theme to use (see --list for available themes)
-+  -h, --help                Show this help message
-+  -l, --list                Show available themes
-+  -r. --reset               Reset to default theme
-+  -R, --rebuild-initramfs   Rebuild initramfs (necessary after changing theme)
-+  <theme-name>              Name of new theme to use (see --list for available themes)
- 
- EOF
- }
-@@ -98,7 +98,7 @@ while [ $# -gt 0 ]; do
-                 DO_LIST=1
-         ;;
- 
--        -R|--rebuild-initrd)
-+        -R|--rebuild-initramfs)
-                 DO_INITRD_REBUILD=1
-         ;;
- 
+--- plymouth-0.8.3_20101018.orig/scripts/plymouth-set-default-theme.in
++++ plymouth-0.8.3_20101018/scripts/plymouth-set-default-theme.in
 @@ -192,5 +192,5 @@ grep -q '^[[]Daemon[]]' ${PLYMOUTH_CONFD
  sed -i -e '/^Theme[[:blank:]]*=.*/d' ${PLYMOUTH_CONFDIR}/plymouthd.conf
  sed -i -e "s/^\([[]Daemon[]]\)\n*/\1\nTheme=${THEME_NAME}/" ${PLYMOUTH_CONFDIR}/plymouthd.conf
  
 -[ $DO_INITRD_REBUILD -ne 0 ] && (${PLYMOUTH_LIBEXECDIR}/plymouth/plymouth-update-initrd)
 +[ $DO_INITRD_REBUILD -ne 0 ] && /sbin/mkinitramfs
- 
+ exit 0
