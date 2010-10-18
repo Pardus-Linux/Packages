@@ -1,0 +1,119 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>lftp</Name>
+        <Homepage>http://lftp.yar.ru/</Homepage>
+        <Packager>
+            <Name>Mehmet Emre Atasever</Name>
+            <Email>memre@pardus.org.tr</Email>
+        </Packager>
+        <License>GPLv3</License>
+        <Icon>lftp</Icon>
+        <IsA>app:console</IsA>
+        <Summary>Command line FTP client</Summary>
+        <Description>LFTP is sophisticated file transfer program with command line interface. It supports FTP, HTTP, FISH, SFTP, HTTPS and FTPS protocols. It has bookmarks, built-in mirror, can transfer several files in parallel. It was designed with reliability in mind.</Description>
+        <Archive sha1sum="01f3ad53b66ee44f7a8742329c764a8b057d66b8" type="tarxz">http://ftp.yars.free.net/pub/source/lftp/lftp-4.0.10.tar.xz</Archive>
+        <BuildDependencies>
+            <Dependency>gnutls-devel</Dependency>
+            <Dependency>libtasn1-devel</Dependency>
+        </BuildDependencies>
+        <Patches>
+            <Patch level="1">fedora/lftp-4.0.9-date_fmt.patch</Patch>
+            <Patch level="1">fedora/lftp-4.0.9-ssl3.patch</Patch>
+        </Patches>
+    </Source>
+
+    <Package>
+        <Name>lftp</Name>
+        <RuntimeDependencies>
+            <Dependency>gnutls</Dependency>
+            <Dependency>libtasn1</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="config">/etc</Path>
+            <Path fileType="executable">/usr/bin</Path>
+            <Path fileType="library">/usr/lib</Path>
+            <Path fileType="doc">/usr/share/doc/lftp</Path>
+            <Path fileType="man">/usr/share/man</Path>
+            <Path fileType="localedata">/usr/share/locale</Path>
+            <Path fileType="data">/usr/share/lftp</Path>
+            <Path fileType="data">/usr/share/pixmaps</Path>
+        </Files>
+        <AdditionalFiles>
+            <AdditionalFile target="/usr/share/pixmaps/lftp.png">lftp.png</AdditionalFile>
+        </AdditionalFiles>
+    </Package>
+
+    <History>
+        <Update release="5">
+            <Date>2010-10-18</Date>
+            <Version>4.0.10</Version>
+            <Comment>Version bump</Comment>
+            <Name>Mehmet Emre Atasever</Name>
+            <Email>memre@fisek.com.tr</Email>
+        </Update>
+        <Update release="4">
+            <Date>2010-06-20</Date>
+            <Version>4.0.9</Version>
+            <Comment>Version bump:
+             * torrent: don't try to re-download invalid piece from the same peer.
+             * added a short lftp.conf(5) man page.
+             * fixed a problem with zeroed errno.
+             * fixed status of mget from file: schema.
+             * fixed get/mget -c when xfer:clobber is off.
+             * fixed file verification in pget.
+             * fixed ftp encoding for servers with LANG but without UTF8 feature.
+            </Comment>
+            <Name>Doruk Fişek</Name>
+            <Email>dfisek@fisek.com.tr</Email>
+        </Update>
+        <Update release="3">
+            <Date>2010-04-30</Date>
+            <Version>4.0.7</Version>
+            <Comment>Version bump:
+             * make xfer:clobber off by default.
+             * use O_EXCL flag when xfer:clobber is off.
+             * better validation of server-provided file name.
+             * new setting xfer:auto-rename (off by default).
+             * new setting ftp:ssl-copy-sid (for some broken servers).
+             * fixed CCC ftp command to shutdown SSL connection properly.
+             * fixed `pget -c' on complete files.
+             * limit number of attempts to upload a file (net:max-retries).
+             * handle 426 ftp reply to STOR specially.
+             * retry FEAT after login even after non-standard 5xx reply.
+            </Comment>
+            <Name>Doruk Fişek</Name>
+            <Email>dfisek@fisek.com.tr</Email>
+        </Update>
+        <Update release="2">
+            <Date>2010-01-17</Date>
+            <Version>4.0.5</Version>
+            <Comment>Version bump:
+             * added support for lighttpd listings.
+             * added dnssec support.
+             * added torrent client.
+             * automatically set time precision on FAT-like FS.
+             * Update Czech translation.
+             * new setting cmd:stifle-rl-history to limit command history size. 
+             * fixed sftp rename.
+             * fixed a core dump on `kill all' with pget.
+             * fixed interrupting of a torrent with unresponsive tracker.
+             * fixed exit code of mget/mput.
+             * ignore `Status of' line in STAT output (ftp).
+             * fixed handling of files starting with a tilde in ftp.
+             * fixed an infinite bind-loop in ftp.
+             * fixed timestamps in `mirror --ignore-time'. 
+            </Comment>
+            <Name>Doruk Fişek</Name>
+            <Email>dfisek@fisek.com.tr</Email>
+        </Update>
+        <Update release="1">
+            <Date>2009-07-29</Date>
+            <Version>3.7.15</Version>
+            <Comment>First release</Comment>
+            <Name>Doruk Fişek</Name>
+            <Email>dfisek@fisek.com.tr</Email>
+        </Update>
+    </History>
+</PISI>
