@@ -9,44 +9,48 @@
             <Email>onur@pardus.org.tr</Email>
         </Packager>
         <License>GPLv2</License>
+        <License>as-is</License>
         <IsA>app:console</IsA>
+        <IsA>data</IsA>
         <Summary>Intel IA32 microcode update utility</Summary>
         <Description>The microcode_ctl utility is a companion to the IA32 microcode driver.It decodes and sends new microcode to the kernel driver to be uploaded to Intel IA32 processors. (Pentium Pro, PII, PIII, Pentium 4, Celeron, Xeon etc - all P6 and above, which does NOT include pentium classics). It also supports processors of the x86_64 architecture.</Description>
         <Archive type="targz" sha1sum="3c32cf0b3658018a4d0de203aebdb96dce6f68d6">http://www.urbanmyth.org/microcode/microcode_ctl-1.17.tar.gz</Archive>
+
+        <!-- http://downloadcenter.intel.com  -->
+        <Archive sha1sum="9058c24b7e49ffce99f4ee1005e3d56a1ca8aad7" type="targz" target="microcode_ctl-1.17/data">http://downloadmirror.intel.com/19342/eng/microcode-20100914.tgz</Archive>
+        <!-- http://www.amd64.org/support/microcode.html -->
+        <Archive sha1sum="4ea1632558e1de03a08bf8e60dee68a7676b9bf7" type="tar" target="microcode_ctl-1.17/data">http://www.amd64.org/pub/microcode/amd-ucode-2009-10-09.tar</Archive>
         <Patches>
-            <!-- change service script if it makes sense
-            <Patch level="1">microcode_number.patch</Patch>
-            -->
-            <Patch level="1">use_firmware_dir.patch</Patch>
+            <Patch level="1">microcode_ctl.patch</Patch>
         </Patches>
     </Source>
 
     <Package>
         <Name>microcode-ctl</Name>
-        <RuntimeDependencies>
-            <Dependency>microcode-data</Dependency>
-        </RuntimeDependencies>
+        <Replaces>
+            <Package>microcode-data</Package>
+        </Replaces>
         <Files>
             <Path fileType="config">/etc</Path>
-            <Path fileType="data">/lib</Path>
-            <Path fileType="executable">/usr/sbin</Path>
+            <Path fileType="data">/lib/udev/rules.d</Path>
+            <Path fileType="data">/lib/firmware</Path>
+            <Path fileType="executable">/sbin</Path>
             <Path fileType="doc">/usr/share/doc</Path>
             <Path fileType="man">/usr/share/man</Path>
         </Files>
         <AdditionalFiles>
-            <!--
-            <AdditionalFile owner="root" permission="0644" target="/etc/conf.d/microcode_ctl">microcode_ctl.conf.d</AdditionalFile>
-            -->
             <AdditionalFile owner="root" permission="0644" target="/lib/udev/rules.d/89-microcode.rules">89-microcode.rules</AdditionalFile>
         </AdditionalFiles>
-        <!--
-        <Provides>
-            <COMAR script="service.py">System.Service</COMAR>
-        </Provides>
-        -->
     </Package>
 
     <History>
+        <Update release="22">
+            <Date>2010-10-18</Date>
+            <Version>1.17</Version>
+            <Comment>Fix microcode_ctl path, replace data package.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
         <Update release="21">
             <Date>2010-10-13</Date>
             <Version>1.17</Version>
