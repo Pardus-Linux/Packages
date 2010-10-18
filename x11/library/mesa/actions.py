@@ -31,16 +31,19 @@ def setup():
                          --enable-gallium-nouveau \
                          --with-driver=dri \
                          --with-dri-driverdir=/usr/lib/xorg/modules/dri \
-                         --with-dri-drivers=i810,i915,i965,mach64,nouveau,r128,r200,r600,radeon,sis,tdfx,swrast \
+                         --with-dri-drivers=i810,i915,i965,mach64,nouveau,r128,r200,r600,radeon,sis,tdfx \
                          --with-state-trackers=dri,glx")
 
     pisitools.dosed("configs/autoconf", "(PYTHON_FLAGS) = .*", r"\1 = -t")
 
 def build():
-    autotools.make("-j1")
+    autotools.make()
 
 def install():
     autotools.rawInstall("DESTDIR=%s" % get.installDIR())
+
+    # Use llvmpipe instead of classic swrast driver
+    pisitools.rename("/usr/lib/xorg/modules/dri/swrastg_dri.so", "swrast_dri.so")
 
     # Don't install unused headers
     #for header in ("[a-fh-wyz]*.h", "glf*.h"):
