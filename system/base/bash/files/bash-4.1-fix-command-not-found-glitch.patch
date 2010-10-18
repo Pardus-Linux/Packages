@@ -1,0 +1,24 @@
+Index: bash-4.1/execute_cmd.c
+===================================================================
+--- bash-4.1.orig/execute_cmd.c
++++ bash-4.1/execute_cmd.c
+@@ -4481,6 +4481,7 @@ execute_disk_command (words, redirects,
+ {
+   char *pathname, *command, **args;
+   int nofork;
++  int fval;
+   pid_t pid;
+   SHELL_VAR *hookf;
+   WORD_LIST *wl;
+@@ -4588,7 +4589,10 @@ execute_disk_command (words, redirects,
+ 	    }
+ 
+ 	  wl = make_word_list (make_word (NOTFOUND_HOOK), words);
+-	  exit (execute_shell_function (hookf, wl));
++	  fval = execute_shell_function (hookf, wl);
++	  if (fval == EX_NOTFOUND)
++	      internal_error (_("%s: command not found"), pathname);
++	  exit(fval);
+ 	}
+ 
+       /* Execve expects the command name to be in args[0].  So we
