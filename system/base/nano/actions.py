@@ -8,6 +8,7 @@ from pisi.actionsapi import get
 def setup():
     autotools.configure("--enable-color \
                          --enable-nanorc \
+                         --enable-multicolor \
                          --enable-utf8 \
                          --disable-speller")
 
@@ -17,7 +18,8 @@ def build():
 def install():
     autotools.rawInstall("DESTDIR=%s" % get.installDIR())
 
-    pisitools.insinto("/etc/", "doc/nanorc.sample", "nanorc")
+    # a usable nano configuration is added to package/
+    # pisitools.insinto("/etc/", "doc/nanorc.sample", "nanorc")
     pisitools.dosym("/usr/bin/nano", "/bin/nano")
 
     pisitools.dohtml("doc/*.html")
