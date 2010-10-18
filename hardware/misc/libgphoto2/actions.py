@@ -14,7 +14,7 @@ import os
 
 def setup():
     shelltools.export("AUTOPOINT", "true")
-    autotools.autoreconf("-fis")
+    autotools.autoreconf("-fi")
     autotools.configure("--with-rpmbuild=/bin/false \
                          --with-drivers=all \
                          --enable-nls \
