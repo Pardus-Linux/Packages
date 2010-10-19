@@ -1,0 +1,20 @@
+Index: synaptiks-0.5.0_pre1182832/kcmodule/synaptikskcm.cpp
+===================================================================
+--- synaptiks-0.5.0_pre1182832.orig/kcmodule/synaptikskcm.cpp
++++ synaptiks-0.5.0_pre1182832/kcmodule/synaptikskcm.cpp
+@@ -77,9 +77,13 @@ SynaptiksKCM::SynaptiksKCM(QWidget *pare
+     this->setLayout(new QHBoxLayout(this));
+     QDBusInterface daemon("org.kde.kded", "/modules/synaptiks",
+                           "org.kde.Synaptiks");
+-    if (!daemon.isValid()) {
++
++    // QDBusInterface.isValid does not work always in remote objects as stated in the documentation
++    QDBusReply<QString> tryMessage = daemon.call("touchpadNotAvailableMessage");
++
++    if (!daemon.isValid() || !tryMessage.isValid()) {
+         // daemon is apparently not running, try to start it
+-        QDBusInterface kded("org.kde.kded", "/kded", "org.kded.kded");
++        QDBusInterface kded("org.kde.kded", "/kded", "org.kde.kded");
+         QDBusReply<bool> synaptiksLoaded = kded.call(
+             "loadModule", "synaptiks");
+         if (!synaptiksLoaded.isValid() || !synaptiksLoaded.value()) {

@@ -1,0 +1,95 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>synaptiks</Name>
+        <Homepage>http://synaptiks.lunaryorn.de</Homepage>
+        <Packager>
+            <Name>Gokhan Ozbulak</Name>
+            <Email>gozbulak@pardus.org.tr</Email>
+        </Packager>
+        <License>BSD</License>
+        <Icon>synaptiks</Icon>
+        <IsA>app:gui</IsA>
+        <Summary>Touchpad management tool for KDE</Summary>
+        <Description>Synaptiks is a touchpad management tool for KDE. It provides a simple configuration interface and can automatically switch off your touchpad on keyboard activity or if mouse devices are plugged.</Description>
+        <Archive sha1sum="d13aefc5f7b743c3aa6f5dc048c4bcda81e77d2c"  type="tarbz2">http://cekirdek.pardus.org.tr/~fatih/dist/misc/synaptiks-0.5.0_pre1182832.tar.bz2</Archive>
+        <BuildDependencies>
+             <Dependency versionFrom="4.4">kdelibs-devel</Dependency>
+             <Dependency versionFrom="4.4">kdebase-runtime</Dependency>
+             <Dependency versionFrom="4.6">qt-devel</Dependency>
+             <Dependency versionFrom="1.2">libXi-devel</Dependency>
+        </BuildDependencies>
+        <Patches>
+            <!-- If kded module is not running, Synaptiks KCModule shows an error message with an empty string -->
+            <Patch level="1">fix-empty-error-string-when-kded-is-not-loaded.diff</Patch>
+
+            <!-- In desktop computers, it's nonsense to show an error message about Touchpad -->
+            <Patch level="1">suppress-error-message-seen-in-every-desktop-machine.diff</Patch>
+            <Patch level="1">desktop.patch</Patch>
+        </Patches>
+    </Source>
+
+    <Package>
+        <Name>synaptiks</Name>
+        <RuntimeDependencies>
+             <Dependency versionFrom="4.4">kdelibs</Dependency>
+             <Dependency versionFrom="4.4">kdebase-runtime</Dependency>
+             <Dependency versionFrom="4.6">qt</Dependency>
+             <Dependency versionFrom="1.2">libXi</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="library">/usr/lib</Path>
+            <Path fileType="data">/usr/share</Path>
+            <Path fileType="config">/usr/share/config.kcfg</Path>
+            <Path fileType="localedata">/usr/share/locale</Path>
+            <Path fileType="doc">/usr/share/doc</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>plasma-applet-synaptiks</Name>
+        <RuntimeDependencies>
+            <Dependency>synaptiks</Dependency>
+            <Dependency versionFrom="4.4">kdelibs</Dependency>
+            <Dependency versionFrom="4.6">qt</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="library">/usr/lib/kde4/plasma_applet_synaptiks.so</Path>
+            <Path fileType="data">/usr/share/kde4/services/plasma-applet-synaptiks.desktop</Path>
+            <Path fileType="config">/usr/share/config.kcfg/plasma-applet-synaptiks.kcfg</Path>
+            <Path fileType="doc">/usr/share/doc/kde4/html/en/synaptiks/applet*.png</Path>
+        </Files>
+    </Package>
+
+    <History>
+        <Update release="4">
+            <Date>2010-10-12</Date>
+            <Version>0.5.0_pre1182832</Version>
+            <Comment>Add missing dependencies for applet package</Comment>
+            <Name>Gokhan Ozbulak</Name>
+            <Email>gozbulak@pardus.org.tr</Email>
+        </Update>
+        <Update release="3">
+            <Date>2010-10-12</Date>
+            <Version>0.5.0_pre1182832</Version>
+            <Comment>Splitting the package into sub-packages </Comment>
+            <Name>Gokhan Ozbulak</Name>
+            <Email>gozbulak@pardus.org.tr</Email>
+        </Update>
+        <Update release="2">
+            <Date>2010-10-07</Date>
+            <Version>0.4.0</Version>
+            <Comment>Portage to 2011</Comment>
+            <Name>Gokhan Ozbulak</Name>
+            <Email>gozbulak@pardus.org.tr</Email>
+        </Update>
+        <Update release="1">
+            <Date>2010-05-06</Date>
+            <Version>0.4.0</Version>
+            <Comment>First Release</Comment>
+            <Name>Mehmet Nur Olcay</Name>
+            <Email>mnurolcay@gmail.com</Email>
+        </Update>
+    </History>
+</PISI>
