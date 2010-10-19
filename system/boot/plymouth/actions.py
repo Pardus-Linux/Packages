@@ -10,22 +10,20 @@ from pisi.actionsapi import autotools
 from pisi.actionsapi import pisitools
 from pisi.actionsapi import get
 
-UCLIBC_ROOT = "/usr/lib/uClibc/"
-BUILD_FOR = ["system"]
-
-# FIXME: Replace this with something meaningful
 LOGO_FILE = "/usr/share/pixmaps/plymouth-pardus.png"
 THEMEPATH = "/usr/share/plymouth/themes"
 
-BASE_CONFIGURE_PARAMS = "--enable-tracing \
+# The end-start colors seems to be used by the two-step plugin
+BASE_CONFIGURE_PARAMS = "--disable-tracing \
                          --with-logo=%s \
                          --with-release-file=/etc/pardus-release \
                          --with-background-color=0x000000 \
-                         --with-background-end-color-stop=0x00457E \
-                         --with-background-start-color-stop=0x0073B3 \
+                         --with-background-end-color-stop=0x000000 \
+                         --with-background-start-color-stop=0x000000 \
                          --with-system-root-install \
                          --with-boot-tty=/dev/tty7 \
                          --with-shutdown-tty=/dev/tty1 \
+                         --with-log-viewer \
                          --disable-tests \
                          --disable-static \
                          --disable-gdm-transition \
@@ -36,68 +34,13 @@ BASE_CONFIGURE_PARAMS = "--enable-tracing \
 
 def setup():
     autotools.autoreconf("-fis")
-
-    for directory in BUILD_FOR:
-        shelltools.makedirs(directory)
-        shelltools.sym("../configure", "%s/configure" % directory)
-
-def build_with_glibc():
-    shelltools.cd("system")
-
     autotools.configure(BASE_CONFIGURE_PARAMS)
 
-    autotools.make()
-    shelltools.cd("..")
-
-def build_with_uclibc():
-    shelltools.export("CC", "%s-uclibc-gcc" % get.ARCH())
-    shelltools.export("LD", "%s-uclibc-ld" % get.ARCH())
-
-    shelltools.cd("uclibc")
-
-    # Symlink zlib.h, zconf.h, xf86drm.h and xf86drmMode.h
-    shelltools.makedirs("include")
-    for header in ("zlib.h", "zconf.h", "xf86drm.h", "xf86drmMode.h"):
-        shelltools.sym("/usr/include/%s" % header, "include/%s" % header)
-
-    shelltools.export("UCLIBC_GCC_INC", "-I%s/include" % get.curDIR())
-
-    autotools.configure("%s \
-                         --build=%s-pc-linux-uclibc \
-                         --libdir=%s/usr/lib \
-                         --prefix=%s/usr" % (BASE_CONFIGURE_PARAMS,
-                                             get.ARCH(),
-                                             UCLIBC_ROOT,
-                                             UCLIBC_ROOT))
-
-    # Don't build these as they'll bring a lot of dependencies
-    pisitools.dosed("src/Makefile", "viewer", "")
-    pisitools.dosed("src/plugins/controls/Makefile", "label", "")
-
-    # Filter out generic targets
-    pisitools.dosed("Makefile", "^SUBDIRS.*$", "SUBDIRS = src")
-
-    # Don't create /var/*/plymouth
-    pisitools.dosed("src/Makefile", "^.*\$\(MAKE\).*install-data-hook", "")
-
-    # No need to x11 renderer in initramfs
-    pisitools.dosed("src/plugins/renderers/Makefile", "^(SUBDIRS = .*) x11", "\\1")
-
-    autotools.make()
-    shelltools.cd("..")
-
 def build():
-    build_with_glibc()
-
-    if "uclibc" in BUILD_FOR:
-        build_with_uclibc()
+    autotools.make()
 
 def install():
-    shelltools.touch("Makefile")
-    if "uclibc" in BUILD_FOR:
-        autotools.rawInstall("-C uclibc DESTDIR='%s'" % get.installDIR())
-
-    autotools.rawInstall("-C system DESTDIR='%s'" % get.installDIR())
+    autotools.rawInstall("DESTDIR='%s'" % get.installDIR())
 
     # Copy necessary files for Charge theme
     pisitools.dodir("%s/charge" % THEMEPATH)
