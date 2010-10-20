@@ -160,7 +160,7 @@ class BaseSystem:
 
     def copyBasefiles(self):
         for i in self.baseFileList:
-            copy(i, self.getNewRoot(self.baseFileList[i]))
+            copy(self.getNewRoot(i), self.getNewRoot(self.baseFileList[i]))
 
         for i in ["/init", "/etc/udhcpc.script"]:
             os.chmod(self.getNewRoot(i), 0755)
@@ -173,8 +173,8 @@ class BaseSystem:
     def createConfig(self):
         # FIXME: Parse config files and create a proper one by hand
         configFileSource = config["initramfsConf"]
-        if os.path.exists(configFileSource):
-            copy(configFileSource, self.getNewRoot(configFileSource))
+        if os.path.exists(self.getNewRoot(configFileSource)):
+            copy(self.getNewRoot(configFileSource), self.getNewRoot(configFileSource))
 
     def createNodes(self):
         for i in self.deviceNodes:
@@ -196,22 +196,22 @@ class BaseSystem:
 
     def addRaid(self):
         mdadmFile = "/sbin/mdadm.static"
-        if os.path.exists(mdadmFile):
-            copy(mdadmFile, self.getNewRoot(mdadmFile.replace(".static", "")))
+        if os.path.exists(self.getNewRoot(mdadmFile)):
+            copy(self.getNewRoot(mdadmFile), self.getNewRoot(mdadmFile.replace(".static", "")))
 
     def addLvm(self):
         lvmFile = "/sbin/lvm.static"
-        if os.path.exists(lvmFile):
-            copy(lvmFile, self.getNewRoot(lvmFile.replace(".static", "")))
+        if os.path.exists(self.getNewRoot(lvmFile)):
+            copy(self.getNewRoot(lvmFile), self.getNewRoot(lvmFile.replace(".static", "")))
 
     def addSuspend(self):
         if os.path.exists("/etc/suspend.conf"):
             for i in self.suspendFileList:
-                copy(i, self.getNewRoot(self.baseFileList[i]))
+                copy(self.getNewRoot(i), self.getNewRoot(self.baseFileList[i]))
 
     def addModprobeBlacklists(self):
         for i in self.modprobeBlacklistFileList:
-            copy(i, self.getNewRoot(self.modprobeBlacklistFileList[i]))
+            copy(self.getNewRoot(i), self.getNewRoot(self.modprobeBlacklistFileList[i]))
 
     def create(self):
         self.createBaseDirectories()
@@ -272,7 +272,7 @@ class KernelModule:
         self.modulesList = ml
 
     def depmod(self):
-        cmd = "/sbin/depmod -ae -b %s -F %s/System.map %s"
+        cmd = "/sbin/depmod -a -b %s -F %s/System.map %s"
         capture(cmd % (self.targetDir, self.modulesDir, self.kernelVersion))
 
     def installModules(self):
