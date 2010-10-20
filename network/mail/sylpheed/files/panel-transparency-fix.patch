@@ -1,0 +1,391 @@
+diff -Nur sylpheed-3.0.0beta1-old/src/eggtrayicon.c sylpheed-3.0.0beta1/src/eggtrayicon.c
+--- sylpheed-3.0.0beta1-old/src/eggtrayicon.c	2007-01-10 04:44:17.000000000 +0200
++++ sylpheed-3.0.0beta1/src/eggtrayicon.c	2009-10-30 22:39:19.000000000 +0200
+@@ -20,12 +20,12 @@
+ /* Added WINDOWING ifdef  2005-07-09 by Yoichi Imai <yoichi@silver-forest.com> */
+ 
+ #include <config.h>
++#include <string.h>
++#include <libintl.h>
+ 
+ #include "eggtrayicon.h"
+ 
+-#if !GTK_CHECK_VERSION(2, 10, 0) && defined(GDK_WINDOWING_X11)
+-#include <string.h>
+-#include <libintl.h>
++#ifdef GDK_WINDOWING_X11
+ #include <gdk/gdkx.h>
+ #include <X11/Xatom.h>
+ 
+diff -Nur sylpheed-3.0.0beta1-old/src/eggtrayicon.h sylpheed-3.0.0beta1/src/eggtrayicon.h
+--- sylpheed-3.0.0beta1-old/src/eggtrayicon.h	2007-01-10 04:44:17.000000000 +0200
++++ sylpheed-3.0.0beta1/src/eggtrayicon.h	2009-10-30 22:54:01.000000000 +0200
+@@ -21,11 +21,10 @@
+ #ifndef __EGG_TRAY_ICON_H__
+ #define __EGG_TRAY_ICON_H__
+ 
+-#include <gdkconfig.h>
++#include <gtk/gtkplug.h>
+ #include <gtk/gtkversion.h>
+ 
+-#if !GTK_CHECK_VERSION(2, 10, 0) && defined(GDK_WINDOWING_X11)
+-#include <gtk/gtkplug.h>
++#ifdef GDK_WINDOWING_X11
+ #include <gdk/gdkx.h>
+ 
+ G_BEGIN_DECLS
+diff -Nur sylpheed-3.0.0beta1-old/src/mainwindow.c sylpheed-3.0.0beta1/src/mainwindow.c
+--- sylpheed-3.0.0beta1-old/src/mainwindow.c	2009-08-11 08:54:42.000000000 +0300
++++ sylpheed-3.0.0beta1/src/mainwindow.c	2009-10-30 22:55:57.000000000 +0200
+@@ -917,7 +917,7 @@
+ 	GtkWidget *ac_button;
+ 	GtkWidget *ac_label;
+ 
+-	TrayIcon *tray_icon;
++	GtkWidget *tray_icon;
+ 
+ 	FolderView *folderview;
+ 	SummaryView *summaryview;
+@@ -1039,7 +1039,7 @@
+ 
+ 	tray_icon = trayicon_create(mainwin);
+ 	if (tray_icon && prefs_common.show_trayicon)
+-		trayicon_show(tray_icon);
++		gtk_widget_show(tray_icon);
+ 
+ 	/* create views */
+ 	mainwin->folderview  = folderview  = folderview_create();
+@@ -1273,10 +1273,10 @@
+ 
+ 	if (mainwin->tray_icon) {
+ 		if (prefs_common.show_trayicon)
+-			trayicon_show(mainwin->tray_icon);
++			gtk_widget_show(mainwin->tray_icon);
+ 		else {
+ 			/* trayicon is automatically replaced by new one */
+-			trayicon_hide(mainwin->tray_icon);
++			gtk_widget_destroy(mainwin->tray_icon);
+ 		}
+ 	}
+ 
+diff -Nur sylpheed-3.0.0beta1-old/src/mainwindow.h sylpheed-3.0.0beta1/src/mainwindow.h
+--- sylpheed-3.0.0beta1-old/src/mainwindow.h	2008-10-07 12:48:51.000000000 +0300
++++ sylpheed-3.0.0beta1/src/mainwindow.h	2009-10-30 22:56:38.000000000 +0200
+@@ -112,7 +112,7 @@
+ 	GtkWidget *ac_label;
+ 	GtkWidget *ac_menu;
+ 
+-	TrayIcon *tray_icon;
++	GtkWidget *tray_icon;
+ 
+ 	/* context IDs for status bar */
+ 	gint mainwin_cid;
+diff -Nur sylpheed-3.0.0beta1-old/src/trayicon.c sylpheed-3.0.0beta1/src/trayicon.c
+--- sylpheed-3.0.0beta1-old/src/trayicon.c	2009-10-02 07:12:58.000000000 +0300
++++ sylpheed-3.0.0beta1/src/trayicon.c	2009-10-30 23:10:51.000000000 +0200
+@@ -43,12 +43,6 @@
+ #include "compose.h"
+ #include "prefs_common.h"
+ 
+-#if GTK_CHECK_VERSION(2, 10, 0) || defined(GDK_WINDOWING_X11)
+-
+-#if GTK_CHECK_VERSION(2, 10, 0)
+-#include <gtk/gtkstatusicon.h>
+-#endif
+-
+ #ifdef G_OS_WIN32
+ #define TRAYICON_IMAGE		STOCK_PIXMAP_SYLPHEED_SMALL
+ #define TRAYICON_NEW_IMAGE	STOCK_PIXMAP_SYLPHEED_NEWMAIL_SMALL
+@@ -57,22 +51,11 @@
+ #define TRAYICON_NEW_IMAGE	STOCK_PIXMAP_SYLPHEED_NEWMAIL
+ #endif
+ 
+-static TrayIcon trayicon;
++static GtkWidget *trayicon;
+ static GtkWidget *trayicon_menu;
+ static gboolean on_notify = FALSE;
+ static gboolean default_tooltip = FALSE;
+ 
+-#if GTK_CHECK_VERSION(2, 10, 0)
+-
+-static void trayicon_activated		(GtkStatusIcon	*status_icon,
+-					 gpointer	 data);
+-static void trayicon_popup_menu_cb	(GtkStatusIcon	*status_icon,
+-					 guint		 button,
+-					 guint		 activate_time,
+-					 gpointer	 data);
+-
+-#else
+-
+ static GtkWidget *trayicon_img;
+ static GtkWidget *eventbox;
+ static GtkTooltips *trayicon_tip;
+@@ -83,8 +66,6 @@
+ static void trayicon_destroy_cb		(GtkWidget	*widget,
+ 					 gpointer	 data);
+ 
+-#endif
+-
+ static void trayicon_present		(GtkWidget	*widget,
+ 					 gpointer	 data);
+ static void trayicon_inc		(GtkWidget	*widget,
+@@ -98,28 +79,17 @@
+ static void trayicon_app_exit		(GtkWidget	*widget,
+ 					 gpointer	 data);
+ 
+-TrayIcon *trayicon_create(MainWindow *mainwin)
++GtkWidget *trayicon_create(MainWindow *mainwin)
+ {
+ 	GtkWidget *menuitem;
+ 
+-#if GTK_CHECK_VERSION(2, 10, 0)
+-	GdkPixbuf *pixbuf;
+-
+-	stock_pixbuf_gdk(NULL, TRAYICON_IMAGE, &pixbuf);
+-	trayicon.status_icon = gtk_status_icon_new_from_pixbuf(pixbuf);
+-
+-	g_signal_connect(G_OBJECT(trayicon.status_icon), "activate",
+-			 G_CALLBACK(trayicon_activated), mainwin);
+-	g_signal_connect(G_OBJECT(trayicon.status_icon), "popup-menu",
+-			 G_CALLBACK(trayicon_popup_menu_cb), mainwin);
+-#else
+-	trayicon.widget = GTK_WIDGET(egg_tray_icon_new("Sylpheed"));
+-	g_signal_connect(G_OBJECT(trayicon.widget), "destroy",
++	trayicon = GTK_WIDGET(egg_tray_icon_new("Sylpheed"));
++	g_signal_connect(G_OBJECT(trayicon), "destroy",
+ 			 G_CALLBACK(trayicon_destroy_cb), mainwin);
+ 
+ 	eventbox = gtk_event_box_new();
+ 	gtk_widget_show(eventbox);
+-	gtk_container_add(GTK_CONTAINER(trayicon.widget), eventbox);
++	gtk_container_add(GTK_CONTAINER(trayicon), eventbox);
+ 	g_signal_connect(G_OBJECT(eventbox), "button_press_event",
+ 			 G_CALLBACK(trayicon_button_pressed), mainwin);
+ 	trayicon_img = stock_pixbuf_widget_scale(NULL, TRAYICON_IMAGE, 24, 24);
+@@ -127,7 +97,6 @@
+ 	gtk_container_add(GTK_CONTAINER(eventbox), trayicon_img);
+ 
+ 	trayicon_tip = gtk_tooltips_new();
+-#endif
+ 	on_notify = FALSE;
+ 	default_tooltip = FALSE;
+ 	trayicon_set_tooltip(NULL);
+@@ -166,127 +135,31 @@
+ 				 G_CALLBACK(trayicon_app_exit), mainwin);
+ 	}
+ 
+-	return &trayicon;
+-}
+-
+-#if GTK_CHECK_VERSION(2, 10, 0)
+-
+-void trayicon_show(TrayIcon *tray_icon)
+-{
+-	gtk_status_icon_set_visible(tray_icon->status_icon, TRUE);
+-};
+-
+-void trayicon_hide(TrayIcon *tray_icon)
+-{
+-	gtk_status_icon_set_visible(tray_icon->status_icon, FALSE);
+-}
+-
+-void trayicon_destroy(TrayIcon *tray_icon)
+-{
+-	g_object_unref(tray_icon->status_icon);
+-	tray_icon->status_icon = NULL;
+-}
+-
+-void trayicon_set_tooltip(const gchar *text)
+-{
+-	if (text) {
+-		default_tooltip = FALSE;
+-		gtk_status_icon_set_tooltip(trayicon.status_icon, text);
+-	} else if (!default_tooltip) {
+-		default_tooltip = TRUE;
+-		gtk_status_icon_set_tooltip(trayicon.status_icon,
+-					    _("Sylpheed"));
+-	}
+-}
+-
+-static guint notify_tag = 0;
+-
+-gboolean notify_timeout_cb(gpointer data)
+-{
+-	gdk_threads_enter();
+-	gtk_status_icon_set_blinking(trayicon.status_icon, FALSE);
+-	notify_tag = 0;
+-	gdk_threads_leave();
+-
+-	return FALSE;
++	return trayicon;
+ }
+ 
+-void trayicon_set_notify(gboolean enabled)
++void trayicon_show(GtkWidget *tray_icon)
+ {
+-	if (enabled && !on_notify) {
+-		trayicon_set_stock_icon(TRAYICON_NEW_IMAGE);
+-		on_notify = TRUE;
+-	} else if (!enabled && on_notify) {
+-		trayicon_set_stock_icon(TRAYICON_IMAGE);
+-		on_notify = FALSE;
+-	}
+-
+-	if (enabled && notify_tag == 0) {
+-		gtk_status_icon_set_blinking(trayicon.status_icon, enabled);
+-		notify_tag = g_timeout_add(5000, notify_timeout_cb, NULL);
+-	} else if (!enabled && notify_tag > 0) {
+-		g_source_remove(notify_tag);
+-		notify_timeout_cb(NULL);
+-	}
+-}
+-
+-void trayicon_set_stock_icon(StockPixmap icon)
+-{
+-	GdkPixbuf *pixbuf;
+-
+-	stock_pixbuf_gdk(NULL, icon, &pixbuf);
+-	gtk_status_icon_set_from_pixbuf(trayicon.status_icon, pixbuf);
+-}
+-
+-static void trayicon_activated(GtkStatusIcon *status_icon, gpointer data)
+-{
+-	MainWindow *mainwin = (MainWindow *)data;
+-
+-	if (prefs_common.toggle_window_on_trayicon_click &&
+-	    gtk_window_is_active(GTK_WINDOW(mainwin->window)))
+-		gtk_window_iconify(GTK_WINDOW(mainwin->window));
+-	else
+-		main_window_popup(mainwin);
+-}
+-
+-static void trayicon_popup_menu_cb(GtkStatusIcon *status_icon, guint button,
+-				   guint activate_time, gpointer data)
+-{
+-	gtk_menu_popup(GTK_MENU(trayicon_menu), NULL, NULL, NULL, NULL,
+-		       button, activate_time);
+-}
+-
+-#else /* GTK_CHECK_VERSION(2, 10, 0) */
+-
+-void trayicon_show(TrayIcon *tray_icon)
+-{
+-	gtk_widget_show(tray_icon->widget);
++	gtk_widget_show(trayicon_img);
+ };
+ 
+-void trayicon_hide(TrayIcon *tray_icon)
+-{
+-	gtk_widget_destroy(tray_icon->widget);
+-	tray_icon->widget = NULL;
+-}
+-
+-void trayicon_destroy(TrayIcon *tray_icon)
++void trayicon_destroy(GtkWidget *tray_icon)
+ {
+-	g_signal_handlers_disconnect_by_func(G_OBJECT(tray_icon->widget),
++	g_signal_handlers_disconnect_by_func(G_OBJECT(tray_icon),
+ 					     G_CALLBACK(trayicon_destroy_cb),
+ 					     main_window_get());
+-	gtk_widget_destroy(tray_icon->widget);
+-	tray_icon->widget = NULL;
++	gtk_widget_destroy(tray_icon);
+ }
+ 
+ void trayicon_set_tooltip(const gchar *text)
+ {
+ 	if (text) {
+ 		default_tooltip = FALSE;
+-		gtk_tooltips_set_tip(trayicon_tip, trayicon.widget, text,
++		gtk_tooltips_set_tip(trayicon_tip, trayicon, text,
+ 				     NULL);
+ 	} else if (!default_tooltip) {
+ 		default_tooltip = TRUE;
+-		gtk_tooltips_set_tip(trayicon_tip, trayicon.widget,
++		gtk_tooltips_set_tip(trayicon_tip, trayicon,
+ 				     _("Sylpheed"), NULL);
+ 	}
+ }
+@@ -349,8 +222,6 @@
+ 	g_idle_add(trayicon_restore, data);
+ }
+ 
+-#endif /* GTK_CHECK_VERSION(2, 10, 0) */
+-
+ static void trayicon_present(GtkWidget *widget, gpointer data)
+ {
+ 	MainWindow *mainwin = (MainWindow *)data;
+@@ -389,36 +260,3 @@
+ 	if (mainwin->lock_count == 0 && !gtkut_window_modal_exist())
+ 		app_will_exit(FALSE);
+ }
+-
+-#else /* GTK_CHECK_VERSION(2, 10, 0) || defined(GDK_WINDOWING_X11) */
+-
+-TrayIcon *trayicon_create(MainWindow *mainwin)
+-{
+-	return NULL;
+-}
+-
+-void trayicon_show(TrayIcon *tray_icon)
+-{
+-}
+-
+-void trayicon_hide(TrayIcon *tray_icon)
+-{
+-}
+-
+-void trayicon_destroy(TrayIcon *tray_icon)
+-{
+-}
+-
+-void trayicon_set_tooltip(const gchar *text)
+-{
+-}
+-
+-void trayicon_set_notify(gboolean enabled)
+-{
+-}
+-
+-void trayicon_set_stock_icon(StockPixmap icon)
+-{
+-}
+-
+-#endif /* GTK_CHECK_VERSION(2, 10, 0) || defined(GDK_WINDOWING_X11) */
+diff -Nur sylpheed-3.0.0beta1-old/src/trayicon.h sylpheed-3.0.0beta1/src/trayicon.h
+--- sylpheed-3.0.0beta1-old/src/trayicon.h	2007-01-10 04:44:23.000000000 +0200
++++ sylpheed-3.0.0beta1/src/trayicon.h	2009-10-30 23:12:37.000000000 +0200
+@@ -22,32 +22,12 @@
+ 
+ #include <glib.h>
+ #include <gtk/gtkwidget.h>
+-#include <gtk/gtkversion.h>
+-
+-#if GTK_CHECK_VERSION(2, 10, 0)
+-#  include <gtk/gtkstatusicon.h>
+-#endif
+-
+-typedef struct _TrayIcon	TrayIcon;
+ 
+ #include "mainwindow.h"
+ #include "stock_pixmap.h"
+ 
+-struct _TrayIcon
+-{
+-#if GTK_CHECK_VERSION(2, 10, 0)
+-	GtkStatusIcon *status_icon;
+-#else
+-	GtkWidget *widget;
+-#endif
+-};
+-
+-TrayIcon *trayicon_create	(MainWindow	*mainwin);
+-void trayicon_show		(TrayIcon	*tray_icon);
+-void trayicon_hide		(TrayIcon	*tray_icon);
+-void trayicon_destroy		(TrayIcon	*tray_icon);
++GtkWidget *trayicon_create     (MainWindow     *mainwin);
+ void trayicon_set_tooltip	(const gchar	*text);
+-void trayicon_set_notify	(gboolean	 enabled);
+ void trayicon_set_stock_icon	(StockPixmap	 icon);
+ 
+ #endif /* __TRAYICON_H__ */
