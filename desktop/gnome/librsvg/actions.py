@@ -8,6 +8,7 @@
 from pisi.actionsapi import autotools
 from pisi.actionsapi import pisitools
 from pisi.actionsapi import shelltools
+from pisi.actionsapi import get
 
 def setup():
     autotools.autoreconf("-vfi")
@@ -22,7 +23,7 @@ def build():
 
 def install():
     pisitools.dodir("/etc/gtk-2.0/")
-    autotools.install()
+    autotools.rawInstall("DESTDIR=%s" % get.installDIR())
 
     pisitools.removeDir("/usr/share/gtk-doc")
 
