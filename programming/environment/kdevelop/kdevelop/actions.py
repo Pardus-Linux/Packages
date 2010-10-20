@@ -15,7 +15,7 @@ shelltools.export("HOME", get.workDIR())
 def setup():
     shelltools.makedirs("build")
     shelltools.cd("build")
-    cmaketools.configure(installPrefix=get.kdeDIR(), sourceDir="..")
+    cmaketools.configure(installPrefix="/usr", sourceDir="..")
 
 def build():
     shelltools.cd("build")
