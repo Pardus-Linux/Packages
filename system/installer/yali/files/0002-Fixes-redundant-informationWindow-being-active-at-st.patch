@@ -1,0 +1,35 @@
+From 8e3b3c82e9dd52f72000a29d06bce7aca0479f2a Mon Sep 17 00:00:00 2001
+From: Mete Alpaslan <mete@pardus.org.tr>
+Date: Wed, 20 Oct 2010 23:25:53 +0300
+Subject: [PATCH 2/3] Fixes redundant informationWindow being active at startup unnecessarily
+
+---
+ yali/gui/interface.py |    8 +++++++-
+ 1 files changed, 7 insertions(+), 1 deletions(-)
+
+diff --git a/yali/gui/interface.py b/yali/gui/interface.py
+index fb27135..bea2a16 100644
+--- a/yali/gui/interface.py
++++ b/yali/gui/interface.py
+@@ -12,11 +12,17 @@ from yali.gui.YaliDialog import MessageWindow, InformationWindow, ProgressWindow
+ 
+ class Interface(object):
+     def __init__(self):
+-        self.informationWindow = InformationWindow()
++        self._informationWindow = None
+         self._warnedUnusedRaidMembers = []
+         self._initLabelAnswers = {}
+         self._inconsistentLVMAnswers = {}
+ 
++    @property
++    def informationWindow(self):
++        if not self._informationWindow:
++            self._informationWindow = InformationWindow()
++        return self._informationWindow
++
+     def progressWindow(self, message):
+         return ProgressWindow(message)
+ 
+-- 
+1.7.2.2
+
