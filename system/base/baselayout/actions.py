@@ -42,5 +42,9 @@ def install():
     pisitools.dosym("share/man", "/usr/local/man")
 
     if get.ARCH() == "x86_64":
+        # Directories for 32bit libraries
+        pisitools.dodir("/lib32")
+        pisitools.dodir("/usr/lib32")
+
         # Hack for binary blobs built on multi-lib systems
         pisitools.dosym("lib", "/lib64")
