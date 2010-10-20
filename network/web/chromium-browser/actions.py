@@ -19,8 +19,6 @@ ARCH = "x64" if get.ARCH() == "x86_64" else "ia32"
 
 def setup():
     #TODO use_system_ssl is disabled -->  https://bugzilla.mozilla.org/show_bug.cgi?id=547312
-    #TODO use_system_ffmpeg is not showing videos --> http://crbug.com/50678 
-    #TODO use_system_libxml shows faulty links --> http://crbug.com/29333
     #TODO use_system_sqlite is faulty --> http://crbug.com/22208
 
     shelltools.system("build/gyp_chromium -f make build/all.gyp --depth=. \
@@ -39,6 +37,8 @@ def setup():
                         -Duse_system_libxslt=1 \
                         -Duse_system_zlib=1 \
                         -Duse_system_ffmpeg=1 \
+                        -Duse_system_libxml=1 \
+                        -Duse_system_sqlite=0 \
                         -Duse_system_yasm=1 \
                         -Duse_system_ssl=0 \
                         -Duse_system_icu=1 \
