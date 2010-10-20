@@ -1,0 +1,132 @@
+diff -Nuar teeworlds-0.5.2-src.orig/default.bam teeworlds-0.5.2-src/default.bam
+--- teeworlds-0.5.2-src.orig/default.bam	2010-03-07 12:24:44.232637682 +0200
++++ teeworlds-0.5.2-src/default.bam	2010-03-07 12:31:51.597629629 +0200
+@@ -7,6 +7,7 @@
+ config:Add(OptFindCompiler())
+ config:Add(OptTestCompileC("stackprotector", "int main(){return 0;}", "-fstack-protector -fstack-protector-all"))
+ config:Add(OptFindLibrary("zlib", "zlib.h", false))
++config:Add(OptFindLibrary("wavpack", "wavpack/wavpack.h", false))
+ config:Add(SDL.OptFind("sdl", true))
+ config:Finalize("config.bam")
+ 
+@@ -151,8 +152,19 @@
+ 	end
+ 
+ 	-- build the small libraries
+-	wavpack = Compile(settings, Collect("src/engine/external/wavpack/*.c"))
+ 	pnglite = Compile(settings, Collect("src/engine/external/pnglite/*.c"))
++
++	-- compile wavpack if needed
++	if config.wavpack.value == 1 then
++		settings.link.libs:Add("wavpack")
++		if config.wavpack.include_path then
++			settings.cc.includes:Add(config.wavpack.include_path)
++		end
++		wavpack = {}
++	else
++		wavpack = Compile(settings, Collect("src/engine/external/wavpack/*.c"))
++		settings.cc.includes:Add("src/engine/external")
++	end
+ 	
+ 	-- build game components
+ 	engine_settings = settings:Copy()
+diff -Nuar teeworlds-0.5.2-src.orig/src/engine/client/ec_snd.c teeworlds-0.5.2-src/src/engine/client/ec_snd.c
+--- teeworlds-0.5.2-src.orig/src/engine/client/ec_snd.c	2010-03-07 12:24:44.217637935 +0200
++++ teeworlds-0.5.2-src/src/engine/client/ec_snd.c	2010-03-07 12:33:52.671868982 +0200
+@@ -6,7 +6,7 @@
+ 
+ #include "SDL.h"
+ 
+-#include <engine/external/wavpack/wavpack.h>
++#include <wavpack/wavpack.h>
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <math.h>
+@@ -358,19 +358,12 @@
+ 	snd->num_frames = num_frames;
+ }
+ 
+-
+-static IOHANDLE file = NULL;
+-
+-static int read_data(void *buffer, int size)
+-{
+-	return io_read(file, buffer, size);
+-}
+-
+ int snd_load_wv(const char *filename)
+ {
+ 	SAMPLE *snd;
+ 	int sid = -1;
+ 	char error[100];
++	char completefilename[512];
+ 	WavpackContext *context;
+ 	
+ 	/* don't waste memory on sound when we are stress testing */
+@@ -381,19 +374,13 @@
+ 	if(!sound_enabled)
+ 		return 1;
+ 
+-	file = engine_openfile(filename, IOFLAG_READ); /* TODO: use system.h stuff for this */
+-	if(!file)
+-	{
+-		dbg_msg("sound/wv", "failed to open %s", filename);
+-		return -1;
+-	}
+-
+ 	sid = snd_alloc_id();
+ 	if(sid < 0)
+ 		return -1;
+ 	snd = &samples[sid];
+ 
+-	context = WavpackOpenFileInput(read_data, error);
++	engine_getpath(completefilename, sizeof(completefilename), filename, IOFLAG_READ);
++	context = WavpackOpenFileInput(completefilename, error, 0, 0);
+ 	if (context)
+ 	{
+ 		int samples = WavpackGetNumSamples(context);
+@@ -410,7 +397,7 @@
+ 
+ 		if(snd->channels > 2)
+ 		{
+-			dbg_msg("sound/wv", "file is not mono or stereo. filename='%s'", filename);
++			dbg_msg("sound/wv", "failed to open %s: %s", completefilename, error);
+ 			return -1;
+ 		}
+ 
+@@ -448,9 +435,6 @@
+ 		dbg_msg("sound/wv", "failed to open %s: %s", filename, error);
+ 	}
+ 
+-	io_close(file);
+-	file = NULL;
+-
+ 	if(config.debug)
+ 		dbg_msg("sound/wv", "loaded %s", filename);
+ 
+diff -Nuar teeworlds-0.5.2-src.orig/src/tools/dilate.c teeworlds-0.5.2-src/src/tools/dilate.c
+--- teeworlds-0.5.2-src.orig/src/tools/dilate.c	2010-03-07 12:24:44.210629570 +0200
++++ teeworlds-0.5.2-src/src/tools/dilate.c	2010-03-07 12:29:25.197922281 +0200
+@@ -1,6 +1,9 @@
+ /* copyright (c) 2007 magnus auvinen, see licence.txt for more info */
+ 
+ #include "../engine/external/pnglite/pnglite.c"
++#include <stdio.h>
++#include <sys/types.h>
++#include <string.h>
+ 
+ typedef struct pixel_t
+ {
+diff -Nuar teeworlds-0.5.2-src.orig/src/tools/tileset_borderfix.c teeworlds-0.5.2-src/src/tools/tileset_borderfix.c
+--- teeworlds-0.5.2-src.orig/src/tools/tileset_borderfix.c	2010-03-07 12:24:44.209629861 +0200
++++ teeworlds-0.5.2-src/src/tools/tileset_borderfix.c	2010-03-07 12:29:52.502092926 +0200
+@@ -1,6 +1,9 @@
+ /* copyright (c) 2007 magnus auvinen, see licence.txt for more info */
+ 
+ #include "../engine/external/pnglite/pnglite.c"
++#include <sys/types.h>
++#include <string.h>
++#include <stdio.h>
+ 
+ typedef struct pixel_t
+ {
