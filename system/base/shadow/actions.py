@@ -16,9 +16,9 @@ def setup():
                          --with-audit \
                          --with-libpam \
                          --enable-nls \
+                         --with-skey \
                          --without-group-name-max-length \
                          --disable-shared")
-                         # --with-skey  ehem
 
 def build():
     # Rebuild gmo catalogs
