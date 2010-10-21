@@ -1,0 +1,414 @@
+diff --git a/yali/gui/ScrCheckCD.py b/yali/gui/ScrCheckCD.py
+index b9e0d7b..2b6a178 100644
+--- a/yali/gui/ScrCheckCD.py
++++ b/yali/gui/ScrCheckCD.py
+@@ -37,6 +37,8 @@ If you are using an optical installation medium, try burning the installation im
+         self.ui = Ui_CheckCDWidget()
+         self.ui.setupUi(self)
+ 
++        self.ui.validationSucceedBox.hide()
++        self.ui.validationFailBox.hide()
+         self.ui.progressBar.hide()
+ 
+         self.connect(self.ui.checkButton, SIGNAL("clicked()"),self.slotCheckCD)
+diff --git a/yali/gui/ScrSummary.py b/yali/gui/ScrSummary.py
+index cdad9fc..33e1cda 100644
+--- a/yali/gui/ScrSummary.py
++++ b/yali/gui/ScrSummary.py
+@@ -225,14 +225,14 @@ Here you can see your install options before installation starts.
+             ctx.storage.devicetree.teardownAll()
+         else:
+             ctx.mainScreen.enableBack()
+-            return
++            return False
+ 
+         ctx.installData.installAllLangPacks = self.ui.installAllLangPacks.isChecked()
+         ctx.mainScreen.processEvents()
+ 
+         if ctx.options.dryRun == True:
+             ctx.logger.debug("dryRun activated Yali stopped")
+-            return
++            return False
+ 
+         # Auto Partitioning
+         #if not ctx.storage.storageset.swapDevices:
+diff --git a/yali/gui/ScrWelcome.py b/yali/gui/ScrWelcome.py
+index ef81dd8..19b995f 100644
+--- a/yali/gui/ScrWelcome.py
++++ b/yali/gui/ScrWelcome.py
+@@ -27,7 +27,7 @@ from yali.gui.YaliDialog import Dialog
+ ##
+ # Welcome screen is the first screen to be shown.
+ class Widget(QtGui.QWidget, ScreenWidget):
+-    title = _("Welcome to %s") % yali.util.product_name()
++    title = _("Welcome to Pardus 2011 Beta")
+     # FIXME: Use system's pardus release to gather version info and use it if needed
+     icon = "applications-other"
+     help = _("""
+diff --git a/yali/gui/Ui/checkcdwidget.ui b/yali/gui/Ui/checkcdwidget.ui
+index 4d68187..8e9dc78 100644
+--- a/yali/gui/Ui/checkcdwidget.ui
++++ b/yali/gui/Ui/checkcdwidget.ui
+@@ -166,74 +166,210 @@
+          </widget>
+         </item>
+         <item>
+-         <layout class="QHBoxLayout" name="horizontalLayout">
+-          <property name="spacing">
+-           <number>10</number>
++         <widget class="QGroupBox" name="validationFailBox">
++          <property name="title">
++           <string/>
+           </property>
+-          <property name="bottomMargin">
+-           <number>0</number>
++          <property name="flat">
++           <bool>true</bool>
++          </property>
++          <layout class="QHBoxLayout" name="horizontalLayout_5">
++           <property name="spacing">
++            <number>10</number>
++           </property>
++           <item>
++            <spacer name="horizontalSpacer_9">
++             <property name="orientation">
++              <enum>Qt::Horizontal</enum>
++             </property>
++             <property name="sizeHint" stdset="0">
++              <size>
++               <width>40</width>
++               <height>20</height>
++              </size>
++             </property>
++            </spacer>
++           </item>
++           <item>
++            <widget class="QLabel" name="label_7">
++             <property name="sizePolicy">
++              <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
++               <horstretch>0</horstretch>
++               <verstretch>0</verstretch>
++              </sizepolicy>
++             </property>
++             <property name="text">
++              <string/>
++             </property>
++             <property name="pixmap">
++              <pixmap resource="../../data.qrc">:/gui/pics/dialog-error.png</pixmap>
++             </property>
++            </widget>
++           </item>
++           <item>
++            <widget class="QLabel" name="label_8">
++             <property name="text">
++              <string>Validation failed</string>
++             </property>
++            </widget>
++           </item>
++           <item>
++            <spacer name="horizontalSpacer_10">
++             <property name="orientation">
++              <enum>Qt::Horizontal</enum>
++             </property>
++             <property name="sizeHint" stdset="0">
++              <size>
++               <width>40</width>
++               <height>20</height>
++              </size>
++             </property>
++            </spacer>
++           </item>
++          </layout>
++         </widget>
++        </item>
++        <item>
++         <widget class="QGroupBox" name="validationSucceedBox">
++          <property name="title">
++           <string/>
++          </property>
++          <property name="flat">
++           <bool>true</bool>
+           </property>
+-          <item>
+-           <widget class="QProgressBar" name="progressBar">
+-            <property name="sizePolicy">
+-             <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+-              <horstretch>0</horstretch>
+-              <verstretch>0</verstretch>
+-             </sizepolicy>
+-            </property>
+-            <property name="maximumSize">
+-             <size>
+-              <width>16777215</width>
+-              <height>10</height>
+-             </size>
+-            </property>
+-            <property name="maximum">
+-             <number>100</number>
+-            </property>
+-            <property name="value">
+-             <number>0</number>
+-            </property>
+-            <property name="textVisible">
+-             <bool>false</bool>
+-            </property>
+-            <property name="orientation">
+-             <enum>Qt::Horizontal</enum>
+-            </property>
+-            <property name="textDirection">
+-             <enum>QProgressBar::TopToBottom</enum>
+-            </property>
+-           </widget>
+-          </item>
+-          <item>
+-           <widget class="QPushButton" name="checkButton">
+-            <property name="sizePolicy">
+-             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+-              <horstretch>0</horstretch>
+-              <verstretch>0</verstretch>
+-             </sizepolicy>
+-            </property>
+-            <property name="maximumSize">
+-             <size>
+-              <width>16777215</width>
+-              <height>16777215</height>
+-             </size>
+-            </property>
+-            <property name="styleSheet">
+-             <string notr="true"/>
+-            </property>
+-            <property name="text">
+-             <string>Validate</string>
+-            </property>
+-            <property name="icon">
+-             <iconset resource="../../data.qrc">
+-              <normaloff>:/gui/pics/task-accepted.png</normaloff>:/gui/pics/task-accepted.png</iconset>
+-            </property>
+-            <property name="flat">
+-             <bool>true</bool>
+-            </property>
+-           </widget>
+-          </item>
+-         </layout>
++          <layout class="QHBoxLayout" name="horizontalLayout_2">
++           <property name="spacing">
++            <number>10</number>
++           </property>
++           <item>
++            <spacer name="horizontalSpacer_3">
++             <property name="orientation">
++              <enum>Qt::Horizontal</enum>
++             </property>
++             <property name="sizeHint" stdset="0">
++              <size>
++               <width>40</width>
++               <height>20</height>
++              </size>
++             </property>
++            </spacer>
++           </item>
++           <item>
++            <widget class="QLabel" name="label_2">
++             <property name="sizePolicy">
++              <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
++               <horstretch>0</horstretch>
++               <verstretch>0</verstretch>
++              </sizepolicy>
++             </property>
++             <property name="text">
++              <string/>
++             </property>
++             <property name="pixmap">
++              <pixmap resource="../../data.qrc">:/gui/pics/task-complete.png</pixmap>
++             </property>
++            </widget>
++           </item>
++           <item>
++            <widget class="QLabel" name="label">
++             <property name="text">
++              <string>Validation succeeded</string>
++             </property>
++            </widget>
++           </item>
++           <item>
++            <spacer name="horizontalSpacer_4">
++             <property name="orientation">
++              <enum>Qt::Horizontal</enum>
++             </property>
++             <property name="sizeHint" stdset="0">
++              <size>
++               <width>40</width>
++               <height>20</height>
++              </size>
++             </property>
++            </spacer>
++           </item>
++          </layout>
++         </widget>
++        </item>
++        <item>
++         <widget class="QGroupBox" name="validationBox">
++          <property name="title">
++           <string/>
++          </property>
++          <property name="flat">
++           <bool>true</bool>
++          </property>
++          <layout class="QHBoxLayout" name="horizontalLayout">
++           <property name="spacing">
++            <number>10</number>
++           </property>
++           <property name="margin">
++            <number>0</number>
++           </property>
++           <item>
++            <widget class="QProgressBar" name="progressBar">
++             <property name="sizePolicy">
++              <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
++               <horstretch>0</horstretch>
++               <verstretch>0</verstretch>
++              </sizepolicy>
++             </property>
++             <property name="maximumSize">
++              <size>
++               <width>16777215</width>
++               <height>10</height>
++              </size>
++             </property>
++             <property name="maximum">
++              <number>100</number>
++             </property>
++             <property name="value">
++              <number>0</number>
++             </property>
++             <property name="textVisible">
++              <bool>false</bool>
++             </property>
++             <property name="orientation">
++              <enum>Qt::Horizontal</enum>
++             </property>
++             <property name="textDirection">
++              <enum>QProgressBar::TopToBottom</enum>
++             </property>
++            </widget>
++           </item>
++           <item>
++            <widget class="QPushButton" name="checkButton">
++             <property name="sizePolicy">
++              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
++               <horstretch>0</horstretch>
++               <verstretch>0</verstretch>
++              </sizepolicy>
++             </property>
++             <property name="maximumSize">
++              <size>
++               <width>16777215</width>
++               <height>16777215</height>
++              </size>
++             </property>
++             <property name="styleSheet">
++              <string notr="true"/>
++             </property>
++             <property name="text">
++              <string>Validate</string>
++             </property>
++             <property name="icon">
++              <iconset resource="../../data.qrc">
++               <normaloff>:/gui/pics/task-accepted.png</normaloff>:/gui/pics/task-accepted.png</iconset>
++             </property>
++             <property name="flat">
++              <bool>true</bool>
++             </property>
++            </widget>
++           </item>
++          </layout>
++         </widget>
+         </item>
+         <item>
+          <spacer name="verticalSpacer_2">
+diff --git a/yali/gui/partition_gui.py b/yali/gui/partition_gui.py
+index 2cde2ed..a3adc52 100644
+--- a/yali/gui/partition_gui.py
++++ b/yali/gui/partition_gui.py
+@@ -2,6 +2,7 @@
+ # -*- coding: utf-8 -*-
+ import os
+ import copy
++import parted
+ import gettext
+ __trans = gettext.translation('yali', fallback=True)
+ _ = __trans.ugettext
+@@ -205,7 +206,7 @@ class PartitionWidget(QtGui.QWidget, Ui_PartitionWidget):
+         self.isNew = isNew
+ 
+         if not self.origrequest.exists:
+-            if self.parent.partedPartition.type & parted.PARTITION_LOGICAL:
++            if self.parent.partedPartition and self.parent.partedPartition.type & parted.PARTITION_LOGICAL:
+                 self.primaryCheck.hide()
+ 
+         # Mount Point entry
+diff --git a/yali/installer.py b/yali/installer.py
+index 43d19b1..4d4eb63 100644
+--- a/yali/installer.py
++++ b/yali/installer.py
+@@ -168,7 +168,10 @@ class Yali:
+         ctx.mainScreen.disableNext()
+         ctx.mainScreen.disableBack()
+ 
+-        ctx.interface.informationWindow.update(_("Starting validation"))
++        rootWidget.validationSucceedBox.hide()
++        rootWidget.validationFailBox.hide()
++        rootWidget.validationBox.show()
++        #ctx.interface.informationWindow.update(_("Starting validation"))
+         class PisiUI(pisi.ui.UI):
+             def notify(self, event, **keywords):
+                 pass
+@@ -183,10 +186,11 @@ class Yali:
+         rootWidget.progressBar.setMaximum(len(pkg_names))
+ 
+         cur = 0
++        self.flag = 0
+         for pkg_name in pkg_names:
+             cur += 1
+             ctx.logger.debug("Validating %s " % pkg_name)
+-            ctx.interface.informationWindow.update(_("Validating %s") % pkg_name)
++            #ctx.interface.informationWindow.update(_("Validating %s") % pkg_name)
+             if self.checkCDStop:
+                 continue
+             try:
+@@ -194,21 +198,28 @@ class Yali:
+                 rootWidget.progressBar.setValue(cur)
+             except:
+                 rc  = ctx.interface.messageWindow(_("Warning"),
+-                                                  _("Validation of installation packages failed."
++                                                  _("Validation of %s package failed."
+                                                     "Please remaster your installation medium and"
+-                                                    "reboot."),
++                                                    "reboot.") % pkg_name,
+                                                   type="custom", customIcon="error",
+-                                                  customButtons=[_("Go Forward"), _("Reboot")],
+-                                                  default=1)
++                                                  customButtons=[_("Skip Validation"), _("Skip Package"), _("Reboot")],
++                                                  default=0)
++                self.flag = 1
+                 if not rc:
+-                    ctx.mainScreen.enableBack()
++                    rootWidget.validationBox.hide()
++                    rootWidget.validationFailBox.show()
++                    ctx.mainScreen.enableNext()
++                    break
++                elif rc ==1:
++                    continue
+                 else:
+                     yali.util.reboot()
+ 
+ 
+-        if not self.checkCDStop:
++        if not self.checkCDStop and self.flag == 0:
+             ctx.interface.informationWindow.update(_('<font color="#FFF"><b>Validation succeeded. You can proceed with the installation.</b></font>'))
+-            rootWidget.checkButton.setText(_("Validate Integrity"))
++            rootWidget.validationSucceedBox.show()
++            rootWidget.validationBox.hide()
+         else:
+             ctx.interface.informationWindow.hide()
+             rootWidget.progressBar.setValue(0)
