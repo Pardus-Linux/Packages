@@ -1,0 +1,207 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>module-kvm</Name>
+        <Homepage>http://linux-kvm.org</Homepage>
+        <Packager>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Packager>
+        <License>GPLv2</License>
+        <IsA>app:console</IsA>
+        <Summary>Kernel module for Kernel-based Virtual Machine</Summary>
+        <Description>KVM (for Kernel-based Virtual Machine) is a full virtualization solution for Linux on x86 hardware containing virtualization extensions (Intel VT or AMD-V). This package includes the kernel modules needed to use KVM.</Description>
+        <Archive sha1sum="b7a9e27dade2904d1ecf81b5335d437264670ec4" type="tarbz2">mirrors://sourceforge/project/kvm/kvm-kmod/2.6.36-rc6/kvm-kmod-2.6.36-rc6.tar.bz2</Archive>
+        <BuildDependencies>
+            <Dependency release="144">kernel-module-headers</Dependency>
+        </BuildDependencies>
+        <Patches>
+            <Patch>kvm-kernel-cpuid4.patch</Patch>
+            <Patch level="1">fix-build.patch</Patch>
+            <Patch level="1">kvm-world-accessible.patch</Patch>
+        </Patches>
+    </Source>
+
+    <Package>
+        <Name>module-kvm</Name>
+        <RuntimeDependencies>
+            <Dependency release="144">kernel</Dependency>
+            <Dependency>module-kvm-userspace</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="executable" permanent="true">/lib/modules</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>module-kvm-userspace</Name>
+        <Summary>Userspace documentation, tools, headers, udev and modprobe rules for the kernel driver kvm</Summary>
+        <Files>
+            <Path fileType="data">/lib/udev/rules.d</Path>
+            <Path fileType="data">/usr/lib/pkgconfig</Path>
+            <Path fileType="header">/usr/include</Path>
+        </Files>
+    </Package>
+
+    <History>
+        <Update release="20">
+            <Date>2010-10-21</Date>
+            <Version>2.6.36_rc6</Version>
+            <Comment>Version bump</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="19">
+            <Date>2010-10-08</Date>
+            <Version>2.6.35.6</Version>
+            <Comment>Version bump</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="18">
+            <Date>2010-09-27</Date>
+            <Version>2.6.35</Version>
+            <Comment>Version bump</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="17">
+            <Date>2010-07-21</Date>
+            <Version>2.6.34.1</Version>
+            <Comment>Make /dev/kvm world accessible.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="16">
+            <Date>2010-07-15</Date>
+            <Version>2.6.34.1</Version>
+            <Comment>Version bump</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="15">
+            <Date>2010-05-26</Date>
+            <Version>2.6.34</Version>
+            <Comment>Version bump</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="14">
+            <Date>2010-03-23</Date>
+            <Version>2.6.33.1</Version>
+            <Comment>Version bump</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="13">
+            <Date>2010-03-15</Date>
+            <Version>2.6.33</Version>
+            <Comment>Version bump</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="12">
+            <Date>2010-02-08</Date>
+            <Version>2.6.32.7</Version>
+            <Comment>
+                - Version bump to 2.6.32.7,
+                - Use getARCH() for multiarch builds.
+            </Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="11">
+            <Date>2010-01-23</Date>
+            <Version>2.6.32.3</Version>
+            <Comment>NAME= is deprecated in udev >= 147</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="10">
+            <Date>2010-01-14</Date>
+            <Version>2.6.32.3</Version>
+            <Comment>Bump to 2.6.32.3</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="9">
+            <Date>2009-12-29</Date>
+            <Version>2.6.32.2</Version>
+            <Comment>Bump to the latest snapshot.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="8">
+            <Date>2009-12-11</Date>
+            <Version>2.6.32</Version>
+            <Comment>Bump to the latest version.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="7" type="security">
+            <Date>2009-12-04</Date>
+            <Version>85</Version>
+            <Comment>Limit instructions to 15 bytes (CVE-2009-4031) (#11640).</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="6" type="security">
+            <Date>2009-10-23</Date>
+            <Version>85</Version>
+            <Comment>
+                The number of entries is multiplied by the entry size, which can
+                overflow on 32-bit hosts.  Bound the entry count instead.
+                Fix #11436, CVE-2009-3638
+            </Comment>
+            <Name>Ekin Meroğlu</Name>
+            <Email>ekin@pardus.org.tr</Email>
+        </Update>
+        <Update release="5" type="security">
+            <Date>2009-09-24</Date>
+            <Version>85</Version>
+            <Comment>
+                Dissallow hypercalls for guest callers in rings > 0
+                Fix #11210
+            </Comment>
+            <Name>Ekin Meroğlu</Name>
+            <Email>ekin@pardus.org.tr</Email>
+        </Update>
+        <Update release="4" type="security">
+            <Date>2009-08-04</Date>
+            <Version>85</Version>
+            <Comment>Check for a valid cr3 address in kvm_arch_vcpu_ioctl_set_sregs,
+                triple fault in case of failure.
+                Fix for #10771
+            </Comment>
+            <Name>Ekin Meroğlu</Name>
+            <Email>ekin@pardus.org.tr</Email>
+        </Update>
+        <Update release="3">
+            <Date>2009-07-15</Date>
+            <Version>85</Version>
+            <Comment>Depend on the new userspace sub-package.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="2">
+            <Date>2009-05-20</Date>
+            <Version>85</Version>
+            <Comment>Use get.curKERNEL()</Comment>
+            <Name>Ekin Meroğlu</Name>
+            <Email>ekin@pardus.org.tr</Email>
+        </Update>
+        <Update release="1">
+            <Date>2009-05-15</Date>
+            <Version>85</Version>
+            <Comment>
+                - Version bump to release 85,
+                - rename kernel module due to new repo and kernel component,
+                - split kernel module and userspace tools,
+                - use virt group instead of kvm.
+            </Comment>
+            <Name>Ekin Meroğlu</Name>
+            <Email>ekin@pardus.org.tr</Email>
+        </Update>
+   </History>
+</PISI>
