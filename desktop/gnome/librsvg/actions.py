@@ -15,7 +15,7 @@ def setup():
     autotools.configure("--with-svgz \
                          --with-croco \
                          --disable-gtk-doc \
-                         --disable-gnome-print \
+                         --enable-pixbuf-loader \
                          --disable-static")
 
 def build():
