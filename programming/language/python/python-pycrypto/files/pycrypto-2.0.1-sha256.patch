@@ -1,0 +1,23 @@
+http://bugs.gentoo.org/131293
+
+===================================================================
+RCS file: /cvsroot/pycrypto/crypto/src/SHA256.c,v
+retrieving revision 1.3
+retrieving revision 1.4
+diff -u -r1.3 -r1.4
+--- pycrypto/crypto/src/SHA256.c	2005/06/10 19:22:55	1.3
++++ pycrypto/crypto/src/SHA256.c	2005/11/29 16:31:36	1.4
+@@ -136,11 +136,11 @@
+     /* append the '1' bit */
+     md->buf[md->curlen++] = 0x80;
+ 
+-    /* if the length is currenlly above 56 bytes we append zeros
++    /* if the length is currently above 56 bytes we append zeros
+                                * then compress.  Then we can fall back to padding zeros and length
+                                * encoding like normal.
+                              */
+-    if (md->curlen >= 56) {
++    if (md->curlen > 56) {
+         for (; md->curlen < 64;)
+             md->buf[md->curlen++] = 0;
+         sha_compress(md);
