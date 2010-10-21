@@ -1,0 +1,59 @@
+Add API to assign/deassign irqfd to kvm.
+Add stub so that users do not have to use
+ifdefs.
+
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+ kvm-all.c |   19 +++++++++++++++++++
+ kvm.h     |   10 ++++++++++
+ 2 files changed, 29 insertions(+), 0 deletions(-)
+
+diff --git a/kvm-all.c b/kvm-all.c
+index efdf40c..b3fdf29 100644
+--- a/kvm-all.c
++++ b/kvm-all.c
+@@ -1122,4 +1122,23 @@ int kvm_set_ioeventfd(uint16_t addr, uint16_t data, int fd, bool assigned)
+ }
+ #endif
+ 
++#if defined(KVM_IRQFD)
++int kvm_set_irqfd(int gsi, int fd, bool assigned)
++{
++    struct kvm_irqfd irqfd = {
++        .fd = fd,
++        .gsi = gsi,
++        .flags = assigned ? 0 : KVM_IRQFD_FLAG_DEASSIGN,
++    };
++    int r;
++    if (!kvm_irqchip_in_kernel())
++        return -ENOSYS;
++
++    r = kvm_vm_ioctl(kvm_state, KVM_IRQFD, &irqfd);
++    if (r < 0)
++        return r;
++    return 0;
++}
++#endif
++
+ #include "qemu-kvm.c"
+diff --git a/kvm.h b/kvm.h
+index e98b5c8..ad8d122 100644
+--- a/kvm.h
++++ b/kvm.h
+@@ -167,4 +167,14 @@ int kvm_set_ioeventfd(uint16_t data, uint16_t addr, int fd, bool assigned)
+ }
+ #endif
+ 
++#if defined(KVM_IRQFD) && defined(CONFIG_KVM)
++int kvm_set_irqfd(int gsi, int fd, bool assigned);
++#else
++static inline
++int kvm_set_irqfd(int gsi, int fd, bool assigned)
++{
++    return -ENOSYS;
++}
++#endif
++
+ #endif
+-- 
+1.6.6.144.g5c3af

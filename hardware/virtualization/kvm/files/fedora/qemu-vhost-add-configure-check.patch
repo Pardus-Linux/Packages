@@ -1,0 +1,118 @@
+Teach configure to check for vhost.h
+and disable vhost_net if not present.
+
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>'
+
+---
+
+diff --git a/Makefile.target b/Makefile.target
+index 2ebd30c..38783da 100644
+--- a/Makefile.target
++++ b/Makefile.target
+@@ -168,7 +168,8 @@ obj-y = vl.o async.o monitor.o pci.o pci_host.o pcie_host.o machine.o gdbstub.o
+ # need to fix this properly
+ obj-y += virtio-blk.o virtio-balloon.o virtio-net.o virtio-pci.o virtio-serial-bus.o
+ obj-y += notifier.o
+-obj-y += vhost_net.o vhost.o
++obj-y += vhost_net.o
++obj-$(CONFIG_VHOST_NET) += vhost.o
+ obj-$(CONFIG_KVM) += kvm.o kvm-all.o
+ # MSI-X depends on kvm for interrupt injection,
+ # so moved it from Makefile.hw to Makefile.target for now
+diff --git a/configure b/configure
+index 88ba002..4994506 100755
+--- a/configure
++++ b/configure
+@@ -1510,6 +1510,23 @@ EOF
+ fi
+ 
+ ##########################################
++# test for vhost net
++
++if test "$kvm" != "no"; then
++	cat > $TMPC <<EOF
++#include <linux/vhost.h>
++int main(void) { return 0; }
++EOF
++	if compile_prog "$kvm_cflags" "" ; then
++	vhost_net=yes
++	else
++	vhost_net=no
++	fi
++else
++	vhost_net=no
++fi
++
++##########################################
+ # libpci probe for kvm_cap_device_assignment
+ if test $kvm_cap_device_assignment = "yes" ; then
+   cat > $TMPC << EOF
+@@ -2058,6 +2075,7 @@ echo "fdt support       $fdt"
+ echo "preadv support    $preadv"
+ echo "fdatasync         $fdatasync"
+ echo "uuid support      $uuid"
++echo "vhost-net support $vhost_net"
+ 
+ if test $sdl_too_old = "yes"; then
+ echo "-> Your SDL version is too old - please upgrade to have SDL support"
+@@ -2593,6 +2611,9 @@ case "$target_arch2" in
+       if test $kvm_cap_device_assignment = "yes" ; then
+         echo "CONFIG_KVM_DEVICE_ASSIGNMENT=y" >> $config_target_mak
+       fi
++      if test $vhost_net = "yes" ; then
++        echo "CONFIG_VHOST_NET=y" >> $config_target_mak
++      fi
+     fi
+ esac
+ echo "TARGET_PHYS_ADDR_BITS=$target_phys_bits" >> $config_target_mak
+diff --git a/hw/vhost_net.c b/hw/vhost_net.c
+index c89ff40..cab9a0a 100644
+--- a/hw/vhost_net.c
++++ b/hw/vhost_net.c
+@@ -16,9 +16,13 @@
+ #include "net/tap.h"
+ 
+ #include "virtio-net.h"
+-#include "vhost.h"
+ #include "vhost_net.h"
+ 
++#include "config.h"
++
++#ifdef CONFIG_VHOST_NET
++#include "vhost.h"
++
+ struct vhost_net {
+ 	struct vhost_dev dev;
+ 	struct vhost_virtqueue vqs[2];
+@@ -145,3 +149,31 @@ void vhost_net_cleanup(struct vhost_net *net)
+ 	qemu_free(net);
+ }
+ /* TODO: log */
++#else
++struct vhost_net *vhost_net_init(VLANClientState *backend, int devfd)
++{
++	return NULL;
++}
++
++int vhost_net_start(struct vhost_net *net,
++		    VirtIODevice *dev)
++{
++	return -ENOSYS;
++}
++void vhost_net_stop(struct vhost_net *net,
++		    VirtIODevice *dev)
++{
++}
++
++void vhost_net_cleanup(struct vhost_net *net)
++{
++}
++
++unsigned vhost_net_get_features(struct vhost_net *net, unsigned features)
++{
++	return features;
++}
++void vhost_net_ack_features(struct vhost_net *net, unsigned features)
++{
++}
++#endif

@@ -1,0 +1,26 @@
+From b4654f7911adb1352c2c47c76f650e8419a20b91 Mon Sep 17 00:00:00 2001
+From: Michael S. Tsirkin <mst@redhat.com>
+Date: Wed, 24 Feb 2010 21:10:01 +0200
+Subject: [PATCH] vhost: logging mistake enable, not disable log
+
+Correctly pass log enable value from memory client to vhost device.
+---
+ hw/vhost.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/hw/vhost.c b/hw/vhost.c
+index 7391bd1..019afc2 100644
+--- a/hw/vhost.c
++++ b/hw/vhost.c
+@@ -387,7 +387,7 @@ static int vhost_client_migration_log(struct CPUPhysMemoryClient *client,
+ 		dev->log_size = 0;
+ 	} else {
+ 		vhost_dev_log_resize(dev, vhost_get_log_size(dev));
+-		r = vhost_dev_set_log(dev, false);
++		r = vhost_dev_set_log(dev, true);
+ 		if (r < 0) {
+ 			return r;
+ 		}
+-- 
+1.6.6.1
+

@@ -1,0 +1,149 @@
+Rename features->guest_features. This is
+what they are, avoid confusion with
+host features which we also need to keep around.
+
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: Anthony Liguori <aliguori@us.ibm.com>
+(cherry picked from commit 704a76fcd24372a683652651b4597f6654084975)
+---
+ hw/s390-virtio-bus.c |    2 +-
+ hw/syborg_virtio.c   |    4 ++--
+ hw/virtio-net.c      |   10 +++++-----
+ hw/virtio-pci.c      |    4 ++--
+ hw/virtio.c          |    8 ++++----
+ hw/virtio.h          |    2 +-
+ 6 files changed, 15 insertions(+), 15 deletions(-)
+
+diff --git a/hw/s390-virtio-bus.c b/hw/s390-virtio-bus.c
+index dc154ed..6c0da11 100644
+--- a/hw/s390-virtio-bus.c
++++ b/hw/s390-virtio-bus.c
+@@ -251,7 +251,7 @@ void s390_virtio_device_update_status(VirtIOS390Device *dev)
+     if (vdev->set_features) {
+         vdev->set_features(vdev, features);
+     }
+-    vdev->features = features;
++    vdev->guest_features = features;
+ }
+ 
+ VirtIOS390Device *s390_virtio_bus_console(VirtIOS390Bus *bus)
+diff --git a/hw/syborg_virtio.c b/hw/syborg_virtio.c
+index a84206a..fe6fc23 100644
+--- a/hw/syborg_virtio.c
++++ b/hw/syborg_virtio.c
+@@ -90,7 +90,7 @@ static uint32_t syborg_virtio_readl(void *opaque, target_phys_addr_t offset)
+         ret |= vdev->binding->get_features(s);
+         break;
+     case SYBORG_VIRTIO_GUEST_FEATURES:
+-        ret = vdev->features;
++        ret = vdev->guest_features;
+         break;
+     case SYBORG_VIRTIO_QUEUE_BASE:
+         ret = virtio_queue_get_addr(vdev, vdev->queue_sel);
+@@ -132,7 +132,7 @@ static void syborg_virtio_writel(void *opaque, target_phys_addr_t offset,
+     case SYBORG_VIRTIO_GUEST_FEATURES:
+         if (vdev->set_features)
+             vdev->set_features(vdev, value);
+-        vdev->features = value;
++        vdev->guest_features = value;
+         break;
+     case SYBORG_VIRTIO_QUEUE_BASE:
+         if (value == 0)
+diff --git a/hw/virtio-net.c b/hw/virtio-net.c
+index 2f201ff..ab20a33 100644
+--- a/hw/virtio-net.c
++++ b/hw/virtio-net.c
+@@ -768,11 +768,11 @@ static int virtio_net_load(QEMUFile *f, void *opaque, int version_id)
+         if (n->has_vnet_hdr) {
+             tap_using_vnet_hdr(n->nic->nc.peer, 1);
+             tap_set_offload(n->nic->nc.peer,
+-                            (n->vdev.features >> VIRTIO_NET_F_GUEST_CSUM) & 1,
+-                            (n->vdev.features >> VIRTIO_NET_F_GUEST_TSO4) & 1,
+-                            (n->vdev.features >> VIRTIO_NET_F_GUEST_TSO6) & 1,
+-                            (n->vdev.features >> VIRTIO_NET_F_GUEST_ECN)  & 1,
+-                            (n->vdev.features >> VIRTIO_NET_F_GUEST_UFO)  & 1);
++                    (n->vdev.guest_features >> VIRTIO_NET_F_GUEST_CSUM) & 1,
++                    (n->vdev.guest_features >> VIRTIO_NET_F_GUEST_TSO4) & 1,
++                    (n->vdev.guest_features >> VIRTIO_NET_F_GUEST_TSO6) & 1,
++                    (n->vdev.guest_features >> VIRTIO_NET_F_GUEST_ECN)  & 1,
++                    (n->vdev.guest_features >> VIRTIO_NET_F_GUEST_UFO)  & 1);
+         }
+     }
+ 
+diff --git a/hw/virtio-pci.c b/hw/virtio-pci.c
+index 3594152..c23dbc0 100644
+--- a/hw/virtio-pci.c
++++ b/hw/virtio-pci.c
+@@ -181,7 +181,7 @@ static void virtio_ioport_write(void *opaque, uint32_t addr, uint32_t val)
+ 	}
+         if (vdev->set_features)
+             vdev->set_features(vdev, val);
+-        vdev->features = val;
++        vdev->guest_features = val;
+         break;
+     case VIRTIO_PCI_QUEUE_PFN:
+         pa = (target_phys_addr_t)val << VIRTIO_PCI_QUEUE_ADDR_SHIFT;
+@@ -239,7 +239,7 @@ static uint32_t virtio_ioport_read(VirtIOPCIProxy *proxy, uint32_t addr)
+         ret |= vdev->binding->get_features(proxy);
+         break;
+     case VIRTIO_PCI_GUEST_FEATURES:
+-        ret = vdev->features;
++        ret = vdev->guest_features;
+         break;
+     case VIRTIO_PCI_QUEUE_PFN:
+         ret = virtio_queue_get_addr(vdev, vdev->queue_sel)
+diff --git a/hw/virtio.c b/hw/virtio.c
+index cecd0dc..c25a5f1 100644
+--- a/hw/virtio.c
++++ b/hw/virtio.c
+@@ -445,7 +445,7 @@ void virtio_reset(void *opaque)
+     if (vdev->reset)
+         vdev->reset(vdev);
+ 
+-    vdev->features = 0;
++    vdev->guest_features = 0;
+     vdev->queue_sel = 0;
+     vdev->status = 0;
+     vdev->isr = 0;
+@@ -598,7 +598,7 @@ void virtio_notify(VirtIODevice *vdev, VirtQueue *vq)
+ {
+     /* Always notify when queue is empty (when feature acknowledge) */
+     if ((vring_avail_flags(vq) & VRING_AVAIL_F_NO_INTERRUPT) &&
+-        (!(vdev->features & (1 << VIRTIO_F_NOTIFY_ON_EMPTY)) ||
++        (!(vdev->guest_features & (1 << VIRTIO_F_NOTIFY_ON_EMPTY)) ||
+          (vq->inuse || vring_avail_idx(vq) != vq->last_avail_idx)))
+         return;
+ 
+@@ -625,7 +625,7 @@ void virtio_save(VirtIODevice *vdev, QEMUFile *f)
+     qemu_put_8s(f, &vdev->status);
+     qemu_put_8s(f, &vdev->isr);
+     qemu_put_be16s(f, &vdev->queue_sel);
+-    qemu_put_be32s(f, &vdev->features);
++    qemu_put_be32s(f, &vdev->guest_features);
+     qemu_put_be32(f, vdev->config_len);
+     qemu_put_buffer(f, vdev->config, vdev->config_len);
+ 
+@@ -670,7 +670,7 @@ int virtio_load(VirtIODevice *vdev, QEMUFile *f)
+                 features, supported_features);
+         return -1;
+     }
+-    vdev->features = features;
++    vdev->guest_features = features;
+     vdev->config_len = qemu_get_be32(f);
+     qemu_get_buffer(f, vdev->config, vdev->config_len);
+ 
+diff --git a/hw/virtio.h b/hw/virtio.h
+index 35532a6..85ef171 100644
+--- a/hw/virtio.h
++++ b/hw/virtio.h
+@@ -100,7 +100,7 @@ struct VirtIODevice
+     uint8_t status;
+     uint8_t isr;
+     uint16_t queue_sel;
+-    uint32_t features;
++    uint32_t guest_features;
+     size_t config_len;
+     void *config;
+     uint16_t config_vector;
+-- 
+1.6.6.144.g5c3af

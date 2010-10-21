@@ -1,0 +1,28 @@
+From c96adfe57a5a7ceed488fd6f198a762dd84c1d9c Mon Sep 17 00:00:00 2001
+From: Michael S. Tsirkin <mst@redhat.com>
+Date: Wed, 24 Feb 2010 21:09:48 +0200
+Subject: [PATCH] vhost: logging thinko fix
+
+Fix logging: set it to requested value.
+
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+ hw/vhost.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/hw/vhost.c b/hw/vhost.c
+index e5c1ead..3c54596 100644
+--- a/hw/vhost.c
++++ b/hw/vhost.c
+@@ -310,7 +310,7 @@ static int vhost_dev_set_log(struct vhost_dev *dev, bool enable_log)
+ {
+ 	uint64_t features = dev->acked_features;
+ 	int r;
+-	if (dev->log_enabled) {
++	if (enable_log) {
+ 		features |= 0x1 << VHOST_F_LOG_ALL;
+ 	}
+ 	r = ioctl(dev->control, VHOST_SET_FEATURES, &features);
+-- 
+1.6.6.1
+

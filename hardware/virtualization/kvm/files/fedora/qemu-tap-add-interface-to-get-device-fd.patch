@@ -1,0 +1,39 @@
+Will be used by vhost to attach/detach to backend.
+
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+ net/tap.c |    7 +++++++
+ net/tap.h |    2 ++
+ 2 files changed, 9 insertions(+), 0 deletions(-)
+
+diff --git a/net/tap.c b/net/tap.c
+index d3492de..7e9ca79 100644
+--- a/net/tap.c
++++ b/net/tap.c
+@@ -269,6 +269,13 @@ static void tap_poll(VLANClientState *nc, bool enable)
+     tap_write_poll(s, enable);
+ }
+ 
++int tap_get_fd(VLANClientState *nc)
++{
++    TAPState *s = DO_UPCAST(TAPState, nc, nc);
++    assert(nc->info->type == NET_CLIENT_TYPE_TAP);
++    return s->fd;
++}
++
+ /* fd support */
+ 
+ static NetClientInfo net_tap_info = {
+diff --git a/net/tap.h b/net/tap.h
+index 538a562..a244b28 100644
+--- a/net/tap.h
++++ b/net/tap.h
+@@ -48,4 +48,6 @@ int tap_probe_vnet_hdr(int fd);
+ int tap_probe_has_ufo(int fd);
+ void tap_fd_set_offload(int fd, int csum, int tso4, int tso6, int ecn, int ufo);
+ 
++int tap_get_fd(VLANClientState *vc);
++
+ #endif /* QEMU_NET_TAP_H */
+-- 
+1.6.6.144.g5c3af

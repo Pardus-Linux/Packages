@@ -1,0 +1,37 @@
+will be used by virtio-net for vhost net support
+
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+ net/tap.c |    7 +++++++
+ net/tap.h |    3 +++
+ 2 files changed, 10 insertions(+), 0 deletions(-)
+
+diff --git a/net/tap.c b/net/tap.c
+index d9f2e41..166cf05 100644
+--- a/net/tap.c
++++ b/net/tap.c
+@@ -491,3 +491,10 @@ int net_init_tap(QemuOpts *opts, Monitor *mon, const char *name, VLANState *vlan
+ 
+     return 0;
+ }
++
++struct vhost_net *tap_get_vhost_net(VLANClientState *nc)
++{
++    TAPState *s = DO_UPCAST(TAPState, nc, nc);
++    assert(nc->info->type == NET_CLIENT_TYPE_TAP);
++    return s->vhost_net;
++}
+diff --git a/net/tap.h b/net/tap.h
+index a244b28..b8cec83 100644
+--- a/net/tap.h
++++ b/net/tap.h
+@@ -50,4 +50,7 @@ void tap_fd_set_offload(int fd, int csum, int tso4, int tso6, int ecn, int ufo);
+ 
+ int tap_get_fd(VLANClientState *vc);
+ 
++struct vhost_net;
++struct vhost_net *tap_get_vhost_net(VLANClientState *vc);
++
+ #endif /* QEMU_NET_TAP_H */
+-- 
+1.6.6.144.g5c3af

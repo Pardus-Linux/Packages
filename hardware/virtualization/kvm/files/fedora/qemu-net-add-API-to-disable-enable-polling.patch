@@ -1,0 +1,68 @@
+When vhost is bound to a backend device, we need to stop polling it when
+vhost is started, and restart polling when vhost is stopped.
+Add an API for that for use by vhost, and implement in tap backend.
+
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: Anthony Liguori <aliguori@us.ibm.com>
+(cherry picked from commit ceb696159d569db5b2a7659ce38752398c236742)
+---
+ net.h     |    3 +++
+ net/tap.c |    8 ++++++++
+ 2 files changed, 11 insertions(+), 0 deletions(-)
+
+diff --git a/net.h b/net.h
+index 4971fcb..116bb80 100644
+--- a/net.h
++++ b/net.h
+@@ -1,6 +1,7 @@
+ #ifndef QEMU_NET_H
+ #define QEMU_NET_H
+ 
++#include <stdbool.h>
+ #include "qemu-queue.h"
+ #include "qemu-common.h"
+ #include "qdict.h"
+@@ -36,6 +37,7 @@ typedef enum {
+     NET_CLIENT_TYPE_DUMP
+ } net_client_type;
+ 
++typedef void (NetPoll)(VLANClientState *, bool enable);
+ typedef int (NetCanReceive)(VLANClientState *);
+ typedef ssize_t (NetReceive)(VLANClientState *, const uint8_t *, size_t);
+ typedef ssize_t (NetReceiveIOV)(VLANClientState *, const struct iovec *, int);
+@@ -51,6 +53,7 @@ typedef struct NetClientInfo {
+     NetCanReceive *can_receive;
+     NetCleanup *cleanup;
+     LinkStatusChanged *link_status_changed;
++    NetPoll *poll;
+ } NetClientInfo;
+ 
+ struct VLANClientState {
+diff --git a/net/tap.c b/net/tap.c
+index 0d8b424..d3492de 100644
+--- a/net/tap.c
++++ b/net/tap.c
+@@ -262,6 +262,13 @@ static void tap_cleanup(VLANClientState *nc)
+     close(s->fd);
+ }
+ 
++static void tap_poll(VLANClientState *nc, bool enable)
++{
++    TAPState *s = DO_UPCAST(TAPState, nc, nc);
++    tap_read_poll(s, enable);
++    tap_write_poll(s, enable);
++}
++
+ /* fd support */
+ 
+ static NetClientInfo net_tap_info = {
+@@ -270,6 +277,7 @@ static NetClientInfo net_tap_info = {
+     .receive = tap_receive,
+     .receive_raw = tap_receive_raw,
+     .receive_iov = tap_receive_iov,
++    .poll = tap_poll,
+     .cleanup = tap_cleanup,
+ };
+ 
+-- 
+1.6.6.144.g5c3af

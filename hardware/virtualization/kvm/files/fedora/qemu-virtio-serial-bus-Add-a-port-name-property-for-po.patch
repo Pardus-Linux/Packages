@@ -1,0 +1,116 @@
+From ed4daf8c7722562ec05e83ec98a4d4d8adf20f7f Mon Sep 17 00:00:00 2001
+From: Amit Shah <amit.shah@redhat.com>
+Date: Wed, 20 Jan 2010 00:36:54 +0530
+Subject: [PATCH 4/9] virtio-serial-bus: Add a port 'name' property for port discovery in guests
+
+The port 'id' or number is internal state between the guest kernel and
+our bus implementation. This is invocation-dependent and isn't part of
+the guest-host ABI.
+
+To correcly enumerate and map ports between the host and the guest, the
+'name' property is used.
+
+Example:
+
+    -device virtserialport,name=org.qemu.port.0
+
+This invocation will get us a char device in the guest at:
+
+    /dev/virtio-ports/org.qemu.port.0
+
+which can be a symlink to
+
+    /dev/vport0p3
+
+This 'name' property is exposed by the guest kernel in a sysfs
+attribute:
+
+    /sys/kernel/virtio-ports/vport0p3/name
+
+A simple udev script can pick up this name and create the symlink
+mentioned above.
+
+Signed-off-by: Amit Shah <amit.shah@redhat.com>
+Signed-off-by: Anthony Liguori <aliguori@us.ibm.com>
+---
+ hw/virtio-serial-bus.c |   17 +++++++++++++++++
+ hw/virtio-serial.c     |    1 +
+ hw/virtio-serial.h     |    8 ++++++++
+ 3 files changed, 26 insertions(+), 0 deletions(-)
+
+diff --git a/hw/virtio-serial-bus.c b/hw/virtio-serial-bus.c
+index 9af21df..6d69c56 100644
+--- a/hw/virtio-serial-bus.c
++++ b/hw/virtio-serial-bus.c
+@@ -204,6 +204,8 @@ static void handle_control_message(VirtIOSerial *vser, void *buf)
+ {
+     struct VirtIOSerialPort *port;
+     struct virtio_console_control cpkt, *gcpkt;
++    uint8_t *buffer;
++    size_t buffer_len;
+ 
+     gcpkt = buf;
+     port = find_port_by_id(vser, ldl_p(&gcpkt->id));
+@@ -226,6 +228,21 @@ static void handle_control_message(VirtIOSerial *vser, void *buf)
+             send_control_event(port, VIRTIO_CONSOLE_CONSOLE_PORT, 1);
+         }
+ 
++        if (port->name) {
++            stw_p(&cpkt.event, VIRTIO_CONSOLE_PORT_NAME);
++            stw_p(&cpkt.value, 1);
++
++            buffer_len = sizeof(cpkt) + strlen(port->name) + 1;
++            buffer = qemu_malloc(buffer_len);
++
++            memcpy(buffer, &cpkt, sizeof(cpkt));
++            memcpy(buffer + sizeof(cpkt), port->name, strlen(port->name));
++            buffer[buffer_len - 1] = 0;
++
++            send_control_msg(port, buffer, buffer_len);
++            qemu_free(buffer);
++        }
++
+         if (port->host_connected) {
+             send_control_event(port, VIRTIO_CONSOLE_PORT_OPEN, 1);
+         }
+diff --git a/hw/virtio-serial.c b/hw/virtio-serial.c
+index 1dc031e..9c2c93c 100644
+--- a/hw/virtio-serial.c
++++ b/hw/virtio-serial.c
+@@ -100,6 +100,7 @@ static VirtIOSerialPortInfo virtconsole_info = {
+     .qdev.props = (Property[]) {
+         DEFINE_PROP_UINT8("is_console", VirtConsole, port.is_console, 1),
+         DEFINE_PROP_CHR("chardev", VirtConsole, chr),
++        DEFINE_PROP_STRING("name", VirtConsole, port.name),
+         DEFINE_PROP_END_OF_LIST(),
+     },
+ };
+diff --git a/hw/virtio-serial.h b/hw/virtio-serial.h
+index d9c7acb..28ea7da 100644
+--- a/hw/virtio-serial.h
++++ b/hw/virtio-serial.h
+@@ -50,6 +50,7 @@ struct virtio_console_control {
+ #define VIRTIO_CONSOLE_CONSOLE_PORT	1
+ #define VIRTIO_CONSOLE_RESIZE		2
+ #define VIRTIO_CONSOLE_PORT_OPEN	3
++#define VIRTIO_CONSOLE_PORT_NAME	4
+ 
+ /* == In-qemu interface == */
+ 
+@@ -84,6 +85,13 @@ struct VirtIOSerialPort {
+     VirtQueue *ivq, *ovq;
+ 
+     /*
++     * This name is sent to the guest and exported via sysfs.
++     * The guest could create symlinks based on this information.
++     * The name is in the reverse fqdn format, like org.qemu.console.0
++     */
++    char *name;
++
++    /*
+      * This id helps identify ports between the guest and the host.
+      * The guest sends a "header" with this id with each data packet
+      * that it sends and the host can then find out which associated
+-- 
+1.6.2.5
+

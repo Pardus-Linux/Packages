@@ -1,0 +1,70 @@
+Use irqfd when supported by kernel.
+This uses msix mask notifiers: when vector is masked, we poll it from
+userspace.  When it is unmasked, we poll it from kernel.
+
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+ hw/virtio-pci.c |   31 +++++++++++++++++++++++++++++--
+ 1 files changed, 29 insertions(+), 2 deletions(-)
+
+diff --git a/hw/virtio-pci.c b/hw/virtio-pci.c
+index c454093..e8e0d82 100644
+--- a/hw/virtio-pci.c
++++ b/hw/virtio-pci.c
+@@ -404,6 +404,27 @@ static void virtio_pci_guest_notifier_read(void *opaque)
+     }
+ }
+ 
++static int virtio_pci_mask_notifier(PCIDevice *dev, unsigned vector,
++                                    void *opaque, int masked)
++{
++    VirtQueue *vq = opaque;
++    EventNotifier *notifier = virtio_queue_guest_notifier(vq);
++    int r = kvm_set_irqfd(dev->msix_irq_entries[vector].gsi,
++                          event_notifier_get_fd(notifier),
++                          !masked);
++    if (r < 0) {
++        return (r == -ENOSYS) ? 0 : r;
++    }
++    if (masked) {
++        qemu_set_fd_handler(event_notifier_get_fd(notifier),
++                            virtio_pci_guest_notifier_read, NULL, vq);
++    } else {
++        qemu_set_fd_handler(event_notifier_get_fd(notifier),
++                            NULL, NULL, vq);
++    }
++    return 0;
++}
++
+ static int virtio_pci_guest_notifier(void *opaque, int n, bool assign)
+ {
+     VirtIOPCIProxy *proxy = opaque;
+@@ -412,11 +433,15 @@ static int virtio_pci_guest_notifier(void *opaque, int n, bool assign)
+ 
+     if (assign) {
+         int r = event_notifier_init(notifier, 0);
+-	if (r < 0)
+-		return r;
++        if (r < 0)
++            return r;
+         qemu_set_fd_handler(event_notifier_get_fd(notifier),
+                             virtio_pci_guest_notifier_read, NULL, vq);
++        msix_set_mask_notifier(&proxy->pci_dev,
++			       virtio_queue_vector(proxy->vdev, n), vq);
+     } else {
++        msix_set_mask_notifier(&proxy->pci_dev,
++			       virtio_queue_vector(proxy->vdev, n), NULL);
+         qemu_set_fd_handler(event_notifier_get_fd(notifier),
+                             NULL, NULL, vq);
+         event_notifier_cleanup(notifier);
+@@ -501,6 +526,8 @@ static void virtio_init_pci(VirtIOPCIProxy *proxy, VirtIODevice *vdev,
+ 
+     proxy->pci_dev.config_write = virtio_write_config;
+ 
++    proxy->pci_dev.msix_mask_notifier = virtio_pci_mask_notifier;
++
+     size = VIRTIO_PCI_REGION_SIZE(&proxy->pci_dev) + vdev->config_len;
+     if (size & (size-1))
+         size = 1 << qemu_fls(size);
+-- 
+1.6.6.144.g5c3af

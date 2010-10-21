@@ -1,0 +1,44 @@
+From 8a881734bccddf707a42ba2effff699b824d3c8f Mon Sep 17 00:00:00 2001
+From: Amit Shah <amit.shah@redhat.com>
+Date: Thu, 25 Feb 2010 18:41:16 +0530
+Subject: [PATCH] virtio-serial: pci: Allow MSI to be disabled
+
+Michael noted we don't allow disabling of MSI for the virtio-serial-pci
+device. Fix that.
+
+Upstream commit: 7b665b668aa92bf0bba696f085dff87539d95529
+
+Signed-off-by: Amit Shah <amit.shah@redhat.com>
+CC: "Michael S. Tsirkin" <mst@redhat.com>
+Signed-off-by: Anthony Liguori <aliguori@us.ibm.com>
+---
+ hw/virtio-pci.c |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/hw/virtio-pci.c b/hw/virtio-pci.c
+index 9a02682..636c8c3 100644
+--- a/hw/virtio-pci.c
++++ b/hw/virtio-pci.c
+@@ -598,8 +598,8 @@ static int virtio_serial_init_pci(PCIDevice *pci_dev)
+     if (!vdev) {
+         return -1;
+     }
+-    vdev->nvectors = proxy->nvectors ? proxy->nvectors
+-                                     : proxy->max_virtserial_ports + 1;
++    vdev->nvectors = proxy->nvectors == -1 ? proxy->max_virtserial_ports + 1
++                                           : proxy->nvectors;
+     virtio_init_pci(proxy, vdev,
+                     PCI_VENDOR_ID_REDHAT_QUMRANET,
+                     PCI_DEVICE_ID_VIRTIO_CONSOLE,
+@@ -683,7 +683,7 @@ static PCIDeviceInfo virtio_info[] = {
+         .init      = virtio_serial_init_pci,
+         .exit      = virtio_exit_pci,
+         .qdev.props = (Property[]) {
+-            DEFINE_PROP_UINT32("vectors", VirtIOPCIProxy, nvectors, 0),
++            DEFINE_PROP_UINT32("vectors", VirtIOPCIProxy, nvectors, -1),
+             DEFINE_PROP_HEX32("class", VirtIOPCIProxy, class_code, 0),
+             DEFINE_VIRTIO_COMMON_FEATURES(VirtIOPCIProxy, host_features),
+             DEFINE_PROP_UINT32("max_ports", VirtIOPCIProxy, max_virtserial_ports,
+-- 
+1.6.6.1
+

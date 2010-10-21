@@ -1,0 +1,40 @@
+From c101ff585d5b156a1f3461015a9acd73f15a45f6 Mon Sep 17 00:00:00 2001
+From: Amit Shah <amit.shah@redhat.com>
+Date: Wed, 20 Jan 2010 00:36:55 +0530
+Subject: [PATCH 5/9] virtio-serial-bus: Add ability to hot-unplug ports
+
+Signed-off-by: Amit Shah <amit.shah@redhat.com>
+Signed-off-by: Anthony Liguori <aliguori@us.ibm.com>
+---
+ hw/virtio-serial-bus.c |    2 ++
+ hw/virtio-serial.h     |    1 +
+ 2 files changed, 3 insertions(+), 0 deletions(-)
+
+diff --git a/hw/virtio-serial-bus.c b/hw/virtio-serial-bus.c
+index 6d69c56..037864f 100644
+--- a/hw/virtio-serial-bus.c
++++ b/hw/virtio-serial-bus.c
+@@ -517,6 +517,8 @@ static int virtser_port_qdev_exit(DeviceState *qdev)
+     VirtIOSerialPort *port = DO_UPCAST(VirtIOSerialPort, dev, &dev->qdev);
+     VirtIOSerial *vser = port->vser;
+ 
++    send_control_event(port, VIRTIO_CONSOLE_PORT_REMOVE, 1);
++
+     /*
+      * Don't decrement nr_ports here; thus we keep a linearly
+      * increasing port id. Not utilising an id again saves us a couple
+diff --git a/hw/virtio-serial.h b/hw/virtio-serial.h
+index 28ea7da..f297b00 100644
+--- a/hw/virtio-serial.h
++++ b/hw/virtio-serial.h
+@@ -51,6 +51,7 @@ struct virtio_console_control {
+ #define VIRTIO_CONSOLE_RESIZE		2
+ #define VIRTIO_CONSOLE_PORT_OPEN	3
+ #define VIRTIO_CONSOLE_PORT_NAME	4
++#define VIRTIO_CONSOLE_PORT_REMOVE	5
+ 
+ /* == In-qemu interface == */
+ 
+-- 
+1.6.2.5
+

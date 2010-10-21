@@ -1,0 +1,25 @@
+--- a/hw/virtio-serial-bus.c	2010-02-09 00:41:21.000000000 -0600
++++ b/hw/virtio-serial-bus.c	2010-02-09 00:07:13.000000000 -0600
+@@ -68,7 +68,7 @@ static VirtIOSerialPort *find_port_by_vq
+ 
+ static bool use_multiport(VirtIOSerial *vser)
+ {
+-    return vser->vdev.features & (1 << VIRTIO_CONSOLE_F_MULTIPORT);
++    return vser->vdev.guest_features & (1 << VIRTIO_CONSOLE_F_MULTIPORT);
+ }
+ 
+ static size_t write_to_port(VirtIOSerialPort *port,
+@@ -333,9 +333,11 @@ static void handle_input(VirtIODevice *v
+ {
+ }
+ 
+-static uint32_t get_features(VirtIODevice *vdev)
++static uint32_t get_features(VirtIODevice *vdev, uint32_t features)
+ {
+-    return 1 << VIRTIO_CONSOLE_F_MULTIPORT;
++    features |= (1 << VIRTIO_CONSOLE_F_MULTIPORT);
++
++    return features;
+ }
+ 
+ /* Guest requested config info */

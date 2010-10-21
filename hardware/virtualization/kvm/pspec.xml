@@ -1,0 +1,537 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>kvm</Name>
+        <Homepage>http://linux-kvm.org</Homepage>
+        <Packager>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Packager>
+        <License>GPLv2</License>
+        <IsA>app:console</IsA>
+        <Summary>Userspace tools for Kernel-based Virtual Machine</Summary>
+        <Description>KVM (for Kernel-based Virtual Machine) is a full virtualization solution for Linux on x86 hardware containing virtualization extensions (Intel VT or AMD-V). This package includes the userspace tools needed to use KVM.</Description>
+        <Archive sha1sum="c316ac8a1b040e28275bf34911fbce14209c1563" type="targz">mirrors://sourceforge/kvm/qemu-kvm/0.12.5/qemu-kvm-0.12.5.tar.gz</Archive>
+        <!--
+        <AdditionalFiles>
+            <AdditionalFile target="kernel/include/linux/kvm.h">kvm-2.6.32-16.h</AdditionalFile>
+        </AdditionalFiles>
+        -->
+        <BuildDependencies>
+            <Dependency>pulseaudio-libs-devel</Dependency>
+            <Dependency>cyrus-sasl-devel</Dependency>
+            <Dependency>alsa-lib-devel</Dependency>
+            <Dependency>libsdl-devel</Dependency>
+            <Dependency>libaio-devel</Dependency>
+            <Dependency>gnutls-devel</Dependency>
+            <Dependency>bluez-libs-devel</Dependency>
+            <!-- Without aalib, sdl support is not enabled -->
+            <Dependency>aalib-devel</Dependency>
+            <Dependency>texi2html</Dependency>
+        </BuildDependencies>
+        <Patches>
+            <Patch level="1">qemu-datadir.diff</Patch>
+            <Patch level="1">kvm-qemu-default-memsize.patch</Patch>
+            <Patch level="1">export-lc-all-in-configure.patch</Patch>
+
+            <!-- Don't fallback to plain qemu is kvm fails -->
+            <Patch level="1">kvm-qemu-no-fallback-if-open-kvm-fails.patch</Patch>
+
+            <!-- virtio-console changes -->
+            <Patch level="1">fedora/qemu-virtio-Remove-duplicate-macro-definition-for-max.-v.patch</Patch>
+            <Patch level="1">fedora/qemu-virtio-console-qdev-conversion-new-virtio-serial-b.patch</Patch>
+            <Patch level="1">fedora/qemu-virtio-serial-bus-Maintain-guest-and-host-port-open.patch</Patch>
+            <Patch level="1">fedora/qemu-virtio-serial-bus-Add-a-port-name-property-for-po.patch</Patch>
+            <Patch level="1">fedora/qemu-virtio-serial-bus-Add-ability-to-hot-unplug-ports.patch</Patch>
+            <Patch level="1">fedora/qemu-virtio-serial-Add-a-virtserialport-device-for-gen.patch</Patch>
+            <Patch level="1">fedora/qemu-Move-virtio-serial-to-Makefile.objs.patch</Patch>
+            <Patch level="1">fedora/qemu-virtio-serial-Use-MSI-vectors-for-port-virtqueues.patch</Patch>
+            <Patch level="1">fedora/qemu-virtio-console-Rename-virtio-serial.c-back-to-virti.patch</Patch>
+            <Patch level="1">fedora/qemu-net-add-API-to-disable-enable-polling.patch</Patch>
+            <Patch level="1">fedora/qemu-virtio-rename-features-guest_features.patch</Patch>
+            <Patch level="1">fedora/qemu-qdev-add-bit-property-type.patch</Patch>
+            <Patch level="1">fedora/qemu-qdev-fix-thinko-leading-to-guest-crashes.patch</Patch>
+            <Patch level="1">fedora/qemu-virtio-add-features-as-qdev-properties.patch</Patch>
+            <Patch level="1">fedora/qemu-virtio-net-mac-property-is-mandatory.patch</Patch>
+            <Patch level="1">fedora/qemu-exec-memory-notifiers.patch</Patch>
+            <Patch level="1">fedora/qemu-kvm-add-API-to-set-ioeventfd.patch</Patch>
+            <Patch level="1">fedora/qemu-notifier-event-notifier-implementation.patch</Patch>
+            <Patch level="1">fedora/qemu-virtio-add-notifier-support.patch</Patch>
+            <Patch level="1">fedora/qemu-virtio-add-APIs-for-queue-fields.patch</Patch>
+            <Patch level="1">fedora/qemu-virtio-add-status-change-callback.patch</Patch>
+            <Patch level="1">fedora/qemu-virtio-move-typedef-to-qemu-common.patch</Patch>
+            <Patch level="1">fedora/qemu-virtio-pci-fill-in-notifier-support.patch</Patch>
+            <Patch level="1">fedora/qemu-tap-add-interface-to-get-device-fd.patch</Patch>
+            <Patch level="1">fedora/qemu-vhost-vhost-net-support.patch</Patch>
+            <Patch level="1">fedora/qemu-tap-add-vhost-vhostfd-options.patch</Patch>
+            <Patch level="1">fedora/qemu-tap-add-API-to-retrieve-vhost-net-header.patch</Patch>
+            <Patch level="1">fedora/qemu-virtio-net-vhost-net-support.patch</Patch>
+            <Patch level="1">fedora/qemu-kvm-add-vhost.h-header.patch</Patch>
+            <Patch level="1">fedora/qemu-kvm-irqfd-support.patch</Patch>
+            <Patch level="1">fedora/qemu-msix-add-mask-unmask-notifiers.patch</Patch>
+            <Patch level="1">fedora/qemu-virtio-pci-irqfd-support.patch</Patch>
+            <Patch level="1">fedora/qemu-virtio-avoid-crash-with-non-tap-backends.patch</Patch>
+            <Patch level="1">fedora/qemu-virtio-serial-features-build-fix.patch</Patch>
+            <Patch level="1">fedora/qemu-virtio-pci-irqfd-fix-nonkvm-build.patch</Patch>
+            <Patch level="1">fedora/qemu-vhost-add-configure-check.patch</Patch>
+
+            <!-- Upstream fixes -->
+            <Patch level="1">upstream/0038-msix-migration-fix.patch</Patch>
+            <Patch level="1">upstream/0039-vhost-logging-thinko-fix.patch</Patch>
+            <Patch level="1">upstream/0040-vhost-move-vhost_set_vq_addr.patch</Patch>
+            <Patch level="1">upstream/0041-vhost-used-addr-migration-fix.patch</Patch>
+            <Patch level="1">upstream/0042-vhost-fix-used-logging-size-math.patch</Patch>
+            <Patch level="1">upstream/0043-vhost-logging-mistake-enable-not-disable-log.patch</Patch>
+            <Patch level="1">upstream/0044-vhost-fix-log-base.patch</Patch>
+            <Patch level="1">upstream/0045-pc-Add-a-Fedora-13-machine-type-that-contains-backpo.patch</Patch>
+            <Patch level="1">upstream/0046-pc-Add-backward-compatibility-options-for-virtio-ser.patch</Patch>
+            <Patch level="1">upstream/0047-virtio-serial-don-t-set-MULTIPORT-for-1-port-dev.patch</Patch>
+            <Patch level="1">upstream/0048-virtio-serial-pci-Allow-MSI-to-be-disabled.patch</Patch>
+            <Patch level="1">upstream/0049-migration-Clear-fd-also-in-error-cases.patch</Patch>
+            <Patch level="1">upstream/0050-raw-posix-Detect-CDROM-via-ioctl-on-linux.patch</Patch>
+            <Patch level="1">upstream/0051-usb-linux-increase-buffer-for-USB-control-requests.patch</Patch>
+            <Patch level="1">upstream/0052-virtio-console-patches.patch</Patch>
+            <Patch level="1">upstream/0055-boot-remove-unused-boot_devices_bitmap-variable.patch</Patch>
+        </Patches>
+    </Source>
+
+    <Package>
+        <Name>kvm</Name>
+        <RuntimeDependencies>
+            <AnyDependency>
+                <Dependency>module-kvm</Dependency>
+                <Dependency>module-pae-kvm</Dependency>
+            </AnyDependency>
+            <Dependency>pulseaudio-libs</Dependency>
+            <Dependency>bluez-libs</Dependency>
+            <Dependency>cyrus-sasl</Dependency>
+            <Dependency>alsa-lib</Dependency>
+            <Dependency>libsdl</Dependency>
+            <Dependency>libaio</Dependency>
+            <Dependency>gnutls</Dependency>
+            <Dependency>qemu</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="config">/etc</Path>
+            <Path fileType="executable">/usr/bin</Path>
+            <Path fileType="executable">/usr/sbin</Path>
+            <Path fileType="data">/usr/share/kvm</Path>
+            <Path fileType="man">/usr/share/man</Path>
+        </Files>
+        <AdditionalFiles>
+            <AdditionalFile owner="root" permission="0644" target="/etc/conf.d/ksm">fedora/ksm.sysconfig</AdditionalFile>
+            <AdditionalFile owner="root" permission="0644" target="/etc/ksmtuned.conf">fedora/ksmtuned.conf</AdditionalFile>
+            <AdditionalFile owner="root" permission="0755" target="/usr/sbin/ksmtuned">fedora/ksmtuned</AdditionalFile>
+        </AdditionalFiles>
+        <!--
+        <Provides>
+            <COMAR script="ksm-service.py" name="ksm">System.Service</COMAR>
+            <COMAR script="ksmtuned-service.py" name="ksmtuned">System.Service</COMAR>
+        </Provides>
+        -->
+    </Package>
+
+    <History>
+        <Update release="54">
+            <Date>2010-08-02</Date>
+            <Version>0.12.5</Version>
+            <Comment>Version bump</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="53">
+            <Date>2010-07-15</Date>
+            <Version>0.12.4</Version>
+            <Comment>
+                - Version bump, add fedora patches,
+                - Install kvm tools,
+                - Add KSM support.
+            </Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="52">
+            <Date>2010-03-15</Date>
+            <Version>0.12.3</Version>
+            <Comment>Version bump, refactor dependencies.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="51">
+            <Date>2010-02-10</Date>
+            <Version>0.12.2</Version>
+            <Comment>Version bump</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="50">
+            <Date>2010-01-09</Date>
+            <Version>0.12.1.2</Version>
+            <Comment>Fix build failures caused by locale-dependent i->I conversions..</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="49">
+            <Date>2010-01-08</Date>
+            <Version>0.12.1.2</Version>
+            <Comment>Version bump.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="48">
+            <Date>2009-12-29</Date>
+            <Version>0.12.1.1</Version>
+            <Comment>Bump to 0.12.1.1</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="47">
+            <Date>2009-12-15</Date>
+            <Version>0.11.1</Version>
+            <Comment>
+                - Bump to 0.11.1,
+                - Use AnyDependency for kernel modules.
+            </Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="46">
+            <Date>2009-06-02</Date>
+            <Version>85</Version>
+            <Comment>
+                Switch back to kvm-devel series :
+                Version bump to qemu-kvm-devel-85,
+                Fix external boot problems,
+                Port multiboot support,
+                Add new dependencies cyrus-sasl and gnutls - internal vnc uses these.
+            </Comment>
+            <Name>Ekin Meroğlu</Name>
+            <Email>ekin@pardus.org.tr</Email>
+        </Update>
+        <Update release="45">
+            <Date>2009-05-14</Date>
+            <Version>0.10.4</Version>
+            <Comment>First release after kernel module and userspace split.</Comment>
+            <Name>Ekin Meroğlu</Name>
+            <Email>ekin@pardus.org.tr</Email>
+        </Update>
+        <Update release="44">
+            <Date>2009-04-29</Date>
+            <Version>84</Version>
+            <Comment>
+                - Version bump, for detailed changelog see http://www.linux-kvm.org/page/ChangeLog.
+                - Grab patches for Mac OS X Guests,
+                - Use kvm group for /dev/kvm, semi-automate module probbing,
+                - enable init-on-demand for kvm modules.
+            </Comment>
+            <Name>Ekin Meroğlu</Name>
+            <Email>ekin@pardus.org.tr</Email>
+        </Update>
+        <Update release="43">
+            <Date>2009-01-10</Date>
+            <Version>82</Version>
+            <Comment>
+                Version bump :
+                lots of stuff from both kvm and qemu are merged,
+                add pulseaudio support (fixes #8239)
+            </Comment>
+            <Name>Ekin Meroğlu</Name>
+            <Email>ekin@pardus.org.tr</Email>
+        </Update>
+        <Update release="42">
+            <Date>2008-08-28</Date>
+            <Version>74</Version>
+            <Comment>Version bump.</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="41">
+            <Date>2008-07-15</Date>
+            <Version>71</Version>
+            <Comment>Version bump.</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="40">
+            <Date>2008-06-17</Date>
+            <Version>70</Version>
+            <Comment>Version bump.</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="39">
+            <Date>2008-05-19</Date>
+            <Version>69</Version>
+            <Comment>Version bump.</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="38" type="security">
+            <Date>2008-05-08</Date>
+            <Version>68</Version>
+            <Comment>Fix CVE-2008-2004 in Qemu.</Comment>
+            <Name>Eren Türkay</Name>
+            <Email>turkay.eren@gmail.com</Email>
+        </Update>
+        <Update release="37">
+            <Date>2008-05-04</Date>
+            <Version>68</Version>
+            <Comment>Version bump</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="36">
+            <Date>2008-04-28</Date>
+            <Version>67</Version>
+            <Comment>Version bump</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="35">
+            <Date>2008-04-17</Date>
+            <Version>66</Version>
+            <Comment>Version bump</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="34">
+            <Date>2008-04-07</Date>
+            <Version>65</Version>
+            <Comment>Version bump</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="33" type="security">
+            <Date>2008-04-01</Date>
+            <Version>64</Version>
+            <Comment>Version bump, Fix unchecked block read/write vulnerability</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="32">
+            <Date>2008-03-05</Date>
+            <Version>63</Version>
+            <Comment>Version bump.</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="31">
+            <Date>2008-02-26</Date>
+            <Version>62</Version>
+            <Comment>Version bump.</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="30">
+            <Date>2008-02-20</Date>
+            <Version>61</Version>
+            <Comment>Version bump.</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="29">
+            <Date>2008-01-23</Date>
+            <Version>60</Version>
+            <Comment>Version bump.</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="28">
+            <Date>2008-01-03</Date>
+            <Version>59</Version>
+            <Comment>Version bump.</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="27">
+            <Date>2007-12-27</Date>
+            <Version>58</Version>
+            <Comment>Version bump.</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="26">
+            <Date>2007-12-18</Date>
+            <Version>57</Version>
+            <Comment>Version bump.</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="25">
+            <Date>2007-12-14</Date>
+            <Version>56</Version>
+            <Comment>Version bump.</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="24">
+            <Date>2007-12-07</Date>
+            <Version>55</Version>
+            <Comment>Version bump.</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="23">
+            <Date>2007-11-27</Date>
+            <Version>54</Version>
+            <Comment>Version bump.</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="22">
+            <Date>2007-11-22</Date>
+            <Version>53</Version>
+            <Comment>Version bump.</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="21">
+            <Date>2007-11-12</Date>
+            <Version>52</Version>
+            <Comment>Version bump.</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="20">
+            <Date>2007-11-07</Date>
+            <Version>51</Version>
+            <Comment>Version bump.</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="19">
+            <Date>2007-11-02</Date>
+            <Version>50</Version>
+            <Comment>Version bump.</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="18">
+            <Date>2007-10-30</Date>
+            <Version>49</Version>
+            <Comment>Version bump.</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="17">
+            <Date>2007-10-19</Date>
+            <Version>48</Version>
+            <Comment>Version bump.</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="16">
+            <Date>2007-10-10</Date>
+            <Version>46</Version>
+            <Comment>Version bump.</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="15">
+            <Date>2007-10-02</Date>
+            <Version>45</Version>
+            <Comment>Version bump.</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="14">
+            <Date>2007-09-23</Date>
+            <Version>44</Version>
+            <Comment>Version bump.</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="13">
+            <Date>2007-09-21</Date>
+            <Version>43</Version>
+            <Comment>Version bump.</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="12">
+            <Date>2007-09-21</Date>
+            <Version>42</Version>
+            <Comment>Version bump.</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="11">
+            <Date>2007-09-19</Date>
+            <Version>41</Version>
+            <Comment>Version bump.</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="10">
+            <Date>2007-09-18</Date>
+            <Version>40</Version>
+            <Comment>Version bump.</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="9">
+            <Date>2007-09-11</Date>
+            <Version>37</Version>
+            <Comment>Version bump.</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="8">
+            <Date>2007-08-29</Date>
+            <Version>36</Version>
+            <Comment>Version bump.</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="7">
+            <Date>2007-08-15</Date>
+            <Version>35</Version>
+            <Comment>Version bump.</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="6">
+            <Date>2007-07-31</Date>
+            <Version>33</Version>
+            <Comment>Version bump.</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="5">
+            <Date>2007-07-19</Date>
+            <Version>31</Version>
+            <Comment>Version bump.</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="4">
+            <Date>2007-07-19</Date>
+            <Version>30</Version>
+            <Comment>Version bump.</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="3">
+            <Date>2007-07-12</Date>
+            <Version>29</Version>
+            <Comment>Version bump.</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="2">
+            <Date>2007-06-14</Date>
+            <Version>28</Version>
+            <Comment>Version bump.</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="1">
+            <Date>2007-06-06</Date>
+            <Version>27</Version>
+            <Comment>First release.</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+    </History>
+</PISI>

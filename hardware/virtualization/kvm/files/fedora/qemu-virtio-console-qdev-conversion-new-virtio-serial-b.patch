@@ -1,0 +1,1366 @@
+From 76c8fc3a48dcaf6161d7cb68976db99aaf97efdd Mon Sep 17 00:00:00 2001
+From: Amit Shah <amit.shah@redhat.com>
+Date: Wed, 20 Jan 2010 00:36:52 +0530
+Subject: [PATCH 2/9] virtio-console: qdev conversion, new virtio-serial-bus
+
+This commit converts the virtio-console device to create a new
+virtio-serial bus that can host console and generic serial ports. The
+file hosting this code is now called virtio-serial-bus.c.
+
+The virtio console is now a very simple qdev device that sits on the
+virtio-serial-bus and communicates between the bus and qemu's chardevs.
+
+This commit also includes a few changes to the virtio backing code for
+pci and s390 to spawn the virtio-serial bus.
+
+As a result of the qdev conversion, we get rid of a lot of legacy code.
+The old-style way of instantiating a virtio console using
+
+    -virtioconsole ...
+
+is maintained, but the new, preferred way is to use
+
+    -device virtio-serial -device virtconsole,chardev=...
+
+With this commit, multiple devices as well as multiple ports with a
+single device can be supported.
+
+For multiple ports support, each port gets an IO vq pair. Since the
+guest needs to know in advance how many vqs a particular device will
+need, we have to set this number as a property of the virtio-serial
+device and also as a config option.
+
+In addition, we also spawn a pair of control IO vqs. This is an internal
+channel meant for guest-host communication for things like port
+open/close, sending port properties over to the guest, etc.
+
+This commit is a part of a series of other commits to get the full
+implementation of multiport support. Future commits will add other
+support as well as ride on the savevm version that we bump up here.
+
+Signed-off-by: Amit Shah <amit.shah@redhat.com>
+Signed-off-by: Anthony Liguori <aliguori@us.ibm.com>
+---
+ Makefile.target        |    2 +-
+ hw/pc.c                |   11 +-
+ hw/ppc440_bamboo.c     |    7 -
+ hw/qdev.c              |   10 +-
+ hw/s390-virtio-bus.c   |   17 +-
+ hw/s390-virtio-bus.h   |    2 +
+ hw/s390-virtio.c       |    8 -
+ hw/virtio-console.c    |  146 --------------
+ hw/virtio-console.h    |   19 --
+ hw/virtio-pci.c        |   13 +-
+ hw/virtio-serial-bus.c |  504 ++++++++++++++++++++++++++++++++++++++++++++++++
+ hw/virtio-serial.c     |  111 +++++++++++
+ hw/virtio-serial.h     |  158 +++++++++++++++
+ hw/virtio.h            |    2 +-
+ qemu-options.hx        |    4 +
+ sysemu.h               |    6 -
+ vl.c                   |   17 ++-
+ 17 files changed, 819 insertions(+), 218 deletions(-)
+ delete mode 100644 hw/virtio-console.c
+ delete mode 100644 hw/virtio-console.h
+ create mode 100644 hw/virtio-serial-bus.c
+ create mode 100644 hw/virtio-serial.c
+ create mode 100644 hw/virtio-serial.h
+
+diff --git a/Makefile.target b/Makefile.target
+index 6037fed..234577c 100644
+--- a/Makefile.target
++++ b/Makefile.target
+@@ -166,7 +166,7 @@ ifdef CONFIG_SOFTMMU
+ obj-y = vl.o async.o monitor.o pci.o pci_host.o pcie_host.o machine.o gdbstub.o
+ # virtio has to be here due to weird dependency between PCI and virtio-net.
+ # need to fix this properly
+-obj-y += virtio-blk.o virtio-balloon.o virtio-net.o virtio-console.o virtio-pci.o
++obj-y += virtio-blk.o virtio-balloon.o virtio-net.o virtio-serial.o virtio-serial-bus.o virtio-pci.o
+ obj-$(CONFIG_KVM) += kvm.o kvm-all.o
+ # MSI-X depends on kvm for interrupt injection,
+ # so moved it from Makefile.hw to Makefile.target for now
+diff --git a/hw/pc.c b/hw/pc.c
+index 78a07c2..acbfeba 100644
+--- a/hw/pc.c
++++ b/hw/pc.c
+@@ -1284,15 +1284,6 @@ static void pc_init1(ram_addr_t ram_size,
+ 	extboot_init(info->bdrv, 1);
+     }
+ 
+-    /* Add virtio console devices */
+-    if (pci_enabled) {
+-        for(i = 0; i < MAX_VIRTIO_CONSOLES; i++) {
+-            if (virtcon_hds[i]) {
+-                pci_create_simple(pci_bus, -1, "virtio-console-pci");
+-            }
+-        }
+-    }
+-
+ #ifdef CONFIG_KVM_DEVICE_ASSIGNMENT
+     if (kvm_enabled()) {
+         add_assigned_devices(pci_bus, assigned_devices, assigned_devices_index);
+@@ -1373,7 +1364,7 @@ static QEMUMachine pc_machine_v0_10 = {
+             .property = "class",
+             .value    = stringify(PCI_CLASS_STORAGE_OTHER),
+         },{
+-            .driver   = "virtio-console-pci",
++            .driver   = "virtio-serial-pci",
+             .property = "class",
+             .value    = stringify(PCI_CLASS_DISPLAY_OTHER),
+         },{
+diff --git a/hw/ppc440_bamboo.c b/hw/ppc440_bamboo.c
+index 25417e3..c94c961 100644
+--- a/hw/ppc440_bamboo.c
++++ b/hw/ppc440_bamboo.c
+@@ -109,13 +109,6 @@ static void bamboo_init(ram_addr_t ram_size,
+     env = ppc440ep_init(&ram_size, &pcibus, pci_irq_nrs, 1, cpu_model);
+ 
+     if (pcibus) {
+-        /* Add virtio console devices */
+-        for(i = 0; i < MAX_VIRTIO_CONSOLES; i++) {
+-            if (virtcon_hds[i]) {
+-                pci_create_simple(pcibus, -1, "virtio-console-pci");
+-            }
+-        }
+-
+         /* Register network interfaces. */
+         for (i = 0; i < nb_nics; i++) {
+             /* There are no PCI NICs on the Bamboo board, but there are
+diff --git a/hw/qdev.c b/hw/qdev.c
+index b6bd4ae..c643576 100644
+--- a/hw/qdev.c
++++ b/hw/qdev.c
+@@ -321,13 +321,9 @@ void qdev_machine_creation_done(void)
+ CharDriverState *qdev_init_chardev(DeviceState *dev)
+ {
+     static int next_serial;
+-    static int next_virtconsole;
+-    /* FIXME: This is a nasty hack that needs to go away.  */
+-    if (strncmp(dev->info->name, "virtio", 6) == 0) {
+-        return virtcon_hds[next_virtconsole++];
+-    } else {
+-        return serial_hds[next_serial++];
+-    }
++
++    /* FIXME: This function needs to go away: use chardev properties!  */
++    return serial_hds[next_serial++];
+ }
+ 
+ BusState *qdev_get_parent_bus(DeviceState *dev)
+diff --git a/hw/s390-virtio-bus.c b/hw/s390-virtio-bus.c
+index dc154ed..95c516a 100644
+--- a/hw/s390-virtio-bus.c
++++ b/hw/s390-virtio-bus.c
+@@ -26,7 +26,7 @@
+ #include "loader.h"
+ #include "elf.h"
+ #include "hw/virtio.h"
+-#include "hw/virtio-console.h"
++#include "hw/virtio-serial.h"
+ #include "hw/sysbus.h"
+ #include "kvm.h"
+ 
+@@ -130,7 +130,7 @@ static int s390_virtio_blk_init(VirtIOS390Device *dev)
+     return s390_virtio_device_init(dev, vdev);
+ }
+ 
+-static int s390_virtio_console_init(VirtIOS390Device *dev)
++static int s390_virtio_serial_init(VirtIOS390Device *dev)
+ {
+     VirtIOS390Bus *bus;
+     VirtIODevice *vdev;
+@@ -138,7 +138,7 @@ static int s390_virtio_console_init(VirtIOS390Device *dev)
+ 
+     bus = DO_UPCAST(VirtIOS390Bus, bus, dev->qdev.parent_bus);
+ 
+-    vdev = virtio_console_init((DeviceState *)dev);
++    vdev = virtio_serial_init((DeviceState *)dev, dev->max_virtserial_ports);
+     if (!vdev) {
+         return -1;
+     }
+@@ -336,11 +336,14 @@ static VirtIOS390DeviceInfo s390_virtio_blk = {
+     },
+ };
+ 
+-static VirtIOS390DeviceInfo s390_virtio_console = {
+-    .init = s390_virtio_console_init,
+-    .qdev.name = "virtio-console-s390",
++static VirtIOS390DeviceInfo s390_virtio_serial = {
++    .init = s390_virtio_serial_init,
++    .qdev.name = "virtio-serial-s390",
++    .qdev.alias = "virtio-serial",
+     .qdev.size = sizeof(VirtIOS390Device),
+     .qdev.props = (Property[]) {
++        DEFINE_PROP_UINT32("max_ports", VirtIOS390Device, max_virtserial_ports,
++                           31),
+         DEFINE_PROP_END_OF_LIST(),
+     },
+ };
+@@ -364,7 +367,7 @@ static void s390_virtio_bus_register_withprop(VirtIOS390DeviceInfo *info)
+ 
+ static void s390_virtio_register(void)
+ {
+-    s390_virtio_bus_register_withprop(&s390_virtio_console);
++    s390_virtio_bus_register_withprop(&s390_virtio_serial);
+     s390_virtio_bus_register_withprop(&s390_virtio_blk);
+     s390_virtio_bus_register_withprop(&s390_virtio_net);
+ }
+diff --git a/hw/s390-virtio-bus.h b/hw/s390-virtio-bus.h
+index ef36714..ad85ed3 100644
+--- a/hw/s390-virtio-bus.h
++++ b/hw/s390-virtio-bus.h
+@@ -40,6 +40,8 @@ typedef struct VirtIOS390Device {
+     VirtIODevice *vdev;
+     DriveInfo *dinfo;
+     NICConf nic;
++    /* Max. number of ports we can have for a the virtio-serial device */
++    uint32_t max_virtserial_ports;
+ } VirtIOS390Device;
+ 
+ typedef struct VirtIOS390Bus {
+diff --git a/hw/s390-virtio.c b/hw/s390-virtio.c
+index 0fa6ba6..3582728 100644
+--- a/hw/s390-virtio.c
++++ b/hw/s390-virtio.c
+@@ -26,7 +26,6 @@
+ #include "loader.h"
+ #include "elf.h"
+ #include "hw/virtio.h"
+-#include "hw/virtio-console.h"
+ #include "hw/sysbus.h"
+ #include "kvm.h"
+ 
+@@ -207,13 +206,6 @@ static void s390_init(ram_addr_t ram_size,
+                                strlen(kernel_cmdline), 1);
+     }
+ 
+-    /* Create VirtIO console */
+-    for(i = 0; i < MAX_VIRTIO_CONSOLES; i++) {
+-        if (virtcon_hds[i]) {
+-            qdev_init_nofail(qdev_create((BusState *)s390_bus, "virtio-console-s390"));
+-        }
+-    }
+-
+     /* Create VirtIO network adapters */
+     for(i = 0; i < nb_nics; i++) {
+         NICInfo *nd = &nd_table[i];
+diff --git a/hw/virtio-console.c b/hw/virtio-console.c
+deleted file mode 100644
+index 92c953c..0000000
+--- a/hw/virtio-console.c
++++ /dev/null
+@@ -1,146 +0,0 @@
+-/*
+- * Virtio Console Device
+- *
+- * Copyright IBM, Corp. 2008
+- *
+- * Authors:
+- *  Christian Ehrhardt <ehrhardt@linux.vnet.ibm.com>
+- *
+- * This work is licensed under the terms of the GNU GPL, version 2.  See
+- * the COPYING file in the top-level directory.
+- *
+- */
+-
+-#include "hw.h"
+-#include "qemu-char.h"
+-#include "virtio.h"
+-#include "virtio-console.h"
+-
+-
+-typedef struct VirtIOConsole
+-{
+-    VirtIODevice vdev;
+-    VirtQueue *ivq, *ovq;
+-    CharDriverState *chr;
+-} VirtIOConsole;
+-
+-static VirtIOConsole *to_virtio_console(VirtIODevice *vdev)
+-{
+-    return (VirtIOConsole *)vdev;
+-}
+-
+-static void virtio_console_handle_output(VirtIODevice *vdev, VirtQueue *vq)
+-{
+-    VirtIOConsole *s = to_virtio_console(vdev);
+-    VirtQueueElement elem;
+-
+-    while (virtqueue_pop(vq, &elem)) {
+-        ssize_t len = 0;
+-        int d;
+-
+-        for (d = 0; d < elem.out_num; d++) {
+-            len += qemu_chr_write(s->chr, (uint8_t *)elem.out_sg[d].iov_base,
+-                                  elem.out_sg[d].iov_len);
+-        }
+-        virtqueue_push(vq, &elem, len);
+-        virtio_notify(vdev, vq);
+-    }
+-}
+-
+-static void virtio_console_handle_input(VirtIODevice *vdev, VirtQueue *vq)
+-{
+-}
+-
+-static uint32_t virtio_console_get_features(VirtIODevice *vdev)
+-{
+-    return 0;
+-}
+-
+-static int vcon_can_read(void *opaque)
+-{
+-    VirtIOConsole *s = (VirtIOConsole *) opaque;
+-
+-    if (!virtio_queue_ready(s->ivq) ||
+-        !(s->vdev.status & VIRTIO_CONFIG_S_DRIVER_OK) ||
+-        virtio_queue_empty(s->ivq))
+-        return 0;
+-
+-    /* current implementations have a page sized buffer.
+-     * We fall back to a one byte per read if there is not enough room.
+-     * It would be cool to have a function that returns the available byte
+-     * instead of checking for a limit */
+-    if (virtqueue_avail_bytes(s->ivq, TARGET_PAGE_SIZE, 0))
+-        return TARGET_PAGE_SIZE;
+-    if (virtqueue_avail_bytes(s->ivq, 1, 0))
+-        return 1;
+-    return 0;
+-}
+-
+-static void vcon_read(void *opaque, const uint8_t *buf, int size)
+-{
+-    VirtIOConsole *s = (VirtIOConsole *) opaque;
+-    VirtQueueElement elem;
+-    int offset = 0;
+-
+-    /* The current kernel implementation has only one outstanding input
+-     * buffer of PAGE_SIZE. Nevertheless, this function is prepared to
+-     * handle multiple buffers with multiple sg element for input */
+-    while (offset < size) {
+-        int i = 0;
+-        if (!virtqueue_pop(s->ivq, &elem))
+-                break;
+-        while (offset < size && i < elem.in_num) {
+-            int len = MIN(elem.in_sg[i].iov_len, size - offset);
+-            memcpy(elem.in_sg[i].iov_base, buf + offset, len);
+-            offset += len;
+-            i++;
+-        }
+-        virtqueue_push(s->ivq, &elem, size);
+-    }
+-    virtio_notify(&s->vdev, s->ivq);
+-}
+-
+-static void vcon_event(void *opaque, int event)
+-{
+-    /* we will ignore any event for the time being */
+-}
+-
+-static void virtio_console_save(QEMUFile *f, void *opaque)
+-{
+-    VirtIOConsole *s = opaque;
+-
+-    virtio_save(&s->vdev, f);
+-}
+-
+-static int virtio_console_load(QEMUFile *f, void *opaque, int version_id)
+-{
+-    VirtIOConsole *s = opaque;
+-
+-    if (version_id != 1)
+-        return -EINVAL;
+-
+-    virtio_load(&s->vdev, f);
+-    return 0;
+-}
+-
+-VirtIODevice *virtio_console_init(DeviceState *dev)
+-{
+-    VirtIOConsole *s;
+-    s = (VirtIOConsole *)virtio_common_init("virtio-console",
+-                                            VIRTIO_ID_CONSOLE,
+-                                            0, sizeof(VirtIOConsole));
+-    if (s == NULL)
+-        return NULL;
+-
+-    s->vdev.get_features = virtio_console_get_features;
+-
+-    s->ivq = virtio_add_queue(&s->vdev, 128, virtio_console_handle_input);
+-    s->ovq = virtio_add_queue(&s->vdev, 128, virtio_console_handle_output);
+-
+-    s->chr = qdev_init_chardev(dev);
+-    qemu_chr_add_handlers(s->chr, vcon_can_read, vcon_read, vcon_event, s);
+-
+-    register_savevm("virtio-console", -1, 1, virtio_console_save, virtio_console_load, s);
+-
+-    return &s->vdev;
+-}
+diff --git a/hw/virtio-console.h b/hw/virtio-console.h
+deleted file mode 100644
+index 84d0717..0000000
+--- a/hw/virtio-console.h
++++ /dev/null
+@@ -1,19 +0,0 @@
+-/*
+- * Virtio Console Support
+- *
+- * Copyright IBM, Corp. 2008
+- *
+- * Authors:
+- *  Christian Ehrhardt <ehrhardt@linux.vnet.ibm.com>
+- *
+- * This work is licensed under the terms of the GNU GPL, version 2.  See
+- * the COPYING file in the top-level directory.
+- *
+- */
+-#ifndef _QEMU_VIRTIO_CONSOLE_H
+-#define _QEMU_VIRTIO_CONSOLE_H
+-
+-/* The ID for virtio console */
+-#define VIRTIO_ID_CONSOLE 3
+-
+-#endif
+diff --git a/hw/virtio-pci.c b/hw/virtio-pci.c
+index 3594152..c1a1e4c 100644
+--- a/hw/virtio-pci.c
++++ b/hw/virtio-pci.c
+@@ -92,6 +92,8 @@ typedef struct {
+     uint32_t nvectors;
+     DriveInfo *dinfo;
+     NICConf nic;
++    /* Max. number of ports we can have for a the virtio-serial device */
++    uint32_t max_virtserial_ports;
+ } VirtIOPCIProxy;
+ 
+ /* virtio device */
+@@ -481,7 +483,7 @@ static int virtio_blk_exit_pci(PCIDevice *pci_dev)
+     return virtio_exit_pci(pci_dev);
+ }
+ 
+-static int virtio_console_init_pci(PCIDevice *pci_dev)
++static int virtio_serial_init_pci(PCIDevice *pci_dev)
+ {
+     VirtIOPCIProxy *proxy = DO_UPCAST(VirtIOPCIProxy, pci_dev, pci_dev);
+     VirtIODevice *vdev;
+@@ -491,7 +493,7 @@ static int virtio_console_init_pci(PCIDevice *pci_dev)
+         proxy->class_code != PCI_CLASS_OTHERS)          /* qemu-kvm  */
+         proxy->class_code = PCI_CLASS_COMMUNICATION_OTHER;
+ 
+-    vdev = virtio_console_init(&pci_dev->qdev);
++    vdev = virtio_serial_init(&pci_dev->qdev, proxy->max_virtserial_ports);
+     if (!vdev) {
+         return -1;
+     }
+@@ -569,12 +571,15 @@ static PCIDeviceInfo virtio_info[] = {
+         },
+         .qdev.reset = virtio_pci_reset,
+     },{
+-        .qdev.name = "virtio-console-pci",
++        .qdev.name = "virtio-serial-pci",
++        .qdev.alias = "virtio-serial",
+         .qdev.size = sizeof(VirtIOPCIProxy),
+-        .init      = virtio_console_init_pci,
++        .init      = virtio_serial_init_pci,
+         .exit      = virtio_exit_pci,
+         .qdev.props = (Property[]) {
+             DEFINE_PROP_HEX32("class", VirtIOPCIProxy, class_code, 0),
++            DEFINE_PROP_UINT32("max_ports", VirtIOPCIProxy, max_virtserial_ports,
++                               31),
+             DEFINE_PROP_END_OF_LIST(),
+         },
+         .qdev.reset = virtio_pci_reset,
+diff --git a/hw/virtio-serial-bus.c b/hw/virtio-serial-bus.c
+new file mode 100644
+index 0000000..5132c9c
+--- /dev/null
++++ b/hw/virtio-serial-bus.c
+@@ -0,0 +1,504 @@
++/*
++ * A bus for connecting virtio serial and console ports
++ *
++ * Copyright (C) 2009 Red Hat, Inc.
++ *
++ * Author(s):
++ *  Amit Shah <amit.shah@redhat.com>
++ *
++ * Some earlier parts are:
++ *  Copyright IBM, Corp. 2008
++ * authored by
++ *  Christian Ehrhardt <ehrhardt@linux.vnet.ibm.com>
++ *
++ * This work is licensed under the terms of the GNU GPL, version 2.  See
++ * the COPYING file in the top-level directory.
++ */
++
++#include "monitor.h"
++#include "qemu-queue.h"
++#include "sysbus.h"
++#include "virtio-serial.h"
++
++/* The virtio-serial bus on top of which the ports will ride as devices */
++struct VirtIOSerialBus {
++    BusState qbus;
++
++    /* This is the parent device that provides the bus for ports. */
++    VirtIOSerial *vser;
++
++    /* The maximum number of ports that can ride on top of this bus */
++    uint32_t max_nr_ports;
++};
++
++struct VirtIOSerial {
++    VirtIODevice vdev;
++
++    VirtQueue *c_ivq, *c_ovq;
++    /* Arrays of ivqs and ovqs: one per port */
++    VirtQueue **ivqs, **ovqs;
++
++    VirtIOSerialBus *bus;
++
++    QTAILQ_HEAD(, VirtIOSerialPort) ports;
++    struct virtio_console_config config;
++};
++
++static VirtIOSerialPort *find_port_by_id(VirtIOSerial *vser, uint32_t id)
++{
++    VirtIOSerialPort *port;
++
++    QTAILQ_FOREACH(port, &vser->ports, next) {
++        if (port->id == id)
++            return port;
++    }
++    return NULL;
++}
++
++static VirtIOSerialPort *find_port_by_vq(VirtIOSerial *vser, VirtQueue *vq)
++{
++    VirtIOSerialPort *port;
++
++    QTAILQ_FOREACH(port, &vser->ports, next) {
++        if (port->ivq == vq || port->ovq == vq)
++            return port;
++    }
++    return NULL;
++}
++
++static size_t write_to_port(VirtIOSerialPort *port,
++                            const uint8_t *buf, size_t size)
++{
++    VirtQueueElement elem;
++    VirtQueue *vq;
++    size_t offset = 0;
++    size_t len = 0;
++
++    vq = port->ivq;
++    if (!virtio_queue_ready(vq)) {
++        return 0;
++    }
++    if (!size) {
++        return 0;
++    }
++
++    while (offset < size) {
++        int i;
++
++        if (!virtqueue_pop(vq, &elem)) {
++            break;
++        }
++
++        for (i = 0; offset < size && i < elem.in_num; i++) {
++            len = MIN(elem.in_sg[i].iov_len, size - offset);
++
++            memcpy(elem.in_sg[i].iov_base, buf + offset, len);
++            offset += len;
++        }
++        virtqueue_push(vq, &elem, len);
++    }
++
++    virtio_notify(&port->vser->vdev, vq);
++    return offset;
++}
++
++static size_t send_control_msg(VirtIOSerialPort *port, void *buf, size_t len)
++{
++    VirtQueueElement elem;
++    VirtQueue *vq;
++    struct virtio_console_control *cpkt;
++
++    vq = port->vser->c_ivq;
++    if (!virtio_queue_ready(vq)) {
++        return 0;
++    }
++    if (!virtqueue_pop(vq, &elem)) {
++        return 0;
++    }
++
++    cpkt = (struct virtio_console_control *)buf;
++    stl_p(&cpkt->id, port->id);
++    memcpy(elem.in_sg[0].iov_base, buf, len);
++
++    virtqueue_push(vq, &elem, len);
++    virtio_notify(&port->vser->vdev, vq);
++    return len;
++}
++
++static size_t send_control_event(VirtIOSerialPort *port, uint16_t event,
++                                 uint16_t value)
++{
++    struct virtio_console_control cpkt;
++
++    stw_p(&cpkt.event, event);
++    stw_p(&cpkt.value, value);
++
++    return send_control_msg(port, &cpkt, sizeof(cpkt));
++}
++
++/* Functions for use inside qemu to open and read from/write to ports */
++int virtio_serial_open(VirtIOSerialPort *port)
++{
++    return 0;
++}
++
++int virtio_serial_close(VirtIOSerialPort *port)
++{
++    return 0;
++}
++
++/* Individual ports/apps call this function to write to the guest. */
++ssize_t virtio_serial_write(VirtIOSerialPort *port, const uint8_t *buf,
++                            size_t size)
++{
++    return write_to_port(port, buf, size);
++}
++
++/*
++ * Readiness of the guest to accept data on a port.
++ * Returns max. data the guest can receive
++ */
++size_t virtio_serial_guest_ready(VirtIOSerialPort *port)
++{
++    VirtQueue *vq = port->ivq;
++
++    if (!virtio_queue_ready(vq) ||
++        !(port->vser->vdev.status & VIRTIO_CONFIG_S_DRIVER_OK) ||
++        virtio_queue_empty(vq)) {
++        return 0;
++    }
++
++    if (virtqueue_avail_bytes(vq, 4096, 0)) {
++        return 4096;
++    }
++    if (virtqueue_avail_bytes(vq, 1, 0)) {
++        return 1;
++    }
++    return 0;
++}
++
++/* Guest wants to notify us of some event */
++static void handle_control_message(VirtIOSerial *vser, void *buf)
++{
++    struct VirtIOSerialPort *port;
++    struct virtio_console_control cpkt, *gcpkt;
++
++    gcpkt = buf;
++    port = find_port_by_id(vser, ldl_p(&gcpkt->id));
++    if (!port)
++        return;
++
++    cpkt.event = lduw_p(&gcpkt->event);
++    cpkt.value = lduw_p(&gcpkt->value);
++
++    switch(cpkt.event) {
++    case VIRTIO_CONSOLE_PORT_READY:
++        /*
++         * Now that we know the guest asked for the port name, we're
++         * sure the guest has initialised whatever state is necessary
++         * for this port. Now's a good time to let the guest know if
++         * this port is a console port so that the guest can hook it
++         * up to hvc.
++         */
++        if (port->is_console) {
++            send_control_event(port, VIRTIO_CONSOLE_CONSOLE_PORT, 1);
++        }
++        /*
++         * When the guest has asked us for this information it means
++         * the guest is all setup and has its virtqueues
++         * initialised. If some app is interested in knowing about
++         * this event, let it know.
++         */
++        if (port->info->guest_ready) {
++            port->info->guest_ready(port);
++        }
++        break;
++    }
++}
++
++static void control_in(VirtIODevice *vdev, VirtQueue *vq)
++{
++}
++
++static void control_out(VirtIODevice *vdev, VirtQueue *vq)
++{
++    VirtQueueElement elem;
++    VirtIOSerial *vser;
++
++    vser = DO_UPCAST(VirtIOSerial, vdev, vdev);
++
++    while (virtqueue_pop(vq, &elem)) {
++        handle_control_message(vser, elem.out_sg[0].iov_base);
++        virtqueue_push(vq, &elem, elem.out_sg[0].iov_len);
++    }
++    virtio_notify(vdev, vq);
++}
++
++/* Guest wrote something to some port. */
++static void handle_output(VirtIODevice *vdev, VirtQueue *vq)
++{
++    VirtIOSerial *vser;
++    VirtQueueElement elem;
++
++    vser = DO_UPCAST(VirtIOSerial, vdev, vdev);
++
++    while (virtqueue_pop(vq, &elem)) {
++        VirtIOSerialPort *port;
++        size_t ret;
++
++        port = find_port_by_vq(vser, vq);
++        if (!port) {
++            ret = 0;
++            goto next_buf;
++        }
++
++        /*
++         * A port may not have any handler registered for consuming the
++         * data that the guest sends or it may not have a chardev associated
++         * with it. Just ignore the data in that case.
++         */
++        if (!port->info->have_data) {
++            ret = 0;
++            goto next_buf;
++        }
++
++        /* The guest always sends only one sg */
++        ret = port->info->have_data(port, elem.out_sg[0].iov_base,
++                                    elem.out_sg[0].iov_len);
++
++    next_buf:
++        virtqueue_push(vq, &elem, ret);
++    }
++    virtio_notify(vdev, vq);
++}
++
++static void handle_input(VirtIODevice *vdev, VirtQueue *vq)
++{
++}
++
++static uint32_t get_features(VirtIODevice *vdev)
++{
++    return 1 << VIRTIO_CONSOLE_F_MULTIPORT;
++}
++
++/* Guest requested config info */
++static void get_config(VirtIODevice *vdev, uint8_t *config_data)
++{
++    VirtIOSerial *vser;
++
++    vser = DO_UPCAST(VirtIOSerial, vdev, vdev);
++    memcpy(config_data, &vser->config, sizeof(struct virtio_console_config));
++}
++
++static void set_config(VirtIODevice *vdev, const uint8_t *config_data)
++{
++    struct virtio_console_config config;
++
++    memcpy(&config, config_data, sizeof(config));
++}
++
++static void virtio_serial_save(QEMUFile *f, void *opaque)
++{
++    VirtIOSerial *s = opaque;
++
++    /* The virtio device */
++    virtio_save(&s->vdev, f);
++
++    /* The config space */
++    qemu_put_be16s(f, &s->config.cols);
++    qemu_put_be16s(f, &s->config.rows);
++    qemu_put_be32s(f, &s->config.nr_ports);
++}
++
++static int virtio_serial_load(QEMUFile *f, void *opaque, int version_id)
++{
++    VirtIOSerial *s = opaque;
++
++    if (version_id > 2) {
++        return -EINVAL;
++    }
++    /* The virtio device */
++    virtio_load(&s->vdev, f);
++
++    if (version_id < 2) {
++        return 0;
++    }
++
++    /* The config space */
++    qemu_get_be16s(f, &s->config.cols);
++    qemu_get_be16s(f, &s->config.rows);
++    s->config.nr_ports = qemu_get_be32(f);
++
++    return 0;
++}
++
++static void virtser_bus_dev_print(Monitor *mon, DeviceState *qdev, int indent);
++
++static struct BusInfo virtser_bus_info = {
++    .name      = "virtio-serial-bus",
++    .size      = sizeof(VirtIOSerialBus),
++    .print_dev = virtser_bus_dev_print,
++};
++
++static VirtIOSerialBus *virtser_bus_new(DeviceState *dev)
++{
++    VirtIOSerialBus *bus;
++
++    bus = FROM_QBUS(VirtIOSerialBus, qbus_create(&virtser_bus_info, dev, NULL));
++    bus->qbus.allow_hotplug = 1;
++
++    return bus;
++}
++
++static void virtser_bus_dev_print(Monitor *mon, DeviceState *qdev, int indent)
++{
++    VirtIOSerialDevice *dev = DO_UPCAST(VirtIOSerialDevice, qdev, qdev);
++    VirtIOSerialPort *port = DO_UPCAST(VirtIOSerialPort, dev, &dev->qdev);
++
++    monitor_printf(mon, "%*s dev-prop-int: id: %u\n",
++                   indent, "", port->id);
++}
++
++static int virtser_port_qdev_init(DeviceState *qdev, DeviceInfo *base)
++{
++    VirtIOSerialDevice *dev = DO_UPCAST(VirtIOSerialDevice, qdev, qdev);
++    VirtIOSerialPortInfo *info = DO_UPCAST(VirtIOSerialPortInfo, qdev, base);
++    VirtIOSerialPort *port = DO_UPCAST(VirtIOSerialPort, dev, &dev->qdev);
++    VirtIOSerialBus *bus = DO_UPCAST(VirtIOSerialBus, qbus, qdev->parent_bus);
++    int ret;
++    bool plugging_port0;
++
++    port->vser = bus->vser;
++
++    /*
++     * Is the first console port we're seeing? If so, put it up at
++     * location 0. This is done for backward compatibility (old
++     * kernel, new qemu).
++     */
++    plugging_port0 = port->is_console && !find_port_by_id(port->vser, 0);
++
++    if (port->vser->config.nr_ports == bus->max_nr_ports && !plugging_port0) {
++        qemu_error("virtio-serial-bus: Maximum device limit reached\n");
++        return -1;
++    }
++    dev->info = info;
++
++    ret = info->init(dev);
++    if (ret) {
++        return ret;
++    }
++
++    port->id = plugging_port0 ? 0 : port->vser->config.nr_ports++;
++
++    QTAILQ_INSERT_TAIL(&port->vser->ports, port, next);
++    port->ivq = port->vser->ivqs[port->id];
++    port->ovq = port->vser->ovqs[port->id];
++
++    /* Send an update to the guest about this new port added */
++    virtio_notify_config(&port->vser->vdev);
++
++    return ret;
++}
++
++static int virtser_port_qdev_exit(DeviceState *qdev)
++{
++    VirtIOSerialDevice *dev = DO_UPCAST(VirtIOSerialDevice, qdev, qdev);
++    VirtIOSerialPort *port = DO_UPCAST(VirtIOSerialPort, dev, &dev->qdev);
++    VirtIOSerial *vser = port->vser;
++
++    /*
++     * Don't decrement nr_ports here; thus we keep a linearly
++     * increasing port id. Not utilising an id again saves us a couple
++     * of complications:
++     *
++     * - Not having to bother about sending the port id to the guest
++     *   kernel on hotplug or on addition of new ports; the guest can
++     *   also linearly increment the port number. This is preferable
++     *   because the config space won't have the need to store a
++     *   ports_map.
++     *
++     * - Extra state to be stored for all the "holes" that got created
++     *   so that we keep filling in the ids from the least available
++     *   index.
++     *
++     * When such a functionality is desired, a control message to add
++     * a port can be introduced.
++     */
++    QTAILQ_REMOVE(&vser->ports, port, next);
++
++    if (port->info->exit)
++        port->info->exit(dev);
++
++    return 0;
++}
++
++void virtio_serial_port_qdev_register(VirtIOSerialPortInfo *info)
++{
++    info->qdev.init = virtser_port_qdev_init;
++    info->qdev.bus_info = &virtser_bus_info;
++    info->qdev.exit = virtser_port_qdev_exit;
++    info->qdev.unplug = qdev_simple_unplug_cb;
++    qdev_register(&info->qdev);
++}
++
++VirtIODevice *virtio_serial_init(DeviceState *dev, uint32_t max_nr_ports)
++{
++    VirtIOSerial *vser;
++    VirtIODevice *vdev;
++    uint32_t i;
++
++    if (!max_nr_ports)
++        return NULL;
++
++    vdev = virtio_common_init("virtio-serial", VIRTIO_ID_CONSOLE,
++                              sizeof(struct virtio_console_config),
++                              sizeof(VirtIOSerial));
++
++    vser = DO_UPCAST(VirtIOSerial, vdev, vdev);
++
++    /* Spawn a new virtio-serial bus on which the ports will ride as devices */
++    vser->bus = virtser_bus_new(dev);
++    vser->bus->vser = vser;
++    QTAILQ_INIT(&vser->ports);
++
++    vser->bus->max_nr_ports = max_nr_ports;
++    vser->ivqs = qemu_malloc(max_nr_ports * sizeof(VirtQueue *));
++    vser->ovqs = qemu_malloc(max_nr_ports * sizeof(VirtQueue *));
++
++    /* Add a queue for host to guest transfers for port 0 (backward compat) */
++    vser->ivqs[0] = virtio_add_queue(vdev, 128, handle_input);
++    /* Add a queue for guest to host transfers for port 0 (backward compat) */
++    vser->ovqs[0] = virtio_add_queue(vdev, 128, handle_output);
++
++    /* control queue: host to guest */
++    vser->c_ivq = virtio_add_queue(vdev, 16, control_in);
++    /* control queue: guest to host */
++    vser->c_ovq = virtio_add_queue(vdev, 16, control_out);
++
++    for (i = 1; i < vser->bus->max_nr_ports; i++) {
++        /* Add a per-port queue for host to guest transfers */
++        vser->ivqs[i] = virtio_add_queue(vdev, 128, handle_input);
++        /* Add a per-per queue for guest to host transfers */
++        vser->ovqs[i] = virtio_add_queue(vdev, 128, handle_output);
++    }
++
++    vser->config.max_nr_ports = max_nr_ports;
++    /*
++     * Reserve location 0 for a console port for backward compat
++     * (old kernel, new qemu)
++     */
++    vser->config.nr_ports = 1;
++
++    vser->vdev.get_features = get_features;
++    vser->vdev.get_config = get_config;
++    vser->vdev.set_config = set_config;
++
++    /*
++     * Register for the savevm section with the virtio-console name
++     * to preserve backward compat
++     */
++    register_savevm("virtio-console", -1, 2, virtio_serial_save,
++                    virtio_serial_load, vser);
++
++    return vdev;
++}
+diff --git a/hw/virtio-serial.c b/hw/virtio-serial.c
+new file mode 100644
+index 0000000..1dc031e
+--- /dev/null
++++ b/hw/virtio-serial.c
+@@ -0,0 +1,111 @@
++/*
++ * Virtio Console and Generic Serial Port Devices
++ *
++ * Copyright Red Hat, Inc. 2009
++ *
++ * Authors:
++ *  Amit Shah <amit.shah@redhat.com>
++ *
++ * This work is licensed under the terms of the GNU GPL, version 2.  See
++ * the COPYING file in the top-level directory.
++ */
++
++#include "qemu-char.h"
++#include "virtio-serial.h"
++
++typedef struct VirtConsole {
++    VirtIOSerialPort port;
++    CharDriverState *chr;
++} VirtConsole;
++
++
++/* Callback function that's called when the guest sends us data */
++static size_t flush_buf(VirtIOSerialPort *port, const uint8_t *buf, size_t len)
++{
++    VirtConsole *vcon = DO_UPCAST(VirtConsole, port, port);
++    ssize_t ret;
++
++    ret = qemu_chr_write(vcon->chr, buf, len);
++
++    return ret < 0 ? 0 : ret;
++}
++
++/* Readiness of the guest to accept data on a port */
++static int chr_can_read(void *opaque)
++{
++    VirtConsole *vcon = opaque;
++
++    return virtio_serial_guest_ready(&vcon->port);
++}
++
++/* Send data from a char device over to the guest */
++static void chr_read(void *opaque, const uint8_t *buf, int size)
++{
++    VirtConsole *vcon = opaque;
++
++    virtio_serial_write(&vcon->port, buf, size);
++}
++
++static void chr_event(void *opaque, int event)
++{
++    VirtConsole *vcon = opaque;
++
++    switch (event) {
++    case CHR_EVENT_OPENED: {
++        virtio_serial_open(&vcon->port);
++        break;
++    }
++    case CHR_EVENT_CLOSED:
++        virtio_serial_close(&vcon->port);
++        break;
++    }
++}
++
++/* Virtio Console Ports */
++static int virtconsole_initfn(VirtIOSerialDevice *dev)
++{
++    VirtIOSerialPort *port = DO_UPCAST(VirtIOSerialPort, dev, &dev->qdev);
++    VirtConsole *vcon = DO_UPCAST(VirtConsole, port, port);
++
++    port->info = dev->info;
++
++    port->is_console = true;
++
++    if (vcon->chr) {
++        qemu_chr_add_handlers(vcon->chr, chr_can_read, chr_read, chr_event,
++                              vcon);
++        port->info->have_data = flush_buf;
++    }
++    return 0;
++}
++
++static int virtconsole_exitfn(VirtIOSerialDevice *dev)
++{
++    VirtIOSerialPort *port = DO_UPCAST(VirtIOSerialPort, dev, &dev->qdev);
++    VirtConsole *vcon = DO_UPCAST(VirtConsole, port, port);
++
++    if (vcon->chr) {
++        port->info->have_data = NULL;
++        qemu_chr_close(vcon->chr);
++    }
++
++    return 0;
++}
++
++static VirtIOSerialPortInfo virtconsole_info = {
++    .qdev.name     = "virtconsole",
++    .qdev.size     = sizeof(VirtConsole),
++    .init          = virtconsole_initfn,
++    .exit          = virtconsole_exitfn,
++    .qdev.props = (Property[]) {
++        DEFINE_PROP_UINT8("is_console", VirtConsole, port.is_console, 1),
++        DEFINE_PROP_CHR("chardev", VirtConsole, chr),
++        DEFINE_PROP_END_OF_LIST(),
++    },
++};
++
++static void virtconsole_register(void)
++{
++    virtio_serial_port_qdev_register(&virtconsole_info);
++}
++device_init(virtconsole_register)
+diff --git a/hw/virtio-serial.h b/hw/virtio-serial.h
+new file mode 100644
+index 0000000..fe8e357
+--- /dev/null
++++ b/hw/virtio-serial.h
+@@ -0,0 +1,158 @@
++/*
++ * Virtio Serial / Console Support
++ *
++ * Copyright IBM, Corp. 2008
++ * Copyright Red Hat, Inc. 2009
++ *
++ * Authors:
++ *  Christian Ehrhardt <ehrhardt@linux.vnet.ibm.com>
++ *  Amit Shah <amit.shah@redhat.com>
++ *
++ * This work is licensed under the terms of the GNU GPL, version 2.  See
++ * the COPYING file in the top-level directory.
++ *
++ */
++#ifndef _QEMU_VIRTIO_SERIAL_H
++#define _QEMU_VIRTIO_SERIAL_H
++
++#include <stdbool.h>
++#include "qdev.h"
++#include "virtio.h"
++
++/* == Interface shared between the guest kernel and qemu == */
++
++/* The Virtio ID for virtio console / serial ports */
++#define VIRTIO_ID_CONSOLE		3
++
++/* Features supported */
++#define VIRTIO_CONSOLE_F_MULTIPORT	1
++
++struct virtio_console_config {
++    /*
++     * These two fields are used by VIRTIO_CONSOLE_F_SIZE which
++     * isn't implemented here yet
++     */
++    uint16_t cols;
++    uint16_t rows;
++
++    uint32_t max_nr_ports;
++    uint32_t nr_ports;
++} __attribute__((packed));
++
++struct virtio_console_control {
++    uint32_t id;		/* Port number */
++    uint16_t event;		/* The kind of control event (see below) */
++    uint16_t value;		/* Extra information for the key */
++};
++
++/* Some events for the internal messages (control packets) */
++#define VIRTIO_CONSOLE_PORT_READY	0
++#define VIRTIO_CONSOLE_CONSOLE_PORT	1
++#define VIRTIO_CONSOLE_RESIZE		2
++
++/* == In-qemu interface == */
++
++typedef struct VirtIOSerial VirtIOSerial;
++typedef struct VirtIOSerialBus VirtIOSerialBus;
++typedef struct VirtIOSerialPort VirtIOSerialPort;
++typedef struct VirtIOSerialPortInfo VirtIOSerialPortInfo;
++
++typedef struct VirtIOSerialDevice {
++    DeviceState qdev;
++    VirtIOSerialPortInfo *info;
++} VirtIOSerialDevice;
++
++/*
++ * This is the state that's shared between all the ports.  Some of the
++ * state is configurable via command-line options. Some of it can be
++ * set by individual devices in their initfn routines. Some of the
++ * state is set by the generic qdev device init routine.
++ */
++struct VirtIOSerialPort {
++    DeviceState dev;
++    VirtIOSerialPortInfo *info;
++
++    QTAILQ_ENTRY(VirtIOSerialPort) next;
++
++    /*
++     * This field gives us the virtio device as well as the qdev bus
++     * that we are associated with
++     */
++    VirtIOSerial *vser;
++
++    VirtQueue *ivq, *ovq;
++
++    /*
++     * This id helps identify ports between the guest and the host.
++     * The guest sends a "header" with this id with each data packet
++     * that it sends and the host can then find out which associated
++     * device to send out this data to
++     */
++    uint32_t id;
++
++    /* Identify if this is a port that binds with hvc in the guest */
++    uint8_t is_console;
++};
++
++struct VirtIOSerialPortInfo {
++    DeviceInfo qdev;
++    /*
++     * The per-port (or per-app) init function that's called when a
++     * new device is found on the bus.
++     */
++    int (*init)(VirtIOSerialDevice *dev);
++    /*
++     * Per-port exit function that's called when a port gets
++     * hot-unplugged or removed.
++     */
++    int (*exit)(VirtIOSerialDevice *dev);
++
++    /* Callbacks for guest events */
++        /* Guest opened device. */
++    void (*guest_open)(VirtIOSerialPort *port);
++        /* Guest closed device. */
++    void (*guest_close)(VirtIOSerialPort *port);
++
++        /* Guest is now ready to accept data (virtqueues set up). */
++    void (*guest_ready)(VirtIOSerialPort *port);
++
++    /*
++     * Guest wrote some data to the port. This data is handed over to
++     * the app via this callback. The app should return the number of
++     * bytes it successfully consumed.
++     */
++    size_t (*have_data)(VirtIOSerialPort *port, const uint8_t *buf, size_t len);
++};
++
++/* Interface to the virtio-serial bus */
++
++/*
++ * Individual ports/apps should call this function to register the port
++ * with the virtio-serial bus
++ */
++void virtio_serial_port_qdev_register(VirtIOSerialPortInfo *info);
++
++/*
++ * Open a connection to the port
++ *   Returns 0 on success (always).
++ */
++int virtio_serial_open(VirtIOSerialPort *port);
++
++/*
++ * Close the connection to the port
++ *   Returns 0 on success (always).
++ */
++int virtio_serial_close(VirtIOSerialPort *port);
++
++/*
++ * Send data to Guest
++ */
++ssize_t virtio_serial_write(VirtIOSerialPort *port, const uint8_t *buf,
++                            size_t size);
++
++/*
++ * Query whether a guest is ready to receive data.
++ */
++size_t virtio_serial_guest_ready(VirtIOSerialPort *port);
++
++#endif
+diff --git a/hw/virtio.h b/hw/virtio.h
+index 051910a..a574928 100644
+--- a/hw/virtio.h
++++ b/hw/virtio.h
+@@ -171,7 +171,7 @@ void virtio_bind_device(VirtIODevice *vdev, const VirtIOBindings *binding,
+ /* Base devices.  */
+ VirtIODevice *virtio_blk_init(DeviceState *dev, DriveInfo *dinfo);
+ VirtIODevice *virtio_net_init(DeviceState *dev, NICConf *conf);
+-VirtIODevice *virtio_console_init(DeviceState *dev);
++VirtIODevice *virtio_serial_init(DeviceState *dev, uint32_t max_nr_ports);
+ VirtIODevice *virtio_balloon_init(DeviceState *dev);
+ 
+ void virtio_net_exit(VirtIODevice *vdev);
+diff --git a/qemu-options.hx b/qemu-options.hx
+index ca73ba5..173b1ec 100644
+--- a/qemu-options.hx
++++ b/qemu-options.hx
+@@ -1874,6 +1874,10 @@ DEF("virtioconsole", HAS_ARG, QEMU_OPTION_virtiocon, \
+ STEXI
+ @item -virtioconsole @var{c}
+ Set virtio console.
++
++This option is maintained for backward compatibility.
++
++Please use @code{-device virtconsole} for the new way of invocation.
+ ETEXI
+ 
+ DEF("show-cursor", 0, QEMU_OPTION_show_cursor, \
+diff --git a/sysemu.h b/sysemu.h
+index a545a2b..ff97786 100644
+--- a/sysemu.h
++++ b/sysemu.h
+@@ -237,12 +237,6 @@ extern CharDriverState *serial_hds[MAX_SERIAL_PORTS];
+ 
+ extern CharDriverState *parallel_hds[MAX_PARALLEL_PORTS];
+ 
+-/* virtio consoles */
+-
+-#define MAX_VIRTIO_CONSOLES 1
+-
+-extern CharDriverState *virtcon_hds[MAX_VIRTIO_CONSOLES];
+-
+ #define TFR(expr) do { if ((expr) != -1) break; } while (errno == EINTR)
+ 
+ #ifdef HAS_AUDIO
+diff --git a/vl.c b/vl.c
+index c9d46de..a479ef3 100644
+--- a/vl.c
++++ b/vl.c
+@@ -175,6 +175,8 @@ int main(int argc, char **argv)
+ 
+ #define DEFAULT_RAM_SIZE 128
+ 
++#define MAX_VIRTIO_CONSOLES 1
++
+ static const char *data_dir;
+ const char *bios_name = NULL;
+ /* Note: drives_table[MAX_DRIVES] is a dummy block driver if none available
+@@ -300,8 +302,9 @@ static struct {
+     { .driver = "isa-parallel",         .flag = &default_parallel  },
+     { .driver = "isa-fdc",              .flag = &default_floppy    },
+     { .driver = "ide-drive",            .flag = &default_cdrom     },
+-    { .driver = "virtio-console-pci",   .flag = &default_virtcon   },
+-    { .driver = "virtio-console-s390",  .flag = &default_virtcon   },
++    { .driver = "virtio-serial-pci",    .flag = &default_virtcon   },
++    { .driver = "virtio-serial-s390",   .flag = &default_virtcon   },
++    { .driver = "virtio-serial",        .flag = &default_virtcon   },
+     { .driver = "VGA",                  .flag = &default_vga       },
+     { .driver = "cirrus-vga",           .flag = &default_vga       },
+     { .driver = "vmware-svga",          .flag = &default_vga       },
+@@ -4885,6 +4888,7 @@ static int virtcon_parse(const char *devname)
+ {
+     static int index = 0;
+     char label[32];
++    QemuOpts *bus_opts, *dev_opts;
+ 
+     if (strcmp(devname, "none") == 0)
+         return 0;
+@@ -4892,6 +4896,13 @@ static int virtcon_parse(const char *devname)
+         fprintf(stderr, "qemu: too many virtio consoles\n");
+         exit(1);
+     }
++
++    bus_opts = qemu_opts_create(&qemu_device_opts, NULL, 0);
++    qemu_opt_set(bus_opts, "driver", "virtio-serial");
++
++    dev_opts = qemu_opts_create(&qemu_device_opts, NULL, 0);
++    qemu_opt_set(dev_opts, "driver", "virtconsole");
++
+     snprintf(label, sizeof(label), "virtcon%d", index);
+     virtcon_hds[index] = qemu_chr_open(label, devname, NULL);
+     if (!virtcon_hds[index]) {
+@@ -4899,6 +4910,8 @@ static int virtcon_parse(const char *devname)
+                 devname, strerror(errno));
+         return -1;
+     }
++    qemu_opt_set(dev_opts, "chardev", label);
++
+     index++;
+     return 0;
+ }
+-- 
+1.6.2.5
+

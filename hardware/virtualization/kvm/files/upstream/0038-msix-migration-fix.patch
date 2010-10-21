@@ -1,0 +1,43 @@
+From af483cb870ad81dce8e10215e0add284fcc38da4 Mon Sep 17 00:00:00 2001
+From: Michael S. Tsirkin <mst@redhat.com>
+Date: Wed, 24 Feb 2010 21:09:45 +0200
+Subject: [PATCH] msix: migration fix
+
+Be careful to match mask/unmask callbacks from msix.
+Fixes crash during migration.
+
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+ hw/msix.c |   16 +++++++++++++---
+ 1 files changed, 13 insertions(+), 3 deletions(-)
+
+diff --git a/hw/msix.c b/hw/msix.c
+index 3fcf3a1..fafaf09 100644
+--- a/hw/msix.c
++++ b/hw/msix.c
+@@ -614,9 +614,19 @@ int msix_set_mask_notifier(PCIDevice *dev, unsigned vector, void *opaque)
+     if (vector >= dev->msix_entries_nr || !dev->msix_entry_used[vector])
+         return 0;
+
+-    if (dev->msix_mask_notifier)
+-        r = dev->msix_mask_notifier(dev, vector, opaque,
+-                                    msix_is_masked(dev, vector));
++    if (dev->msix_mask_notifier && !msix_is_masked(dev, vector)) {
++        /* Mask previous notifier if any */
++        if (dev->msix_mask_notifier_opaque[vector]) {
++            r = dev->msix_mask_notifier(dev, vector,
++                                        dev->msix_mask_notifier_opaque[vector],
++                                        1);
++            assert(r >= 0);
++        }
++        /* Unmask new notifier, assumed to be masked at start */
++        if (opaque) {
++            r = dev->msix_mask_notifier(dev, vector, opaque, 0);
++        }
++    }
+     if (r >= 0)
+         dev->msix_mask_notifier_opaque[vector] = opaque;
+     return r;
+-- 
+1.6.6.1
+

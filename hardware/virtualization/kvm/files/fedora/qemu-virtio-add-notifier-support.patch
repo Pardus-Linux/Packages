@@ -1,0 +1,78 @@
+Add binding API to set host/guest notifiers.
+Will be used by vhost.
+
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+ hw/virtio.c |   13 ++++++++++---
+ hw/virtio.h |    5 ++++-
+ 2 files changed, 14 insertions(+), 4 deletions(-)
+
+diff --git a/hw/virtio.c b/hw/virtio.c
+index fa7184a..c2b80aa 100644
+--- a/hw/virtio.c
++++ b/hw/virtio.c
+@@ -594,6 +594,12 @@ VirtQueue *virtio_add_queue(VirtIODevice *vdev, int queue_size,
+     return &vdev->vq[i];
+ }
+ 
++void virtio_irq(VirtIODevice *vdev, VirtQueue *vq)
++{
++    vdev->isr |= 0x01;
++    virtio_notify_vector(vdev, vq->vector);
++}
++
+ void virtio_notify(VirtIODevice *vdev, VirtQueue *vq)
+ {
+     /* Always notify when queue is empty (when feature acknowledge) */
+@@ -602,8 +608,7 @@ void virtio_notify(VirtIODevice *vdev, VirtQueue *vq)
+          (vq->inuse || vring_avail_idx(vq) != vq->last_avail_idx)))
+         return;
+ 
+-    vdev->isr |= 0x01;
+-    virtio_notify_vector(vdev, vq->vector);
++    virtio_irq(vdev, vq);
+ }
+ 
+ void virtio_notify_config(VirtIODevice *vdev)
+@@ -716,8 +721,10 @@ VirtIODevice *virtio_common_init(const char *name, uint16_t device_id,
+     vdev->queue_sel = 0;
+     vdev->config_vector = VIRTIO_NO_VECTOR;
+     vdev->vq = qemu_mallocz(sizeof(VirtQueue) * VIRTIO_PCI_QUEUE_MAX);
+-    for(i = 0; i < VIRTIO_PCI_QUEUE_MAX; i++)
++    for(i = 0; i < VIRTIO_PCI_QUEUE_MAX; i++) {
+         vdev->vq[i].vector = VIRTIO_NO_VECTOR;
++        vdev->vq[i].vdev = vdev;
++    }
+ 
+     vdev->name = name;
+     vdev->config_len = config_size;
+diff --git a/hw/virtio.h b/hw/virtio.h
+index 3994cc9..10a0959 100644
+--- a/hw/virtio.h
++++ b/hw/virtio.h
+@@ -18,6 +18,7 @@
+ #include "net.h"
+ #include "qdev.h"
+ #include "sysemu.h"
++#include "notifier.h"
+ 
+ /* from Linux's linux/virtio_config.h */
+ 
+@@ -88,6 +89,8 @@ typedef struct {
+     int (*load_config)(void * opaque, QEMUFile *f);
+     int (*load_queue)(void * opaque, int n, QEMUFile *f);
+     unsigned (*get_features)(void * opaque);
++    int (*guest_notifier)(void * opaque, int n, bool assigned);
++    int (*host_notifier)(void * opaque, int n, bool assigned);
+ } VirtIOBindings;
+ 
+ #define VIRTIO_PCI_QUEUE_MAX 64
+@@ -180,5 +183,5 @@ void virtio_net_exit(VirtIODevice *vdev);
+ 	DEFINE_PROP_BIT("indirect_desc", _state, _field, \
+ 			VIRTIO_RING_F_INDIRECT_DESC, true)
+ 
+-
++void virtio_irq(VirtIODevice *vdev, VirtQueue *vq);
+ #endif
+-- 
+1.6.6.144.g5c3af

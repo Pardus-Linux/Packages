@@ -1,0 +1,869 @@
+This adds vhost net support in qemu. Will be tied to tap device and
+virtio by following patches.  Raw backend is currently missing, will be
+worked on/submitted separately.
+
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+ Makefile.target |    1 +
+ hw/vhost.c      |  603 +++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ hw/vhost.h      |   44 ++++
+ hw/vhost_net.c  |  147 ++++++++++++++
+ hw/vhost_net.h  |   20 ++
+ 5 files changed, 815 insertions(+), 0 deletions(-)
+ create mode 100644 hw/vhost.c
+ create mode 100644 hw/vhost.h
+ create mode 100644 hw/vhost_net.c
+ create mode 100644 hw/vhost_net.h
+
+diff --git a/Makefile.target b/Makefile.target
+index 0c844a9..2ebd30c 100644
+--- a/Makefile.target
++++ b/Makefile.target
+@@ -168,6 +168,7 @@ obj-y = vl.o async.o monitor.o pci.o pci_host.o pcie_host.o machine.o gdbstub.o
+ # need to fix this properly
+ obj-y += virtio-blk.o virtio-balloon.o virtio-net.o virtio-pci.o virtio-serial-bus.o
+ obj-y += notifier.o
++obj-y += vhost_net.o vhost.o
+ obj-$(CONFIG_KVM) += kvm.o kvm-all.o
+ # MSI-X depends on kvm for interrupt injection,
+ # so moved it from Makefile.hw to Makefile.target for now
+diff --git a/hw/vhost.c b/hw/vhost.c
+new file mode 100644
+index 0000000..e5c1ead
+--- /dev/null
++++ b/hw/vhost.c
+@@ -0,0 +1,603 @@
++#include "linux/vhost.h"
++#include <sys/ioctl.h>
++#include <sys/eventfd.h>
++#include "vhost.h"
++#include "hw/hw.h"
++/* For range_get_last */
++#include "pci.h"
++
++static void vhost_dev_sync_region(struct vhost_dev *dev,
++				     uint64_t mfirst, uint64_t mlast,
++				     uint64_t rfirst, uint64_t rlast)
++{
++	uint64_t start = MAX(mfirst, rfirst);
++	uint64_t end = MIN(mlast, rlast);
++	vhost_log_chunk_t *from = dev->log + start / VHOST_LOG_CHUNK;
++	vhost_log_chunk_t *to = dev->log + end / VHOST_LOG_CHUNK + 1;
++	uint64_t addr = (start / VHOST_LOG_CHUNK) * VHOST_LOG_CHUNK;
++
++	assert(end / VHOST_LOG_CHUNK < dev->log_size);
++	assert(start / VHOST_LOG_CHUNK < dev->log_size);
++	if (end < start) {
++		return;
++	}
++	for (;from < to; ++from) {
++		vhost_log_chunk_t log;
++		int bit;
++		/* We first check with non-atomic: much cheaper,
++		 * and we expect non-dirty to be the common case. */
++		if (!*from) {
++			continue;
++		}
++		/* Data must be read atomically. We don't really
++		 * need the barrier semantics of __sync
++		 * builtins, but it's easier to use them than
++		 * roll our own. */
++		log = __sync_fetch_and_and(from, 0);
++		while ((bit = sizeof(log) > sizeof(int) ?
++		       ffsll(log) : ffs(log))) {
++			bit -= 1;
++			cpu_physical_memory_set_dirty(addr + bit * VHOST_LOG_PAGE);
++			log &= ~(0x1ull << bit);
++		}
++		addr += VHOST_LOG_CHUNK;
++	}
++}
++
++static int vhost_client_sync_dirty_bitmap(struct CPUPhysMemoryClient *client,
++					target_phys_addr_t start_addr,
++					target_phys_addr_t end_addr)
++{
++	struct vhost_dev *dev = container_of(client, struct vhost_dev, client);
++	int i;
++	if (!dev->log_enabled || !dev->started) {
++		return 0;
++	}
++	for (i = 0; i < dev->mem->nregions; ++i) {
++		struct vhost_memory_region *reg = dev->mem->regions + i;
++		vhost_dev_sync_region(dev, start_addr, end_addr,
++				      reg->guest_phys_addr,
++				      range_get_last(reg->guest_phys_addr,
++						     reg->memory_size));
++	}
++	for (i = 0; i < dev->nvqs; ++i) {
++		struct vhost_virtqueue *vq = dev->vqs + i;
++		unsigned size = sizeof(struct vring_used_elem) * vq->num;
++		vhost_dev_sync_region(dev, start_addr, end_addr, vq->used_phys,
++				      range_get_last(vq->used_phys, size));
++	}
++	return 0;
++}
++
++/* Assign/unassign. Keep an unsorted array of non-overlapping
++ * memory regions in dev->mem. */
++static void vhost_dev_unassign_memory(struct vhost_dev *dev,
++				      uint64_t start_addr,
++				      uint64_t size)
++{
++	int from, to, n = dev->mem->nregions;
++	/* Track overlapping/split regions for sanity checking. */
++	int overlap_start = 0, overlap_end = 0, overlap_middle = 0, split = 0;
++
++	for (from = 0, to = 0; from < n; ++from, ++to) {
++		struct vhost_memory_region *reg = dev->mem->regions + to;
++		uint64_t reglast;
++		uint64_t memlast;
++		uint64_t change;
++
++		/* clone old region */
++		if (to != from) {
++			memcpy(reg, dev->mem->regions + from, sizeof *reg);
++		}
++
++		/* No overlap is simple */
++		if (!ranges_overlap(reg->guest_phys_addr, reg->memory_size,
++				    start_addr, size)) {
++			continue;
++		}
++
++		/* Split only happens if supplied region
++		 * is in the middle of an existing one. Thus it can not
++		 * overlap with any other existing region. */
++		assert(!split);
++
++		reglast = range_get_last(reg->guest_phys_addr, reg->memory_size);
++		memlast = range_get_last(start_addr, size);
++
++		/* Remove whole region */
++		if (start_addr <= reg->guest_phys_addr && memlast >= reglast) {
++			--dev->mem->nregions;
++			--to;
++			assert(to >= 0);
++			++overlap_middle;
++			continue;
++		}
++
++		/* Shrink region */
++		if (memlast >= reglast) {
++			reg->memory_size = start_addr - reg->guest_phys_addr;
++			assert(reg->memory_size);
++			assert(!overlap_end);
++			++overlap_end;
++			continue;
++		}
++
++		/* Shift region */
++		if (start_addr <= reg->guest_phys_addr) {
++			change = memlast + 1 - reg->guest_phys_addr;
++			reg->memory_size -= change;
++			reg->guest_phys_addr += change;
++			reg->userspace_addr += change;
++			assert(reg->memory_size);
++			assert(!overlap_start);
++			++overlap_start;
++			continue;
++		}
++
++		/* This only happens if supplied region
++		 * is in the middle of an existing one. Thus it can not
++		 * overlap with any other existing region. */
++		assert(!overlap_start);
++		assert(!overlap_end);
++		assert(!overlap_middle);
++		/* Split region: shrink first part, shift second part. */
++		memcpy(dev->mem->regions + n, reg, sizeof *reg);
++		reg->memory_size = start_addr - reg->guest_phys_addr;
++		assert(reg->memory_size);
++		change = memlast + 1 - reg->guest_phys_addr;
++		reg = dev->mem->regions + n;
++		reg->memory_size -= change;
++		assert(reg->memory_size);
++		reg->guest_phys_addr += change;
++		reg->userspace_addr += change;
++		/* Never add more than 1 region */
++		assert(dev->mem->nregions == n);
++		++dev->mem->nregions;
++		++split;
++	}
++}
++
++/* Called after unassign, so no regions overlap the given range. */
++static void vhost_dev_assign_memory(struct vhost_dev *dev,
++				    uint64_t start_addr,
++				    uint64_t size,
++				    uint64_t uaddr)
++{
++	int from, to;
++	struct vhost_memory_region *merged = NULL;
++	for (from = 0, to = 0; from < dev->mem->nregions; ++from, ++to) {
++		struct vhost_memory_region *reg = dev->mem->regions + to;
++		uint64_t prlast, urlast;
++		uint64_t pmlast, umlast;
++		uint64_t s, e, u;
++
++		/* clone old region */
++		if (to != from) {
++			memcpy(reg, dev->mem->regions + from, sizeof *reg);
++		}
++		prlast = range_get_last(reg->guest_phys_addr, reg->memory_size);
++		pmlast = range_get_last(start_addr, size);
++		urlast = range_get_last(reg->userspace_addr, reg->memory_size);
++		umlast = range_get_last(uaddr, size);
++
++		/* check for overlapping regions: should never happen. */
++		assert(prlast < start_addr || pmlast < reg->guest_phys_addr);
++		/* Not an adjacent or overlapping region - do not merge. */
++		if ((prlast + 1 != start_addr || urlast + 1 != uaddr) &&
++		    (pmlast + 1 != reg->guest_phys_addr ||
++		     umlast + 1 != reg->userspace_addr)) {
++			continue;
++		}
++
++		if (merged) {
++			--to;
++			assert(to >= 0);
++		} else {
++			merged = reg;
++		}
++		u = MIN(uaddr, reg->userspace_addr);
++		s = MIN(start_addr, reg->guest_phys_addr);
++		e = MAX(pmlast, prlast);
++		uaddr = merged->userspace_addr = u;
++		start_addr = merged->guest_phys_addr = s;
++		size = merged->memory_size = e - s + 1;
++		assert(merged->memory_size);
++	}
++
++	if (!merged) {
++		struct vhost_memory_region *reg = dev->mem->regions + to;
++		memset(reg, 0, sizeof *reg);
++		reg->memory_size = size;
++		assert(reg->memory_size);
++		reg->guest_phys_addr = start_addr;
++		reg->userspace_addr = uaddr;
++		++to;
++	}
++	assert(to <= dev->mem->nregions + 1);
++	dev->mem->nregions = to;
++}
++
++static uint64_t vhost_get_log_size(struct vhost_dev *dev)
++{
++	uint64_t log_size = 0;
++	int i;
++	for (i = 0; i < dev->mem->nregions; ++i) {
++		struct vhost_memory_region *reg = dev->mem->regions + i;
++		uint64_t last = range_get_last(reg->guest_phys_addr,
++					       reg->memory_size);
++		log_size = MAX(log_size, last / VHOST_LOG_CHUNK + 1);
++	}
++	for (i = 0; i < dev->nvqs; ++i) {
++		struct vhost_virtqueue *vq = dev->vqs + i;
++		uint64_t last = vq->used_phys +
++			sizeof(struct vring_used_elem) * vq->num - 1;
++		log_size = MAX(log_size, last / VHOST_LOG_CHUNK + 1);
++	}
++	return log_size;
++}
++
++static inline void vhost_dev_log_resize(struct vhost_dev* dev, uint64_t size)
++{
++	vhost_log_chunk_t *log;
++	int r;
++	if (size) {
++		log = qemu_mallocz(size * sizeof *log);
++	} else {
++		log = NULL;
++	}
++	r = ioctl(dev->control, VHOST_SET_LOG_BASE,
++		  (uint64_t)(unsigned long)log);
++	assert(r >= 0);
++	vhost_client_sync_dirty_bitmap(&dev->client, 0,
++				       (target_phys_addr_t)~0x0ull);
++	if (dev->log) {
++		qemu_free(dev->log);
++	}
++	dev->log = log;
++	dev->log_size = size;
++}
++
++static void vhost_client_set_memory(CPUPhysMemoryClient *client,
++				    target_phys_addr_t start_addr,
++				    ram_addr_t size,
++				    ram_addr_t phys_offset)
++{
++	struct vhost_dev *dev = container_of(client, struct vhost_dev, client);
++	ram_addr_t flags = phys_offset & ~TARGET_PAGE_MASK;
++	int s = offsetof(struct vhost_memory, regions) +
++		(dev->mem->nregions + 1) * sizeof dev->mem->regions[0];
++	uint64_t log_size;
++	int r;
++	dev->mem = qemu_realloc(dev->mem, s);
++
++	assert(size);
++
++	vhost_dev_unassign_memory(dev, start_addr, size);
++	if (flags == IO_MEM_RAM) {
++		/* Add given mapping, merging adjacent regions if any */
++		vhost_dev_assign_memory(dev, start_addr, size,
++				(uintptr_t)qemu_get_ram_ptr(phys_offset));
++	} else {
++		/* Remove old mapping for this memory, if any. */
++		vhost_dev_unassign_memory(dev, start_addr, size);
++	}
++
++	if (!dev->started) {
++		return;
++	}
++	if (!dev->log_enabled) {
++		r = ioctl(dev->control, VHOST_SET_MEM_TABLE, dev->mem);
++		assert(r >= 0);
++		return;
++	}
++	log_size = vhost_get_log_size(dev);
++	/* We allocate an extra 4K bytes to log,
++	 * to reduce the * number of reallocations. */
++#define VHOST_LOG_BUFFER (0x1000 / sizeof *dev->log)
++	/* To log more, must increase log size before table update. */
++	if (dev->log_size < log_size) {
++		vhost_dev_log_resize(dev, log_size + VHOST_LOG_BUFFER);
++	}
++	r = ioctl(dev->control, VHOST_SET_MEM_TABLE, dev->mem);
++	assert(r >= 0);
++	/* To log less, can only decrease log size after table update. */
++	if (dev->log_size > log_size + VHOST_LOG_BUFFER) {
++		vhost_dev_log_resize(dev, log_size);
++	}
++}
++
++static int vhost_dev_set_log(struct vhost_dev *dev, bool enable_log)
++{
++	uint64_t features = dev->acked_features;
++	int r;
++	if (dev->log_enabled) {
++		features |= 0x1 << VHOST_F_LOG_ALL;
++	}
++	r = ioctl(dev->control, VHOST_SET_FEATURES, &features);
++	return r < 0 ? -errno : 0;
++}
++
++static int vhost_client_migration_log(struct CPUPhysMemoryClient *client,
++				      int enable)
++{
++	struct vhost_dev *dev = container_of(client, struct vhost_dev, client);
++	int r;
++	if (!!enable == dev->log_enabled) {
++		return 0;
++	}
++	if (!dev->started) {
++		dev->log_enabled = enable;
++		return 0;
++	}
++	if (!enable) {
++		r = vhost_dev_set_log(dev, false);
++		if (r < 0) {
++			return r;
++		}
++		if (dev->log) {
++			qemu_free(dev->log);
++		}
++		dev->log = NULL;
++		dev->log_size = 0;
++	} else {
++		vhost_dev_log_resize(dev, vhost_get_log_size(dev));
++		r = vhost_dev_set_log(dev, false);
++		if (r < 0) {
++			return r;
++		}
++	}
++	dev->log_enabled = enable;
++	return 0;
++}
++
++static int vhost_virtqueue_set_addr(struct vhost_dev *dev,
++				    struct vhost_virtqueue *vq,
++				    unsigned idx, bool enable_log)
++{
++	struct vhost_vring_addr addr = {
++		.index = idx,
++		.desc_user_addr = (u_int64_t)(unsigned long)vq->desc,
++		.avail_user_addr = (u_int64_t)(unsigned long)vq->avail,
++		.used_user_addr = (u_int64_t)(unsigned long)vq->used,
++		.log_guest_addr = vq->used_phys,
++		.flags = enable_log ? (1 << VHOST_VRING_F_LOG) : 0,
++	};
++	int r = ioctl(dev->control, VHOST_SET_VRING_ADDR, &addr);
++	if (r < 0) {
++		return -errno;
++	}
++	return 0;
++}
++
++static int vhost_virtqueue_init(struct vhost_dev *dev,
++				struct VirtIODevice *vdev,
++				struct vhost_virtqueue *vq,
++				unsigned idx)
++{
++	target_phys_addr_t s, l, a;
++	int r;
++	struct vhost_vring_file file = {
++		.index = idx,
++	};
++	struct vhost_vring_state state = {
++		.index = idx,
++	};
++	struct VirtQueue *q = virtio_queue(vdev, idx);
++
++	vq->num = state.num = virtio_queue_get_num(vdev, idx);
++	r = ioctl(dev->control, VHOST_SET_VRING_NUM, &state);
++	if (r) {
++		return -errno;
++	}
++
++	state.num = virtio_queue_last_avail_idx(vdev, idx);
++	r = ioctl(dev->control, VHOST_SET_VRING_BASE, &state);
++	if (r) {
++		return -errno;
++	}
++
++	s = l = sizeof(struct vring_desc) * vq->num;
++	a = virtio_queue_get_desc(vdev, idx);
++	vq->desc = cpu_physical_memory_map(a, &l, 0);
++	if (!vq->desc || l != s) {
++		r = -ENOMEM;
++		goto fail_alloc;
++	}
++	s = l = offsetof(struct vring_avail, ring) +
++		sizeof(u_int64_t) * vq->num;
++	a = virtio_queue_get_avail(vdev, idx);
++	vq->avail = cpu_physical_memory_map(a, &l, 0);
++	if (!vq->avail || l != s) {
++		r = -ENOMEM;
++		goto fail_alloc;
++	}
++	s = l = offsetof(struct vring_used, ring) +
++		sizeof(struct vring_used_elem) * vq->num;
++	vq->used_phys = a = virtio_queue_get_used(vdev, idx);
++	vq->used = cpu_physical_memory_map(a, &l, 1);
++	if (!vq->used || l != s) {
++		r = -ENOMEM;
++		goto fail_alloc;
++	}
++
++	r = vhost_virtqueue_set_addr(dev, vq, idx, dev->log_enabled);
++	if (r < 0) {
++		r = -errno;
++		goto fail_alloc;
++	}
++	if (!vdev->binding->guest_notifier || !vdev->binding->host_notifier) {
++		fprintf(stderr, "binding does not support irqfd/queuefd\n");
++		r = -ENOSYS;
++		goto fail_alloc;
++	}
++        r = vdev->binding->guest_notifier(vdev->binding_opaque, idx, true);
++	if (r < 0) {
++		fprintf(stderr, "Error binding guest notifier: %d\n", -r);
++		goto fail_guest_notifier;
++	}
++
++        r = vdev->binding->host_notifier(vdev->binding_opaque, idx, true);
++	if (r < 0) {
++		fprintf(stderr, "Error binding host notifier: %d\n", -r);
++		goto fail_host_notifier;
++	}
++
++	file.fd = event_notifier_get_fd(virtio_queue_host_notifier(q));
++	r = ioctl(dev->control, VHOST_SET_VRING_KICK, &file);
++	if (r) {
++		goto fail_kick;
++	}
++
++	file.fd = event_notifier_get_fd(virtio_queue_guest_notifier(q));
++	r = ioctl(dev->control, VHOST_SET_VRING_CALL, &file);
++	if (r) {
++		goto fail_call;
++	}
++
++	return 0;
++
++fail_call:
++fail_kick:
++        vdev->binding->host_notifier(vdev->binding_opaque, idx, false);
++fail_host_notifier:
++        vdev->binding->guest_notifier(vdev->binding_opaque, idx, false);
++fail_guest_notifier:
++fail_alloc:
++	return r;
++}
++
++static void vhost_virtqueue_cleanup(struct vhost_dev *dev,
++				    struct VirtIODevice *vdev,
++				    struct vhost_virtqueue *vq,
++				    unsigned idx)
++{
++	struct vhost_vring_state state = {
++		.index = idx,
++	};
++	int r;
++	r = vdev->binding->guest_notifier(vdev->binding_opaque, idx, false);
++	if (r < 0) {
++		fprintf(stderr, "vhost VQ %d guest cleanup failed: %d\n", idx, r);
++		fflush(stderr);
++	}
++	assert (r >= 0);
++
++	r = vdev->binding->host_notifier(vdev->binding_opaque, idx, false);
++	if (r < 0) {
++		fprintf(stderr, "vhost VQ %d host cleanup failed: %d\n", idx, r);
++		fflush(stderr);
++	}
++	assert (r >= 0);
++	r = ioctl(dev->control, VHOST_GET_VRING_BASE, &state);
++	if (r < 0) {
++		fprintf(stderr, "vhost VQ %d ring restore failed: %d\n", idx, r);
++		fflush(stderr);
++	}
++	virtio_queue_set_last_avail_idx(vdev, idx, state.num);
++	assert (r >= 0);
++}
++
++int vhost_dev_init(struct vhost_dev *hdev, int devfd)
++{
++	uint64_t features;
++	int r;
++	if (devfd >= 0) {
++		hdev->control = devfd;
++	} else {
++		hdev->control = open("/dev/vhost-net", O_RDWR);
++		if (hdev->control < 0)
++			return -errno;
++	}
++	r = ioctl(hdev->control, VHOST_SET_OWNER, NULL);
++	if (r < 0)
++		goto fail;
++
++	r = ioctl(hdev->control, VHOST_GET_FEATURES, &features);
++	if (r < 0)
++		goto fail;
++	hdev->features = features;
++	
++	hdev->client.set_memory = vhost_client_set_memory;
++	hdev->client.sync_dirty_bitmap = vhost_client_sync_dirty_bitmap;
++	hdev->client.migration_log = vhost_client_migration_log;
++	hdev->mem = qemu_mallocz(offsetof(struct vhost_memory, regions));
++	hdev->log = NULL;
++	hdev->log_size = 0;
++	hdev->log_enabled = false;
++	hdev->started = false;
++	cpu_register_phys_memory_client(&hdev->client);
++	return 0;
++fail:
++	r = -errno;
++	close(hdev->control);
++	return r;
++}
++
++void vhost_dev_cleanup(struct vhost_dev *hdev)
++{
++	cpu_unregister_phys_memory_client(&hdev->client);
++	qemu_free(hdev->mem);
++	close(hdev->control);
++}
++
++int vhost_dev_start(struct vhost_dev *hdev, VirtIODevice *vdev)
++{
++	int i, r;
++
++	r = vhost_dev_set_log(hdev, hdev->log_enabled);
++	if (r < 0)
++		goto fail;
++	r = ioctl(hdev->control, VHOST_SET_MEM_TABLE, hdev->mem);
++	if (r < 0) {
++		r = -errno;
++		goto fail;
++	}
++	if (hdev->log_enabled) {
++		hdev->log_size = vhost_get_log_size(hdev);
++		hdev->log = hdev->log_size ?
++			qemu_mallocz(hdev->log_size * sizeof *hdev->log) : NULL;
++		r = ioctl(hdev->control, VHOST_SET_LOG_BASE,
++			  (uint64_t)(unsigned long)hdev->log);
++		if (r < 0) {
++			r = -errno;
++			goto fail;
++		}
++	}
++
++	for (i = 0; i < hdev->nvqs; ++i) {
++		r = vhost_virtqueue_init(hdev,
++		   			 vdev,
++					 hdev->vqs + i,
++					 i);
++		if (r < 0)
++			goto fail_vq;
++	}
++	hdev->started = true;
++
++	return 0;
++fail_vq:
++	while (--i >= 0) {
++		vhost_virtqueue_cleanup(hdev,
++					vdev,
++					hdev->vqs + i,
++					i);
++	}
++fail:
++	return r;
++}
++
++void vhost_dev_stop(struct vhost_dev *hdev, VirtIODevice *vdev)
++{
++	int i;
++	for (i = 0; i < hdev->nvqs; ++i) {
++		vhost_virtqueue_cleanup(hdev,
++					vdev,
++					hdev->vqs + i,
++					i);
++	}
++	vhost_client_sync_dirty_bitmap(&hdev->client, 0,
++				       (target_phys_addr_t)~0x0ull);
++	hdev->started = false;
++	qemu_free(hdev->log);
++	hdev->log_size = 0;
++}
+diff --git a/hw/vhost.h b/hw/vhost.h
+new file mode 100644
+index 0000000..2ed3933
+--- /dev/null
++++ b/hw/vhost.h
+@@ -0,0 +1,44 @@
++#ifndef VHOST_H
++#define VHOST_H
++
++#include "hw/hw.h"
++#include "hw/virtio.h"
++
++/* Generic structures common for any vhost based device. */
++struct vhost_virtqueue {
++	int kick;
++	int call;
++	void *desc;
++	void *avail;
++	void *used;
++	int num;
++	unsigned long long used_phys;
++};
++
++typedef unsigned long vhost_log_chunk_t;
++#define VHOST_LOG_PAGE 0x1000
++#define VHOST_LOG_BITS (8 * sizeof(vhost_log_chunk_t))
++#define VHOST_LOG_CHUNK (VHOST_LOG_PAGE * VHOST_LOG_BITS)
++
++struct vhost_memory;
++struct vhost_dev {
++	CPUPhysMemoryClient client;
++	int control;
++	struct vhost_memory *mem;
++	struct vhost_virtqueue *vqs;
++	int nvqs;
++	unsigned long long features;
++	unsigned long long acked_features;
++	unsigned long long backend_features;
++	bool started;
++	bool log_enabled;
++	vhost_log_chunk_t *log;
++	unsigned long long log_size;
++};
++
++int vhost_dev_init(struct vhost_dev *hdev, int devfd);
++void vhost_dev_cleanup(struct vhost_dev *hdev);
++int vhost_dev_start(struct vhost_dev *hdev, VirtIODevice *vdev);
++void vhost_dev_stop(struct vhost_dev *hdev, VirtIODevice *vdev);
++
++#endif
+diff --git a/hw/vhost_net.c b/hw/vhost_net.c
+new file mode 100644
+index 0000000..c89ff40
+--- /dev/null
++++ b/hw/vhost_net.c
+@@ -0,0 +1,147 @@
++#include <sys/eventfd.h>
++#include <sys/socket.h>
++#include <linux/kvm.h>
++#include <fcntl.h>
++#include <sys/ioctl.h>
++#include <linux/vhost.h>
++#include <linux/virtio_ring.h>
++#include <netpacket/packet.h>
++#include <net/ethernet.h>
++#include <net/if.h>
++#include <netinet/in.h>
++
++#include <stdio.h>
++
++#include "net.h"
++#include "net/tap.h"
++
++#include "virtio-net.h"
++#include "vhost.h"
++#include "vhost_net.h"
++
++struct vhost_net {
++	struct vhost_dev dev;
++	struct vhost_virtqueue vqs[2];
++	int backend;
++	VLANClientState *vc;
++};
++
++unsigned vhost_net_get_features(struct vhost_net *net, unsigned features)
++{
++	/* Clear features not supported by host kernel. */
++	if (!(net->dev.features & (1 << VIRTIO_F_NOTIFY_ON_EMPTY)))
++		features &= ~(1 << VIRTIO_F_NOTIFY_ON_EMPTY);
++	if (!(net->dev.features & (1 << VIRTIO_RING_F_INDIRECT_DESC)))
++		features &= ~(1 << VIRTIO_RING_F_INDIRECT_DESC);
++	if (!(net->dev.features & (1 << VIRTIO_NET_F_MRG_RXBUF)))
++		features &= ~(1 << VIRTIO_NET_F_MRG_RXBUF);
++	return features;
++}
++
++void vhost_net_ack_features(struct vhost_net *net, unsigned features)
++{
++	net->dev.acked_features = net->dev.backend_features;
++	if (features & (1 << VIRTIO_F_NOTIFY_ON_EMPTY))
++		net->dev.acked_features |= (1 << VIRTIO_F_NOTIFY_ON_EMPTY);
++	if (features & (1 << VIRTIO_RING_F_INDIRECT_DESC))
++		net->dev.acked_features |= (1 << VIRTIO_RING_F_INDIRECT_DESC);
++}
++
++static int vhost_net_get_fd(VLANClientState *backend)
++{
++	switch (backend->info->type) {
++	case NET_CLIENT_TYPE_TAP:
++		return tap_get_fd(backend);
++	default:
++		fprintf(stderr, "vhost-net requires tap backend\n");
++		return -EBADFD;
++	}
++}
++
++struct vhost_net *vhost_net_init(VLANClientState *backend, int devfd)
++{
++	int r;
++	struct vhost_net *net = qemu_malloc(sizeof *net);
++	if (!backend) {
++		fprintf(stderr, "vhost-net requires backend to be setup\n");
++		goto fail;
++	}
++	r = vhost_net_get_fd(backend);
++	if (r < 0)
++		goto fail;
++	net->vc = backend;
++	net->dev.backend_features = tap_has_vnet_hdr(backend) ? 0 :
++		(1 << VHOST_NET_F_VIRTIO_NET_HDR);
++	net->backend = r;
++
++	r = vhost_dev_init(&net->dev, devfd);
++	if (r < 0)
++		goto fail;
++	if (~net->dev.features & net->dev.backend_features) {
++		fprintf(stderr, "vhost lacks feature mask %llu for backend\n",
++			~net->dev.features & net->dev.backend_features);
++		vhost_dev_cleanup(&net->dev);
++		goto fail;
++	}
++
++	/* Set sane init value. Override when guest acks. */
++	vhost_net_ack_features(net, 0);
++	return net;
++fail:
++	qemu_free(net);
++	return NULL;
++}
++
++int vhost_net_start(struct vhost_net *net,
++		    VirtIODevice *dev)
++{
++	struct vhost_vring_file file = { };
++	int r;
++
++	net->dev.nvqs = 2;
++	net->dev.vqs = net->vqs;
++	r = vhost_dev_start(&net->dev, dev);
++	if (r < 0)
++		return r;
++
++	net->vc->info->poll(net->vc, false);
++	qemu_set_fd_handler(net->backend, NULL, NULL, NULL);
++	file.fd = net->backend;
++	for (file.index = 0; file.index < net->dev.nvqs; ++file.index) {
++		r = ioctl(net->dev.control, VHOST_NET_SET_BACKEND, &file);
++		if (r < 0) {
++			r = -errno;
++			goto fail;
++		}
++	}
++	return 0;
++fail:
++	file.fd = -1;
++	while (--file.index >= 0) {
++		int r = ioctl(net->dev.control, VHOST_NET_SET_BACKEND, &file);
++		assert(r >= 0);
++	}
++	net->vc->info->poll(net->vc, true);
++	vhost_dev_stop(&net->dev, dev);
++	return r;
++}
++
++void vhost_net_stop(struct vhost_net *net,
++		    VirtIODevice *dev)
++{
++	struct vhost_vring_file file = { .fd = -1 };
++
++	for (file.index = 0; file.index < net->dev.nvqs; ++file.index) {
++		int r = ioctl(net->dev.control, VHOST_NET_SET_BACKEND, &file);
++		assert(r >= 0);
++	}
++	net->vc->info->poll(net->vc, true);
++	vhost_dev_stop(&net->dev, dev);
++}
++
++void vhost_net_cleanup(struct vhost_net *net)
++{
++	vhost_dev_cleanup(&net->dev);
++	qemu_free(net);
++}
++/* TODO: log */
+diff --git a/hw/vhost_net.h b/hw/vhost_net.h
+new file mode 100644
+index 0000000..21f0277
+--- /dev/null
++++ b/hw/vhost_net.h
+@@ -0,0 +1,20 @@
++#ifndef VHOST_NET_H
++#define VHOST_NET_H
++
++#include "net.h"
++
++struct vhost_net;
++
++struct vhost_net *vhost_net_init(VLANClientState *backend, int devfd);
++
++int vhost_net_start(struct vhost_net *net,
++		    VirtIODevice *dev);
++void vhost_net_stop(struct vhost_net *net,
++		    VirtIODevice *dev);
++
++void vhost_net_cleanup(struct vhost_net *net);
++
++unsigned vhost_net_get_features(struct vhost_net *net, unsigned features);
++void vhost_net_ack_features(struct vhost_net *net, unsigned features);
++
++#endif
+-- 
+1.6.6.144.g5c3af
