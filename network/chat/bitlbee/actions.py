@@ -13,7 +13,16 @@ NoStrip = ["/usr/sbin/bitlbee"]
 
 def setup():
     pisitools.dosed("configure", "mozilla-nss", "nss")
+
     autotools.configure("--ssl=gnutls \
+                         --otr=1 \
+                         --jabber=1 \
+                         --yahoo=1 \
+                         --oscar=1 \
+                         --msn=1 \
+                         --twitter=1\
+                         --purple=0\
+                         --plugins=1\
                          --etcdir=/etc/bitlbee \
                          --datadir=/usr/share/bitlbee")
 
