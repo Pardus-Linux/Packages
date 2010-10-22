@@ -1,0 +1,34 @@
+Index: yali-2.4.0_20101021/start-yali
+===================================================================
+--- yali-2.4.0_20101021.orig/start-yali
++++ yali-2.4.0_20101021/start-yali
+@@ -4,4 +4,15 @@ HOME=/root
+ USER=root
+ export HOME USER
+ 
+-exec /usr/bin/xinit /usr/bin/yali-bin -- vt7 -nolisten tcp -br -dpi 96
++ROOT_WINDOW_BG=-br
++
++if test -x /bin/plymouth && /bin/plymouth --ping; then
++    /bin/plymouth deactivate
++    if /bin/plymouth --has-active-vt; then
++        ROOT_WINDOW_BG=-nr
++    else
++        /bin/plymouth quit
++    fi
++fi
++
++exec /usr/bin/xinit /usr/bin/yali-bin -- vt7 -nolisten tcp -dpi 96 -novtswitch $ROOT_WINDOW_BG
+Index: yali-2.4.0_20101021/yali-bin
+===================================================================
+--- yali-2.4.0_20101021.orig/yali-bin
++++ yali-2.4.0_20101021/yali-bin
+@@ -39,6 +39,8 @@ def main():
+ 
+ if __name__ == "__main__":
+     locale.setlocale(locale.LC_ALL, "")
++    if os.path.exists("/bin/plymouth") and not os.system("/bin/plymouth --ping"):
++        os.system("/bin/plymouth quit --retain-splash")
+     os.system("modprobe -bqa dm-mod raid0 raid1 raid456 raid10")
+     yali.init_logging("/var/log")
+     main()
