@@ -17,7 +17,7 @@ def updateCaches(filepath):
 
     for icon in parse.tags("File"):
         path = icon.getTagData("Path")
-        if path.startswith(GIO_MODULE_PATH):
+        if path.startswith(GSCHEMAS_MODULE_PATH):
             os.system("/usr/bin/glib-compile-schemas /%s" % GSCHEMAS_MODULE_PATH)
             return
 
