@@ -9,6 +9,7 @@ read_config() {
 
 DISPLAY_MANAGER=xdm
 XCURSOR_THEME=
+PLYMOUTH_TRANSITION=false
 
 test -r /etc/default/xdm && . /etc/default/xdm
 test -r /etc/conf.d/xdm && . /etc/conf.d/xdm
@@ -21,6 +22,8 @@ if [ -f $DESKTOP_FILE ]; then
     DM_PATH=$VALUE
     read_config $DESKTOP_FILE X-Pardus-XCursorTheme
     test -n "$VALUE" && XCURSOR_THEME=$VALUE
+    read_config $DESKTOP_FILE X-Pardus-PlymouthTransition
+    test -n "$VALUE" && PLYMOUTH_TRANSITION=$VALUE
 fi
 
 test -x "$DM_PATH" || DM_PATH=/usr/bin/xdm
@@ -38,5 +41,9 @@ fi
 # Trigger events against a locale change. This is needed for
 # determining the default keymap.
 udevadm trigger --property-match=ID_INPUT_KEYBOARD=1
+
+if [ "$PLYMOUTH_TRANSITION" != "true" ]; then
+    test -x /bin/plymouth && /bin/plymouth --ping && /bin/plymouth quit
+fi
 
 exec $DM_PATH -nodaemon
