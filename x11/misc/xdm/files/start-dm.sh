@@ -34,16 +34,25 @@ test -f /etc/env.d/03locale && . /etc/env.d/03locale
 
 export LC_ALL PATH XCURSOR_THEME
 
-if test "x$1" = "x--boot" && grep -qw "xorg=safe" /proc/cmdline; then
-    MESA_LIBGL=/usr/lib/mesa/libGL.so.1.2
-    if [ "$(readlink /etc/alternatives/libGL)" != "$MESA_LIBGL" ]; then
-        /usr/sbin/alternatives --set libGL /usr/lib/mesa/libGL.so.1.2
-        /sbin/ldconfig -X
-    fi
+if [ "x$1" = "x--boot" ]; then
+    for x in `grep -o -e "xorg=\w*" /proc/cmdline`; do
+        case "$x" in
+            xorg=safe)
+                MESA_LIBGL=/usr/lib/mesa/libGL.so.1.2
+                if [ "$(readlink /etc/alternatives/libGL)" != "$MESA_LIBGL" ]; then
+                    /usr/sbin/alternatives --set libGL /usr/lib/mesa/libGL.so.1.2
+                    /sbin/ldconfig -X
+                fi
 
-    DRIVER=vesa
-    test -c /dev/fb0 && DRIVER=fbdev
-    export XORGCONFIG=/usr/share/X11/xorg-safe-$DRIVER.conf
+                DRIVER=vesa
+                test -c /dev/fb0 && DRIVER=fbdev
+                export XORGCONFIG=/usr/share/X11/xorg-safe-$DRIVER.conf
+                ;;
+            xorg=probe)
+                test -f /etc/X11/xorg.conf && mv -f /etc/X11/xorg.conf /etc/X11/xorg.conf.$(date +%Y%m%d)
+                ;;
+        esac
+    done
 fi
 
 # Trigger events against a locale change. This is needed for
