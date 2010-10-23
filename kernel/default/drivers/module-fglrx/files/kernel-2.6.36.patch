@@ -1,0 +1,36 @@
+From db944ac1f8dfefbc6d9e42e12aa578ff6121cbc6 Mon Sep 17 00:00:00 2001
+From: Alberto Milone <alberto.milone@canonical.com>
+Date: Fri, 24 Sep 2010 14:54:35 +0200
+Subject: [PATCH 1/2] Add compatibility with 2.6.36 kernels
+
+
+Signed-off-by: Alberto Milone <alberto.milone@canonical.com>
+---
+ firegl_public.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/common/lib/modules/fglrx/build_mod/firegl_public.c b/common/lib/modules/fglrx/build_mod/firegl_public.c
+index cf41a57..a8b6ba2 100644
+--- a/common/lib/modules/fglrx/build_mod/firegl_public.c
++++ b/common/lib/modules/fglrx/build_mod/firegl_public.c
+@@ -320,7 +320,7 @@ int ip_firegl_release(struct inode* inode, struct file* filp)
+     return firegl_release((KCL_IO_FILE_Handle)filp);
+ }
+ 
+-int ip_firegl_ioctl(struct inode* inode, struct file* filp, unsigned int cmd, unsigned long arg)
++int ip_firegl_ioctl(struct file* filp, unsigned int cmd, unsigned long arg)
+ {
+     return firegl_ioctl((KCL_IO_FILE_Handle)filp, cmd, arg);
+ }
+@@ -407,7 +407,7 @@ static struct file_operations firegl_fops =
+ #endif
+     open:    ip_firegl_open,
+     release: ip_firegl_release,
+-    ioctl:   ip_firegl_ioctl,
++    unlocked_ioctl: ip_firegl_ioctl,
+     mmap:    ip_firegl_mmap,
+ 
+     write:   ip_firegl_write,
+-- 
+1.7.1
+

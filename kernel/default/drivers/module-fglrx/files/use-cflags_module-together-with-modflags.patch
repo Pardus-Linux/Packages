@@ -1,0 +1,36 @@
+From b9f7a8dc0769bddfb2dff47a0903b51471ebf4ef Mon Sep 17 00:00:00 2001
+From: Alberto Milone <alberto.milone@canonical.com>
+Date: Fri, 24 Sep 2010 18:02:42 +0200
+Subject: [PATCH 2/2] Use CFLAGS_MODULE together with MODFLAGS in make.sh
+
+CFLAGS_MODULE was introduced in 2.6.36 kernels while MODFLAGS was
+dropped (commit 6588169d516560f68672e2928680b71c647b7806) therefore
+by trying to use both modules we preserve compatibility with older
+kernels and fix build issues with new kernels.
+
+Signed-off-by: Alberto Milone <alberto.milone@canonical.com>
+---
+ make.sh |    5 ++++-
+ 1 files changed, 4 insertions(+), 1 deletions(-)
+
+diff --git a/common/lib/modules/fglrx/build_mod/make.sh b/common/lib/modules/fglrx/build_mod/make.sh
+index 46e9ef6..982804d 100755
+--- a/common/lib/modules/fglrx/build_mod/make.sh
++++ b/common/lib/modules/fglrx/build_mod/make.sh
+@@ -447,9 +447,12 @@ make clean
+ 
+ echo 'This is a dummy file created to suppress this warning: could not find /lib/modules/fglrx/build_mod/2.6.x/.libfglrx_ip.a.GCC4.cmd for /lib/modules/fglrx/build_mod/2.6.x/libfglrx_ip.a.GCC4' > .lib${MODULE}_ip.a.GCC${GCC_MAJOR}.cmd
+ 
++MODFLAGS="-DMODULE -DATI -DFGL -DPAGE_ATTR_FIX=$PAGE_ATTR_FIX -DCOMPAT_ALLOC_USER_SPACE=$COMPAT_ALLOC_USER_SPACE $def_smp $def_modversions"
++
+ make CC=${CC} \
+     LIBIP_PREFIX=$(echo "$LIBIP_PREFIX" | sed -e 's|^\([^/]\)|../\1|') \
+-    MODFLAGS="-DMODULE -DATI -DFGL -DPAGE_ATTR_FIX=$PAGE_ATTR_FIX -DCOMPAT_ALLOC_USER_SPACE=$COMPAT_ALLOC_USER_SPACE $def_smp $def_modversions" \
++    MODFLAGS="$MODFLAGS" \
++    CFLAGS_MODULE="$MODFLAGS" \
+     KVER=${uname_r} \
+     PAGE_ATTR_FIX=$PAGE_ATTR_FIX \
+     > tlog 2>&1 
+-- 
+1.7.1
+
