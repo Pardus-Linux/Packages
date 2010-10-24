@@ -1,0 +1,16 @@
+Index: plymouth-0.8.3_20101018/src/plugins/renderers/drm/plugin.c
+===================================================================
+--- plymouth-0.8.3_20101018.orig/src/plugins/renderers/drm/plugin.c
++++ plymouth-0.8.3_20101018/src/plugins/renderers/drm/plugin.c
+@@ -514,8 +514,9 @@ load_driver (ply_renderer_backend_t *bac
+     }
+   else if (strcmp (driver_name, "nouveau") == 0)
+     {
+-      backend->driver_interface = ply_renderer_nouveau_driver_get_interface ();
+-      backend->driver_supports_mapping_console = false;
++      free (driver_name);
++      close (device_fd);
++      return false;
+     }
+ 
+   free (driver_name);
