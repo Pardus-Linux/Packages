@@ -9,7 +9,7 @@ from pisi.actionsapi import cmaketools
 from pisi.actionsapi import pisitools
 from pisi.actionsapi import get
 
-WorkDir = "%s-%s" % (get.srcNAME(),get.srcVERSION())
+WorkDir = "%s" % get.srcNAME()
 
 def setup():
     cmaketools.configure("-DCMAKE_SKIP_RPATH=ON")
