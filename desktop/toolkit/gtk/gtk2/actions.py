@@ -15,6 +15,7 @@ WorkDir = "gtk+-%s" % get.srcVERSION()
 shelltools.export("HOME", get.workDIR())
 
 def setup():
+    shelltools.export("CFLAGS", get.CFLAGS().replace("-fomit-frame-pointer",""))
     autotools.automake()
     autotools.configure("--with-gdktarget=x11 \
                          --enable-xinerama \
