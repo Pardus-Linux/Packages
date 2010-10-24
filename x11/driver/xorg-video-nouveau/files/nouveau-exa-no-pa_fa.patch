@@ -1,0 +1,58 @@
+From 826d6fbf45f9ec229c7ba12faf95692421a86f91 Mon Sep 17 00:00:00 2001
+From: Ben Skeggs <bskeggs@redhat.com>
+Date: Mon, 5 Jul 2010 09:14:51 +1000
+Subject: [PATCH 3/4] use UTS/DFS rather than libwfb for tiled pixmap access
+
+---
+ src/drmmode_display.c |    2 +-
+ src/nouveau_exa.c     |    5 +++++
+ src/nv_driver.c       |    2 +-
+ 3 files changed, 7 insertions(+), 2 deletions(-)
+
+diff --git a/src/drmmode_display.c b/src/drmmode_display.c
+index 586b0ac..31912c6 100644
+--- a/src/drmmode_display.c
++++ b/src/drmmode_display.c
+@@ -1016,7 +1016,7 @@ drmmode_xf86crtc_resize(ScrnInfoPtr scrn, int width, int height)
+ 	if (scrn->virtualX == width && scrn->virtualY == height)
+ 		return TRUE;
+ 
+-	if (pNv->Architecture >= NV_ARCH_50 && pNv->wfb_enabled) {
++	if (pNv->Architecture >= NV_ARCH_50 && pNv->tiled_scanout) {
+ 		tile_mode = 4;
+ 		tile_flags = 0x7000; //(scrn->bitsPerPixel == 16) ? 0x7000 : 0x7a00;
+ 		ah = NOUVEAU_ALIGN(height, 1 << (tile_mode + 2));
+diff --git a/src/nouveau_exa.c b/src/nouveau_exa.c
+index 1b8888e..47a274a 100644
+--- a/src/nouveau_exa.c
++++ b/src/nouveau_exa.c
+@@ -290,8 +290,13 @@ nouveau_exa_wait_marker(ScreenPtr pScreen, int marker)
+ static Bool
+ nouveau_exa_prepare_access(PixmapPtr ppix, int index)
+ {
++	ScrnInfoPtr pScrn = xf86Screens[ppix->drawable.pScreen->myNum];
++	NVPtr pNv = NVPTR(pScrn);
+ 	struct nouveau_bo *bo = nouveau_pixmap_bo(ppix);
+ 
++	if (pNv->Architecture >= NV_ARCH_50 && !pNv->wfb_enabled)
++		return FALSE;
++
+ 	if (nouveau_bo_map(bo, NOUVEAU_BO_RDWR))
+ 		return FALSE;
+ 	ppix->devPrivate.ptr = bo->map;
+diff --git a/src/nv_driver.c b/src/nv_driver.c
+index 3f44e1b..ef9b8f8 100644
+--- a/src/nv_driver.c
++++ b/src/nv_driver.c
+@@ -762,7 +762,7 @@ NVPreInit(ScrnInfoPtr pScrn, int flags)
+ 	}
+ 
+ 	if (!pNv->NoAccel && pNv->Architecture >= NV_ARCH_50) {
+-		pNv->wfb_enabled = TRUE;
++		pNv->wfb_enabled = FALSE; /* UTS/DFS instead */
+ 		pNv->tiled_scanout = TRUE;
+ 	}
+ 
+-- 
+1.7.1
+

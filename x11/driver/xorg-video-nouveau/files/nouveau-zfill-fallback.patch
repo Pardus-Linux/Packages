@@ -1,0 +1,102 @@
+From 13ddbe287b7383fc8c4ef91d8748b28e72601637 Mon Sep 17 00:00:00 2001
+From: Ben Skeggs <bskeggs@redhat.com>
+Date: Mon, 5 Jul 2010 09:15:25 +1000
+Subject: [PATCH 4/4] zfill framebuffer as fallback if fbcon copy fails
+
+---
+ src/drmmode_display.c |   35 ++++++++++++++++-------------------
+ 1 files changed, 16 insertions(+), 19 deletions(-)
+
+diff --git a/src/drmmode_display.c b/src/drmmode_display.c
+index 31912c6..5986a21 100644
+--- a/src/drmmode_display.c
++++ b/src/drmmode_display.c
+@@ -178,13 +178,8 @@ drmmode_fbcon_copy(ScreenPtr pScreen)
+ 	unsigned w = pScrn->virtualX, h = pScrn->virtualY;
+ 	int i, ret, fbcon_id = 0;
+ 
+-	if (pNv->NoAccel) {
+-		if (nouveau_bo_map(pNv->scanout, NOUVEAU_BO_WR))
+-			return;
+-		memset(pNv->scanout->map, 0x00, pNv->scanout->size);
+-		nouveau_bo_unmap(pNv->scanout);
+-		return;
+-	}
++	if (pNv->NoAccel)
++		goto fallback;
+ 
+ 	for (i = 0; i < xf86_config->num_crtc; i++) {
+ 		drmmode_crtc_private_ptr drmmode_crtc =
+@@ -195,32 +190,27 @@ drmmode_fbcon_copy(ScreenPtr pScreen)
+ 	}
+ 
+ 	if (!fbcon_id)
+-		return;
++		goto fallback;
+ 
+ 	fb = drmModeGetFB(nouveau_device(pNv->dev)->fd, fbcon_id);
+ 	if (!fb) {
+ 		xf86DrvMsg(pScrn->scrnIndex, X_WARNING,
+ 			   "Failed to retrieve fbcon fb: id %d\n", fbcon_id);
+-		return;
++		goto fallback;
+ 	}
+ 
+-	if (fb->depth != pScrn->depth) {
++	if (fb->depth != pScrn->depth || fb->width != w || fb->height != h) {
+ 		drmFree(fb);
+-		return;
++		goto fallback;
+ 	}
+ 
+-	if (w > fb->width)
+-		w = fb->width;
+-	if (h > fb->height)
+-		h = fb->height;
+-
+ 	ret = nouveau_bo_wrap(pNv->dev, fb->handle, &bo);
+ 	if (ret) {
+ 		xf86DrvMsg(pScrn->scrnIndex, X_WARNING,
+ 			   "Failed to retrieve fbcon buffer: handle=0x%08x\n",
+ 			   fb->handle);
+ 		drmFree(fb);
+-		return;
++		goto fallback;
+ 	}
+ 
+ 	pspix = drmmode_pixmap_wrap(pScreen, fb->width, fb->height,
+@@ -230,7 +220,7 @@ drmmode_fbcon_copy(ScreenPtr pScreen)
+ 	if (!pspix) {
+ 		xf86DrvMsg(pScrn->scrnIndex, X_WARNING,
+ 			   "Failed to create pixmap for fbcon contents\n");
+-		return;
++		goto fallback;
+ 	}
+ 
+ 	pdpix = drmmode_pixmap_wrap(pScreen, pScrn->virtualX,
+@@ -241,7 +231,7 @@ drmmode_fbcon_copy(ScreenPtr pScreen)
+ 		xf86DrvMsg(pScrn->scrnIndex, X_WARNING,
+ 			   "Failed to init scanout pixmap for fbcon mirror\n");
+ 		pScreen->DestroyPixmap(pspix);
+-		return;
++		goto fallback;
+ 	}
+ 
+ 	exa->PrepareCopy(pspix, pdpix, 0, 0, GXcopy, ~0);
+@@ -257,6 +247,13 @@ drmmode_fbcon_copy(ScreenPtr pScreen)
+ 
+ 	pScreen->DestroyPixmap(pdpix);
+ 	pScreen->DestroyPixmap(pspix);
++	return;
++
++fallback:
++	if (nouveau_bo_map(pNv->scanout, NOUVEAU_BO_WR))
++		return;
++	memset(pNv->scanout->map, 0x00, pNv->scanout->size);
++	nouveau_bo_unmap(pNv->scanout);
+ }
+ 
+ static Bool
+-- 
+1.7.1
+
