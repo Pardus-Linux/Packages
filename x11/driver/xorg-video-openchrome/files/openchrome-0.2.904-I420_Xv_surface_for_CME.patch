@@ -1,0 +1,324 @@
+From fa325c183bd66b2b20e8f22c74d87fa01a831ab0 Mon Sep 17 00:00:00 2001
+From: root <root@localhost.localdomain>
+Date: Thu, 8 Apr 2010 20:39:37 +0000
+Subject: [PATCH 6/8] Add I420 Xvideo Surface for CME_Engine
+
+This patch is not finished, it only implements the I420 support
+for the CME Engine chipsets.  I need to finish legacy support of this format.
+---
+ src/via_swov.c  |   19 ++++++++++-
+ src/via_video.c |   94 ++++++++++++++++++++++++++++++++++++++++++++++++++----
+ 2 files changed, 104 insertions(+), 9 deletions(-)
+
+diff --git a/src/via_swov.c b/src/via_swov.c
+index 8b68498..5be2d6a 100644
+--- a/src/via_swov.c
++++ b/src/via_swov.c
+@@ -392,6 +392,7 @@ viaOverlayGetV1V3Format(VIAPtr pVia, int vport, /* 1 or 3, as in V1 or V3 */
+     if (videoFlag & VIDEO_HQV_INUSE) {
+         switch (pVia->swov.SrcFourCC) {
+             case FOURCC_YV12:
++            case FOURCC_I420:
+             case FOURCC_XVMC:
+                 *pHQVCtl |= HQV_YUV420;
+                 break;
+@@ -421,6 +422,7 @@ viaOverlayGetV1V3Format(VIAPtr pVia, int vport, /* 1 or 3, as in V1 or V3 */
+     } else {
+         switch (pVia->swov.SrcFourCC) {
+             case FOURCC_YV12:
++            case FOURCC_I420:
+             case FOURCC_XVMC:
+                 if (vport == 1) {
+                     *pVidCtl |= V1_YCbCr420;
+@@ -503,6 +505,7 @@ viaOverlayGetSrcStartAddress(VIAPtr pVia,
+                 break;
+ 
+             case FOURCC_YV12:
++            case FOURCC_I420:
+             case FOURCC_XVMC:
+ 
+                 if (videoFlag & VIDEO_HQV_INUSE)
+@@ -763,6 +766,7 @@ viaOverlayGetFetch(VIAPtr pVia, unsigned long videoFlag,
+ 
+     switch (pVia->swov.SrcFourCC) {
+         case FOURCC_YV12:
++        case FOURCC_I420:
+         case FOURCC_XVMC:
+             n = 0; /* 2^n = 1 byte per pixel (Y channel in planar YUV) */
+             break;
+@@ -1146,7 +1150,8 @@ AddHQVSurface(ScrnInfoPtr pScrn, unsigned int numbuf, CARD32 fourcc)
+         !(pVia->swov.gdwVideoFlagSW & VIDEO_1_INUSE))
+         proReg = PRO_HQV1_OFFSET;
+ 
+-    isplanar = ((fourcc == FOURCC_YV12) || (fourcc == FOURCC_XVMC));
++    isplanar = ((fourcc == FOURCC_YV12) || (fourcc == FOURCC_I420) ||
++				(fourcc == FOURCC_XVMC));
+ 
+     width = pVia->swov.SWDevice.gdwSWSrcWidth;
+     height = pVia->swov.SWDevice.gdwSWSrcHeight;
+@@ -1189,6 +1194,7 @@ CreateSurface(ScrnInfoPtr pScrn, CARD32 FourCC, CARD16 Width,
+     isplanar = FALSE;
+     switch (FourCC) {
+         case FOURCC_YV12:
++        case FOURCC_I420:
+         case FOURCC_XVMC:
+             isplanar = TRUE;
+             pitch = ALIGN_TO(Width, 32);
+@@ -1281,9 +1287,10 @@ ViaSwovSurfaceCreate(ScrnInfoPtr pScrn, viaPortPrivPtr pPriv,
+             break;
+ 
+         case FOURCC_YV12:
++        case FOURCC_I420:
+             retCode = CreateSurface(pScrn, FourCC, Width, Height, TRUE);
+             if (retCode == Success)
+-                retCode = AddHQVSurface(pScrn, numbuf, FOURCC_YV12);
++                retCode = AddHQVSurface(pScrn, numbuf, FourCC);
+             break;
+ 
+         case FOURCC_XVMC:
+@@ -1345,6 +1352,7 @@ ViaSwovSurfaceDestroy(ScrnInfoPtr pScrn, viaPortPrivPtr pPriv)
+                 break;
+ 
+             case FOURCC_YV12:
++            case FOURCC_I420:
+                 VIAFreeLinear(&pVia->swov.SWfbMem);
+             case FOURCC_XVMC:
+                 pVia->swov.SrcFourCC = 0;
+@@ -1509,6 +1517,7 @@ SetupFIFOs(VIAPtr pVia, unsigned long videoFlag,
+ {
+     if (miniCtl & V1_Y_INTERPOLY) {
+         if (pVia->swov.SrcFourCC == FOURCC_YV12
++			|| pVia->swov.SrcFourCC == FOURCC_I420
+             || pVia->swov.SrcFourCC == FOURCC_XVMC) {
+             if (videoFlag & VIDEO_HQV_INUSE) {
+                 if (videoFlag & VIDEO_1_INUSE)
+@@ -1542,6 +1551,7 @@ SetupFIFOs(VIAPtr pVia, unsigned long videoFlag,
+         }
+     } else {
+         if (pVia->swov.SrcFourCC == FOURCC_YV12
++			|| pVia->swov.SrcFourCC == FOURCC_I420
+             || pVia->swov.SrcFourCC == FOURCC_XVMC) {
+             if (videoFlag & VIDEO_HQV_INUSE) {
+                 if (videoFlag & VIDEO_1_INUSE)
+@@ -1893,6 +1903,7 @@ Upd_Video(ScrnInfoPtr pScrn, unsigned long videoFlag,
+     pVia->swov.overlayRecordV1.dwOffset = dwOffset;
+ 
+     if (pVia->swov.SrcFourCC == FOURCC_YV12
++		|| pVia->swov.SrcFourCC == FOURCC_I420
+         || pVia->swov.SrcFourCC == FOURCC_XVMC) {
+ 
+         YCBCRREC YCbCr;
+@@ -1985,6 +1996,7 @@ Upd_Video(ScrnInfoPtr pScrn, unsigned long videoFlag,
+             SetHQVFetch(pVia, hqvSrcFetch, oriSrcHeight);
+ 
+         if (pVia->swov.SrcFourCC == FOURCC_YV12
++            || pVia->swov.SrcFourCC == FOURCC_I420
+             || pVia->swov.SrcFourCC == FOURCC_XVMC) {
+             if (videoFlag & VIDEO_1_INUSE)
+                 SaveVideoRegister(pVia, V1_STRIDE, srcPitch << 1);
+@@ -2294,6 +2306,7 @@ VIAVidUpdateOverlay(ScrnInfoPtr pScrn, LPDDUPDATEOVERLAY pUpdate)
+         (pVia->swov.SrcFourCC == FOURCC_RV16) ||
+         (pVia->swov.SrcFourCC == FOURCC_RV32) ||
+         (pVia->swov.SrcFourCC == FOURCC_YV12) ||
++        (pVia->swov.SrcFourCC == FOURCC_I420) ||
+         (pVia->swov.SrcFourCC == FOURCC_XVMC)) {
+         videoFlag = pVia->swov.gdwVideoFlagSW;
+     }
+@@ -2368,6 +2381,7 @@ VIAVidUpdateOverlay(ScrnInfoPtr pScrn, LPDDUPDATEOVERLAY pUpdate)
+         (pVia->swov.SrcFourCC == FOURCC_RV16) ||
+         (pVia->swov.SrcFourCC == FOURCC_RV32) ||
+         (pVia->swov.SrcFourCC == FOURCC_YV12) ||
++        (pVia->swov.SrcFourCC == FOURCC_I420) ||
+         (pVia->swov.SrcFourCC == FOURCC_XVMC)) {
+         pVia->swov.SWDevice.gdwSWDstLeft = pUpdate->DstLeft + panDX;
+         pVia->swov.SWDevice.gdwSWDstTop = pUpdate->DstTop + panDY;
+@@ -2427,6 +2441,7 @@ ViaOverlayHide(ScrnInfoPtr pScrn)
+         (pVia->swov.SrcFourCC == FOURCC_RV16) ||
+         (pVia->swov.SrcFourCC == FOURCC_RV32) ||
+         (pVia->swov.SrcFourCC == FOURCC_YV12) ||
++        (pVia->swov.SrcFourCC == FOURCC_I420) ||
+         (pVia->swov.SrcFourCC == FOURCC_XVMC))
+         videoFlag = pVia->swov.gdwVideoFlagSW;
+ 
+diff --git a/src/via_video.c b/src/via_video.c
+index 4c3f2d9..5924556 100644
+--- a/src/via_video.c
++++ b/src/via_video.c
+@@ -117,6 +117,10 @@ static int viaSetPortAttribute(ScrnInfoPtr, Atom, INT32, pointer);
+ static int viaPutImage(ScrnInfoPtr, short, short, short, short, short, short,
+     short, short, int, unsigned char *, short, short, Bool,
+     RegionPtr, pointer, DrawablePtr);
++static void UVBlit(unsigned char *dest,
++    const unsigned char *uBuffer,
++    const unsigned char *vBuffer,
++    unsigned width, unsigned srcPitch, unsigned dstPitch, unsigned lines);
+ static void nv12Blit(unsigned char *nv12Chroma,
+     const unsigned char *uBuffer,
+     const unsigned char *vBuffer,
+@@ -158,11 +162,12 @@ static XF86AttributeRec AttributesG[NUM_ATTRIBUTES_G] = {
+     {XvSettable | XvGettable, 0, 1, "XV_AUTOPAINT_COLORKEY"}
+ };
+ 
+-#define NUM_IMAGES_G 6
++#define NUM_IMAGES_G 7
+ 
+ static XF86ImageRec ImagesG[NUM_IMAGES_G] = {
+     XVIMAGE_YUY2,
+     XVIMAGE_YV12,
++    XVIMAGE_I420,
+     {
+         /*
+          * Below, a dummy picture type that is used in XvPutImage only to do
+@@ -1048,6 +1053,7 @@ Flip(VIAPtr pVia, viaPortPrivPtr pPriv, int fourcc,
+                 proReg) & ~HQV_FLIP_ODD) | HQV_SW_FLIP | HQV_FLIP_STATUS);
+             break;
+         case FOURCC_YV12:
++        case FOURCC_I420:
+         default:
+             while ((VIDInD(HQV_CONTROL + proReg) & HQV_SW_FLIP)
+                     && --count);
+@@ -1074,16 +1080,49 @@ Flip(VIAPtr pVia, viaPortPrivPtr pPriv, int fourcc,
+  */
+ 
+ static void
++planar420cp(unsigned char *dst,
++    const unsigned char *src, int dstPitch, int w, int h, int i420)
++{
++    /* 
++     * Blit luma component as a fake YUY2 assembler blit. 
++     */
++	unsigned long srcUOffset, srcVOffset;
++    if (i420) {
++	    srcVOffset  = w * h + (w >> 1) * (h >> 1);
++	    srcUOffset = w * h;
++    } else {
++	    srcUOffset  = w * h + (w >> 1) * (h >> 1);
++	    srcVOffset = w * h;
++	}
++
++    (*viaFastVidCpy) (dst, src, dstPitch, w >> 1, h, 1);
++    UVBlit(dst + dstPitch * h, src + srcUOffset,
++           src + srcVOffset, w >> 1, w >> 1, dstPitch, h >> 1);
++}
++
++/*
++ * Slow and dirty. NV12 blit.
++ */
++
++static void
+ nv12cp(unsigned char *dst,
+-    const unsigned char *src, int dstPitch, int w, int h, int yuv422)
++    const unsigned char *src, int dstPitch, int w, int h, int i420)
+ {
+     /* 
+      * Blit luma component as a fake YUY2 assembler blit. 
+      */
++	unsigned long srcUOffset, srcVOffset;
++    if (i420) {
++	    srcVOffset  = w * h + (w >> 1) * (h >> 1);
++	    srcUOffset = w * h;
++    } else {
++	    srcUOffset  = w * h + (w >> 1) * (h >> 1);
++	    srcVOffset = w * h;
++	}
+ 
+     (*viaFastVidCpy) (dst, src, dstPitch, w >> 1, h, TRUE);
+-    nv12Blit(dst + dstPitch * h, src + w * h + (w >> 1) * (h >> 1),
+-            src + w * h, w >> 1, w >> 1, dstPitch, h >> 1);
++    nv12Blit(dst + dstPitch * h, src + srcUOffset,
++            src + srcVOffset, w >> 1, w >>1, dstPitch, h >> 1);
+ }
+ 
+ #ifdef XF86DRI
+@@ -1108,7 +1147,7 @@ viaDmaBlitImage(VIAPtr pVia,
+ 
+     bounceBuffer = ((unsigned long)src & 15);
+     nv12Conversion = (pVia->VideoEngine == VIDEO_ENGINE_CME && 
+-        id == FOURCC_YV12);
++        (id == FOURCC_YV12 || id == FOURCC_I420));
+ 
+     switch (id) {
+         case FOURCC_YUY2:
+@@ -1123,6 +1162,7 @@ viaDmaBlitImage(VIAPtr pVia,
+             break;
+ 
+         case FOURCC_YV12:
++        case FOURCC_I420:
+         default:
+             bounceStride = ALIGN_TO(width, 16);
+             bounceLines = height;
+@@ -1138,7 +1178,7 @@ viaDmaBlitImage(VIAPtr pVia,
+                 pPort->dmaBounceBuffer = 0;
+             }
+             size = bounceStride * bounceLines + 16;
+-            if (FOURCC_YV12 == id)
++            if (id == FOURCC_YV12 || id == FOURCC_I420)
+                 size += ALIGN_TO(bounceStride >> 1, 16) * bounceLines;
+             pPort->dmaBounceBuffer = (unsigned char *)malloc(size);
+             pPort->dmaBounceLines = bounceLines;
+@@ -1178,7 +1218,7 @@ viaDmaBlitImage(VIAPtr pVia,
+ 
+     lumaSync = blit.sync;
+ 
+-    if (id == FOURCC_YV12) {
++    if (id == FOURCC_YV12 || id == FOURCC_I420) {
+         unsigned tmp = ALIGN_TO(width >> 1, 16);
+ 
+         if (nv12Conversion) {
+@@ -1310,6 +1350,17 @@ viaPutImage(ScrnInfoPtr pScrn,
+ #endif
+                 } else {
+                     switch (id) {
++                        case FOURCC_I420:
++                            if (pVia->VideoEngine == VIDEO_ENGINE_CME) {
++                                nv12cp(pVia->swov.SWDevice.
++                                    lpSWOverlaySurface[pVia->dwFrameNum & 1],
++                                    buf, dstPitch, width, height, 1);
++                            } else {
++                                (*viaFastVidCpy)(pVia->swov.SWDevice.
++                                    lpSWOverlaySurface[pVia->dwFrameNum & 1],
++                                    buf, dstPitch, width, height, 0);
++                            }
++                            break;
+                         case FOURCC_YV12:
+                             if (pVia->VideoEngine == VIDEO_ENGINE_CME) {
+                                 nv12cp(pVia->swov.SWDevice.
+@@ -1566,6 +1617,35 @@ VIAVidAdjustFrame(ScrnInfoPtr pScrn, int x, int y)
+ }
+ 
+ /*
++ * Blit the U and V Fields. Used to Flip the U V for I420.
++ */
++
++static void
++UVBlit(unsigned char *dst,
++        const unsigned char *uBuffer,
++        const unsigned char *vBuffer,
++        unsigned width, unsigned srcPitch, unsigned dstPitch, unsigned lines)
++{
++    int i, j;
++
++    dstPitch >>= 1;
++
++    for(j = 0; j < lines; j++)
++    {
++        for(i = 0; i < width; i++)
++        {
++            dst[i] = (uBuffer[i] << 8) | (vBuffer[i] << 16);
++        }
++
++        dst += dstPitch;
++        uBuffer += srcPitch;
++        vBuffer += srcPitch;
++    }
++
++}
++
++
++/*
+  * Blit the chroma field from one buffer to another while at the same time converting from
+  * YV12 to NV12.
+  */
+-- 
+1.6.2.5
+
