@@ -19,8 +19,7 @@ def setup():
     # For gutenprint printers, use gutenprint-ijs-simplified.5.2
     pisitools.dosed("db/source/printer/*.xml", ">gutenprint<", ">gutenprint-ijs-simplified.5.2<")
 
-    # Disable gzip compression for better lzma compression
-    autotools.configure("--disable-gzip-ppds")
+    autotools.configure()
 
     # Cleanup conflicts
     shelltools.cd("db/source")
