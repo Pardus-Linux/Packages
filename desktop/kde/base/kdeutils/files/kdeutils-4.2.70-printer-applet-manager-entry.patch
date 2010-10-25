@@ -1,20 +1,13 @@
---- kdeutils-4.2.70.svn954171/printer-applet/printer-applet.py.old	2009-05-03 13:00:01.000000000 +0200
-+++ kdeutils-4.2.70.svn954171/printer-applet/printer-applet.py	2009-05-03 13:01:10.000000000 +0200
-@@ -248,6 +248,7 @@
+Index: kdeutils-4.5.2/printer-applet/printer-applet.py
+===================================================================
+--- kdeutils-4.5.2.orig/printer-applet/printer-applet.py
++++ kdeutils-4.5.2/printer-applet/printer-applet.py
+@@ -270,6 +270,8 @@ class JobManager(QObject, monitor.Watche
+         self.mainWindow.actionCollection().addAction("printer_configuration", configureAction)
+         self.connect(configureAction, SIGNAL("triggered(bool)"), self.on_printer_configuration_activate)
  
-         self.menu = QMenu()
-         self.menu.addAction(i18n("_Hide").replace("_", ""), self.on_icon_hide_activate)
-+        self.menu.addAction(KIcon("printer"), i18n("_Manage Printers").replace("_", ""), self.on_icon_manage_activate)
-         self.menu.addAction(KIcon("application-exit"), i18n("Quit"), self.on_icon_quit_activate)
-         self.sysTray.setContextMenu(self.menu)
- 
-@@ -570,6 +571,9 @@
-         self.num_jobs_when_hidden = len (self.jobs.keys ())
-         self.set_statusicon_visibility ()
- 
-+    def on_icon_manage_activate(self):
-+        os.spawnlp(os.P_NOWAIT, 'kcmshell4', 'kcmshell4', 'system-config-printer-kde')
++        self.sysTray.contextMenu().addAction(configureAction)
 +
-     def on_icon_quit_activate(self):
-         app.quit()
- 
+         showCompletedJobsAction = KToggleAction( i18n( "Show Completed Jobs"), self.mainWindow)
+         self.mainWindow.actionCollection().addAction("show_completed_jobs", showCompletedJobsAction)
+         self.connect(showCompletedJobsAction, SIGNAL("triggered(bool)"), self.on_show_completed_jobs_activate);
