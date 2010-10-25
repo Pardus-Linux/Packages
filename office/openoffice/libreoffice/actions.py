@@ -31,6 +31,7 @@ def setup():
     shelltools.export("LDFLAGS", "")
 
     #libdir is needed to set exec_prefix stuff of patches/dev300/system-python-ure-bootstrap.diff
+    #enable-cairo to make HW Acceleration enabled
     shelltools.system('./configure \
                        --prefix=%s \
                        --libdir=%s/lib \
