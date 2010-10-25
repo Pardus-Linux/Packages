@@ -22,4 +22,8 @@ def install():
 
     pisitools.dosym("/usr/share/icons/hicolor/128x128/apps/choqok.png", "/usr/share/pixmaps/choqok.png")
 
+    # Dont pollute Actions menu with useless service menus
+    pisitools.remove("/usr/share/kde4/services/ServiceMenus/choqok_share.desktop")
+    pisitools.remove("/usr/share/kde4/services/ServiceMenus/choqok_upload.desktop")
+
     pisitools.dodoc("AUTHORS", "changelog", "COPYING", "README", "TODO")
