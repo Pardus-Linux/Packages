@@ -40,7 +40,7 @@ def setup():
                        --enable-gtk \
                        --enable-kde4 \
                        --disable-kde \
-                       --disable-cairo \
+                       --enable-cairo \
                        --disable-mono \
                        --with-distro=Pardus2009 \
                        --with-drink="Burdur shish" \
