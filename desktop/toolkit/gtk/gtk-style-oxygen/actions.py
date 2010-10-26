@@ -19,13 +19,3 @@ def build():
 
 def install():
     cmaketools.install()
-    """
-    shelltools.copytree("kde42-oxygen", "%s/usr/share/themes/Oxygen" % get.installDIR())
-    pisitools.removeDir("/usr/share/themes/Oxygen/metacity-1")
-
-    #fix permissions of directories and files
-    for dirpath, dirs, files in os.walk("%s/usr/share/themes/Oxygen" % get.installDIR()):
-        shelltools.chmod(dirpath, 0755)
-        for file in files:
-            shelltools.chmod(os.path.join(dirpath, file), 0644)
-    """
