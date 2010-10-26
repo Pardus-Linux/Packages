@@ -10,5 +10,5 @@ def install():
         pisitools.insinto("/", d)
 
     # Remove these when KDE is ready for 2011
-    for config in ("kickoffrc", "ksplashrc"):
+    for config in ("ksplashrc",):
         pisitools.remove("/usr/share/kde4/config/%s" % config)
