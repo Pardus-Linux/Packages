@@ -1,6 +1,6 @@
 
 if [ "$SESSION" = "kde" -o "$SESSION" = "kde-safe" -o "$SESSION" = "openbox-kde" ]; then
-    kdehome=$HOME/.kde4
+    kdehome=$HOME/.kde
     test -n "$KDEHOME" && kdehome=`echo "$KDEHOME"|sed "s,^~/,$HOME/,"`
 
     # see kstartupconfig source for usage
@@ -9,15 +9,6 @@ if [ "$SESSION" = "kde" -o "$SESSION" = "kde-safe" -o "$SESSION" = "openbox-kde"
     cat >$kdehome/share/config/startupconfigkeys <<EOF
 kcminputrc Mouse cursorTheme 'Oxygen_Black'
 kcminputrc Mouse cursorSize ''
-ksplashrc KSplash Theme Default
-ksplashrc KSplash Engine KSplashX
-kcmrandrrc Display ApplyOnStartup false
-kcmrandrrc [Screen0]
-kcmrandrrc [Screen1]
-kcmrandrrc [Screen2]
-kcmrandrrc [Screen3]
-kcmfonts General forceFontDPI 0
-kdeglobals Locale Language '' # trigger requesting languages from KLocale
 EOF
     kstartupconfig4
     returncode=$?
@@ -29,8 +20,6 @@ EOF
 
     # XCursor mouse theme needs to be applied here to work even for kded or ksmserver
     if test -n "$kcminputrc_mouse_cursortheme" -o -n "$kcminputrc_mouse_cursorsize" ; then
-        XCURSOR_PATH=/usr/kde/4/share/icons:$XCURSOR_PATH":~/.icons:/usr/share/icons:/usr/share/pixmaps:/usr/X11R6/lib/X11/icons"; export XCURSOR_PATH
-
         kapplymousetheme "$kcminputrc_mouse_cursortheme" "$kcminputrc_mouse_cursorsize"
         if test $? -eq 10; then
             XCURSOR_THEME=default
@@ -46,7 +35,7 @@ EOF
     fi
 
     if test -z "$XDG_DATA_DIRS"; then
-        XDG_DATA_DIRS="`kde4-config --prefix`/share:/usr/share:/usr/local/share"
+        XDG_DATA_DIRS="/usr/share:/usr/local/share"
         export XDG_DATA_DIRS
     fi
 
@@ -58,4 +47,12 @@ EOF
 
     KDE_SESSION_UID=`id -ru`
     export KDE_SESSION_UID
+
+    if test -f /usr/share/kde4/config/gtkrc; then
+        GTK2_RC_FILES="${GTK2_RC_FILES:+$GTK2_RC_FILES:}/usr/share/kde4/config/gtkrc"
+        export GTK2_RC_FILES
+
+        GTK_RC_FILES=$GTK2_RC_FILES
+        export GTK_RC_FILES
+    fi
 fi
