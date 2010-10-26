@@ -4,7 +4,7 @@
 # Licensed under the GNU General Public License, version 2.
 # See the file http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
 
-from pisi.actionsapi import cmaketools
+from pisi.actionsapi import kde4
 from pisi.actionsapi import shelltools
 from pisi.actionsapi import pisitools
 from pisi.actionsapi import get
@@ -13,12 +13,12 @@ WorkDir = "crystal-%s" % get.srcVERSION()
 shelltools.export("HOME", get.workDIR())
 
 def setup():
-    cmaketools.configure("-DCMAKE_INSTALL_PREFIX=/usr/kde/4", sourceDir=".")
+    kde4.configure()
 
 def build():
-    cmaketools.make("-j1")
+    kde4.make("-j1")
 
 def install():
-    cmaketools.rawInstall("DESTDIR=%s" % get.installDIR())
+    kde4.install()
 
     pisitools.dodoc("COPYING", "INSTALL", "README")
