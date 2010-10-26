@@ -5,15 +5,21 @@
 # Licensed under the GNU General Public License, version 2.
 # See the file http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
 
-from pisi.actionsapi import shelltools
+from pisi.actionsapi import cmaketools
 from pisi.actionsapi import pisitools
 from pisi.actionsapi import get
 
-import os
+WorkDir = "gtk-oxygen-engine-%s" % get.srcVERSION()
 
-WorkDir = "."
+def setup():
+    cmaketools.configure()
+
+def build():
+    cmaketools.make()
 
 def install():
+    cmaketools.install()
+    """
     shelltools.copytree("kde42-oxygen", "%s/usr/share/themes/Oxygen" % get.installDIR())
     pisitools.removeDir("/usr/share/themes/Oxygen/metacity-1")
 
@@ -22,3 +28,4 @@ def install():
         shelltools.chmod(dirpath, 0755)
         for file in files:
             shelltools.chmod(os.path.join(dirpath, file), 0644)
+    """
