@@ -1,0 +1,83 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>uClibc</Name>
+        <Homepage>http://www.uclibc.org</Homepage>
+        <Packager>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Packager>
+        <License>LGPLv2.1</License>
+        <IsA>library</IsA>
+        <Summary>A C library for embedded Linux</Summary>
+        <Description>uClibc is a C library for developing embedded Linux systems. It is much smaller than the GNU C Library but nearly all applications supported by glibc also work perfectly with uClibc.</Description>
+        <Archive sha1sum="f25f70534594dffdb6b9008799a1532271178338" type="tarbz2">http://www.uclibc.org/downloads/uClibc-0.9.31.tar.bz2</Archive>
+        <Patches>
+            <!-- Mandriva patches -->
+            <Patch level="1">mandriva/uClibc-0.9.30.2-add-rpmatch-function.patch</Patch>
+            <Patch level="1">mandriva/uClibc-0.9.30.1-add-scanf-a-flag.patch</Patch>
+
+            <!-- PLD wrapper & patches -->
+            <Patch level="1">pld/uClibc-toolchain-wrapper.patch</Patch>
+            <Patch level="1">pld/uClibc-targetcpu.patch</Patch>
+
+            <!-- Pardus patches -->
+            <Patch level="1">pardus/filter-out-fstack-protector.patch</Patch>
+            <Patch level="1">pardus/pass-muclibc-to-wrapper.patch</Patch>
+            <Patch level="1">pardus/make-3.82.patch</Patch>
+
+            <!-- SuSE fixes -->
+            <Patch level="1">suse/uClibc.fix-pthread-warnings.patch</Patch>
+            <Patch level="1">suse/static-segfault-fix.patch</Patch>
+
+            <!-- KBuild configuration -->
+            <Patch>shared-config.patch</Patch>
+        </Patches>
+    </Source>
+
+    <Package>
+        <Name>uClibc</Name>
+        <Files>
+            <Path fileType="executable">/usr/lib/uClibc/sbin/ldconfig</Path>
+            <Path fileType="executable">/usr/lib/uClibc/bin</Path>
+            <Path fileType="library">/usr/lib/uClibc</Path>
+            <Path fileType="library">/usr/lib/uClibc/lib</Path>
+            <Path fileType="library">/usr/lib/uClibc/usr/lib</Path>
+            <Path fileType="data">/usr/lib/uClibc/etc</Path>
+            <Path fileType="doc">/usr/share/doc</Path>
+        </Files>
+        <Provides>
+            <COMAR script="pakhandler.py">System.PackageHandler</COMAR>
+        </Provides>
+    </Package>
+
+    <Package>
+        <Name>uClibc-devel</Name>
+        <Summary>Development files for uClibc</Summary>
+        <RuntimeDependencies>
+            <Dependency release="1">uClibc</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="header">/usr/lib/uClibc/usr/include</Path>
+            <Path fileType="library">/usr/lib/uClibc/usr/lib/*.o</Path>
+            <Path fileType="library">/usr/lib/uClibc/usr/lib/*.a</Path>
+
+            <!-- Development symlinks like ar, as, c++, cc, cpp, etc. -->
+            <Path fileType="executable">/usr/lib/uClibc/usr/bin</Path>
+
+            <Path fileType="executable">/usr/bin</Path>
+        </Files>
+    </Package>
+
+    <History>
+        <Update release="1">
+            <Date>2010-05-20</Date>
+            <Version>0.9.31</Version>
+            <Comment>Version bump</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+    </History>
+</PISI>
+
