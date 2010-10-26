@@ -11,6 +11,8 @@ pref("mailnews.default_sort_type", 2);
 pref("mailnews.default_sort_order", 22);
 pref("network.negotiate-auth.gsslib", "GSSAPI");
 
+pref("mail.check_all_imap_folders_for_new", true);
+
 pref("mail.compose.max_recycled_windows", 1);
 pref("browser.display.show_image_placeholders", false);
 pref("mailnews.customHeaders", "List-Id");
