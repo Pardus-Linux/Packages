@@ -1,0 +1,109 @@
+From a35294831cb18a936e506cf1522c79a160f37e2a Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Micha=C5=82=20Januszewski?= <spock@gentoo.org>
+Date: Tue, 4 Nov 2008 00:20:57 +0100
+Subject: [PATCH 1/2] Fix parsing of the OEM descriptions.
+
+There is at least one known case where the OEM descriptions provided
+by the Video BIOS are not valid, null-terminated strings.  Fix the
+code so that even invalid data in those fields does not cause an
+overflow of the buffer.
+---
+ v86_common.c |   39 ++++++++++++++++++++++++++++++---------
+ 1 files changed, 30 insertions(+), 9 deletions(-)
+
+diff --git a/v86_common.c b/v86_common.c
+index 758bf69..421b850 100644
+--- a/v86_common.c
++++ b/v86_common.c
+@@ -9,17 +9,25 @@
+ 	t = addr(ib->name);							\
+ 	if (t < bufend) {							\
+ 		ib->name = t - lbuf;					\
++		l = strnlen((char*)buf + ib->name, bufend-t); \
++		if (buf[ib->name + l] != 0)				\
++			buf[ib->name + l] = 0;				\
++		fsize -= l;								\
++		cbuf += l;								\
+ 	} else if (t > 0xa0000 && fsize > 0) {		\
+-		strncpy((char*)buf, vptr(t), fsize);	\
++		strncpy((char*)cbuf, vptr(t), fsize);	\
++		l = strnlen((char*)cbuf, fsize);		\
++		if (cbuf[l] != 0)						\
++			cbuf[l] = 0;						\
+ 		ib->name = tsk->buf_len - fsize;		\
+-		l = strlen((char*)buf) + 1;				\
++		l++;									\
+ 		fsize -= l;								\
+-		buf += l;								\
+-		if (fsize < 0)							\
+-			fsize = 0;							\
++		cbuf += l;								\
+ 	} else {									\
+ 		ib->name = 0;							\
+ 	}											\
++	if (fsize < 0)								\
++		fsize = 0;								\
+ }
+ 
+ int v86_task(struct uvesafb_task *tsk, u8 *buf)
+@@ -38,6 +46,7 @@ int v86_task(struct uvesafb_task *tsk, u8 *buf)
+ 		int fsize;
+ 		u32 t, bufend;
+ 		u16 *td;
++		u8 *cbuf;
+ 
+ 		lbuf = v86_mem_alloc(tsk->buf_len);
+ 		if (!lbuf) {
+@@ -57,13 +66,25 @@ int v86_task(struct uvesafb_task *tsk, u8 *buf)
+ 
+ 		/* The original VBE Info Block is 512 bytes long. */
+ 		fsize = tsk->buf_len - 512;
+-		buf += 512;
++		cbuf = buf + 512;
+ 
+ 		t = addr(ib->mode_list_ptr);
+ 		/* Mode list is in the buffer, we're good. */
+ 		if (t < bufend) {
+ 			ulog(LOG_DEBUG, "The mode list is in the buffer at %.8x.", t);
+ 			ib->mode_list_ptr = t - lbuf;
++			td = (u16*) (buf + ib->mode_list_ptr);
++
++			while (fsize > 2 && *td != 0xffff) {
++				td++;
++				t += 2;
++				fsize -= 2;
++				cbuf += 2;
++			}
++
++			*td = 0xffff;
++			cbuf += 2;
++			fsize -= 2;
+ 
+ 		/* Mode list is in the ROM. We copy as much of it as we can
+ 		 * to the task buffer. */
+@@ -72,19 +93,19 @@ int v86_task(struct uvesafb_task *tsk, u8 *buf)
+ 
+ 			ulog(LOG_DEBUG, "The mode list is in the Video ROM at %.8x", t);
+ 
+-			td = (u16*)buf;
++			td = (u16*)cbuf;
+ 
+ 			while (fsize > 2 && (tmp = v_rdw(t)) != 0xffff) {
+ 				fsize -= 2;
+ 				*td = tmp;
+ 				td++;
+ 				t += 2;
+-				buf += 2;
++				cbuf += 2;
+ 			}
+ 
+ 			ib->mode_list_ptr = 512;
+ 			*td = 0xffff;
+-			buf += 2;
++			cbuf += 2;
+ 			fsize -= 2;
+ 
+ 		/* Mode list is somewhere else. We're seriously screwed. */
+-- 
+1.7.2.2
+

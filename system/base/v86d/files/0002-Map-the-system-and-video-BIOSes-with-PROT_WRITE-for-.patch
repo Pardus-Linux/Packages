@@ -1,0 +1,51 @@
+From 640598459c4bb508c6ab6aba734c49c4bee2f3f7 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Micha=C5=82=20Januszewski?= <spock@gentoo.org>
+Date: Tue, 4 Nov 2008 00:24:17 +0100
+Subject: [PATCH 2/2] Map the system and video BIOSes with PROT_WRITE for x86emu.
+
+https://bugs.gentoo.org/show_bug.cgi?id=245254 provides an example
+of a system which requires the Video BIOS and the System BIOS to
+be mapped with read-write protections for the emulation to work
+correctly.
+
+Since only a few systems exhibit this property, this patch only
+fixes this problem in x86emu.  The lrmi backend is left unchanged.
+Mapping the BIOS with PROT_WRITE there would cause it to break
+on PaX systems.  This is not an issue for x86emu, where the code
+is never directly executed (and thus the BIOS pages are not mapped
+with PROT_EXEC).
+---
+ v86_mem.c |   10 ++++++++--
+ 1 files changed, 8 insertions(+), 2 deletions(-)
+
+diff --git a/v86_mem.c b/v86_mem.c
+index 4cedbbe..23eb7c0 100644
+--- a/v86_mem.c
++++ b/v86_mem.c
+@@ -293,7 +293,13 @@ int v86_mem_init(void)
+ 	}
+ 	vbios_size = tmp[2] * 0x200;
+ 	ulog(LOG_DEBUG, "VBIOS at %5x-%5x\n", VBIOS_BASE, VBIOS_BASE + vbios_size - 1);
+-	mem_vbios = map_file(NULL, vbios_size, PROT_READ,
++
++	/*
++	 * The Video BIOS and the System BIOS have to be mapped with PROT_WRITE.
++	 * There is at least one case where mapping them without this flag causes
++	 * a segfault during the emulation: https://bugs.gentoo.org/show_bug.cgi?id=245254
++	 */
++	mem_vbios = map_file(NULL, vbios_size, PROT_READ | PROT_WRITE,
+ 							MAP_SHARED, "/dev/mem", VBIOS_BASE);
+ 
+ 	if (!mem_vbios) {
+@@ -303,7 +309,7 @@ int v86_mem_init(void)
+ 	}
+ 
+ 	/* Map the system BIOS */
+-	mem_sbios = map_file(NULL, SBIOS_SIZE, PROT_READ,
++	mem_sbios = map_file(NULL, SBIOS_SIZE, PROT_READ | PROT_WRITE,
+ 					MAP_SHARED, "/dev/mem", SBIOS_BASE);
+ 	if (!mem_sbios) {
+ 		ulog(LOG_ERR, "Failed to mmap the System BIOS as %5x.", SBIOS_BASE);
+-- 
+1.7.2.2
+
