@@ -12,7 +12,7 @@
         <IsA>kernel</IsA>
         <Summary>The Linux kernel (the core of the Linux operating system) for Pardus Linux</Summary>
         <Description>kernel contains the Linux kernel, the core of any Linux operating system. The kernel handles the basic functions of the operating system: memory allocation, process allocation, device input and output, etc.</Description>
-        <Archive sha1sum="4cb1fbfbeedcd658ca37739679c65dfaa136bf4e" type="tarbz2">http://www.kernel.org/pub/linux/kernel/v2.6/linux-2.6.35.tar.bz2</Archive>
+        <Archive sha1sum="b546ab66458d7d614151d80adbc03b4d28977ae2" type="tarbz2">http://www.kernel.org/pub/linux/kernel/v2.6/linux-2.6.36.tar.bz2</Archive>
         <AdditionalFiles>
             <AdditionalFile target="configs/kernel-i686-config">pardus/configs/kernel-i686-config</AdditionalFile>
             <AdditionalFile target="configs/kernel-x86_64-config">pardus/configs/kernel-x86_64-config</AdditionalFile>
@@ -25,8 +25,6 @@
         </BuildDependencies>
         <Patches>
             <!-- Stable patch -->
-            <Patch level="1" compressionType="bz2">kernel/patch-2.6.36-rc7.bz2</Patch>
-            <Patch level="1" compressionType="bz2">kernel/patch-2.6.36-rc7-git4.bz2</Patch>
 
 
             <!-- Moblin patches -->
@@ -79,11 +77,28 @@
             <!-- acpi: Fix battery status on some devices -->
             <Patch level="1">fedora/acpi-update-battery-information-on-notification-0x81.patch</Patch>
 
+            <!-- runtime pm fixes -->
+            <Patch level="1">fedora/linux-2.6-bluetooth-autosuspend.patch</Patch>
+            <Patch level="1">fedora/linux-2.6-uvc-autosuspend.patch</Patch>
+            <Patch level="1">fedora/linux-2.6-qcserial-autosuspend.patch</Patch>
+            <Patch level="1">fedora/linux-2.6-usb-pci-autosuspend.patch</Patch>
+            <Patch level="1">fedora/linux-2.6-enable-more-pci-autosuspend.patch</Patch>
+            <Patch level="1">fedora/runtime_pm_fixups.patch</Patch>
+
             <!-- pci: Fix PCI problems with CRS -->
-            <Patch level="1">fedora/pci-v2-1-4-resources-ensure-alignment-callback-doesn-t-allocate-below-available-start.patch</Patch>
-            <Patch level="1">fedora/pci-v2-2-4-x86-PCI-allocate-space-from-the-end-of-a-region-not-the-beginning.patch</Patch>
-            <Patch level="1">fedora/pci-v2-3-4-resources-allocate-space-within-a-region-from-the-top-down.patch</Patch>
-            <Patch level="1">fedora/pci-v2-4-4-PCI-allocate-bus-resources-from-the-top-down.patch</Patch>
+            <Patch level="1">fedora/pci-crs-fixes.patch</Patch>
+
+            <!-- ima: Disable ima -->
+            <Patch level="1">fedora/ima-allow-it-to-be-completely-disabled-and-default-off.patch</Patch>
+
+            <!-- xhci: Add suspend/resume support -->
+            <Patch level="1">fedora/xhci_hcd-suspend-resume.patch</Patch>
+
+            <!-- Quirk to disable DMAR with Ricoh card reader/firewire -->
+            <Patch level="1">fedora/dmar-disable-when-ricoh-multifunction.patch</Patch>
+
+            <!-- backport pnpacpi-cope-with-invalid-device-ids from linux-next -->
+            <Patch level="1">fedora/pnpacpi-cope-with-invalid-device-ids.patch</Patch>
 
             <!-- btusb: Add new macbookpro IDs -->
             <Patch level="1">fedora/btusb-macbookpro-7-1.patch</Patch>
@@ -311,6 +326,22 @@
     </Package>
 
     <History>
+        <!--
+        <Update release="145">
+            <Date>2010-10-27</Date>
+            <Version>2.6.36</Version>
+            <Comment>
+                - Version bump to final release,
+                - Add runtime PM fixes from fedora,
+                - Disable IMA,
+                - Fix suspend/resume on XHCI,
+                - Disable DMAR with Ricoh card reader,
+                - backport pnpacpi-cope-with-invalid-device-ids from linux-next
+            </Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        -->
         <Update release="144">
             <Date>2010-10-14</Date>
             <Version>2.6.36_rc7</Version>

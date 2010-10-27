@@ -11,7 +11,7 @@ from pisi.actionsapi import autotools
 from pisi.actionsapi import pisitools
 from pisi.actionsapi import get
 
-WorkDir = "linux-2.6.35"
+WorkDir = "linux-2.6.36"
 NoStrip = ["/"]
 
 def setup():
