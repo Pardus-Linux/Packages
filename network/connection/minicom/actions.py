@@ -7,12 +7,9 @@
 
 from pisi.actionsapi import autotools
 from pisi.actionsapi import pisitools
-from pisi.actionsapi import libtools
-from pisi.actionsapi import shelltools
 from pisi.actionsapi import get
 
 def setup():
-    #libtools.libtoolize("--copy --force")
     autotools.configure("--sysconfdir=/etc/minicom")
 
 def build():
