@@ -385,6 +385,11 @@ class KernelModule:
                 if not os.system("grep -qw drm_crtc_init %s" % i):
                     self.addModule(i.partition(self.modulesDir+'/')[-1])
 
+            # Add uvesafb as a fallback
+            if os.path.exists("/sbin/v86d"):
+                copy("/sbin/v86d", os.path.join(self.targetDir, "sbin/"))
+                self.addModule("kernel/drivers/video/uvesafb.ko")
+
     def addMd(self):
         for i in self.mdDirs:
             self.addDir(i)
