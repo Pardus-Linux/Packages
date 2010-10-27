@@ -22,6 +22,4 @@ def build():
 def install():
     autotools.install()
 
-    pisitools.remove("/usr/share/applications/inkscape.desktop")
-
     pisitools.dodoc("AUTHORS", "COPYING", "COPYING.LIB", "ChangeLog", "NEWS", "README")
