@@ -11,7 +11,7 @@
         <License>MIT</License>
         <Summary>X.Org X Server</Summary>
         <Description>X server is the main application that allows a graphical interface.</Description>
-        <Archive sha1sum="a18d2212df80446b597b71b8948d133f52c399cc" type="tarbz2">mirrors://xorg/individual/xserver/xorg-server-1.9.0.tar.bz2</Archive>
+        <Archive sha1sum="48384349fb598ece532452ae42bff3a176504e16" type="tarbz2">mirrors://xorg/individual/xserver/xorg-server-1.9.1.tar.bz2</Archive>
         <BuildDependencies>
             <Dependency>font-util</Dependency>
             <Dependency>jpeg-devel</Dependency>
@@ -34,7 +34,7 @@
             <Dependency>libXtst-devel</Dependency>
             <Dependency>libXv-devel</Dependency>
             <Dependency>mesa-devel</Dependency>
-            <Dependency>pixman-devel</Dependency>
+            <Dependency versionFrom="0.20.0">pixman-devel</Dependency>
             <Dependency>xorg-app</Dependency>
         </BuildDependencies>
         <Patches>
@@ -54,6 +54,8 @@
             <Patch level="1">fedora/xserver-1.7.1-gamma-kdm-fix.patch</Patch>
             <Patch level="1">fedora/xserver-1.8-disable-vboxvideo.patch</Patch>
             <Patch level="1">fedora/xserver-1.9.0-tcflush-fix.patch</Patch>
+            <Patch level="1">fedora/xserver-1.9.0-vbe-panelid-sanity.patch</Patch>
+            <Patch level="1">fedora/xserver-1.9.0-classic-default-mode.patch</Patch>
 
             <Patch level="1">suse/bug534768-prefer_local_symbols.patch</Patch>
             <Patch level="1">suse/xserver-1.6.1-nouveau.patch</Patch>
@@ -63,7 +65,6 @@
             <Patch level="0">suse/driver-autoconfig.diff</Patch>
             <Patch level="0">suse/fix_fglrx_screendepth_issue.patch</Patch>
             <Patch level="0">suse/p_xkills_wrong_client.diff</Patch>
-            <Patch level="1">suse/vbe-bufferoverflow.diff</Patch>
             <Patch level="1">suse/xorg-detect-psb.patch</Patch>
 
             <Patch level="1">suse/xorg-server-xf4vnc.patch</Patch>
@@ -138,7 +139,7 @@
             <Dependency>libgcrypt</Dependency>
             <Dependency>libpciaccess</Dependency>
             <Dependency>libXfont</Dependency>
-            <Dependency versionFrom="0.16.4">pixman</Dependency>
+            <Dependency versionFrom="0.20.0">pixman</Dependency>
             <Dependency>xorg-app</Dependency>
         </RuntimeDependencies>
         <Files>
@@ -157,9 +158,9 @@
             <Path fileType="man">/usr/share/man/man4/fbdevhw.4</Path>
             <Path fileType="man">/usr/share/man/man5/xorg.conf.5</Path>
         </Files>
-        <Provides>
-            <COMAR script="package.py">System.Package</COMAR>
-        </Provides>
+        <AdditionalFiles>
+            <AdditionalFile owner="root" permission="0755" target="/usr/share/X11/xorg.conf.d/10-quirks.conf">fedora/10-quirks.conf</AdditionalFile>
+        </AdditionalFiles>
     </Package>
 
     <Package>
@@ -178,7 +179,7 @@
             <Dependency>libXmu</Dependency>
             <Dependency>libXrender</Dependency>
             <Dependency>libXt</Dependency>
-            <Dependency versionFrom="0.16.4">pixman</Dependency>
+            <Dependency versionFrom="0.20.0">pixman</Dependency>
             <Dependency>xorg-app</Dependency>
         </RuntimeDependencies>
         <Files>
@@ -198,7 +199,7 @@
             <Dependency>libXfont</Dependency>
             <Dependency>libXv</Dependency>
             <Dependency>mesa</Dependency>
-            <Dependency versionFrom="0.16.4">pixman</Dependency>
+            <Dependency versionFrom="0.20.0">pixman</Dependency>
             <Dependency>xorg-app</Dependency>
         </RuntimeDependencies>
         <Files>
@@ -217,7 +218,7 @@
             <Dependency>xorg-server-common</Dependency>
             <Dependency>libgcrypt</Dependency>
             <Dependency>libXfont</Dependency>
-            <Dependency versionFrom="0.16.4">pixman</Dependency>
+            <Dependency versionFrom="0.20.0">pixman</Dependency>
             <Dependency>xorg-app</Dependency>
         </RuntimeDependencies>
         <Conflicts>
@@ -230,7 +231,7 @@
         <AdditionalFiles>
             <!-- xvfb-run script from http://svn.exactcode.de/t2/trunk/package/xorg/xorg-server/xvfb-run.sh -->
             <AdditionalFile owner="root" permission="0755" target="/usr/bin/xvfb-run">xvfb-run.sh</AdditionalFile>
-        </AdditionalFiles>  
+        </AdditionalFiles>
     </Package>
 
     <Package>
@@ -241,7 +242,7 @@
             <Dependency>jpeg</Dependency>
             <Dependency>libgcrypt</Dependency>
             <Dependency>libXfont</Dependency>
-            <Dependency versionFrom="0.16.4">pixman</Dependency>
+            <Dependency versionFrom="0.20.0">pixman</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="executable">/usr/bin/Xvnc</Path>
@@ -270,6 +271,13 @@
     </Package>
 
     <History>
+        <Update release="81">
+            <Date>2010-10-28</Date>
+            <Version>1.9.1</Version>
+            <Comment>New stable release</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
         <Update release="80">
             <Date>2010-10-23</Date>
             <Version>1.9.0</Version>
