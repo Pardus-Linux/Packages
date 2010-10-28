@@ -9,7 +9,7 @@ from pisi.actionsapi import pisitools
 def setup():
     autotools.autoreconf("-vif")
     autotools.configure("--disable-static \
-                         --disable-docs \
+                         --disable-specs \
                          --disable-xaw6")
 
 def build():
