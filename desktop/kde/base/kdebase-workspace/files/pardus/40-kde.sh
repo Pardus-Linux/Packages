@@ -35,7 +35,7 @@ EOF
     fi
 
     if test -z "$XDG_DATA_DIRS"; then
-        XDG_DATA_DIRS="/usr/share:/usr/local/share"
+        XDG_DATA_DIRS="${XDG_DATA_DIRS:+$XDG_DATA_DIRS:}/usr/share/kde4:/usr/share:/usr/local/share"
         export XDG_DATA_DIRS
     fi
 
