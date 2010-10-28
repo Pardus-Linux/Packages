@@ -41401,10 +41401,10 @@ index 2f93d46..f12a5b3 100644
  	radeon_gem_fini(rdev);
 diff --git a/drivers/gpu/drm/radeon/evergreen_blit_kms.c b/drivers/gpu/drm/radeon/evergreen_blit_kms.c
 new file mode 100644
-index 0000000..086b9b0
+index 0000000..ac3b6dd
 --- /dev/null
 +++ b/drivers/gpu/drm/radeon/evergreen_blit_kms.c
-@@ -0,0 +1,772 @@
+@@ -0,0 +1,774 @@
 +/*
 + * Copyright 2010 Advanced Micro Devices, Inc.
 + *
@@ -41902,6 +41902,7 @@ index 0000000..086b9b0
 +		dev_err(rdev->dev, "(%d) pin blit object failed\n", r);
 +		return r;
 +	}
++	rdev->mc.active_vram_size = rdev->mc.real_vram_size;
 +	return 0;
 +}
 +
@@ -41909,6 +41910,7 @@ index 0000000..086b9b0
 +{
 +	int r;
 +
++	rdev->mc.active_vram_size = rdev->mc.visible_vram_size;
 +	if (rdev->r600_blit.shader_obj == NULL)
 +		return;
 +	/* If we can't reserve the bo, unref should be enough to destroy
@@ -42618,7 +42620,7 @@ index 9b7532d..113c70c 100644
  #define DB_DEPTH_VIEW					0x28008
  #define DB_HTILE_DATA_BASE				0x28014
 diff --git a/drivers/gpu/drm/radeon/r100.c b/drivers/gpu/drm/radeon/r100.c
-index e594223..6d1540c 100644
+index e594223..0e8f28a 100644
 --- a/drivers/gpu/drm/radeon/r100.c
 +++ b/drivers/gpu/drm/radeon/r100.c
 @@ -675,67 +675,6 @@ void r100_fence_ring_emit(struct radeon_device *rdev,
@@ -42744,7 +42746,24 @@ index e594223..6d1540c 100644
  		if (config_aper_size > rdev->mc.real_vram_size)
  			rdev->mc.mc_vram_size = config_aper_size;
  		else
-@@ -3737,6 +3692,12 @@ static int r100_startup(struct radeon_device *rdev)
+@@ -3225,6 +3180,8 @@ static int r100_cs_track_texture_check(struct radeon_device *rdev,
+ 	for (u = 0; u < track->num_texture; u++) {
+ 		if (!track->textures[u].enabled)
+ 			continue;
++		if (track->textures[u].lookup_disable)
++			continue;
+ 		robj = track->textures[u].robj;
+ 		if (robj == NULL) {
+ 			DRM_ERROR("No texture bound to unit %u\n", u);
+@@ -3459,6 +3416,7 @@ void r100_cs_track_clear(struct radeon_device *rdev, struct r100_cs_track *track
+ 		track->textures[i].robj = NULL;
+ 		/* CS IB emission code makes sure texture unit are disabled */
+ 		track->textures[i].enabled = false;
++		track->textures[i].lookup_disable = false;
+ 		track->textures[i].roundup_w = true;
+ 		track->textures[i].roundup_h = true;
+ 		if (track->separate_cube)
+@@ -3737,6 +3695,12 @@ static int r100_startup(struct radeon_device *rdev)
  		if (r)
  			return r;
  	}
@@ -42757,7 +42776,7 @@ index e594223..6d1540c 100644
  	/* Enable IRQ */
  	r100_irq_set(rdev);
  	rdev->config.r100.hdp_cntl = RREG32(RADEON_HOST_PATH_CNTL);
-@@ -3746,9 +3707,6 @@ static int r100_startup(struct radeon_device *rdev)
+@@ -3746,9 +3710,6 @@ static int r100_startup(struct radeon_device *rdev)
  		dev_err(rdev->dev, "failled initializing CP (%d).\n", r);
  		return r;
  	}
@@ -42767,7 +42786,7 @@ index e594223..6d1540c 100644
  	r = r100_ib_init(rdev);
  	if (r) {
  		dev_err(rdev->dev, "failled initializing IB (%d).\n", r);
-@@ -3782,7 +3740,7 @@ int r100_resume(struct radeon_device *rdev)
+@@ -3782,7 +3743,7 @@ int r100_resume(struct radeon_device *rdev)
  int r100_suspend(struct radeon_device *rdev)
  {
  	r100_cp_disable(rdev);
@@ -42776,7 +42795,7 @@ index e594223..6d1540c 100644
  	r100_irq_disable(rdev);
  	if (rdev->flags & RADEON_IS_PCI)
  		r100_pci_gart_disable(rdev);
-@@ -3792,7 +3750,7 @@ int r100_suspend(struct radeon_device *rdev)
+@@ -3792,7 +3753,7 @@ int r100_suspend(struct radeon_device *rdev)
  void r100_fini(struct radeon_device *rdev)
  {
  	r100_cp_fini(rdev);
@@ -42785,7 +42804,7 @@ index e594223..6d1540c 100644
  	r100_ib_fini(rdev);
  	radeon_gem_fini(rdev);
  	if (rdev->flags & RADEON_IS_PCI)
-@@ -3905,7 +3863,7 @@ int r100_init(struct radeon_device *rdev)
+@@ -3905,7 +3866,7 @@ int r100_init(struct radeon_device *rdev)
  		/* Somethings want wront with the accel init stop accel */
  		dev_err(rdev->dev, "Disabling GPU acceleration\n");
  		r100_cp_fini(rdev);
@@ -42794,6 +42813,31 @@ index e594223..6d1540c 100644
  		r100_ib_fini(rdev);
  		radeon_irq_kms_fini(rdev);
  		if (rdev->flags & RADEON_IS_PCI)
+diff --git a/drivers/gpu/drm/radeon/r100_track.h b/drivers/gpu/drm/radeon/r100_track.h
+index f47cdca..af65600 100644
+--- a/drivers/gpu/drm/radeon/r100_track.h
++++ b/drivers/gpu/drm/radeon/r100_track.h
+@@ -46,6 +46,7 @@ struct r100_cs_track_texture {
+ 	unsigned		height_11;
+ 	bool			use_pitch;
+ 	bool			enabled;
++	bool                    lookup_disable;
+ 	bool			roundup_w;
+ 	bool			roundup_h;
+ 	unsigned                compress_format;
+diff --git a/drivers/gpu/drm/radeon/r200.c b/drivers/gpu/drm/radeon/r200.c
+index 0266d72..d2408c3 100644
+--- a/drivers/gpu/drm/radeon/r200.c
++++ b/drivers/gpu/drm/radeon/r200.c
+@@ -447,6 +447,8 @@ int r200_packet0_check(struct radeon_cs_parser *p,
+ 			track->textures[i].width = 1 << ((idx_value >> RADEON_TXFORMAT_WIDTH_SHIFT) & RADEON_TXFORMAT_WIDTH_MASK);
+ 			track->textures[i].height = 1 << ((idx_value >> RADEON_TXFORMAT_HEIGHT_SHIFT) & RADEON_TXFORMAT_HEIGHT_MASK);
+ 		}
++		if (idx_value & R200_TXFORMAT_LOOKUP_DISABLE)
++			track->textures[i].lookup_disable = true;
+ 		switch ((idx_value & RADEON_TXFORMAT_FORMAT_MASK)) {
+ 		case R200_TXFORMAT_I8:
+ 		case R200_TXFORMAT_RGB332:
 diff --git a/drivers/gpu/drm/radeon/r300.c b/drivers/gpu/drm/radeon/r300.c
 index c827738..34527e6 100644
 --- a/drivers/gpu/drm/radeon/r300.c
@@ -43347,7 +43391,7 @@ index 3473c00..8362974 100644
  			vb[0] = i2f(dst_x / 4);
  			vb[1] = 0;
 diff --git a/drivers/gpu/drm/radeon/r600_cs.c b/drivers/gpu/drm/radeon/r600_cs.c
-index 250a3a9..7b294c1 100644
+index 250a3a9..37cc2aa 100644
 --- a/drivers/gpu/drm/radeon/r600_cs.c
 +++ b/drivers/gpu/drm/radeon/r600_cs.c
 @@ -170,6 +170,7 @@ static inline int r600_cs_track_validate_cb(struct radeon_cs_parser *p, int i)
@@ -43422,7 +43466,42 @@ index 250a3a9..7b294c1 100644
  	}
  	if (!IS_ALIGNED(track->cb_color_bo_offset[i], track->group_size)) {
  		dev_warn(p->dev, "%s offset[%d] %d not aligned\n", __func__, i, track->cb_color_bo_offset[i]);
-@@ -361,13 +375,13 @@ static int r600_cs_track_check(struct radeon_cs_parser *p)
+@@ -296,7 +310,7 @@ static int r600_cs_track_check(struct radeon_cs_parser *p)
+ 	/* Check depth buffer */
+ 	if (G_028800_STENCIL_ENABLE(track->db_depth_control) ||
+ 		G_028800_Z_ENABLE(track->db_depth_control)) {
+-		u32 nviews, bpe, ntiles, pitch, pitch_align, height, size;
++		u32 nviews, bpe, ntiles, pitch, pitch_align, height, size, slice_tile_max;
+ 		if (track->db_bo == NULL) {
+ 			dev_warn(p->dev, "z/stencil with no depth buffer\n");
+ 			return -EINVAL;
+@@ -340,11 +354,11 @@ static int r600_cs_track_check(struct radeon_cs_parser *p)
+ 		} else {
+ 			size = radeon_bo_size(track->db_bo);
+ 			pitch = G_028000_PITCH_TILE_MAX(track->db_depth_size) + 1;
+-			height = size / (pitch * 8 * bpe);
+-			height &= ~0x7;
+-			if (!height)
+-				height = 8;
+-
++			slice_tile_max = G_028000_SLICE_TILE_MAX(track->db_depth_size) + 1;
++			slice_tile_max *= 64;
++			height = slice_tile_max / (pitch * 8);
++			if (height > 8192)
++				height = 8192;
+ 			switch (G_028010_ARRAY_MODE(track->db_depth_info)) {
+ 			case V_028010_ARRAY_1D_TILED_THIN1:
+ 				pitch_align = (max((u32)8, (u32)(track->group_size / (8 * bpe))) / 8);
+@@ -353,6 +367,8 @@ static int r600_cs_track_check(struct radeon_cs_parser *p)
+ 						 __func__, __LINE__, pitch);
+ 					return -EINVAL;
+ 				}
++				/* don't break userspace */
++				height &= ~0x7;
+ 				if (!IS_ALIGNED(height, 8)) {
+ 					dev_warn(p->dev, "%s:%d db height (%d) invalid\n",
+ 						 __func__, __LINE__, height);
+@@ -361,13 +377,13 @@ static int r600_cs_track_check(struct radeon_cs_parser *p)
  				break;
  			case V_028010_ARRAY_2D_TILED_THIN1:
  				pitch_align = max((u32)track->nbanks,
@@ -43438,7 +43517,7 @@ index 250a3a9..7b294c1 100644
  					dev_warn(p->dev, "%s:%d db height (%d) invalid\n",
  						 __func__, __LINE__, height);
  					return -EINVAL;
-@@ -1138,7 +1152,7 @@ static inline int r600_check_texture_resource(struct radeon_cs_parser *p,  u32 i
+@@ -1138,7 +1154,7 @@ static inline int r600_check_texture_resource(struct radeon_cs_parser *p,  u32 i
  		break;
  	case V_038000_ARRAY_2D_TILED_THIN1:
  		pitch_align = max((u32)track->nbanks,
@@ -45013,6 +45092,18 @@ index f87efec..8c9b2ef 100644
  	return in_vbl;
  }
  
+diff --git a/drivers/gpu/drm/radeon/radeon_reg.h b/drivers/gpu/drm/radeon/radeon_reg.h
+index c332f46..6492881 100644
+--- a/drivers/gpu/drm/radeon/radeon_reg.h
++++ b/drivers/gpu/drm/radeon/radeon_reg.h
+@@ -2836,6 +2836,7 @@
+ #       define R200_TXFORMAT_ST_ROUTE_STQ5	(5 << 24)
+ #       define R200_TXFORMAT_ST_ROUTE_MASK	(7 << 24)
+ #       define R200_TXFORMAT_ST_ROUTE_SHIFT	24
++#       define R200_TXFORMAT_LOOKUP_DISABLE	(1 << 27)
+ #       define R200_TXFORMAT_ALPHA_MASK_ENABLE	(1 << 28)
+ #       define R200_TXFORMAT_CHROMA_KEY_ENABLE	(1 << 29)
+ #       define R200_TXFORMAT_CUBIC_MAP_ENABLE		(1 << 30)
 diff --git a/drivers/gpu/drm/radeon/radeon_ring.c b/drivers/gpu/drm/radeon/radeon_ring.c
 index 261e98a..6ea798c 100644
 --- a/drivers/gpu/drm/radeon/radeon_ring.c
