@@ -7,13 +7,16 @@
 from pisi.actionsapi import autotools
 from pisi.actionsapi import pisitools
 from pisi.actionsapi import get
+from pisi.actionsapi import shelltools
+
+shelltools.export("HOME", get.workDIR())
 
 def setup():
+    autotools.autoreconf("-fiv")
     autotools.configure("--disable-static \
                          --enable-ssl \
                          --without-apache-httpd \
                          --without-apache-module-dir")
-    pisitools.dosed("libtool"," -shared "," -Wl,--as-needed -shared ")
 
 def build():
     autotools.make()
