@@ -13,9 +13,9 @@ from pisi.actionsapi import get
 
 def setup():
     shelltools.export("CFLAGS","%s -fstack-protector-all" % get.CFLAGS())
+
     autotools.autoreconf("-vfi")
-    autotools.configure("--prefix=/usr \
-                         --enable-dbus \
+    autotools.configure("--enable-dbus \
                          --enable-cyrus-sasl \
                          --enable-gnutls=yes \
                          --enable-nss=no \
