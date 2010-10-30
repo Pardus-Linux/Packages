@@ -10,8 +10,6 @@ from pisi.actionsapi import pisitools
 from pisi.actionsapi import shelltools
 from pisi.actionsapi import get
 
-WorkDir = "pygtksourceview-%s" % get.srcVERSION()
-
 def setup():
     autotools.autoreconf("-fiv")
     autotools.configure("--disable-static\
