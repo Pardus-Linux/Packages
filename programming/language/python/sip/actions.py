@@ -10,8 +10,7 @@ from pisi.actionsapi import pisitools
 from pisi.actionsapi import pythonmodules
 from pisi.actionsapi import get
 
-WorkDir = "%s-4.11.2-snapshot-c93f5da3d4e4" % get.srcNAME()
-NoStrip=["/"]
+#WorkDir = "%s-4.11.2-snapshot-c93f5da3d4e4" % get.srcNAME()
 
 def setup():
     pythonmodules.run('configure.py \

@@ -11,8 +11,8 @@ from pisi.actionsapi import shelltools
 from pisi.actionsapi import pythonmodules
 from pisi.actionsapi import get
 
-#WorkDir="PyQt-x11-gpl-%s" % get.srcVERSION()
-WorkDir="PyQt-x11-gpl-snapshot-4.8-eac5dd92c907"
+WorkDir="PyQt-x11-gpl-%s" % get.srcVERSION()
+#WorkDir="PyQt-x11-gpl-snapshot-4.8-eac5dd92c907"
 
 def setup():
     pisitools.dosed("configure.py", "  check_license()", "# check_license()")
