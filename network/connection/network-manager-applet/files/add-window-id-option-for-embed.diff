@@ -1,6 +1,7 @@
-diff -Naur network-manager-applet-0.8.1-orig//src/connection-editor/main.c network-manager-applet-0.8.1/src/connection-editor/main.c
---- network-manager-applet-0.8.1-orig//src/connection-editor/main.c	2010-11-01 15:32:56.869000119 +0000
-+++ network-manager-applet-0.8.1/src/connection-editor/main.c	2010-11-01 15:33:05.646000120 +0000
+Index: network-manager-applet-0.8.1/src/connection-editor/main.c
+===================================================================
+--- network-manager-applet-0.8.1.orig/src/connection-editor/main.c
++++ network-manager-applet-0.8.1/src/connection-editor/main.c
 @@ -44,6 +44,7 @@
  static GMainLoop *loop = NULL;
  
@@ -9,7 +10,7 @@ diff -Naur network-manager-applet-0.8.1-orig//src/connection-editor/main.c netwo
  
  #define DBUS_TYPE_G_MAP_OF_VARIANT          (dbus_g_type_get_map ("GHashTable", G_TYPE_STRING, G_TYPE_VALUE))
  
-@@ -224,12 +225,14 @@
+@@ -224,12 +225,14 @@ main (int argc, char *argv[])
  	NMConnectionList *list;
  	DBusGConnection *bus;
  	char *type = NULL;
@@ -24,7 +25,16 @@ diff -Naur network-manager-applet-0.8.1-orig//src/connection-editor/main.c netwo
  		{ NULL }
  	};
  
-@@ -288,6 +291,21 @@
+@@ -263,7 +266,7 @@ main (int argc, char *argv[])
+ 	/* Check for an existing instance on the bus */
+ 	if (proxy) {
+ 		if (try_existing_instance (bus, proxy, type))
+-			goto exit;
++			goto alreadyrunning;
+ 	}
+ 
+ 	loop = g_main_loop_new (NULL, FALSE);
+@@ -288,16 +291,36 @@ main (int argc, char *argv[])
  	nm_connection_list_run (list);
  
  	setup_signals ();
@@ -46,3 +56,19 @@ diff -Naur network-manager-applet-0.8.1-orig//src/connection-editor/main.c netwo
  	g_main_loop_run (loop);
  
  	g_object_unref (list);
+ 	if (service)
+ 		g_object_unref (service);
+ 
+-exit:
+ 	if (proxy)
+ 		g_object_unref (proxy);
+ 	dbus_g_connection_unref (bus);
+ 	return 0;
++
++alreadyrunning:
++	if (proxy)
++		g_object_unref (proxy);
++	dbus_g_connection_unref (bus);
++	return 1;
+ }
+ 
