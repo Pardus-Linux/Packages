@@ -2,7 +2,7 @@ Index: systemsettings/core/ModuleView.cpp
 ===================================================================
 --- systemsettings/core/ModuleView.cpp.orig
 +++ systemsettings/core/ModuleView.cpp
-@@ -41,6 +41,7 @@
+@@ -42,6 +42,7 @@
  #include <KStandardGuiItem>
  #include <KDialogButtonBox>
  #include <kauthaction.h>
@@ -10,47 +10,48 @@ Index: systemsettings/core/ModuleView.cpp
  
  #include "MenuItem.h"
  
-@@ -129,6 +130,40 @@ void ModuleView::loadModule( MenuItem *m
-         return;
+@@ -136,6 +137,41 @@ void ModuleView::loadModule( QModelIndex
+         indexes << menuItem.model()->index( done, 0, menuItem );
      }
- 
-+    if ( menuItem->needsRootPrivs() )
-+    {
-+        QString kdesu = KStandardDirs::findExe( "kdesu" );
-+        //kDebug() << "kdesu path:" << kdesu;
+     if ( indexes.empty() ) {
++        MenuItem *menuItemPtr = menuItem.data( Qt::UserRole ).value<MenuItem*>();
 +
-+        QString cmd = menuItem->service()->exec().trimmed();
-+
-+        /* Prepare the process to run the kcmshell */
-+        if ( cmd.left(5) == "kdesu" )
++        if ( menuItemPtr->needsRootPrivs() )
 +        {
-+            cmd = cmd.remove(0,5).trimmed();
++            QString kdesu = KStandardDirs::findExe( "kdesu" );
++            //kDebug() << "kdesu path:" << kdesu;
 +
-+            /* Remove all kdesu switches */
-+            while ( cmd.length() > 1 && cmd[ 0 ] == '-' )
-+                cmd = cmd.remove( 0, cmd.indexOf( ' ' ) ).trimmed();
++            QString cmd = menuItemPtr->service()->exec().trimmed();
++
++            /* Prepare the process to run the kcmshell */
++            if ( cmd.left(5) == "kdesu" )
++            {
++                cmd = cmd.remove(0,5).trimmed();
++
++                /* Remove all kdesu switches */
++                while ( cmd.length() > 1 && cmd[ 0 ] == '-' )
++                    cmd = cmd.remove( 0, cmd.indexOf( ' ' ) ).trimmed();
++            }
++
++            if ( cmd.left(9) == "kcmshell4" )
++                cmd = cmd.remove(0,9).trimmed();
++
++            QStringList args;
++        if ( cmd.startsWith('/' ) )
++           // call eg "/sbin/yast2"
++           args << "-i" << QString( menuItemPtr->service()->icon() ) << "-c" << cmd;
++        else
++               args << "-i" << QString( menuItemPtr->service()->icon() ) << "-c" << QString( "%1 %2 --lang %3" ).arg( KStandardDirs::locate("exe", "kcmshell4") ).arg( cmd ).arg( KGlobal::locale()->language() );
++
++            kDebug() << "Starting root module: " << args;
++            QProcess::startDetached( kdesu, args );
++
++            return;
 +        }
 +
-+        if ( cmd.left(9) == "kcmshell4" )
-+            cmd = cmd.remove(0,9).trimmed();
-+
-+        QStringList args;
-+	if ( cmd.startsWith('/' ) )
-+	   // call eg "/sbin/yast2"
-+	   args << "-i" << QString( menuItem->service()->icon() ) << "-c" << cmd;
-+	else
-+           args << "-i" << QString( menuItem->service()->icon() ) << "-c" << QString( "%1 %2 --lang %3" ).arg( KStandardDirs::locate("exe", "kcmshell4") ).arg( cmd ).arg( KGlobal::locale()->language() );
-+
-+        kDebug() << "Starting root module: " << args;
-+        QProcess::startDetached( kdesu, args );
-+
-+        return;
-+    }
-+
-+
-     QList<KCModuleInfo*> modules;
-     if ( menuItem->children().empty() ) {
-         modules << &menuItem->item();
+         indexes << menuItem;
+     }
+ 
 Index: systemsettings/core/MenuItem.cpp
 ===================================================================
 --- systemsettings/core/MenuItem.cpp.orig
