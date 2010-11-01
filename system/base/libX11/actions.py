@@ -10,7 +10,8 @@ from pisi.actionsapi import get
 def setup():
     autotools.autoreconf("-vif")
     autotools.configure("--disable-static \
-                         --disable-specs")
+                         --disable-specs \
+                         --without-xmlto")
 
 def build():
     autotools.make()
