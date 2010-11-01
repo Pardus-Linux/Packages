@@ -8,12 +8,12 @@ from pisi.actionsapi import pisitools
 from pisi.actionsapi import get
 
 def setup():
-    pisitools.dosed("man/Makefile.am", "HAVE_XMLTO", "TRUE")
-    autotools.autoreconf("-vif")
-    autotools.configure("--disable-static")
+    autotools.configure("--disable-static --without-xmlto")
 
 def build():
     autotools.make()
 
 def install():
     autotools.rawInstall("DESTDIR=%s" % get.installDIR())
+
+    pisitools.dodoc("ChangeLog", "COPYING", "README")
