@@ -19,7 +19,7 @@ def setup():
             continue
         shelltools.cd(package)
         autotools.autoreconf("-vif")
-        autotools.configure()
+        autotools.configure("--without-xmlto --without-fop")
         shelltools.cd("../")
 
 def build():
