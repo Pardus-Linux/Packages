@@ -9,7 +9,8 @@ from pisi.actionsapi import get
 
 def setup():
     autotools.configure("--disable-static \
-                         --disable-devel-docs")
+                         --disable-devel-docs \
+                         --without-xmlto")
 
 def build():
     autotools.make()
