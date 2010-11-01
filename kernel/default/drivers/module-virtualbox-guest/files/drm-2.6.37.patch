@@ -1,0 +1,15 @@
+Index: work/vboxvideo/vboxvideo_drm.c
+===================================================================
+--- work.orig/vboxvideo/vboxvideo_drm.c
++++ work/vboxvideo/vboxvideo_drm.c
+@@ -78,8 +78,10 @@ static struct drm_driver driver = {
+ 	/* .driver_features = DRIVER_USE_MTRR, */
+ 	.load = vboxvideo_driver_load,
+ 	.reclaim_buffers = drm_core_reclaim_buffers,
++#if LINUX_VERSION_CODE < KERNEL_VERSION (2, 6, 36)
+ 	.get_map_ofs = drm_core_get_map_ofs,
+ 	.get_reg_ofs = drm_core_get_reg_ofs,
++#endif
+ 	.fops = {
+ 		 .owner = THIS_MODULE,
+ 		 .open = drm_open,
