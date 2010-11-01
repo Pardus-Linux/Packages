@@ -1,0 +1,521 @@
+diff --git a/src/gallium/state_trackers/xorg/Makefile b/src/gallium/state_trackers/xorg/Makefile
+index cb2c3ae..7a44d28 100644
+--- a/src/gallium/state_trackers/xorg/Makefile
++++ b/src/gallium/state_trackers/xorg/Makefile
+@@ -10,7 +10,7 @@ LIBRARY_INCLUDES = \
+ 	$(shell pkg-config libkms --atleast-version=1.0 \
+ 				&& echo "-DHAVE_LIBKMS") \
+ 	$(shell pkg-config libkms --silence-errors --cflags-only-I) \
+-	$(shell pkg-config --cflags-only-I pixman-1 xorg-server libdrm xproto) \
++	$(shell pkg-config --cflags-only-I pixman-1 xorg-server libdrm xproto dri2proto) \
+ 	-I$(TOP)/src/gallium/include \
+ 	-I$(TOP)/src/gallium/auxiliary \
+ 	-I$(TOP)/include \
+diff --git a/src/gallium/state_trackers/xorg/xorg_crtc.c b/src/gallium/state_trackers/xorg/xorg_crtc.c
+index c65da71..80af82d 100644
+--- a/src/gallium/state_trackers/xorg/xorg_crtc.c
++++ b/src/gallium/state_trackers/xorg/xorg_crtc.c
+@@ -361,7 +361,7 @@ crtc_destroy(xf86CrtcPtr crtc)
+ 
+     drmModeFreeCrtc(crtcp->drm_crtc);
+ 
+-    xfree(crtcp);
++    free(crtcp);
+     crtc->driver_private = NULL;
+ }
+ 
+@@ -409,7 +409,7 @@ xorg_crtc_init(ScrnInfoPtr pScrn)
+ 	if (crtc == NULL)
+ 	    goto out;
+ 
+-	crtcp = xcalloc(1, sizeof(struct crtc_private));
++	crtcp = calloc(1, sizeof(struct crtc_private));
+ 	if (!crtcp) {
+ 	    xf86CrtcDestroy(crtc);
+ 	    goto out;
+diff --git a/src/gallium/state_trackers/xorg/xorg_dri2.c b/src/gallium/state_trackers/xorg/xorg_dri2.c
+index 704aed6..b723a8e 100644
+--- a/src/gallium/state_trackers/xorg/xorg_dri2.c
++++ b/src/gallium/state_trackers/xorg/xorg_dri2.c
+@@ -201,11 +201,11 @@ dri2_create_buffer(DrawablePtr pDraw, unsigned int attachment, unsigned int form
+     DRI2Buffer2Ptr buffer;
+     BufferPrivatePtr private;
+ 
+-    buffer = xcalloc(1, sizeof *buffer);
++    buffer = calloc(1, sizeof *buffer);
+     if (!buffer)
+ 	return NULL;
+ 
+-    private = xcalloc(1, sizeof *private);
++    private = calloc(1, sizeof *private);
+     if (!private) {
+ 	goto fail;
+     }
+@@ -217,9 +217,9 @@ dri2_create_buffer(DrawablePtr pDraw, unsigned int attachment, unsigned int form
+     if (dri2_do_create_buffer(pDraw, (DRI2BufferPtr)buffer, format))
+ 	return buffer;
+ 
+-    xfree(private);
++    free(private);
+ fail:
+-    xfree(buffer);
++    free(buffer);
+     return NULL;
+ }
+ 
+@@ -229,8 +229,8 @@ dri2_destroy_buffer(DrawablePtr pDraw, DRI2Buffer2Ptr buffer)
+     /* So far it is safe to downcast a DRI2Buffer2Ptr to DRI2BufferPtr */
+     dri2_do_destroy_buffer(pDraw, (DRI2BufferPtr)buffer);
+ 
+-    xfree(buffer->driverPrivate);
+-    xfree(buffer);
++    free(buffer->driverPrivate);
++    free(buffer);
+ }
+ 
+ #endif /* DRI2INFOREC_VERSION >= 2 */
+@@ -244,11 +244,11 @@ dri2_create_buffers(DrawablePtr pDraw, unsigned int *attachments, int count)
+     DRI2BufferPtr buffers;
+     int i;
+ 
+-    buffers = xcalloc(count, sizeof *buffers);
++    buffers = calloc(count, sizeof *buffers);
+     if (!buffers)
+ 	goto fail_buffers;
+ 
+-    privates = xcalloc(count, sizeof *privates);
++    privates = calloc(count, sizeof *privates);
+     if (!privates)
+ 	goto fail_privates;
+ 
+@@ -263,9 +263,9 @@ dri2_create_buffers(DrawablePtr pDraw, unsigned int *attachments, int count)
+     return buffers;
+ 
+ fail:
+-    xfree(privates);
++    free(privates);
+ fail_privates:
+-    xfree(buffers);
++    free(buffers);
+ fail_buffers:
+     return NULL;
+ }
+@@ -280,8 +280,8 @@ dri2_destroy_buffers(DrawablePtr pDraw, DRI2BufferPtr buffers, int count)
+     }
+ 
+     if (buffers) {
+-	xfree(buffers[0].driverPrivate);
+-	xfree(buffers);
++	free(buffers[0].driverPrivate);
++	free(buffers);
+     }
+ }
+ 
+diff --git a/src/gallium/state_trackers/xorg/xorg_driver.c b/src/gallium/state_trackers/xorg/xorg_driver.c
+index 3a5db98..1ec772d 100644
+--- a/src/gallium/state_trackers/xorg/xorg_driver.c
++++ b/src/gallium/state_trackers/xorg/xorg_driver.c
+@@ -45,6 +45,7 @@
+ #include "miscstruct.h"
+ #include "dixstruct.h"
+ #include "xf86xv.h"
++#include "xorgVersion.h"
+ #ifndef XSERVER_LIBPCIACCESS
+ #error "libpciaccess needed"
+ #endif
+@@ -122,7 +123,7 @@ xorg_tracker_set_functions(ScrnInfoPtr scrn)
+ Bool
+ xorg_tracker_have_modesetting(ScrnInfoPtr pScrn, struct pci_device *device)
+ {
+-    char *BusID = xalloc(64);
++    char *BusID = malloc(64);
+     sprintf(BusID, "pci:%04x:%02x:%02x.%d",
+ 	    device->domain, device->bus,
+ 	    device->dev, device->func);
+@@ -130,14 +131,14 @@ xorg_tracker_have_modesetting(ScrnInfoPtr pScrn, struct pci_device *device)
+     if (drmCheckModesettingSupported(BusID)) {
+ 	xf86DrvMsgVerb(pScrn->scrnIndex, X_INFO, 0,
+ 		       "Drm modesetting not supported %s\n", BusID);
+-	xfree(BusID);
++	free(BusID);
+ 	return FALSE;
+     }
+ 
+     xf86DrvMsgVerb(pScrn->scrnIndex, X_INFO, 0,
+ 		   "Drm modesetting supported on %s\n", BusID);
+ 
+-    xfree(BusID);
++    free(BusID);
+     return TRUE;
+ }
+ 
+@@ -174,7 +175,7 @@ drv_free_rec(ScrnInfoPtr pScrn)
+     if (!pScrn->driverPrivate)
+ 	return;
+ 
+-    xfree(pScrn->driverPrivate);
++    free(pScrn->driverPrivate);
+ 
+     pScrn->driverPrivate = NULL;
+ }
+@@ -274,7 +275,7 @@ drv_init_drm(ScrnInfoPtr pScrn)
+     if (ms->fd < 0) {
+ 	char *BusID;
+ 
+-	BusID = xalloc(64);
++	BusID = malloc(64);
+ 	sprintf(BusID, "PCI:%d:%d:%d",
+ 		((ms->PciInfo->domain << 8) | ms->PciInfo->bus),
+ 		ms->PciInfo->dev, ms->PciInfo->func
+@@ -283,7 +284,7 @@ drv_init_drm(ScrnInfoPtr pScrn)
+ 
+ 	ms->fd = drmOpen(driver_descriptor.driver_name, BusID);
+ 	ms->isMaster = TRUE;
+-	xfree(BusID);
++	free(BusID);
+ 
+ 	if (ms->fd >= 0)
+ 	    return TRUE;
+@@ -432,7 +433,7 @@ drv_pre_init(ScrnInfoPtr pScrn, int flags)
+ 
+     /* Process the options */
+     xf86CollectOptions(pScrn, NULL);
+-    if (!(ms->Options = xalloc(sizeof(drv_options))))
++    if (!(ms->Options = malloc(sizeof(drv_options))))
+ 	return FALSE;
+     memcpy(ms->Options, drv_options, sizeof(drv_options));
+     xf86ProcessOptions(pScrn->scrnIndex, pScrn->options, ms->Options);
+@@ -1182,6 +1183,8 @@ drv_bind_front_buffer_kms(ScrnInfoPtr pScrn)
+ 				stride,
+ 				ptr);
+ 
++#if (XORG_VERSION_CURRENT < XORG_VERSION_NUMERIC(1, 9, 99, 1, 0))
++
+     /* This a hack to work around EnableDisableFBAccess setting the pointer
+      * the real fix would be to replace pScrn->EnableDisableFBAccess hook
+      * and set the rootPixmap->devPrivate.ptr to something valid before that.
+@@ -1191,6 +1194,8 @@ drv_bind_front_buffer_kms(ScrnInfoPtr pScrn)
+      */
+     pScrn->pixmapPrivate.ptr = ptr;
+ 
++#endif
++
+     return TRUE;
+ 
+ err_destroy:
+diff --git a/src/gallium/state_trackers/xorg/xorg_exa.c b/src/gallium/state_trackers/xorg/xorg_exa.c
+index 6b2c80f..0e5693d 100644
+--- a/src/gallium/state_trackers/xorg/xorg_exa.c
++++ b/src/gallium/state_trackers/xorg/xorg_exa.c
+@@ -720,7 +720,7 @@ ExaCreatePixmap(ScreenPtr pScreen, int size, int align)
+ {
+     struct exa_pixmap_priv *priv;
+ 
+-    priv = xcalloc(1, sizeof(struct exa_pixmap_priv));
++    priv = calloc(1, sizeof(struct exa_pixmap_priv));
+     if (!priv)
+ 	return NULL;
+ 
+@@ -737,7 +737,7 @@ ExaDestroyPixmap(ScreenPtr pScreen, void *dPriv)
+ 
+     pipe_resource_reference(&priv->tex, NULL);
+ 
+-    xfree(priv);
++    free(priv);
+ }
+ 
+ static Bool
+@@ -975,7 +975,7 @@ xorg_exa_close(ScrnInfoPtr pScrn)
+    ms->ctx = NULL;
+ 
+    exaDriverFini(pScrn->pScreen);
+-   xfree(exa);
++   free(exa);
+    ms->exa = NULL;
+ }
+ 
+@@ -987,7 +987,7 @@ xorg_exa_init(ScrnInfoPtr pScrn, Bool accel)
+    ExaDriverPtr pExa;
+    CustomizerPtr cust = ms->cust;
+ 
+-   exa = xcalloc(1, sizeof(struct exa_context));
++   exa = calloc(1, sizeof(struct exa_context));
+    if (!exa)
+       return NULL;
+ 
+diff --git a/src/gallium/state_trackers/xorg/xorg_output.c b/src/gallium/state_trackers/xorg/xorg_output.c
+index 61206ed..5555b51 100644
+--- a/src/gallium/state_trackers/xorg/xorg_output.c
++++ b/src/gallium/state_trackers/xorg/xorg_output.c
+@@ -128,7 +128,7 @@ output_get_modes(xf86OutputPtr output)
+     for (i = 0; i < drm_connector->count_modes; i++) {
+ 	drm_mode = &drm_connector->modes[i];
+ 	if (drm_mode) {
+-	    mode = xcalloc(1, sizeof(DisplayModeRec));
++	    mode = calloc(1, sizeof(DisplayModeRec));
+ 	    if (!mode)
+ 		continue;
+ 	    mode->Clock = drm_mode->clock;
+@@ -195,7 +195,7 @@ output_destroy(xf86OutputPtr output)
+ {
+     struct output_private *priv = output->driver_private;
+     drmModeFreeConnector(priv->drm_connector);
+-    xfree(priv);
++    free(priv);
+     output->driver_private = NULL;
+ }
+ 
+@@ -262,14 +262,14 @@ xorg_output_init(ScrnInfoPtr pScrn)
+ 		 drm_connector->connector_type_id);
+ 
+ 
+-	priv = xcalloc(sizeof(*priv), 1);
++	priv = calloc(sizeof(*priv), 1);
+ 	if (!priv) {
+ 	    continue;
+ 	}
+ 
+ 	output = xf86OutputCreate(pScrn, &output_funcs, name);
+ 	if (!output) {
+-	    xfree(priv);
++	    free(priv);
+ 	    continue;
+ 	}
+ 
+diff --git a/src/gallium/state_trackers/xorg/xorg_xv.c b/src/gallium/state_trackers/xorg/xorg_xv.c
+index f98bd93..f64959f 100644
+--- a/src/gallium/state_trackers/xorg/xorg_xv.c
++++ b/src/gallium/state_trackers/xorg/xorg_xv.c
+@@ -536,8 +536,10 @@ display_video(ScrnInfoPtr pScrn, struct xorg_xv_port_priv *pPriv, int id,
+    dst_surf = xorg_gpu_surface(pPriv->r->pipe->screen, dst);
+    hdtv = ((src_w >= RES_720P_X) && (src_h >= RES_720P_Y));
+ 
++#ifdef COMPOSITE
+    REGION_TRANSLATE(pScrn->pScreen, dstRegion, -pPixmap->screen_x,
+                     -pPixmap->screen_y);
++#endif
+ 
+    dxo = dstRegion->extents.x1;
+    dyo = dstRegion->extents.y1;
+@@ -562,11 +564,16 @@ display_video(ScrnInfoPtr pScrn, struct xorg_xv_port_priv *pPriv, int id,
+       int box_y2 = pbox->y2;
+       float diff_x = (float)src_w / (float)dst_w;
+       float diff_y = (float)src_h / (float)dst_h;
+-      float offset_x = box_x1 - dstX + pPixmap->screen_x;
+-      float offset_y = box_y1 - dstY + pPixmap->screen_y;
++      float offset_x = box_x1 - dstX;
++      float offset_y = box_y1 - dstY;
+       float offset_w;
+       float offset_h;
+ 
++#ifdef COMPOSITE
++      offset_x += pPixmap->screen_x;
++      offset_y += pPixmap->screen_y;
++#endif
++
+       x = box_x1;
+       y = box_y1;
+       w = box_x2 - box_x1;
+diff --git a/src/gallium/targets/Makefile.xorg b/src/gallium/targets/Makefile.xorg
+index 762c905..87eedd7 100644
+--- a/src/gallium/targets/Makefile.xorg
++++ b/src/gallium/targets/Makefile.xorg
+@@ -29,7 +29,7 @@ INCLUDES = \
+ LIBNAME_STAGING = $(TOP)/$(LIB_DIR)/gallium/$(TARGET)
+ 
+ ifeq ($(MESA_LLVM),1)
+-LD = g++
++LD = $(CXX)
+ LDFLAGS += $(LLVM_LDFLAGS)
+ USE_CXX=1
+ DRIVER_PIPES += $(TOP)/src/gallium/drivers/llvmpipe/libllvmpipe.a
+@@ -42,7 +42,7 @@ endif
+ default: depend $(TOP)/$(LIB_DIR)/gallium $(LIBNAME) $(LIBNAME_STAGING)
+ 
+ $(LIBNAME): $(OBJECTS) Makefile ../Makefile.xorg $(LIBS) $(DRIVER_PIPES)
+-	$(MKLIB) -noprefix -o $@ $(LDFLAGS) $(OBJECTS) $(DRIVER_PIPES) $(GALLIUM_AUXILIARIES) $(DRIVER_LINKS)
++	$(MKLIB) -linker $(CC) -noprefix -o $@ $(LDFLAGS) $(OBJECTS) $(DRIVER_PIPES) $(GALLIUM_AUXILIARIES) $(DRIVER_LINKS)
+ 
+ depend: $(C_SOURCES) $(CPP_SOURCES) $(ASM_SOURCES) $(SYMLINKS) $(GENERATED_SOURCES)
+ 	rm -f depend
+diff --git a/src/gallium/targets/egl/pipe_i965.c b/src/gallium/targets/egl/pipe_i965.c
+index 43bf646..36b03b3 100644
+--- a/src/gallium/targets/egl/pipe_i965.c
++++ b/src/gallium/targets/egl/pipe_i965.c
+@@ -1,6 +1,7 @@
+ 
+ #include "target-helpers/inline_wrapper_sw_helper.h"
+ #include "target-helpers/inline_debug_helper.h"
++#include "target-helpers/inline_wrapper_sw_helper.h"
+ #include "state_tracker/drm_driver.h"
+ #include "i965/drm/i965_drm_public.h"
+ #include "i965/brw_public.h"
+diff --git a/src/gallium/targets/xorg-vmwgfx/vmw_ctrl.c b/src/gallium/targets/xorg-vmwgfx/vmw_ctrl.c
+index 9c075b5..9b422e6 100644
+--- a/src/gallium/targets/xorg-vmwgfx/vmw_ctrl.c
++++ b/src/gallium/targets/xorg-vmwgfx/vmw_ctrl.c
+@@ -212,7 +212,7 @@ VMwareCtrlDoSetTopology(ScrnInfoPtr pScrn,
+    struct vmw_customizer *vmw = vmw_customizer(xorg_customizer(pScrn));
+    int i;
+ 
+-   rects = xcalloc(number, sizeof(*rects));
++   rects = calloc(number, sizeof(*rects));
+    if (!rects)
+       return FALSE;
+ 
+@@ -225,7 +225,7 @@ VMwareCtrlDoSetTopology(ScrnInfoPtr pScrn,
+ 
+    vmw_ioctl_update_layout(vmw, number, rects);
+ 
+-   xfree(rects);
++   free(rects);
+    return TRUE;
+ }
+ 
+diff --git a/src/gallium/targets/xorg-vmwgfx/vmw_ioctl.c b/src/gallium/targets/xorg-vmwgfx/vmw_ioctl.c
+index 7c799b5..7625d2f 100644
+--- a/src/gallium/targets/xorg-vmwgfx/vmw_ioctl.c
++++ b/src/gallium/targets/xorg-vmwgfx/vmw_ioctl.c
+@@ -165,7 +165,7 @@ vmw_ioctl_buffer_create(struct vmw_customizer *vmw, uint32_t size, unsigned *han
+     struct drm_vmw_dmabuf_rep *rep = &arg.rep;
+     int ret;
+ 
+-    buf = xcalloc(1, sizeof(*buf));
++    buf = calloc(1, sizeof(*buf));
+     if (!buf)
+ 	goto err;
+ 
+@@ -192,7 +192,7 @@ vmw_ioctl_buffer_create(struct vmw_customizer *vmw, uint32_t size, unsigned *han
+     return buf;
+ 
+ err_free:
+-    xfree(buf);
++    free(buf);
+ err:
+     return NULL;
+ }
+@@ -211,7 +211,7 @@ vmw_ioctl_buffer_destroy(struct vmw_customizer *vmw, struct vmw_dma_buffer *buf)
+     arg.handle = buf->handle; 
+     drmCommandWrite(vmw->fd, DRM_VMW_UNREF_DMABUF, &arg, sizeof(arg)); 
+ 
+-    xfree(buf); 
++    free(buf);
+ } 
+ 
+ void *
+diff --git a/src/gallium/targets/xorg-vmwgfx/vmw_video.c b/src/gallium/targets/xorg-vmwgfx/vmw_video.c
+index eced60d..94465e5 100644
+--- a/src/gallium/targets/xorg-vmwgfx/vmw_video.c
++++ b/src/gallium/targets/xorg-vmwgfx/vmw_video.c
+@@ -300,7 +300,7 @@ vmw_video_init(struct vmw_customizer *vmw)
+         numAdaptors = 1;
+         overlayAdaptors = &newAdaptor;
+     } else {
+-         newAdaptors = xalloc((numAdaptors + 1) *
++         newAdaptors = malloc((numAdaptors + 1) *
+                               sizeof(XF86VideoAdaptorPtr*));
+          if (!newAdaptors) {
+             xf86XVFreeVideoAdaptorRec(newAdaptor);
+@@ -320,7 +320,7 @@ vmw_video_init(struct vmw_customizer *vmw)
+     }
+ 
+     if (newAdaptors) {
+-        xfree(newAdaptors);
++        free(newAdaptors);
+     }
+ 
+     debug_printf("Initialized VMware Xv extension successfully\n");
+@@ -438,7 +438,7 @@ vmw_video_init_adaptor(ScrnInfoPtr pScrn, struct vmw_customizer *vmw)
+         return NULL;
+     }
+ 
+-    video = xcalloc(1, sizeof(*video));
++    video = calloc(1, sizeof(*video));
+     if (!video) {
+         debug_printf("Not enough memory.\n");
+         xf86XVFreeVideoAdaptorRec(adaptor);
+@@ -742,7 +742,7 @@ vmw_video_buffer_alloc(struct vmw_customizer *vmw, int size,
+     }
+ 
+     out->size = size;
+-    out->extra_data = xcalloc(1, size);
++    out->extra_data = calloc(1, size);
+ 
+     debug_printf("\t\t%s: allocated buffer %p of size %i\n", __func__, out, size);
+ 
+@@ -773,7 +773,7 @@ vmw_video_buffer_free(struct vmw_customizer *vmw,
+     if (out->size == 0)
+ 	return Success;
+ 
+-    xfree(out->extra_data);
++    free(out->extra_data);
+     vmw_ioctl_buffer_unmap(vmw, out->buf);
+     vmw_ioctl_buffer_destroy(vmw, out->buf);
+ 
+diff --git a/src/mesa/Makefile b/src/mesa/Makefile
+index c41c38c..7a6936e 100644
+--- a/src/mesa/Makefile
++++ b/src/mesa/Makefile
+@@ -34,7 +34,7 @@ ES1_CPPFLAGS := -DFEATURE_ES1=1 $(DEFINES)
+ ES2_CPPFLAGS := -DFEATURE_ES2=1 $(DEFINES)
+ 
+ # append include dirs
+-MESA_CPPFLAGS += $(INCLUDE_DIRS)
++MESA_CPPFLAGS += $(INCLUDE_DIRS) $(TALLOC_CFLAGS)
+ ES1_CPPFLAGS += -I$(TOP)/src/mapi/es1api $(INCLUDE_DIRS)
+ ES2_CPPFLAGS += -I$(TOP)/src/mapi/es2api $(INCLUDE_DIRS)
+ 
+diff --git a/src/mesa/drivers/dri/r600/evergreen_render.c b/src/mesa/drivers/dri/r600/evergreen_render.c
+index 27089bf..1fa53d7 100644
+--- a/src/mesa/drivers/dri/r600/evergreen_render.c
++++ b/src/mesa/drivers/dri/r600/evergreen_render.c
+@@ -909,6 +909,10 @@ static void evergreenDrawPrims(GLcontext *ctx,
+ {
+ 	GLboolean retval = GL_FALSE;
+ 
++	context_t *context = EVERGREEN_CONTEXT(ctx);
++	radeonContextPtr radeon = &context->radeon;
++	radeon_prepare_render(radeon);
++
+ 	/* This check should get folded into just the places that
+ 	 * min/max index are really needed.
+ 	 */
+diff --git a/src/mesa/drivers/dri/radeon/radeon_swtcl.c b/src/mesa/drivers/dri/radeon/radeon_swtcl.c
+index 29defe7..0a81843 100644
+--- a/src/mesa/drivers/dri/radeon/radeon_swtcl.c
++++ b/src/mesa/drivers/dri/radeon/radeon_swtcl.c
+@@ -412,6 +412,8 @@ static GLboolean radeon_run_render( GLcontext *ctx,
+       return GL_TRUE;		
+ 
+    radeon_prepare_render(&rmesa->radeon);
++   if (rmesa->radeon.NewGLState)
++      radeonValidateState( ctx );
+ 
+    tnl->Driver.Render.Start( ctx );
+ 
+diff --git a/src/mesa/drivers/dri/radeon/radeon_tcl.c b/src/mesa/drivers/dri/radeon/radeon_tcl.c
+index 5e1718f..ded3ebe 100644
+--- a/src/mesa/drivers/dri/radeon/radeon_tcl.c
++++ b/src/mesa/drivers/dri/radeon/radeon_tcl.c
+@@ -253,6 +253,8 @@ void radeonTclPrimitive( GLcontext *ctx,
+    GLuint newprim = hw_prim | RADEON_CP_VC_CNTL_TCL_ENABLE;
+ 
+    radeon_prepare_render(&rmesa->radeon);
++   if (rmesa->radeon.NewGLState)
++      radeonValidateState( ctx );
+ 
+    if (newprim != rmesa->tcl.hw_primitive ||
+        !discrete_prim[hw_prim&0xf]) {
+diff --git a/src/mesa/main/mipmap.c b/src/mesa/main/mipmap.c
+index 3d1a4c4..d07892f 100644
+--- a/src/mesa/main/mipmap.c
++++ b/src/mesa/main/mipmap.c
+@@ -606,7 +606,7 @@ do_row_3D(GLenum datatype, GLuint comps, GLint srcWidth,
+          FILTER_3D(0);
+       }
+    }
+-   if ((datatype == GL_BYTE) && (comps == 4)) {
++   else if ((datatype == GL_BYTE) && (comps == 4)) {
+       DECLARE_ROW_POINTERS(GLbyte, 4);
+ 
+       for (i = j = 0, k = k0; i < (GLuint) dstWidth;
