@@ -1,0 +1,244 @@
+Index: doc/filters.texi
+===================================================================
+--- doc/filters.texi	(revision 25657)
++++ doc/filters.texi	(working copy)
+@@ -257,6 +257,99 @@
+ drawbox=10:20:200:60:red@@0.5"
+ @end example
+ 
++@section drawtext
++
++Draw text string or text from specified file on top of video using the
++libfreetype library.
++The filter also recognizes strftime() sequences in the provided text and
++expands them accordingly. Check the documentation of strftime().
++
++To enable compilation of this filter you need to configure FFmpeg with
++--enable-libfreetype.
++
++The filter accepts parameters as a list of @var{key}=@var{value} pairs,
++separated by ":".
++
++The description of the accepted parameters follows.
++
++@table @option
++@item fontfile
++
++The font file to be used for drawing text. Path must be included.
++This parameter is mandatory.
++
++@item text
++
++The text string to be drawn.
++This parameter is mandatory if no file is specified.
++
++@item textfile
++
++A text file containing text to be drawn. Max of 1024 characters are
++read from the file.
++
++This parameter is mandatory if no text string is specified.
++
++If both text and textfile are specified, an error is thrown.
++
++@item x, y
++
++The offsets where text will be drawn within the video frame.
++Relative to the top/left border of the output image.
++
++The default value of @var{x} and @var{y} is 0.
++
++@item fontsize
++
++The font size to be used for drawing text.
++
++The default value of @var{size} is 16.
++
++@item fgcolor
++
++The foreground color to be used for drawing text.
++Either a string (e.g. ``red'') or in 0xRRGGBB[AA] format
++(e.g. ``0xff000033''), possibly followed by an alpha specifier.
++
++The default value of @var{fgcolor} is black.
++
++@item bgcolor
++
++The background color to be used for drawing box around text or drawing
++text outline based on option selected.
++Either a string (e.g. ``yellow'') or in 0xRRGGBB[AA] format
++(e.g. ``0xff00ff''), possibly followed by an alpha specifier.
++
++The default value of @var{bgcolor} is white.
++
++@item box
++
++Used to draw a box around text using background color.
++Value should be either 1 (enable) or 0 (disable).
++
++The default value of @var{box} is 0.
++
++@item outline
++
++Used to draw an outline around text using background color.
++Value should be either 1 (enable) or 0 (disable).
++
++The default value of @var{outline} is 0.
++
++@end table
++
++@example
++drawtext="fontfile=FreeSerif.ttf: text='Test Text': x=100: y=50: fontsize=24:
++          fgcolor=yellow@@0.2: bgcolor=red@@0.2: box=1"
++@end example
++
++Draw 'Test Text' with font FreeSerif of size 24 at (100,50), text color is yellow,
++background color is red, draw a box around text. Both the text and the
++box have an opacity of 20%.
++
++Note that the double quotes are not necessary if spaces are not used within
++the parameter list.
++
+ @section fifo
+ 
+ Buffer input images and send them when they are requested.
+@@ -333,6 +426,14 @@
+ For more information see:
+ @url{http://piksel.org/frei0r}
+ 
++@section fps
++
++@example
++./ffmpeg -i in.avi -vf "fps=30000:1001" out.avi
++@end example
++
++Modifies the framerate of the input video to a chosen one.
++
+ @section hflip
+ 
+ Flip the input video horizontally.
+@@ -343,6 +444,14 @@
+ ffmpeg -i in.avi -vf "hflip" out.avi
+ @end example
+ 
++@section negate
++
++@example
++./ffmpeg -i in.avi -vf "negate" out.avi
++@end example
++
++Convert a video to its negative.
++  
+ @section noformat
+ 
+ Force libavfilter not to use any of the specified pixel formats for the
+@@ -391,6 +500,54 @@
+ documentation for the exact meaning of the parameters:
+ @url{http://opencv.willowgarage.com/documentation/c/image_filtering.html}
+ 
++@section overlay
++
++Overlay one video on top of another (see the example in the introduction
++section).
++Be aware that frames are taken
++from each input video in timestamp order, hence, if their initial
++timestamps differ, it is a a good idea to pass the two
++inputs through a @var{setpts=PTS-STARTPTS} filter to have them
++begin in the same zero timestamp, as it does the example for
++the @var{movie} filter.
++
++Parameters to the filter are separated by a colon. The first parameter
++is the x coordinate of the overlay, the second parameter is the y
++coordinate. The parameters need not be constant expressions, but may
++be expressions containing the names @var{main_w}, @var{main_h},
++@var{overlay_w} and @var{overlay_h}, for the size of the first and second
++input video, respectively. For example,
++@example
++overlay=main_w-overlay_w-10:main_h-overlay_h-10
++@end example
++can be used to draw the overlay at 10 pixels from the bottom right
++corner of the main video.
++
++The filter accepts a third optional parameter, if set to a value
++different than 0, it will alpha-blend the overlayed video on top of
++the first one.
++
++This can be used in particular for performing watermarking effects, or
++for adding a logo on top of the input video.
++
++For example, the following command will insert a transparent PNG
++logo in the bottom left corner of the input video:
++@example
++movie=0:png:logo.png [logo]; [in][logo] overlay=10:main_h-overlay_h-10 [out]
++@end example
++
++The following example will insert 2 different transparent PNG
++logos (second logo on bottom right corner):
++@example
++movie=0:png:logo1.png [logo1];
++movie=0:png:logo2.png [logo2];
++[in][logo1] overlay=10:main_h-overlay_h-10 [in+logo1];
++[in+logo1][logo2] overlay=main_w-overlay_w-10:main_h-overlay_h-10 [out]
++@end example
++
++You could chain and add more overlays this way but the efficiency of
++such approach is yet to be tested.
++
+ @section pad
+ 
+ Add paddings to the input image, and places the original input at the
+@@ -447,6 +604,14 @@
+ 
+ can be used to test the monowhite pixel format descriptor definition.
+ 
++@section rotate
++
++@example
++./ffmpeg -i in.avi -vf "rotate=30" out.avi
++@end example
++
++Rotate video by a chosen amount in degrees. By default, 45 degrees.
++
+ @section scale
+ 
+ Scale the input video to @var{width}:@var{height} and/or convert the image format.
+@@ -577,6 +742,11 @@
+ Adding this in the beginning of filter chains should make filtering
+ faster due to better use of the memory cache.
+ 
++@section split
++
++See the example in the introduction section.
++The input video is passed on to two outputs.
++
+ @section transpose
+ 
+ Transpose rows with columns in the input video and optionally flip it.
+@@ -795,6 +965,27 @@
+ "color=red@@0.2:qcif:10 [color]; [in][color] overlay [out]"
+ @end example
+ 
++@section movie
++
++The parameters of the movie filter are
++@example
++ seekpoint in microseconds : string format : string filename
++@end example
++
++We can overlay a second movie on top of a main one as in this graph:
++
++@example
++ input -----------> deltapts0 --> overlay --> output
++                                    ^
++ movie --> scale--> deltapts1 ------|
++@end example
++
++To do that
++
++@example
++ffmpeg -i in.avi -s 240x320 -vf "[in]setpts=PTS-STARTPTS, [T1]overlay=16:16[out]; movie=3200000:avi:in.avi, scale=180:144, setpts=PTS-STARTPTS[T1]" -y out.avi
++@end example
++
+ @section nullsrc
+ 
+ Null video source, never return images. It is mainly useful as a
