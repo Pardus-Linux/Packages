@@ -8,6 +8,8 @@ from pisi.actionsapi import autotools
 from pisi.actionsapi import pisitools
 from pisi.actionsapi import get
 
+WorkDir = "mxcl-liblastfm-1c739eb"
+
 def setup():
     autotools.rawConfigure("--prefix /usr \
                             --release")
