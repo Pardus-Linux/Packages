@@ -4,13 +4,18 @@
 # See the file http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
 
 from pisi.actionsapi import autotools
+from pisi.actionsapi import pisitools
 from pisi.actionsapi import get
 
 def setup():
-    autotools.configure("--disable-static")
+    autotools.configure("--disable-static \
+                         --disable-specs \
+                         --without-xmlto")
 
 def build():
     autotools.make()
 
 def install():
     autotools.rawInstall("DESTDIR=%s" % get.installDIR())
+
+    pisitools.dodoc("ChangeLog", "COPYING", "README")
