@@ -1,0 +1,243 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>blender</Name>
+        <Homepage>http://www.blender.org/</Homepage>
+        <Packager>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Packager>
+        <License>GPLv2</License>
+        <Icon>blender</Icon>
+        <IsA>app:gui</IsA>
+        <Summary>3D modeling, animation, rendering and post-production application</Summary>
+        <Description>blender is the essential software solution you need for 3D, from modeling, animation, rendering and post-production to interactive creation and playback.</Description>
+        <Archive sha1sum="43f71e7de4efe79c518d45f4b5a04e03c28d5fc5" type="targz">http://download.blender.org/source/blender-2.49b.tar.gz</Archive>
+        <BuildDependencies>
+            <Dependency>ffmpeg-devel</Dependency>
+            <Dependency>freealut-devel</Dependency>
+            <Dependency>ftgl-devel</Dependency>
+            <Dependency>glew-devel</Dependency>
+            <Dependency>libdc1394-devel</Dependency>
+            <Dependency>libsdl-devel</Dependency>
+            <Dependency>libvorbis-devel</Dependency>
+            <Dependency>nspr-devel</Dependency>
+            <Dependency>tiff-devel</Dependency>
+            <Dependency>ode-devel</Dependency>
+            <Dependency>openal-devel</Dependency>
+            <Dependency>openexr-devel</Dependency>
+            <Dependency>openjpeg-devel</Dependency>
+            <Dependency>qhull-devel</Dependency>
+            <Dependency>freetype-devel</Dependency>
+            <Dependency>ilmbase-devel</Dependency>
+            <Dependency>jpeg-devel</Dependency>
+            <Dependency>libXi-devel</Dependency>
+            <Dependency>mesa-devel</Dependency>
+            <Dependency>openexr-devel</Dependency>
+        </BuildDependencies>
+        <Patches>
+            <Patch level="1">blender-2.37-dirs.patch</Patch>
+
+            <Patch level="1">blender-2.49-scons.patch</Patch>
+
+            <!-- Security patches -->
+            <Patch level="1">CVE-2008-4863.patch</Patch>
+
+            <!-- Configuration -->
+            <Patch>config.patch</Patch>
+
+            <!-- Turkish translation of entries -->
+            <Patch>fix-desktop-file.diff</Patch>
+        </Patches>
+    </Source>
+
+    <Package>
+        <Name>blender</Name>
+        <RuntimeDependencies>
+            <Dependency>ffmpeg</Dependency>
+            <Dependency>freealut</Dependency>
+            <Dependency>ftgl</Dependency>
+            <Dependency>glew</Dependency>
+            <Dependency>libdc1394</Dependency>
+            <Dependency>libsdl</Dependency>
+            <Dependency>libvorbis</Dependency>
+            <Dependency>nspr</Dependency>
+            <Dependency>ode</Dependency>
+            <Dependency>openal</Dependency>
+            <Dependency>openexr</Dependency>
+            <Dependency>openjpeg</Dependency>
+            <Dependency>qhull</Dependency>
+            <Dependency>freetype</Dependency>
+            <Dependency>ilmbase</Dependency>
+            <Dependency>jpeg</Dependency>
+            <Dependency>libXi</Dependency>
+            <Dependency>mesa</Dependency>
+            <Dependency>openexr-libs</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="executable">/usr/bin</Path>
+            <Path fileType="library">/usr/lib/blender/plugins</Path>
+            <Path fileType="data">/usr/lib/blender/scripts</Path>
+            <Path fileType="data">/usr/share/blender/scripts</Path>
+            <Path fileType="doc">/usr/share/doc</Path>
+            <Path fileType="data">/usr/share/blender/VERSION</Path>
+            <Path fileType="data">/usr/share/blender/.Blanguages</Path>
+            <Path fileType="data">/usr/share/blender/.bfont.ttf</Path>
+            <Path fileType="data">/usr/share/icons</Path>
+            <Path fileType="data">/usr/share/applications</Path>
+            <Path fileType="data">/usr/share/mime</Path>
+            <Path fileType="localedata">/usr/share/locale</Path>
+        </Files>
+        <AdditionalFiles>
+            <AdditionalFile owner="root" permission="0644" target="/usr/share/mime/packages/blender.xml">blender.xml</AdditionalFile>
+            <AdditionalFile owner="root" permission="0755" target="/usr/bin/blender">blender-wrapper</AdditionalFile>
+        </AdditionalFiles>
+    </Package>
+
+    <Package>
+        <Name>blender-devel</Name>
+        <Summary>Development files for blender</Summary>
+        <RuntimeDependencies>
+            <Dependency release="current">blender</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="header">/usr/include/blender</Path>
+        </Files>
+    </Package>
+
+    <History>
+        <Update release="18">
+            <Date>2010-11-03</Date>
+            <Version>2.49b</Version>
+            <Comment>Split devel package.</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="17">
+            <Date>2009-09-25</Date>
+            <Version>2.49b</Version>
+            <Comment>Version bump to latest stable:
+                * Update for new OpenAL windows library.
+                * Update Japanese translation.
+                * Upgrade extern/xvidcore to version 1.22. This fixes Xvid crashing on linux 64 bit.
+                * Updated Blender/Python API and GameEngine docs. http://www.blender.org/documentation/249PythonDoc
+                * Python Script Pack and Example Files.
+            </Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="16">
+            <Date>2009-07-09</Date>
+            <Version>2.49a</Version>
+            <Comment>Version bump, ready for 2009.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="15">
+            <Date>2008-11-11</Date>
+            <Version>2.47</Version>
+            <Comment>Fix desktop files to make them XDG compliant</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="14">
+            <Date>2008-11-04</Date>
+            <Version>2.47</Version>
+            <Comment>Depend on correct openal release - older openal packages causes compilation failure.</Comment>
+            <Name>Ekin Meroğlu</Name>
+            <Email>ekin@pardus.org.tr</Email>
+        </Update>
+        <Update release="13" type="security">
+            <Date>2008-11-04</Date>
+            <Version>2.47</Version>
+            <Comment>Fix untrusted search path vulnerability in BPY_interface (CVE-2008-4863), (bug#8579).</Comment>
+            <Name>Pınar Yanardağ</Name>
+            <Email>pinar@pardus.org.tr</Email>
+        </Update>
+        <Update release="12">
+            <Date>2008-08-26</Date>
+            <Version>2.47</Version>
+            <Comment>Version bump</Comment>
+            <Name>Faik Uygur</Name>
+            <Email>faik@pardus.org.tr</Email>
+        </Update>
+        <Update release="11" type="security">
+            <Date>2008-07-28</Date>
+            <Version>2.46</Version>
+            <Comment>Version bump</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="10" type="security">
+            <Date>2008-05-07</Date>
+            <Version>2.45</Version>
+            <Comment>Fix CVE-2008-1103, insecure temporary file creation.</Comment>
+            <Name>Eren Türkay</Name>
+            <Email>turkay.eren@gmail.com</Email>
+        </Update>
+        <Update release="9" type="security">
+            <Date>2008-04-22</Date>
+            <Version>2.45</Version>
+            <Comment>Fix CVE-2008-1102. http://secunia.com/advisories/29818/</Comment>
+            <Name>Eren Türkay</Name>
+            <Email>turkay.eren@gmail.com</Email>
+        </Update>
+        <Update release="8">
+            <Date>2007-09-19</Date>
+            <Version>2.45</Version>
+            <Comment>Version bump</Comment>
+            <Name>Ali Erdinç Köroğlu</Name>
+            <Email>erdinc@pardus.org.tr</Email>
+        </Update>
+        <Update release="7">
+            <Date>2007-05-15</Date>
+            <Version>2.44</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="6">
+            <Date>2007-02-25</Date>
+            <Version>2.43</Version>
+            <Comment>Package overhaul to fix #2175</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="5">
+            <Date>2007-02-19</Date>
+            <Version>2.43</Version>
+            <Comment>Version bump</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="4">
+            <Date>2006-10-13</Date>
+            <Version>2.42a</Version>
+            <Comment>Version bump</Comment>
+            <Name>Ali Erdinç Köroğlu</Name>
+            <Email>erdinc@pardus.org.tr</Email>
+        </Update>
+        <Update release="3">
+            <Date>2006-06-06</Date>
+            <Version>2.41</Version>
+            <Comment>Use freealut</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="2" type="security">
+            <Date>2006-02-02</Date>
+            <Version>2.41</Version>
+            <Comment>Version bump to fix CVE-2005-4470</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="1">
+            <Date>2005-10-29</Date>
+            <Version>2.37a</Version>
+            <Comment>First release.</Comment>
+            <Name>A. Murat Eren</Name>
+            <Email>meren@pardus.org.tr</Email>
+        </Update>
+    </History>
+</PISI>
