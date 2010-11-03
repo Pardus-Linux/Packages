@@ -11,7 +11,10 @@ from pisi.actionsapi import get
 docdir = "/%s/%s" % (get.docDIR(), get.srcNAME())
 
 def setup():
-    autotools.autoreconf("-fi")
+    for i in ["librdf.h", "rdf_init.h"]:
+        pisitools.dosed("src/%s" % i, "<rasqal.h>", "<rasqal/rasqal.h>")
+
+    autotools.autoreconf("-vfi")
 
     #Caution!!! --enable-storages option is buggy! Do not use it, it causes storages other than memory not to be compiled!! And it's enabled by default!!
     #Using iODBC driver manager instead of unixODBC, as unixODBC needs to be compiled statically.
