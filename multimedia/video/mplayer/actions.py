@@ -15,8 +15,8 @@ import os
 
 WorkDir = "mplayer"
 gcc_version = "4.3.5"
-mp_version = "32442"
-ff_version = "25352"
+mp_version = "32574"
+ff_version = "25659"
 
 
 def fixPermissions(dest):
