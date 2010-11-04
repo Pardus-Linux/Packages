@@ -15,8 +15,10 @@ def install():
     pythonmodules.install()
 
     pisitools.insinto("/etc/bash_completion.d/", "contrib/bash/bzr")
-    pisitools.removeDir("/usr/lib/%s/site-packages/bzrlib/util/elementtree" \
-                        % get.curPYTHON())
+    dirs = ["/etc/apport", "/usr/share/apport",
+            "/usr/lib/%s/site-packages/bzrlib/util/elementtree" % get.curPYTHON()]
+    for dir in dirs:
+        pisitools.removeDir(dir)
 
     pisitools.dodoc("COPYING.txt", "README", "NEWS", "TODO")
 
