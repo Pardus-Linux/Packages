@@ -144,6 +144,11 @@ def installPackage(package=None):
         pisi.api.install(package, ignore_file_conflicts=True, reinstall=reinstall)
 
 @privileged
+def reinstallPackage(package=None):
+    if package:
+        pisi.api.install(package, ignore_file_conflicts=True, reinstall=True)
+
+@privileged
 def updatePackage(package=None):
     if package is None:
         package = []
