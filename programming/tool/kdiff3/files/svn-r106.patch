@@ -1,0 +1,891 @@
+diff -wbrNu kdiff3-0.9.95/kdiff3plugin-QT4/kdiff3plugin.cpp kdiff3-106/kdiff3plugin-QT4/kdiff3plugin.cpp
+--- kdiff3-0.9.95/kdiff3plugin-QT4/kdiff3plugin.cpp	2008-10-26 22:55:20.000000000 +0100
++++ kdiff3-106/kdiff3plugin-QT4/kdiff3plugin.cpp	2010-11-05 09:19:26.089547709 +0100
+@@ -184,7 +184,7 @@
+       QStringList args;
+       args << s_pHistory->front();
+       args << m_list.front();
+-      KProcess::execute("kdiff3", args);
++      KProcess::startDetached("kdiff3", args);
+    }
+ }
+ 
+@@ -196,7 +196,7 @@
+       QStringList args;
+       args << pAction->text();
+       args << m_list.front();
+-      KProcess::execute ("kdiff3", args);
++      KProcess::startDetached ("kdiff3", args);
+    }
+ }
+ 
+@@ -207,7 +207,7 @@
+       QStringList args;
+       args << m_list.front();
+       args << m_list.back();
+-      KProcess::execute ("kdiff3", args);
++      KProcess::startDetached ("kdiff3", args);
+    }
+ }
+ 
+@@ -219,7 +219,7 @@
+       args << m_list[0];
+       args << m_list[1];
+       args << m_list[2];
+-      KProcess::execute ("kdiff3", args);
++      KProcess::startDetached ("kdiff3", args);
+    }
+ }
+ 
+@@ -231,7 +231,7 @@
+       args << s_pHistory->front();
+       args << m_list.front();
+       args << ( "-o" + m_list.front() );
+-      KProcess::execute ("kdiff3", args);
++      KProcess::startDetached ("kdiff3", args);
+    }
+ }
+ 
+@@ -244,7 +244,7 @@
+       args << (*s_pHistory)[0];
+       args << m_list.front();
+       args << ("-o" + m_list.front());
+-      KProcess::execute ("kdiff3", args);
++      KProcess::startDetached ("kdiff3", args);
+    }
+ }
+ 
+diff -wbrNu kdiff3-0.9.95/kdiff3plugin-QT4/kdiff3_plugin.desktop kdiff3-106/kdiff3plugin-QT4/kdiff3_plugin.desktop
+--- kdiff3-0.9.95/kdiff3plugin-QT4/kdiff3_plugin.desktop	2009-01-06 16:34:15.000000000 +0100
++++ kdiff3-106/kdiff3plugin-QT4/kdiff3_plugin.desktop	2010-11-05 09:17:16.452548024 +0100
+@@ -3,23 +3,33 @@
+ Type=Service
+ Name=Compare/Merge Files/Directories
+ Name[bg]=Сравняване/Сливане на файлове/директории
++Name[ca]=Compara/fusiona fitxers/directoris
++Name[ca@valencia]=Compara/fusiona fitxers/directoris
+ Name[cs]=Porovnat/spojit soubory/adresáře
++Name[da]=Sammenlign/sammenflet filer/mapper
+ Name[de]=Dateien und Ordner vergleichen und zusammenführen
+ Name[el]=Σύγκριση/Συγχώνευση αρχείων/καταλόγων
++Name[en_GB]=Compare/Merge Files/Directories
+ Name[es]=Comparar/fusionar archivos/directorios
+ Name[et]=Failide/kataloogide võrdlemine/liitmine
+ Name[fr]=Comparer / Fusionner les fichiers / dossiers
+-Name[ga]=Comhaid/Comhadlanna a Chur i gComparáid/a Chumasc
++Name[ga]=Cuir Comhaid/Comhadlanna i gComparáid agus Cumaisc iad
+ Name[gl]=Comparar e fusionar ficheiros e cartafoles
+ Name[hi]=तुलना करें/मिलाएं फ़ाइलें/डिरेक्ट्रीज़
++Name[hne]=फाइल/डिरेक्टरीज मन ल तुलना करव / मिलाव
++Name[hu]=Fájlok/Könyvtárak összehasonlítása/egyesítése
++Name[it]=Confronta o fondi file e cartelle
+ Name[ja]=ファイルやディレクトリを比較/マージ
+ Name[km]=ប្រៀបធៀប/បញ្ចូល​ឯកសារ​ចូល​គ្នា/ថត
+ Name[ko]=파일과 디렉터리를 비교하거나 병합
++Name[ml]=ഫയലുകള്‍/അറകള്‍ താരതമ്യം ചെയ്യുക/ലയിപ്പിക്കുക
++Name[nb]=Samenlikne/flette filer/mapper
+ Name[nds]=Verglieken/Tosamenföhren Dateien Ornern
+ Name[nl]=Bestanden/mappen vergelijken/samenvoegen
+ Name[nn]=Samanlikn/flett filer og mapper
++Name[pl]=Porównanie/Łączenie plików i katalogów
+ Name[pt]=Comparar/Juntar os Ficheiros/Pastas
+-Name[pt_BR]=Compara/Mescla Arquivos/Diretórios
++Name[pt_BR]=Comparar/Mesclar arquivos/pastas
+ Name[ro]=Compară/unește fișiere/directoare
+ Name[sv]=Jämför, sammanfoga filer, kataloger
+ Name[tr]=Dosyaları/Klasörleri Karşılaştır/Birleştir
+diff -wbrNu kdiff3-0.9.95/kdiff3plugin-QT4/kdiff3plugin.desktop kdiff3-106/kdiff3plugin-QT4/kdiff3plugin.desktop
+--- kdiff3-0.9.95/kdiff3plugin-QT4/kdiff3plugin.desktop	2009-01-06 16:34:15.000000000 +0100
++++ kdiff3-106/kdiff3plugin-QT4/kdiff3plugin.desktop	2010-11-05 09:23:33.874548181 +0100
+@@ -3,23 +3,33 @@
+ Type=Service
+ Name=Compare/Merge Files/Directories with KDiff3
+ Name[bg]=Сравняване/Сливане на файлове/директории с KDiff3
++Name[ca]=Compara/fusiona fitxers/directoris amb KDiff3
++Name[ca@valencia]=Compara/fusiona fitxers/directoris amb KDiff3
+ Name[cs]=Porovnat/spojit soubory/adresáře pomocí KDiff3
++Name[da]=Sammenlign/sammenflet filer/mapper med KDiff3
+ Name[de]=Dateien und Ordner vergleichen und zusammenführen mit KDiff3
+ Name[el]=Σύγκριση/Συγχώνευση αρχείων/καταλόγων με το KDiff3
++Name[en_GB]=Compare/Merge Files/Directories with KDiff3
+ Name[es]=Comparar/fusionar archivos/directorios con KDiff3
+ Name[et]=Failide/kataloogide võrdlemine/liitmine KDiff3-ga
+ Name[fr]=Comparer / Fusionner les fichiers / dossiers à l'aide de KDiff3
+-Name[ga]=Comhaid/Comhadlanna a Chur i gComparáid/a Chumasc le KDiff3
++Name[ga]=Cuir Comhaid/Comhadlanna i gComparáid agus Cumaisc iad le KDiff3
+ Name[gl]=Compara e fusionar ficheiros e cartafoles con KDiff3
+ Name[hi]=केडिफ़३ के साथ तुलना करें/मिलाएं फ़ाइलें/डिरेक्ट्रीज़
++Name[hne]=केडिफ३ के साथ तुलना करव/मिलाव फाइल/डिरेक्टरीज मन ल
++Name[hu]=Fájlok/Könyvtárat KDiff3-mal való összehasonlítása/egyesítése
++Name[it]=Confronta o fondi file e cartelle con KDiff3
+ Name[ja]=KDiff3 でファイルやディレクトリを比較/マージ
+ Name[km]=ប្រៀបធៀប/បញ្ចូល​ឯកសារ​ចូល​គ្នា/ថត​ជាមួយ KDiff3
+ Name[ko]=KDiff3으로 파일과 디렉터리를 비교하거나 병합합니다
++Name[ml]=ഫയലുകള്‍/അറകള്‍ താരതമ്യം ചെയ്യുക/കെഡിഫ്3 ഉപയോഗിച്ചു് ലയിപ്പിക്കുക
++Name[nb]=Samenlikne/flette filer/mapper med KDiff3
+ Name[nds]=Verglieken Tosamenföhren vun Dateien/Ornern mit KDiff3
+ Name[nl]=Bestanden/mappen vergelijken/samenvoegen met KDiff3
+ Name[nn]=Samanlikn/flett filer og mapper med KDiff3
++Name[pl]=Porównanie/Łączenie plików i katalogów za pomocą KDiff3
+ Name[pt]=Comparar/Juntar os Ficheiros/Pastas com o KDiff3
+-Name[pt_BR]=Compara/Mescla Arquivos/Diretórios com KDiff3
++Name[pt_BR]=Comparar/Mesclar arquivos/pastas com o KDiff3
+ Name[ro]=Compară/unește fișiere/directoare cu KDiff3
+ Name[sv]=Jämför, sammanfoga filer, kataloger med Kdiff3
+ Name[tr]=KDiff3 ile Dosyaları/Klasörleri Karşılaştır/Birleştir
+diff -wbrNu kdiff3-0.9.95/src-QT4/CMakeLists.txt kdiff3-106/src-QT4/CMakeLists.txt
+--- kdiff3-0.9.95/src-QT4/CMakeLists.txt	2008-07-19 16:59:05.000000000 +0200
++++ kdiff3-106/src-QT4/CMakeLists.txt	2010-11-04 22:22:03.077814610 +0100
+@@ -48,7 +48,7 @@
+ ########### install files ###############
+ 
+ install( FILES  kdiff3part.desktop DESTINATION ${SERVICES_INSTALL_DIR} )
+-install( FILES  kdiff3_part.rc DESTINATION ${DATA_INSTALL_DIR}/kdiff3 )
++install( FILES  kdiff3_part.rc DESTINATION ${DATA_INSTALL_DIR}/kdiff3part )
+ install( FILES  kdiff3_shell.rc DESTINATION ${DATA_INSTALL_DIR}/kdiff3 )
+ install( FILES  kdiff3.desktop DESTINATION ${XDG_APPS_INSTALL_DIR} )
+ 
+diff -wbrNu kdiff3-0.9.95/src-QT4/difftextwindow.cpp kdiff3-106/src-QT4/difftextwindow.cpp
+--- kdiff3-0.9.95/src-QT4/difftextwindow.cpp	2009-02-08 20:46:47.000000000 +0100
++++ kdiff3-106/src-QT4/difftextwindow.cpp	2010-11-04 22:42:12.609508708 +0100
+@@ -391,7 +391,7 @@
+ void DiffTextWindow::showStatusLine(int line )
+ {
+    int d3lIdx = convertLineToDiff3LineIdx( line );
+-   if(d3lIdx >= 0 && d3lIdx<(int)d->m_pDiff3LineVector->size() )
++   if( d->m_pDiff3LineVector!=0 && d3lIdx >= 0 && d3lIdx<(int)d->m_pDiff3LineVector->size() )
+    {
+       const Diff3Line* pD3l = (*d->m_pDiff3LineVector)[d3lIdx];
+       if ( pD3l != 0 )
+@@ -1020,13 +1020,16 @@
+ 
+ void DiffTextWindow::paintEvent( QPaintEvent* e )
+ {
+-   if ( d->m_pDiff3LineVector==0 || ! d->m_bPaintingAllowed ||
+-        ( d->m_diff3WrapLineVector.empty() && d->m_bWordWrap ) ) 
++   QRect invalidRect = e->rect();
++   if ( invalidRect.isEmpty() || ! d->m_bPaintingAllowed )
+       return;
+ 
+-   QRect invalidRect = e->rect();
+-   if ( invalidRect.isEmpty() )
++   if ( d->m_pDiff3LineVector==0  ||  ( d->m_diff3WrapLineVector.empty() && d->m_bWordWrap ) ) 
++   {
++      QPainter p(this);
++      p.fillRect( invalidRect, d->m_pOptionDialog->m_bgColor );
+       return;
++   }
+ 
+    bool bOldSelectionContainsData = d->m_selection.bSelectionContainsData;
+    d->m_selection.bSelectionContainsData = false;
+@@ -1089,7 +1092,7 @@
+ 
+ void DiffTextWindowData::draw( MyPainter& p, const QRect& invalidRect, int deviceWidth, int beginLine, int endLine )
+ {
+-   m_lineNumberWidth =  m_pOptionDialog->m_bShowLineNumbers ? (int)log10((double)m_size)+1 : 0;
++   m_lineNumberWidth = m_pOptionDialog->m_bShowLineNumbers ? (int)log10((double)qMax(m_size,1))+1 : 0;
+ 
+    if ( m_winIdx==1 )
+    {
+@@ -1754,7 +1757,7 @@
+    if ( pDTW && pDTW->d->m_pDiff3LineVector )
+    {
+       QString s= i18n("Top line");
+-      int lineNumberWidth = (int)log10((double)pDTW->d->m_size)+1;
++      int lineNumberWidth = (int)log10((double)qMax(pDTW->d->m_size,1))+1;
+ 
+       int l=pDTW->calcTopLineInFile(firstLine);
+ 
+diff -wbrNu kdiff3-0.9.95/src-QT4/directorymergewindow.cpp kdiff3-106/src-QT4/directorymergewindow.cpp
+--- kdiff3-0.9.95/src-QT4/directorymergewindow.cpp	2009-02-22 16:34:00.000000000 +0100
++++ kdiff3-106/src-QT4/directorymergewindow.cpp	2010-11-04 23:02:24.601510214 +0100
+@@ -741,7 +741,10 @@
+          s += "\n" + i18n("Number of manual merges:")   +" "+ QString::number(nofManualMerges);
+       KMessageBox::information( this, s );
+       if ( topLevelItemCount()>0 )
++      {
+          topLevelItem(0)->setSelected(true);
++         setCurrentItem( topLevelItem(0) );
++      }
+    }
+ 
+    if ( bReload )
+@@ -2500,7 +2503,9 @@
+    if ( srcName == destName )
+       return true;
+ 
+-   if ( FileAccess(destName, true).exists() )
++   FileAccess fi( srcName );
++   FileAccess faDest(destName, true);
++   if ( faDest.exists() && !( fi.isDir() && faDest.isDir() && (fi.isSymLink()==faDest.isSymLink())) )
+    {
+       bool bSuccess = deleteFLD( destName, m_pOptions->m_bDmCreateBakFiles );
+       if ( !bSuccess )
+@@ -2511,7 +2516,6 @@
+       }
+    }
+ 
+-   FileAccess fi( srcName );
+ 
+    if ( fi.isSymLink() && ((fi.isDir() && !m_bFollowDirLinks)  ||  (!fi.isDir() && !m_bFollowFileLinks)) )
+    {
+@@ -2539,9 +2543,14 @@
+ 
+    if ( fi.isDir() )
+    {
++      if ( faDest.exists() )
++	 return true;
++      else
++      {
+       bool bSuccess = makeDir( destName );
+       return bSuccess;
+    }
++   }
+ 
+    int pos=destName.lastIndexOf('/');
+    if ( pos>0 )
+diff -wbrNu kdiff3-0.9.95/src-QT4/fileaccess.cpp kdiff3-106/src-QT4/fileaccess.cpp
+--- kdiff3-0.9.95/src-QT4/fileaccess.cpp	2009-02-12 19:58:46.000000000 +0100
++++ kdiff3-106/src-QT4/fileaccess.cpp	2010-11-04 23:39:26.835508990 +0100
+@@ -314,7 +314,7 @@
+ bool FileAccess::isDir() const         {   return m_bDir;        }
+ bool FileAccess::isSymLink() const     {   return m_bSymLink;    }
+ bool FileAccess::exists() const        {   return m_bExists;     }
+-long FileAccess::size() const          {   return m_size;        }
++qint64 FileAccess::size() const        {   return m_size;        }
+ KUrl FileAccess::url() const           {   return m_url;         }
+ bool FileAccess::isLocal() const       {   return m_bLocal;      }
+ bool FileAccess::isReadable() const    {   return m_bReadable;   }
+@@ -556,7 +556,7 @@
+ }
+ 
+ // If the size couldn't be determined by stat() then the file is copied to a local temp file.
+-long FileAccess::sizeForReading()
++qint64 FileAccess::sizeForReading()
+ {
+    if ( m_size == 0 && !isLocal() )
+    {
+@@ -698,7 +698,7 @@
+    }
+    else
+    {
+-      long length = min2( long(newData.size()), m_maxLength - m_transferredBytes );
++      qint64 length = min2( qint64(newData.size()), m_maxLength - m_transferredBytes );
+       ::memcpy( m_pTransferBuffer + m_transferredBytes, newData.data(), newData.size() );
+       m_transferredBytes += length;
+    }
+@@ -717,7 +717,7 @@
+       m_pFileAccess->m_statusText = QString();
+ 
+       connect( pJob, SIGNAL(result(KJob*)), this, SLOT(slotPutJobResult(KJob*)));
+-      connect( pJob, SIGNAL(dataReq(KJob*, QByteArray&)), this, SLOT(slotPutData(KJob*, QByteArray&)));
++      connect( pJob, SIGNAL(dataReq(KIO::Job*, QByteArray&)), this, SLOT(slotPutData(KIO::Job*, QByteArray&)));
+       connect( pJob, SIGNAL(percent(KJob*,unsigned long)), this, SLOT(slotPercent(KJob*, unsigned long)));
+ 
+       g_pProgressDialog->enterEventLoop( pJob, i18n("Writing file: %1",m_pFileAccess->prettyAbsPath()) );
+@@ -727,7 +727,7 @@
+       return true;
+ }
+ 
+-void FileAccessJobHandler::slotPutData( KJob* pJob, QByteArray& data )
++void FileAccessJobHandler::slotPutData( KIO::Job* pJob, QByteArray& data )
+ {
+    if ( pJob->error() )
+    {
+@@ -735,8 +735,8 @@
+    }
+    else
+    {
+-      long maxChunkSize = 100000;
+-      long length = min2( maxChunkSize, m_maxLength - m_transferredBytes );
++      qint64 maxChunkSize = 100000;
++      qint64 length = min2( maxChunkSize, m_maxLength - m_transferredBytes );
+       data.resize( length );
+       if ( data.size()==length )
+       {
+@@ -1285,7 +1285,7 @@
+                }
+                bFirst = false;
+                FileAccess fa;
+-               fa.m_size = findData.nFileSizeLow ;//+ findData.nFileSizeHigh;
++               fa.m_size = ( qint64( findData.nFileSizeHigh ) << 32 ) + findData.nFileSizeLow;
+ 
+                FILETIME ft;
+                SYSTEMTIME t;
+diff -wbrNu kdiff3-0.9.95/src-QT4/fileaccess.h kdiff3-106/src-QT4/fileaccess.h
+--- kdiff3-0.9.95/src-QT4/fileaccess.h	2008-08-26 17:42:56.000000000 +0200
++++ kdiff3-106/src-QT4/fileaccess.h	2010-11-04 23:39:50.706508609 +0100
+@@ -40,8 +40,8 @@
+    bool isDir() const;
+    bool isSymLink() const;
+    bool exists() const;
+-   long size() const;            // Size as returned by stat().
+-   long sizeForReading();  // If the size can't be determined by stat() then the file is copied to a local temp file.
++   qint64 size() const;            // Size as returned by stat().
++   qint64 sizeForReading();  // If the size can't be determined by stat() then the file is copied to a local temp file.
+    bool isReadable() const;
+    bool isWritable() const;
+    bool isExecutable() const;
+@@ -89,7 +89,7 @@
+    bool m_bLocal;
+    bool m_bValidData;
+ 
+-   unsigned long m_size;
++   qint64 m_size;
+    QDateTime m_modificationTime;
+    QDateTime m_accessTime;
+    QDateTime m_creationTime;
+@@ -143,9 +143,9 @@
+    bool m_bSuccess;
+ 
+    // Data needed during Job
+-   long m_transferredBytes;
++   qint64 m_transferredBytes;
+    char* m_pTransferBuffer;  // Needed during get or put
+-   long m_maxLength;
++   qint64 m_maxLength;
+ 
+    QString m_filePattern;
+    QString m_fileAntiPattern;
+@@ -163,7 +163,7 @@
+    void slotPutJobResult( KJob* pJob );
+ 
+    void slotGetData(KJob*,const QByteArray&);
+-   void slotPutData(KJob*, QByteArray&);
++   void slotPutData(KIO::Job*, QByteArray&);
+ 
+    void slotListDirInfoMessage( KJob*, const QString& msg );
+    void slotListDirProcessNewEntries( KIO::Job *, const KIO::UDSEntryList& l );
+diff -wbrNu kdiff3-0.9.95/src-QT4/guiutils.h kdiff3-106/src-QT4/guiutils.h
+--- kdiff3-0.9.95/src-QT4/guiutils.h	2008-07-14 22:44:06.000000000 +0200
++++ kdiff3-106/src-QT4/guiutils.h	2010-11-04 23:40:11.366508765 +0100
+@@ -52,7 +52,7 @@
+       KToggleAction* theAction = new KToggleAction(ac);
+       ac->addAction( actionName, theAction );
+       theAction->setText( text );
+-      QObject::connect( theAction, SIGNAL( toggled(bool) ), receiver, slot );
++      QObject::connect( theAction, SIGNAL( triggered(bool) ), receiver, slot );
+       return theAction;
+    }
+    
+diff -wbrNu kdiff3-0.9.95/src-QT4/kdiff3.cpp kdiff3-106/src-QT4/kdiff3.cpp
+--- kdiff3-0.9.95/src-QT4/kdiff3.cpp	2009-01-15 22:21:06.000000000 +0100
++++ kdiff3-106/src-QT4/kdiff3.cpp	2010-11-04 23:40:59.757508783 +0100
+@@ -482,8 +482,10 @@
+    fileSave->setStatusTip(i18n("Saves the merge result. All conflicts must be solved!"));
+    fileSaveAs = KStandardAction::saveAs(this, SLOT(slotFileSaveAs()), ac);
+    fileSaveAs->setStatusTip(i18n("Saves the current document as..."));
++#ifndef QT_NO_PRINTER
+    filePrint = KStandardAction::print(this, SLOT(slotFilePrint()), ac);
+    filePrint->setStatusTip(i18n("Print the differences"));
++#endif
+    fileQuit = KStandardAction::quit(this, SLOT(slotFileQuit()), ac);
+    fileQuit->setStatusTip(i18n("Quits the application"));
+    editCut = KStandardAction::cut(this, SLOT(slotEditCut()), ac);
+@@ -775,7 +777,10 @@
+ {
+    if ( !m_pDiffTextWindow1 )
+       return;
+-
++#ifdef QT_NO_PRINTER
++   slotStatusMsg( i18n( "Printing not implemented." ) );
++#endif
++#ifndef QT_NO_PRINTER
+    QPrinter printer;
+    QPrintDialog printDialog(&printer, this);
+ 
+@@ -980,6 +985,7 @@
+    {
+       slotStatusMsg( i18n( "Printing aborted." ) );
+    }
++#endif
+ }
+ 
+ void KDiff3App::slotFileQuit()
+diff -wbrNu kdiff3-0.9.95/src-QT4/kdiff3.desktop kdiff3-106/src-QT4/kdiff3.desktop
+--- kdiff3-0.9.95/src-QT4/kdiff3.desktop	2009-03-03 20:34:53.000000000 +0100
++++ kdiff3-106/src-QT4/kdiff3.desktop	2010-11-05 09:31:15.024549435 +0100
+@@ -1,27 +1,72 @@
+ [Desktop Entry]
+ Name=KDiff3
++Name[be]=KDiff3
++Name[bg]=KDiff3
++Name[ca]=KDiff3
++Name[ca@valencia]=KDiff3
++Name[cs]=KDiff3
++Name[da]=KDiff3
++Name[de]=KDiff3
++Name[el]=KDiff3
++Name[en_GB]=KDiff3
++Name[es]=KDiff3
++Name[et]=KDiff3
++Name[fr]=KDiff3
++Name[ga]=KDiff3
++Name[gl]=KDiff3
+ Name[hi]=के-डिफ3
++Name[hne]=के-डिफ3
++Name[hr]=KDiff3
++Name[hu]=KDiff3
++Name[it]=KDiff3
++Name[ja]=KDiff3
++Name[km]=KDiff3
++Name[ko]=KDiff3
++Name[ml]=കെഡിഫ്3
++Name[nb]=KDiff3
++Name[nds]=KDiff3
++Name[nl]=KDiff3
++Name[nn]=KDiff3
++Name[pl]=KDiff3
++Name[pt]=KDiff3
++Name[pt_BR]=KDiff3
++Name[ro]=KDiff3
+ Name[sv]=Kdiff3
++Name[tr]=KDiff3
++Name[uk]=KDiff3
+ Name[x-test]=xxKDiff3xx
++Name[zh_CN]=KDiff3
++Name[zh_TW]=KDiff3
+ GenericName=Diff/Patch Frontend
+ GenericName[bg]=Интерфейс на Diff/Patch
++GenericName[ca]=Frontal de Diff/Patch
++GenericName[ca@valencia]=Frontal de Diff/Patch
+ GenericName[cs]=Rozhraní pro Diff/Patch
+-GenericName[de]=Graphische Oberfläche zu Diff/Patch
++GenericName[da]=Brugerflade til diff/patch
++GenericName[de]=Grafische Oberfläche zu Diff/Patch
+ GenericName[el]=Σύστημα υποστήριξης χρήστη για τα Diff/Patch
++GenericName[en_GB]=Diff/Patch Frontend
++GenericName[eo]=Fasado por la programoj "diff" kaj "patch"
+ GenericName[es]=Interfaz para diff/patch
+ GenericName[et]=Võrdlemise ja liitmise rakendus
+ GenericName[fr]=Interface utilisateur pour Diff / Patch
+ GenericName[ga]=Comhéadan Diff/Patch
+ GenericName[gl]=Interface para Diff e Patch
+ GenericName[hi]=डिफ/पैच फ्रन्टएण्ड
++GenericName[hne]=डिफ/पैच फ्रन्टएन्ड
++GenericName[hu]=Diff/Patch Frontend
++GenericName[it]=Interfaccia per i comandi diff e patch
+ GenericName[ja]=Diff/Patch フロントエンド
+ GenericName[km]=Diff/Patch ខាង​មុខ
+ GenericName[ko]=Diff/Patch 프론트엔드
++GenericName[ml]=ഡിഫ്/പാച്ച് പുരോഭാഗം
++GenericName[nb]=Diff-/Patch-grensesnitt
+ GenericName[nds]=Böversiet för "diff" un "patch"
+ GenericName[nl]=Diff/Patch-hulpprogramma
+ GenericName[nn]=Motor for diff- og patch-filer
++GenericName[pl]=Interfejs do Diff/Patch
+ GenericName[pt]=Interface do Diff/Patch
+-GenericName[pt_BR]=Interface do Diff/Patch
++GenericName[pt_BR]=Interface do diff/patch
+ GenericName[ro]=Interfață Diferențiere/Cîrpire
+ GenericName[sv]=Jämförelse- och programfixgränssnitt
+ GenericName[tr]=Diff/Patch Arayüzü
+@@ -32,26 +77,36 @@
+ Exec=kdiff3 %i %m -caption "%c"
+ Icon=kdiff3
+ Type=Application
+-DocPath=kdiff3/index.html
++X-DocPath=kdiff3/index.html
+ Comment=A File And Directory Comparison And Merge Tool
+ Comment[bg]=Инструмент за сравняване и сливане на файлове и директории
++Comment[ca]=Una eina de comparació i fusió de fitxer i directori
++Comment[ca@valencia]=Una eina de comparació i fusió de fitxer i directori
+ Comment[cs]=Nástroj pro porovnávání a slučování souborů a adresářů
++Comment[da]=Et værktøj til sammenfletning og sammenligning af filer og mapper
+ Comment[de]=Programm zum Vergleichen und Zusammenführen von Dateien und Ordnern
+ Comment[el]=Ένα εργαλείο σύγκρισης και συγχώνευσης αρχείων και καταλόγων
++Comment[en_GB]=A File And Directory Comparison And Merge Tool
+ Comment[es]=Una herramienta para comparar y fusionar archivos y directorios
+ Comment[et]=Failide ja kataloogide võrdlemise ja liitmise tööriist
+ Comment[fr]=Un outil de comparaison et de fusion de fichiers et de dossiers
+ Comment[ga]=Uirlis a chuireann comhaid agus comhadlanna i gcomparáid agus a chumascann iad más gá
+ Comment[gl]=Unha ferramenta de comparación e fusión de ficheiros e cartafoles
+ Comment[hi]=फ़ाइल तथा डिरेक्ट्री तुलना करने व मिलाने का औजार
++Comment[hne]=फाइल अउ डिरेक्टरी तुलना करे अउ मिलाय के औजार
++Comment[hu]=Egy fájl és könyvtár összehasonlítási és egyesítési eszköz
++Comment[it]=Uno strumento di confronto e fusione di file e cartelle
+ Comment[ja]=ファイルやディレクトリの比較/マージを行うツール
+ Comment[km]=ការ​ប្រៀបធៀប​ថត និង​ឯកសារ និង​ឧបករណ៌​បញ្ចូល​គ្នា
+ Comment[ko]=파일과 디렉터리 비교 및 병합 도구
++Comment[ml]=ഫയലും അറകളും താരതമ്യം ചെയ്യാനും ലയിപ്പിക്കാനുമുള്ള ഒരു ആയുധം
++Comment[nb]=Et verktøy for å sammelnlikne og flette filer og mapper
+ Comment[nds]=En Warktüüch för't Verglieken un Tosamenföhren vun Dateien un Ornern
+ Comment[nl]=Hulpmiddel voor het vergelijken en samenvoegen van bestanden en mappen
+ Comment[nn]=Eit program for samanlikning og fletting av filer og mapper
++Comment[pl]=Narzędzie do porównywania i łączenia plików i katalogów
+ Comment[pt]=Uma Ferramenta de Comparação e Junção de Ficheiros e Pastas
+-Comment[pt_BR]=Uma ferramenta de comparação e junção de arquivos e diretórios
++Comment[pt_BR]=Uma ferramenta de comparação e junção de arquivos e pastas
+ Comment[ro]=Un instrument de comparare și unire a fișierelor și directoarelor
+ Comment[sv]=Ett jämförelseverktyg för fil- och katalogjämförelser
+ Comment[tr]=Bir Dosya Ve Klasör Karşılaştırma Ve Birleştirme Aracı
+@@ -60,3 +115,4 @@
+ Comment[zh_CN]=一个文件和目录的比较和合并的工具
+ Comment[zh_TW]=一個檔案與目錄比較與合併的工具
+ Terminal=false
++Categories=Qt;KDE;Development;
+diff -wbrNu kdiff3-0.9.95/src-QT4/kdiff3part.desktop kdiff3-106/src-QT4/kdiff3part.desktop
+--- kdiff3-0.9.95/src-QT4/kdiff3part.desktop	2009-03-03 20:35:04.000000000 +0100
++++ kdiff3-106/src-QT4/kdiff3part.desktop	2010-11-05 09:31:58.458547638 +0100
+@@ -1,9 +1,40 @@
+ [Desktop Entry]
+ Name=KDiff3Part
++Name[bg]=KDiff3Part
++Name[ca]=KDiff3Part
++Name[ca@valencia]=KDiff3Part
++Name[cs]=KDiff3Part
++Name[da]=KDiff3Part
++Name[de]=KDiff3Part
++Name[el]=KDiff3Part
++Name[en_GB]=KDiff3Part
++Name[es]=KDiff3Part
+ Name[et]=KDiff3 komponent
++Name[fr]=KDiff3Part
++Name[ga]=KDiff3Part
++Name[gl]=KDiff3Part
+ Name[hi]=के-डिफ3पार्ट
++Name[hne]=के-डिफ3पार्ट
++Name[hu]=KDiff3Part
++Name[it]=KDiff3Part
++Name[ja]=KDiff3Part
++Name[km]=KDiff3Part
++Name[ko]=KDiff3Part
++Name[ml]=കെഡിഫ്3ഭാഗം
++Name[nb]=KDiff3Part
++Name[nds]=KDiff3Part
++Name[nl]=KDiff3Part
++Name[nn]=KDiff3Part
++Name[pl]=KDiff3Part
++Name[pt]=KDiff3Part
++Name[pt_BR]=KDiff3Part
++Name[ro]=KDiff3Part
+ Name[sv]=Kdiff3-del
++Name[tr]=KDiff3Part
++Name[uk]=KDiff3Part
+ Name[x-test]=xxKDiff3Partxx
++Name[zh_CN]=KDiff3Part
++Name[zh_TW]=KDiff3Part
+ MimeType=text/x-diff;
+ ServiceTypes=KParts/ReadOnlyPart,KParts/ReadWritePart
+ X-KDE-Library=libkdiff3part
+diff -wbrNu kdiff3-0.9.95/src-QT4/kreplacements/kreplacements.cpp kdiff3-106/src-QT4/kreplacements/kreplacements.cpp
+--- kdiff3-0.9.95/src-QT4/kreplacements/kreplacements.cpp	2009-03-03 20:43:18.000000000 +0100
++++ kdiff3-106/src-QT4/kreplacements/kreplacements.cpp	2010-11-04 23:50:14.728510037 +0100
+@@ -842,6 +842,7 @@
+    update();
+ }
+ 
++#ifndef QT_NO_PRINTER
+ KPrinter::KPrinter()
+ {
+ }
+@@ -861,7 +862,7 @@
+ void KPrinter::setPageSelection(e_PageSelection)
+ {
+ }
+-
++#endif
+ 
+ QPixmap KIconLoader::loadIcon( const QString&, int, int )
+ {
+@@ -917,7 +918,7 @@
+ };
+ static QList<KCmdLineOptionsItem> s_options;
+ 
+-static std::vector<QCStringList> s_vOption;
++static std::vector<QStringList> s_vOption;
+ static std::vector<QString> s_vArg;
+ 
+ KCmdLineOptions& KCmdLineOptions::add( const QString& name, const QString& description )
+@@ -1040,14 +1041,15 @@
+       ++i;
+    }
+ 
++   QStringList args = QCoreApplication::arguments();
+    // First find the option "-config" or "--config" to allow loading of options
+    QString configFileName;
+-   for( i=1; i<s_argc-1; ++i )
++   for( i=1; i<args.size()-1; ++i )
+    {
+-      QString arg = s_argv[i];
++      QString arg = args[i];
+       if ( arg == "-config" || arg == "--config" )
+       {
+-         configFileName = s_argv[i+1];
++         configFileName = args[i+1];
+       }
+    }
+    m_config.readConfigFile(configFileName);
+@@ -1059,9 +1061,9 @@
+ 
+    s_vOption.resize(nofOptions);
+ 
+-   for( i=1; i<s_argc; ++i )
++   for( i=1; i<args.size(); ++i )
+    {
+-      QString arg = s_argv[i];
++      QString arg = args[i];
+       if ( arg[0]=='-' )  // An option
+       {
+          if ( ignorableCmdLineOptions.contains( arg +";") )
+@@ -1075,8 +1077,8 @@
+             int len = pos==-1 ? optName.length() : pos;
+             int len2 = arg.length();
+ 
+-            if( len>0 && ( arg[1]=='-' && len2-2==len && optName.left(len) ==  arg.mid(2,len) ||
+-                                          len2-1==len && optName.left(len) ==  arg.mid(1,len) ))
++            if( len>0 && ( (arg[1]=='-' && len2-2==len && optName.left(len) ==  arg.mid(2,len)) ||
++                                          (len2-1==len && optName.left(len) ==  arg.mid(1,len)) ))
+             {
+                if (s_options[j].description == 0)  // alias, because without description.
+                {
+@@ -1084,7 +1086,7 @@
+                   optName = s_options[j].name;
+                   pos = optName.indexOf( ' ' );
+                }
+-               if (pos!=-1){ ++i; s_vOption[j].append( s_argv[i] ); } //use param
++               if (pos!=-1){ ++i; s_vOption[j].append( args[i] ); } //use param
+                else        { s_vOption[j].append("1"); }           //set state
+                break;
+             }
+diff -wbrNu kdiff3-0.9.95/src-QT4/kreplacements/kreplacements.h kdiff3-106/src-QT4/kreplacements/kreplacements.h
+--- kdiff3-0.9.95/src-QT4/kreplacements/kreplacements.h	2009-03-03 20:36:04.000000000 +0100
++++ kdiff3-106/src-QT4/kreplacements/kreplacements.h	2010-11-04 23:50:37.877508885 +0100
+@@ -385,6 +385,7 @@
+    void slotClicked();
+ };
+ 
++#ifndef QT_NO_PRINTER
+ class KPrinter : public QPrinter
+ {
+ public:
+@@ -394,6 +395,7 @@
+    void setCurrentPage(int);
+    void setPageSelection(e_PageSelection);
+ };
++#endif
+ 
+ class KStandardDirs
+ {
+diff -wbrNu kdiff3-0.9.95/src-QT4/mergeresultwindow.cpp kdiff3-106/src-QT4/mergeresultwindow.cpp
+--- kdiff3-0.9.95/src-QT4/mergeresultwindow.cpp	2009-01-17 19:08:03.000000000 +0100
++++ kdiff3-106/src-QT4/mergeresultwindow.cpp	2010-11-04 23:42:41.897508837 +0100
+@@ -1387,6 +1387,14 @@
+             if (!mell.empty())
+                iMLLStart->mergeEditLineList.splice( iMLLStart->mergeEditLineList.end(), mell, mell.begin(), mell.end() );
+          }
++         // If the end of start is empty and the first line at the end is empty remove the last line of start
++         if ( !iMLLStart->mergeEditLineList.empty() && !iMLLEnd->mergeEditLineList.empty() )
++         {
++            QString lastLineOfStart = iMLLStart->mergeEditLineList.back().getString(this);
++            QString firstLineOfEnd = iMLLEnd->mergeEditLineList.front().getString(this);
++            if ( lastLineOfStart.mid(lead.length()).trimmed().isEmpty() && firstLineOfEnd.mid(lead.length()).trimmed().isEmpty() )
++               iMLLStart->mergeEditLineList.pop_back();
++         }
+       }
+       setFastSelector( iMLLStart );
+       update();
+diff -wbrNu kdiff3-0.9.95/src-QT4/mergeresultwindow.h kdiff3-106/src-QT4/mergeresultwindow.h
+--- kdiff3-0.9.95/src-QT4/mergeresultwindow.h	2009-01-05 23:17:12.000000000 +0100
++++ kdiff3-106/src-QT4/mergeresultwindow.h	2010-11-04 23:43:04.256633991 +0100
+@@ -231,6 +231,7 @@
+       void clear()                             { ds(-m_size); BASE::clear();          }
+       void push_back( const MergeEditLine& m)  { ds(+1); BASE::push_back(m);     }
+       void push_front( const MergeEditLine& m) { ds(+1); BASE::push_front(m);    }
++      void pop_back()                          { ds(-1); BASE::pop_back();    }
+       iterator erase( iterator i )             { ds(-1); return BASE::erase(i);  }
+       iterator insert( iterator i, const MergeEditLine& m ) { ds(+1); return BASE::insert(i,m); }
+       int size(){ if (!m_pTotalSize) m_size = BASE::size(); return m_size; }
+diff -wbrNu kdiff3-0.9.95/src-QT4/optiondialog.cpp kdiff3-106/src-QT4/optiondialog.cpp
+--- kdiff3-0.9.95/src-QT4/optiondialog.cpp	2009-03-03 22:51:08.000000000 +0100
++++ kdiff3-106/src-QT4/optiondialog.cpp	2010-11-04 23:44:28.867508673 +0100
+@@ -27,7 +27,7 @@
+ #include <QRadioButton>
+ #include <QGroupBox>
+ #include <QTextCodec>
+-
++#include <QDir>
+ #include <QSettings>
+ #include <QLocale>
+ #include <QGridLayout>
+@@ -1254,65 +1254,42 @@
+ // UTF8-Codec that saves a BOM
+ class Utf8BOMCodec : public QTextCodec
+ {
+-   public:
+-   QByteArray name () const { return "UTF-8-BOM"; }
+-   int mibEnum () const { return 2123; }
+-   QByteArray convertFromUnicode ( const QChar * input, int number, ConverterState * pState ) const
++   QTextCodec* m_pUtf8Codec;
++   class PublicTextCodec : public QTextCodec
+    {
+-      QByteArray r;
+-      if ( pState && pState->state_data[0]==0)
++   public:
++      QString publicConvertToUnicode ( const char * p, int len, ConverterState* pState ) const
+       {
+-        r += "\xEF\xBB\xBF";
+-        pState->state_data[0]=1;
++         return convertToUnicode( p, len, pState );
+       }
+-
+-      r += QString::fromRawData( input, number ).toUtf8();
+-      return r;
+-   }
+-   QString convertToUnicode ( const char * p, int len, ConverterState* ) const
++      QByteArray publicConvertFromUnicode ( const QChar * input, int number, ConverterState * pState ) const
+    {
+-      return QString::fromUtf8 ( p, len );
++         return convertFromUnicode( input, number, pState );
+    }
+-
+-   class UTF8BOMEncoder : public QTextEncoder
+-   {
+-      bool bBOMAdded;
++   };
+    public:
+-      UTF8BOMEncoder(const QTextCodec* pTC):QTextEncoder(pTC)  {  bBOMAdded=false;  }
+-      QByteArray fromUnicode(const QString& uc, int& lenInOut )
++   Utf8BOMCodec()
++   {
++      m_pUtf8Codec = QTextCodec::codecForName("UTF-8");
++   }
++   QByteArray name () const { return "UTF-8-BOM"; }
++   int mibEnum () const { return 2123; }
++   QByteArray convertFromUnicode ( const QChar * input, int number, ConverterState * pState ) const
+       {
+          QByteArray r;
+-         if (!bBOMAdded)
++      if ( pState && pState->state_data[2]==0)  // state_data[2] not used by QUtf8::convertFromUnicode (see qutfcodec.cpp)
+          {
+             r += "\xEF\xBB\xBF";
+-            bBOMAdded=true;
+-         }
+-         r += uc.toUtf8();
+-         lenInOut = r.length();
+-         return r;
+-      }
+-   };
+-   QTextEncoder* makeEncoder() const
+-   {
+-      return new UTF8BOMEncoder(this);
++        pState->state_data[2]=1;
++        pState->flags |= QTextCodec::IgnoreHeader;
+    }
+ 
+-   class UTF8BOMDecoder : public QTextDecoder
+-   {
+-      QTextDecoder *m_pDecoder;
+-   public:
+-      UTF8BOMDecoder(const QTextCodec* pTC) : QTextDecoder(pTC)  {  m_pDecoder = QTextCodec::codecForName("UTF-8")->makeDecoder();  }
+-      ~UTF8BOMDecoder() {
+-         delete m_pDecoder;
+-      }
+-      QString toUnicode( const char* p, int len)
+-      {
+-         return m_pDecoder->toUnicode( p, len );
++      r += ((PublicTextCodec*)m_pUtf8Codec)->publicConvertFromUnicode( input, number, pState );
++      return r;
+       }
+-   };
+-   QTextDecoder* makeDecoder() const
++   QString convertToUnicode ( const char * p, int len, ConverterState* pState ) const
+    {
+-      return new UTF8BOMDecoder(this);
++      return ((PublicTextCodec*)m_pUtf8Codec)->publicConvertToUnicode( p, len, pState );
+    }
+ };
+ 
+diff -wbrNu kdiff3-0.9.95/src-QT4/pdiff.cpp kdiff3-106/src-QT4/pdiff.cpp
+--- kdiff3-0.9.95/src-QT4/pdiff.cpp	2009-02-08 20:35:53.000000000 +0100
++++ kdiff3-106/src-QT4/pdiff.cpp	2010-11-04 23:44:59.136510085 +0100
+@@ -1828,7 +1828,8 @@
+    }
+    else
+    {
+-      if ( m_pMainWidget!=0 )
++      bool bTextDataAvailable = ( m_sd1.hasData() || m_sd2.hasData() || m_sd3.hasData() );
++      if ( m_pMainWidget!=0 &&  bTextDataAvailable )
+       {
+          m_pMainWidget->show();
+          m_pDirectoryMergeSplitter->hide();
+diff -wbrNu kdiff3-0.9.95/src-QT4/smalldialogs.cpp kdiff3-106/src-QT4/smalldialogs.cpp
+--- kdiff3-0.9.95/src-QT4/smalldialogs.cpp	2008-08-22 09:54:50.000000000 +0200
++++ kdiff3-106/src-QT4/smalldialogs.cpp	2010-11-04 23:45:57.311509535 +0100
+@@ -416,15 +416,15 @@
+    l->setToolTip( autoMergeRegExpToolTip );
+    m_pAutoMergeRegExpEdit = new QLineEdit(this);
+    pGrid->addWidget(m_pAutoMergeRegExpEdit,line,1);
+-   connect( m_pAutoMergeRegExpEdit, SIGNAL(editTextChanged(const QString&)), this, SLOT(slotRecalc()));
++   connect( m_pAutoMergeRegExpEdit, SIGNAL(textChanged(const QString&)), this, SLOT(slotRecalc()));
+    ++line;
+ 
+    l = new QLabel(i18n("Example auto merge line:"), this);
+-   pGrid->addWidget(l,line,line,0,1);
++   pGrid->addWidget(l,line,0);
+    l->setToolTip( i18n("For auto merge test copy a line as used in your files.") );
+    m_pAutoMergeExampleEdit = new QLineEdit(this);
+    pGrid->addWidget(m_pAutoMergeExampleEdit,line,1);
+-   connect( m_pAutoMergeExampleEdit, SIGNAL(editTextChanged(const QString&)), this, SLOT(slotRecalc()));
++   connect( m_pAutoMergeExampleEdit, SIGNAL(textChanged(const QString&)), this, SLOT(slotRecalc()));
+    ++line;
+ 
+    l = new QLabel(i18n("Match result:"), this);
+@@ -443,17 +443,16 @@
+    l->setToolTip( historyStartRegExpToolTip );
+    m_pHistoryStartRegExpEdit = new QLineEdit(this);
+    pGrid->addWidget(m_pHistoryStartRegExpEdit,line,1);
+-   connect( m_pHistoryStartRegExpEdit, SIGNAL(editTextChanged(const QString&)), this, SLOT(slotRecalc()));
++   connect( m_pHistoryStartRegExpEdit, SIGNAL(textChanged(const QString&)), this, SLOT(slotRecalc()));
+    ++line;
+ 
+    l = new QLabel(i18n("Example history start line (with leading comment):"), this);
+-   pGrid->addWidget(l,line,line,0,1);
+-   ++line;
++   pGrid->addWidget(l,line,0);
+    l->setToolTip( i18n("Copy a history start line as used in your files,\n"
+                           "including the leading comment.") );
+    m_pHistoryStartExampleEdit = new QLineEdit(this);
+    pGrid->addWidget(m_pHistoryStartExampleEdit,line,1);
+-   connect( m_pHistoryStartExampleEdit, SIGNAL(editTextChanged(const QString&)), this, SLOT(slotRecalc()));
++   connect( m_pHistoryStartExampleEdit, SIGNAL(textChanged(const QString&)), this, SLOT(slotRecalc()));
+    ++line;
+ 
+    l = new QLabel(i18n("Match result:"), this);
+@@ -472,7 +471,7 @@
+    l->setToolTip( historyEntryStartRegExpToolTip );
+    m_pHistoryEntryStartRegExpEdit = new QLineEdit(this);
+    pGrid->addWidget(m_pHistoryEntryStartRegExpEdit,line,1);
+-   connect( m_pHistoryEntryStartRegExpEdit, SIGNAL(editTextChanged(const QString&)), this, SLOT(slotRecalc()));
++   connect( m_pHistoryEntryStartRegExpEdit, SIGNAL(textChanged(const QString&)), this, SLOT(slotRecalc()));
+    ++line;
+ 
+    l = new QLabel(i18n("History sort key order:"), this);
+@@ -480,17 +479,16 @@
+    l->setToolTip( historySortKeyOrderToolTip );
+    m_pHistorySortKeyOrderEdit = new QLineEdit(this);
+    pGrid->addWidget(m_pHistorySortKeyOrderEdit,line,1);
+-   connect( m_pHistorySortKeyOrderEdit, SIGNAL(editTextChanged(const QString&)), this, SLOT(slotRecalc()));
++   connect( m_pHistorySortKeyOrderEdit, SIGNAL(textChanged(const QString&)), this, SLOT(slotRecalc()));
+    ++line;
+ 
+    l = new QLabel(i18n("Example history entry start line (without leading comment):"), this);
+-   pGrid->addWidget(l,line,line,0,1);
++   pGrid->addWidget(l,line,0);
+    l->setToolTip( i18n("Copy a history entry start line as used in your files,\n"
+                           "but omit the leading comment.") );
+-   ++line;
+    m_pHistoryEntryStartExampleEdit = new QLineEdit(this);
+    pGrid->addWidget(m_pHistoryEntryStartExampleEdit,line,1);
+-   connect( m_pHistoryEntryStartExampleEdit, SIGNAL(editTextChanged(const QString&)), this, SLOT(slotRecalc()));
++   connect( m_pHistoryEntryStartExampleEdit, SIGNAL(textChanged(const QString&)), this, SLOT(slotRecalc()));
+    ++line;
+ 
+    l = new QLabel(i18n("Match result:"), this);
+diff -wbrNu kdiff3-0.9.95/src-QT4/version.h kdiff3-106/src-QT4/version.h
+--- kdiff3-0.9.95/src-QT4/version.h	2009-03-03 20:26:06.000000000 +0100
++++ kdiff3-106/src-QT4/version.h	2010-11-04 23:46:42.216508865 +0100
+@@ -1,2 +1,2 @@
+ #undef VERSION
+-#define VERSION "0.9.95"
++#define VERSION "0.9.96a"
