@@ -1,0 +1,48 @@
+From 2a130428dacf7a0a5e272acb1844204492a7394b Mon Sep 17 00:00:00 2001
+From: Ben Skeggs <bskeggs@redhat.com>
+Date: Mon, 10 May 2010 08:31:36 +1000
+Subject: [PATCH 2/4] force consistant tiling mode to prevent corruption issues
+
+---
+ src/drmmode_display.c |    4 ++--
+ src/nv_driver.c       |    2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/src/drmmode_display.c b/src/drmmode_display.c
+index 9b5d52d..586b0ac 100644
+--- a/src/drmmode_display.c
++++ b/src/drmmode_display.c
+@@ -420,7 +420,7 @@ drmmode_crtc_shadow_allocate(xf86CrtcPtr crtc, int width, int height)
+ 
+ 	if (pNv->Architecture >= NV_ARCH_50) {
+ 		tile_mode = 4;
+-		tile_flags = (drmmode->cpp == 2) ? 0x7000 : 0x7a00;
++		tile_flags = 0x7000; //(drmmode->cpp == 2) ? 0x7000 : 0x7a00;
+ 		ah = NOUVEAU_ALIGN(height, 1 << (tile_mode + 2));
+ 		pitch = NOUVEAU_ALIGN(width * drmmode->cpp, 64);
+ 	} else {
+@@ -1018,7 +1018,7 @@ drmmode_xf86crtc_resize(ScrnInfoPtr scrn, int width, int height)
+ 
+ 	if (pNv->Architecture >= NV_ARCH_50 && pNv->wfb_enabled) {
+ 		tile_mode = 4;
+-		tile_flags = (scrn->bitsPerPixel == 16) ? 0x7000 : 0x7a00;
++		tile_flags = 0x7000; //(scrn->bitsPerPixel == 16) ? 0x7000 : 0x7a00;
+ 		ah = NOUVEAU_ALIGN(height, 1 << (tile_mode + 2));
+ 		pitch = NOUVEAU_ALIGN(width * (scrn->bitsPerPixel >> 3), 64);
+ 	} else {
+diff --git a/src/nv_driver.c b/src/nv_driver.c
+index dd60b64..3f44e1b 100644
+--- a/src/nv_driver.c
++++ b/src/nv_driver.c
+@@ -846,7 +846,7 @@ NVMapMem(ScrnInfoPtr pScrn)
+ 	size = pScrn->displayWidth * (pScrn->bitsPerPixel >> 3);
+ 	if (pNv->Architecture >= NV_ARCH_50 && pNv->tiled_scanout) {
+ 		tile_mode = 4;
+-		tile_flags = pScrn->bitsPerPixel == 16 ? 0x7000 : 0x7a00;
++		tile_flags = 0x7000; //pScrn->bitsPerPixel == 16 ? 0x7000 : 0x7a00;
+ 		size *= NOUVEAU_ALIGN(pScrn->virtualY, (1 << (tile_mode + 2)));
+ 	} else {
+ 		size *= pScrn->virtualY;
+-- 
+1.7.1
+
