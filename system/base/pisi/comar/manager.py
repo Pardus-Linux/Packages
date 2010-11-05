@@ -146,6 +146,7 @@ def installPackage(package=None):
 @privileged
 def reinstallPackage(package=None):
     if package:
+        package = package.split(",")
         pisi.api.install(package, ignore_file_conflicts=True, reinstall=True)
 
 @privileged
