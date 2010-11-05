@@ -1,0 +1,175 @@
+diff -Naur FreeImage.orig/Source/FreeImage/J2KHelper.cpp FreeImage/Source/FreeImage/J2KHelper.cpp
+--- FreeImage.orig/Source/FreeImage/J2KHelper.cpp	2009-06-01 23:03:18.000000000 +0300
++++ FreeImage/Source/FreeImage/J2KHelper.cpp	2009-06-01 23:03:36.000000000 +0300
+@@ -21,7 +21,7 @@
+ 
+ #include "FreeImage.h"
+ #include "Utilities.h"
+-#include "../LibOpenJPEG/openjpeg.h"
++#include <openjpeg/openjpeg.h>
+ 
+ /**
+ Divide an integer by a power of 2 and round upwards
+diff -Naur FreeImage.orig/Source/FreeImage/PluginEXR.cpp FreeImage/Source/FreeImage/PluginEXR.cpp
+--- FreeImage.orig/Source/FreeImage/PluginEXR.cpp	2009-06-01 23:03:18.000000000 +0300
++++ FreeImage/Source/FreeImage/PluginEXR.cpp	2009-06-01 23:03:36.000000000 +0300
+@@ -21,15 +21,15 @@
+ 
+ #include "FreeImage.h"
+ #include "Utilities.h"
+-#include "../OpenEXR/IlmImf/ImfIO.h"
+-#include "../OpenEXR/Iex/Iex.h"
+-#include "../OpenEXR/IlmImf/ImfOutputFile.h"
+-#include "../OpenEXR/IlmImf/ImfInputFile.h"
+-#include "../OpenEXR/IlmImf/ImfRgbaFile.h"
+-#include "../OpenEXR/IlmImf/ImfChannelList.h"
+-#include "../OpenEXR/IlmImf/ImfRgba.h"
+-#include "../OpenEXR/IlmImf/ImfArray.h"
+-#include "../OpenEXR/Half/half.h"
++#include <OpenEXR/ImfIO.h>
++#include <OpenEXR/Iex.h>
++#include <OpenEXR/ImfOutputFile.h>
++#include <OpenEXR/ImfInputFile.h>
++#include <OpenEXR/ImfRgbaFile.h>
++#include <OpenEXR/ImfChannelList.h>
++#include <OpenEXR/ImfRgba.h>
++#include <OpenEXR/ImfArray.h>
++#include <OpenEXR/half.h>
+ 
+ 
+ // ==========================================================
+diff -Naur FreeImage.orig/Source/FreeImage/PluginJ2K.cpp FreeImage/Source/FreeImage/PluginJ2K.cpp
+--- FreeImage.orig/Source/FreeImage/PluginJ2K.cpp	2009-06-01 23:03:18.000000000 +0300
++++ FreeImage/Source/FreeImage/PluginJ2K.cpp	2009-06-01 23:12:38.000000000 +0300
+@@ -21,7 +21,7 @@
+ 
+ #include "FreeImage.h"
+ #include "Utilities.h"
+-#include "../LibOpenJPEG/openjpeg.h"
++#include <openjpeg/openjpeg.h>
+ 
+ // ==========================================================
+ // Plugin Interface
+diff -Naur FreeImage.orig/Source/FreeImage/PluginJP2.cpp FreeImage/Source/FreeImage/PluginJP2.cpp
+--- FreeImage.orig/Source/FreeImage/PluginJP2.cpp	2009-06-01 23:03:18.000000000 +0300
++++ FreeImage/Source/FreeImage/PluginJP2.cpp	2009-06-01 23:03:36.000000000 +0300
+@@ -21,7 +21,7 @@
+ 
+ #include "FreeImage.h"
+ #include "Utilities.h"
+-#include "../LibOpenJPEG/openjpeg.h"
++#include <openjpeg/openjpeg.h>
+ 
+ // ==========================================================
+ // Plugin Interface
+diff -Naur FreeImage.orig/Source/FreeImage/PluginJPEG.cpp FreeImage/Source/FreeImage/PluginJPEG.cpp
+--- FreeImage.orig/Source/FreeImage/PluginJPEG.cpp	2009-06-01 23:03:18.000000000 +0300
++++ FreeImage/Source/FreeImage/PluginJPEG.cpp	2009-06-01 23:19:42.000000000 +0300
+@@ -34,9 +34,9 @@
+ #undef FAR
+ #include <setjmp.h>
+ 
+-#include "../LibJPEG/jinclude.h"
+-#include "../LibJPEG/jpeglib.h"
+-#include "../LibJPEG/jerror.h"
++#include <jinclude.h>
++#include <jpeglib.h>
++#include <jerror.h>
+ }
+ 
+ #include "FreeImage.h"
+diff -Naur FreeImage.orig/Source/FreeImage/PluginMNG.cpp FreeImage/Source/FreeImage/PluginMNG.cpp
+--- FreeImage.orig/Source/FreeImage/PluginMNG.cpp	2009-06-01 23:03:18.000000000 +0300
++++ FreeImage/Source/FreeImage/PluginMNG.cpp	2009-06-01 23:03:36.000000000 +0300
+@@ -22,7 +22,7 @@
+ #include "FreeImage.h"
+ #include "Utilities.h"
+ 
+-#include "../LibMNG/libmng.h"
++#include <libmng.h>
+ 
+ // ----------------------------------------------------------
+ //   Constants + headers
+diff -Naur FreeImage.orig/Source/FreeImage/PluginPNG.cpp FreeImage/Source/FreeImage/PluginPNG.cpp
+--- FreeImage.orig/Source/FreeImage/PluginPNG.cpp	2009-06-01 23:03:18.000000000 +0300
++++ FreeImage/Source/FreeImage/PluginPNG.cpp	2009-06-01 23:03:36.000000000 +0300
+@@ -37,7 +37,10 @@
+ 
+ // ----------------------------------------------------------
+ 
+-#include "../LibPNG/png.h"
++#define PNG_iTXt_SUPPORTED
++#define PNG_READ_iTXt_SUPPORTED
++#define PNG_WRITE_iTXt_SUPPORTED
++#include <png.h>
+ 
+ // ----------------------------------------------------------
+ 
+diff -Naur FreeImage.orig/Source/FreeImage/ZLibInterface.cpp FreeImage/Source/FreeImage/ZLibInterface.cpp
+--- FreeImage.orig/Source/FreeImage/ZLibInterface.cpp	2009-06-01 23:03:18.000000000 +0300
++++ FreeImage/Source/FreeImage/ZLibInterface.cpp	2009-06-01 23:16:35.000000000 +0300
+@@ -19,10 +19,10 @@
+ // Use at your own risk!
+ // ==========================================================
+ 
+-#include "../ZLib/zlib.h"
++#include <zlib.h>
+ #include "FreeImage.h"
+ #include "Utilities.h"
+-#include "../ZLib/zutil.h"	/* must be the last header because of error C3163 in VS2008 (_vsnprintf defined in stdio.h) */
++#include <zutil.h>
+ 
+ /**
+ Compresses a source buffer into a target buffer, using the ZLib library. 
+diff -Naur FreeImage.orig/Source/FreeImageToolkit/JPEGTransform.cpp FreeImage/Source/FreeImageToolkit/JPEGTransform.cpp
+--- FreeImage.orig/Source/FreeImageToolkit/JPEGTransform.cpp	2009-06-01 23:03:18.000000000 +0300
++++ FreeImage/Source/FreeImageToolkit/JPEGTransform.cpp	2009-06-01 23:19:13.000000000 +0300
+@@ -25,9 +25,9 @@
+ #undef FAR
+ #include <setjmp.h>
+ 
+-#include "../LibJPEG/jinclude.h"
+-#include "../LibJPEG/jpeglib.h"
+-#include "../LibJPEG/jerror.h"
++#include <jinclude.h>
++#include <jpeglib.h>
++#include <jerror.h>
+ #include "../LibJPEG/transupp.h"
+ }
+ 
+diff -Naur FreeImage.orig/Source/LibJPEG/jinclude.h FreeImage/Source/LibJPEG/jinclude.h
+--- FreeImage.orig/Source/LibJPEG/jinclude.h	2009-06-01 23:03:18.000000000 +0300
++++ FreeImage/Source/LibJPEG/jinclude.h	2009-06-01 23:03:36.000000000 +0300
+@@ -17,7 +17,7 @@
+ 
+ /* Include auto-config file to find out which system include files we need. */
+ 
+-#include "jconfig.h"		/* auto configuration options */
++#include <jconfig.h>		/* auto configuration options */
+ #define JCONFIG_INCLUDED	/* so that jpeglib.h doesn't do it again */
+ 
+ /*
+diff -Naur FreeImage.orig/Source/LibJPEG/jpeglib.h FreeImage/Source/LibJPEG/jpeglib.h
+--- FreeImage.orig/Source/LibJPEG/jpeglib.h	2009-06-01 23:03:18.000000000 +0300
++++ FreeImage/Source/LibJPEG/jpeglib.h	2009-06-01 23:03:36.000000000 +0300
+@@ -23,7 +23,7 @@
+  */
+ 
+ #ifndef JCONFIG_INCLUDED	/* in case jinclude.h already did */
+-#include "jconfig.h"		/* widely used configuration options */
++#include <jconfig.h>		/* widely used configuration options */
+ #endif
+ #include "jmorecfg.h"		/* seldom changed options */
+ 
+diff -Naur FreeImage.orig/Source/LibMNG/libmng_types.h FreeImage/Source/LibMNG/libmng_types.h
+--- FreeImage.orig/Source/LibMNG/libmng_types.h	2009-06-01 23:03:18.000000000 +0300
++++ FreeImage/Source/LibMNG/libmng_types.h	2009-06-01 23:03:36.000000000 +0300
+@@ -194,7 +194,7 @@
+ #undef FAR                             /* possibly defined by zlib or lcms */
+ #endif
+ #define JPEG_INTERNAL_OPTIONS          /* for RGB_PIXELSIZE */
+-#include "../LibJPEG/jpeglib.h"        /* all that for JPEG support  :-) */
++#include <jpeglib.h>        /* all that for JPEG support  :-) */
+ #endif /* MNG_INCLUDE_IJG6B */
+ 
+ #if defined(MNG_INTERNAL_MEMMNGMT) || defined(MNG_INCLUDE_FILTERS)
