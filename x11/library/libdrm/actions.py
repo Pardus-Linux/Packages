@@ -8,6 +8,7 @@ from pisi.actionsapi import autotools
 def setup():
     autotools.autoreconf("-vif")
     autotools.configure("--enable-udev \
+                         --enable-vmwgfx-experimental-api \
                          --enable-nouveau-experimental-api")
 
 def build():
