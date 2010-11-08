@@ -59,7 +59,8 @@ def setup():
                          --with-cyrus-sasl \
                          --enable-crypt \
                          --with-ssl=openssl \
-                         --enable-ipv6")
+                         --enable-ipv6 \
+                         --localstatedir=/var/lib")
 
 def build():
     autotools.make("-j1")
