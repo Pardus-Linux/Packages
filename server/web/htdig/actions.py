@@ -36,7 +36,7 @@ def install():
     autotools.rawInstall("DESTDIR=%s" % get.installDIR())
 
     pisitools.dosym("search.html","/var/www/localhost/htdig/index.html")
-    pisitools.dosym("/var/www/localhost/cgi-bin/htdig/htsearch", "/usr/bin/htsearch")
+    pisitools.dosym("/var/www/localhost/cgi-bin/htsearch", "/usr/bin/htsearch")
 
     shelltools.chmod("%s/var/www/localhost/htdig/*" % get.installDIR(), 0644)
 
