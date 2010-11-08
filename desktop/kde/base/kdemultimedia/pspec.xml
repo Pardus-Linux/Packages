@@ -45,42 +45,33 @@
 
             <Patch>mandriva/kdemultimedia-4.3.1-kscd-allow-more-cd.patch</Patch>
 
-            <!-- Use kded_kosd for OSD stuff
+            <!-- Use kded_kosd for OSD stuff, enable kdebase-workspace dep in kmix 
             <Patch level="1">kmix-kosd-support.patch</Patch>
             -->
         </Patches>
     </Source>
-    <Package>
+
+   <Package>
         <Name>kdemultimedia</Name>
+        <Summary>Base kdemultimedia package dependant to all kdemultimedia subpackages</Summary>
         <RuntimeDependencies>
-            <!-- For kded_kosd stuff -->
-            <Dependency versionFrom="4.5.3">kdebase-workspace</Dependency>
-            <Dependency versionFrom="4.5.3">kdelibs</Dependency>
-            <Dependency versionFrom="4.7.0">qt</Dependency>
-            <Dependency>flac</Dependency>
-            <Dependency>ffmpeg</Dependency>
-            <Dependency>lame</Dependency>
-            <Dependency>phonon</Dependency>
-            <Dependency>taglib</Dependency>
-            <Dependency>libogg</Dependency>
-            <Dependency>alsa-lib</Dependency>
-            <Dependency>libvorbis</Dependency>
-            <Dependency>pulseaudio-libs</Dependency>
-            <Dependency>cdparanoia</Dependency>
-            <Dependency>vorbis-tools</Dependency>
-            <Dependency>xine-lib</Dependency>
-            <Dependency>musicbrainz</Dependency>
-            <Dependency>tunepimp</Dependency>
+            <Dependency>kmix</Dependency>
+            <Dependency>libkcddb</Dependency>
+            <Dependency>libkcompactdisc</Dependency>
+            <Dependency>libkaudiocd</Dependency>
+            <Dependency>kscd</Dependency>
+            <Dependency>juk</Dependency>
+            <Dependency>dragonplayer</Dependency>
+            <Dependency>kde-thumbnailer-ffmpeg</Dependency>
         </RuntimeDependencies>
         <Replaces>
             <Package>kdemultimedia4</Package>
         </Replaces>
         <Files>
-            <Path fileType="executable">/usr/bin</Path>
-            <Path fileType="library">/usr/lib</Path>
-            <Path fileType="data">/usr/share</Path>
+            <Path fileType="doc">/usr/share/doc/kdemultimedia</Path>
         </Files>
     </Package>
+
     <Package>
         <Name>kdemultimedia-devel</Name>
         <Summary>Development files for kdemultimedia</Summary>
@@ -92,7 +83,196 @@
         </Files>
     </Package>
 
+    <Package>
+        <Name>kmix</Name>
+        <Summary>KMix: KDE Digital Mixer</Summary>
+        <RuntimeDependencies>
+            <Dependency>phonon</Dependency>
+            <Dependency>kdelibs</Dependency>
+            <Dependency>alsa-lib</Dependency>
+            <Dependency>pulseaudio-libs</Dependency>
+            <!-- kded_kosd ?
+            <Dependency versionFrom="4.5.3">kdebase-workspace</Dependency>
+            -->
+        </RuntimeDependencies>
+        <Conflicts>
+            <Package releaseTo="44">kdemultimedia</Package>
+        </Conflicts>
+        <Files>
+            <Path fileType="library">/usr/lib/libkdeinit4_kmix.so</Path>
+            <Path fileType="library">/usr/lib/libkdeinit4_kmixctrl.so</Path>
+            <Path fileType="executable">/usr/bin/kmix*</Path>
+            <Path fileType="data">/usr/share/applications/kde4/kmix*</Path>
+            <Path fileType="data">/usr/share/autostart/*kmix*</Path>
+            <Path fileType="doc">/usr/share/doc/kde4/html/en/kmix</Path>
+            <Path fileType="data">/usr/share/icons/*/*/*/kmix*</Path>
+            <Path fileType="data">/usr/share/icons/*/*/actions/player-volume-muted.*</Path>
+            <Path fileType="data">/usr/share/kde4/apps/kmix</Path>
+            <Path fileType="data">/usr/share/kde4/services/kmix*</Path>
+            <Path fileType="data">/usr/share/dbus-1/interfaces/*KMix*</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>kde-thumbnailer-ffmpeg</Name>
+        <Summary>ffmpeg based thumbnailer for KDE</Summary>
+        <RuntimeDependencies>
+            <Dependency>ffmpeg</Dependency>
+            <Dependency>kdelibs</Dependency>
+        </RuntimeDependencies>
+        <Conflicts>
+            <Package releaseTo="44">kdemultimedia</Package>
+        </Conflicts>
+        <Files>
+            <Path fileType="library">/usr/lib/kde4/ffmpegthumbs*</Path>
+            <Path fileType="data">/usr/share/kde4/services/ffmpegthumbs*</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>libkcddb</Name>
+        <Summary>KDE library for CDDB (Compact Disc Database)</Summary>
+        <RuntimeDependencies>
+            <Dependency>kdelibs</Dependency>
+            <Dependency>musicbrainz</Dependency>
+        </RuntimeDependencies>
+        <Conflicts>
+            <Package releaseTo="44">kdemultimedia</Package>
+        </Conflicts>
+        <Files>
+            <Path fileType="library">/usr/lib/kde4/*cddb*</Path>
+            <Path fileType="library">/usr/lib/libkcddb*</Path>
+            <Path fileType="data">/usr/share/config.kcfg/libkcddb*</Path>
+            <Path fileType="doc">/usr/share/doc/kde4/html/en/kcontrol/cddbretrieval</Path>
+            <Path fileType="data">/usr/share/kde4/services/libkcddb*</Path>
+            <Path fileType="data">/usr/share/kde4/apps/kconf_update/*cddb*</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>libkcompactdisc</Name>
+        <Summary>A CD drive interface for the KDE Project</Summary>
+        <RuntimeDependencies>
+            <Dependency>phonon</Dependency>
+            <Dependency>kdelibs</Dependency>
+            <Dependency>alsa-lib</Dependency>
+        </RuntimeDependencies>
+        <Conflicts>
+            <Package releaseTo="44">kdemultimedia</Package>
+        </Conflicts>
+        <Files>
+            <Path fileType="library">/usr/lib/libkcompactdisc.*</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>libkaudiocd</Name>
+        <Summary>Multi-purpose KDE library for Audio CD operations</Summary>
+        <RuntimeDependencies>
+            <Dependency>kdelibs</Dependency>
+            <Dependency>flac</Dependency>
+            <Dependency>libogg</Dependency>
+            <Dependency>libvorbis</Dependency>
+            <Dependency>vorbis-tools</Dependency>
+            <Dependency>lame</Dependency>
+            <Dependency>cdparanoia</Dependency>
+            <Dependency>libkcddb</Dependency>
+            <Dependency>libkcompactdisc</Dependency>
+        </RuntimeDependencies>
+        <Conflicts>
+            <Package releaseTo="44">kdemultimedia</Package>
+        </Conflicts>
+        <Files>
+            <Path fileType="library">/usr/lib/kde4/*audiocd*</Path>
+            <Path fileType="library">/usr/lib/*audiocd*</Path>
+            <Path fileType="data">/usr/share/config.kcfg/audiocd*</Path>
+            <Path fileType="doc">/usr/share/doc/kde4/html/en/kioslave/audiocd</Path>
+            <Path fileType="data">/usr/share/kde4/apps/kconf_update/audiocd*</Path>
+            <Path fileType="data">/usr/share/kde4/apps/kconf_update/upgrade-metadata.sh</Path>
+            <Path fileType="data">/usr/share/kde4/apps/konqsidebartng/virtual_folders/services/audiocd*</Path>
+            <Path fileType="data">/usr/share/kde4/apps/solid/actions/solid_audiocd*</Path>
+            <Path fileType="data">/usr/share/kde4/services/audiocd.*</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>juk</Name>
+        <Summary>Juk: Music player for KDE</Summary>
+        <RuntimeDependencies>
+            <Dependency>phonon</Dependency>
+            <Dependency>taglib</Dependency>
+            <Dependency>kdelibs</Dependency>
+            <Dependency>tunepimp</Dependency>
+        </RuntimeDependencies>
+        <Conflicts>
+            <Package releaseTo="44">kdemultimedia</Package>
+        </Conflicts>
+        <Files>
+            <Path fileType="executable">/usr/bin/juk</Path>
+            <Path fileType="data">/usr/share/applications/kde4/juk*</Path>
+            <Path fileType="data">/usr/share/dbus-1/interfaces/*.juk.*</Path>
+            <Path fileType="doc">/usr/share/doc/kde4/html/en/juk</Path>
+            <Path fileType="data">/usr/share/icons/*/*/*/juk.*</Path>
+            <Path fileType="data">/usr/share/kde4/apps/juk</Path>
+            <Path fileType="data">/usr/share/kde4/services/ServiceMenus/juk*</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>dragonplayer</Name>
+        <Summary>Dragon Player: Simple video player for KDE 4</Summary>
+        <RuntimeDependencies>
+            <Dependency>phonon</Dependency>
+            <Dependency>kdelibs</Dependency>
+            <Dependency>xine-lib</Dependency>
+        </RuntimeDependencies>
+        <Conflicts>
+            <Package releaseTo="44">kdemultimedia</Package>
+        </Conflicts>
+        <Files>
+            <Path fileType="executable">/usr/bin/dragon</Path>
+            <Path fileType="library">/usr/lib/kde4/dragon*</Path>
+            <Path fileType="data">/usr/share/applications/kde4/dragon*</Path>
+            <Path fileType="doc">/usr/share/doc/kde4/html/en/dragonplayer</Path>
+            <Path fileType="data">/usr/share/icons/*/*/*/dragonplayer.*</Path>
+            <Path fileType="data">/usr/share/kde4/apps/dragonplayer</Path>
+            <Path fileType="data">/usr/share/kde4/apps/solid/actions/dragonplayer*</Path>
+            <Path fileType="config">/usr/share/kde4/config/dragonplayerrc</Path>
+            <Path fileType="data">/usr/share/kde4/services/ServiceMenus/dragonplayer*</Path>
+            <Path fileType="data">/usr/share/kde4/services/dragonplayer*</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>kscd</Name>
+        <Summary>KSCD: KDE Audio Player</Summary>
+        <RuntimeDependencies>
+            <Dependency>phonon</Dependency>
+            <Dependency>kdelibs</Dependency>
+            <Dependency>musicbrainz</Dependency>
+        </RuntimeDependencies>
+        <Conflicts>
+            <Package releaseTo="44">kdemultimedia</Package>
+        </Conflicts>
+        <Files>
+            <Path fileType="executable">/usr/bin/kscd</Path>
+            <Path fileType="data">/usr/share/applications/kde4/kscd*</Path>
+            <Path fileType="data">/usr/share/config.kcfg/kscd*</Path>
+            <Path fileType="data">/usr/share/dbus-1/interfaces/*.kscd.*</Path>
+            <Path fileType="data">/usr/share/icons/*/*/*/kscd*</Path>
+            <Path fileType="data">/usr/share/kde4/apps/kscd</Path>
+            <Path fileType="data">/usr/share/kde4/apps/solid/actions/kscd*</Path>
+        </Files>
+    </Package>
+
     <History>
+        <Update release="45">
+            <Date>2010-11-08</Date>
+            <Version>4.5.3</Version>
+            <Comment>Split juk, dragonplayer, libraries, kmix and kscd as seperate binary packages, so we can get rid of juk and dragon player in 2011 images.</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
         <Update release="44">
             <Date>2010-11-02</Date>
             <Version>4.5.3</Version>
