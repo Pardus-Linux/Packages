@@ -16,6 +16,9 @@ bits = {"i686"  : "32",
         "x86_64": "64"}
 
 def setup():
+    pisitools.dosed("configure", "cc=gcc", "cc=%s" % get.CC())
+    pisitools.dosed("configure", 'cflags="-g.*', "cflags=%s" % get.CFLAGS())
+
     shelltools.makedirs("build")
     shelltools.cd("build")
 
