@@ -12,7 +12,7 @@
         <IsA>app:console</IsA>
         <Summary>Network connection manager powered by D-Bus and UDEV</Summary>
         <Description>NetworkManager attempts to keep an active network connection available at all times.</Description>
-        <Archive sha1sum="778989ed73cfd7ec05714f77121fa8bfc1bf0981" type="tarbz2">http://ftp.acc.umu.se/pub/GNOME/sources/NetworkManager/0.8/NetworkManager-0.8.1.tar.bz2</Archive>
+        <Archive sha1sum="2c9a9f0317d2ad4fd8a05631211cfd6040070f8e" type="tarbz2">http://ftp.acc.umu.se/pub/GNOME/sources/NetworkManager/0.8/NetworkManager-0.8.2.tar.bz2</Archive>
         <AdditionalFiles>
             <AdditionalFile target="po/tr.po">tr.po</AdditionalFile>
         </AdditionalFiles>
@@ -26,8 +26,13 @@
         </BuildDependencies>
         <Patches>
             <Patch level="1">disable-gtk-doc.patch</Patch>
-            <Patch level="1">fix-tests.patch</Patch>
             <Patch level="1">add-tr-to-LINGUAS.patch</Patch>
+
+            <!-- dbus_g_connection_unref() segfaults -->
+            <Patch level="1">fix-tests.patch</Patch>
+
+            <Patch level="1">fix-dhcp-hostname-update.patch</Patch>
+            <!--<Patch level="1">add-ifcfg-pardus.patch</Patch>-->
         </Patches>
     </Source>
 
@@ -37,11 +42,11 @@
             <Dependency>nss</Dependency>
             <Dependency>nspr</Dependency>
             <Dependency>libnl</Dependency>
-            <Dependency>avahi</Dependency>
             <Dependency>dhcpcd</Dependency>
             <Dependency>iproute2</Dependency>
             <Dependency>iptables</Dependency>
             <Dependency>ModemManager</Dependency>
+            <Dependency>avahi-autoipd</Dependency>
             <Dependency>wpa_supplicant</Dependency>
             <Dependency versionFrom="2.4.5">ppp</Dependency>
             <Dependency>mobile-broadband-provider-info</Dependency>
@@ -56,6 +61,7 @@
             <Path fileType="man">/usr/share/man</Path>
             <Path fileType="doc">/usr/share/doc</Path>
             <Path fileType="data">/lib/udev/rules.d</Path>
+            <Path fileType="data">/lib/systemd/system</Path>
             <Path fileType="data">/usr/share</Path>
             <Path fileType="data">/etc/dbus-1</Path>
             <Path fileType="data">/etc/NetworkManager/system-connections</Path>
@@ -66,7 +72,6 @@
         <AdditionalFiles>
             <AdditionalFile owner="root" permission="0644" target="/etc/NetworkManager/NetworkManager.conf">NetworkManager.conf</AdditionalFile>
             <AdditionalFile owner="root" permission="0644" target="/etc/conf.d/NetworkManager">NetworkManager.confd</AdditionalFile>
-            <AdditionalFile owner="root" permission="0755" target="/usr/bin/nm-switch">nm-switch.py</AdditionalFile>
         </AdditionalFiles>
         <Provides>
             <COMAR script="service.py">System.Service</COMAR>
@@ -83,12 +88,21 @@
         <Files>
             <Path fileType="header">/usr/include</Path>
             <Path fileType="data">/usr/lib/pkgconfig</Path>
-            <!-- FIXME: Remove this if not necessary -->
-            <Path fileType="man">/usr/share/man/man3</Path>
         </Files>
     </Package>
 
     <History>
+        <Update release="9">
+            <Date>2010-11-08</Date>
+            <Version>0.8.2</Version>
+            <Comment>
+                - Version bump,
+                - Add systemd support,
+                - Temporarily disable updating hostname.
+            </Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
         <Update release="8">
             <Date>2010-10-13</Date>
             <Version>0.8.1</Version>

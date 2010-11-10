@@ -1,0 +1,43 @@
+Index: NetworkManager-0.8.2/src/nm-policy.c
+===================================================================
+--- NetworkManager-0.8.2.orig/src/nm-policy.c
++++ NetworkManager-0.8.2/src/nm-policy.c
+@@ -327,13 +327,21 @@ update_system_hostname (NMPolicy *policy
+ 
+ 	/* Hostname precedence order:
+ 	 *
+-	 * 1) a configured hostname (from system-settings)
+-	 * 2) automatic hostname from the default device's config (DHCP, VPN, etc)
+-	 * 3) the original hostname when NM started
++	 * 1) the original hostname when NM started
++	 * 2) a configured hostname (from system-settings)
++	 * 3) automatic hostname from the default device's config (DHCP, VPN, etc)
+ 	 * 4) reverse-DNS of the best device's IPv4 address
+ 	 *
+ 	 */
+ 
++	/* If no automatically-configured hostname, try using the hostname from
++	 * when NM started up.
++	 */
++	if (policy->orig_hostname) {
++		_set_hostname (policy, TRUE, policy->orig_hostname, "from system startup");
++		return;
++	}
++
+ 	/* Try a persistent hostname first */
+ 	g_object_get (G_OBJECT (policy->manager), NM_MANAGER_HOSTNAME, &configured_hostname, NULL);
+ 	if (configured_hostname) {
+@@ -396,13 +404,6 @@ update_system_hostname (NMPolicy *policy
+ 		}
+ 	}
+ 
+-	/* If no automatically-configured hostname, try using the hostname from
+-	 * when NM started up.
+-	 */
+-	if (policy->orig_hostname) {
+-		_set_hostname (policy, TRUE, policy->orig_hostname, "from system startup");
+-		return;
+-	}
+ 
+ 	/* No configured hostname, no automatically determined hostname, and no
+ 	 * bootup hostname. Start reverse DNS of the current IPv4 or IPv6 address.
