@@ -1,7 +1,7 @@
-Index: network-manager-applet-0.8.1/src/connection-editor/main.c
+Index: network-manager-applet-0.8.2/src/connection-editor/main.c
 ===================================================================
---- network-manager-applet-0.8.1.orig/src/connection-editor/main.c
-+++ network-manager-applet-0.8.1/src/connection-editor/main.c
+--- network-manager-applet-0.8.2.orig/src/connection-editor/main.c
++++ network-manager-applet-0.8.2/src/connection-editor/main.c
 @@ -44,6 +44,7 @@
  static GMainLoop *loop = NULL;
  
@@ -26,32 +26,32 @@ Index: network-manager-applet-0.8.1/src/connection-editor/main.c
  	};
  
 @@ -263,7 +266,7 @@ main (int argc, char *argv[])
- 	/* Check for an existing instance on the bus */
- 	if (proxy) {
- 		if (try_existing_instance (bus, proxy, type))
--			goto exit;
-+			goto alreadyrunning;
+ 		/* Check for an existing instance on the bus */
+ 		if (proxy) {
+ 			if (try_existing_instance (bus, proxy, type))
+-				goto exit;
++				goto alreadyrunning;
+ 		}
  	}
  
- 	loop = g_main_loop_new (NULL, FALSE);
-@@ -288,16 +291,36 @@ main (int argc, char *argv[])
+@@ -289,17 +292,37 @@ main (int argc, char *argv[])
  	nm_connection_list_run (list);
  
  	setup_signals ();
 +
 +	if (win_id > 0)
-+    {
-+        GtkWidget *plug;
-+        GtkWidget *vbox;
++	{
++		GtkWidget *plug;
++		GtkWidget *vbox;
 +
-+        plug = gtk_plug_new ((GdkNativeWindow)win_id);
-+        vbox = gtk_dialog_get_content_area(GTK_DIALOG(list->dialog));
-+        gtk_widget_reparent(vbox, plug);
-+        gtk_widget_hide(GTK_WIDGET(list->dialog));
++		plug = gtk_plug_new ((GdkNativeWindow)win_id);
++		vbox = gtk_dialog_get_content_area(GTK_DIALOG(list->dialog));
++		gtk_widget_reparent(vbox, plug);
++		gtk_widget_hide(GTK_WIDGET(list->dialog));
 +
-+        gtk_container_add (GTK_CONTAINER (plug), vbox);
-+        gtk_widget_show ( plug );
-+    }
++		gtk_container_add (GTK_CONTAINER (plug), vbox);
++		gtk_widget_show ( plug );
++	}
 +
  	g_main_loop_run (loop);
  
@@ -62,7 +62,8 @@ Index: network-manager-applet-0.8.1/src/connection-editor/main.c
 -exit:
  	if (proxy)
  		g_object_unref (proxy);
- 	dbus_g_connection_unref (bus);
+ 	if (bus)
+ 		dbus_g_connection_unref (bus);
  	return 0;
 +
 +alreadyrunning:
