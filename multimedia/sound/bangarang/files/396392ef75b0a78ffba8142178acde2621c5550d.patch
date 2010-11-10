@@ -1,0 +1,91 @@
+From 396392ef75b0a78ffba8142178acde2621c5550d Mon Sep 17 00:00:00 2001
+From: Andrew Lake <jamboarder@gmail.com>
+Date: Sat, 28 Aug 2010 12:52:38 -0700
+Subject: [PATCH] fix broken volume control.
+
+---
+ src/mainwindow.cpp |   31 ++++++++++++++++++-------------
+ 1 files changed, 18 insertions(+), 13 deletions(-)
+
+Index: bangarang-bangarang/src/mainwindow.cpp
+===================================================================
+--- bangarang-bangarang.orig/src/mainwindow.cpp
++++ bangarang-bangarang/src/mainwindow.cpp
+@@ -102,11 +102,10 @@ MainWindow::MainWindow(QWidget *parent)
+     //Set up media object
+     m_media = new Phonon::MediaObject(this);
+     m_videoWidget =  new Phonon::VideoWidget(ui->videoFrame);
+-    m_audioOutputMusicCategory = new Phonon::AudioOutput(Phonon::MusicCategory, this);
+-    m_audioOutputVideoCategory = new Phonon::AudioOutput(Phonon::VideoCategory, this);
+-    m_audioOutput = m_audioOutputMusicCategory; // default to music category;
++    m_audioOutput = new Phonon::AudioOutput(Phonon::MusicCategory, this); // default to music category;
+     m_videoPath = Phonon::createPath(m_media, m_videoWidget);
+     m_audioPath = Phonon::createPath(m_media, m_audioOutput);
++    m_videoPath = m_audioPath;
+     m_media->setTickInterval(500);
+     m_volume = m_audioOutput->volume();
+     
+@@ -126,12 +125,9 @@ MainWindow::MainWindow(QWidget *parent)
+     
+     //Connect to media object signals and slots
+     connect(m_media, SIGNAL(tick(qint64)), this, SLOT(updateSeekTime(qint64)));
+-    connect(ui->volumeIcon, SIGNAL(toggled(bool)), m_audioOutputMusicCategory, SLOT(setMuted(bool)));
+-    connect(ui->volumeIcon, SIGNAL(toggled(bool)), m_audioOutputVideoCategory, SLOT(setMuted(bool)));
+-    connect(m_audioOutputMusicCategory, SIGNAL(mutedChanged(bool)), this, SLOT(updateMuteStatus(bool)));
+-    connect(m_audioOutputMusicCategory, SIGNAL(volumeChanged(qreal)), this, SLOT(volumeChanged(qreal)));
+-    connect(m_audioOutputVideoCategory, SIGNAL(mutedChanged(bool)), this, SLOT(updateMuteStatus(bool)));
+-    connect(m_audioOutputVideoCategory, SIGNAL(volumeChanged(qreal)), this, SLOT(volumeChanged(qreal)));
++    connect(ui->volumeIcon, SIGNAL(toggled(bool)), m_audioOutput, SLOT(setMuted(bool)));
++    connect(m_audioOutput, SIGNAL(mutedChanged(bool)), this, SLOT(updateMuteStatus(bool)));
++    connect(m_audioOutput, SIGNAL(volumeChanged(qreal)), this, SLOT(volumeChanged(qreal)));
+     connect(m_media, SIGNAL(stateChanged(Phonon::State, Phonon::State)), this, SLOT(mediaStateChanged(Phonon::State, Phonon::State)));
+     
+     //Set up Audio lists view 
+@@ -783,9 +779,11 @@ void MainWindow::updateMuteStatus(bool m
+     if (muted) {
+         ui->volumeIcon->setIcon(KIcon("dialog-cancel"));
+         ui->volumeIcon->setToolTip(i18n("<b>Muted</b><br>Click to restore volume"));
++        ui->volumeIcon->setChecked(true);
+     } else {
+         ui->volumeIcon->setIcon(KIcon("speaker"));
+         ui->volumeIcon->setToolTip(i18n("Mute volume"));
++        ui->volumeIcon->setChecked(false);
+     }
+ }
+ 
+@@ -986,22 +984,31 @@ void MainWindow::nowPlayingChanged()
+             setWindowTitle(QString(m_nowPlaying->mediaItemAt(0).title + " - Bangarang"));
+         }
+         //Switch the audio output to the appropriate phonon category
++        m_volume = m_audioOutput->volume();
+         if (m_nowPlaying->mediaItemAt(0).type == "Audio") {
+             if (m_audioOutput->category() != Phonon::MusicCategory) {
+-                m_audioOutput = m_audioOutputMusicCategory;
++                m_audioPath.disconnect();
++                delete m_audioOutput;
++                m_audioOutput = new Phonon::AudioOutput(Phonon::MusicCategory, this);
+                 m_audioPath.reconnect(m_media, m_audioOutput);
+                 m_audioOutput->setVolume(m_volume);
+                 ui->volumeSlider->setAudioOutput(m_audioOutput);
+-                ui->volumeIcon->setChecked(false);
++                connect(ui->volumeIcon, SIGNAL(toggled(bool)), m_audioOutput, SLOT(setMuted(bool)));
++                connect(m_audioOutput, SIGNAL(mutedChanged(bool)), this, SLOT(updateMuteStatus(bool)));
++                connect(m_audioOutput, SIGNAL(volumeChanged(qreal)), this, SLOT(volumeChanged(qreal)));
+                 updateMuteStatus(false);
+             }
+         } else if (m_nowPlaying->mediaItemAt(0).type == "Video") {
+             if (m_audioOutput->category() != Phonon::VideoCategory) {
+-                m_audioOutput = m_audioOutputVideoCategory;
++                m_audioPath.disconnect();
++                delete m_audioOutput;
++                m_audioOutput = new Phonon::AudioOutput(Phonon::VideoCategory, this);
+                 m_audioPath.reconnect(m_media, m_audioOutput);
+                 m_audioOutput->setVolume(m_volume);
+                 ui->volumeSlider->setAudioOutput(m_audioOutput);
+-                ui->volumeIcon->setChecked(false);
++                connect(ui->volumeIcon, SIGNAL(toggled(bool)), m_audioOutput, SLOT(setMuted(bool)));
++                connect(m_audioOutput, SIGNAL(mutedChanged(bool)), this, SLOT(updateMuteStatus(bool)));
++                connect(m_audioOutput, SIGNAL(volumeChanged(qreal)), this, SLOT(volumeChanged(qreal)));
+                 updateMuteStatus(false);
+             }
+         }
