@@ -1,0 +1,18 @@
+This adds support for <nil> value, a XML-RPC extension.
+http://ontosys.com/xml-rpc/extensions.php
+
+http://rt.cpan.org/Public/Bug/Display.html?id=20569
+
+diff -up SOAP-Lite-0.710.07/lib/XMLRPC/Lite.pm.nil-value SOAP-Lite-0.710.07/lib/XMLRPC/Lite.pm
+--- SOAP-Lite-0.710.07/lib/XMLRPC/Lite.pm.nil-value	2008-06-05 20:43:44.000000000 +0200
++++ SOAP-Lite-0.710.07/lib/XMLRPC/Lite.pm	2008-09-09 15:10:21.000000000 +0200
+@@ -314,6 +314,9 @@ sub decode_value {
+     elsif ($name =~ /^(?:param|fault)$/) {
+         return scalar(($self->decode_object($children->[0]))[1]);
+     }
++    elsif ($name =~ /^(?:nil)$/) {
++        return undef;
++    }
+     else {
+         die "wrong element '$name'\n";
+     }
