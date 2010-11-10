@@ -59,6 +59,21 @@ fi
 # determining the default keymap.
 udevadm trigger --property-match=ID_INPUT_KEYBOARD=1
 
+# Start first boot wizard if needed
+if test -f /etc/yali/yali.conf -a -x /usr/bin/start-yali; then
+    read_config /etc/yali/yali.conf installation
+    if [ "$VALUE" = "firstboot" ]; then
+        /usr/bin/start-yali
+
+        # First boot wizard removes itself after the last screen. If it
+        # still exists at this time, this would mean a reboot or shutdown
+        # requested by the user. In this case, we will not start the
+        # display manager.
+        test -f /usr/bin/start-yali && exit 0
+        sleep 1
+    fi
+fi
+
 if [ "$PLYMOUTH_TRANSITION" != "true" ]; then
     test -x /bin/plymouth && /bin/plymouth --ping && /bin/plymouth quit
 fi
