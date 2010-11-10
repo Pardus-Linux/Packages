@@ -29,10 +29,6 @@ def check():
 def install():
     autotools.rawInstall("DESTDIR=%s" % get.installDIR())
 
-    pisitools.dobin("test/.libs/nm-online")
-
-    pisitools.dodir("/var/lib/NetworkManager")
     pisitools.dodir("/etc/NetworkManager/VPN")
-    pisitools.dodir("/etc/NetworkManager/system-connections")
 
     pisitools.dodoc("README", "COPYING")
