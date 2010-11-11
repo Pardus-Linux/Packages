@@ -12,15 +12,22 @@ from pisi.actionsapi import shelltools
 from pisi.actionsapi import get
 
 def setup():
-    autotools.autoreconf("-fi")
+
+    cflags = "%s -DHAVE_ERRNO_AS_DEFINE=1 -fPIC" % get.CFLAGS()
+    cxxflags = "%s -felide-constructors \
+                 -fno-exceptions \
+                 -fno-rtti \
+                 -fno-implicit-templates -fPIC" % get.CXXFLAGS()
+
+    #Using -fPIC in i686 causes segfaults like http://bugs.mysql.com/bug.php?id=57822
+    if get.ARCH() == 'i686':
+        cxxflags = cxxflags.replace('-fPIC', '')
 
     # Export flags
-    shelltools.export("CFLAGS", "%s -DHAVE_ERRNO_AS_DEFINE=1 -fPIC" % get.CFLAGS())
-    shelltools.export("CXXFLAGS", "%s \
-                                     -felide-constructors \
-                                     -fno-exceptions \
-                                     -fno-rtti \
-                                     -fno-implicit-templates -fPIC" % get.CXXFLAGS())
+    shelltools.export("CFLAGS", cflags)
+    shelltools.export("CXXFLAGS", cxxflags)
+
+    autotools.autoreconf("-fi")
 
     # Configure!
     autotools.configure("--libexecdir=/usr/sbin \
