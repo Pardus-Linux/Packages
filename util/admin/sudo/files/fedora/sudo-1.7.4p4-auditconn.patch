@@ -1,0 +1,15 @@
+diff -r 9a328aa25c53 -r a686884684ca linux_audit.c
+--- a/linux_audit.c	Fri Sep 17 12:13:17 2010 -0400
++++ b/linux_audit.c	Tue Sep 21 07:56:36 2010 -0400
+@@ -81,9 +81,9 @@
+     }
+     *--cp = '\0';
+ 
+-    /* Log command, ignoring EPERM on error. */
++    /* Log command, ignoring ECONNREFUSED on error. */
+     rc = audit_log_user_command(au_fd, AUDIT_USER_CMD, command, NULL, result);
+-    if (rc <= 0)
++    if (rc <= 0 && errno != ECONNREFUSED)
+ 	warning("unable to send audit message");
+ 
+     efree(command);
