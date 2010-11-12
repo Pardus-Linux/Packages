@@ -43,49 +43,164 @@
             <Patch>fix-pykdeuic4.patch</Patch>
         </Patches>
     </Source>
+
     <Package>
         <Name>kdebindings</Name>
         <Summary>KDE4 language bindings</Summary>
-        <Description>Contains KDE4 language bindings for Ruby, Smoke and PHP.</Description>
+        <Description>Metapackage for KDE4 language bindings for Python, Ruby, Perl and PHP.</Description>
         <RuntimeDependencies>
-            <Dependency versionFrom="4.7.0">qt-webkit</Dependency>
-            <Dependency versionFrom="4.7.0">qt</Dependency>
-            <!-- smoke and ruby bindings have okular bindings -->
-            <Dependency versionFrom="4.5.3">kdegraphics</Dependency>
-            <Dependency versionFrom="4.5.3">kdelibs</Dependency>
-            <Dependency versionFrom="4.5.3">kdepimlibs</Dependency>
-            <Dependency versionFrom="1.4.0">akonadi</Dependency>
-            <Dependency versionFrom="4.4.2">phonon</Dependency>
-            <Dependency>attica</Dependency>
-            <Dependency>shared-desktop-ontologies</Dependency>
-            <Dependency versionFrom="2.5.0">soprano</Dependency>
-            <Dependency>polkit-qt_1</Dependency>
-            <Dependency>ruby</Dependency>
-            <Dependency>php-cli</Dependency>
-            <Dependency>qscintilla2</Dependency>
-            <Dependency>qimageblitz</Dependency>
-            <Dependency releaseFrom="15">qwt</Dependency>
+            <Dependency version="current">python-kde</Dependency>
+            <Dependency version="current">perl-kde</Dependency>
+            <Dependency version="current">php-qt</Dependency>
+            <Dependency version="current">ruby-kde</Dependency>
+            <Dependency version="current">python-kross</Dependency>
+            <Dependency version="current">ruby-kross</Dependency>
         </RuntimeDependencies>
         <Replaces>
             <Package>kdebindings4</Package>
         </Replaces>
         <Files>
-            <Path fileType="library">/usr/lib</Path>
-            <Path fileType="executable">/usr/bin</Path>
-            <Path fileType="data">/usr/share/kde4</Path>
-            <Path fileType="data">/usr/share/applications</Path>
+            <Path fileType="data">/usr/share/doc</Path>
         </Files>
     </Package>
+
     <Package>
-        <Name>kdebindings-devel</Name>
-        <Summary>Development files for kdebindings</Summary>
+        <Name>smoke-qt</Name>
+        <Summary>Language independent library for Qt bindings.</Summary>
+        <Description>Language independent library for Qt bindings.</Description>
         <RuntimeDependencies>
-            <Dependency release="current">kdebindings</Dependency>
+            <Dependency versionFrom="4.7.0">qt</Dependency>
+            <Dependency versionFrom="5.2.1">qwt</Dependency>
+            <Dependency versionFrom="4.4.2">phonon</Dependency>
+            <Dependency versionFrom="4.7.0">qt-webkit</Dependency>
+            <Dependency versionFrom="2.4.5">qscintilla2</Dependency>
+            <Dependency versionFrom="0.0.6">qimageblitz</Dependency>
         </RuntimeDependencies>
+        <Conflicts>
+            <Package releaseTo="47">kdebindings</Package>
+        </Conflicts>
         <Files>
-            <Path fileType="header">/usr/include</Path>
-            <Path fileType="data">/usr/share/sip</Path>
+            <Path fileType="library">/usr/lib/libsmokebase*</Path>
+            <Path fileType="library">/usr/lib/libsmokephonon*</Path>
+            <Path fileType="library">/usr/lib/libsmokeqt*</Path>
+            <Path fileType="library">/usr/lib/libsmokeqimageblitz*</Path>
+            <Path fileType="library">/usr/lib/libsmokeqsci*</Path>
+            <Path fileType="library">/usr/lib/libsmokeqwt*</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>smoke-kde</Name>
+        <Summary>Language independent library for KDE bindings.</Summary>
+        <Description>Language independent library for KDE bindings.</Description>
+        <RuntimeDependencies>
+            <Dependency versionFrom="4.7.0">qt</Dependency>
+            <Dependency version="current">smoke-qt</Dependency>
+            <Dependency>attica</Dependency>
+            <Dependency versionFrom="4.5.3">kdelibs</Dependency>
+            <Dependency versionFrom="2.5.0">soprano</Dependency>
+            <Dependency versionFrom="4.5.3">kdepimlibs</Dependency>
+            <Dependency versionFrom="4.5.3">kdegraphics</Dependency>
+        </RuntimeDependencies>
+        <Conflicts>
+            <Package releaseTo="47">kdebindings</Package>
+        </Conflicts>
+        <Files>
+            <Path fileType="library">/usr/lib/libsmokeakonadi*</Path>
+            <Path fileType="library">/usr/lib/libsmokeattica*</Path>
+            <Path fileType="library">/usr/lib/libsmokekdecore*</Path>
+            <Path fileType="library">/usr/lib/libsmokekdeui*</Path>
+            <Path fileType="library">/usr/lib/libsmokekfile*</Path>
+            <Path fileType="library">/usr/lib/libsmokekhtml*</Path>
+            <Path fileType="library">/usr/lib/libsmokekio*</Path>
+            <Path fileType="library">/usr/lib/libsmokeknewstuff*</Path>
+            <Path fileType="library">/usr/lib/libsmokekparts*</Path>
+            <Path fileType="library">/usr/lib/libsmokektexteditor*</Path>
+            <Path fileType="library">/usr/lib/libsmokekutils*</Path>
+            <Path fileType="library">/usr/lib/libsmokenepomuk*</Path>
+            <Path fileType="library">/usr/lib/libsmokeokular*</Path>
+            <Path fileType="library">/usr/lib/libsmokeplasma*</Path>
+            <Path fileType="library">/usr/lib/libsmokesolid*</Path>
+            <Path fileType="library">/usr/lib/libsmokesoprano*</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>smoke-devel</Name>
+        <Summary>Development files for smoke-qt and smoke-kde.</Summary>
+        <RuntimeDependencies>
+            <Dependency versionFrom="4.7.0">qt</Dependency>
+            <Dependency version="current">smoke-qt</Dependency>
+        </RuntimeDependencies>
+        <Conflicts>
+            <Package releaseTo="47">kdebindings-devel</Package>
+        </Conflicts>
+        <Files>
+            <Path fileType="executable">/usr/bin/smoke*</Path>
+            <Path fileType="library">/usr/lib/libcppparser*</Path>
+            <Path fileType="library">/usr/lib/smokegen</Path>
+            <Path fileType="header">/usr/include/smoke*</Path>
             <Path fileType="data">/usr/share/smokegen</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>perl-qt</Name>
+        <PartOf>programming.language.perl</PartOf>
+        <Summary>Qt4 Perl bindings (qtperl, perlqt)</Summary>
+        <Description>Contains Qt4 language bindings for Perl.</Description>
+        <RuntimeDependencies>
+            <Dependency versionFrom="4.7.0">qt</Dependency>
+            <Dependency version="current">smoke-qt</Dependency>
+        </RuntimeDependencies>
+        <Conflicts>
+            <Package releaseTo="47">kdebindings</Package>
+        </Conflicts>
+        <Files>
+            <Path fileType="executable">/usr/bin/puic4</Path>
+            <Path fileType="library">/usr/lib/perl5/site_perl/*/*/Qt*</Path>
+            <Path fileType="library">/usr/lib/perl5/site_perl/*/*/auto/Qt*</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>perl-kde</Name>
+        <PartOf>programming.language.perl</PartOf>
+        <Summary>KDE4 Perl bindings</Summary>
+        <Description>Contains KDE4 language bindings for Perl.</Description>
+        <RuntimeDependencies>
+            <Dependency versionFrom="4.7.0">qt</Dependency>
+            <Dependency version="current">perl-qt</Dependency>
+            <Dependency version="current">smoke-kde</Dependency>
+            <Dependency versionFrom="4.5.3">kdelibs</Dependency>
+        </RuntimeDependencies>
+        <Conflicts>
+            <Package releaseTo="47">kdebindings</Package>
+        </Conflicts>
+        <Files>
+            <Path fileType="library">/usr/lib/perl5/site_perl/*/*/K*</Path>
+            <Path fileType="library">/usr/lib/perl5/site_perl/*/*/Plasma4.pm</Path>
+            <Path fileType="library">/usr/lib/perl5/site_perl/*/*/auto/K*</Path>
+            <Path fileType="library">/usr/lib/perl5/site_perl/*/*/auto/Plasma4</Path>
+            <Path fileType="library">/usr/lib/kde4/kperlpluginfactory.so</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>php-qt</Name>
+        <PartOf>programming.language.php</PartOf>
+        <Summary>Qt4 PHP bindings (phpqt)</Summary>
+        <Description>Contains Qt4 language bindings for PHP.</Description>
+        <RuntimeDependencies>
+            <Dependency versionFrom="4.7.0">qt</Dependency>
+            <Dependency version="current">smoke-qt</Dependency>
+        </RuntimeDependencies>
+        <Conflicts>
+            <Package releaseTo="47">kdebindings</Package>
+        </Conflicts>
+        <Files>
+            <Path fileType="executable">/usr/bin/phpuic</Path>
+            <Path fileType="library">/usr/lib/php/modules/php_qt.so</Path>
         </Files>
     </Package>
 
@@ -118,6 +233,7 @@
             <Path fileType="library">/usr/lib/python*</Path>
         </Files>
     </Package>
+
     <Package>
         <Name>python-kde-devel</Name>
         <PartOf>programming.language.python</PartOf>
@@ -129,6 +245,7 @@
             <Path fileType="data">/usr/share/sip/PyKDE*</Path>
         </Files>
     </Package>
+
     <Package>
         <Name>python-kde-examples</Name>
         <PartOf>programming.language.python</PartOf>
@@ -138,7 +255,148 @@
         </Files>
     </Package>
 
+    <Package>
+        <Name>python-kross</Name>
+        <PartOf>programming.language.python</PartOf>
+        <Summary>KDE4 kross Python bindings (krosspython).</Summary>
+        <Description>Contains KDE4 kross bindings for Python.</Description>
+        <RuntimeDependencies>
+            <Dependency versionFrom="4.7.0">qt</Dependency>
+            <Dependency versionFrom="4.5.3">kdelibs</Dependency>
+        </RuntimeDependencies>
+        <Conflicts>
+            <Package releaseTo="47">kdebindings</Package>
+        </Conflicts>
+        <Files>
+            <Path fileType="library">/usr/lib/kde4/krosspython.so</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>ruby-qt</Name>
+        <PartOf>programming.language.ruby</PartOf>
+        <Summary>Qt4 Ruby bindings (qtruby).</Summary>
+        <Description>Contains KDE4 language bindings for Ruby.</Description>
+        <RuntimeDependencies>
+            <Dependency versionFrom="1.8.7">ruby</Dependency>
+            <Dependency versionFrom="4.7.0">qt</Dependency>
+            <Dependency versionFrom="4.4.2">phonon</Dependency>
+            <Dependency version="current">smoke-qt</Dependency>
+            <Dependency versionFrom="4.7.0">qt-webkit</Dependency>
+        </RuntimeDependencies>
+        <Conflicts>
+            <Package releaseTo="47">kdebindings</Package>
+        </Conflicts>
+        <Files>
+            <Path fileType="executable">/usr/bin/rbqt4api</Path>
+            <Path fileType="executable">/usr/bin/rbqtapi</Path>
+            <Path fileType="executable">/usr/bin/rbrcc</Path>
+            <Path fileType="executable">/usr/bin/rbuic4</Path>
+            <Path fileType="library">/usr/lib/libqtruby4*</Path>
+            <Path fileType="library">/usr/lib/ruby/site_ruby/1.8/phonon</Path>
+            <Path fileType="library">/usr/lib/ruby/site_ruby/1.8/qscintilla</Path>
+            <Path fileType="library">/usr/lib/ruby/site_ruby/1.8/Qt*</Path>
+            <Path fileType="library">/usr/lib/ruby/site_ruby/1.8/qt*</Path>
+            <Path fileType="library">/usr/lib/ruby/site_ruby/1.8/qwt</Path>
+            <Path fileType="library">/usr/lib/ruby/site_ruby/1.8/*-linux/phonon.so</Path>
+            <Path fileType="library">/usr/lib/ruby/site_ruby/1.8/*-linux/qscintilla.so</Path>
+            <Path fileType="library">/usr/lib/ruby/site_ruby/1.8/*-linux/qt*.so</Path>
+            <Path fileType="library">/usr/lib/ruby/site_ruby/1.8/*-linux/qwt.so</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>ruby-qt-devel</Name>
+        <PartOf>programming.language.python</PartOf>
+        <Summary>Development files for ruby-qt</Summary>
+        <RuntimeDependencies>
+            <Dependency release="current">ruby-qt</Dependency>
+        </RuntimeDependencies>
+        <Conflicts>
+            <Package releaseTo="47">kdebindings-devel</Package>
+        </Conflicts>
+        <Files>
+            <Path fileType="data">/usr/include/qtruby</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>ruby-kde</Name>
+        <PartOf>programming.language.ruby</PartOf>
+        <Summary>KDE4 Ruby bindings (korundum).</Summary>
+        <Description>Contains KDE4 language bindings for Ruby.</Description>
+        <RuntimeDependencies>
+            <Dependency versionFrom="1.8.7">ruby</Dependency>
+            <Dependency versionFrom="4.7.0">qt</Dependency>
+            <Dependency version="current">ruby-qt</Dependency>
+            <Dependency version="current">smoke-qt</Dependency>
+            <Dependency version="current">smoke-kde</Dependency>
+            <Dependency versionFrom="2.5.0">soprano</Dependency>
+            <Dependency versionFrom="4.5.3">kdelibs</Dependency>
+            <Dependency versionFrom="4.5.3">kdepimlibs</Dependency>
+            <Dependency versionFrom="4.5.3">kdegraphics</Dependency>
+        </RuntimeDependencies>
+        <Conflicts>
+            <Package releaseTo="47">kdebindings</Package>
+        </Conflicts>
+        <Files>
+            <Path fileType="executable">/usr/bin/krubyapplication</Path>
+            <Path fileType="executable">/usr/bin/rbkconfig_compiler4</Path>
+            <Path fileType="executable">/usr/bin/rbkde4api</Path>
+            <Path fileType="executable">/usr/bin/rbkdeapi</Path>
+            <Path fileType="library">/usr/lib/ruby/site_ruby/1.8/akonadi</Path>
+            <Path fileType="library">/usr/lib/ruby/site_ruby/1.8/KDE</Path>
+            <Path fileType="library">/usr/lib/ruby/site_ruby/1.8/khtml</Path>
+            <Path fileType="library">/usr/lib/ruby/site_ruby/1.8/kio</Path>
+            <Path fileType="library">/usr/lib/ruby/site_ruby/1.8/ktexteditor</Path>
+            <Path fileType="library">/usr/lib/ruby/site_ruby/1.8/nepomuk</Path>
+            <Path fileType="library">/usr/lib/ruby/site_ruby/1.8/okular</Path>
+            <Path fileType="library">/usr/lib/ruby/site_ruby/1.8/solid</Path>
+            <Path fileType="library">/usr/lib/ruby/site_ruby/1.8/soprano</Path>
+            <Path fileType="library">/usr/lib/ruby/site_ruby/1.8/*-linux/akonadi.so</Path>
+            <Path fileType="library">/usr/lib/ruby/site_ruby/1.8/*-linux/khtml.so</Path>
+            <Path fileType="library">/usr/lib/ruby/site_ruby/1.8/*-linux/kio.so</Path>
+            <Path fileType="library">/usr/lib/ruby/site_ruby/1.8/*-linux/korundum4.so</Path>
+            <Path fileType="library">/usr/lib/ruby/site_ruby/1.8/*-linux/ktexteditor.so</Path>
+            <Path fileType="library">/usr/lib/ruby/site_ruby/1.8/*-linux/nepomuk.so</Path>
+            <Path fileType="library">/usr/lib/ruby/site_ruby/1.8/*-linux/okular.so</Path>
+            <Path fileType="library">/usr/lib/ruby/site_ruby/1.8/*-linux/plasma_applet.so</Path>
+            <Path fileType="library">/usr/lib/ruby/site_ruby/1.8/*-linux/solid.so</Path>
+            <Path fileType="library">/usr/lib/ruby/site_ruby/1.8/*-linux/soprano.so</Path>
+            <Path fileType="library">/usr/lib/kde4/krubypluginfactory.so</Path>
+            <Path fileType="data">/usr/share/applications/kde4/dbpedia_references.desktop</Path>
+            <Path fileType="data">/usr/share/kde4/apps/dbpedia_references</Path>
+            <Path fileType="data">/usr/share/kde4/apps/*ruby*</Path>
+            <Path fileType="data">/usr/share/kde4/services/*ruby*</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>ruby-kross</Name>
+        <PartOf>programming.language.ruby</PartOf>
+        <Summary>KDE4 kross Ruby bindings (krossruby).</Summary>
+        <Description>Contains KDE4 kross bindings for Ruby.</Description>
+        <RuntimeDependencies>
+            <Dependency versionFrom="1.8.7">ruby</Dependency>
+            <Dependency versionFrom="4.7.0">qt</Dependency>
+            <Dependency versionFrom="4.5.3">kdelibs</Dependency>
+        </RuntimeDependencies>
+        <Conflicts>
+            <Package releaseTo="47">kdebindings</Package>
+        </Conflicts>
+        <Files>
+            <Path fileType="library">/usr/lib/kde4/krossruby.so</Path>
+        </Files>
+    </Package>
+
     <History>
+        <Update release="48">
+            <Date>2010-11-08</Date>
+            <Version>4.5.3</Version>
+            <Comment>Split kdebindings binary package to ruby-kde, php-kde, smoke-kde.</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
         <Update release="47">
             <Date>2010-11-04</Date>
             <Version>4.5.3</Version>

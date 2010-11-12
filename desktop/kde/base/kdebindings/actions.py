@@ -31,3 +31,4 @@ def install():
     pisitools.dosym("/usr/bin/rbqtapi", "/usr/bin/rbkdeapi")
     pisitools.dosym("/usr/bin/rbqtapi", "/usr/bin/rbkde4api")
     #pisitools.dosym("/usr/bin/rbqtapi", "/usr/bin/rbplasmaapi")
+    pisitools.dodoc("AUTHORS", "COPYING*", "README")
