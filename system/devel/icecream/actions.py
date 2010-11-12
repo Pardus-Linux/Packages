@@ -23,7 +23,8 @@ def build():
 
 def install():
     autotools.rawInstall("DESTDIR=%s" % get.installDIR())
-
+    """
     for chost in ["", "%s-pc-linux-gnu-" % get.ARCH()]:
         for i in ["c++", "cc", "g++", "gcc"]:
             pisitools.dosym("icecc", "/opt/icecream/bin/%s%s" % (chost, i))
+    """
