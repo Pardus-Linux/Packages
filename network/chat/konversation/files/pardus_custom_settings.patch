@@ -1,0 +1,98 @@
+diff -Naur konvi-kde4.orig/src/config/konversation.kcfg konvi-kde4/src/config/konversation.kcfg
+--- konvi-kde4.orig/src/config/konversation.kcfg	2009-02-15 22:20:36.000000000 +0200
++++ konvi-kde4/src/config/konversation.kcfg	2009-02-15 22:24:07.000000000 +0200
+@@ -202,12 +202,12 @@
+       <whatsthis></whatsthis>
+     </entry>
+     <entry key="ShowNicknameBox" type="Bool">
+-      <default>true</default>
++      <default>false</default>
+       <label></label>
+       <whatsthis></whatsthis>
+     </entry>
+     <entry key="UseBoldNicks" type="Bool">
+-      <default>false</default>
++      <default>true</default>
+       <label></label>
+       <whatsthis></whatsthis>
+     </entry>
+@@ -251,12 +251,12 @@
+       <whatsthis></whatsthis>
+     </entry>
+     <entry key="ShowTrayIcon" type="Bool">
+-      <default>false</default>
++      <default>true</default>
+       <label></label>
+       <whatsthis></whatsthis>
+     </entry>
+     <entry key="TrayNotify" type="Bool">
+-      <default>false</default>
++      <default>true</default>
+       <label></label>
+       <whatsthis></whatsthis>
+     </entry>
+@@ -447,12 +447,12 @@
+   </group>
+   <group name="OSD">
+     <entry key="UseOSD" type="Bool">
+-      <default>false</default>
++      <default>true</default>
+       <label></label>
+       <whatsthis></whatsthis>
+     </entry>
+     <entry key="ShowOwnNick" type="Bool" name="OSDShowOwnNick">
+-      <default>false</default>
++      <default>true</default>
+       <label></label>
+       <whatsthis></whatsthis>
+     </entry>
+@@ -462,7 +462,7 @@
+       <whatsthis></whatsthis>
+     </entry>
+     <entry key="ShowQuery" type="Bool" name="OSDShowQuery">
+-      <default>false</default>
++      <default>true</default>
+       <label></label>
+       <whatsthis></whatsthis>
+     </entry>
+@@ -708,7 +708,7 @@
+   </group>
+   <group name="Path Settings">
+     <entry key="LogfilePath" type="Url">
+-      <default code="true">KUser(KUser::UseRealUserID).homeDir()+"/logs"</default>
++      <default code="true">KUser(KUser::UseRealUserID).homeDir()+"/.kde4/share/apps/konversation/logs/"</default>
+     </entry>
+     <entry key="DccPath" type="Url">
+       <default code="true">QDir::homePath()+"/dccrecv"</default>
+@@ -816,7 +816,7 @@
+       <whatsthis></whatsthis>
+     </entry>
+     <entry key="EnableEmotIcons" type="Bool">
+-      <default>false</default>
++      <default>true</default>
+       <label>Enable emoticons</label>
+     </entry>
+     <entry key="EmotIconTheme" type="String">
+@@ -880,7 +880,7 @@
+       <whatsthis></whatsthis>
+     </entry>
+     <entry key="TabNotificationsLeds" type="Bool">
+-      <default>false</default>
++      <default>true</default>
+       <label></label>
+       <whatsthis></whatsthis>
+     </entry>
+diff -Naur konvi-kde4.orig/src/config/preferences.cpp konvi-kde4/src/config/preferences.cpp
+--- konvi-kde4.orig/src/config/preferences.cpp	2009-02-15 22:20:36.000000000 +0200
++++ konvi-kde4/src/config/preferences.cpp	2009-02-15 22:24:40.000000000 +0200
+@@ -76,7 +76,9 @@
+     serverGroup->addServer(server);
+     serverGroup->setIdentityId(mIdentity->id());
+     Konversation::ChannelSettings channel;
+-    channel.setName("#konversation");
++    channel.setName("#pardus");
++    serverGroup->addChannel(channel);
++    channel.setName("#ozgurlukicin");
+     serverGroup->addChannel(channel);
+     serverGroup->setExpanded(false);
+     mServerGroupList.append(serverGroup);
