@@ -37,6 +37,9 @@ def fixperms(d, workaround=False):
                 if name.startswith("speaker."):
                     shelltools.copy(os.path.join(root, name), os.path.join(root, name.replace("speaker.", "../apps/kmix.")))
 
+            #Let Konversation use its own icon
+            if name.startswith("konversation."):
+                shelltools.unlink(os.path.join(root, name))
 
 def setup():
     fixperms(iconsrc, workaround=True)
