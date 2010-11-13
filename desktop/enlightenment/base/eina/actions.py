@@ -8,7 +8,7 @@ from pisi.actionsapi import autotools
 from pisi.actionsapi import pisitools
 from pisi.actionsapi import get
 
-WorkDir = "eina-1.0.0.beta"
+WorkDir = "eina-1.0.0.beta2"
 
 def setup():
     autotools.autoreconf("-fi")
