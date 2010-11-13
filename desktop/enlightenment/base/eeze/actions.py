@@ -9,7 +9,7 @@ from pisi.actionsapi import pisitools
 from pisi.actionsapi import shelltools
 from pisi.actionsapi import get
 
-WorkDir = "eeze-1.0.0.beta"
+WorkDir = "eeze-1.0.0.beta2"
 
 def setup():
     shelltools.system("./autogen.sh \
