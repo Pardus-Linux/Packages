@@ -10,7 +10,8 @@ from pisi.actionsapi import get
 
 def setup():
     autotools.autoreconf("-vfi")
-    autotools.configure("--disable-static")
+    autotools.configure("--disable-static \
+                         --disable-eweather")
 
 def build():
     autotools.make()
