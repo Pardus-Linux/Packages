@@ -9,7 +9,7 @@ from pisi.actionsapi import pisitools
 from pisi.actionsapi import shelltools
 from pisi.actionsapi import get
 
-WorkDir = "ecore-1.0.0.beta"
+WorkDir = "ecore-1.0.0.beta2"
 
 def setup():
     shelltools.export("AUTOPOINT", "/bin/true")
