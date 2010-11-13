@@ -165,6 +165,7 @@ def postInstall(fromVersion, fromRelease, toVersion, toRelease):
                 (165, "kdm"),
                 (166, "polipo"),
                 (167, "nginx"),
+                (168, "guests"),
                 # COMAR profile groups
                 (200, "pnp"),
                 (201, "removable"),
