@@ -1,0 +1,130 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>openvpn</Name>
+        <Homepage>http://openvpn.net/</Homepage>
+        <Packager>
+            <Name>İşbaran Akçayır</Name>
+            <Email>isbaran@comu.edu.tr</Email>
+        </Packager>
+        <License>GPLv2</License>
+        <IsA>service</IsA>
+        <Summary>A full featured SSL VPN solution</Summary>
+        <Description>OpenVPN is a full-featured SSL VPN solution which can accomodate a wide range of configurations, including remote access, site-to-site VPNs, WiFi security, and enterprise-scale remote access solutions with load balancing, failover, and fine-grained access-controls.</Description>
+        <Archive sha1sum="4b18e71b07236760f3b4defa941661e94b731a5a" type="targz">http://openvpn.net/release/openvpn-2.1.1.tar.gz</Archive>
+        <AdditionalFiles>
+            <AdditionalFile permission="0755" target="openvpn-test.sh">openvpn-test.sh</AdditionalFile>
+        </AdditionalFiles>
+        <BuildDependencies>
+            <Dependency>lzo-devel</Dependency>
+            <Dependency>iproute2</Dependency>
+        </BuildDependencies>
+        <Patches>
+            <Patch>peercred.patch</Patch>
+            <Patch>pkcs11.patch</Patch>
+        </Patches>
+    </Source>
+
+    <Package>
+        <Name>openvpn</Name>
+         <RuntimeDependencies>
+            <Dependency>lzo</Dependency>
+            <Dependency>iproute2</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="executable">/usr/sbin</Path>
+            <Path fileType="library">/usr/lib</Path>
+            <Path fileType="config">/etc/openvpn</Path>
+            <Path fileType="data">/usr/share/openvpn</Path>
+            <Path fileType="data">/var/run/openvpn</Path>
+            <Path fileType="man">/usr/share/man</Path>
+            <Path fileType="doc">/usr/share/doc</Path>
+        </Files>
+        <AdditionalFiles>
+            <AdditionalFile owner="root" permission="0644" target="/usr/share/openvpn/sample-config-files/roadwarrior-client.conf">roadwarrior-client.conf</AdditionalFile>
+            <AdditionalFile owner="root" permission="0644" target="/usr/share/openvpn/sample-config-files/roadwarrior-server.conf">roadwarrior-server.conf</AdditionalFile>
+        </AdditionalFiles>
+        <Provides>
+            <COMAR script="service.py">System.Service</COMAR>
+        </Provides>
+   </Package>
+
+   <History>
+        <Update release="10">
+            <Date>2010-10-29</Date>
+            <Version>2.1.1</Version>
+            <Comment>Mass rebuild for Pardus Corporate 2 Alpha 3</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="9">
+            <Date>2010-05-10</Date>
+            <Version>2.1.1</Version>
+            <Comment>Add COMAR service script (#9241).</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="8">
+            <Date>2010-02-22</Date>
+            <Version>2.1.1</Version>
+            <Comment>Install plugins correctly, add test script from fedora, add simple client/server configurations.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="7">
+            <Date>2010-01-14</Date>
+            <Version>2.1.1</Version>
+            <Comment>Update package</Comment>
+            <Name>İşbaran Akçayır</Name>
+            <Email>isbaran@comu.edu.tr</Email>
+        </Update>
+        <Update release="6">
+            <Date>2009-06-25</Date>
+            <Version>2.0.9</Version>
+            <Comment>2009 ize</Comment>
+            <Name>İşbaran Akçayır</Name>
+            <Email>isbaran@comu.edu.tr</Email>
+        </Update>
+        <Update release="5">
+            <Date>2009-02-12</Date>
+            <Version>2.0.9</Version>
+            <Comment>
+                * Add symlink patch for pam
+                * Include plugins and scripts from contributers
+                * Fix dodoc
+                * Enable iproute2
+            </Comment>
+            <Name>İşbaran Akçayır</Name>
+            <Email>isbaran@comu.edu.tr</Email>
+        </Update>
+        <Update release="4">
+            <Date>2008-06-04</Date>
+            <Version>2.0.9</Version>
+            <Comment>Version bump</Comment>
+            <Name>Faik Uygur</Name>
+            <Email>faik@pardus.org.tr</Email>
+        </Update>
+        <Update release="3" type="security">
+            <Date>2006-09-25</Date>
+            <Version>2.0.7</Version>
+            <Comment>Version bump</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="2">
+            <Date>2006-09-23</Date>
+            <Version>2.0.6</Version>
+            <Comment>Comply to new lzo</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="1">
+            <Date>2006-04-07</Date>
+            <Version>2.0.6</Version>
+            <Comment>First release.</Comment>
+            <Name>Gürer Özen</Name>
+            <Email>gurer@pardus.org.tr</Email>
+        </Update>
+    </History>
+</PISI>
