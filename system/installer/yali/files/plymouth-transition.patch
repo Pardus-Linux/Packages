@@ -1,7 +1,7 @@
-Index: yali-2.4.0_20101021/start-yali
+Index: yali-2.4.0_20101121/start-yali
 ===================================================================
---- yali-2.4.0_20101021.orig/start-yali
-+++ yali-2.4.0_20101021/start-yali
+--- yali-2.4.0_20101121.orig/start-yali
++++ yali-2.4.0_20101121/start-yali
 @@ -4,4 +4,15 @@ HOME=/root
  USER=root
  export HOME USER
@@ -19,16 +19,17 @@ Index: yali-2.4.0_20101021/start-yali
 +fi
 +
 +exec /usr/bin/xinit /usr/bin/yali-bin -- vt7 -nolisten tcp -dpi 96 -novtswitch $ROOT_WINDOW_BG
-Index: yali-2.4.0_20101021/yali-bin
+Index: yali-2.4.0_20101121/yali-bin
 ===================================================================
---- yali-2.4.0_20101021.orig/yali-bin
-+++ yali-2.4.0_20101021/yali-bin
-@@ -39,6 +39,8 @@ def main():
+--- yali-2.4.0_20101121.orig/yali-bin
++++ yali-2.4.0_20101121/yali-bin
+@@ -196,6 +196,9 @@ def main():
+         print "%s must be run as root." % sys.argv[0]
+         sys.exit(1)
  
- if __name__ == "__main__":
-     locale.setlocale(locale.LC_ALL, "")
++    # Plymount running
 +    if os.path.exists("/bin/plymouth") and not os.system("/bin/plymouth --ping"):
 +        os.system("/bin/plymouth quit --retain-splash")
-     os.system("modprobe -bqa dm-mod raid0 raid1 raid456 raid10")
-     yali.init_logging("/var/log")
-     main()
+ 
+     ctx.logger.debug("Yali has been started")
+     load_modules()
