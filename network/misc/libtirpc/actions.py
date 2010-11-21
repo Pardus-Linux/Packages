@@ -11,7 +11,7 @@ from pisi.actionsapi import pisitools
 def setup():
     autotools.autoreconf("-vfi")
     autotools.configure("--disable-static \
-                         --disable-gss")
+                         --with-pic")
 
 def build():
     autotools.make()
