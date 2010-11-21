@@ -17,10 +17,23 @@ shelltools.export("HOME", get.workDIR())
 
 ARCH = "x64" if get.ARCH() == "x86_64" else "ia32"
 
-def setup():
-    #TODO use_system_ssl is disabled -->  https://bugzilla.mozilla.org/show_bug.cgi?id=547312
-    #TODO use_system_sqlite is faulty --> http://crbug.com/22208
+def removeBundle():
+    # All removed bundles are used via use_system. Thus we remove these
+    # bundles to avoid incompabilities with library linking during compilation
+    bundles = ["bzip2", "libpng", "libevent", "libjpeg",
+               "libxslt", "libxml", "yasm", "icu", "hunspell",
+               "sqlite/src", "sqlite/preprocessed"]
 
+    #TODO remove zlib in the future, for now compilation fails if we remove it due to minizip
+    for bundle in bundles:
+        # Do not remove .gyp files, the gyp build system need them
+        shelltools.system("find third_party/%s -type f ! -iname '.gyp' -print" % bundle)
+
+def setup():
+    removeBundle()
+
+    #TODO use_system_ssl is disabled -->  https://bugzilla.mozilla.org/show_bug.cgi?id=547312
+    #TODO use_system_ffmpeg has linking problems (is searching for libffmpegsumo.so)
     shelltools.system("build/gyp_chromium -f make build/all.gyp --depth=. \
                         -Dgcc_version=44 \
                         -Dno_strict_aliasing=1 \
@@ -38,11 +51,11 @@ def setup():
                         -Duse_system_zlib=1 \
                         -Duse_system_ffmpeg=1 \
                         -Duse_system_libxml=1 \
-                        -Duse_system_sqlite=0 \
+                        -Duse_system_sqlite=1 \
                         -Duse_system_yasm=1 \
-                        -Duse_system_ssl=0 \
                         -Duse_system_icu=1 \
                         -Duse_system_hunspell=1 \
+                        -Duse_system_ssl=0 \
                         -Ddisable_sse2=1 \
                         -Dtarget_arch=%s" % ARCH)
 
