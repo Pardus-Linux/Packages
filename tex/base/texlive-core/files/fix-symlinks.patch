@@ -1,0 +1,36 @@
+Index: texlive-core-20091107/texlive-20091107-source/texk/texlive/linked_scripts/Makefile.am
+===================================================================
+--- texlive-core-20091107.orig/texlive-20091107-source/texk/texlive/linked_scripts/Makefile.am
++++ texlive-core-20091107/texlive-20091107-source/texk/texlive/linked_scripts/Makefile.am
+@@ -112,12 +112,7 @@ nobase_dist_script_SCRIPTS = \
+ ## We support both multiplatform and non-multiplatform builds.
+ ##
+ install-data-hook:
+-	case "$(bindir)" in \
+-	  */bin) $(MAKE) $(AM_MAKEFLAGS) REL=.. install-links;; \
+-	  */bin/*) $(MAKE) $(AM_MAKEFLAGS) REL=../.. install-links;; \
+-	  *) echo "strange directory '$(bindir)' for linked scripts" >&2; \
+-	     exit 1;; \
+-	esac
++	$(MAKE) $(AM_MAKEFLAGS) REL=/usr/share install-links;;
+ 
+ ## Name the link as the basename, removing any extension,
+ ## except for listings-ext.sh, which is documented as that name.
+Index: texlive-core-20091107/texlive-20091107-source/texk/texlive/linked_scripts/Makefile.in
+===================================================================
+--- texlive-core-20091107.orig/texlive-20091107-source/texk/texlive/linked_scripts/Makefile.in
++++ texlive-core-20091107/texlive-20091107-source/texk/texlive/linked_scripts/Makefile.in
+@@ -541,12 +541,7 @@ uninstall-am: uninstall-binSCRIPTS unins
+ 
+ 
+ install-data-hook:
+-	case "$(bindir)" in \
+-	  */bin) $(MAKE) $(AM_MAKEFLAGS) REL=.. install-links;; \
+-	  */bin/*) $(MAKE) $(AM_MAKEFLAGS) REL=../.. install-links;; \
+-	  *) echo "strange directory '$(bindir)' for linked scripts" >&2; \
+-	     exit 1;; \
+-	esac
++	  $(MAKE) $(AM_MAKEFLAGS) REL=/usr/share install-links;;
+ 
+ .PHONY: install-links
+ install-links:
