@@ -1,0 +1,134 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>gocr</Name>
+        <Homepage>http://jocr.sourceforge.net/</Homepage>
+        <Packager>
+            <Name>Serdar Dalgıç</Name>
+            <Email>serdar@pardus.org.tr</Email>
+        </Packager>
+        <License>GPLv2</License>
+        <IsA>app:console</IsA>
+        <Summary>OCR program with GNU Public License</Summary>
+        <Description>GOCR is an OCR (Optical Character Recognition) program licensed under the GNU Public License (hence the name).</Description>
+        <Archive sha1sum="2172fd04c556b70b19db2b2abbc47749f5d08130" type="targz">mirrors://sourceforge/jocr/gocr-0.48.tar.gz</Archive>
+        <BuildDependencies>
+            <Dependency>netpbm-devel</Dependency>
+        </BuildDependencies>
+        <Patches>
+            <Patch level="1">gocr-0.46-perms.patch</Patch>
+            <Patch level="1">fix-underlinking.patch</Patch>
+        </Patches>
+    </Source>
+
+    <Package>
+        <Name>gocr</Name>
+        <RuntimeDependencies>
+            <Dependency>netpbm</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="executable">/usr/bin</Path>
+            <Path fileType="doc">/usr/share/doc</Path>
+            <Path fileType="man">/usr/share/man</Path>
+        </Files>
+    </Package>
+
+    <History>
+        <Update release="9">
+            <Date>2010-11-22</Date>
+            <Version>0.48</Version>
+            <Comment>Version bump and fix underlinking issue:
+                * fix buffer overflow introduced in 0.46 for filenames
+                * add codabar barcode
+                * fix bug, removing melted serifs
+                * add patch by Chris Lee, i25 barcode recognition + modifications
+                * fix some false positive numbers "34" (video, gas meter)
+                * fix problems with 2zZ4 for 10x10 screen font
+                * better debug output for :;,.
+                * remove examples, doc and libs part from configure (see below)
+                * remove doc and examples from the (make install) part to reduce dependencies (gs and transfig is not needed for rpm/ebuild) gocr only may depend from netpbm, but can live without too this will help to install gocr on "exotic" (nonlinux) platforms
+            </Comment>
+            <Name>Serdar Dalgıç</Name>
+            <Email>serdar@pardus.org.tr</Email>
+        </Update>
+        <Update release="8">
+            <Date>2009-06-24</Date>
+            <Version>0.47</Version>
+            <Comment>Stable update:
+               * fix database recognition for certainty 100 (-a 100)
+               * insert spaces with certainty 100 (old: 99) to let -a 100 work
+               * new option -u string for unrecognized chars
+               * fix: No contrast in image causes division by zero
+               * reduced false positive recognition of scanned "a496" (Gutenberg Project)
+               * "d as a" patch ID: 1556112
+               * improve 7x10, sample 0811qemu1.png (ToDo: not finished)
+               * change black:white from &gt;4:1 to &gt;3.5:1 as criteria of inversion
+               * reintroduce static library libPgm2asc.a (make libs) for OSRA project
+               * add dynamic library (make libs), unused but may help other projects
+            </Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="7">
+            <Date>2008-12-27</Date>
+            <Version>0.46</Version>
+            <Comment>
+                Stable Update, fixes :
+                -improved context correction (especially helvetica "Il")
+                -improved recognition of tiny chars "$1", fat "s", "rw" ","
+                -fix blank spaces problem in filenames
+                 (http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=316511)
+                -fix possible problem with database and UTF8 input
+                -fix hidden bug in pitch/spacing initialization
+                -reactivate code for output of glued chars and strings
+                -fix wrong close() call
+                -remove creation of pgm2asc.a for simplicity (make)
+            </Comment>
+            <Name>Ekin Meroğlu</Name>
+            <Email>ekin@pardus.org.tr</Email>
+        </Update>
+        <Update release="6">
+            <Date>2008-01-26</Date>
+            <Version>0.45</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="5">
+            <Date>2007-04-21</Date>
+            <Version>0.44</Version>
+            <Comment>Version bump.</Comment>
+            <Name>Ahmet AYGÜN</Name>
+            <Email>ahmet@zion.gen.tr</Email>
+        </Update>
+        <Update release="4">
+            <Date>2006-10-17</Date>
+            <Version>0.41</Version>
+            <Comment>Added patch for bugfix from upstream.</Comment>
+            <Name>Furkan Duman</Name>
+            <Email>coderlord@gmail.com</Email>
+        </Update>
+        <Update release="3">
+            <Date>2006-10-09</Date>
+            <Version>0.41</Version>
+            <Comment>Version bump.</Comment>
+            <Name>Ahmet AYGÜN</Name>
+            <Email>ahmet@zion.gen.tr</Email>
+        </Update>
+        <Update release="2">
+            <Date>2006-05-02</Date>
+            <Version>0.40</Version>
+            <Comment>Fixed #2662</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="1">
+            <Date>2006-03-02</Date>
+            <Version>0.40</Version>
+            <Comment>First revision</Comment>
+            <Name>Ahmet AYGÜN</Name>
+            <Email>ahmet@zion.gen.tr</Email>
+        </Update>
+    </History>
+</PISI>
