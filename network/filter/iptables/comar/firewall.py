@@ -415,11 +415,11 @@ class InternetSharingModule:
             # Configure DHCP
             makeDHCPConf(out_name)
             # Start DHCP
-            startService("dhcp", restart=True)
+            startService("dhcpd", restart=True)
 
     def unloadModule(self, shutdown=False):
         # Stop DHCP
-        stopService("dhcp")
+        stopService("dhcpd")
         if not shutdown:
             # Unload rules
             execRule("-F PARDUS-FW-MOD-SHARING")
