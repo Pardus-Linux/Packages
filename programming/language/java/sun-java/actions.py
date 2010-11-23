@@ -9,9 +9,9 @@ from pisi.actionsapi import pisitools
 from pisi.actionsapi import shelltools
 from pisi.actionsapi import get
 
-WorkDir = "."
+WorkDir = get.ARCH()
 NoStrip = "/"
-Name = "6u19"
+Name = "6u22"
 Arch = "amd64" if get.ARCH() == "x86_64" else "i586"
 
 def setup():
