@@ -12,7 +12,6 @@ from pisi.actionsapi import get
 
 def setup():
     pisitools.dosed("Makefile.am", "win32 ", "")
-    shelltools.unlink("m4/libassuan.m4")
     autotools.autoreconf("-fi")
 
     autotools.configure("--disable-static \
