@@ -10,8 +10,6 @@ from pisi.actionsapi import pisitools
 from pisi.actionsapi import kde4
 from pisi.actionsapi import get
 
-WorkDir = "bluedevil-rc4-1"
-
 shelltools.export("HOME", get.workDIR())
 
 def setup():
