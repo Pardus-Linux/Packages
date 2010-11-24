@@ -109,6 +109,7 @@ def postInstall(fromVersion, fromRelease, toVersion, toRelease):
                 (20,  "dialout"),
                 (22,  "sshd"),
                 (30,  "squid"),
+                (32,  "rpc"),
                 (50,  "named"),
                 # For systemd/var-lock.mount
                 (54,  "lock"),
@@ -195,6 +196,7 @@ def postInstall(fromVersion, fromRelease, toVersion, toRelease):
                 (20,  "dialout", "Dialout", "/dev/null", "/bin/false", "", ["dialout"], [], []),
                 (22,  "sshd", "Privilege-separated SSH", "/var/empty/sshd", "/sbin/nologin", "", ["sshd"], [], []),
                 (30,  "squid", "Squid", "/var/cache/squid", "/bin/false", "", ["squid"], [], []),
+                (32,  "rpc", "Rpcbind daemon", "/var/lib/rpcbind", "/sbin/nologin", "", ["rpc"], [], []),
                 (40,  "named", "Bind", "/var/bind", "/bin/false", "", ["named"], [], []),
                 (60,  "mysql", "MySQL", "/var/lib/mysql", "/bin/false", "", ["mysql"], [], []),
                 (70,  "postgres", "PostgreSQL", "/var/lib/postgresql", "/bin/false", "", ["postgres"], [], []),
