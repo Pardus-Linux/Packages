@@ -1,7 +1,7 @@
-Index: cups-1.4.2/backend/Makefile
+Index: cups-1.4.5/backend/Makefile
 ===================================================================
---- cups-1.4.2.orig/backend/Makefile
-+++ cups-1.4.2/backend/Makefile
+--- cups-1.4.5.orig/backend/Makefile
++++ cups-1.4.5/backend/Makefile
 @@ -267,7 +267,7 @@ usb:	usb.o ../cups/$(LIBCUPS) libbackend
  	echo Linking $@...
  	$(CC) $(LDFLAGS) -o usb usb.o libbackend.a $(LIBUSB) \
@@ -11,11 +11,11 @@ Index: cups-1.4.2/backend/Makefile
  
  
  #
-Index: cups-1.4.2/backend/ieee1284.c
+Index: cups-1.4.5/backend/ieee1284.c
 ===================================================================
---- cups-1.4.2.orig/backend/ieee1284.c
-+++ cups-1.4.2/backend/ieee1284.c
-@@ -275,6 +275,7 @@ backendGetDeviceID(
+--- cups-1.4.5.orig/backend/ieee1284.c
++++ cups-1.4.5/backend/ieee1284.c
+@@ -271,6 +271,7 @@ backendGetDeviceID(
      cups_option_t	*values;	/* Keys and values in device ID */
      const char		*mfg,		/* Manufacturer */
  			*mdl,		/* Model */
@@ -23,7 +23,7 @@ Index: cups-1.4.2/backend/ieee1284.c
  			*sern;		/* Serial number */
      char		temp[256],	/* Temporary manufacturer string */
  			*tempptr;	/* Pointer into temp string */
-@@ -305,10 +306,20 @@ backendGetDeviceID(
+@@ -301,10 +302,20 @@ backendGetDeviceID(
      }
      else
      {
@@ -46,10 +46,10 @@ Index: cups-1.4.2/backend/ieee1284.c
  
        mfg = temp;
      }
-Index: cups-1.4.2/backend/usb-hybrid.c
+Index: cups-1.4.5/backend/usb-hybrid.c
 ===================================================================
 --- /dev/null
-+++ cups-1.4.2/backend/usb-hybrid.c
++++ cups-1.4.5/backend/usb-hybrid.c
 @@ -0,0 +1,87 @@
 +/*
 + * "$Id: usb-hybrid.c 8807 2009-08-31 18:45:43Z mike $"
@@ -138,10 +138,10 @@ Index: cups-1.4.2/backend/usb-hybrid.c
 +/*
 + * End of "$Id: usb-hybrid.c 8807 2009-08-31 18:45:43Z mike $".
 + */
-Index: cups-1.4.2/backend/usb-libusb.c
+Index: cups-1.4.5/backend/usb-libusb.c
 ===================================================================
---- cups-1.4.2.orig/backend/usb-libusb.c
-+++ cups-1.4.2/backend/usb-libusb.c
+--- cups-1.4.5.orig/backend/usb-libusb.c
++++ cups-1.4.5/backend/usb-libusb.c
 @@ -13,16 +13,16 @@
   *
   * Contents:
@@ -245,7 +245,7 @@ Index: cups-1.4.2/backend/usb-libusb.c
  	    {
  	      if (!get_device_id(&printer, device_id, sizeof(device_id)))
  	      {
-@@ -583,6 +587,14 @@ make_device_uri(
+@@ -584,6 +588,14 @@ make_device_uri(
      mfg = tempmfg;
    }
  
@@ -260,7 +260,7 @@ Index: cups-1.4.2/backend/usb-libusb.c
   /*
    * Generate the device URI from the manufacturer, model, serial number,
    * and interface number...
-@@ -611,11 +623,11 @@ make_device_uri(
+@@ -612,11 +624,11 @@ make_device_uri(
  
  
  /*
@@ -274,7 +274,7 @@ Index: cups-1.4.2/backend/usb-libusb.c
              int           verbose)	/* I - Update connecting-to-device state? */
  {
    int	number;				/* Configuration/interface/altset numbers */
-@@ -733,16 +745,73 @@ print_cb(usb_printer_t *printer,	/* I - 
+@@ -734,16 +746,73 @@ print_cb(usb_printer_t *printer,	/* I -
           const char    *device_id,	/* I - IEEE-1284 device ID */
           const void    *data)		/* I - User data (make, model, S/N) */
  {
@@ -351,10 +351,10 @@ Index: cups-1.4.2/backend/usb-libusb.c
          int           print_fd)		/* I - File to print */
  {
    ssize_t		bytes,		/* Bytes read/written */
-Index: cups-1.4.2/backend/usb-unix.c
+Index: cups-1.4.5/backend/usb-unix.c
 ===================================================================
---- cups-1.4.2.orig/backend/usb-unix.c
-+++ cups-1.4.2/backend/usb-unix.c
+--- cups-1.4.5.orig/backend/usb-unix.c
++++ cups-1.4.5/backend/usb-unix.c
 @@ -18,10 +18,10 @@
   *
   * Contents:
@@ -472,25 +472,25 @@ Index: cups-1.4.2/backend/usb-unix.c
     /*
      * Find the correct USB device...
      */
-@@ -478,10 +486,14 @@ open_device(const char *uri,		/* I - Dev
+@@ -478,10 +486,13 @@ open_device(const char *uri,		/* I - Dev
        */
  
        if (busy)
 -	_cupsLangPuts(stderr,
 -	              _("INFO: Printer busy; will retry in 5 seconds...\n"));
-+      {
-+	    _cupsLangPuts(stderr,
-+	                _("INFO: Printer busy; will retry in 5 seconds...\n"));
- 
+-
 -      sleep(5);
-+        sleep(5);
++      {
++          _cupsLangPuts(stderr,
++                  _("INFO: Printer busy; will retry in 5 seconds...\n"));
++          sleep(5);
 +      }
 +      else
 +          return -1;
      }
    }
  #elif defined(__sun) && defined(ECPPIOC_GETDEVID)
-@@ -534,7 +546,55 @@ open_device(const char *uri,		/* I - Dev
+@@ -534,7 +545,55 @@ open_device(const char *uri,		/* I - Dev
  	  device_uri[0] = '\0';
          }
  
@@ -547,7 +547,7 @@ Index: cups-1.4.2/backend/usb-unix.c
  	{
  	 /*
  	  * Yes, return this file descriptor...
-@@ -602,13 +662,13 @@ open_device(const char *uri,		/* I - Dev
+@@ -602,11 +661,11 @@ open_device(const char *uri,		/* I - Dev
  
  
  /*
@@ -557,19 +557,15 @@ Index: cups-1.4.2/backend/usb-unix.c
  
  static int				/* O - 0 on success, -1 on error */
 -side_cb(int         print_fd,		/* I - Print file */
--        int         device_fd,		/* I - Device file */
--        int         snmp_fd,		/* I - SNMP socket (unused) */
 +side_cb_unix(int         print_fd,		/* I - Print file */
-+             int         device_fd,		/* I - Device file */
-+             int         snmp_fd,		/* I - SNMP socket (unused) */
+         int         device_fd,		/* I - Device file */
+         int         snmp_fd,		/* I - SNMP socket (unused) */
  	http_addr_t *addr,		/* I - Device address (unused) */
- 	int         use_bc)		/* I - Using back-channel? */
- {
-Index: cups-1.4.2/backend/usb.c
+Index: cups-1.4.5/backend/usb.c
 ===================================================================
---- cups-1.4.2.orig/backend/usb.c
-+++ cups-1.4.2/backend/usb.c
-@@ -56,7 +56,7 @@ int	print_device(const char *uri, const 
+--- cups-1.4.5.orig/backend/usb.c
++++ cups-1.4.5/backend/usb.c
+@@ -56,7 +56,7 @@ int	print_device(const char *uri, const
   */
  
  #ifdef HAVE_USB_H
