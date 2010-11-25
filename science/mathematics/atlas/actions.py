@@ -15,18 +15,26 @@ WorkDir="ATLAS"
 bits = {"i686"  : "32",
         "x86_64": "64"}
 
+cfg = {"bits"  : bits[get.ARCH()],
+       "installdir": get.installDIR()
+}
+
 def setup():
-    pisitools.dosed("configure", "cc=gcc", "cc=%s" % get.CC())
-    pisitools.dosed("configure", 'cflags="-g.*', "cflags=%s" % get.CFLAGS())
+    #pisitools.dosed("configure", "cc=gcc", "cc=%s" % get.CC())
+    #pisitools.dosed("configure", 'cflags="-g.*', "cflags=%s" % get.CFLAGS())
 
     shelltools.makedirs("build")
     shelltools.cd("build")
 
     shelltools.system("../configure \
+                       --prefix=%(installdir)s/usr \
+                       --incdir=%(installdir)s/usr/include \
+                       --libdir=%(installdir)s/usr/lib \
                        -Si cputhrchk 0 \
-                       -Fa alg -fPIC \
-                       -b %s \
-                       --with-netlib-lapack=/usr/lib/liblapack.a" % bits[get.ARCH()])
+                       -Fa alg '-g -Wa,--noexecstack -fPIC' \
+                       -D c -DWALL \
+                       -b %(bits)s \
+                       --with-netlib-lapack=/usr/lib/liblapack.a" % cfg)
 
     # Fix architecture detection
     if get.ARCH() == "x86_64":
@@ -41,13 +49,17 @@ def setup():
 
 def build():
     autotools.make("-C build -j1")
-    autotools.make("-C build/lib shared")
+    autotools.make("-C build/lib shared -j1")
 
 def install():
-    for lib in ["atlas","cblas","f77blas"]:
-        pisitools.dolib("build/lib/lib%s.so" % lib)
+    pisitools.dodoc("README", "doc/*")
 
-    for header in ["cblas.h","clapack.h"]:
-        pisitools.insinto("/usr/include", "include/%s" % header)
+    shelltools.cd("build")
+    autotools.rawInstall('DESTDIR="%s"' % get.installDIR())
 
-    pisitools.dodoc("README","doc/*")
+    for i in shelltools.ls("lib/*.so*"):
+        pisitools.insinto("/usr/lib/", i)
+
+    pisitools.remove("/usr/lib/*.a")
+
+
