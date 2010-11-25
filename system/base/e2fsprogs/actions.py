@@ -15,6 +15,7 @@ def setup():
                             --disable-e2initrd-helper \
                             --disable-libblkid \
                             --disable-libuuid \
+                            --disable-fsck \
                             --disable-uuidd")
 
 def build():
