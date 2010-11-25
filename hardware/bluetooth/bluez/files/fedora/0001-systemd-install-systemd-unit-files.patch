@@ -1,7 +1,7 @@
-From cc8bd9b5fe227d22786fcb34f3a484b2c27d33b7 Mon Sep 17 00:00:00 2001
+From b3483ab0b821d29bbeb6aa5630b36bc126a89441 Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Wed, 21 Jul 2010 19:20:44 +0200
-Subject: [PATCH] systemd: install systemd unit files
+Subject: [PATCH 3/3] systemd: install systemd unit files
 
 This also enables bus activation for bluetoothd, but only if systemd is
 running. Only if that's the case we can make sure in a race-free fashion
@@ -17,10 +17,10 @@ that bluetoothd is not started twice at the same time.
  create mode 100644 scripts/bluetooth.service.in
  create mode 100644 scripts/org.bluez.service
 
-Index: bluez-4.76/Makefile.am
-===================================================================
---- bluez-4.76.orig/Makefile.am
-+++ bluez-4.76/Makefile.am
+diff --git a/Makefile.am b/Makefile.am
+index e855713..1edd6a2 100644
+--- a/Makefile.am
++++ b/Makefile.am
 @@ -344,7 +344,8 @@ endif
  CLEANFILES += $(rules_DATA)
  
@@ -64,11 +64,11 @@ Index: bluez-4.76/Makefile.am
  
  MAINTAINERCLEANFILES = Makefile.in \
  	aclocal.m4 configure config.h.in config.sub config.guess \
-Index: bluez-4.76/configure.ac
-===================================================================
---- bluez-4.76.orig/configure.ac
-+++ bluez-4.76/configure.ac
-@@ -56,5 +56,14 @@ if (test "${enable_capng}" = "yes"); the
+diff --git a/configure.ac b/configure.ac
+index d375ac9..6619a42 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -56,5 +56,14 @@ if (test "${enable_capng}" = "yes"); then
  	AC_DEFINE(HAVE_CAPNG, 1, [Define to 1 if you have capabilities library.])
  fi
  
@@ -83,16 +83,18 @@ Index: bluez-4.76/configure.ac
 +
  AC_OUTPUT(Makefile scripts/bluetooth.rules doc/version.xml
  					src/bluetoothd.8 bluez.pc)
-Index: bluez-4.76/scripts/.gitignore
-===================================================================
+diff --git a/scripts/.gitignore b/scripts/.gitignore
+new file mode 100644
+index 0000000..4b9f765
 --- /dev/null
-+++ bluez-4.76/scripts/.gitignore
++++ b/scripts/.gitignore
 @@ -0,0 +1 @@
 +bluetooth.service
-Index: bluez-4.76/scripts/bluetooth.service.in
-===================================================================
+diff --git a/scripts/bluetooth.service.in b/scripts/bluetooth.service.in
+new file mode 100644
+index 0000000..f95b0b0
 --- /dev/null
-+++ bluez-4.76/scripts/bluetooth.service.in
++++ b/scripts/bluetooth.service.in
 @@ -0,0 +1,12 @@
 +[Unit]
 +Description=Bluetooth Manager
@@ -106,13 +108,17 @@ Index: bluez-4.76/scripts/bluetooth.service.in
 +
 +[Install]
 +WantedBy=bluetooth.target
-Index: bluez-4.76/scripts/org.bluez.service
-===================================================================
+diff --git a/scripts/org.bluez.service b/scripts/org.bluez.service
+new file mode 100644
+index 0000000..2a3b057
 --- /dev/null
-+++ bluez-4.76/scripts/org.bluez.service
++++ b/scripts/org.bluez.service
 @@ -0,0 +1,5 @@
 +[D-BUS Service]
 +Name=org.bluez
 +Exec=/bin/false
 +User=root
 +SystemdService=bluetooth.service
+-- 
+1.7.3.1
+
