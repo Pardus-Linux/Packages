@@ -20,26 +20,24 @@ def setup():
 
     shelltools.export("AT_M4DIR", "m4")
     autotools.autoreconf("-vfi")
+
+    # Fedora also installs su and hostname
     autotools.configure("--enable-largefile \
-                         --enable-nls \
-                         --enable-acl \
-                         --enable-xattr \
                          --enable-install-program=arch \
-                         --disable-libcap \
-                         --without-included-regex \
-                         --without-gmp \
                          --enable-no-install-program=faillog,hostname,login,lastlog,uptime")
 
 def build():
     autotools.make("LDFLAGS=%s" % get.LDFLAGS())
 
-# check does horrible things like modifying mtab or loop mounting
-# use it if you are too curious
-#def check():
-#    autotools.make("check")
+def check():
+    # check does horrible things like modifying mtab or loop mounting
+    # use it if you are too curious
+    # autotools.make("check")
+    pass
 
 def install():
     autotools.rawInstall("DESTDIR=%s" % get.installDIR())
+    autotools.install("mandir=%s/%s" % (get.installDIR(), get.manDIR()))
 
     # Use dircolors from the package
     pisitools.insinto("/etc", "src/dircolors.hin", "DIR_COLORS")
