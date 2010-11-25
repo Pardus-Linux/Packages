@@ -1,0 +1,168 @@
+diff --git a/yali/constants.py b/yali/constants.py
+index 1c18e3d..389d511 100644
+--- a/yali/constants.py
++++ b/yali/constants.py
+@@ -72,7 +72,8 @@ class Constants:
+         self.__c.session_file = os.path.join(self.__c.target_dir, "root/session.xml")
+         self.__c.source_dir = "/mnt/cdrom"
+         self.__c.tmp_mnt_dir = "/tmp/check"
+-        self.__c.dbus_socket = os.path.join(self.__c.target_dir,"var/run/dbus/system_bus_socket")
++        self.__c.target_dbus_socket = os.path.join(self.__c.target_dir,"var/run/dbus/system_bus_socket")
++        self.__c.dbus_socket = "/var/run/dbus/system_bus_socket"
+         self.__c.repo_uri = os.path.join(self.__c.source_dir, "repo/pisi-index.xml.bz2")
+         self.__c.pisi_collection_file = os.path.join(self.__c.data_dir, "data/index/collection.xml")
+         self.__c.pisi_collection_dir = os.path.join(self.__c.data_dir, "data/index")
+diff --git a/yali/gui/ScrSummary.py b/yali/gui/ScrSummary.py
+index afba9ac..7e2239b 100644
+--- a/yali/gui/ScrSummary.py
++++ b/yali/gui/ScrSummary.py
+@@ -55,7 +55,9 @@ class Widget(QWidget, ScreenWidget):
+     def backCheck(self):
+         self.timer.stop()
+         ctx.interface.informationWindow.hide()
+-        ctx.mainScreen.ui.buttonNext.setText(_("Next"))
++        if ctx.flags.install_type == ctx.STEP_BASE or ctx.flags.install_type == STEP_DEFAULT:
++            ctx.mainScreen.ui.buttonNext.setText(_("Next"))
++
+         if (ctx.flags.install_type == ctx.STEP_BASE or ctx.flags.install_type == ctx.STEP_DEFAULT) \
+            and not ctx.flags.collection:
+             ctx.mainScreen.step_increment = 2
+@@ -70,7 +72,11 @@ class Widget(QWidget, ScreenWidget):
+ 
+     def shown(self):
+         #ctx.mainScreen.disableNext()
+-        ctx.mainScreen.ui.buttonNext.setText(_("Start Installation"))
++        if ctx.flags.install_type == ctx.STEP_BASE or ctx.flags.install_type == ctx.STEP_DEFAULT:
++            ctx.mainScreen.ui.buttonNext.setText(_("Start Installation"))
++        if ctx.flags.install_type == ctx.STEP_FIRST_BOOT:
++            ctx.mainScreen.ui.buttonNext.setText(_("Apply Settings"))
++
+         if ctx.installData.isKahyaUsed:
+             self.startBombCounter()
+         self.fillContent()
+@@ -218,6 +224,7 @@ class Widget(QWidget, ScreenWidget):
+             return False
+ 
+         elif ctx.flags.install_type == ctx.STEP_FIRST_BOOT:
++            ctx.mainScreen.ui.buttonNext.setText(_("Next"))
+             return True
+ 
+ 
+diff --git a/yali/postinstall.py b/yali/postinstall.py
+index 3af9bc3..88eccf8 100644
+--- a/yali/postinstall.py
++++ b/yali/postinstall.py
+@@ -88,7 +88,12 @@ def connectToDBus():
+     for i in range(40):
+         try:
+             ctx.logger.debug("trying to start dbus..")
+-            bus = dbus.bus.BusConnection(address_or_type="unix:path=%s" % ctx.consts.dbus_socket)
++            if ctx.flags.install_type == ctx.STEP_BASE or ctx.flags.install_type == ctx.STEP_DEFAULT:
++                bus = dbus.bus.BusConnection(address_or_type="unix:path=%s" % ctx.consts.target_dbus_socket)
++
++            if ctx.flags.install_type == ctx.STEP_FIRST_BOOT:
++                bus = dbus.bus.BusConnection(address_or_type="unix:path=%s" % ctx.consts.dbus_socket)
++
+             break
+         except dbus.DBusException:
+             time.sleep(2)
+@@ -102,7 +107,8 @@ def setHostName():
+     obj = bus.get_object("tr.org.pardus.comar", "/package/baselayout")
+     if ctx.flags.install_type == ctx.STEP_FIRST_BOOT or ctx.flags.install_type == ctx.STEP_DEFAULT:
+         obj.setHostName(str(ctx.installData.hostName), dbus_interface="tr.org.pardus.comar.Network.Stack")
+-    elif ctx.flags.install_type == ctx.STEP_BASE:
++
++    if ctx.flags.install_type == ctx.STEP_BASE:
+         obj.setHostName(str(yali.util.product_release()), dbus_interface="tr.org.pardus.comar.Network.Stack")
+ 
+     ctx.logger.debug("Hostname set as %s" % ctx.installData.hostName)
+@@ -110,19 +116,36 @@ def setHostName():
+ 
+ def get_users():
+     import comar
+-    link = comar.Link(socket=ctx.consts.dbus_socket)
++    link = None
++    if ctx.flags.install_type == ctx.STEP_BASE or ctx.flags.install_type == ctx.STEP_DEFAULT:
++        link = comar.Link(socket=ctx.consts.target_dbus_socket)
++
++    if ctx.flags.install_type == ctx.STEP_FIRST_BOOT:
++        link = comar.Link(socket=ctx.consts.dbus_socket)
++
+     users = link.User.Manager["baselayout"].userList()
+     return filter(lambda user: user[0]==0 or (user[0]>=1000 and user[0]<=65000), users)
+ 
+ def setUserPass(uid, password):
+     import comar
+-    link = comar.Link(socket=ctx.consts.dbus_socket)
++    link = None
++    if ctx.flags.install_type == ctx.STEP_BASE or ctx.flags.install_type == ctx.STEP_DEFAULT:
++        link = comar.Link(socket=ctx.consts.target_dbus_socket)
++
++    if ctx.flags.install_type == ctx.STEP_FIRST_BOOT:
++        link = comar.Link(socket=ctx.consts.dbus_socket)
++
+     info = link.User.Manager["baselayout"].userInfo(uid)
+     return link.User.Manager["baselayout"].setUser(uid, info[1], info[3], info[4], password, info[5])
+ 
+ def getConnectionList():
+     import comar
+-    link = comar.Link(socket=ctx.consts.dbus_socket)
++    if ctx.flags.install_type == ctx.STEP_BASE or ctx.flags.install_type == ctx.STEP_DEFAULT:
++        link = comar.Link(socket=ctx.consts.target_dbus_socket)
++
++    if ctx.flags.install_type == ctx.STEP_FIRST_BOOT:
++        link = comar.Link(socket=ctx.consts.dbus_socket)
++
+     results = {}
+     for package in link.Network.Link:
+         results[package] = list(link.Network.Link[package].connections())
+@@ -130,12 +153,21 @@ def getConnectionList():
+ 
+ def connectTo(package, profile):
+     import comar
+-    link = comar.Link(socket=ctx.consts.dbus_socket)
++    if ctx.flags.install_type == ctx.STEP_BASE or ctx.flags.install_type == ctx.STEP_DEFAULT:
++        link = comar.Link(socket=ctx.consts.target_dbus_socket)
++
++    if ctx.flags.install_type == ctx.STEP_FIRST_BOOT:
++        link = comar.Link(socket=ctx.consts.dbus_socket)
++
+     return link.Network.Link[package].setState(profile, "up")
+ 
+ def addUsers():
+     import comar
+-    link = comar.Link(socket=ctx.consts.dbus_socket)
++    if ctx.flags.install_type == ctx.STEP_BASE or ctx.flags.install_type == ctx.STEP_DEFAULT:
++        link = comar.Link(socket=ctx.consts.target_dbus_socket)
++
++    if ctx.flags.install_type == ctx.STEP_FIRST_BOOT:
++        link = comar.Link(socket=ctx.consts.dbus_socket)
+ 
+     def setNoPassword(uid):
+         link.User.Manager["baselayout"].grantAuthorization(uid, "*")
+@@ -150,7 +182,12 @@ def addUsers():
+         ctx.logger.debug("New user's id is %s" % uid)
+ 
+         # If new user id is different from old one, we need to run a huge chown for it
+-        user_home_dir = os.path.join(ctx.consts.target_dir, 'home', user.username)
++        user_home_dir = ""
++        if ctx.flags.install_type == ctx.STEP_BASE or ctx.flags.install_type == ctx.STEP_DEFAULT:
++            user_home_dir = os.path.join(ctx.consts.target_dir, 'home', user.username)
++        if ctx.flags.install_type == ctx.STEP_FIRST_BOOT:
++            user_home_dir = os.path.join('/home', user.username)
++
+         user_home_dir_id = os.stat(user_home_dir)[4]
+         if not user_home_dir_id == uid:
+             ctx.interface.informationWindow.update(_("Preparing home directory for %s...") % user.username)
+@@ -174,8 +211,9 @@ def setRootPassword():
+     obj = bus.get_object("tr.org.pardus.comar", "/package/baselayout")
+     if ctx.flags.install_type == ctx.STEP_FIRST_BOOT or ctx.flags.install_type == ctx.STEP_DEFAULT:
+         obj.setUser(0, "", "", "", str(ctx.installData.rootPassword), "", dbus_interface="tr.org.pardus.comar.User.Manager")
+-    elif ctx.flags.install_type == ctx.STEP_BASE:
+-        obj.setUser(0, "", "", "", str(""), "", dbus_interface="tr.org.pardus.comar.User.Manager")
++
++    if ctx.flags.install_type == ctx.STEP_BASE:
++        obj.setUser(0, "", "", "", str("pardus"), "", dbus_interface="tr.org.pardus.comar.User.Manager")
+ 
+     return True
+ 
