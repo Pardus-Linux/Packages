@@ -12,6 +12,59 @@ index 1c18e3d..389d511 100644
          self.__c.repo_uri = os.path.join(self.__c.source_dir, "repo/pisi-index.xml.bz2")
          self.__c.pisi_collection_file = os.path.join(self.__c.data_dir, "data/index/collection.xml")
          self.__c.pisi_collection_dir = os.path.join(self.__c.data_dir, "data/index")
+diff --git a/yali/gui/ScrGoodbye.py b/yali/gui/ScrGoodbye.py
+index 4f235d1..15e92ec 100644
+--- a/yali/gui/ScrGoodbye.py
++++ b/yali/gui/ScrGoodbye.py
+@@ -9,7 +9,7 @@
+ #
+ # Please read the COPYING file.
+ #
+-
++import sys
+ import time
+ import gettext
+ _ = gettext.translation('yali', fallback=True).ugettext
+@@ -49,22 +49,20 @@ class Widget(QWidget, ScreenWidget):
+     def execute(self):
+         ctx.mainScreen.disableNext()
+ 
+-        ctx.logger.debug("Show restart dialog.")
+-        InfoDialog(_("Press <b>Restart</b> to restart the computer."), _("Restart"))
+-
+-        ctx.interface.informationWindow.update(_("<b>Please wait while restarting...</b>"))
+-
+-        # remove cd...
+-        # if installation type is First Boot
+         if not ctx.flags.install_type == ctx.STEP_FIRST_BOOT:
++            ctx.logger.debug("Show restart dialog.")
++            InfoDialog(_("Press <b>Restart</b> to restart the computer."), _("Restart"))
++            ctx.interface.informationWindow.update(_("<b>Please wait while restarting...</b>"))
+             ctx.logger.debug("Trying to eject the CD.")
+             yali.util.eject()
++            ctx.logger.debug("Yali, reboot calling..")
++            ctx.mainScreen.processEvents()
++            time.sleep(4)
++            yali.util.reboot()
++        else:
++            sys.exit(0)
+ 
+-        ctx.logger.debug("Yali, reboot calling..")
+ 
+-        ctx.mainScreen.processEvents()
+-        time.sleep(4)
+-        yali.util.reboot()
+ 
+     def processPendingActions(self):
+         self.steps.setOperations([{"text":_("Connecting to D-Bus..."), "operation":yali.postinstall.connectToDBus}])
+@@ -89,6 +87,7 @@ class Widget(QWidget, ScreenWidget):
+ 
+         if ctx.flags.install_type == ctx.STEP_FIRST_BOOT or ctx.flags.install_type == ctx.STEP_DEFAULT:
+             steps.append({"text":_("Adding users..."), "operation":yali.postinstall.addUsers})
++            steps.append({"text":_("Cleanup systems..."), "operation":yali.postinstall.cleanup})
+ 
+         if ctx.flags.install_type == ctx.STEP_BASE  or ctx.flags.install_type == ctx.STEP_DEFAULT:
+             steps.extend(base_steps)
 diff --git a/yali/gui/ScrSummary.py b/yali/gui/ScrSummary.py
 index afba9ac..7e2239b 100644
 --- a/yali/gui/ScrSummary.py
@@ -49,7 +102,7 @@ index afba9ac..7e2239b 100644
  
  
 diff --git a/yali/postinstall.py b/yali/postinstall.py
-index 3af9bc3..88eccf8 100644
+index 3af9bc3..ed40bff 100644
 --- a/yali/postinstall.py
 +++ b/yali/postinstall.py
 @@ -88,7 +88,12 @@ def connectToDBus():
@@ -166,3 +219,11 @@ index 3af9bc3..88eccf8 100644
  
      return True
  
+@@ -300,3 +338,7 @@ def installBootloader():
+     else:
+         ctx.logger.debug("Bootloader installed")
+         return True
++
++
++def cleanup():
++    os.system("pisi rm yali yali-theme-pardus yali-branding-pardus")

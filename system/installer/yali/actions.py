@@ -16,6 +16,7 @@ def setup():
         repo_uri = "http://packages.pardus.org.tr/pardus/2011/stable/x86_64/pisi-index.xml.xz"
 
     pisitools.dosed("yali/constants.py", "@REPO_URI@", repo_uri)
+    pisitools.dosed("conf/yali.conf", "@INSTALL_TYPE@", "system")
 
 def build():
     pythonmodules.compile()
