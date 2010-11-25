@@ -27,4 +27,7 @@ def build():
 def install():
     autotools.install("prefix=%s" % get.installDIR())
 
+    # This will be the new place for module-autoloading (systemd)
+    pisitools.dodir("/etc/modules-load.d")
+
     pisitools.dodoc("AUTHORS", "ChangeLog", "NEWS", "README", "TODO")
