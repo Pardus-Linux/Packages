@@ -19,33 +19,21 @@ def setup():
     shelltools.export("AUTOPOINT", "/bin/true")
 
     autotools.autoreconf("-fi")
+
+    # Extra fedora switches:
+    # --enable-login-utils will enable some utilities we ship in shadow
+    # --enable-kill will enable the kill utility we ship in coreutils
     autotools.configure('--bindir=/bin \
                          --sbindir=/sbin \
-                         --enable-nls \
-                         --enable-agetty \
-                         --enable-cramfs \
-                         --enable-mesg \
                          --enable-partx \
                          --enable-raw \
-                         --enable-rdev \
-                         --enable-rename \
-                         --enable-schedutils \
                          --enable-write \
-                         --enable-libuuid \
-                         --enable-uuidd \
                          --with-audit \
-                         --disable-switch_root \
-                         --disable-fsck \
-                         --disable-init \
-                         --disable-kill \
-                         --disable-last \
                          --disable-login-utils \
+                         --disable-use-tty-group \
                          --disable-makeinstall-chown \
-                         --disable-mesg \
-                         --disable-reset \
                          --disable-rpath \
                          --disable-static \
-                         --disable-use-tty-group \
                          --disable-wall')
 
 def build():
