@@ -1,0 +1,503 @@
+commit 67269bcd210aef645afecfafad1a3ec8ee7370b8
+Author: Werner Lemberg <wl@gnu.org>
+Date:   Wed Oct 6 11:52:27 2010 +0200
+
+    [truetype] Improve error handling of `SHZ' bytecode instruction.
+    Problem reported by Chris Evans <scarybeasts@gmail.com>.
+    
+    * src/truetype/ttinterp.c (Ins_SHZ): Check `last_point'.
+
+diff --git a/ChangeLog b/ChangeLog
+index a69b779..d4c298e 100644
+--- a/ChangeLog
++++ b/ChangeLog
+@@ -1,3 +1,10 @@
++2010-10-06  Werner Lemberg  <wl@gnu.org>
++
++	[truetype] Improve error handling of `SHZ' bytecode instruction.
++	Problem reported by Chris Evans <scarybeasts@gmail.com>.
++
++	* src/truetype/ttinterp.c (Ins_SHZ): Check `last_point'.
++
+ 2010-10-03  Werner Lemberg  <wl@gnu.org>
+ 
+ 	* Version 2.4.3 released.
+diff --git a/src/truetype/ttinterp.c b/src/truetype/ttinterp.c
+index bf9189c..e196dce 100644
+--- a/src/truetype/ttinterp.c
++++ b/src/truetype/ttinterp.c
+@@ -5795,7 +5795,16 @@
+     if ( CUR.GS.gep2 == 0 && CUR.zp2.n_points > 0 )
+       last_point = (FT_UShort)( CUR.zp2.n_points - 1 );
+     else if ( CUR.GS.gep2 == 1 && CUR.zp2.n_contours > 0 )
++    {
+       last_point = (FT_UShort)( CUR.zp2.contours[CUR.zp2.n_contours - 1] );
++
++      if ( BOUNDS( last_point, CUR.zp2.n_points ) )
++      {
++        if ( CUR.pedantic_hinting )
++          CUR.error = TT_Err_Invalid_Reference;
++        return;
++      }
++    }
+     else
+       last_point = 0;
+ 
+
+commit 69eb01b6ef565d3a0b62ff58a465de0f6d796ea0
+Author: Werner Lemberg <wl@gnu.org>
+Date:   Tue Oct 12 07:49:17 2010 +0200
+
+    Fix Savannah bug #31310.
+    
+    * src/truetype/ttgxvar.c (ft_var_readpackedpoints): Protect against
+    invalid `runcnt' values.
+
+diff --git a/ChangeLog b/ChangeLog
+index d4c298e..7a32679 100644
+--- a/ChangeLog
++++ b/ChangeLog
+@@ -1,3 +1,10 @@
++2010-10-12  Werner Lemberg  <wl@gnu.org>
++
++	Fix Savannah bug #31310.
++
++	* src/truetype/ttgxvar.c (ft_var_readpackedpoints): Protect against
++	invalid `runcnt' values.
++
+ 2010-10-06  Werner Lemberg  <wl@gnu.org>
+ 
+ 	[truetype] Improve error handling of `SHZ' bytecode instruction.
+diff --git a/src/truetype/ttgxvar.c b/src/truetype/ttgxvar.c
+index 653d9d5..47bb9fc 100644
+--- a/src/truetype/ttgxvar.c
++++ b/src/truetype/ttgxvar.c
+@@ -130,7 +130,7 @@
+     FT_Int     j;
+     FT_Int     first;
+     FT_Memory  memory = stream->memory;
+-    FT_Error   error = TT_Err_Ok;
++    FT_Error   error  = TT_Err_Ok;
+ 
+     FT_UNUSED( error );
+ 
+@@ -154,7 +154,7 @@
+         runcnt = runcnt & GX_PT_POINT_RUN_COUNT_MASK;
+         first  = points[i++] = FT_GET_USHORT();
+ 
+-        if ( runcnt < 1 )
++        if ( runcnt < 1 || i + runcnt >= n )
+           goto Exit;
+ 
+         /* first point not included in runcount */
+@@ -165,7 +165,7 @@
+       {
+         first = points[i++] = FT_GET_BYTE();
+ 
+-        if ( runcnt < 1 )
++        if ( runcnt < 1 || i + runcnt >= n )
+           goto Exit;
+ 
+         for ( j = 0; j < runcnt; ++j )
+
+commit 9e012d4bf8300e2520b7ff9e3a04d8d707f0c044
+Author: Werner Lemberg <wl@gnu.org>
+Date:   Fri Oct 15 20:44:15 2010 +0200
+
+    Fix thinko in spline flattening.
+    
+    FT_MAX_CURVE_DEVIATION is dependent on the value of ONE_PIXEL.
+    
+    * src/smooth/ftgrays.c (FT_MAX_CURVE_DEVIATION): Remove it and
+    replace it everywhere with ONE_PIXEL/8.
+
+diff --git a/ChangeLog b/ChangeLog
+index 7a32679..472b383 100644
+--- a/ChangeLog
++++ b/ChangeLog
+@@ -1,3 +1,12 @@
++2010-10-15  Alexei Podtelezhnikov  <apodtele@gmail.com>
++
++	Fix thinko in spline flattening.
++
++	FT_MAX_CURVE_DEVIATION is dependent on the value of ONE_PIXEL.
++
++	* src/smooth/ftgrays.c (FT_MAX_CURVE_DEVIATION): Remove it and
++	replace it everywhere with ONE_PIXEL/8.
++
+ 2010-10-12  Werner Lemberg  <wl@gnu.org>
+ 
+ 	Fix Savannah bug #31310.
+diff --git a/src/smooth/ftgrays.c b/src/smooth/ftgrays.c
+index 17d172f..4477638 100644
+--- a/src/smooth/ftgrays.c
++++ b/src/smooth/ftgrays.c
+@@ -91,11 +91,6 @@
+ #define FT_COMPONENT  trace_smooth
+ 
+ 
+-  /* The maximum distance of a curve from the chord, in 64ths of a pixel; */
+-  /* used when flattening curves.                                         */
+-#define FT_MAX_CURVE_DEVIATION  16
+-
+-
+ #ifdef _STANDALONE_
+ 
+ 
+@@ -891,14 +886,14 @@ typedef ptrdiff_t  FT_PtrDist;
+     if ( dx < dy )
+       dx = dy;
+ 
+-    if ( dx <= FT_MAX_CURVE_DEVIATION )
++    if ( dx <= ONE_PIXEL / 8 )
+     {
+       gray_render_line( RAS_VAR_ UPSCALE( to->x ), UPSCALE( to->y ) );
+       return;
+     }
+ 
+     level = 1;
+-    dx /= FT_MAX_CURVE_DEVIATION;
++    dx /= ONE_PIXEL / 8;
+     while ( dx > 1 )
+     {
+       dx >>= 2;
+@@ -1074,7 +1069,7 @@ typedef ptrdiff_t  FT_PtrDist;
+           goto Split;
+ 
+         /* Max deviation may be as much as (s/L) * 3/4 (if Hain's v = 1). */
+-        s_limit = L * (TPos)( FT_MAX_CURVE_DEVIATION / 0.75 );
++        s_limit = L * (TPos)( ONE_PIXEL / 6 );
+ 
+         /* s is L * the perpendicular distance from P1 to the line P0-P3. */
+         dx1 = arc[1].x - arc[0].x;
+
+commit 23fb0eb3896af814b9bf701872ff4aac9a9b94ed
+Author: Werner Lemberg <wl@gnu.org>
+Date:   Thu Oct 28 08:33:28 2010 +0200
+
+    [ftraster] Fix rendering.
+    
+    Problem reported by Tom Bishop <wenlin@wenlin.com>; see
+    thread starting with
+    
+      http://lists.gnu.org/archive/html/freetype/2010-10/msg00049.html
+    
+    * src/raster/ftraster.c (Line_Up): Replace FMulDiv with SMulDiv
+    since the involved multiplication exceeds 32 bits.
+
+diff --git a/ChangeLog b/ChangeLog
+index 472b383..5bd8a3b 100644
+--- a/ChangeLog
++++ b/ChangeLog
+@@ -1,3 +1,15 @@
++2010-10-28  Werner Lemberg  <wl@gnu.org>
++
++	[ftraster] Fix rendering.
++
++	Problem reported by Tom Bishop <wenlin@wenlin.com>; see
++	thread starting with
++
++	  http://lists.gnu.org/archive/html/freetype/2010-10/msg00049.html
++
++	* src/raster/ftraster.c (Line_Up): Replace FMulDiv with SMulDiv
++	since the involved multiplication exceeds 32 bits.
++
+ 2010-10-15  Alexei Podtelezhnikov  <apodtele@gmail.com>
+ 
+ 	Fix thinko in spline flattening.
+diff --git a/src/raster/ftraster.c b/src/raster/ftraster.c
+index 8feba2b..f472edd 100644
+--- a/src/raster/ftraster.c
++++ b/src/raster/ftraster.c
+@@ -1094,7 +1094,7 @@
+         return SUCCESS;
+       else
+       {
+-        x1 += FMulDiv( Dx, ras.precision - f1, Dy );
++        x1 += SMulDiv( Dx, ras.precision - f1, Dy );
+         e1 += 1;
+       }
+     }
+@@ -1122,13 +1122,13 @@
+ 
+     if ( Dx > 0 )
+     {
+-      Ix = SMulDiv( ras.precision, Dx,  Dy);
++      Ix = SMulDiv( ras.precision, Dx, Dy);
+       Rx = ( ras.precision * Dx ) % Dy;
+       Dx = 1;
+     }
+     else
+     {
+-      Ix = SMulDiv( ras.precision, -Dx,  Dy) * -1;
++      Ix = SMulDiv( ras.precision, -Dx, Dy) * -1;
+       Rx =    ( ras.precision * -Dx ) % Dy;
+       Dx = -1;
+     }
+
+commit 6077ec9bf4753ba1b9a6d8845fafe62ddc50db86
+Author: suzuki toshiya <mpsuzuki@hiroshima-u.ac.jp>
+Date:   Thu Nov 4 23:26:11 2010 +0900
+
+    [UVS] Fix find_variant_selector_charmap(), Savannah bug #31545.
+    
+    Since 2010-07-04, find_variant_selector_charmap() returns
+    the first cmap subtable always under rogue-compatible
+    configuration, it causes NULL pointer dereference and
+    make UVS-related functions crashed.
+    
+    * src/base/ftobjs.c (Fix find_variant_selector_charmap):
+    Returns UVS cmap correctly.
+
+diff --git a/ChangeLog b/ChangeLog
+index 5bd8a3b..42e2ad9 100644
+--- a/ChangeLog
++++ b/ChangeLog
+@@ -1,3 +1,15 @@
++2010-11-04  suzuki toshiya  <mpsuzuki@hiroshima-u.ac.jp>
++
++	[UVS] Fix find_variant_selector_charmap(), Savannah bug #31545.
++
++	Since 2010-07-04, find_variant_selector_charmap() returns
++	the first cmap subtable always under rogue-compatible
++	configuration, it causes NULL pointer dereference and
++	make UVS-related functions crashed.
++
++	* src/base/ftobjs.c (Fix find_variant_selector_charmap):
++	Returns UVS cmap correctly.
++
+ 2010-10-28  Werner Lemberg  <wl@gnu.org>
+ 
+ 	[ftraster] Fix rendering.
+diff --git a/src/base/ftobjs.c b/src/base/ftobjs.c
+index 7f38df0..b1e6452 100644
+--- a/src/base/ftobjs.c
++++ b/src/base/ftobjs.c
+@@ -1062,6 +1062,7 @@
+       if ( cur[0]->platform_id == TT_PLATFORM_APPLE_UNICODE    &&
+            cur[0]->encoding_id == TT_APPLE_ID_VARIANT_SELECTOR &&
+            FT_Get_CMap_Format( cur[0] ) == 14                  )
++      {
+ #ifdef FT_MAX_CHARMAP_CACHEABLE
+         if ( cur - first > FT_MAX_CHARMAP_CACHEABLE )
+         {
+@@ -1071,6 +1072,7 @@
+         }
+ #endif
+         return cur[0];
++      }
+     }
+ 
+     return NULL;
+
+commit b4c9a6589de51582d2600e55e2ef8c80e53963f8
+Author: Werner Lemberg <wl@gnu.org>
+Date:   Thu Nov 18 10:28:16 2010 +0100
+
+    [type1]: Improve guard against malformed data.
+    Based on a patch submitted by Johnson Y. Yan
+    <yinsen_yan@foxitsoftware.com>
+    
+    * src/type1/t1load.c (read_binary_data): Check `size'.
+
+diff --git a/ChangeLog b/ChangeLog
+index 42e2ad9..0a0a804 100644
+--- a/ChangeLog
++++ b/ChangeLog
+@@ -1,3 +1,11 @@
++2010-11-18  Werner Lemberg  <wl@gnu.org>
++
++	[type1]: Improve guard against malformed data.
++	Based on a patch submitted by Johnson Y. Yan
++	<yinsen_yan@foxitsoftware.com>
++
++	* src/type1/t1load.c (read_binary_data): Check `size'.
++
+ 2010-11-04  suzuki toshiya  <mpsuzuki@hiroshima-u.ac.jp>
+ 
+ 	[UVS] Fix find_variant_selector_charmap(), Savannah bug #31545.
+diff --git a/src/type1/t1load.c b/src/type1/t1load.c
+index d867e94..ae5c084 100644
+--- a/src/type1/t1load.c
++++ b/src/type1/t1load.c
+@@ -4,7 +4,8 @@
+ /*                                                                         */
+ /*    Type 1 font loader (body).                                           */
+ /*                                                                         */
+-/*  Copyright 1996-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 by */
++/*  Copyright 1996-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009,   */
++/*            2010 by                                                      */
+ /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
+ /*                                                                         */
+ /*  This file is part of the FreeType project, and may only be used,       */
+@@ -1045,7 +1046,8 @@
+ 
+     if ( cur < limit && ft_isdigit( *cur ) )
+     {
+-      *size = T1_ToInt( parser );
++      FT_Long  s = T1_ToInt( parser );
++
+ 
+       T1_Skip_PS_Token( parser );   /* `RD' or `-|' or something else */
+ 
+@@ -1053,8 +1055,12 @@
+       /* `RD' or `-|' token                          */
+       *base = parser->root.cursor + 1;
+ 
+-      parser->root.cursor += *size + 1;
+-      return !parser->root.error;
++      if ( s >= 0 && s < limit - *base )
++      {
++        parser->root.cursor += s + 1;
++        *size = s;
++        return !parser->root.error;
++      }
+     }
+ 
+     FT_ERROR(( "read_binary_data: invalid size field\n" ));
+
+commit e6abcef7f390f617c34e58de5428d3894cd4894e
+Author: Johnson Y. Yan <yinsen_yan@foxitsoftware.com>
+Date:   Thu Nov 18 10:36:59 2010 +0100
+
+    [type1] Fix matrix normalization.
+    
+    * src/type1/t1load.c (parse_font_matrix): Handle sign of scaling
+    factor.
+
+diff --git a/ChangeLog b/ChangeLog
+index 0a0a804..9fea8a3 100644
+--- a/ChangeLog
++++ b/ChangeLog
+@@ -1,6 +1,13 @@
++2010-11-18  Johnson Y. Yan  <yinsen_yan@foxitsoftware.com>
++
++	[type1] Fix matrix normalization.
++
++	* src/type1/t1load.c (parse_font_matrix): Handle sign of scaling
++	factor.
++
+ 2010-11-18  Werner Lemberg  <wl@gnu.org>
+ 
+-	[type1]: Improve guard against malformed data.
++	[type1] Improve guard against malformed data.
+ 	Based on a patch submitted by Johnson Y. Yan
+ 	<yinsen_yan@foxitsoftware.com>
+ 
+diff --git a/src/type1/t1load.c b/src/type1/t1load.c
+index ae5c084..35380e7 100644
+--- a/src/type1/t1load.c
++++ b/src/type1/t1load.c
+@@ -1117,7 +1117,7 @@
+       temp[2] = FT_DivFix( temp[2], temp_scale );
+       temp[4] = FT_DivFix( temp[4], temp_scale );
+       temp[5] = FT_DivFix( temp[5], temp_scale );
+-      temp[3] = 0x10000L;
++      temp[3] = temp[3] < 0 ? -0x10000L : 0x10000L;
+     }
+ 
+     matrix->xx = temp[0];
+
+commit 76dfbfa2041615008fbd85e742535b3d13f8f306
+Author: Werner Lemberg <wl@gnu.org>
+Date:   Thu Nov 18 13:08:52 2010 +0100
+
+    [sfnt] Ignore all errors while loading `OS/2' table.
+    Suggested by Johnson Y. Yan <yinsen_yan@foxitsoftware.com>.
+    
+    * src/sfnt/sfobjs.c (sfnt_load_face): Do it.
+
+diff --git a/ChangeLog b/ChangeLog
+index 9fea8a3..018f580 100644
+--- a/ChangeLog
++++ b/ChangeLog
+@@ -1,3 +1,10 @@
++2010-11-18  Werner Lemberg  <wl@gnu.org>
++
++	[sfnt] Ignore all errors while loading `OS/2' table.
++	Suggested by Johnson Y. Yan <yinsen_yan@foxitsoftware.com>.
++
++	* src/sfnt/sfobjs.c (sfnt_load_face): Do it.
++
+ 2010-11-18  Johnson Y. Yan  <yinsen_yan@foxitsoftware.com>
+ 
+ 	[type1] Fix matrix normalization.
+diff --git a/src/sfnt/sfobjs.c b/src/sfnt/sfobjs.c
+index 6e35e2d..5a1d003 100644
+--- a/src/sfnt/sfobjs.c
++++ b/src/sfnt/sfobjs.c
+@@ -691,9 +691,7 @@
+       LOAD_( os2 );
+       if ( error )
+       {
+-        if ( error != SFNT_Err_Table_Missing )
+-          goto Exit;
+-
++        /* we treat the table as missing if there are any errors */
+         face->os2.version = 0xFFFFU;
+       }
+     }
+
+commit 4bf29bc70c0d8b3480b8e0cabac51a7cf3cb9e82
+Author: Werner Lemberg <wl@gnu.org>
+Date:   Thu Nov 18 20:34:22 2010 +0100
+
+    [truetype] Fix `loca' handling for inconsistent number of glyphs.
+    Reported by Johnson Y. Yan <yinsen_yan@foxitsoftware.com>.
+    
+    * src/truetype/ttpload.c (tt_face_load_loca): While sanitizing,
+    handle case where `loca' is the last table in the font.
+
+diff --git a/ChangeLog b/ChangeLog
+index 018f580..555b070 100644
+--- a/ChangeLog
++++ b/ChangeLog
+@@ -1,5 +1,13 @@
+ 2010-11-18  Werner Lemberg  <wl@gnu.org>
+ 
++	[truetype] Fix `loca' handling for inconsistent number of glyphs.
++	Reported by Johnson Y. Yan <yinsen_yan@foxitsoftware.com>.
++
++	* src/truetype/ttpload.c (tt_face_load_loca): While sanitizing,
++	handle case where `loca' is the last table in the font.
++
++2010-11-18  Werner Lemberg  <wl@gnu.org>
++
+ 	[sfnt] Ignore all errors while loading `OS/2' table.
+ 	Suggested by Johnson Y. Yan <yinsen_yan@foxitsoftware.com>.
+ 
+diff --git a/src/truetype/ttpload.c b/src/truetype/ttpload.c
+index c531733..68a5453 100644
+--- a/src/truetype/ttpload.c
++++ b/src/truetype/ttpload.c
+@@ -4,7 +4,7 @@
+ /*                                                                         */
+ /*    TrueType-specific tables loader (body).                              */
+ /*                                                                         */
+-/*  Copyright 1996-2001, 2002, 2004, 2005, 2006, 2007, 2008, 2009 by       */
++/*  Copyright 1996-2001, 2002, 2004, 2005, 2006, 2007, 2008, 2009, 2010 by */
+ /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
+ /*                                                                         */
+ /*  This file is part of the FreeType project, and may only be used,       */
+@@ -137,6 +137,12 @@
+             dist = diff;
+         }
+ 
++        if ( entry == limit )
++        {
++          /* `loca' is the last table */
++          dist = stream->size - pos;
++        }
++
+         if ( new_loca_len <= dist )
+         {
+           face->num_locations = face->root.num_glyphs;
+@@ -307,7 +313,7 @@
+       FT_Short*  limit = cur + face->cvt_size;
+ 
+ 
+-      for ( ; cur <  limit; cur++ )
++      for ( ; cur < limit; cur++ )
+         *cur = FT_GET_SHORT();
+     }
+ 
