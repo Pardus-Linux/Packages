@@ -13,8 +13,11 @@ from pisi.actionsapi import get
 LOGO_FILE = "/usr/share/pixmaps/plymouth-pardus.png"
 THEMEPATH = "/usr/share/plymouth/themes"
 
-# The end-start colors seems to be used by the two-step plugin
-BASE_CONFIGURE_PARAMS = "--disable-tracing \
+def setup():
+    autotools.autoreconf("-fis")
+
+    # The end-start colors seems to be used by the two-step plugin
+    autotools.configure("--disable-tracing \
                          --with-logo=%s \
                          --with-release-file=/etc/pardus-release \
                          --with-background-color=0x000000 \
@@ -28,13 +31,7 @@ BASE_CONFIGURE_PARAMS = "--disable-tracing \
                          --disable-static \
                          --disable-gdm-transition \
                          --without-rhgb-compat-link \
-                         --without-gdm-autostart-file \
-                         --localstatedir=/var" % LOGO_FILE
-
-
-def setup():
-    autotools.autoreconf("-fis")
-    autotools.configure(BASE_CONFIGURE_PARAMS)
+                         --without-gdm-autostart-file" % LOGO_FILE)
 
 def build():
     autotools.make()

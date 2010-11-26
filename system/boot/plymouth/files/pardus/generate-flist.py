@@ -19,7 +19,7 @@ paths = (
             "/etc/plymouth",
         )
 
-FILE_LIST = "usr/share/plymouth/initramfs.files"
+FILE_LIST = "lib/initramfs/plymouth.list"
 
 def usage():
     print "%s <directory>" % sys.argv[0]
