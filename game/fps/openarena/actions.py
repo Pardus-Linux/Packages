@@ -14,7 +14,10 @@ import os
 # 0.8.5 is a patch over 0.8.1
 WorkDir = "openarena-engine-0.8.1"
 #WorkDir = "openarena-engine-%s" % get.srcVERSION()
-builddir = "build/release-linux-%s" % get.ARCH()
+
+build_arch = "x86_64" if get.ARCH() == "x86_64" else "i386"
+
+builddir = "build/release-linux-%s" % build_arch
 datadir = "/usr/share/openarena"
 
 def build():
@@ -31,8 +34,8 @@ def build():
                     USE_LOCAL_HEADERS=1' % (get.CFLAGS(), datadir))
 
 def install():
-    pisitools.insinto("/usr/bin", "%s/oa_ded.%s" % (builddir, get.ARCH()), "openarena-server")
-    pisitools.insinto("/usr/bin", "%s/openarena.%s" % (builddir, get.ARCH()), "openarena")
-    pisitools.insinto("/usr/bin", "%s/openarena-smp.%s" % (builddir, get.ARCH()), "openarena-smp")
+    pisitools.insinto("/usr/bin", "%s/oa_ded.%s" % (builddir, build_arch), "openarena-server")
+    pisitools.insinto("/usr/bin", "%s/openarena.%s" % (builddir, build_arch), "openarena")
+    pisitools.insinto("/usr/bin", "%s/openarena-smp.%s" % (builddir, build_arch), "openarena-smp")
 
     pisitools.dodoc("BUGS", "ChangeLog", "NOTTODO", "TODO", "README", "*.txt")
