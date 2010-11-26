@@ -1,0 +1,122 @@
+--- dcmnet/apps/findscu.cc.orig	2010-11-24 21:23:17.050000010 +0200
++++ dcmnet/apps/findscu.cc	2010-11-24 21:23:29.847000012 +0200
+@@ -125,16 +125,17 @@
+ 
+     // try to parse group and element number
+     n = sscanf(s, "%x,%x=%s", &g, &e, val);
+-    if (n < 2) {
+-      // try to parse dictionary name and value instead
+-      OFString toParse = s;
+-      size_t eqPos = toParse.find('=');
+-      if (eqPos != string::npos)
++    OFString toParse = s;
++    size_t eqPos = toParse.find('=');
++    if (n < 2)  // if at least no tag could be parsed
++    { 
++      // if value is given, extract it (and extrect dictname)
++      if (eqPos != OFString_npos)
+       {
+         dicName = toParse.substr(0,eqPos).c_str();
+         valStr = toParse.substr(eqPos+1,toParse.length());
+       }
+-      else
++      else // no value given, just dictionary name
+         dicName = s; // only dictionary name given (without value)
+       // try to lookup in dictionary
+       DcmTagKey key(0xffff,0xffff);
+@@ -153,9 +154,12 @@
+         msg += dicName;
+         app.printError(msg.c_str());
+       }
+-    }
++    } // tag could be parsed, copy value if it exists
+     else
+-      valStr = val;
++    {
++      if (eqPos != OFString_npos)
++        valStr = toParse.substr(eqPos+1,toParse.length());
++    }
+     DcmTag tag(g,e);
+     if (tag.error() != EC_Normal) {
+         sprintf(msg2, "unknown tag: (%04x,%04x)", g, e);
+@@ -167,8 +171,7 @@
+         app.printError(msg2);
+     }
+     if (valStr.length() > 0) {
+-        elem->putString(valStr.c_str());
+-        if (elem->error() != EC_Normal)
++        if (elem->putString(valStr.c_str()).bad())
+         {
+             sprintf(msg2, "cannot put tag value: (%04x,%04x)=\"", g, e);
+             msg = msg2;
+@@ -179,8 +182,7 @@
+     }
+ 
+     if (overrideKeys == NULL) overrideKeys = new DcmDataset;
+-    overrideKeys->insert(elem, OFTrue);
+-    if (overrideKeys->error() != EC_Normal) {
++    if (overrideKeys->insert(elem, OFTrue).bad()) {
+         sprintf(msg2, "cannot insert tag: (%04x,%04x)", g, e);
+         app.printError(msg2);
+     }
+--- dcmnet/apps/movescu.cc.orig	2010-11-24 21:24:59.646000010 +0200
++++ dcmnet/apps/movescu.cc	2010-11-24 21:25:07.849000010 +0200
+@@ -155,16 +155,17 @@
+ 
+     // try to parse group and element number
+     n = sscanf(s, "%x,%x=%s", &g, &e, val);
+-    if (n < 2) {
+-      // try to parse dictionary name and value instead
+-      OFString toParse = s;
+-      size_t eqPos = toParse.find('=');
+-      if (eqPos != string::npos)
++    OFString toParse = s;
++    size_t eqPos = toParse.find('=');
++    if (n < 2)  // if at least no tag could be parsed
++    { 
++      // if value is given, extract it (and extrect dictname)
++      if (eqPos != OFString_npos)
+       {
+         dicName = toParse.substr(0,eqPos).c_str();
+         valStr = toParse.substr(eqPos+1,toParse.length());
+       }
+-      else
++      else // no value given, just dictionary name
+         dicName = s; // only dictionary name given (without value)
+       // try to lookup in dictionary
+       DcmTagKey key(0xffff,0xffff);
+@@ -183,9 +184,12 @@
+         msg += dicName;
+         app.printError(msg.c_str());
+       }
+-    }
++    } // tag could be parsed, copy value if it exists
+     else
+-      valStr = val;
++    {
++      if (eqPos != OFString_npos)
++        valStr = toParse.substr(eqPos+1,toParse.length());
++    }
+     DcmTag tag(g,e);
+     if (tag.error() != EC_Normal) {
+         sprintf(msg2, "unknown tag: (%04x,%04x)", g, e);
+@@ -197,8 +201,7 @@
+         app.printError(msg2);
+     }
+     if (valStr.length() > 0) {
+-        elem->putString(valStr.c_str());
+-        if (elem->error() != EC_Normal)
++        if (elem->putString(valStr.c_str()).bad())
+         {
+             sprintf(msg2, "cannot put tag value: (%04x,%04x)=\"", g, e);
+             msg = msg2;
+@@ -209,8 +212,7 @@
+     }
+ 
+     if (overrideKeys == NULL) overrideKeys = new DcmDataset;
+-    overrideKeys->insert(elem, OFTrue);
+-    if (overrideKeys->error() != EC_Normal) {
++    if (overrideKeys->insert(elem, OFTrue).bad()) {
+         sprintf(msg2, "cannot insert tag: (%04x,%04x)", g, e);
+         app.printError(msg2);
+     }
