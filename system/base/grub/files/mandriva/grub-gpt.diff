@@ -1,7 +1,53 @@
-diff -Nurp grub-0.97.old/stage2/builtins.c grub-0.97/stage2/builtins.c
---- grub-0.97.old/stage2/builtins.c	2008-11-05 17:39:17.000000000 +0100
-+++ grub-0.97/stage2/builtins.c	2008-11-05 17:40:36.000000000 +0100
-@@ -1255,14 +1255,15 @@ find_func (char *arg, int flags)
+Hi,
+
+Here is some patch I wrote because of my work for XenSource as part of
+Summer of Code.  I understand that it will not be included in GRUB
+Legacy CVS, but I hope this will be useful for at least some people or
+distributions.
+
+This patch adds support for GPT partitions.  When a protective MBR is
+detected, it reads the GPT partitions instead of the MBR partitions.
+This can be used to use GRUB Legacy using the Legacy Firmware of the
+Intel Mac to boot into GNU/Linux without changing the protective MBR.
+
+If someone is interested in this patch I will be happy to talk about
+improvements.  For example, one thing I have in mind is the abuse of
+the protective MBR to install windows.  My patch disables this ability
+of abuse but also the possibility to chainload windows (I assume).
+
+Please do not interpret this email as a personal interest to work on
+GRUB Legacy, I will remain working on GRUB 2 like I used to.
+
+--
+Marco
+
+
+
+2006-07-25  Marco Gerards  <mgerards@xs4all.nl>
+
+	* stage2/disk_io.c: Include <gpt.h>.
+	(next_partition):  Added the `gpt_offset', `gpt_count' and
+	`gpt_size' arguments.  If the MBR is a Protective MBR, use the GPT
+	partition table.  Added the local function `int next_gpt_slice'.
+	Updated all callers.
+
+	* stage2/shared.h (next_partition): Added the `gpt_offset',
+	`gpt_count' and `gpt_size' arguments.
+
+	* stage2/pc_slice.h (PC_SLICE_TYPE_GPT): New macro.
+
+	* stage2/gpt.h: New file.
+
+
+
+Index: stage2/builtins.c
+===================================================================
+RCS file: /sources/grub/grub/stage2/builtins.c,v
+retrieving revision 1.152
+diff -u -p -u -p -r1.152 builtins.c
+--- grub-0.97/stage2/builtins.c	21 Mar 2006 20:51:58 -0000	1.152
++++ grub-0.97/stage2/builtins.c	25 Jul 2006 12:32:34 -0000
+@@ -1233,14 +1233,15 @@ find_func (char *arg, int flags)
    for (drive = 0x80; drive < 0x88; drive++)
      {
        unsigned long part = 0xFFFFFF;
@@ -15,12 +61,12 @@ diff -Nurp grub-0.97.old/stage2/builtins.c grub-0.97/stage2/builtins.c
        while (next_partition (drive, 0xFFFFFF, &part, &type,
  			     &start, &len, &offset, &entry,
 -			     &ext_offset, buf))
-+                            &ext_offset, &gpt_offset,
-+                            &gpt_count, &gpt_size, buf))
++			     &ext_offset, &gpt_offset,
++			     &gpt_count, &gpt_size, buf))
  	{
  	  if (type != PC_SLICE_TYPE_NONE
  	      && ! IS_PC_SLICE_TYPE_BSD (type)
-@@ -2877,8 +2878,8 @@ parttype_func (char *arg, int flags)
+@@ -2815,8 +2816,8 @@ parttype_func (char *arg, int flags)
  {
    int new_type;
    unsigned long part = 0xFFFFFF;
@@ -31,26 +77,30 @@ diff -Nurp grub-0.97.old/stage2/builtins.c grub-0.97/stage2/builtins.c
    char mbr[512];
  
    /* Get the drive and the partition.  */
-@@ -2915,8 +2916,15 @@ parttype_func (char *arg, int flags)
+@@ -2853,8 +2854,15 @@ parttype_func (char *arg, int flags)
    /* Look for the partition.  */
    while (next_partition (current_drive, 0xFFFFFF, &part, &type,
  			 &start, &len, &offset, &entry,
 -			 &ext_offset, mbr))
 +			 &ext_offset, &gpt_offset, &gpt_count, &gpt_size, mbr))
      {
-+	  /* The partition may not be a GPT partition.  */
-+	  if (gpt_offset != 0)
-+    {
-+		errnum = ERR_BAD_ARGUMENT;
-+		return 1;
-+	    }
++      /* The partition may not be a GPT partition.  */
++      if (gpt_offset != 0)
++	{
++	  errnum = ERR_BAD_ARGUMENT;
++	  return 1;
++	}
 +
        if (part == current_partition)
  	{
  	  /* Found.  */
-diff -Nurp grub-0.97.old/stage2/disk_io.c grub-0.97/stage2/disk_io.c
---- grub-0.97.old/stage2/disk_io.c	2008-11-05 17:39:17.000000000 +0100
-+++ grub-0.97/stage2/disk_io.c	2008-11-05 17:40:36.000000000 +0100
+Index: stage2/disk_io.c
+===================================================================
+RCS file: /sources/grub/grub/stage2/disk_io.c,v
+retrieving revision 1.58
+diff -u -p -u -p -r1.58 disk_io.c
+--- grub-0.97/stage2/disk_io.c	23 May 2004 16:45:45 -0000	1.58
++++ grub-0.97/stage2/disk_io.c	25 Jul 2006 12:32:35 -0000
 @@ -21,6 +21,7 @@
  
  #include <shared.h>
@@ -70,73 +120,74 @@ diff -Nurp grub-0.97.old/stage2/disk_io.c grub-0.97/stage2/disk_io.c
    char mbr[512];
    
    /* The drive must be a hard disk.  */
-@@ -524,8 +525,15 @@ set_partition_hidden_flag (int hidden)
+@@ -524,8 +525,16 @@ set_partition_hidden_flag (int hidden)
    /* Look for the partition.  */
    while (next_partition (current_drive, 0xFFFFFF, &part, &type,           
  			 &start, &len, &offset, &entry,
 -			 &ext_offset, mbr))
 +			 &ext_offset, &gpt_offset, &gpt_count, &gpt_size, mbr))
-+    {
-+	  /* The partition may not be a GPT partition.  */
-+	  if (gpt_offset != 0)
      {                                                                       
-+		errnum = ERR_BAD_ARGUMENT;
-+		return 1;
-+	    }
++      /* The partition may not be a GPT partition.  */
++      if (gpt_offset != 0)
++	{
++	  errnum = ERR_BAD_ARGUMENT;
++	  return 1;
++	}
++
 +
        if (part == current_partition)
  	{
  	  /* Found.  */
-@@ -577,11 +585,14 @@ next_partition (unsigned long drive, uns
+@@ -577,11 +586,14 @@ next_partition (unsigned long drive, uns
  		unsigned long *partition, int *type,
  		unsigned long *start, unsigned long *len,
  		unsigned long *offset, int *entry,
 -		unsigned long *ext_offset, char *buf)
-+               unsigned long *ext_offset,
-+               unsigned long *gpt_offset, int *gpt_count,
-+               int *gpt_size, char *buf)
++		unsigned long *ext_offset,
++		unsigned long *gpt_offset, int *gpt_count,
++		int *gpt_size, char *buf)
  {
    /* Forward declarations.  */
    auto int next_bsd_partition (void);
    auto int next_pc_slice (void);
-+  auto int next_gpt_slice(void);
++  auto int next_gpt_slice (void);
  
    /* Get next BSD partition in current PC slice.  */
    int next_bsd_partition (void)
-@@ -666,6 +677,40 @@ next_partition (unsigned long drive, uns
+@@ -666,6 +678,40 @@ next_partition (unsigned long drive, uns
  	  return 0;
  	}
  
 +      /* If this is a GPT partition table, read it as such.  */
 +      if (*entry == -1 && *offset == 0 && PC_SLICE_TYPE (buf, 0) == PC_SLICE_TYPE_GPT)
-+       {
-+         struct grub_gpt_header *hdr = (struct grub_gpt_header *) buf;
++	{
++	  struct grub_gpt_header *hdr = (struct grub_gpt_header *) buf;
 +
-+         /* Read in the GPT Partition table header.  */
-+         if (! rawread (drive, 1, 0, SECTOR_SIZE, buf))
-+           return 0;
++	  /* Read in the GPT Partition table header.  */
++	  if (! rawread (drive, 1, 0, SECTOR_SIZE, buf))
++	    return 0;
 +
-+         if (hdr->magic == GPT_HEADER_MAGIC && hdr->version == 0x10000)
-+           {
-+             /* Let gpt_offset point to the first entry in the GPT
-+                partition table.  This can also be used by callers of
-+                next_partition to determine if a entry comes from a
-+                GPT partition table or not.  */
-+             *gpt_offset = hdr->partitions;
-+             *gpt_count = hdr->maxpart;
-+             *gpt_size =  hdr->partentry_size;
-+             
-+             return next_gpt_slice();
-+           }
-+         else
-+           {
-+             /* This is not a valid header for a GPT partition table.
-+                Re-read the MBR or the boot sector of the extended
-+                partition.  */
-+             if (! rawread (drive, *offset, 0, SECTOR_SIZE, buf))
-+               return 0;
-+           }
-+       }
++	  if (hdr->magic == GPT_HEADER_MAGIC && hdr->version == 0x10000)
++	    {
++	      /* Let gpt_offset point to the first entry in the GPT
++		 partition table.  This can also be used by callers of
++		 next_partition to determine if a entry comes from a
++		 GPT partition table or not.  */
++	      *gpt_offset = hdr->partitions;
++	      *gpt_count = hdr->maxpart;
++	      *gpt_size =  hdr->partentry_size;
++	      
++	      return next_gpt_slice();
++	    }
++	  else
++	    {
++	      /* This is not a valid header for a GPT partition table.
++		 Re-read the MBR or the boot sector of the extended
++		 partition.  */
++	      if (! rawread (drive, *offset, 0, SECTOR_SIZE, buf))
++		return 0;
++	    }
++	}
 +
 +      /* Not a GPT partition.  */
 +      *gpt_offset = 0;
@@ -144,7 +195,7 @@ diff -Nurp grub-0.97.old/stage2/disk_io.c grub-0.97/stage2/disk_io.c
        /* Increase the entry number.  */
        (*entry)++;
  
-@@ -710,6 +755,43 @@ next_partition (unsigned long drive, uns
+@@ -710,6 +756,43 @@ next_partition (unsigned long drive, uns
        return 1;
      }
  
@@ -157,22 +208,22 @@ diff -Nurp grub-0.97.old/stage2/disk_io.c grub-0.97/stage2/disk_io.c
 +
 +      /* If this is the first time...  */
 +      if (pc_slice_no == 0xFF)
-+       {
-+         pc_slice_no = -1;
-+         *entry = -1;
-+       }
++	{
++	  pc_slice_no = -1;
++	  *entry = -1;
++	}
 +
 +      do {
-+       (*entry)++;
++	(*entry)++;
 +
-+       if (*entry >= *gpt_count)
-+         {
-+           errnum = ERR_NO_PART;
-+           return 0;
-+         }
-+       /* Read in the GPT Partition table entry.  */
-+       if (! rawread (drive, (*gpt_offset) + GPT_ENTRY_SECTOR (*gpt_size, *entry), GPT_ENTRY_INDEX (*gpt_size, *entry), *gpt_size, buf))
-+         return 0;
++	if (*entry >= *gpt_count)
++	  {
++	    errnum = ERR_NO_PART;
++	    return 0;
++	  }
++	/* Read in the GPT Partition table entry.  */
++	if (! rawread (drive, (*gpt_offset) + GPT_ENTRY_SECTOR (*gpt_size, *entry), GPT_ENTRY_INDEX (*gpt_size, *entry), *gpt_size, buf))
++	  return 0;
 +      } while (! (gptentry->type1 && gptentry->type2));
 +
 +      pc_slice_no++;
@@ -188,7 +239,7 @@ diff -Nurp grub-0.97.old/stage2/disk_io.c grub-0.97/stage2/disk_io.c
    /* Start the body of this function.  */
    
  #ifndef STAGE1_5
-@@ -717,6 +799,9 @@ next_partition (unsigned long drive, uns
+@@ -717,6 +800,9 @@ next_partition (unsigned long drive, uns
      return 0;
  #endif
  
@@ -198,7 +249,7 @@ diff -Nurp grub-0.97.old/stage2/disk_io.c grub-0.97/stage2/disk_io.c
    /* If previous partition is a BSD partition or a PC slice which
       contains BSD partitions...  */
    if ((*partition != 0xFFFFFF && IS_PC_SLICE_TYPE_BSD (*type & 0xff))
-@@ -755,6 +840,9 @@ real_open_partition (int flags)
+@@ -755,6 +841,9 @@ real_open_partition (int flags)
    unsigned long dest_partition = current_partition;
    unsigned long part_offset;
    unsigned long ext_offset;
@@ -208,19 +259,22 @@ diff -Nurp grub-0.97.old/stage2/disk_io.c grub-0.97/stage2/disk_io.c
    int entry;
    char buf[SECTOR_SIZE];
    int bsd_part, pc_slice;
-@@ -766,7 +854,8 @@ real_open_partition (int flags)
+@@ -766,7 +855,8 @@ real_open_partition (int flags)
        int ret = next_partition (current_drive, dest_partition,
  				&current_partition, &current_slice,
  				&part_start, &part_length,
 -				&part_offset, &entry, &ext_offset, buf);
-+                               &part_offset, &entry, &ext_offset,
-+                               &gpt_offset, &gpt_count, &gpt_size, buf);
++				&part_offset, &entry, &ext_offset,
++				&gpt_offset, &gpt_count, &gpt_size, buf);
        bsd_part = (current_partition >> 8) & 0xFF;
        pc_slice = current_partition >> 16;
        return ret;
-diff -Nurp grub-0.97.old/stage2/gpt.h grub-0.97/stage2/gpt.h
---- grub-0.97.old/stage2/gpt.h	1970-01-01 01:00:00.000000000 +0100
-+++ grub-0.97/stage2/gpt.h	2008-11-05 17:40:36.000000000 +0100
+Index: stage2/gpt.h
+===================================================================
+RCS file: stage2/gpt.h
+diff -N stage2/gpt.h
+--- /dev/null	1 Jan 1970 00:00:00 -0000
++++ grub-0.97/stage2/gpt.h	25 Jul 2006 12:32:36 -0000
 @@ -0,0 +1,68 @@
 +/*
 + *  GRUB  --  GRand Unified Bootloader
@@ -282,36 +336,44 @@ diff -Nurp grub-0.97.old/stage2/gpt.h grub-0.97/stage2/gpt.h
 +  char name[72];
 +} __attribute__ ((packed));
 +
-+#define GPT_HEADER_MAGIC       0x5452415020494645ULL
++#define GPT_HEADER_MAGIC       0x5452415020494645UL
 +
-+#define        GPT_ENTRY_SECTOR(size,entry)                                    \
-+       ((((entry) * (size) + 1) & ~(SECTOR_SIZE - 1)) >> SECTOR_BITS)
-+#define        GPT_ENTRY_INDEX(size,entry)                                     \
-+       ((((entry) * (size) + 1) & (SECTOR_SIZE - 1)) - 1)
++#define	GPT_ENTRY_SECTOR(size,entry)					\
++	((((entry) * (size) + 1) & ~(SECTOR_SIZE - 1)) >> SECTOR_BITS)
++#define	GPT_ENTRY_INDEX(size,entry)					\
++	((((entry) * (size) + 1) & (SECTOR_SIZE - 1)) - 1)
 +
 +#endif /* _GPT_H */
-diff -Nurp grub-0.97.old/stage2/pc_slice.h grub-0.97/stage2/pc_slice.h
---- grub-0.97.old/stage2/pc_slice.h	2008-11-05 17:39:17.000000000 +0100
-+++ grub-0.97/stage2/pc_slice.h	2008-11-05 17:40:36.000000000 +0100
-@@ -117,6 +117,7 @@
- #define PC_SLICE_TYPE_ZEN		0xbc
- #define PC_SLICE_TYPE_ZEN_DISABLED	0xbd
+Index: stage2/pc_slice.h
+===================================================================
+RCS file: /sources/grub/grub/stage2/pc_slice.h,v
+retrieving revision 1.16
+diff -u -p -u -p -r1.16 pc_slice.h
+--- grub-0.97/stage2/pc_slice.h	24 Jan 2003 16:28:41 -0000	1.16
++++ grub-0.97/stage2/pc_slice.h	25 Jul 2006 12:32:36 -0000
+@@ -115,6 +115,7 @@
+ #define PC_SLICE_TYPE_LINUX_EXTENDED	0x85
+ #define PC_SLICE_TYPE_VSTAFS		0x9e
  #define PC_SLICE_TYPE_DELL_UTIL		0xde
-+#define PC_SLICE_TYPE_GPT              0xee
++#define PC_SLICE_TYPE_GPT		0xee
  #define PC_SLICE_TYPE_LINUX_RAID	0xfd
  
  
-diff -Nurp grub-0.97.old/stage2/shared.h grub-0.97/stage2/shared.h
---- grub-0.97.old/stage2/shared.h	2008-11-05 17:39:17.000000000 +0100
-+++ grub-0.97/stage2/shared.h	2008-11-05 17:40:36.000000000 +0100
-@@ -984,7 +984,9 @@ int next_partition (unsigned long drive,
+Index: stage2/shared.h
+===================================================================
+RCS file: /sources/grub/grub/stage2/shared.h,v
+retrieving revision 1.100
+diff -u -p -u -p -r1.100 shared.h
+--- grub-0.97/stage2/shared.h	2 May 2006 20:46:24 -0000	1.100
++++ grub-0.97/stage2/shared.h	25 Jul 2006 12:32:36 -0000
+@@ -934,7 +934,9 @@ int next_partition (unsigned long drive,
  		    unsigned long *partition, int *type,
  		    unsigned long *start, unsigned long *len,
  		    unsigned long *offset, int *entry,
 -		    unsigned long *ext_offset, char *buf);
-+                   unsigned long *ext_offset,
-+                   unsigned long *gpt_offset, int *gpt_count,
-+                   int *gpt_size, char *buf);
++		    unsigned long *ext_offset,
++		    unsigned long *gpt_offset, int *gpt_count,
++		    int *gpt_size, char *buf);
  
  /* Sets device to the one represented by the SAVED_* parameters. */
  int make_saved_active (void);

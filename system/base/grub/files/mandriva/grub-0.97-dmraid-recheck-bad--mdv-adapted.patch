@@ -1,0 +1,17 @@
+--- grub-0.97/util/grub-install.in.pix	2006-08-11 12:38:26.000000000 +0200
++++ grub-0.97/util/grub-install.in	2006-08-11 12:39:15.000000000 +0200
+@@ -406,6 +406,14 @@
+ grubdir=${bootdir}/grub
+ device_map=${grubdir}/device.map
+ 
++if [ "$recheck" == "yes" ]; then
++    if grep 'mapper' ${device_map} >/dev/null; then
++	echo 'grub-install does not support reprobing of device.map when' 1>&2
++	echo 'using a device-mapper based boot device.' 1>&2
++	exit 1
++    fi
++fi
++
+ # Check if GRUB is installed.
+ # This is necessary, because the user can specify "grub --read-only".
+ set $grub_shell dummy

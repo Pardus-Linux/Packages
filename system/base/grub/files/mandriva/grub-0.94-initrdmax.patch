@@ -1,0 +1,15 @@
+--- grub-0.94/stage2/boot.c.initrdmax	2004-02-25 13:49:00.801945416 -0500
++++ grub-0.94/stage2/boot.c	2004-02-25 13:49:25.267226128 -0500
+@@ -810,8 +810,12 @@
+     moveto = (mbi.mem_upper + 0x400) << 10;
+   
+   moveto = (moveto - len) & 0xfffff000;
++#if 0
+   max_addr = (lh->header == LINUX_MAGIC_SIGNATURE && lh->version >= 0x0203
+ 	      ? lh->initrd_addr_max : LINUX_INITRD_MAX_ADDRESS);
++#else
++  max_addr = LINUX_INITRD_MAX_ADDRESS;
++#endif
+   if (moveto + len >= max_addr)
+     moveto = (max_addr - len) & 0xfffff000;
+   

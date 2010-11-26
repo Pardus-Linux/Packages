@@ -1,0 +1,466 @@
+diff -Naur grub-0.97.orig/configure.ac grub-0.97/configure.ac
+--- grub-0.97.orig/configure.ac	2005-05-07 23:36:03.000000000 -0300
++++ grub-0.97/configure.ac	2005-06-13 22:42:26.000000000 -0300
+@@ -93,9 +93,9 @@
+       CFLAGS=$saved_CFLAGS
+     ])
+     if test "x$size_flag" = xyes; then
+-      STAGE2_CFLAGS="-Os"
++      STAGE2_CFLAGS="-Os -fno-strict-aliasing"
+     else
+-      STAGE2_CFLAGS="-O2 -fno-strength-reduce -fno-unroll-loops"
++      STAGE2_CFLAGS="-O2 -fno-strict-aliasing -fno-strength-reduce -fno-unroll-loops"
+     fi
+     # OpenBSD has a GCC extension for protecting applications from
+     # stack smashing attacks, but GRUB doesn't want this feature.
+diff -Naur grub-0.97.orig/stage2/boot.c grub-0.97/stage2/boot.c
+--- grub-0.97.orig/stage2/boot.c	2004-03-30 08:44:08.000000000 -0300
++++ grub-0.97/stage2/boot.c	2005-06-13 22:42:26.000000000 -0300
+@@ -55,7 +55,7 @@
+   pu;
+   /* presuming that MULTIBOOT_SEARCH is large enough to encompass an
+      executable header */
+-  unsigned char buffer[MULTIBOOT_SEARCH];
++  char buffer[MULTIBOOT_SEARCH];
+ 
+   /* sets the header pointer to point to the beginning of the
+      buffer by default */
+@@ -98,7 +98,7 @@
+   /* ELF loading supported if multiboot, FreeBSD and NetBSD.  */
+   if ((type == KERNEL_TYPE_MULTIBOOT
+        || pu.elf->e_ident[EI_OSABI] == ELFOSABI_FREEBSD
+-       || grub_strcmp (pu.elf->e_ident + EI_BRAND, "FreeBSD") == 0
++       || grub_strcmp ((char *) pu.elf->e_ident + EI_BRAND, "FreeBSD") == 0
+        || suggested_type == KERNEL_TYPE_NETBSD)
+       && len > sizeof (Elf32_Ehdr)
+       && BOOTABLE_I386_ELF ((*((Elf32_Ehdr *) buffer))))
+diff -Naur grub-0.97.orig/stage2/disk_io.c grub-0.97/stage2/disk_io.c
+--- grub-0.97.orig/stage2/disk_io.c	2004-05-23 13:35:24.000000000 -0300
++++ grub-0.97/stage2/disk_io.c	2005-06-13 22:42:26.000000000 -0300
+@@ -127,12 +127,19 @@
+ int filepos;
+ int filemax;
+ 
+-static inline unsigned long
+-log2 (unsigned long word)
++#define log2(n) ffz(~(n))
++
++/* include/asm-i386/bitops.h */
++/*
++ * ffz = Find First Zero in word. Undefined if no zero exists,
++ * so code should check against ~0UL first..
++ */
++static __inline__ unsigned long
++ffz (unsigned long word)
+ {
+-  asm volatile ("bsfl %1,%0"
+-		: "=r" (word)
+-		: "r" (word));
++  __asm__ ("bsfl %1,%0"
++:	   "=r" (word)
++:	   "r" (~word));
+   return word;
+ }
+ 
+diff -Naur grub-0.97.orig/stage2/freebsd.h grub-0.97/stage2/freebsd.h
+--- grub-0.97.orig/stage2/freebsd.h	2003-07-09 08:45:52.000000000 -0300
++++ grub-0.97/stage2/freebsd.h	2005-06-13 22:42:26.000000000 -0300
+@@ -78,7 +78,7 @@
+ struct bootinfo
+   {
+     unsigned int bi_version;
+-    unsigned char *bi_kernelname;
++    char *bi_kernelname;
+     struct nfs_diskless *bi_nfs_diskless;
+     /* End of fields that are always present. */
+ #define bi_endcommon            bi_n_bios_used
+diff -Naur grub-0.97.orig/stage2/fsys_fat.c grub-0.97/stage2/fsys_fat.c
+--- grub-0.97.orig/stage2/fsys_fat.c	2005-03-15 13:52:00.000000000 -0300
++++ grub-0.97/stage2/fsys_fat.c	2005-06-13 22:42:26.000000000 -0300
+@@ -54,12 +54,19 @@
+ 
+ #define FAT_CACHE_SIZE 2048
+ 
++#define log2(n) ffz(~(n))
++
++/* include/asm-i386/bitops.h */
++/*
++ * ffz = Find First Zero in word. Undefined if no zero exists,
++ * so code should check against ~0UL first..
++ */
+ static __inline__ unsigned long
+-log2 (unsigned long word)
++ffz (unsigned long word)
+ {
+   __asm__ ("bsfl %1,%0"
+-	   : "=r" (word)
+-	   : "r" (word));
++:	   "=r" (word)
++:	   "r" (~word));
+   return word;
+ }
+ 
+diff -Naur grub-0.97.orig/stage2/fsys_iso9660.c grub-0.97/stage2/fsys_iso9660.c
+--- grub-0.97.orig/stage2/fsys_iso9660.c	2004-05-11 09:11:19.000000000 -0300
++++ grub-0.97/stage2/fsys_iso9660.c	2005-06-13 22:42:26.000000000 -0300
+@@ -55,13 +55,19 @@
+ #define RRCONT_BUF      ((unsigned char *)(FSYS_BUF + 6144))
+ #define NAME_BUF        ((unsigned char *)(FSYS_BUF + 8192))
+ 
++#define log2(n) ffz(~(n))
+ 
+-static inline unsigned long
+-log2 (unsigned long word)
++/* include/asm-i386/bitops.h */
++/*
++ * ffz = Find First Zero in word. Undefined if no zero exists,
++ * so code should check against ~0UL first..
++ */
++static __inline__ unsigned long
++ffz (unsigned long word)
+ {
+-  asm volatile ("bsfl %1,%0"
+-		:          "=r" (word)
+-		:          "r" (word));
++  __asm__ ("bsfl %1,%0"
++:	   "=r" (word)
++:	   "r" (~word));
+   return word;
+ }
+ 
+@@ -120,7 +126,7 @@
+ 	break;
+       /* check ISO_VD_PRIMARY and ISO_STANDARD_ID */
+       if (PRIMDESC->type.l == ISO_VD_PRIMARY
+-	  && !memcmp(PRIMDESC->id, ISO_STANDARD_ID, sizeof(PRIMDESC->id)))
++	  && !memcmp((char *) PRIMDESC->id, ISO_STANDARD_ID, sizeof(PRIMDESC->id)))
+ 	{
+ 	  ISO_SUPER->vol_sector = sector;
+ 	  INODE->file_start = 0;
+@@ -175,7 +181,7 @@
+ 	  for (; idr->length.l > 0;
+ 	       idr = (struct iso_directory_record *)((char *)idr + idr->length.l) )
+ 	    {
+-	      const char *name = idr->name;
++	      const u_int8_t *name = idr->name;
+ 	      unsigned int name_len = idr->name_len.l;
+ 
+ 	      file_type = (idr->flags.l & 2) ? ISO_DIRECTORY : ISO_REGULAR;
+@@ -198,7 +204,7 @@
+ 	      rr_len = (idr->length.l - idr->name_len.l
+ 			- sizeof(struct iso_directory_record)
+ 			+ sizeof(idr->name));
+-	      rr_ptr.ptr = ((unsigned char *)idr + idr->name_len.l
++	      rr_ptr.ptr = ((char *)idr + idr->name_len.l
+ 			    + sizeof(struct iso_directory_record)
+ 			    - sizeof(idr->name));
+ 	      if (rr_ptr.i & 1)
+@@ -331,9 +337,9 @@
+ 			  memcpy(NAME_BUF, name, name_len);
+ 			  name = NAME_BUF;
+ 			}
+-		      rr_ptr.ptr = RRCONT_BUF + ce_ptr->u.ce.offset.l;
++		      rr_ptr.ptr = (char *) RRCONT_BUF + ce_ptr->u.ce.offset.l;
+ 		      rr_len = ce_ptr->u.ce.size.l;
+-		      if (!iso9660_devread(ce_ptr->u.ce.extent.l, 0, ISO_SECTOR_SIZE, RRCONT_BUF))
++		      if (!iso9660_devread(ce_ptr->u.ce.extent.l, 0, ISO_SECTOR_SIZE, (char *) RRCONT_BUF))
+ 			{
+ 			  errnum = 0;	/* this is not fatal. */
+ 			  break;
+@@ -344,7 +350,7 @@
+ 
+ 	      filemax = MAXINT;
+ 	      if (name_len >= pathlen
+-		  && !memcmp(name, dirname, pathlen))
++		  && !memcmp((char *) name, dirname, pathlen))
+ 		{
+ 		  if (dirname[pathlen] == '/' || !print_possibilities)
+ 		    {
+@@ -381,7 +387,7 @@
+ 			print_possibilities = -print_possibilities;
+ 		      memcpy(NAME_BUF, name, name_len);
+ 		      NAME_BUF[name_len] = '\0';
+-		      print_a_completion (NAME_BUF);
++		      print_a_completion ((char *) NAME_BUF);
+ #endif
+ 		    }
+ 		}
+diff -Naur grub-0.97.orig/stage2/fsys_reiserfs.c grub-0.97/stage2/fsys_reiserfs.c
+--- grub-0.97.orig/stage2/fsys_reiserfs.c	2004-02-18 19:09:10.000000000 -0300
++++ grub-0.97/stage2/fsys_reiserfs.c	2005-06-13 22:42:26.000000000 -0300
+@@ -365,13 +365,19 @@
+ #define JOURNAL_START    ((__u32 *) (INFO + 1))
+ #define JOURNAL_END      ((__u32 *) (FSYS_BUF + FSYS_BUFLEN))
+ 
++#define log2(n) ffz(~(n))
+ 
++/* include/asm-i386/bitops.h */
++/*
++ * ffz = Find First Zero in word. Undefined if no zero exists,
++ * so code should check against ~0UL first..
++ */
+ static __inline__ unsigned long
+-log2 (unsigned long word)
++ffz (unsigned long word)
+ {
+   __asm__ ("bsfl %1,%0"
+-	   : "=r" (word)
+-	   : "r" (word));
++:	   "=r" (word)
++:	   "r" (~word));
+   return word;
+ }
+ 
+diff -Naur grub-0.97.orig/stage2/fsys_vstafs.c grub-0.97/stage2/fsys_vstafs.c
+--- grub-0.97.orig/stage2/fsys_vstafs.c	2003-07-09 08:45:53.000000000 -0300
++++ grub-0.97/stage2/fsys_vstafs.c	2005-06-13 22:42:26.000000000 -0300
+@@ -186,35 +186,35 @@
+ int 
+ vstafs_read (char *addr, int len)
+ {
+-  struct alloc *a;
++  struct alloc *b;
+   int size, ret = 0, offset, curr_len = 0;
+-  int curr_ext;
++  int curr_exten;
+   char extent;
+   int ext_size;
+   char *curr_pos;
+   
+   get_file_info (f_sector);
+   size = FILE_INFO->len-VSTAFS_START_DATA;
+-  a = FILE_INFO->blocks;
++  b = FILE_INFO->blocks;
+   
+   if (filepos > 0)
+     {
+-      if (filepos < a[0].a_len * 512 - VSTAFS_START_DATA)
++      if (filepos < b[0].a_len * 512 - VSTAFS_START_DATA)
+ 	{
+ 	  offset = filepos + VSTAFS_START_DATA;
+ 	  extent = 0;
+-	  curr_len = a[0].a_len * 512 - offset - filepos; 
++	  curr_len = b[0].a_len * 512 - offset - filepos; 
+ 	}
+       else
+ 	{
+-	  ext_size = a[0].a_len * 512 - VSTAFS_START_DATA;
++	  ext_size = b[0].a_len * 512 - VSTAFS_START_DATA;
+ 	  offset = filepos - ext_size;
+ 	  extent = 1;
+ 	  do
+ 	    {
+ 	      curr_len -= ext_size;
+ 	      offset -= ext_size;
+-	      ext_size = a[extent+1].a_len * 512;
++	      ext_size = b[extent+1].a_len * 512;
+ 	    }
+ 	  while (extent < FILE_INFO->extents && offset>ext_size);
+ 	}
+@@ -223,16 +223,16 @@
+     {
+       offset = VSTAFS_START_DATA;
+       extent = 0;
+-      curr_len = a[0].a_len * 512 - offset;
++      curr_len = b[0].a_len * 512 - offset;
+     }
+   
+   curr_pos = addr;
+   if (curr_len > len)
+     curr_len = len;
+   
+-  for (curr_ext=extent;
+-       curr_ext < FILE_INFO->extents; 
+-       curr_len = a[curr_ext].a_len * 512, curr_pos += curr_len, curr_ext++)
++  for (curr_exten = extent;
++       curr_exten < FILE_INFO->extents; 
++       curr_len = b[curr_exten].a_len * 512, curr_pos += curr_len, curr_exten++)
+     {
+       ret += curr_len;
+       size -= curr_len;
+@@ -242,7 +242,7 @@
+ 	  curr_len += size;
+ 	}
+       
+-      devread (a[curr_ext].a_start,offset, curr_len, curr_pos);
++      devread (b[curr_exten].a_start, offset, curr_len, curr_pos);
+       offset = 0;
+     }
+   
+diff -Naur grub-0.97.orig/stage2/fsys_xfs.c grub-0.97/stage2/fsys_xfs.c
+--- grub-0.97.orig/stage2/fsys_xfs.c	2005-05-07 23:15:55.000000000 -0300
++++ grub-0.97/stage2/fsys_xfs.c	2005-06-13 22:42:26.000000000 -0300
+@@ -97,7 +97,7 @@
+ 	return ino & XFS_INO_MASK(XFS_INO_OFFSET_BITS);
+ }
+ 
+-static inline __const__ xfs_uint16_t
++static inline __attribute__((const)) xfs_uint16_t
+ le16 (xfs_uint16_t x)
+ {
+ 	__asm__("xchgb %b0,%h0"	\
+@@ -106,7 +106,7 @@
+ 		return x;
+ }
+ 
+-static inline __const__ xfs_uint32_t
++static inline __attribute__((const)) xfs_uint32_t
+ le32 (xfs_uint32_t x)
+ {
+ #if 0
+@@ -122,7 +122,7 @@
+ 	return x;
+ }
+ 
+-static inline __const__ xfs_uint64_t
++static inline __attribute__((const)) xfs_uint64_t
+ le64 (xfs_uint64_t x)
+ {
+ 	xfs_uint32_t h = x >> 32;
+@@ -368,7 +368,7 @@
+ 		default:
+ 			namelen = sfe->namelen;
+ 			*ino = sf_ino ((char *)sfe, namelen);
+-			name = sfe->name;
++			name = (char *) sfe->name;
+ 			sfe = (xfs_dir2_sf_entry_t *)
+ 				  ((char *)sfe + namelen + 11 - xfs.i8param);
+ 		}
+diff -Naur grub-0.97.orig/stage2/gunzip.c grub-0.97/stage2/gunzip.c
+--- grub-0.97.orig/stage2/gunzip.c	2003-07-09 08:45:53.000000000 -0300
++++ grub-0.97/stage2/gunzip.c	2005-06-13 23:01:10.000000000 -0300
+@@ -277,7 +277,7 @@
+    *  is a compressed file, and simply mark it as such.
+    */
+   if (no_decompression
+-      || grub_read (buf, 10) != 10
++      || grub_read ((char *) buf, 10) != 10
+       || ((*((unsigned short *) buf) != GZIP_HDR_LE)
+ 	  && (*((unsigned short *) buf) != OLD_GZIP_HDR_LE)))
+     {
+@@ -293,7 +293,7 @@
+   if (buf[2] != DEFLATED
+       || (buf[3] & UNSUPP_FLAGS)
+       || ((buf[3] & EXTRA_FIELD)
+-	  && (grub_read (buf, 2) != 2
++	  && (grub_read ((char *) buf, 2) != 2
+ 	      || bad_field (*((unsigned short *) buf))))
+       || ((buf[3] & ORIG_NAME) && bad_field (-1))
+       || ((buf[3] & COMMENT) && bad_field (-1)))
+@@ -308,7 +308,7 @@
+   
+   filepos = filemax - 8;
+   
+-  if (grub_read (buf, 8) != 8)
++  if (grub_read ((char *) buf, 8) != 8)
+     {
+       if (! errnum)
+ 	errnum = ERR_BAD_GZIP_HEADER;
+@@ -485,8 +485,8 @@
+ 
+ #define INBUFSIZ  0x2000
+ 
+-static uch inbuf[INBUFSIZ];
+-static int bufloc;
++static unsigned char inbuf[INBUFSIZ];
++static int  bufloc;
+ 
+ static int
+ get_byte (void)
+@@ -494,7 +494,7 @@
+   if (filepos == gzip_data_offset || bufloc == INBUFSIZ)
+     {
+       bufloc = 0;
+-      grub_read (inbuf, INBUFSIZ);
++      grub_read ((char *) inbuf, INBUFSIZ);
+     }
+ 
+   return inbuf[bufloc++];
+@@ -925,7 +925,7 @@
+   unsigned m;			/* mask for bit lengths table */
+   unsigned n;			/* number of lengths to get */
+   unsigned nb;			/* number of bit length codes */
+-  unsigned nl;			/* number of literal/length codes */
++  unsigned nc;			/* number of literal/length codes */
+   unsigned nd;			/* number of distance codes */
+   unsigned ll[286 + 30];	/* literal/length and distance code lengths */
+   register ulg b;		/* bit buffer */
+@@ -937,7 +937,7 @@
+ 
+   /* read in table lengths */
+   NEEDBITS (5);
+-  nl = 257 + ((unsigned) b & 0x1f);	/* number of literal/length codes */
++  nc = 257 + ((unsigned) b & 0x1f);	/* number of literal/length codes */
+   DUMPBITS (5);
+   NEEDBITS (5);
+   nd = 1 + ((unsigned) b & 0x1f);	/* number of distance codes */
+@@ -945,7 +945,7 @@
+   NEEDBITS (4);
+   nb = 4 + ((unsigned) b & 0xf);	/* number of bit length codes */
+   DUMPBITS (4);
+-  if (nl > 286 || nd > 30)
++  if (nc > 286 || nd > 30)
+     {
+       errnum = ERR_BAD_GZIP_DATA;
+       return;
+@@ -970,7 +970,7 @@
+     }
+ 
+   /* read in literal and distance code lengths */
+-  n = nl + nd;
++  n = nc + nd;
+   m = mask_bits[bl];
+   i = l = 0;
+   while ((unsigned) i < n)
+@@ -1034,7 +1034,7 @@
+ 
+   /* build the decoding tables for literal/length and distance codes */
+   bl = lbits;
+-  if ((i = huft_build (ll, nl, 257, cplens, cplext, &tl, &bl)) != 0)
++  if ((i = huft_build (ll, nc, 257, cplens, cplext, &tl, &bl)) != 0)
+     {
+ #if 0
+       if (i == 1)
+@@ -1045,7 +1045,7 @@
+       return;
+     }
+   bd = dbits;
+-  if ((i = huft_build (ll + nl, nd, 0, cpdist, cpdext, &td, &bd)) != 0)
++  if ((i = huft_build (ll + nc, nd, 0, cpdist, cpdext, &td, &bd)) != 0)
+     {
+ #if 0
+       if (i == 1)
+diff -Naur grub-0.97.orig/stage2/Makefile.am grub-0.97/stage2/Makefile.am
+--- grub-0.97.orig/stage2/Makefile.am	2005-02-02 18:37:35.000000000 -0200
++++ grub-0.97/stage2/Makefile.am	2005-06-13 22:42:26.000000000 -0300
+@@ -24,7 +24,8 @@
+ 	-DGRUB_UTIL=1 -DFSYS_EXT2FS=1 -DFSYS_FAT=1 -DFSYS_FFS=1 \
+ 	-DFSYS_ISO9660=1 -DFSYS_JFS=1 -DFSYS_MINIX=1 -DFSYS_REISERFS=1 \
+ 	-DFSYS_UFS2=1 -DFSYS_VSTAFS=1 -DFSYS_XFS=1 \
+-	-DUSE_MD5_PASSWORDS=1 -DSUPPORT_SERIAL=1 -DSUPPORT_HERCULES=1
++	-DUSE_MD5_PASSWORDS=1 -DSUPPORT_SERIAL=1 -DSUPPORT_HERCULES=1 \
++	-fno-strict-aliasing
+ 
+ # Stage 2 and Stage 1.5's.
+ pkglibdir = $(libdir)/$(PACKAGE)/$(host_cpu)-$(host_vendor)
+diff -Naur grub-0.97.orig/stage2/md5.c grub-0.97/stage2/md5.c
+--- grub-0.97.orig/stage2/md5.c	2003-07-09 08:45:53.000000000 -0300
++++ grub-0.97/stage2/md5.c	2005-06-13 22:42:26.000000000 -0300
+@@ -166,7 +166,7 @@
+   inputlen -= 64 - buflen;
+   while (inputlen >= 64)
+     {
+-      md5_transform (input);
++      md5_transform ((unsigned char *) input);
+       input += 64;
+       inputlen -= 64;
+     }
+@@ -211,7 +211,7 @@
+   char *p; 
+   int saltlen;
+   int i, n;
+-  unsigned char alt_result[16];
++  char alt_result[16];
+   unsigned char *digest;
+ 
+   if (check)

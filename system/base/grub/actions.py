@@ -10,41 +10,32 @@ from pisi.actionsapi import pisitools
 from pisi.actionsapi import shelltools
 from pisi.actionsapi import get
 
-# use it only for 64bit builds for now, since ncurses does not provide static files grub shell borks, in tab completion for example
-# staticflag = "-static"
-staticflag = ""
+# we must compile with 32bit libs even under x86_64
+libdir = "lib32" if get.ARCH() == "x86_64" else "lib"
 
 def setup():
     # do not delete, testing if this line is necessary
     # shelltools.export("CFLAGS", "%s -fno-stack-protector -DNDEBUG -fno-strict-aliasing -minline-all-stringops" % get.CFLAGS())
-    shelltools.export("CFLAGS", "-Os -g -fno-strict-aliasing %s" % staticflag)
+    shelltools.export("CFLAGS", "-Os -g -fno-strict-aliasing -static -L/usr/%s/static" % libdir)
     shelltools.export("LDFLAGS", "")
     shelltools.export("grub_cv_prog_objcopy_absolute", "yes")
 
-    if not get.ARCH() == "x86_64":
-        autotools.autoreconf()
-        autotools.configure("--libdir=/lib \
-                             --datadir=/usr/lib/grub \
-                             --exec-prefix=/ \
-                             --disable-ffs \
-                             --disable-ufs2 \
-                             --disable-auto-linux-mem-opt")
+    autotools.autoreconf()
+    autotools.configure("--libdir=/lib \
+                         --datadir=/usr/lib/grub \
+                         --exec-prefix=/ \
+                         --disable-ffs \
+                         --disable-ufs2 \
+                         --disable-auto-linux-mem-opt")
 
 def build():
-    if not get.ARCH() == "x86_64":
-        autotools.make("-j1")
+    autotools.make("-j1")
 
 def check():
-    if not get.ARCH() == "x86_64":
-        autotools.make("check")
+    autotools.make("check")
 
 def install():
-    if get.ARCH() == "x86_64":
-        for i in shelltools.ls("compiled-static/"):
-            pisitools.insinto("/", "compiled-static/%s" % i)
+    autotools.rawInstall("DESTDIR=%s" % get.installDIR())
 
-    else:
-        autotools.rawInstall("DESTDIR=%s" % get.installDIR())
-
-        pisitools.newdoc("docs/menu.lst", "grub.conf.sample")
-        pisitools.dodoc("AUTHORS", "BUGS", "COPYING", "ChangeLog", "NEWS", "README", "THANKS", "TODO")
+    pisitools.newdoc("docs/menu.lst", "grub.conf.sample")
+    pisitools.dodoc("AUTHORS", "BUGS", "COPYING", "ChangeLog", "NEWS", "README", "THANKS", "TODO")

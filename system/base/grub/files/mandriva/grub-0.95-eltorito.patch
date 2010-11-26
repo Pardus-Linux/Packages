@@ -1,0 +1,134 @@
+diff -Naur grub-0.95/stage2/start_eltorito.S grub-0.95.eltorito/stage2/start_eltorito.S
+--- grub-0.95/stage2/start_eltorito.S	2004-03-27 13:14:20.000000000 -0300
++++ grub-0.95.eltorito/stage2/start_eltorito.S	2005-01-07 12:25:21.600218424 -0200
+@@ -40,9 +40,9 @@
+ #define ABS(x)			(x-_start+BOOTSEC_LOCATION)
+ 
+ #ifdef STAGE1_5
+-# define STAGE_ADDR		0x2000
++# define STAGE_ADDR		0x2200
+ #else
+-# define STAGE_ADDR		0x8000
++# define STAGE_ADDR		0x8200
+ #endif /* STAGE1_5 */
+ 
+ 	/* Print message string */
+@@ -71,12 +71,14 @@
+ 	. = _start + 8			    /* Pad to file offset 8 */
+ 
+ 		/* This table gets filled in by mkisofs using the
+-		   -boot-info-table option */
+-bi_pvd:		.long 0xDEADBEEF	    /* LBA of primary volume descript */
+-bi_file:	.long 0xDEADBEEF	    /* LBA of boot file */
+-bi_length:	.long 0xDEADBEEF	    /* Length of boot file */
+-bi_csum:	.long 0xDEADBEEF	    /* Checksum of boot file */
+-bi_reserved:	.space (10*4)		    /* Reserved */
++		   -boot-info-table option If not, the values in this
++		   table are default values that we can use to get us
++		   what we need, at least under a certain set of assumptions. */
++bi_pvd:     	.long 16               	/* LBA of primary volume descript */
++bi_file:    	.long 0	               	/* LBA of boot file */
++bi_length:	.long 0xDEADBEEF        /* Length of boot file */
++bi_csum:    	.long 0xDEADBEEF       	/* Checksum of boot file */
++bi_reserved:	.space (10*4)           /* Reserved */
+ 
+ real_start:
+ 	xor	%ax, %ax
+@@ -92,10 +94,28 @@
+ 	/* save drive reference first thing! */
+ 	mov	%dl, ABS(BootDrive)
+ 
+-	/* print a notification message on the screen */
+-	MSG(notification_string)
++	/* check if machine support IBM/MS int 13h extensions */
++	mov	$0x41, %ah
++	mov	$0x55AA, %bx
++	int	$0x13
++	jnc	load_image
++
++	/* bios doesn't support int 13h extensions, print error messages */
++	MSG(int13_error_string1)
++	MSG(notification_done)
++	MSG(int13_error_string2)
++	MSG(notification_done)
++	MSG(int13_error_string3)
++	MSG(notification_done)
++	/* even when bios says that it doesn't support int 13h
++           extensions, do not stop here and try to load image anyway,
++           because some bioses says that there isn't support for
++           extended functions but have the needed extended read function
++           (int 13h, function AH=42h) */
+ 
+ load_image:
++	/* print a notification message on the screen */
++	MSG(notification_string)
+ 	/* Set up boot file sector, size, load address */
+ 	mov	ABS(bi_length), %eax
+ 	add	$(ISO_SECTOR_SIZE-1), %eax
+@@ -105,6 +125,8 @@
+ 	mov	%bx, %es
+ 	xor	%bx, %bx
+ 	mov	ABS(bi_file), %eax
++	inc	%eax		    /* do not reload the first sector (this code) */
++	dec	%bp 		    /* this way we have more room for code in stage1 */
+ 	call	getlinsec
+ 	mov	%ds, %ax
+ 	mov	%ax, %es
+@@ -115,7 +137,7 @@
+ 	mov	$ABS(firstlist - BOOTSEC_LISTSIZE), %si
+ 	mov	(%si), %ebp
+ 	mov	ABS(BootDrive), %dl	    /* this makes sure %dl is our "boot" drive */
+-	ljmp	$0, $(STAGE_ADDR+SECTOR_SIZE)  /* jump to main() in asm.S */
++	ljmp	$0, $(STAGE_ADDR)	    /* jump to main() in asm.S */
+ 
+ /* go here when you need to stop the machine hard after an error condition */
+ stop:	jmp	stop
+@@ -171,11 +193,11 @@
+  */
+ xint13:
+ 	movb	$6, ABS(RetryCount)
+-	pushal
+ .try:
++	pushal
+ 	int	$0x13
+ 	jc	1f
+-	add	$(8*4), %sp		    /* Clean up stack */
++	popal				    /* Clean up stack */
+ 	ret
+ 1:
+ 	mov	%ah, %dl		    /* Save error code */
+@@ -276,6 +298,10 @@
+ 
+ read_error_string:	.string "Read error 0x"
+ 
++int13_error_string1:	.string "Support for IBM/MS INT 13h extensions not found"
++int13_error_string2:	.string "GRUB cannot be loaded if int 13h/function AH=42h isn't present"
++int13_error_string3:	.string "Trying to load stage 2 anyway..."
++
+ /*
+  * EBIOS disk address packet
+  */
+@@ -306,7 +332,8 @@
+ 	.word 0
+ 	.word 0
+ 
+-	. = _start + SECTOR_SIZE - BOOTSEC_LISTSIZE
++	/* size of the code we can place between main body and fixed top location */
++	. = _start + 1536 - BOOTSEC_LISTSIZE
+ 
+ 	/* fill the first data listing with the default */
+ blocklist_default_start:/* this is the sector start parameter, in logical
+@@ -321,6 +348,12 @@
+ #endif
+ blocklist_default_seg:	/* this is the segment of the starting address
+ 			   to load the data into */
+-	.word (STAGE_ADDR + SECTOR_SIZE) >> 4
++	.word (STAGE_ADDR) >> 4
+ 
+ firstlist:	/* this label has to be after the list data!!! */
++
++	/* this is a workaround to allow more code to be added in stage1,
++	   it allows more code to be added for this stage, but for this
++	   we can't reload the first sector. So we have to align the code
++	   to ISO_SECTOR_SIZE. */
++	. = _start + ISO_SECTOR_SIZE

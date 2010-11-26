@@ -1,0 +1,313 @@
+Use proper va_start/arg/end macros instead of pointer cowboying, so that grub
+does not segfault with anything less ancient than gcc 3.4.
+
+diff -Nur grub-0.97/netboot/misc.c grub-0.97.new/netboot/misc.c
+--- grub-0.97/netboot/misc.c	2003-07-09 12:45:37.000000000 +0100
++++ grub-0.97.new/netboot/misc.c	2008-01-24 15:07:01.000000000 +0000
+@@ -71,7 +71,7 @@
+ 	Note: width specification not supported
+ **************************************************************************/
+ static int
+-etherboot_vsprintf (char *buf, const char *fmt, const int *dp)
++etherboot_vsprintf (char *buf, const char *fmt, va_list dp)
+ {
+   char *p, *s;
+   
+@@ -86,7 +86,7 @@
+       
+       if (*++fmt == 's')
+ 	{
+-	  for (p = (char *) *dp++; *p != '\0'; p++)
++	  for (p = va_arg (dp, char *); *p != '\0'; p++)
+ 	    buf ? *s++ = *p : grub_putchar (*p);
+ 	}
+       else
+@@ -121,11 +121,9 @@
+ 	  if ((*fmt | 0x20) == 'x')
+ 	    {
+ 	      /* With x86 gcc, sizeof(long) == sizeof(int) */
+-	      const long *lp = (const long *) dp;
+-	      long h = *lp++;
++              long h = va_arg (dp, long);
+ 	      int ncase = (*fmt & 0x20);
+ 	      
+-	      dp = (const int *) lp;
+ 	      if (alt)
+ 		{
+ 		  *q++ = '0';
+@@ -136,7 +134,7 @@
+ 	    }
+ 	  else if (*fmt == 'd')
+ 	    {
+-	      int i = *dp++;
++              int i = va_arg (dp, int);
+ 	      char *r;
+ 	      
+ 	      if (i < 0)
+@@ -171,10 +169,7 @@
+ 		unsigned char	c[4];
+ 	      }
+ 	      u;
+-	      const long *lp = (const long *) dp;
+-	      
+-	      u.l = *lp++;
+-	      dp = (const int *) lp;
++              u.l = va_arg (dp, long);
+ 	      
+ 	      for (r = &u.c[0]; r < &u.c[4]; ++r)
+ 		q += etherboot_sprintf (q, "%d.", *r);
+@@ -184,7 +179,7 @@
+ 	  else if (*fmt == '!')
+ 	    {
+ 	      char *r;
+-	      p = (char *) *dp++;
++              p = va_arg (dp, char*);
+ 	      
+ 	      for (r = p + ETH_ALEN; p < r; ++p)
+ 		q += etherboot_sprintf (q, "%hhX:", *p);
+@@ -192,7 +187,7 @@
+ 	      --q;
+ 	    }
+ 	  else if (*fmt == 'c')
+-	    *q++ = *dp++;
++	    *q++ = va_arg (dp, int);
+ 	  else
+ 	    *q++ = *fmt;
+ 	  
+@@ -211,13 +206,19 @@
+ int
+ etherboot_sprintf (char *buf, const char *fmt, ...)
+ {
+-  return etherboot_vsprintf (buf, fmt, ((const int *) &fmt) + 1);
++  va_list dataptr;
++  va_start (dataptr, fmt);
++  return etherboot_vsprintf (buf, fmt, dataptr);
++  va_end(dataptr);
+ }
+ 
+ void
+ etherboot_printf (const char *fmt, ...)
+ {
+-  (void) etherboot_vsprintf (0, fmt, ((const int *) &fmt) + 1);
++  va_list dataptr;
++  va_start (dataptr, fmt);
++  (void) etherboot_vsprintf (0, fmt, dataptr);
++  va_end(dataptr);
+ }
+ 
+ int
+diff -Nur grub-0.97/stage1/Makefile.am grub-0.97.new/stage1/Makefile.am
+--- grub-0.97/stage1/Makefile.am	2004-07-16 12:44:56.000000000 +0100
++++ grub-0.97.new/stage1/Makefile.am	2008-01-24 15:07:01.000000000 +0000
+@@ -4,7 +4,7 @@
+ CLEANFILES = $(nodist_pkglib_DATA)
+ 
+ # We can't use builtins or standard includes.
+-AM_CCASFLAGS = $(STAGE1_CFLAGS) -fno-builtin -nostdinc
++AM_CCASFLAGS = $(STAGE1_CFLAGS) -fno-builtin
+ LDFLAGS = -nostdlib -Wl,-N,-Ttext,7C00
+ 
+ noinst_PROGRAMS = stage1.exec
+diff -Nur grub-0.97/stage2/char_io.c grub-0.97.new/stage2/char_io.c
+--- grub-0.97/stage2/char_io.c	2008-01-24 15:06:10.000000000 +0000
++++ grub-0.97.new/stage2/char_io.c	2008-01-24 15:07:01.000000000 +0000
+@@ -20,6 +20,7 @@
+ 
+ #include <shared.h>
+ #include <term.h>
++#include <stdarg.h>
+ 
+ #ifdef SUPPORT_HERCULES
+ # include <hercules.h>
+@@ -131,9 +132,9 @@
+ }
+ 
+ char *
+-convert_to_ascii (char *buf, int c,...)
++convert_to_ascii (char *buf, int c, unsigned long num)
+ {
+-  unsigned long num = *((&c) + 1), mult = 10;
++  unsigned long mult = 10;
+   char *ptr = buf;
+ 
+ #ifndef STAGE1_5
+@@ -182,10 +183,10 @@
+ void
+ grub_printf (const char *format,...)
+ {
+-  int *dataptr = (int *) &format;
++  va_list dataptr;
+   char c, str[16];
+-  
+-  dataptr++;
++
++  va_start(dataptr, format);
+ 
+   while ((c = *(format++)) != 0)
+     {
+@@ -200,21 +201,22 @@
+ 	  case 'X':
+ #endif
+ 	  case 'u':
+-	    *convert_to_ascii (str, c, *((unsigned long *) dataptr++)) = 0;
++	    *convert_to_ascii (str, c, va_arg(dataptr, unsigned long *)) = 0;
+ 	    grub_putstr (str);
+ 	    break;
+ 
+ #ifndef STAGE1_5
+ 	  case 'c':
+-	    grub_putchar ((*(dataptr++)) & 0xff);
++	    grub_putchar (va_arg(dataptr, int) & 0xff);
+ 	    break;
+ 
+ 	  case 's':
+-	    grub_putstr ((char *) *(dataptr++));
++	    grub_putstr (va_arg(dataptr, char *));
+ 	    break;
+ #endif
+ 	  }
+     }
++  va_end(dataptr);
+ }
+ 
+ #ifndef STAGE1_5
+@@ -223,11 +225,11 @@
+ {
+   /* XXX hohmuth
+      ugly hack -- should unify with printf() */
+-  int *dataptr = (int *) &format;
++  va_list dataptr;
+   char c, *ptr, str[16];
+   char *bp = buffer;
+ 
+-  dataptr++;
++  va_start(dataptr, format);
+ 
+   while ((c = *format++) != 0)
+     {
+@@ -237,7 +239,7 @@
+ 	switch (c = *(format++))
+ 	  {
+ 	  case 'd': case 'u': case 'x':
+-	    *convert_to_ascii (str, c, *((unsigned long *) dataptr++)) = 0;
++	    *convert_to_ascii (str, c, va_arg(dataptr, unsigned long *)) = 0;
+ 
+ 	    ptr = str;
+ 
+@@ -245,12 +247,12 @@
+ 	      *bp++ = *(ptr++); /* putchar(*(ptr++)); */
+ 	    break;
+ 
+-	  case 'c': *bp++ = (*(dataptr++))&0xff;
++	  case 'c': *bp++ = (va_arg(dataptr, int) & 0xff);
+ 	    /* putchar((*(dataptr++))&0xff); */
+ 	    break;
+ 
+ 	  case 's':
+-	    ptr = (char *) (*(dataptr++));
++	    ptr = va_arg(dataptr, char *);
+ 
+ 	    while ((c = *ptr++) != 0)
+ 	      *bp++ = c; /* putchar(c); */
+@@ -258,6 +260,7 @@
+ 	  }
+     }
+ 
++  va_end(dataptr);
+   *bp = 0;
+   return bp - buffer;
+ }
+diff -Nur grub-0.97/stage2/Makefile.am grub-0.97.new/stage2/Makefile.am
+--- grub-0.97/stage2/Makefile.am	2008-01-24 15:06:10.000000000 +0000
++++ grub-0.97.new/stage2/Makefile.am	2008-01-24 15:07:15.000000000 +0000
+@@ -79,7 +79,7 @@ else
+ HERCULES_FLAGS =
+ endif
+ 
+-STAGE2_COMPILE = $(STAGE2_CFLAGS) -fno-builtin -nostdinc \
++STAGE2_COMPILE = $(STAGE2_CFLAGS) -fno-builtin \
+ 	$(NETBOOT_FLAGS) $(SERIAL_FLAGS) $(HERCULES_FLAGS)
+ 
+ STAGE1_5_LINK = -nostdlib -Wl,-N -Wl,-Ttext -Wl,2000
+diff -Nur grub-0.97/stage2/shared.h grub-0.97.new/stage2/shared.h
+--- grub-0.97/stage2/shared.h	2008-01-24 15:06:10.000000000 +0000
++++ grub-0.97.new/stage2/shared.h	2008-01-24 15:07:01.000000000 +0000
+@@ -915,7 +915,7 @@
+ /* misc */
+ void init_page (void);
+ void print_error (void);
+-char *convert_to_ascii (char *buf, int c, ...);
++char *convert_to_ascii (char *buf, int c, unsigned long num);
+ int get_cmdline (char *prompt, char *cmdline, int maxlen,
+ 		 int echo_char, int history);
+ int substring (const char *s1, const char *s2);
+diff -Nur grub-0.97/stage2/tparm.c grub-0.97.new/stage2/tparm.c
+--- grub-0.97/stage2/tparm.c	2003-07-09 12:45:53.000000000 +0100
++++ grub-0.97.new/stage2/tparm.c	2008-01-24 15:07:01.000000000 +0000
+@@ -49,6 +49,8 @@
+ 
+ #include "tparm.h"
+ 
++#include <stdarg.h>
++
+ /*
+  * Common/troublesome character definitions
+  */
+@@ -319,8 +321,8 @@
+ #define isUPPER(c) ((c) >= 'A' && (c) <= 'Z')
+ #define isLOWER(c) ((c) >= 'a' && (c) <= 'z')
+ 
+-static inline char *
+-tparam_internal(const char *string, int *dataptr)
++char *
++grub_tparm(const char *string,...)
+ {
+ #define NUM_VARS 26
+     char *p_is_s[9];
+@@ -339,6 +341,7 @@
+     static char format[MAX_FORMAT_LEN];
+     static int dynamic_var[NUM_VARS];
+     static int static_vars[NUM_VARS];
++    va_list dataptr;
+ 
+     out_used = 0;
+     if (string == NULL)
+@@ -454,6 +457,7 @@
+ 
+     if (number > 9)
+ 	number = 9;
++    va_start(dataptr, string);
+     for (i = 0; i < max(popcount, number); i++) {
+ 	/*
+ 	 * A few caps (such as plab_norm) have string-valued parms.
+@@ -461,11 +465,12 @@
+ 	 * a char* and an int may not be the same size on the stack.
+ 	 */
+ 	if (p_is_s[i] != 0) {
+-	  p_is_s[i] = (char *)(*(dataptr++));
++	  p_is_s[i] = va_arg(dataptr, char *);
+ 	} else {
+-	  param[i] = (int)(*(dataptr++));
++	  param[i] = va_arg(dataptr, int);
+ 	}
+     }
++    va_end(dataptr);
+ 
+     /*
+      * This is a termcap compatibility hack.  If there are no explicit pop
+@@ -712,15 +717,3 @@
+     return (out_buff);
+ }
+ 
+-char *
+-grub_tparm(const char *string,...)
+-{
+-    char *result;
+-    int *dataptr = (int *) &string;
+-
+-    dataptr++;
+-
+-    result = tparam_internal(string, dataptr);
+-
+-    return result;
+-}

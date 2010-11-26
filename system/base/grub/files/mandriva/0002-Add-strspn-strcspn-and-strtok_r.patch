@@ -1,0 +1,110 @@
+From b90f0c0e45abd26ac5ff355e91815b6d56187566 Mon Sep 17 00:00:00 2001
+From: Frederic Crozat <fcrozat@mandriva.com>
+Date: Tue, 8 Sep 2009 18:28:33 +0200
+Subject: [PATCH] From: Jeff Layton <jlayton@redhat.com>
+ Date: Sun, 11 Jan 2009 11:55:35 +0100
+ Subject: [PATCH] Add strspn, strcspn, and strtok_r
+
+This adds strspn, strcspn, and strtok_r to char_io.c. This is to support the
+parsing of multiple options on the initrd commandline.
+
+These were "borrowed" from dietlibc with some small changes.
+
+Bug Report: https://bugzilla.redhat.com/show_bug.cgi?id=179127
+---
+ stage2/char_io.c |   51 +++++++++++++++++++++++++++++++++++++++++++++++++++
+ stage2/shared.h  |    7 ++++++-
+ 2 files changed, 57 insertions(+), 1 deletions(-)
+
+diff --git a/stage2/char_io.c b/stage2/char_io.c
+index c86c240..48227e9 100644
+--- a/stage2/char_io.c
++++ b/stage2/char_io.c
+@@ -1172,6 +1172,57 @@ grub_strlen (const char *str)
+ 
+   return len;
+ }
++
++/* this function "borrowed" from dietlibc */
++int
++grub_strspn(const char *s, const char *accept)
++{
++  int l=0;
++  int a=1,i,al=grub_strlen(accept);
++
++  while((a)&&(*s))
++  {
++    for(a=i=0;(!a)&&(i<al);i++)
++      if (*s==accept[i]) a=1;
++    if (a) l++;
++    s++;
++  }
++  return l;
++}
++
++/* this function "borrowed" from dietlibc */
++int
++grub_strcspn(const char *s, const char *reject)
++{
++  int l=0;
++  int a=1,i,al=grub_strlen(reject);
++
++  while((a)&&(*s))
++  {
++    for(i=0;(a)&&(i<al);i++)
++      if (*s==reject[i]) a=0;
++    if (a) l++;
++    s++;
++  }
++  return l;
++}
++
++/* this function "borrowed" from dietlibc */
++char *
++grub_strtok_r(char *s, const char *delim, char **ptrptr) {
++  char *tmp=0;
++
++  if (s==0) s=*ptrptr;
++  s+=grub_strspn(s,delim);           /* overread leading delimiter */
++  if (*s) {
++    tmp=s;
++    s+=grub_strcspn(s,delim);
++    if (*s) *s++=0;   /* not the end ? => terminate it */
++  }
++  *ptrptr=s;
++  return tmp;
++}
++
+ #endif /* ! STAGE1_5 */
+ 
+ int
+diff --git a/stage2/shared.h b/stage2/shared.h
+index 77eef11..86cdbba 100644
+--- a/stage2/shared.h
++++ b/stage2/shared.h
+@@ -371,9 +371,11 @@ extern char *grub_scratch_mem;
+ #define tolower grub_tolower
+ #define strlen grub_strlen
+ #define strcpy grub_strcpy
++#define strspn grub_strspn
++#define strcspn grub_strcspn
++#define strtok_r grub_strtok_r
+ #endif /* WITHOUT_LIBC_STUBS */
+ 
+-
+ #ifndef ASM_FILE
+ /*
+  *  Below this should be ONLY defines and other constructs for C code.
+@@ -879,6 +881,9 @@ int grub_memcmp (const char *s1, const char *s2, int n);
+ int grub_strcmp (const char *s1, const char *s2);
+ int grub_strlen (const char *str);
+ char *grub_strcpy (char *dest, const char *src);
++int grub_strspn(const char *s, const char *accept);
++int grub_strcspn(const char *s, const char *reject);
++char *grub_strtok_r(char *s, const char *delim, char **ptrptr);
+ 
+ #ifndef GRUB_UTIL
+ typedef unsigned long grub_jmp_buf[6];
+-- 
+1.6.4.2
+

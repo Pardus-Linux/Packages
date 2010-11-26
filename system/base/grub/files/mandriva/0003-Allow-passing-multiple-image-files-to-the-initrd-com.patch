@@ -1,0 +1,74 @@
+From 8b2dfdacb26f2b2ba6554f80e19eb741570e2eba Mon Sep 17 00:00:00 2001
+From: Jeff Layton <jlayton@redhat.com>
+Date: Sun, 11 Jan 2009 11:56:35 +0100
+Subject: [PATCH] Allow passing multiple image files to the initrd command
+
+This patch allows you to pass multiple image files to the kernel by adding more
+than one filename to the initrd parameter. i.e.:
+
+initrd /initramfs-image1.gz /initramfs-image2.gz
+
+Bug Report: https://bugzilla.redhat.com/show_bug.cgi?id=179127
+---
+ stage2/boot.c |   30 +++++++++++++++++++-----------
+ 1 files changed, 19 insertions(+), 11 deletions(-)
+
+diff --git a/stage2/boot.c b/stage2/boot.c
+index 4185d23..dee4651 100644
+--- a/stage2/boot.c
++++ b/stage2/boot.c
+@@ -798,7 +798,8 @@ load_module (char *module, char *arg)
+ int
+ load_initrd (char *initrd)
+ {
+-  int len;
++  int len, next_addr;
++  char *singleimage, *pos;
+   unsigned long moveto;
+   unsigned long max_addr;
+   struct linux_kernel_header *lh
+@@ -808,15 +809,24 @@ load_initrd (char *initrd)
+   no_decompression = 1;
+ #endif
+   
+-  if (! grub_open (initrd))
+-    goto fail;
++  len = 0;
++  next_addr = cur_addr;
+ 
+-  len = grub_read ((char *) cur_addr, -1);
+-  if (! len)
+-    {
+-      grub_close ();
+-      goto fail;
+-    }
++  /* loop over all initrd images and concatenate them in memory */
++  singleimage = strtok_r(initrd," \t",&pos);
++  while (singleimage) {
++    if (! grub_open (singleimage))
++      continue;
++
++    len += grub_read ((char *) next_addr, -1);
++    grub_close ();
++
++    next_addr = cur_addr + len;
++    singleimage = strtok_r(NULL," \t",&pos);
++  }
++
++  if (!len)
++    goto fail;
+ 
+   if (linux_mem_size)
+     moveto = linux_mem_size;
+@@ -842,8 +852,6 @@ load_initrd (char *initrd)
+   lh->ramdisk_image = RAW_ADDR (moveto);
+   lh->ramdisk_size = len;
+ 
+-  grub_close ();
+-
+  fail:
+   
+ #ifndef NO_DECOMPRESSION
+-- 
+1.6.4.2
+

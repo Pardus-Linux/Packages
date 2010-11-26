@@ -1,0 +1,69 @@
+diff -Nur grub-0.97-old//Makefile.am grub-0.97/Makefile.am
+--- grub-0.97-old//Makefile.am	2010-11-26 16:11:49.482000106 +0200
++++ grub-0.97/Makefile.am	2010-11-26 16:11:54.823999985 +0200
+@@ -7,3 +7,4 @@
+ endif
+ 
+ EXTRA_DIST = BUGS MAINTENANCE
++pkgdatadir=$(datadir)
+diff -Nur grub-0.97-old//stage1/Makefile.am grub-0.97/stage1/Makefile.am
+--- grub-0.97-old//stage1/Makefile.am	2010-11-26 16:11:49.476000261 +0200
++++ grub-0.97/stage1/Makefile.am	2010-11-26 16:11:54.824999991 +0200
+@@ -1,4 +1,4 @@
+-pkglibdir = $(libdir)/$(PACKAGE)/$(host_cpu)-$(host_vendor)
++pkglibdir = /lib/grub
+ nodist_pkglib_DATA = stage1
+ 
+ CLEANFILES = $(nodist_pkglib_DATA)
+diff -Nur grub-0.97-old//stage2/Makefile.am grub-0.97/stage2/Makefile.am
+--- grub-0.97-old//stage2/Makefile.am	2010-11-26 16:11:49.488000031 +0200
++++ grub-0.97/stage2/Makefile.am	2010-11-26 16:11:54.824999991 +0200
+@@ -32,7 +32,7 @@
+ 	-fno-strict-aliasing
+ 
+ # Stage 2 and Stage 1.5's.
+-pkglibdir = $(libdir)/$(PACKAGE)/$(host_cpu)-$(host_vendor)
++pkglibdir = /lib/grub
+ 
+ EXTRA_PROGRAMS = nbloader.exec pxeloader.exec diskless.exec
+ 
+diff -Nur grub-0.97-old//util/grub-install.in grub-0.97/util/grub-install.in
+--- grub-0.97-old//util/grub-install.in	2010-11-26 16:11:49.477000230 +0200
++++ grub-0.97/util/grub-install.in	2010-11-26 16:11:54.825999998 +0200
+@@ -27,7 +27,7 @@
+ host_cpu=@host_cpu@
+ host_os=@host_os@
+ host_vendor=@host_vendor@
+-pkglibdir=${libdir}/${PACKAGE}/${host_cpu}-${host_vendor}
++pkglibdir=${libdir}/${PACKAGE}/
+ 
+ grub_shell=${sbindir}/grub
+ mdadm=${sbindir}/mdadm
+@@ -566,14 +566,19 @@
+     exit 1
+ fi
+ 
+-# Copy the GRUB images to the GRUB directory.
+-for file in ${grubdir}/stage1 ${grubdir}/stage2 ${grubdir}/*stage1_5; do
+-    rm -f $file || exit 1
+-done
+-for file in \
+-    ${pkglibdir}/stage1 ${pkglibdir}/stage2 ${pkglibdir}/*stage1_5; do
+-    cp -f $file ${grubdir} || exit 1
+-done
++# FHS says that /usr/share is used for architecture independent data,
++# so all stage-files are directly installed to /lib/grub.
++# Therefor this part is no longer needed.
++# <--cut_here--> 
++## Copy the GRUB images to the GRUB directory.
++#for file in ${grubdir}/stage1 ${grubdir}/stage2 ${grubdir}/*stage1_5; do
++#    rm -f $file || exit 1
++#done
++#for file in \
++#    ${pkglibdir}/stage1 ${pkglibdir}/stage2 ${pkglibdir}/*stage1_5; do
++#    cp -f $file ${grubdir} || exit 1
++#done
++# <--uncut-->
+ 
+ # Make sure that GRUB reads the same images as the host OS.
+ test -n "$mkimg" && img_file=`$mkimg`

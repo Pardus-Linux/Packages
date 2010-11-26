@@ -1,0 +1,30 @@
+--- grub-0.91/stage2/shared.h.pix	Thu Jan 24 14:42:26 2002
++++ grub-0.91/stage2/shared.h	Thu Jan 24 14:47:44 2002
+@@ -172,8 +172,8 @@
+ 
+ #define BOOTSEC_LOCATION		RAW_ADDR (0x7C00)
+ #define BOOTSEC_SIGNATURE		0xAA55
+-#define BOOTSEC_BPB_OFFSET		0x3
+-#define BOOTSEC_BPB_LENGTH		0x3B
++#define BOOTSEC_BPB_OFFSET		0xA
++#define BOOTSEC_BPB_LENGTH		0x34
+ #define BOOTSEC_BPB_SYSTEM_ID		0x3
+ #define BOOTSEC_BPB_HIDDEN_SECTORS	0x1C
+ #define BOOTSEC_PART_OFFSET		0x1BE
+--- grub-0.91/stage1/stage1.S.pix	Sun Dec 30 09:09:22 2001
++++ grub-0.91/stage1/stage1.S	Thu Jan 24 14:42:26 2002
+@@ -69,9 +69,12 @@
+ 	.byte	0
+ disk_address_packet:	
+ sectors:
+-	.long	0
++	.byte	0
++	.ascii	"GRU"
+ heads:
+-	.long	0
++	.ascii "B"
++	.byte	0
++	.word	0
+ cylinders:
+ 	.word	0
+ sector_start:

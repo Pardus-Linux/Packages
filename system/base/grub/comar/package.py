@@ -4,10 +4,14 @@ import os
 import shutil
 import glob
 
+grubBootConfig = "/etc/grub.conf"
+oldstayla = False
+
+
 def postInstall(fromVersion, fromRelease, toVersion, toRelease):
     exists = os.path.exists
 
-    stage2src = "/lib/grub/i386-pc/stage2"
+    stage2src = "/lib/grub/stage2"
     stage2target = "/boot/grub/stage2"
 
     egrepregexp = "'^[[:space:]]*(#|$|default|fallback|initrd|password|splashimage|timeout|title|gfxmenu|background|configfile)'"
@@ -37,7 +41,12 @@ def postInstall(fromVersion, fromRelease, toVersion, toRelease):
     os.system("dd if=%s of=%s bs=256k" % (stage2src, stage2target))
     os.system("sync")
 
-    if exists("/boot/grub/grub.conf"):
-        cmd = "/bin/egrep -v %s /boot/grub/grub.conf|/sbin/grub --batch --device-map=/boot/grub/device.map > /dev/null 2>&1" % egrepregexp
-        os.system(cmd)
+    if oldstayla:
+        if exists("/boot/grub/grub.conf"):
+            cmd = "/bin/egrep -v %s /boot/grub/grub.conf|/sbin/grub --batch --device-map=/boot/grub/device.map > /dev/null 2>&1" % egrepregexp
+            os.system(cmd)
 
+    else:
+        if exists(grubBootConfig):
+            cmd = "cat %s |/sbin/grub --batch --no-floppy --device-map=/boot/grub/device.map > /dev/null 2>&1" % grubBootConfig
+            os.system(cmd)

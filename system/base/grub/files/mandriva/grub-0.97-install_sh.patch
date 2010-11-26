@@ -1,0 +1,20 @@
+--- grub-0.97/util/grub-install.in.pix	2006-08-11 12:39:49.000000000 +0200
++++ grub-0.97/util/grub-install.in	2006-08-11 12:42:14.000000000 +0200
+@@ -335,11 +335,16 @@
+     sync
+ 
+     # Now perform the installation.
+-    $grub_shell --batch $no_floppy --device-map=$device_map <<EOF >>$log_file
++    cat <<EOF2 > $grubdir/install.sh
++$grub_shell --batch $no_floppy --device-map=$device_map <<EOF
+ root $1
+ setup $force_lba --stage2=$grubdir/stage2 --prefix=$grub_prefix $2
+ quit
+ EOF
++EOF2
++    chmod 755 $grubdir/install.sh
++
++    sh $grubdir/install.sh >$log_file
+ }
+ 
+ 

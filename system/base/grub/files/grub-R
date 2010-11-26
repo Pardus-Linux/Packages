@@ -1,9 +1,10 @@
---- grub-0.96/stage2/builtins.c.orig	2004-06-20 15:33:04.000000000 +0200
-+++ grub-0.96/stage2/builtins.c	2005-09-02 14:38:53.000000000 +0200
-@@ -762,11 +762,11 @@
- default_func (char *arg, int flags)
- {
- #ifndef SUPPORT_DISKLESS
+diff -Nur grub-0.97-old//stage2/builtins.c grub-0.97/stage2/builtins.c
+--- grub-0.97-old//stage2/builtins.c	2010-11-26 15:56:58.416000030 +0200
++++ grub-0.97/stage2/builtins.c	2010-11-26 15:58:37.844000209 +0200
+@@ -821,11 +821,11 @@
+       return 0;
+     }
+ #endif
 -  if (grub_strcmp (arg, "saved") == 0)
 +  if (grub_strcmp (arg, "saved") == 0 || (saved_entryno & 0x4000))
      {
@@ -15,7 +16,7 @@
  #endif /* SUPPORT_DISKLESS */
    
    if (! safe_parse_maxint (&arg, &default_entry))
-@@ -787,6 +787,22 @@
+@@ -846,6 +846,22 @@
  #endif
  };
  
@@ -38,9 +39,10 @@
  
  #ifdef GRUB_UTIL
  /* device */
---- grub-0.96/stage2/stage2.c~	2004-07-24 20:53:47.000000000 +0200
-+++ grub-0.96/stage2/stage2.c	2005-09-02 14:45:04.000000000 +0200
-@@ -827,6 +827,7 @@
+diff -Nur grub-0.97-old//stage2/stage2.c grub-0.97/stage2/stage2.c
+--- grub-0.97-old//stage2/stage2.c	2010-11-26 15:56:58.415000032 +0200
++++ grub-0.97/stage2/stage2.c	2010-11-26 15:57:01.963000129 +0200
+@@ -1305,6 +1305,7 @@
    return pos;
  }
  
@@ -48,7 +50,7 @@
  
  /* This is the starting function in C.  */
  void
-@@ -1048,7 +1049,9 @@
+@@ -1497,7 +1498,9 @@
  	    }
  	  while (is_preset);
  	}

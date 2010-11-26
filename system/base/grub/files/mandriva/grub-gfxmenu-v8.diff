@@ -992,38 +992,3 @@
  	}
      }
  }
---- stage2/stage2.c
-+++ stage2/stage2.c
-@@ -991,8 +991,8 @@
-   gfx_data->sys_cfg[SC_BOOTLOADER] = 2;			/* bootloader: grub */
-   gfx_data->sys_cfg[SC_SYSCONFIG_SIZE] = 52;		/* config data size */
-   *(unsigned short *) (gfx_data->sys_cfg + SC_BOOTLOADER_SEG) = (unsigned) gfx_data >> 4;	/* segment */
--  gfx_data->sys_cfg[SC_XMEM_0] = 0x21;			/* 1MB @ 2MB */
--  gfx_data->sys_cfg[SC_XMEM_1] = 0x41;			/* 1MB @ 4MB */
-+  gfx_data->sys_cfg[SC_XMEM_0] = 0x28;			/* 8MB @ 2MB, see buf_ext below */
-+  // gfx_data->sys_cfg[SC_XMEM_1] = 0xYZ;			/* Z MB @ Y MB */
-   verbose = (*(unsigned char *) 0x417) & 3 ? 1 : 0;	/* SHIFT pressed */
-   gfx_data->sys_cfg[SC_FAILSAFE] = verbose;
- 
-@@ -1060,9 +1060,9 @@
- 
-   /* get memory area to be used by graphics functions */
- 
--  /* use 1MB starting at 2MB as file buffer */
-+  /* use 8MB starting at 2MB as file buffer; see SC_XMEM_0 above (A20 is enabled anyway) */
-   buf_ext = (unsigned char *) (2 << 20);
--  buf_ext_size = 1 << 20;
-+  buf_ext_size = 8 << 20;
- 
-   /* must be 16-byte aligned */
-   buf = (unsigned char *) (((unsigned) heap + 0xf) & ~0xf);
-@@ -1199,6 +1199,9 @@
- 
-   if(selected_entry < 0 || selected_entry > num_entries) return;
- 
-+  /* for 'savedefault' */
-+  current_entryno = selected_entry;
-+
- 
-   /* create new config with modified kernel option */
- 

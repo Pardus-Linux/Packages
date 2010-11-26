@@ -1,0 +1,258 @@
+--- grub-0.97/docs/grub.texi.pix	2005-05-08 04:59:59.000000000 +0200
++++ grub-0.97/docs/grub.texi	2007-04-23 10:08:42.000000000 +0200
+@@ -27,8 +27,6 @@
+ * grub-terminfo: (grub)Invoking grub-terminfo.  Generate a terminfo
+                                                 command from a
+                                                 terminfo name
+-* grub-set-default: (grub)Invoking grub-set-default.    Set a default boot
+-                                                        entry
+ * mbchk: (grub)Invoking mbchk.  Check for the format of a Multiboot kernel
+ @end direntry
+ 
+@@ -118,7 +116,6 @@
+ * Invoking grub-install::       How to use the GRUB installer
+ * Invoking grub-md5-crypt::     How to generate a cryptic password
+ * Invoking grub-terminfo::      How to generate a terminfo command
+-* Invoking grub-set-default::   How to set a default boot entry
+ * Invoking mbchk::              How to use the Multiboot checker
+ * Obtaining and Building GRUB:: How to obtain and build GRUB
+ * Reporting bugs::              Where you should send a bug report
+@@ -481,10 +478,8 @@
+ GRUB comes with boot images, which are normally put in the directory
+ @file{/usr/lib/grub/i386-pc}. If you do not use grub-install, then
+ you need to copy the files @file{stage1}, @file{stage2}, and
+-@file{*stage1_5} to the directory @file{/boot/grub}, and run the
+-@command{grub-set-default} (@pxref{Invoking grub-set-default}) if you
+-intend to use @samp{default saved} (@pxref{default}) in your
+-configuration file. Hereafter, the directory where GRUB images are
++@file{*stage1_5} to the directory @file{/boot/grub}. Hereafter, 
++the directory where GRUB images are
+ initially placed (normally @file{/usr/lib/grub/i386-pc}) will be
+ called the @dfn{image directory}, and the directory where the boot
+ loader needs to find them (usually @file{/boot/grub}) will be called
+@@ -1109,7 +1104,6 @@
+ 
+ @menu
+ * Booting once-only::
+-* Booting fallback systems::
+ @end menu
+ 
+ 
+@@ -1125,135 +1119,14 @@
+ new kernel fails (e.g. it panics), you can specify that GRUB should
+ try the new kernel only once and boot the old kernel after that.
+ 
+-First, modify your configuration file. Here is an example:
++To tell GRUB to boot the new kernel at next boot
++time, execute @command{grub}, and use @dfn{savedefault}:
+ 
+ @example
+-@group
+-default saved        # This is important!!!
+-timeout 10
+-
+-title the old kernel
+-root (hd0,0)
+-kernel /old_kernel
+-savedefault
+-
+-title the new kernel
+-root (hd0,0)
+-kernel /new_kernel
+-savedefault 0         # This is important!!!
+-@end group
+-@end example
+-
+-Note that this configuration file uses @samp{default saved}
+-(@pxref{default}) at the head and @samp{savedefault 0}
+-(@pxref{savedefault}) in the entry for the new kernel. This means
+-that GRUB boots a saved entry by default, and booting the entry for the
+-new kernel saves @samp{0} as the saved entry.
+-
+-With this configuration file, after all, GRUB always tries to boot the
+-old kernel after it booted the new one, because @samp{0} is the entry
+-of @code{the old kernel}.
+-
+-The next step is to tell GRUB to boot the new kernel at next boot
+-time. For this, execute @command{grub-set-default} (@pxref{Invoking
+-grub-set-default}):
+-
+-@example
+-# @kbd{grub-set-default 1}
+-@end example
+-
+-This command sets the saved entry to @samp{1}, that is, to the new
+-kernel.
+-
+-This method is useful, but still not very robust, because GRUB stops
+-booting, if there is any error in the boot entry, such that the new
+-kernel has an invalid executable format. Thus, it it even better to
+-use the @dfn{fallback} mechanism of GRUB. Look at next subsection for
+-this feature.
+-
+-
+-@node Booting fallback systems
+-@subsection Booting fallback systems
+-
+-GRUB supports a fallback mechanism of booting one or more other
+-entries if a default boot entry fails. You can specify multiple
+-fallback entries if you wish.
+-
+-Suppose that you have three systems, @samp{A}, @samp{B} and
+-@samp{C}. @samp{A} is a system which you want to boot by
+-default. @samp{B} is a backup system which is supposed to boot
+-safely. @samp{C} is another backup system which is used in case where
+-@samp{B} is broken.
+-
+-Then you may want GRUB to boot the first system which is bootable
+-among @samp{A}, @samp{B} and @samp{C}. A configuration file can be
+-written in this way:
+-
+-@example
+-@group
+-default saved        # This is important!!!
+-timeout 10
+-fallback 1 2         # This is important!!!
+-
+-title A
+-root (hd0,0)
+-kernel /kernel
+-savedefault fallback # This is important!!!
+-
+-title B
+-root (hd1,0)
+-kernel /kernel
+-savedefault fallback # This is important!!!
+-
+-title C
+-root (hd2,0)
+-kernel /kernel
+-savedefault
+-@end group
++# @kbd{savedefault --default 1 --once}
+ @end example
+ 
+-Note that @samp{default saved} (@pxref{default}), @samp{fallback 1 2}
+-and @samp{savedefault fallback} are used. GRUB will boot a saved entry
+-by default and save a fallback entry as next boot entry with this
+-configuration.
+-
+-When GRUB tries to boot @samp{A}, GRUB saves @samp{1} as next boot
+-entry, because the command @command{fallback} specifies that @samp{1}
+-is the first fallback entry. The entry @samp{1} is @samp{B}, so GRUB
+-will try to boot @samp{B} at next boot time.
+-
+-Likewise, when GRUB tries to boot @samp{B}, GRUB saves @samp{2} as
+-next boot entry, because @command{fallback} specifies @samp{2} as next
+-fallback entry. This makes sure that GRUB will boot @samp{C} after
+-booting @samp{B}.
+-
+-It is noteworthy that GRUB uses fallback entries both when GRUB
+-itself fails in booting an entry and when @samp{A} or @samp{B} fails
+-in starting up your system. So this solution ensures that your system
+-is started even if GRUB cannot find your kernel or if your kernel
+-panics.
+-
+-However, you need to run @command{grub-set-default} (@pxref{Invoking
+-grub-set-default}) when @samp{A} starts correctly or you fix @samp{A}
+-after it crashes, since GRUB always sets next boot entry to a fallback
+-entry. You should run this command in a startup script such as
+-@file{rc.local} to boot @samp{A} by default:
+-
+-@example
+-# @kbd{grub-set-default 0}
+-@end example
+-
+-where @samp{0} is the number of the boot entry for the system
+-@samp{A}.
+-
+-If you want to see what is current default entry, you can look at the
+-file @file{/boot/grub/default} (or @file{/grub/default} in
+-some systems). Because this file is plain-text, you can just
+-@command{cat} this file. But it is strongly recommended @strong{not to
+-modify this file directly}, because GRUB may fail in saving a default
+-entry in this file, if you change this file in an unintended
+-manner. Therefore, you should use @command{grub-set-default} when you
+-need to change the default entry.
++This command sets the default entry to @samp{1} for next boot.
+ 
+ 
+ @node Configuration
+@@ -3180,7 +3063,7 @@
+ fallback entry is saved. Next fallback entry is chosen from fallback
+ entries. Normally, this will be the first entry in fallback ones.
+ 
+-See also @ref{default} and @ref{Invoking grub-set-default}.
++See also @ref{default}.
+ @end deffn
+ 
+ 
+@@ -3755,68 +3639,6 @@
+ @end example
+ 
+ 
+-@node Invoking grub-set-default
+-@chapter Invoking grub-set-default
+-
+-The program @command{grub-set-default} sets the default boot entry for
+-GRUB. This automatically creates a file named @file{default} under
+-your GRUB directory (i.e. @file{/boot/grub}), if it is not
+-present. This file is used to determine the default boot entry when
+-GRUB boots up your system when you use @samp{default saved} in your
+-configuration file (@pxref{default}), and to save next default boot
+-entry when you use @samp{savedefault} in a boot entry
+-(@pxref{savedefault}).
+-
+-@command{grub-set-default} accepts the following options:
+-
+-@table @option
+-@item --help
+-Print a summary of the command-line options and exit.
+-
+-@item --version
+-Print the version information and exit.
+-
+-@item --root-directory=@var{dir}
+-Use the directory @var{dir} instead of the root directory
+-(i.e. @file{/}) to define the location of the default file. This
+-is useful when you mount a disk which is used for another system.
+-@end table
+-
+-You must specify a single argument to @command{grub-set-default}. This
+-argument is normally the number of a default boot entry. For example,
+-if you have this configuration file:
+-
+-@example
+-@group
+-default saved
+-timeout 10
+-
+-title GNU/Hurd
+-root (hd0,0)
+-...
+-
+-title GNU/Linux
+-root (hd0,1)
+-...
+-@end group
+-@end example
+-
+-and if you want to set the next default boot entry to GNU/Linux, you
+-may execute this command:
+-
+-@example
+-@kbd{grub-set-default 1}
+-@end example
+-
+-Because the entry for GNU/Linux is @samp{1}. Note that entries are
+-counted from zero. So, if you want to specify GNU/Hurd here, then you
+-should specify @samp{0}.
+-
+-This feature is very useful if you want to test a new kernel or to
+-make your system quite robust. @xref{Making your system robust}, for
+-more hints about how to set up a robust system.
+-
+-
+ @node Invoking mbchk
+ @chapter Invoking mbchk
+ 
