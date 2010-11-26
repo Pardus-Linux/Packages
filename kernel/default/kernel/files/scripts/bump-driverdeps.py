@@ -5,26 +5,51 @@ import os
 import re
 import sys
 import pisi
+import time
 
-oldwd = os.getcwd()
-repo_root = "/root/2009/"
+PACKAGER = "YOUR NAME"
+PACKAGER_EMAIL = "YOUR EMAIL"
 
-kpspec = pisi.specfile.SpecFile('pspec.xml')
-kver = kpspec.history[0].version
+RELEASE = """\
+        <Update release="%s">
+            <Date>%s</Date>
+            <Version>%s</Version>
+            <Comment>Bump release for new kernel.</Comment>
+            <Name>%s</Name>
+            <Email>%s</Email>
+        </Update>
+"""
 
-if len(sys.argv) == 3:
-    repo_root = sys.argv[1]
-    krel = sys.argv[2]
-else:
-    krel = kpspec.history[0].release
+def increment_release(pspec, krel):
+    last_history = pisi.specfile.SpecFile(pspec).history[0]
+    release = int(last_history.release)+1
+    ver = last_history.version
+    date = time.strftime("%Y-%m-%d")
 
-for d in ["devel"]:
-    os.chdir(repo_root+d)
+    global RELEASE
+    new_release = RELEASE % (release, date, ver, PACKAGER, PACKAGER_EMAIL)
 
-    packages = os.popen("grep --exclude=pisi-index* --exclude-dir=.svn -r '<Dependency release=\".*\">kernel.*' * | gawk -F: '{ print $1 }'").read().strip().split()
+    # Update dependency releases if any
+    newpspec = re.sub('\<Dependency release="[0-9]*"\>(kernel.*)<', '<Dependency release="%s">\\1<' % krel, open(pspec, "r").read())
+    newpspec = newpspec.replace("<History>\n", "<History>\n%s" % new_release)
 
-    for p in packages:
-        a = re.sub("<Dependency release=\".*\">(kernel.*)", "<Dependency release=\"%s\">\\1" % krel, open(p, "r").read())
-        open(p, "w").write(a)
+    open(pspec, "w").write(newpspec)
 
-os.chdir(oldwd)
+
+if __name__ == "__main__":
+
+    if len(sys.argv) < 2:
+        print "Usage: %s <new release>" % sys.argv[0]
+        sys.exit(1)
+
+    # Check .packagerinfo
+    if os.path.exists(os.path.expanduser("~/.packagerinfo")):
+        PACKAGER, PACKAGER_EMAIL = open(os.path.expanduser("~/.packagerinfo"), "r").read().strip().split(",")
+
+    krel = sys.argv[1]
+    os.chdir("../../")
+
+    packages = os.popen("grep --exclude-dir=.svn -r '<Dependency release=\".*\">kernel.*' * | gawk -F: '{ print $1 }'").read().strip().split()
+
+    for p in set(packages):
+        increment_release(p, krel)
