@@ -25,6 +25,7 @@
         </BuildDependencies>
         <Patches>
             <!-- Stable patch -->
+            <Patch level="1" compressionType="bz2">kernel/patch-2.6.36.1.bz2</Patch>
 
 
             <!-- Moblin patches -->
@@ -103,6 +104,31 @@
             <!-- btusb: Add new macbookpro IDs -->
             <Patch level="1">fedora/btusb-macbookpro-7-1.patch</Patch>
             <Patch level="1">fedora/btusb-macbookpro-6-2.patch</Patch>
+            <Patch level="1">fedora/add-macbookair3-ids.patch</Patch>
+
+            <!-- tty: restore tty_ldisc_wait_idle -->
+            <Patch level="1">fedora/tty-restore-tty_ldisc_wait_idle.patch</Patch>
+
+            <!-- print tty device name to find out the WARNING in tty_io.c -->
+            <Patch level="1">fedora/debug-tty-print-dev-name.patch</Patch>
+
+            <!-- fix gcc miscompilation issue -->
+            <Patch level="1">fedora/fix-i8k-inline-asm.patch</Patch>
+
+            <!-- fix zero struct memory in ipc compat (CVE-2010-4073) -->
+            <Patch level="1">fedora/ipc-zero-struct-memory-for-compat-fns.patch</Patch>
+
+            <!-- fix zero struct memory in ipc shm (CVE-2010-4072) -->
+            <Patch level="1">fedora/ipc-shm-fix-information-leak-to-user.patch</Patch>
+
+            <!-- fix logic error in INET_DIAG bytecode auditing (CVE-2010-3880) -->
+            <Patch level="1">fedora/inet_diag-make-sure-we-run-the-same-bytecode-we-audited.patch</Patch>
+
+            <!-- posix-cpu-timers: workaround to suppress the problems with mt exec -->
+            <Patch level="1">fedora/posix-cpu-timers-workaround-to-suppress-problems-with-mt-exec.patch</Patch>
+
+            <!-- Fix graphics on HP 2530p -->
+            <Patch level="1">fedora/x86-never-alloc-pci-from-the-last-1M-below-4G.patch</Patch>
 
             <!-- Add preliminary support for Wacom Bamboo pen and touch devices -->
             <Patch level="1">fedora/wacom-01-add-fuzz-parameters-to-features.patch</Patch>
@@ -260,10 +286,10 @@
     <Package>
         <Name>kernel</Name>
         <RuntimeDependencies>
-            <!-- For devtmpfs support -->
-            <Dependency>mkinitramfs</Dependency>
             <Dependency>kernel-firmware</Dependency>
             <Dependency>radeon-rlc-firmware</Dependency>
+            <!-- For new mkinitramfs pakhandler -->
+            <Dependency releaseFrom="84">mkinitramfs</Dependency>
         </RuntimeDependencies>
         <Replaces>
             <Package>module-lirc</Package>
@@ -327,6 +353,24 @@
     </Package>
 
     <History>
+        <Update release="146">
+            <Date>2010-11-25</Date>
+            <Version>2.6.36.1</Version>
+            <Comment>
+                - Version bump to 2.6.36.1,
+                - Depend on new mkinitramfs to create the mkinitramfs,
+                - tty: restore tty_ldisc_wait_idle,
+                - print tty device name to find out the WARNING in tty_io.c,
+                - fix gcc miscompilation issue,
+                - fix zero struct memory in ipc compat (CVE-2010-4073),
+                - fix zero struct memory in ipc shm (CVE-2010-4072),
+                - fix logic error in INET_DIAG bytecode auditing (CVE-2010-3880),
+                - posix-cpu-timers: workaround to suppress the problems with mt exec,
+                - Fix graphics on HP 2530p,
+            </Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
         <Update release="145">
             <Date>2010-10-27</Date>
             <Version>2.6.36</Version>
