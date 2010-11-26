@@ -18,10 +18,12 @@ def setup():
                          --disable-gtk-doc-html")
 
 def build():
-    autotools.make("V=1")
+    autotools.make()
 
 def install():
     autotools.rawInstall("DESTDIR=%s" % get.installDIR())
 
     pisitools.dodoc("AUTHORS", "COPYING*", "NEWS", "README")
+
+    pisitools.removeDir("/usr/share/gtk-doc")
 
