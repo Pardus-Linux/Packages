@@ -12,6 +12,7 @@ from pisi.actionsapi import get
 def setup():
     # Libs should be installed to /lib because it's possible that /usr
     # is on a different partition other than rootfs.
+    autotools.autoreconf("-fi")
     autotools.configure("--sbindir=/sbin \
                          --libdir=/lib \
                          --disable-rpath")
