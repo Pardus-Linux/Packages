@@ -1,0 +1,44 @@
+Index: patch-2.6.1.81-5b68/tests/Makefile.am
+===================================================================
+--- patch-2.6.1.81-5b68.orig/tests/Makefile.am
++++ patch-2.6.1.81-5b68/tests/Makefile.am
+@@ -22,6 +22,7 @@ TESTS = \
+ 	copy-rename \
+ 	corrupt-reject-files \
+ 	create-delete \
++	create-directory \
+ 	crlf-handling \
+ 	dash-o-append \
+ 	empty-files \
+Index: patch-2.6.1.81-5b68/tests/create-directory
+===================================================================
+--- /dev/null
++++ patch-2.6.1.81-5b68/tests/create-directory
+@@ -0,0 +1,27 @@
++# Copyright (C) 2010 Free Software Foundation, Inc.
++#
++# Copying and distribution of this file, with or without modification,
++# in any medium, are permitted without royalty provided the copyright
++# notice and this notice are preserved.
++
++# Check whether patch correctly creates directories before creating
++# new files.
++
++. $srcdir/test-lib.sh
++
++use_local_patch
++use_tmpdir
++
++# ==============================================================
++
++cat > f.diff <<EOF
++--- /dev/null
+++++ b/newfile
++@@ -0,0 +1,2 @@
+++one
+++two
++EOF
++
++check 'patch -p0 < f.diff' <<EOF
++patching file b/newfile
++EOF
