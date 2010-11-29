@@ -1,0 +1,44 @@
+2010-08-19  Richard Frith-Macdonald  <rfm@gnu.org>
+
+	* configure.ac: Check alignment of pthread types
+	* Headers/Additions/GNUstepBase/GSConfig.h.in: Record alignment
+
+
+--- gnustep-base-1.20.1.orig/Headers/Additions/GNUstepBase/GSConfig.h.in
++++ gnustep-base-1.20.1/Headers/Additions/GNUstepBase/GSConfig.h.in
+@@ -212,10 +212,10 @@
+  */
+ typedef	struct {
+   uint8_t	dummy[@GS_SIZEOF_COND_T@];
+-} gs_cond_t;
++} gs_cond_t	__attribute__((aligned (@GS_ALIGNOF_COND_T@)));
+ typedef	struct {
+   uint8_t	dummy[@GS_SIZEOF_MUTEX_T@];
+-} gs_mutex_t;
++} gs_mutex_t	__attribute__((aligned (@GS_ALIGNOF_MUTEX_T@)));
+ 
+ #define	OBJC2RUNTIME @OBJC2RUNTIME@
+ #define BASE_NATIVE_OBJC_EXCEPTIONS     @BASE_NATIVE_OBJC_EXCEPTIONS@
+--- gnustep-base-1.20.1.orig/configure.ac
++++ gnustep-base-1.20.1/configure.ac
+@@ -1787,6 +1787,20 @@
+   fi
+   GS_SIZEOF_COND_T=$ac_cv_sizeof_pthread_cond_t
+   AC_SUBST(GS_SIZEOF_COND_T)
++  AC_CHECK_ALIGNOF(pthread_mutex_t,,[AC_INCLUDES_DEFAULT
++#include <pthread.h>])
++  GS_ALIGNOF_MUTEX_T=$ac_cv_alignof_pthread_mutex_t
++  if test $ac_cv_alignof_pthread_mutex_t = 0 ; then
++    AC_MSG_ERROR([Unable to find align of pthread_mutex_t (required).])
++  fi
++  AC_SUBST(GS_ALIGNOF_MUTEX_T)
++  AC_CHECK_ALIGNOF(pthread_cond_t,,[AC_INCLUDES_DEFAULT
++#include <pthread.h>])
++  if test $ac_cv_alignof_pthread_cond_t = 0 ; then
++    AC_MSG_ERROR([Unable to find align of pthread_cond_t (required).])
++  fi
++  GS_ALIGNOF_COND_T=$ac_cv_alignof_pthread_cond_t
++  AC_SUBST(GS_ALIGNOF_COND_T)
+ else
+   AC_MSG_ERROR([Unable to find pthread.h (needed for thread support).])
+ fi
