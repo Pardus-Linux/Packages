@@ -17,7 +17,10 @@ def setup():
                         --prefix=/usr \
                         --doxygen \
                         --dbus \
-                        --classic")
+                        --classic \
+                        --firewire \
+                        --freebob \
+                        --alsa")
 
 def build():
     shelltools.system("./waf build -v")
