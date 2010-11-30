@@ -13,7 +13,7 @@
         <IsA>app:gui</IsA>
         <Summary>A collection of screensavers for the X Window System</Summary>
         <Description>XScreenSaver is the standard screen saver collection shipped on most Linux and Unix systems running the X11 Window System.</Description>
-        <Archive sha1sum="8cc46c4e80124fba0890fa9e37e3b4ff87c6a8cf" type="targz">http://www.jwz.org/xscreensaver/xscreensaver-5.11.tar.gz</Archive>
+        <Archive sha1sum="7252540b1b1853459a56453714c0974de26fa4c5" type="targz">http://www.jwz.org/xscreensaver/xscreensaver-5.12.tar.gz</Archive>
         <BuildDependencies>
             <Dependency>libglade-devel</Dependency>
             <Dependency>libXext-devel</Dependency>
@@ -32,17 +32,22 @@
             <Dependency>pango-devel</Dependency>
         </BuildDependencies>
         <Patches>
+
+            <Patch level="1">xscreensaver-5.12-flexiserver.patch</Patch>
+
+            <Patch level="1">fedora/xscreensaver-5.12-for-now-set-lang-on-daemon-to-C.patch</Patch>
+            <Patch level="1">fedora/xscreensaver-5.12-gltext-memleak.patch</Patch>
+            <Patch level="1">fedora/xscreensaver-5.12-xml-duplicate-list.patch</Patch>
+            <Patch level="1">fedora/xscreensaver-5.12-flame-completely-blank.patch</Patch>
+            <Patch level="1">fedora/xscreensaver-5.12-gtkspinbox-page-size-to-zero.patch</Patch>
+            <Patch level="1">fedora/xscreensaver-5.12-warn-only-once-with-missing-image-dir.patch</Patch>
+
             <Patch level="1">fedora/xscreensaver-5.00b5-sanitize-hacks.patch</Patch>
             <Patch level="1">fedora/xscreensaver-5.11-conf264.patch</Patch>
-            <Patch level="1">fedora/xscreensaver-5.11-no-window2-MappingNotify-bz587537.patch</Patch>
-            <Patch level="1">fedora/xscreensaver-5.11-ripple-sinc.patch</Patch>
-            <Patch level="1">fedora/xscreensaver-5.11-undefined-behavior.patch</Patch>
-            <Patch level="1">fedora/xscreensaver-5.11-xjack-with-small-window.patch</Patch>
 
             <Patch>suse/xscreensaver-background.patch</Patch>
             <Patch>suse/xscreensaver-default-screensaver.patch</Patch>
             <Patch>suse/xscreensaver-fireworkx-man.patch</Patch>
-            <Patch>suse/xscreensaver-flexiserver.patch</Patch>
             <Patch>suse/xscreensaver-ignore-no-pwent-password.patch</Patch>
             <Patch>suse/xscreensaver-mansuffix.patch</Patch>
             <Patch>suse/xscreensaver-override_redirect.patch</Patch>
@@ -90,7 +95,7 @@
             <Dependency>atk</Dependency>
             <Dependency>gtk2</Dependency>
             <Dependency>pango</Dependency>
-            <Dependency versionFrom="5.10">xscreensaver</Dependency>
+            <Dependency versionFrom="current">xscreensaver</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="executable">/usr/bin/xscreensaver-demo</Path>
@@ -102,6 +107,21 @@
     </Package>
 
     <History>
+        <Update release="18">
+            <Date>2010-11-30</Date>
+            <Version>5.12</Version>
+            <Comment>
+                * Version bump, add fedora patches that fixes:
+                * Kill memleak on gltext (bug 638600)
+                * Remove duplicate xml files entry
+                * Fix the issue that flame is completely blank (bug 642651)
+                * Remove Gtk-warning
+                * "GtkSpinButton: setting an adjustment with non-zero page size is deprecated"
+                * Warn (not say "Error") about missing image directory, and warn
+            </Comment>
+            <Name>Fatih Arslan</Name>
+            <Email>farslan@pardus.org.tr</Email>
+        </Update>
         <Update release="17">
             <Date>2010-10-12</Date>
             <Version>5.11</Version>
