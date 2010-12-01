@@ -15,7 +15,7 @@ def setup():
     shelltools.makedirs("build")
     shelltools.cd("build")
 
-    cmaketools.configure("-DQTC_NEW_MOZILLA=true -DQTC_CAIRO_1_10_HACK=true -DQTC_DEFAULT_TO_KDE3=false", sourceDir="..")
+    cmaketools.configure("-DQTC_NEW_MOZILLA=true -DQTC_DEFAULT_TO_KDE3=false", sourceDir="..")
 
 def build():
     shelltools.cd("build")
