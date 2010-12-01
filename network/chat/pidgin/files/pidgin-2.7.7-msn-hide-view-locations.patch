@@ -1,0 +1,50 @@
+----------------------------------------------------------------------
+Revision: 1edea7e71d8eeae001fd5a4c90f75cf6bbdb11d3
+Parent:   88e9e59d62fbafbf694c04a1d55f7acb5d797f55
+Author:   nosnilmot@pidgin.im
+Date:     11/29/2010 01:12:51 AM
+Branch:   im.pidgin.pidgin
+
+Changelog: 
+
+Suppress the "View Locations..." protocol action on MSN if we are not
+actually using MSNP16 or newer
+
+Changes against parent 88e9e59d62fbafbf694c04a1d55f7acb5d797f55
+
+  patched  libpurple/protocols/msn/msn.c
+
+============================================================
+--- libpurple/protocols/msn/msn.c	e7cc4cee4d52253881fdcaf46b8fe5e08e8c3117
++++ libpurple/protocols/msn/msn.c	a23e23c7ba45eb2d8b5069c8005f0cec7c6fc2e3
+@@ -1188,18 +1188,26 @@ msn_actions(PurplePlugin *plugin, gpoint
+ static GList *
+ msn_actions(PurplePlugin *plugin, gpointer context)
+ {
++	PurpleConnection *gc;
++	MsnSession *session;
+ 	GList *m = NULL;
+ 	PurplePluginAction *act;
+ 
++	gc = (PurpleConnection *) context;
++	session = gc->proto_data;
++
+ 	act = purple_plugin_action_new(_("Set Friendly Name..."),
+ 								 msn_show_set_friendly_name);
+ 	m = g_list_append(m, act);
+ 	m = g_list_append(m, NULL);
+ 
+-	act = purple_plugin_action_new(_("View Locations..."),
+-	                               msn_show_locations);
+-	m = g_list_append(m, act);
+-	m = g_list_append(m, NULL);
++	if (session->protocol_ver >= 16)
++	{
++		act = purple_plugin_action_new(_("View Locations..."),
++		                               msn_show_locations);
++		m = g_list_append(m, act);
++		m = g_list_append(m, NULL);
++	}
+ 
+ 	act = purple_plugin_action_new(_("Set Home Phone Number..."),
+ 								 msn_show_set_home_phone);
