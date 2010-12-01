@@ -1,6 +1,6 @@
 Index: doc/filters.texi
 ===================================================================
---- doc/filters.texi	(revision 25657)
+--- doc/filters.texi	(revision 25789)
 +++ doc/filters.texi	(working copy)
 @@ -257,6 +257,99 @@
  drawbox=10:20:200:60:red@@0.5"
@@ -132,62 +132,7 @@ Index: doc/filters.texi
  @section noformat
  
  Force libavfilter not to use any of the specified pixel formats for the
-@@ -391,6 +500,54 @@
- documentation for the exact meaning of the parameters:
- @url{http://opencv.willowgarage.com/documentation/c/image_filtering.html}
- 
-+@section overlay
-+
-+Overlay one video on top of another (see the example in the introduction
-+section).
-+Be aware that frames are taken
-+from each input video in timestamp order, hence, if their initial
-+timestamps differ, it is a a good idea to pass the two
-+inputs through a @var{setpts=PTS-STARTPTS} filter to have them
-+begin in the same zero timestamp, as it does the example for
-+the @var{movie} filter.
-+
-+Parameters to the filter are separated by a colon. The first parameter
-+is the x coordinate of the overlay, the second parameter is the y
-+coordinate. The parameters need not be constant expressions, but may
-+be expressions containing the names @var{main_w}, @var{main_h},
-+@var{overlay_w} and @var{overlay_h}, for the size of the first and second
-+input video, respectively. For example,
-+@example
-+overlay=main_w-overlay_w-10:main_h-overlay_h-10
-+@end example
-+can be used to draw the overlay at 10 pixels from the bottom right
-+corner of the main video.
-+
-+The filter accepts a third optional parameter, if set to a value
-+different than 0, it will alpha-blend the overlayed video on top of
-+the first one.
-+
-+This can be used in particular for performing watermarking effects, or
-+for adding a logo on top of the input video.
-+
-+For example, the following command will insert a transparent PNG
-+logo in the bottom left corner of the input video:
-+@example
-+movie=0:png:logo.png [logo]; [in][logo] overlay=10:main_h-overlay_h-10 [out]
-+@end example
-+
-+The following example will insert 2 different transparent PNG
-+logos (second logo on bottom right corner):
-+@example
-+movie=0:png:logo1.png [logo1];
-+movie=0:png:logo2.png [logo2];
-+[in][logo1] overlay=10:main_h-overlay_h-10 [in+logo1];
-+[in+logo1][logo2] overlay=main_w-overlay_w-10:main_h-overlay_h-10 [out]
-+@end example
-+
-+You could chain and add more overlays this way but the efficiency of
-+such approach is yet to be tested.
-+
- @section pad
- 
- Add paddings to the input image, and places the original input at the
-@@ -447,6 +604,14 @@
+@@ -505,6 +614,14 @@
  
  can be used to test the monowhite pixel format descriptor definition.
  
@@ -202,7 +147,7 @@ Index: doc/filters.texi
  @section scale
  
  Scale the input video to @var{width}:@var{height} and/or convert the image format.
-@@ -577,6 +742,11 @@
+@@ -635,6 +752,11 @@
  Adding this in the beginning of filter chains should make filtering
  faster due to better use of the memory cache.
  
@@ -214,7 +159,7 @@ Index: doc/filters.texi
  @section transpose
  
  Transpose rows with columns in the input video and optionally flip it.
-@@ -795,6 +965,27 @@
+@@ -853,6 +975,27 @@
  "color=red@@0.2:qcif:10 [color]; [in][color] overlay [out]"
  @end example
  

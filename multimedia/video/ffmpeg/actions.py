@@ -11,7 +11,7 @@ from pisi.actionsapi import shelltools
 from pisi.actionsapi import get
 
 WorkDir = "ffmpeg"
-version = "25659"
+version = "25853"
 minimumcpu = "" if get.ARCH() == "x86_64" else "--cpu=atom"
 
 
@@ -38,6 +38,7 @@ def setup():
                             --enable-x11grab \
                             --enable-libdc1394 \
                             --enable-libfaac \
+                            --enable-libfreetype \
                             --enable-libgsm \
                             --enable-libmp3lame \
                             --enable-libnut \
