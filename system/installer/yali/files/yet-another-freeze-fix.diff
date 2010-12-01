@@ -1,5 +1,5 @@
 diff --git a/yali/gui/ScrInstall.py b/yali/gui/ScrInstall.py
-index 7bc2ecb..e2bffd6 100644
+index 6df4666..3c458c6 100644
 --- a/yali/gui/ScrInstall.py
 +++ b/yali/gui/ScrInstall.py
 @@ -10,10 +10,12 @@
@@ -16,18 +16,21 @@ index 7bc2ecb..e2bffd6 100644
  
  import pisi.ui
  
-@@ -25,9 +27,7 @@ from yali.gui import ScreenWidget
- from yali.gui.Ui.installwidget import Ui_InstallWidget
+@@ -26,11 +28,9 @@ from yali.gui.Ui.installwidget import Ui_InstallWidget
  from yali.gui.YaliDialog import EjectAndRetryDialog
+ 
+ from yali.gui.Ui.installprogress import Ui_InstallProgress
+-from pds.gui import *
++from pds.gui import PAbstractBox, BOTCENTER
  
 -EventPisi, EventSetProgress, EventError, EventAllFinished, EventPackageInstallFinished, EventRetry = range(1001, 1007)
 -
 -current_object = None
 +EventConfigure, EventInstall, EventSetProgress, EventError, EventAllFinished, EventPackageInstallFinished, EventRetry = range(1001, 1008)
  
- def iter_slideshows():
-     slideshows = []
-@@ -44,10 +44,6 @@ def iter_slideshows():
+ class InstallProgressWidget(PAbstractBox):
+ 
+@@ -81,10 +81,6 @@ def iter_slideshows():
          for slideshow in slideshows:
              yield slideshow
  
@@ -38,7 +41,7 @@ index 7bc2ecb..e2bffd6 100644
  class Widget(QWidget, ScreenWidget):
      name = "packageInstallation"
  
-@@ -59,6 +55,9 @@ class Widget(QWidget, ScreenWidget):
+@@ -98,6 +94,9 @@ class Widget(QWidget, ScreenWidget):
          self.timer = QTimer(self)
          QObject.connect(self.timer, SIGNAL("timeout()"), self.changeSlideshows)
  
@@ -46,9 +49,9 @@ index 7bc2ecb..e2bffd6 100644
 +        QObject.connect(self.poll_timer, SIGNAL("timeout()"), self.checkQueueEvent)
 +
          if ctx.consts.lang == "tr":
-             self.ui.progress.setFormat("%%p")
+             self.installProgress.ui.progress.setFormat("%%p")
  
-@@ -72,8 +71,10 @@ class Widget(QWidget, ScreenWidget):
+@@ -111,8 +110,10 @@ class Widget(QWidget, ScreenWidget):
          self.has_errors = False
  
          # mutual exclusion
@@ -61,7 +64,7 @@ index 7bc2ecb..e2bffd6 100644
          self.retry_answer = False
          self.pkg_configurator = None
          self.pkg_installer = None
-@@ -83,16 +84,18 @@ class Widget(QWidget, ScreenWidget):
+@@ -122,16 +123,18 @@ class Widget(QWidget, ScreenWidget):
          ctx.mainScreen.dontAskCmbAgain = True
          ctx.mainScreen.theme_shortcut.setEnabled(False)
  
@@ -86,13 +89,16 @@ index 7bc2ecb..e2bffd6 100644
  
          ctx.mainScreen.disableNext()
          ctx.mainScreen.disableBack()
-@@ -100,53 +103,67 @@ class Widget(QWidget, ScreenWidget):
-         # start 30 seconds
-         self.timer.start(1000 * 30)
+@@ -141,53 +144,66 @@ class Widget(QWidget, ScreenWidget):
+ 
+         self.installProgress.showInstallProgress()
  
 -    def customEvent(self, qevent):
 +    def checkQueueEvent(self):
-+
+ 
+-        # EventPisi
+-        if qevent.eventType() == EventPisi:
+-            package, event = qevent.data()
 +        while True:
 +            try:
 +                data = self.queue.get_nowait()
@@ -100,35 +106,32 @@ index 7bc2ecb..e2bffd6 100644
 +            except Empty, msg:
 +                return
  
--        # EventPisi
--        if qevent.eventType() == EventPisi:
--            package, event = qevent.data()
-+            ctx.logger.debug("checkQueueEvent: Processing %s event..." % event)
- 
 -            if event == pisi.ui.installing:
+-                self.installProgress.ui.info.setText(_("Installing <b>%(name)s</b><br>%(summary)s") % {"name":package.name,
++            ctx.logger.debug("checkQueueEvent: Processing %s event..." % event)
 +            # EventInstall
 +            if event == EventInstall:
 +                package = data[1]
-                 self.ui.info.setText(_("Installing <b>%(name)s</b><br>%(summary)s") % {"name":package.name,
--                                                                                       "summary":package.summary})
-+                                                                                      "summary":package.summary})
++                self.installProgress.ui.info.setText(_("Installing <b>%(name)s</b> -- %(summary)s") % {"name":package.name,
+                                                                                        "summary":package.summary})
                  ctx.logger.debug("Pisi: %s installing" % package.name)
                  self.cur += 1
-                 self.ui.progress.setValue(self.cur)
+                 self.installProgress.ui.progress.setValue(self.cur)
 -            elif event == pisi.ui.configuring:
+-                self.installProgres.ui.info.setText(_("Configuring <b>%s</b>") % package.name)
 +
 +            # EventConfigure
 +            elif event == EventConfigure:
 +                package = data[1]
-                 self.ui.info.setText(_("Configuring <b>%s</b>") % package.name)
++                self.installProgress.ui.info.setText(_("Configuring <b>%s</b>") % package.name)
                  ctx.logger.debug("Pisi: %s configuring" % package.name)
                  self.cur += 1
-                 self.ui.progress.setValue(self.cur)
+                 self.installProgress.ui.progress.setValue(self.cur)
  
 -        # EventSetProgress
 -        elif qevent.eventType() == EventSetProgress:
 -            total = qevent.data()
--            self.ui.progress.setMaximum(total)
+-            self.installProgress.ui.progress.setMaximum(total)
 -
 -        # EventPackageInstallFinished
 -        elif qevent.eventType() == EventPackageInstallFinished:
@@ -157,7 +160,7 @@ index 7bc2ecb..e2bffd6 100644
 +            # EventSetProgress
 +            elif event == EventSetProgress:
 +                total = data[1]
-+                self.ui.progress.setMaximum(total)
++                self.installProgress.ui.progress.setMaximum(total)
 +
 +            # EventPackageInstallFinished
 +            elif event == EventPackageInstallFinished:
@@ -190,7 +193,7 @@ index 7bc2ecb..e2bffd6 100644
  
      def changeSlideshows(self):
          slide = self.iter_slideshows.next()
-@@ -162,8 +179,6 @@ class Widget(QWidget, ScreenWidget):
+@@ -203,8 +219,6 @@ class Widget(QWidget, ScreenWidget):
  
          # Configure Pending...
          # run baselayout's postinstall first
@@ -199,7 +202,7 @@ index 7bc2ecb..e2bffd6 100644
          yali.postinstall.initbaselayout()
  
          # postscripts depend on 03locale...
-@@ -175,44 +190,45 @@ class Widget(QWidget, ScreenWidget):
+@@ -216,44 +230,45 @@ class Widget(QWidget, ScreenWidget):
          # run dbus in chroot
          yali.util.start_dbus()
  
@@ -258,7 +261,7 @@ index 7bc2ecb..e2bffd6 100644
          ctx.logger.debug("PisiUI is creating..")
          yali.pisiiface.initialize(ui)
          ctx.logger.debug("Pisi initialize is calling..")
-@@ -242,29 +258,22 @@ class PkgInstaller(QThread):
+@@ -283,29 +298,22 @@ class PkgInstaller(QThread):
  
          # show progress
          total = len(order)
@@ -293,7 +296,7 @@ index 7bc2ecb..e2bffd6 100644
  
                      # wait for the result
                      self.wait_condition.wait(self.mutex)
-@@ -274,28 +283,27 @@ class PkgInstaller(QThread):
+@@ -315,28 +323,27 @@ class PkgInstaller(QThread):
                          raise msg
  
          except Exception, msg:
@@ -332,7 +335,7 @@ index 7bc2ecb..e2bffd6 100644
          yali.pisiiface.initialize(ui=ui, with_comar=True)
  
          try:
-@@ -303,52 +311,39 @@ class PkgConfigurator(QThread):
+@@ -344,52 +351,39 @@ class PkgConfigurator(QThread):
              ctx.logger.debug("exec : yali.pisiiface.configurePending() called")
              yali.pisiiface.configurePending()
          except Exception, msg:
