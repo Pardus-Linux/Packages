@@ -29,7 +29,7 @@ def postInstall(fromVersion, fromRelease, toVersion, toRelease):
         shutil.move("/boot/grub/stage2", "/boot/grub/stage2.old")
 
     # "Copying files from /lib/grub and /usr/lib/grub to /boot"
-    fnlist = glob.glob("/lib/grub/*/*")
+    fnlist = glob.glob("/lib/grub/*")
 
     for x in fnlist:
         if os.path.isfile(x):
