@@ -1,0 +1,28 @@
+From 2c3680b396d5af7e3c842e4eacef96015020c9d1 Mon Sep 17 00:00:00 2001
+From: Mete Alpaslan <mete@pardus.org.tr>
+Date: Thu, 2 Dec 2010 15:56:42 +0200
+Subject: [PATCH 4/4] yali.postinstall:Set hostname instantly
+
+If install type is firstboot we can set hostname right away.
+---
+ yali/postinstall.py |    4 +++-
+ 1 files changed, 3 insertions(+), 1 deletions(-)
+
+diff --git a/yali/postinstall.py b/yali/postinstall.py
+index 3af9bc3..a89553f 100644
+--- a/yali/postinstall.py
++++ b/yali/postinstall.py
+@@ -100,7 +100,9 @@ def connectToDBus():
+ def setHostName():
+     global bus
+     obj = bus.get_object("tr.org.pardus.comar", "/package/baselayout")
+-    if ctx.flags.install_type == ctx.STEP_FIRST_BOOT or ctx.flags.install_type == ctx.STEP_DEFAULT:
++    if ctx.flags.install_type == ctx.STEP_FIRST_BOOT:
++        yali.util.run_batch("hostname", [str(ctx.installData.hostName)])
++    elif ctx.flags.install_type == ctx.STEP_DEFAULT:
+         obj.setHostName(str(ctx.installData.hostName), dbus_interface="tr.org.pardus.comar.Network.Stack")
+     elif ctx.flags.install_type == ctx.STEP_BASE:
+         obj.setHostName(str(yali.util.product_release()), dbus_interface="tr.org.pardus.comar.Network.Stack")
+-- 
+1.7.2.2
+
