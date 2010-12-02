@@ -13,7 +13,7 @@ MSG_BACKEND_WARNING = _({
                         })
 
 PIDFILE="/var/run/NetworkManager/NetworkManager.pid"
-USETHIS=eval(config.get("DEFAULT", "False"))
+USETHIS=eval(config.get("DEFAULT", "True"))
 
 @synchronized
 def start():
