@@ -1,0 +1,561 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>hplip</Name>
+        <Homepage>http://hplip.sourceforge.net/</Homepage>
+        <Packager>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Packager>
+        <License>GPLv2+</License>
+        <License>MIT</License>
+        <Summary>HP Linux Imaging and Printing System</Summary>
+        <Description>HP Linux Imaging and Printing (HPLIP) System includes printer and scanner drivers and related service tools.</Description>
+        <Archive sha1sum="5e145eafefbc5122bbe98345f2984fc0a55e5787" type="targz">mirrors://sourceforge/hplip/hplip-3.10.9.tar.gz</Archive>
+        <AdditionalFiles>
+            <!-- PPD patcher -->
+            <AdditionalFile permission="0755" target="patch-ppds">patch-ppds.sh</AdditionalFile>
+
+            <!-- PPD patches -->
+            <AdditionalFile target="ppd-patches/001-hplip-deviceIDs-ppd.patch">fedora/hplip-deviceIDs-ppd.patch</AdditionalFile>
+            <AdditionalFile target="ppd-patches/002-hplip-ppd-ImageableArea.patch">fedora/hplip-ppd-ImageableArea.patch</AdditionalFile>
+        </AdditionalFiles>
+        <BuildDependencies>
+            <Dependency>jpeg-devel</Dependency>
+            <Dependency>foomatic-db</Dependency>
+            <Dependency>net-snmp-devel</Dependency>
+            <Dependency>sane-backends-devel</Dependency>
+            <Dependency versionFrom="1.4.2">cups-devel</Dependency>
+        </BuildDependencies>
+        <Patches>
+            <!-- Fedora patches -->
+
+            <!-- The pstotiff filter is rubbish so replace it -->
+            <Patch level="1">fedora/hplip-pstotiff-is-rubbish.patch</Patch>
+
+            <!-- Fix compilation -->
+            <Patch level="1">fedora/hplip-strstr-const.patch</Patch>
+
+            <!-- Make utils.checkPyQtImport() look for the gui sub-package -->
+            <Patch level="1">fedora/hplip-ui-optional.patch</Patch>
+
+            <!-- Make sure to avoid handwritten asm -->
+            <Patch level="1">fedora/hplip-no-asm.patch</Patch>
+
+            <!-- Corrected several IEEE 1284 Device IDs using foomatic data -->
+            <Patch level="1">fedora/hplip-deviceIDs-drv.patch</Patch>
+
+            <!-- Stopped hpcups pointlessly trying to read spool files directly -->
+            <Patch level="1">fedora/hplip-mucks-with-spooldir.patch</Patch>
+
+            <!-- Removed SYSFS use in udev rules and actually made them work -->
+            <Patch level="1">fedora/hplip-udev-rules.patch</Patch>
+
+            <!-- Retry when connecting to device fails -->
+            <Patch level="1">fedora/hplip-retry-open.patch</Patch>
+
+            <!-- Mark SNMP quirks in PPD for HP OfficeJet Pro 8500 -->
+            <Patch level="1">fedora/hplip-snmp-quirks.patch</Patch>
+
+            <!-- Fixed hp-setup traceback when discovery page is skipped -->
+            <Patch level="1">fedora/hplip-discovery-method.patch</Patch>
+
+            <!--  Fixed bogus low ink warnings from hpijs driver -->
+            <Patch level="1">fedora/hplip-hpijs-marker-supply.patch</Patch>
+
+            <!-- Clear old printer-state-reasons we used to manage -->
+            <Patch level="1">fedora/hplip-clear-old-state-reasons.patch</Patch>
+
+            <!-- Fix python shebang -->
+            <Patch level="1">fedora/hplip-env-python.patch</Patch>
+
+            <!-- Avoid busy loops in hpcups when backend has exited -->
+            <Patch level="1">fedora/hplip-hpcups-sigpipe.patch</Patch>
+
+            <!-- Use correct fax PPD name for Qt3 UI -->
+            <Patch level="1">fedora/hplip-fax-ppd.patch</Patch>
+
+            <!-- Fixed Device ID parsing code in hpijs's dj9xxvip.c -->
+            <Patch level="1">fedora/hplip-bad-low-ink-warning.patch</Patch>
+
+            <!-- Hpcups (ljcolor) was putting black lines where should be blank lines -->
+            <Patch level="1">fedora/hplip-skip-blank-lines.patch</Patch>
+
+            <!-- Added missing newline to string argument in dbglog() call -->
+            <Patch level="1">fedora/hplip-dbglog-newline.patch</Patch>
+
+            <!-- Wait longer to see if a system tray becomes available -->
+            <Patch level="1">fedora/hplip-no-system-tray.patch</Patch>
+
+            <!-- Prevent segfault in cupsext when opening PPD file -->
+            <Patch level="1">fedora/hplip-openPPD.patch</Patch>
+
+            <!-- Fix ImageableArea for LaserJet 8150/9000 -->
+            <!-- UNPACKEDPATCH 2 -->
+
+            <!-- Increase timeouts for curl, wget, ping for high latency networks -->
+            <Patch level="1">fedora/hplip-network-timeout.patch</Patch>
+
+            <!-- utils.addgroup() was returning string instead of array -->
+            <Patch level="1">fedora/hplip-addgroup.patch</Patch>
+
+            <!-- Fixed traceback on error condition in device.py -->
+            <Patch level="1">fedora/hplip-raw_deviceID-traceback.patch</Patch>
+
+            <!-- Avoid UnicodeDecodeError in printsettingstoolbox.py -->
+            <Patch level="1">fedora/hplip-UnicodeDecodeError.patch</Patch>
+
+            <!-- Don't emit SIGNALs in ui4.setupdialog.SetupDialog the PyQt3 way -->
+            <Patch level="1">fedora/hplip-emit-SIGNAL.patch</Patch>
+
+            <!-- Prevent hp-fab traceback when run as root -->
+            <Patch level="1">fedora/hplip-fab-root-crash.patch</Patch>
+
+            <!-- Call cupsSetUser in cupsext's addPrinter method before connecting so
+                 that we can get an authentication callback -->
+            <Patch level="1">fedora/hplip-addprinter.patch</Patch>
+
+
+            <!-- Pardus patches -->
+            <Patch level="1">pardus/add-pardus-support.patch</Patch>
+            <Patch level="1">pardus/desktop-i18n.patch</Patch>
+            <Patch level="1">pardus/fix-polkit-directory.patch</Patch>
+            <Patch level="1">pardus/fix-udev-rules-path.patch</Patch>
+
+            <!-- Suppress module warnings when the command is run as root -->
+            <Patch level="1">pardus/suppress-module-warnings.patch</Patch>
+
+            <!-- Consume session parameter from systray as it avoids startup -->
+            <Patch level="1">pardus/hp-systray-consume-session-param.patch</Patch>
+
+            <!-- Remove udev rules after plugin installation -->
+            <!--<Patch level="1">pardus/dont-create-udev-rules-after-plugin-installation.patch</Patch>-->
+
+        </Patches>
+    </Source>
+
+    <Package>
+        <Name>hplip</Name>
+        <IsA>app:console</IsA>
+        <IsA>library</IsA>
+        <IsA>driver</IsA>
+        <RuntimeDependencies>
+            <Dependency>jpeg</Dependency>
+            <Dependency>net-snmp</Dependency>
+            <Dependency>foomatic-db</Dependency>
+            <Dependency>sane-backends</Dependency>
+            <Dependency versionFrom="1.4.2">cups</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="data">/etc/sane.d/dll.d</Path>
+            <Path fileType="config">/etc/hp/hplip.conf</Path>
+            <Path fileType="executable">/usr/bin</Path>
+            <Path fileType="library">/usr/lib</Path>
+            <Path fileType="data">/var/lib</Path>
+            <Path fileType="data">/usr/share/cups</Path>
+            <Path fileType="data">/usr/share/hplip</Path>
+            <Path fileType="data">/usr/share/dbus-1</Path>
+            <Path fileType="data">/usr/share/PolicyKit</Path>
+            <Path fileType="data">/usr/share/hplip/prnt/plugins</Path>
+            <Path fileType="data">/lib/udev/rules.d</Path>
+        </Files>
+        <AdditionalFiles>
+            <AdditionalFile owner="root" permission="0755" target="/usr/bin/hpcups-update-ppds">fedora/hpcups-update-ppds.sh</AdditionalFile>
+            <AdditionalFile owner="root" permission="0644" target="/etc/sane.d/dll.d/hpaio">hpaio</AdditionalFile>
+        </AdditionalFiles>
+        <Provides>
+            <COMAR script="package.py">System.Package</COMAR>
+        </Provides>
+    </Package>
+
+    <Package>
+        <Name>hplip-gui</Name>
+        <Icon>hplip</Icon>
+        <IsA>app:gui</IsA>
+        <Summary>A set of useful utilities written in Qt for managing HP devices</Summary>
+        <RuntimeDependencies>
+            <Dependency versionFrom="3.10.9">hplip</Dependency>
+            <Dependency>python-reportlab</Dependency>
+            <Dependency>python-qt</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="executable">/usr/bin/hp-toolbox</Path>
+            <Path fileType="executable">/usr/bin/hp-systray</Path>
+            <Path fileType="config">/etc/xdg</Path>
+            <Path fileType="data">/usr/share/applications</Path>
+            <Path fileType="data">/usr/share/hplip/data/images</Path>
+            <Path fileType="data">/usr/share/hplip/plugins</Path>
+            <Path fileType="data">/usr/share/hplip/ui4</Path>
+            <Path fileType="data">/usr/share/pixmaps</Path>
+        </Files>
+        <AdditionalFiles>
+            <AdditionalFile owner="root" permission="0644" target="/usr/share/pixmaps/hplip.png">hplip.png</AdditionalFile>
+        </AdditionalFiles>
+    </Package>
+
+    <Package>
+        <Name>hplip-doc</Name>
+        <IsA>data:doc</IsA>
+        <Summary>Documentation files for HPLIP</Summary>
+        <RuntimeDependencies>
+            <Dependency versionFrom="3.10.9">hplip</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="doc">/usr/share/doc</Path>
+        </Files>
+    </Package>
+
+    <History>
+        <Update release="44">
+            <Date>2010-12-02</Date>
+            <Version>3.10.9</Version>
+            <Comment>Version bump to 3.10.9</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="43">
+            <Date>2010-11-03</Date>
+            <Version>3.10.5</Version>
+            <Comment>Default to standart groups</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="42">
+            <Date>2010-05-21</Date>
+            <Version>3.10.5</Version>
+            <Comment>
+                - Add support for the following printers:
+                     HP Photosmart D110 Series Printer
+                     HP LaserJet Professional P1102w Printer
+                     HP Laserjet Professional P1102 Printer
+                     HP LaserJet Professional M1132 Multifunction Printer
+                     HP LaserJet Professional M1212nf Multifunction Printer
+                     HP LaserJet Professional P1566
+                     HP LaserJet Professional P1606dn Printer
+                     HP Officejet 4000 K210 Printer
+                     HP Officejet 4400 K410 All-in-One Printer
+                     HP LaserJet M5039 Multifunction Printer
+                - Fix hp-systray startup issue by consuming session parameter,
+                - Add postInstall script to update hpcups queues.
+            </Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="41">
+            <Date>2010-04-08</Date>
+            <Version>3.10.2</Version>
+            <Comment>Add 1 fedora fix, take over package</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="40">
+            <Date>2010-03-15</Date>
+            <Version>3.10.2</Version>
+            <Comment>
+                - Added support for HP Officejet 4500 series g510a, g510b, g510g and g510h,
+                - Fix hp-setup old algorithm fails to set up printer in 3.9.10,
+                - Fix crash in hp-toolbox Preferences dialog,
+                - hpcups driver is updated for some products to align with their specifications.
+            </Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="39">
+            <Date>2010-01-26</Date>
+            <Version>3.9.12</Version>
+            <Comment>Don't depend on cupsddk</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="38">
+            <Date>2009-12-24</Date>
+            <Version>3.9.12</Version>
+            <Comment>Bump to 3.9.12, added support for a bunch of new HP printers.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="37">
+            <Date>2009-09-30</Date>
+            <Version>3.9.8</Version>
+            <Comment>
+                - Move doc and html files to true directories (Thanks to Gökmen Görgen),
+                - foomatic-db-hpijs is obsolete and not needed anymore,
+                - Add several patches from Fedora.
+            </Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="36">
+            <Date>2009-08-07</Date>
+            <Version>3.9.8</Version>
+            <Comment>
+                - Added mDNS/Bonjour support,
+                - Added support for a bunch of new printers,
+                - Drop upstreamed patches,
+                - Use UDEV rule for ACL instead of HAL,
+                - Add two other Fedora patches,
+                - Enable hpijs (#10470).
+            </Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="35">
+            <Date>2009-08-05</Date>
+            <Version>3.9.6b</Version>
+            <Comment>
+                - Add fedora patch to use libudev for device-id detection,
+                - Add fedora patch to fix incorrect output on some HP printers,
+                - Fix buggy Product lines in hpcups Fax PPDs.
+            </Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="34">
+            <Date>2009-07-16</Date>
+            <Version>3.9.6b</Version>
+            <Comment>
+                - Remove udev rules after plugin installation,
+                - Suppress module warnings printed when the commands are run as root.
+            </Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="33">
+            <Date>2009-07-14</Date>
+            <Version>3.9.6b</Version>
+            <Comment>Version bump.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="32">
+            <Date>2009-06-26</Date>
+            <Version>3.9.6</Version>
+            <Comment>Version bump.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="31">
+            <Date>2009-05-04</Date>
+            <Version>3.9.4b</Version>
+            <Comment>
+                Version bump
+                Add fdi file by hand, remove broken fdi and udev rules
+                Remove PPD's, gain more space
+            </Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="30">
+            <Date>2009-04-07</Date>
+            <Version>3.9.2</Version>
+            <Comment>Version bump. Added support for new scanners and printers, allow fdi file in package, fixes bug #9502</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="29">
+            <Date>2008-11-11</Date>
+            <Version>2.8.10</Version>
+            <Comment>Version bump. Added support for new scanners and printers, fix foomatic usage through ppd files, fixes bug #8610</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="28">
+            <Date>2008-10-09</Date>
+            <Version>2.8.9</Version>
+            <Comment>Version bump. Added support for new scanners and new devices, many toolbox fixes, hp-uri made smarter</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="27">
+            <Date>2008-09-15</Date>
+            <Version>2.8.7</Version>
+            <Comment>Enable gui and split as hplip-gui, fixes bug #8178</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="26">
+            <Date>2008-08-12</Date>
+            <Version>2.8.7</Version>
+            <Comment>Version bump: Fixes #7925 caused by hp-makeuri buggy output</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="25">
+            <Date>2008-07-26</Date>
+            <Version>2.8.6b</Version>
+            <Comment>Version bump: This release focuses on adding support of recently released HP printers as well as defect fixes and a few minor enhancements. hp-systray and xdg/autostart are removed since they are not required in our non-GUI build</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="24">
+            <Date>2008-04-08</Date>
+            <Version>2.8.4</Version>
+            <Comment>Version bump</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="23">
+            <Date>2007-12-24</Date>
+            <Version>2.7.12</Version>
+            <Comment>Minor bump for bugfixes and support for more LJZjsMono printers</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="22">
+            <Date>2007-12-13</Date>
+            <Version>2.7.10</Version>
+            <Comment>Major version bump, lots of new models and fixes, no more service script needed</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="21" type="security">
+            <Date>2007-10-12</Date>
+            <Version>1.7.4a</Version>
+            <Comment>Fix CVE-2007-5208</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="20">
+            <Date>2007-05-31</Date>
+            <Version>1.7.4a</Version>
+            <Comment>Version bump for some new models and wrong "printer not found" errors</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="19">
+            <Date>2007-05-23</Date>
+            <Version>1.7.1</Version>
+            <Comment>Updated Service script.</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="18">
+            <Date>2007-03-30</Date>
+            <Version>1.7.1</Version>
+            <Comment>Add missing dep.</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="17" type="security">
+            <Date>2007-02-05</Date>
+            <Version>1.7.1</Version>
+            <Comment>Fix buffer overflow and bump to add support for more printers</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="16">
+            <Date>2007-01-12</Date>
+            <Version>1.6.12</Version>
+            <Comment>Fix lots of defects, especially the "poll frequently" bug</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="15">
+            <Date>2006-11-18</Date>
+            <Version>1.6.10</Version>
+            <Comment>Match with new foomatic-db version</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="14">
+            <Date>2006-11-08</Date>
+            <Version>1.6.10</Version>
+            <Comment>Version bump</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="13">
+            <Date>2006-10-14</Date>
+            <Version>1.6.9</Version>
+            <Comment>Fix service script</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="12">
+            <Date>2006-10-13</Date>
+            <Version>1.6.9</Version>
+            <Comment>Remove sane-backend workaround</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="11">
+            <Date>2006-10-09</Date>
+            <Version>1.6.9</Version>
+            <Comment>Service script updated.</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="10">
+            <Date>2006-09-22</Date>
+            <Version>1.6.9</Version>
+            <Comment>Update for lots of fixes</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="9">
+            <Date>2006-08-17</Date>
+            <Version>1.6.7</Version>
+            <Comment>Update for lots of fixes</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="8">
+            <Date>2006-07-01</Date>
+            <Version>1.6.6</Version>
+            <Comment>Update for lots of fixes</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="7">
+            <Date>2006-05-19</Date>
+            <Version>0.9.11</Version>
+            <Comment>Update for lots of fixes</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="6">
+            <Date>2006-04-29</Date>
+            <Version>0.9.10</Version>
+            <Comment>Update for lots of fixes</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="5">
+            <Date>2006-04-21</Date>
+            <Version>0.9.8</Version>
+            <Comment>Fix service script</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="4">
+            <Date>2006-04-19</Date>
+            <Version>0.9.8</Version>
+            <Comment>Mudur script added</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="3">
+            <Date>2006-02-24</Date>
+            <Version>0.9.8</Version>
+            <Comment>New version</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="2">
+            <Date>2006-01-26</Date>
+            <Version>0.9.7</Version>
+            <Comment>Fix init script and python usage</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="1">
+            <Date>2005-12-30</Date>
+            <Version>0.9.7</Version>
+            <Comment>First release.</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+    </History>
+</PISI>
+
