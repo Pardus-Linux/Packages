@@ -1,0 +1,26 @@
+From e316dbb2d3e5c5ee488bf1006e93b260b0238067 Mon Sep 17 00:00:00 2001
+From: Mete Alpaslan <mete@pardus.org.tr>
+Date: Thu, 2 Dec 2010 14:25:54 +0200
+Subject: [PATCH] yali.storage:Obey edd disk order
+
+util.get_edd_dict needs list of disks path not storage disk instances.
+---
+ yali/storage/__init__.py |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/yali/storage/__init__.py b/yali/storage/__init__.py
+index bc74e7a..acc1385 100644
+--- a/yali/storage/__init__.py
++++ b/yali/storage/__init__.py
+@@ -219,7 +219,7 @@ class Storage(object):
+                                      zeroMbr=self.zeroMbr)
+         self.devicetree.populate()
+         self.storageset = StorageSet(self.devicetree, ctx.consts.target_dir)
+-        self.eddDict = yali.util.get_edd_dict(self.partitioned)
++        self.eddDict = yali.util.get_edd_dict([disk.path for disk in self.partitioned])
+ 
+     def deviceImmutable(self, device, ignoreProtected=False):
+         """ Return any reason the device cannot be modified/removed.
+-- 
+1.7.2.2
+
