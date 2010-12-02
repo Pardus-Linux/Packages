@@ -37,8 +37,9 @@ def install():
     # Install kernel source
     kerneltools.installSource()
 
+    # Clean module-init-tools related stuff
+    kerneltools.cleanModuleFiles()
+
     # FIXME
     pisitools.removeDir("/lib/firmware")
 
-    # Clean module-init-tools related stuff
-    kerneltools.cleanModuleFiles()
