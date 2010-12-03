@@ -70,7 +70,7 @@ def install():
     pisitools.insinto("/usr/lib/chromium-browser", "chrome.pak")
     pisitools.insinto("/usr/lib/chromium-browser", "resources.pak")
     pisitools.insinto("/usr/lib/chromium-browser", "chrome", "chromium-browser")
-    pisitools.insinto("/usr/lib/chromium-browser", "chrome_sandbox")
+    pisitools.insinto("/usr/lib/chromium-browser", "chrome_sandbox", "chromium_sandbox")
     pisitools.insinto("/usr/lib/chromium-browser", "xdg-settings")
     pisitools.insinto("/usr/lib/chromium-browser", "locales")
     pisitools.insinto("/usr/lib/chromium-browser", "resources")
