@@ -10,7 +10,7 @@ from pisi.actionsapi import pisitools
 from pisi.actionsapi import get
 
 def setup():
-    cmaketools.configure()
+    cmaketools.configure("-DLIB_POSTFIX=''")
 
 def build():
     cmaketools.make("-j1")
