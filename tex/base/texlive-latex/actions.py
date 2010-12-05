@@ -17,3 +17,5 @@ def build():
 
 def install():
     texlivemodules.install() 
+
+    pisitools.remove("/usr/share/texmf-dist/scripts/oberdiek/pdfatfi.pl")
