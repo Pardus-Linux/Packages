@@ -12,6 +12,10 @@ def postInstall(fromVersion, fromRelease, toVersion, toRelease):
                 --slave /etc/ld.so.conf.d/10-nvidia-current.conf nvidia-current-conf /usr/share/nvidia-current/ld.so.conf"
               % {"base" : base})
 
+    # If this driver is in use, refresh links after installation.
+    if os.readlink("/etc/alternatives/libGL") == "%s/libGL.so.1.2" % base:
+        os.system("/usr/sbin/alternatives --set libGL %s/libGL.so.1.2" % base)
+
 def preRemove():
     # FIXME This is not needed when upgrading package; but pisi does not
     #       provide a way to learn operation type.
