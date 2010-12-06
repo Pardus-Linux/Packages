@@ -1,0 +1,64 @@
+diff -up wireshark-1.0.2/epan/dissectors/packet-nfs.c.orig wireshark-1.0.2/epan/dissectors/packet-nfs.c
+--- wireshark-1.0.2/epan/dissectors/packet-nfs.c.orig	2008-07-10 13:39:23.000000000 -0400
++++ wireshark-1.0.2/epan/dissectors/packet-nfs.c	2008-07-25 07:59:45.000000000 -0400
+@@ -7962,6 +7962,8 @@ dissect_nfs_argop4(tvbuff_t *tvb, int of
+ 		ftree = proto_item_add_subtree(fitem, ett_nfs_argop4);
+ 	}
+ 
++	proto_item_append_text(tree, ", Ops(%d):", ops);
++
+ 	for (ops_counter=0; ops_counter<ops; ops_counter++)
+ 	{
+ 		opcode = tvb_get_ntohl(tvb, offset);
+@@ -7991,6 +7993,15 @@ dissect_nfs_argop4(tvbuff_t *tvb, int of
+ 			break;
+ 		}
+ 
++		if (opcode != NFS4_OP_PUTFH) {
++			if (check_col(pinfo->cinfo, COL_INFO)) {
++				col_append_fstr(pinfo->cinfo, COL_INFO, " %s", 
++					names_nfsv4_operation[opcode - 3].strptr);
++			}
++		}
++		proto_item_append_text(tree, " %s", 
++			names_nfsv4_operation[opcode - 3].strptr);
++
+ 		switch(opcode)
+ 		{
+ 		case NFS4_OP_ACCESS:
+@@ -8420,6 +8431,8 @@ dissect_nfs_resop4(tvbuff_t *tvb, int of
+ 		ftree = proto_item_add_subtree(fitem, ett_nfs_resop4);
+ 	}
+ 
++	proto_item_append_text(tree, ", Ops(%d):", ops);
++
+ 	for (ops_counter = 0; ops_counter < ops; ops_counter++)
+ 	{
+ 		opcode = tvb_get_ntohl(tvb, offset);
+@@ -8451,6 +8464,17 @@ dissect_nfs_resop4(tvbuff_t *tvb, int of
+ 
+ 		offset = dissect_nfs_nfsstat4(tvb, offset, newftree, &status);
+ 
++		if (check_col(pinfo->cinfo, COL_INFO)) {
++			if (status != NFS4_OK) {
++				col_append_fstr(pinfo->cinfo, COL_INFO, " %s(%d)", 
++					names_nfsv4_operation[opcode - 3].strptr, status);
++			} else if (opcode != NFS4_OP_PUTFH) {
++				col_append_fstr(pinfo->cinfo, COL_INFO, " %s", 
++					names_nfsv4_operation[opcode - 3].strptr);
++			}
++		}
++		proto_item_append_text(tree, " %s(%d)", 
++			names_nfsv4_operation[opcode - 3].strptr, status);
+ 		/*
+ 		 * With the exception of NFS4_OP_LOCK, NFS4_OP_LOCKT, and
+ 		 * NFS4_OP_SETATTR, all other ops do *not* return data with the
+@@ -8770,7 +8794,7 @@ static const value_string nfsv3_proc_val
+ static const vsff nfs4_proc[] = {
+ 	{ 0, "NULL",
+ 	dissect_nfs3_null_call,		dissect_nfs3_null_reply },
+-	{ 1, "COMPOUND",
++	{ 1, "COMP",
+ 	dissect_nfs4_compound_call, dissect_nfs4_compound_reply },
+ 	{ 0, NULL, NULL, NULL }
+ };
