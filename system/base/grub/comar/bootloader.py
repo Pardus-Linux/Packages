@@ -6,7 +6,7 @@ import re
 import shutil
 
 from pardus.grubutils import grubCommand, grubEntry, grubConf
-from pardus.diskutils import linuxAddress, grubAddress, getDeviceByUUID, parseLinuxDevice, getRoot
+from pardus.diskutils import linuxAddress, grubAddress, getDeviceByUUID, parseLinuxDevice, getBoot
 
 # Make pychecker happy
 try:
@@ -277,7 +277,19 @@ def addNewKernel(grub, version, root):
 
     # symbolic links
     try:
+        os.unlink("/boot/latest-kernel%s" % suffix)
+    except OSError:
+        pass
+    try:
         os.symlink("/boot/kernel-%s%s" % (version, suffix), "/boot/latest-kernel%s" % suffix)
+    except OSError:
+        pass
+
+    try:
+        os.unlink("/boot/latest-initramfs%s" % suffix)
+    except OSError:
+        pass
+    try:
         os.symlink("/boot/initramfs-%s%s" % (version, suffix), "/boot/latest-initramfs%s" % suffix)
     except OSError:
         pass
@@ -575,7 +587,7 @@ def removeKernel(version):
 def updateKernelEntry(version, root):
     # Root device
     if not len(root):
-        root = getRoot()
+        root = getBoot()
 
     # Kernel version
     if not len(version):
@@ -674,7 +686,7 @@ def setOption(option, value):
     elif option == 'background':
         grub.setOption("background", value)
     elif option == 'splash':
-        root = getRoot()
+        root = getBoot()
         root_grub = grubAddress(root)
         grub.setOption("splashimage", "%s%s" % (root_grub, value))
 
@@ -746,7 +758,7 @@ def removeEntry(index, title, uninstall):
 
     if uninstall == "yes":
         os_entry = parseGrubEntry(entry)
-        if os_entry["os_type"] in ["linux", "xen"] and os_entry["root"] == getRoot():
+        if os_entry["os_type"] in ["linux", "xen"] and os_entry["root"] == getBoot():
             kernel_version = os_entry["kernel"].split("kernel-")[1]
             removeKernel(kernel_version)
 
@@ -799,7 +811,7 @@ def listUnused():
     if os.path.exists(CONF_GRUB):
         grub.parseConf(CONF_GRUB)
 
-    root = getRoot()
+    root = getBoot()
 
     # Find kernel entries
     kernels_in_use = []
