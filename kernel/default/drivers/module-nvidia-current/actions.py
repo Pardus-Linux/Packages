@@ -31,6 +31,7 @@ def setup():
     shelltools.unlink("libnvidia-wfb.so.*")
 
     shelltools.echo("ld.so.conf", base)
+    shelltools.echo("XvMCConfig", "%s/libXvMCNVIDIA.so" % base)
 
     # Fix for 2.6.36
     pisitools.dosed("kernel/nv.c", r"^ *\.ioctl     = nv_kern_ioctl,$", "")
@@ -66,6 +67,10 @@ def install():
     pisitools.dosym("libcuda.so.%s" % version, "%s/libcuda.so.1" % base)
     pisitools.dosym("libcuda.so.1", "%s/libcuda.so" % base)
 
+    pisitools.dolib("libnvcuvid.so.%s" % version, base)
+    pisitools.dosym("libnvcuvid.so.%s" % version, "%s/libnvcuvid.so.1" % base)
+    pisitools.dosym("libnvcuvid.so.1", "%s/libnvcuvid.so" % base)
+
     pisitools.dolib("libnvidia-cfg.so.%s" % version, base)
     pisitools.dosym("libnvidia-cfg.so.%s" % version, "%s/libnvidia-cfg.so.1" % base)
 
@@ -87,6 +92,7 @@ def install():
     pisitools.insinto("/etc/OpenCL/vendors", "nvidia.icd")
 
     pisitools.insinto("/usr/share/nvidia-current", "ld.so.conf")
+    pisitools.insinto("/usr/share/nvidia-current", "XvMCConfig")
 
     # Documentation
     docdir = "xorg-video-%s" % driver
