@@ -174,6 +174,7 @@ def postInstall(fromVersion, fromRelease, toVersion, toRelease):
                 (205, "pnpadmin"),
                 # for RT jackaudio
                 (206, "jackuser"),
+                (207, "wireshark"),
             )
 
     for gid, groupName in groups:
