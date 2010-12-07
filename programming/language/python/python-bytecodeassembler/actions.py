@@ -13,6 +13,9 @@ WorkDir = "BytecodeAssembler-%s" % get.srcVERSION()
 def setup():
     pythonmodules.compile()
 
+def check():
+    pythonmodules.compile("test")
+
 def install():
     pythonmodules.install()
 
