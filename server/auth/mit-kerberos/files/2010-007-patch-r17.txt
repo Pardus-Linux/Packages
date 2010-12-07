@@ -1,0 +1,193 @@
+Index: krb5-1.7/src/plugins/preauth/pkinit/pkinit_srv.c
+===================================================================
+--- krb5-1.7/src/plugins/preauth/pkinit/pkinit_srv.c	(revision 24455)
++++ krb5-1.7/src/plugins/preauth/pkinit/pkinit_srv.c	(working copy)
+@@ -664,8 +664,7 @@
+     krb5_reply_key_pack *key_pack = NULL;
+     krb5_reply_key_pack_draft9 *key_pack9 = NULL;
+     krb5_data *encoded_key_pack = NULL;
+-    unsigned int num_types;
+-    krb5_cksumtype *cksum_types = NULL;
++    krb5_cksumtype cksum_type;
+ 
+     pkinit_kdc_context plgctx;
+     pkinit_kdc_req_context reqctx;
+@@ -851,14 +850,24 @@
+ 		retval = ENOMEM;
+ 		goto cleanup;
+ 	    }
+-	    /* retrieve checksums for a given enctype of the reply key */
+-	    retval = krb5_c_keyed_checksum_types(context,
+-		encrypting_key->enctype, &num_types, &cksum_types);
+-	    if (retval)
+-		goto cleanup;
++            switch (encrypting_key->enctype) {
++            case ENCTYPE_DES_CBC_MD4:
++                cksum_type = CKSUMTYPE_RSA_MD4_DES;
++                break;
++            case ENCTYPE_DES_CBC_MD5:
++            case ENCTYPE_DES_CBC_CRC:
++                cksum_type = CKSUMTYPE_RSA_MD5_DES;
++                break;
++            default:
++                retval = krb5int_c_mandatory_cksumtype(context,
++                                                       encrypting_key->enctype,
++                                                       &cksum_type);
++                if (retval)
++                    goto cleanup;
++                break;
++            }
+ 
+-	    /* pick the first of acceptable enctypes for the checksum */
+-	    retval = krb5_c_make_checksum(context, cksum_types[0],
++            retval = krb5_c_make_checksum(context, cksum_type,
+ 		    encrypting_key, KRB5_KEYUSAGE_TGS_REQ_AUTH_CKSUM,
+ 		    req_pkt, &key_pack->asChecksum);
+ 	    if (retval) {
+@@ -1006,8 +1015,6 @@
+ 	free(dh_pubkey);
+     if (server_key != NULL)
+ 	free(server_key);
+-    if (cksum_types != NULL)
+-	free(cksum_types);
+ 
+     switch ((int)padata->pa_type) {
+ 	case KRB5_PADATA_PK_AS_REQ:
+Index: krb5-1.7/src/lib/crypto/keyed_checksum_types.c
+===================================================================
+--- krb5-1.7/src/lib/crypto/keyed_checksum_types.c	(revision 24455)
++++ krb5-1.7/src/lib/crypto/keyed_checksum_types.c	(working copy)
+@@ -51,6 +51,16 @@
+ {
+     unsigned int i, c;
+ 
++    if (enctype == ENCTYPE_ARCFOUR_HMAC ||
++	enctype == ENCTYPE_ARCFOUR_HMAC_EXP) {
++	*count = 2;
++	if ((*cksumtypes = malloc(2*sizeof(krb5_cksumtype))) == NULL)
++	    return(ENOMEM);
++	(*cksumtypes)[0] = CKSUMTYPE_HMAC_MD5_ARCFOUR;
++	(*cksumtypes)[1] = CKSUMTYPE_MD5_HMAC_ARCFOUR;
++	return(0);
++    }
++
+     c = 0;
+     for (i=0; i<krb5_cksumtypes_length; i++) {
+ 	if ((krb5_cksumtypes_list[i].keyhash &&
+Index: krb5-1.7/src/lib/crypto/dk/derive.c
+===================================================================
+--- krb5-1.7/src/lib/crypto/dk/derive.c	(revision 24455)
++++ krb5-1.7/src/lib/crypto/dk/derive.c	(working copy)
+@@ -40,6 +40,8 @@
+     keybytes = enc->keybytes;
+     keylength = enc->keylength;
+ 
++    if (blocksize == 1)
++	return(KRB5_BAD_ENCTYPE);
+     if ((inkey->length != keylength) ||
+ 	(outkey->length != keylength))
+ 	return(KRB5_CRYPTO_INTERNAL);
+Index: krb5-1.7/src/lib/gssapi/krb5/util_crypt.c
+===================================================================
+--- krb5-1.7/src/lib/gssapi/krb5/util_crypt.c	(revision 24455)
++++ krb5-1.7/src/lib/gssapi/krb5/util_crypt.c	(working copy)
+@@ -109,10 +109,22 @@
+     if (code != 0)
+         return code;
+ 
+-    code = (*kaccess.krb5int_c_mandatory_cksumtype)(context, subkey->enctype,
+-                                                    cksumtype);
+-    if (code != 0)
+-        return code;
++    switch (subkey->enctype) {
++    case ENCTYPE_DES_CBC_MD4:
++        *cksumtype = CKSUMTYPE_RSA_MD4_DES;
++        break;
++    case ENCTYPE_DES_CBC_MD5:
++    case ENCTYPE_DES_CBC_CRC:
++        *cksumtype = CKSUMTYPE_RSA_MD5_DES;
++        break;
++    default:
++        code = (*kaccess.krb5int_c_mandatory_cksumtype)(context,
++                                                        subkey->enctype,
++                                                        cksumtype);
++        if (code != 0)
++            return code;
++        break;
++    }
+ 
+     switch (subkey->enctype) {
+     case ENCTYPE_DES_CBC_MD5:
+Index: krb5-1.7/src/lib/krb5/krb/pac.c
+===================================================================
+--- krb5-1.7/src/lib/krb5/krb/pac.c	(revision 24455)
++++ krb5-1.7/src/lib/krb5/krb/pac.c	(working copy)
+@@ -524,6 +524,8 @@
+     checksum.checksum_type = load_32_le(p);
+     checksum.length = checksum_data.length - PAC_SIGNATURE_DATA_LENGTH;
+     checksum.contents = p + PAC_SIGNATURE_DATA_LENGTH;
++    if (!krb5_c_is_keyed_cksum(checksum.checksum_type))
++        return KRB5KRB_AP_ERR_INAPP_CKSUM;
+ 
+     pac_data.length = pac->data.length;
+     pac_data.data = malloc(pac->data.length);
+Index: krb5-1.7/src/lib/krb5/krb/preauth2.c
+===================================================================
+--- krb5-1.7/src/lib/krb5/krb/preauth2.c	(revision 24455)
++++ krb5-1.7/src/lib/krb5/krb/preauth2.c	(working copy)
+@@ -1579,7 +1579,9 @@
+ 
+    cksum = sc2->sam_cksum;
+    
+-   while (*cksum) {
++   for (; *cksum; cksum++) {
++        if (!krb5_c_is_keyed_cksum((*cksum)->checksum_type))
++            continue;
+ 	/* Check this cksum */
+ 	retval = krb5_c_verify_checksum(context, as_key,
+ 			KRB5_KEYUSAGE_PA_SAM_CHALLENGE_CKSUM,
+@@ -1593,7 +1595,6 @@
+ 	}
+ 	if (valid_cksum)
+ 	   break;
+-	cksum++;
+    }
+ 
+    if (!valid_cksum) {
+Index: krb5-1.7/src/lib/krb5/krb/mk_safe.c
+===================================================================
+--- krb5-1.7/src/lib/krb5/krb/mk_safe.c	(revision 24455)
++++ krb5-1.7/src/lib/krb5/krb/mk_safe.c	(working copy)
+@@ -213,10 +213,29 @@
+ 	for (i = 0; i < nsumtypes; i++)
+ 		if (auth_context->safe_cksumtype == sumtypes[i])
+ 			break;
+-	if (i == nsumtypes)
+-		i = 0;
+-	sumtype = sumtypes[i];
+ 	krb5_free_cksumtypes (context, sumtypes);
++	if (i < nsumtypes)
++	    sumtype = auth_context->safe_cksumtype;
++	else {
++	    switch (keyblock->enctype) {
++	    case ENCTYPE_DES_CBC_MD4:
++		sumtype = CKSUMTYPE_RSA_MD4_DES;
++		break;
++	    case ENCTYPE_DES_CBC_MD5:
++	    case ENCTYPE_DES_CBC_CRC:
++		sumtype = CKSUMTYPE_RSA_MD5_DES;
++		break;
++	    default:
++		retval = krb5int_c_mandatory_cksumtype(context,
++						       keyblock->enctype,
++						       &sumtype);
++		if (retval) {
++		    CLEANUP_DONE();
++		    goto error;
++		}
++		break;
++	    }
++	}
+     }
+     if ((retval = krb5_mk_safe_basic(context, userdata, keyblock, &replaydata, 
+ 				     plocal_fulladdr, premote_fulladdr,
