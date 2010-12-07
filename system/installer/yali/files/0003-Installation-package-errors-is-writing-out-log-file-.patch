@@ -1,0 +1,67 @@
+From a5d3d14c19735bcf3ef7eaf899b069bf3d538f82 Mon Sep 17 00:00:00 2001
+From: Mete Alpaslan <mete@pardus.org.tr>
+Date: Wed, 8 Dec 2010 00:48:16 +0200
+Subject: [PATCH 3/3] Installation package errors is writing out log file also.
+
+---
+ patches/yet-another-freeze-fix.diff |   11 ++++++-----
+ 1 files changed, 6 insertions(+), 5 deletions(-)
+
+diff --git a/patches/yet-another-freeze-fix.diff b/patches/yet-another-freeze-fix.diff
+index 7c2023c..6611c98 100644
+--- a/patches/yet-another-freeze-fix.diff
++++ b/patches/yet-another-freeze-fix.diff
+@@ -1,5 +1,5 @@
+ diff --git a/yali/gui/ScrInstall.py b/yali/gui/ScrInstall.py
+-index 6df4666..95b1a70 100644
++index 6df4666..a4be42d 100644
+ --- a/yali/gui/ScrInstall.py
+ +++ b/yali/gui/ScrInstall.py
+ @@ -10,10 +10,12 @@
+@@ -202,7 +202,7 @@ index 6df4666..95b1a70 100644
+          yali.postinstall.initbaselayout()
+  
+          # postscripts depend on 03locale...
+-@@ -216,44 +230,45 @@ class Widget(QWidget, ScreenWidget):
++@@ -216,44 +230,46 @@ class Widget(QWidget, ScreenWidget):
+          # run dbus in chroot
+          yali.util.start_dbus()
+  
+@@ -241,6 +241,7 @@ index 6df4666..95b1a70 100644
+  """) % str(error)
+ -        ctx.interface.exceptionWindow(1, errorstr)
+ +        ctx.interface.exceptionWindow(error, errorstr)
+++        ctx.logger.error("Package installation failed error with:%s" % error)
+  
+ -class PkgInstaller(QThread):
+ +class PkgInstaller(Process):
+@@ -262,7 +263,7 @@ index 6df4666..95b1a70 100644
+          ctx.logger.debug("PisiUI is creating..")
+          yali.pisiiface.initialize(ui)
+          ctx.logger.debug("Pisi initialize is calling..")
+-@@ -283,29 +298,22 @@ class PkgInstaller(QThread):
++@@ -283,29 +299,22 @@ class PkgInstaller(QThread):
+  
+          # show progress
+          total = len(order)
+@@ -297,7 +298,7 @@ index 6df4666..95b1a70 100644
+  
+                      # wait for the result
+                      self.wait_condition.wait(self.mutex)
+-@@ -315,28 +323,27 @@ class PkgInstaller(QThread):
++@@ -315,28 +324,27 @@ class PkgInstaller(QThread):
+                          raise msg
+  
+          except Exception, msg:
+@@ -336,7 +337,7 @@ index 6df4666..95b1a70 100644
+          yali.pisiiface.initialize(ui=ui, with_comar=True)
+  
+          try:
+-@@ -344,52 +351,39 @@ class PkgConfigurator(QThread):
++@@ -344,52 +352,39 @@ class PkgConfigurator(QThread):
+              ctx.logger.debug("exec : yali.pisiiface.configurePending() called")
+              yali.pisiiface.configurePending()
+          except Exception, msg:
+-- 
+1.7.3.2
+

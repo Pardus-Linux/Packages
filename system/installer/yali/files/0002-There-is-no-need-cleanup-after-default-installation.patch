@@ -1,0 +1,25 @@
+From c68069890512821700ae79480f4108c889be70e3 Mon Sep 17 00:00:00 2001
+From: Mete Alpaslan <mete@pardus.org.tr>
+Date: Wed, 8 Dec 2010 00:47:28 +0200
+Subject: [PATCH 2/3] There is no need cleanup after default installation.
+
+---
+ yali/gui/ScrGoodbye.py |    2 ++
+ 1 files changed, 2 insertions(+), 0 deletions(-)
+
+diff --git a/yali/gui/ScrGoodbye.py b/yali/gui/ScrGoodbye.py
+index eae34b9..f1f0db8 100644
+--- a/yali/gui/ScrGoodbye.py
++++ b/yali/gui/ScrGoodbye.py
+@@ -86,6 +86,8 @@ class Widget(QWidget, ScreenWidget):
+ 
+         if ctx.flags.install_type == ctx.STEP_FIRST_BOOT or ctx.flags.install_type == ctx.STEP_DEFAULT:
+             steps.append({"text":_("Adding users..."), "operation":yali.postinstall.addUsers})
++
++        if ctx.flags.install_type == ctx.STEP_FIRST_BOOT:
+             steps.append({"text":_("Cleanup systems..."), "operation":yali.postinstall.cleanup})
+ 
+         if ctx.flags.install_type == ctx.STEP_BASE  or ctx.flags.install_type == ctx.STEP_DEFAULT:
+-- 
+1.7.3.2
+
