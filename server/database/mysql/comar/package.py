@@ -3,6 +3,8 @@
 import os
 import time
 
+PIDFILE = "/var/run/mysqld/mysqld.pid"
+
 def postInstall(fromVersion, fromRelease, toVersion, toRelease):
     os.system("/bin/chown -R mysql:mysql /var/lib/mysql")
     os.system("/bin/chmod -R 0750 /var/lib/mysql")
@@ -52,7 +54,11 @@ def postInstall(fromVersion, fromRelease, toVersion, toRelease):
                                   mysql < %s' % '/tmp/pardus.sql')
 
         # Stop MySQL
-        os.kill(int(open("/var/run/mysqld/mysqld.pid", "r").read().strip()), 15)
+        if os.path.exists(PIDFILE):
+            try:
+                os.kill(int(open(PIDFILE, "r").read().strip()), 15)
+            except:
+                pass
 
         # Remove temporary SQL script
         os.unlink("/tmp/pardus.sql")
