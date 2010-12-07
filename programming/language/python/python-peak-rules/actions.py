@@ -8,8 +8,6 @@
 from pisi.actionsapi import pythonmodules
 from pisi.actionsapi import pisitools
 
-WorkDir = "PEAK-Rules-0.5a1.dev-r2600"
-
 def setup():
     pythonmodules.compile()
 
