@@ -22,5 +22,3 @@ def build():
 
 def install():
     autotools.install()
-
-    pisitools.rename("/usr/share/doc/libwpd-%s" % get.srcVERSION(), get.srcNAME())
