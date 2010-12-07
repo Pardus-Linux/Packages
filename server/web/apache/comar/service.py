@@ -1,18 +1,22 @@
+from comar.service import *
+
 serviceType = "server"
 serviceDesc = _({"en": "Apache Web Server",
                  "tr": "Apache Web Sunucusu"})
+
 serviceConf = "apache2"
 
-from comar.service import *
+PIDFILE = "/var/run/apache2.pid"
 
 @synchronized
 def start():
     import os
     os.environ["LC_ALL"] = "C"
     os.environ["LANG"] = "C"
+
     startService(command="/usr/sbin/apache2",
                  args="-d /usr/lib/apache2/ -f /etc/apache2/httpd.conf %s -k start"  % config.get("APACHE2_OPTS", ""),
-                 pidfile="/var/run/apache2.pid",
+                 pidfile=PIDFILE,
                  donotify=True)
 
 @synchronized
@@ -26,4 +30,4 @@ def reload():
                 args="-d /usr/lib/apache2/ -f /etc/apache2/httpd.conf %s -k graceful"  % config.get("APACHE2_OPTS", ""))
 
 def status():
-    return isServiceRunning("/var/run/apache2.pid")
+    return isServiceRunning(PIDFILE)

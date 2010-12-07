@@ -43,6 +43,7 @@ def modules_config():
 
     static = ['so']
 
+    # auth_ldap, ldap needed
     shared = ['actions', 'alias', 'asis', 'auth_basic', 'authn_dbm', 'authn_file',
               'auth_digest', 'authz_host', 'autoindex', 'cache', 'case_filter',
               'case-filter-in', 'cern-meta', 'cgi', 'cgid', 'charset-lite', 'dav',
@@ -69,6 +70,11 @@ def setup():
 
     for d in ["apr","apr-util","pcre"]:
         shelltools.unlinkDir("srclib/%s" % d)
+
+    # this fixes segfaults, remember omit-frame-pointer will be default soon
+    if get.ARCH() == "i686":
+        shelltools.export("CFLAGS", "%s -fno-omit-frame-pointer" % get.CFLAGS())
+    shelltools.export("LDFLAGS", "-Wl,-z,relro,-z,now")
 
     autotools.rawConfigure('--with-mpm=prefork \
                             --enable-layout=Pardus \
