@@ -12,22 +12,19 @@ from pisi.actionsapi import shelltools
 from pisi.actionsapi import get
 
 def setup():
+    flags = "%s -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE \
+                -fno-strict-aliasing -fwrapv \
+                -fPIC" % get.CFLAGS()
 
-    cflags = "%s -DHAVE_ERRNO_AS_DEFINE=1 -fPIC" % get.CFLAGS()
-    cxxflags = "%s -felide-constructors \
-                 -fno-exceptions \
-                 -fno-rtti \
-                 -fno-implicit-templates -fPIC" % get.CXXFLAGS()
-
-    #Using -fPIC in i686 causes segfaults like http://bugs.mysql.com/bug.php?id=57822
+    # remember this will soon be default in gcc
     if get.ARCH() == 'i686':
-        cxxflags = cxxflags.replace('-fPIC', '')
+        flags += " -fno-omit-frame-pointer"
 
     # Export flags
-    shelltools.export("CFLAGS", cflags)
-    shelltools.export("CXXFLAGS", cxxflags)
+    shelltools.export("CFLAGS", flags)
+    shelltools.export("CXXFLAGS", "%s -felide-constructors -fno-rtti -fno-exceptions" % flags)
 
-    autotools.autoreconf("-fi")
+    autotools.autoreconf("-vfi")
 
     # Configure!
     autotools.configure("--libexecdir=/usr/sbin \
