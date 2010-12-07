@@ -8,6 +8,9 @@ from pisi.actionsapi import autotools
 from pisi.actionsapi import pisitools
 
 def setup():
+    #we've patches changing configure.ac
+    autotools.autoreconf('-vfi')
+
     autotools.configure("--with-gnome-vfs \
                          --enable-lcms \
                          --enable-poppler-cairo \
