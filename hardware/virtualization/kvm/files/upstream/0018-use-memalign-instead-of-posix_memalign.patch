@@ -1,0 +1,29 @@
+From 898303cfd535d76ce971f3ac1310696937fbd286 Mon Sep 17 00:00:00 2001
+From: Gerd Hoffmann <kraxel@redhat.com>
+Date: Mon, 14 Jun 2010 09:53:48 +0200
+Subject: [PATCH 18/39] use memalign instead of posix_memalign
+
+---
+ osdep.c |    5 +++++
+ 1 files changed, 5 insertions(+), 0 deletions(-)
+
+diff --git a/osdep.c b/osdep.c
+index 2375a69..ed2fd40 100644
+--- a/osdep.c
++++ b/osdep.c
+@@ -100,7 +100,12 @@ void *qemu_memalign(size_t alignment, size_t size)
+ #if defined(_POSIX_C_SOURCE) && !defined(__sun__)
+     int ret;
+     void *ptr;
++#if 0
+     ret = posix_memalign(&ptr, alignment, size);
++#else
++    ptr = memalign(alignment, size);
++    ret = (ptr == NULL) ? -1 : 0;
++#endif
+     if (ret != 0) {
+         fprintf(stderr, "Failed to allocate %zu B: %s\n",
+                 size, strerror(ret));
+-- 
+1.7.2.3
+

@@ -1,0 +1,30 @@
+From 9394cbaab7701fe421d5c0168854d39d6a8ecfc2 Mon Sep 17 00:00:00 2001
+From: Gerd Hoffmann <kraxel@redhat.com>
+Date: Tue, 7 Sep 2010 16:45:27 +0200
+Subject: [PATCH 39/39] qxl: fix release ring overrun
+
+---
+ hw/qxl.c |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/hw/qxl.c b/hw/qxl.c
+index 4a15200..8448893 100644
+--- a/hw/qxl.c
++++ b/hw/qxl.c
+@@ -377,10 +377,10 @@ static inline void qxl_push_free_res(PCIQXLDevice *d)
+     QXLReleaseRing *ring = &d->ram->release_ring;
+     uint64_t *item;
+
+-#define QXL_FREE_BUNCH_SIZE 10
++#define QXL_FREE_BUNCH_SIZE 32
+
+-    if (SPICE_RING_IS_EMPTY(ring) || (d->num_free_res == QXL_FREE_BUNCH_SIZE &&
+-                                      ring->prod - ring->cons + 1 != ring->num_items)) {
++    if (SPICE_RING_IS_EMPTY(ring) || (d->num_free_res >= QXL_FREE_BUNCH_SIZE &&
++                                      ring->prod - ring->cons + 2 != ring->num_items)) {
+         int notify;
+
+         SPICE_RING_PUSH(ring, notify);
+-- 
+1.7.2.3
+

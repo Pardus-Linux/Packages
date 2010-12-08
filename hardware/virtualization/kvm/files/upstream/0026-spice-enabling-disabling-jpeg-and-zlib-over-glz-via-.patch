@@ -1,0 +1,84 @@
+From 0045574847883167f5c2b569811e049616ee611d Mon Sep 17 00:00:00 2001
+From: Yonit Halperin <yhalperi@redhat.com>
+Date: Wed, 14 Jul 2010 13:26:34 +0300
+Subject: [PATCH 26/39] spice: enabling/disabling jpeg and zlib-over-glz via spice command line args
+
+---
+ qemu-config.c |    6 ++++++
+ spice.c       |   29 +++++++++++++++++++++++++++++
+ 2 files changed, 35 insertions(+), 0 deletions(-)
+
+diff --git a/qemu-config.c b/qemu-config.c
+index 74bfc62..3e4fcf9 100644
+--- a/qemu-config.c
++++ b/qemu-config.c
+@@ -384,6 +384,12 @@ QemuOptsList qemu_spice_opts = {
+         },{
+             .name = "tls-ciphers",
+             .type = QEMU_OPT_STRING,
++        },{
++            .name = "jpeg",
++            .type = QEMU_OPT_STRING,
++        },{
++            .name = "zlib-glz",
++            .type = QEMU_OPT_STRING,
+         },
+         { /* end if list */ }
+     },
+diff --git a/spice.c b/spice.c
+index 1109b4f..201e53c 100644
+--- a/spice.c
++++ b/spice.c
+@@ -207,6 +207,23 @@ int mon_spice_migrate(Monitor *mon, const QDict *qdict, QObject **ret_data)
+                                      port, tls_port, subject);
+ }
+
++static inline spice_wan_compression_t get_wan_compression_value(const char *str)
++{
++    if (!strcmp(str, "wan")) {
++        return SPICE_WAN_COMPRESSION_AUTO;
++    }
++
++    if (!strcmp(str, "never")) {
++        return SPICE_WAN_COMPRESSION_NEVER;
++    }
++
++    if (!strcmp(str, "always")) {
++        return SPICE_WAN_COMPRESSION_ALWAYS;
++    }
++
++    return SPICE_WAN_COMPRESSION_INVALID;
++}
++
+ void qemu_spice_init(void)
+ {
+     QemuOpts *opts = QTAILQ_FIRST(&qemu_spice_opts.head);
+@@ -218,6 +235,7 @@ void qemu_spice_init(void)
+         *x509_cert_file = NULL,
+         *x509_cacert_file = NULL;
+     int port, tls_port, len;
++    const char *jpeg, *zlib_glz;
+
+     if (!opts)
+         return;
+@@ -283,6 +301,17 @@ void qemu_spice_init(void)
+     /* TODO: make configurable via cmdline */
+     spice_server_set_image_compression(spice_server, SPICE_IMAGE_COMPRESS_AUTO_GLZ);
+
++    jpeg = qemu_opt_get(opts, "jpeg");
++    zlib_glz = qemu_opt_get(opts, "zlib-glz");
++
++    if (jpeg) {
++        spice_server_set_jpeg_compression(spice_server, get_wan_compression_value(jpeg));
++    }
++
++    if (zlib_glz) {
++        spice_server_set_zlib_glz_compression(spice_server, get_wan_compression_value(zlib_glz));
++    }
++
+     spice_server_init(spice_server, &core_interface);
+     using_spice = 1;
+
+-- 
+1.7.2.3
+

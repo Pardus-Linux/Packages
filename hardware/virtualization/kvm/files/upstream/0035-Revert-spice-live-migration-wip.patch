@@ -1,0 +1,181 @@
+From 3e0d1b6ed5f8e8b871803337008e104398e4db0a Mon Sep 17 00:00:00 2001
+From: Gerd Hoffmann <kraxel@redhat.com>
+Date: Wed, 8 Sep 2010 11:48:57 +0200
+Subject: [PATCH 35/39] Revert "spice: live migration (wip)."
+
+This reverts commit 85b9db9ba993af737c9c402cf2f67db7b1b3cbce.
+
+Conflicts:
+
+	spice.c
+---
+ monitor.c       |    1 -
+ qemu-monitor.hx |   11 -------
+ qemu-spice.h    |    2 -
+ spice.c         |   87 -------------------------------------------------------
+ 4 files changed, 0 insertions(+), 101 deletions(-)
+
+diff --git a/monitor.c b/monitor.c
+index 6674a8c..e51df62 100644
+--- a/monitor.c
++++ b/monitor.c
+@@ -57,7 +57,6 @@
+ #include "osdep.h"
+ #include "exec-all.h"
+ #include "qemu-kvm.h"
+-#include "qemu-spice.h"
+
+ //#define DEBUG
+ //#define DEBUG_COMPLETION
+diff --git a/qemu-monitor.hx b/qemu-monitor.hx
+index c2570d9..da7b796 100644
+--- a/qemu-monitor.hx
++++ b/qemu-monitor.hx
+@@ -2510,17 +2510,6 @@ ETEXI
+
+ HXCOMM DO NOT add new commands after 'info', move your addition before it!
+
+-#if defined(CONFIG_SPICE)
+-    {
+-        .name       = "spice_migrate_info",
+-        .args_type  = "hostname:s,port:i?,tls-port:i?,cert-subject:s?",
+-        .params     = "hostname port tls-port cert-subject",
+-        .help       = "send migration info to spice client",
+-	.user_print = monitor_user_noop,
+-        .mhandler.cmd_new = mon_spice_migrate,
+-    },
+-#endif
+-
+ STEXI
+ @end table
+ ETEXI
+diff --git a/qemu-spice.h b/qemu-spice.h
+index 3c8e959..6f19ba7 100644
+--- a/qemu-spice.h
++++ b/qemu-spice.h
+@@ -16,8 +16,6 @@ void qemu_spice_input_init(void);
+ void qemu_spice_audio_init(void);
+ void qemu_spice_display_init(DisplayState *ds);
+
+-int mon_spice_migrate(Monitor *mon, const QDict *qdict, QObject **ret_data);
+-
+ #else  /* CONFIG_SPICE */
+
+ #define using_spice 0
+diff --git a/spice.c b/spice.c
+index 76e6ac1..e6f047d 100644
+--- a/spice.c
++++ b/spice.c
+@@ -11,7 +11,6 @@
+ #include "qemu-queue.h"
+ #include "qemu-x509.h"
+ #include "monitor.h"
+-#include "hw/hw.h"
+
+ /* core bits */
+
+@@ -123,90 +122,8 @@ static SpiceCoreInterface core_interface = {
+     .watch_remove       = watch_remove,
+ };
+
+-/* handle client migration */
+-
+-static int spice_live(Monitor *mon, QEMUFile *f, int stage, void *opaque)
+-{
+-    static int last_stage;
+-    static int migrate_client, client_connected;
+-    int ret = 1;
+-
+-    if (last_stage != stage) {
+-        last_stage = stage;
+-        fprintf(stderr, "%s: stage %d\n", __FUNCTION__, stage);
+-    } else {
+-        fprintf(stderr, ".");
+-    }
+-
+-    switch (stage) {
+-    case 1:
+-        migrate_client = 1;
+-        client_connected = 0;
+-        fprintf(stderr, "%s: start client migration\n", __FUNCTION__);
+-        if (spice_server_migrate_start(spice_server) != 0) {
+-            fprintf(stderr, "%s: fail -> no client migration\n", __FUNCTION__);
+-            migrate_client = 0;
+-        }
+-        break;
+-    case 2:
+-        if (!migrate_client)
+-            break;
+-        switch (spice_server_migrate_client_state(spice_server)) {
+-        case SPICE_MIGRATE_CLIENT_NONE:
+-            fprintf(stderr, "%s: no client connected\n", __FUNCTION__);
+-            migrate_client = 0;
+-            break;
+-        case SPICE_MIGRATE_CLIENT_WAITING:
+-            ret = 0;
+-            break;
+-        case SPICE_MIGRATE_CLIENT_READY:
+-            if (!client_connected) {
+-                fprintf(stderr, "%s: client connected to target\n", __FUNCTION__);
+-                client_connected = 1;
+-            }
+-            break;
+-        }
+-        break;
+-    case 3:
+-        if (migrate_client && client_connected) {
+-            fprintf(stderr, "%s: finish client migration\n", __FUNCTION__);
+-            spice_server_migrate_end(spice_server, 1);
+-        }
+-        break;
+-    }
+-    return ret;
+-}
+-
+-static void spice_save(QEMUFile *f, void *opaque)
+-{
+-    fprintf(stderr, "%s:\n", __FUNCTION__);
+-}
+-
+-static int spice_load(QEMUFile *f, void *opaque, int version_id)
+-{
+-    fprintf(stderr, "%s:\n", __FUNCTION__);
+-    return 0;
+-}
+-
+ /* functions for the rest of qemu */
+
+-int mon_spice_migrate(Monitor *mon, const QDict *qdict, QObject **ret_data)
+-{
+-    const char *hostname = qdict_get_str(qdict, "hostname");
+-    const char *subject  = qdict_get_try_str(qdict, "cert-subject");
+-    int port             = qdict_get_try_int(qdict, "port", -1);
+-    int tls_port         = qdict_get_try_int(qdict, "tls-port", -1);
+-
+-    if (!spice_server) {
+-        qerror_report(QERR_DEVICE_NOT_ACTIVE, "spice");
+-        return -1;
+-    }
+-
+-    /* TODO: Convert to QError */
+-    return spice_server_migrate_info(spice_server, hostname,
+-                                     port, tls_port, subject);
+-}
+-
+ #if defined(SPICE_SERVER_VERSION) && SPICE_SERVER_VERSION >= 0x000503
+ static inline spice_wan_compression_t get_wan_compression_value(const char *str)
+ {
+@@ -322,10 +239,6 @@ void qemu_spice_init(void)
+     qemu_spice_input_init();
+     qemu_spice_audio_init();
+
+-    register_savevm_live(NULL, "spice", -1, 1, NULL,
+-                         spice_live, spice_save, spice_load,
+-                         spice_server);
+-
+     qemu_free(x509_key_file);
+     qemu_free(x509_cert_file);
+     qemu_free(x509_cacert_file);
+-- 
+1.7.2.3
+

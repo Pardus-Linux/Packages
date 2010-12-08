@@ -1,0 +1,53 @@
+From f48f184b9d22bbd2e34fb4f3a7a760f0e98fae64 Mon Sep 17 00:00:00 2001
+From: Gerd Hoffmann <kraxel@redhat.com>
+Date: Wed, 8 Sep 2010 11:45:30 +0200
+Subject: [PATCH 32/39] Revert "spice-vmc: split vmc_write to max sized virtio_serial_write calls"
+
+This reverts commit 380b75548db5116e538dc646e84bceb1c4b0e61b.
+---
+ hw/spice-vmc.c |   21 +++------------------
+ 1 files changed, 3 insertions(+), 18 deletions(-)
+
+diff --git a/hw/spice-vmc.c b/hw/spice-vmc.c
+index b9d64a2..041f243 100644
+--- a/hw/spice-vmc.c
++++ b/hw/spice-vmc.c
+@@ -21,8 +21,6 @@
+ #define VMC_GUEST_DEVICE_NAME "com.redhat.spice.0"
+ #define VMC_DEVICE_NAME       "spicevmc"
+
+-#define VMC_MAX_HOST_WRITE    2048
+-
+ #define dprintf(_svc, _level, _fmt, ...)                                \
+     do {                                                                \
+         static unsigned __dprintf_counter = 0;                          \
+@@ -45,23 +43,10 @@ typedef struct SpiceVirtualChannel {
+ static int vmc_write(SpiceVDIPortInstance *sin, const uint8_t *buf, int len)
+ {
+     SpiceVirtualChannel *svc = container_of(sin, SpiceVirtualChannel, sin);
+-    ssize_t out = 0;
+-    ssize_t last_out;
+-    uint8_t* p = (uint8_t*)buf;
+-
+-    while (len > 0) {
+-        last_out = virtio_serial_write(&svc->port, p,
+-                            MIN(len, VMC_MAX_HOST_WRITE));
+-        if (last_out > 0) {
+-            out += last_out;
+-            len -= last_out;
+-            p += last_out;
+-        } else {
+-            break;
+-        }
+-    }
++    ssize_t out;
+
+-    dprintf(svc, 3, "%s: %lu/%zd\n", __func__, out, len + out);
++    out = virtio_serial_write(&svc->port, buf, len);
++    dprintf(svc, 3, "%s: %lu/%d\n", __func__, out, len);
+     return out;
+ }
+
+-- 
+1.7.2.3
+

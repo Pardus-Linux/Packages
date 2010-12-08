@@ -1,0 +1,27 @@
+From 2165916a311108d39c7aa45e5189af26712234b8 Mon Sep 17 00:00:00 2001
+From: Alon Levy <alevy@redhat.com>
+Date: Wed, 14 Jul 2010 16:30:35 +0300
+Subject: [PATCH 28/39] spice-vmc: add counter to debug statements
+
+---
+ hw/spice-vmc.c |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletions(-)
+
+diff --git a/hw/spice-vmc.c b/hw/spice-vmc.c
+index 06e30e6..041f243 100644
+--- a/hw/spice-vmc.c
++++ b/hw/spice-vmc.c
+@@ -23,8 +23,9 @@
+
+ #define dprintf(_svc, _level, _fmt, ...)                                \
+     do {                                                                \
++        static unsigned __dprintf_counter = 0;                          \
+         if (_svc->debug >= _level) {                                    \
+-            fprintf(stderr, "svc: " _fmt, ## __VA_ARGS__);              \
++            fprintf(stderr, "svc: %3d: " _fmt, ++__dprintf_counter, ## __VA_ARGS__);\
+         }                                                               \
+     } while (0)
+
+-- 
+1.7.2.3
+

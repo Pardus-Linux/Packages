@@ -1,0 +1,31 @@
+From 6ac04dff1ee3932d2ef94c1e42f4e8208fbf92bf Mon Sep 17 00:00:00 2001
+From: Gerd Hoffmann <kraxel@redhat.com>
+Date: Thu, 6 May 2010 11:13:11 +0200
+Subject: [PATCH 10/39] switch stdvga to pci vgabios
+
+---
+ hw/vga-pci.c |    7 +++----
+ 1 files changed, 3 insertions(+), 4 deletions(-)
+
+diff --git a/hw/vga-pci.c b/hw/vga-pci.c
+index 3907871..8e1ed35 100644
+--- a/hw/vga-pci.c
++++ b/hw/vga-pci.c
+@@ -105,11 +105,10 @@ static int pci_vga_initfn(PCIDevice *dev)
+             bios_total_size <<= 1;
+         pci_register_bar(&d->dev, PCI_ROM_SLOT, bios_total_size,
+                          PCI_BASE_ADDRESS_MEM_PREFETCH, vga_map);
++     } else {
++         if (dev->romfile == NULL)
++             dev->romfile = qemu_strdup("vgabios-stdvga.bin");
+      }
+-
+-    vga_init_vbe(s);
+-     /* ROM BIOS */
+-     rom_add_vga(VGABIOS_FILENAME);
+      return 0;
+ }
+
+-- 
+1.7.2.3
+

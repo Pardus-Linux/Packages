@@ -12,7 +12,7 @@
         <IsA>app:console</IsA>
         <Summary>Userspace tools for Kernel-based Virtual Machine</Summary>
         <Description>KVM (for Kernel-based Virtual Machine) is a full virtualization solution for Linux on x86 hardware containing virtualization extensions (Intel VT or AMD-V). This package includes the userspace tools needed to use KVM.</Description>
-        <Archive sha1sum="c316ac8a1b040e28275bf34911fbce14209c1563" type="targz">mirrors://sourceforge/kvm/qemu-kvm/0.12.5/qemu-kvm-0.12.5.tar.gz</Archive>
+        <Archive sha1sum="b8cfb8e8dbd403281a98a41f7d3eeaecc0aac8f1" type="targz">mirrors://sourceforge/kvm/qemu-kvm/0.13.0/qemu-kvm-0.13.0.tar.gz</Archive>
         <!--
         <AdditionalFiles>
             <AdditionalFile target="kernel/include/linux/kvm.h">kvm-2.6.32-16.h</AdditionalFile>
@@ -31,68 +31,58 @@
             <Dependency>texi2html</Dependency>
         </BuildDependencies>
         <Patches>
+            <!-- for i in `grep -r share\/qemu *|sed -e 's/:.*//'`;do sed -i -e 's/share\/qemu/share\/kvm/g' $i;done -->
             <Patch level="1">qemu-datadir.diff</Patch>
             <Patch level="1">kvm-qemu-default-memsize.patch</Patch>
             <Patch level="1">export-lc-all-in-configure.patch</Patch>
 
-            <!-- Don't fallback to plain qemu is kvm fails -->
+            <!-- Don't fallback to plain qemu if kvm fails -->
             <Patch level="1">kvm-qemu-no-fallback-if-open-kvm-fails.patch</Patch>
 
-            <!-- virtio-console changes -->
-            <Patch level="1">fedora/qemu-virtio-Remove-duplicate-macro-definition-for-max.-v.patch</Patch>
-            <Patch level="1">fedora/qemu-virtio-console-qdev-conversion-new-virtio-serial-b.patch</Patch>
-            <Patch level="1">fedora/qemu-virtio-serial-bus-Maintain-guest-and-host-port-open.patch</Patch>
-            <Patch level="1">fedora/qemu-virtio-serial-bus-Add-a-port-name-property-for-po.patch</Patch>
-            <Patch level="1">fedora/qemu-virtio-serial-bus-Add-ability-to-hot-unplug-ports.patch</Patch>
-            <Patch level="1">fedora/qemu-virtio-serial-Add-a-virtserialport-device-for-gen.patch</Patch>
-            <Patch level="1">fedora/qemu-Move-virtio-serial-to-Makefile.objs.patch</Patch>
-            <Patch level="1">fedora/qemu-virtio-serial-Use-MSI-vectors-for-port-virtqueues.patch</Patch>
-            <Patch level="1">fedora/qemu-virtio-console-Rename-virtio-serial.c-back-to-virti.patch</Patch>
-            <Patch level="1">fedora/qemu-net-add-API-to-disable-enable-polling.patch</Patch>
-            <Patch level="1">fedora/qemu-virtio-rename-features-guest_features.patch</Patch>
-            <Patch level="1">fedora/qemu-qdev-add-bit-property-type.patch</Patch>
-            <Patch level="1">fedora/qemu-qdev-fix-thinko-leading-to-guest-crashes.patch</Patch>
-            <Patch level="1">fedora/qemu-virtio-add-features-as-qdev-properties.patch</Patch>
-            <Patch level="1">fedora/qemu-virtio-net-mac-property-is-mandatory.patch</Patch>
-            <Patch level="1">fedora/qemu-exec-memory-notifiers.patch</Patch>
-            <Patch level="1">fedora/qemu-kvm-add-API-to-set-ioeventfd.patch</Patch>
-            <Patch level="1">fedora/qemu-notifier-event-notifier-implementation.patch</Patch>
-            <Patch level="1">fedora/qemu-virtio-add-notifier-support.patch</Patch>
-            <Patch level="1">fedora/qemu-virtio-add-APIs-for-queue-fields.patch</Patch>
-            <Patch level="1">fedora/qemu-virtio-add-status-change-callback.patch</Patch>
-            <Patch level="1">fedora/qemu-virtio-move-typedef-to-qemu-common.patch</Patch>
-            <Patch level="1">fedora/qemu-virtio-pci-fill-in-notifier-support.patch</Patch>
-            <Patch level="1">fedora/qemu-tap-add-interface-to-get-device-fd.patch</Patch>
-            <Patch level="1">fedora/qemu-vhost-vhost-net-support.patch</Patch>
-            <Patch level="1">fedora/qemu-tap-add-vhost-vhostfd-options.patch</Patch>
-            <Patch level="1">fedora/qemu-tap-add-API-to-retrieve-vhost-net-header.patch</Patch>
-            <Patch level="1">fedora/qemu-virtio-net-vhost-net-support.patch</Patch>
-            <Patch level="1">fedora/qemu-kvm-add-vhost.h-header.patch</Patch>
-            <Patch level="1">fedora/qemu-kvm-irqfd-support.patch</Patch>
-            <Patch level="1">fedora/qemu-msix-add-mask-unmask-notifiers.patch</Patch>
-            <Patch level="1">fedora/qemu-virtio-pci-irqfd-support.patch</Patch>
-            <Patch level="1">fedora/qemu-virtio-avoid-crash-with-non-tap-backends.patch</Patch>
-            <Patch level="1">fedora/qemu-virtio-serial-features-build-fix.patch</Patch>
-            <Patch level="1">fedora/qemu-virtio-pci-irqfd-fix-nonkvm-build.patch</Patch>
-            <Patch level="1">fedora/qemu-vhost-add-configure-check.patch</Patch>
-
             <!-- Upstream fixes -->
-            <Patch level="1">upstream/0038-msix-migration-fix.patch</Patch>
-            <Patch level="1">upstream/0039-vhost-logging-thinko-fix.patch</Patch>
-            <Patch level="1">upstream/0040-vhost-move-vhost_set_vq_addr.patch</Patch>
-            <Patch level="1">upstream/0041-vhost-used-addr-migration-fix.patch</Patch>
-            <Patch level="1">upstream/0042-vhost-fix-used-logging-size-math.patch</Patch>
-            <Patch level="1">upstream/0043-vhost-logging-mistake-enable-not-disable-log.patch</Patch>
-            <Patch level="1">upstream/0044-vhost-fix-log-base.patch</Patch>
-            <Patch level="1">upstream/0045-pc-Add-a-Fedora-13-machine-type-that-contains-backpo.patch</Patch>
-            <Patch level="1">upstream/0046-pc-Add-backward-compatibility-options-for-virtio-ser.patch</Patch>
-            <Patch level="1">upstream/0047-virtio-serial-don-t-set-MULTIPORT-for-1-port-dev.patch</Patch>
-            <Patch level="1">upstream/0048-virtio-serial-pci-Allow-MSI-to-be-disabled.patch</Patch>
-            <Patch level="1">upstream/0049-migration-Clear-fd-also-in-error-cases.patch</Patch>
-            <Patch level="1">upstream/0050-raw-posix-Detect-CDROM-via-ioctl-on-linux.patch</Patch>
-            <Patch level="1">upstream/0051-usb-linux-increase-buffer-for-USB-control-requests.patch</Patch>
-            <Patch level="1">upstream/0052-virtio-console-patches.patch</Patch>
-            <Patch level="1">upstream/0055-boot-remove-unused-boot_devices_bitmap-variable.patch</Patch>
+            <Patch level="1">upstream/0001-add-pflib-PixelFormat-conversion-library.patch</Patch>
+            <Patch level="1">upstream/0002-configure-add-logging.patch</Patch>
+            <Patch level="1">upstream/0003-add-spice-into-the-configure-file.patch</Patch>
+            <Patch level="1">upstream/0004-spice-core-bits.patch</Patch>
+            <Patch level="1">upstream/0005-spice-add-keyboard.patch</Patch>
+            <Patch level="1">upstream/0006-spice-add-mouse.patch</Patch>
+            <Patch level="1">upstream/0007-spice-simple-display.patch</Patch>
+            <Patch level="1">upstream/0008-spice-add-tablet-support.patch</Patch>
+            <Patch level="1">upstream/0009-vgabios-update-to-0.6c-pcibios-patches.patch</Patch>
+            <Patch level="1">upstream/0010-switch-stdvga-to-pci-vgabios.patch</Patch>
+            <Patch level="1">upstream/0011-switch-vmware_vga-to-pci-vgabios.patch</Patch>
+            <Patch level="1">upstream/0012-all-vga-refuse-hotplugging.patch</Patch>
+            <Patch level="1">upstream/0013-spice-tls-support.patch</Patch>
+            <Patch level="1">upstream/0014-spice-add-qxl-device.patch</Patch>
+            <Patch level="1">upstream/0015-spice-add-audio.patch</Patch>
+            <Patch level="1">upstream/0016-spice-add-virtio-serial-based-vdi-port-backend.patch</Patch>
+            <Patch level="1">upstream/0017-spice-add-pci-vdi-port-backend-obsolete.patch</Patch>
+            <Patch level="1">upstream/0018-use-memalign-instead-of-posix_memalign.patch</Patch>
+            <Patch level="1">upstream/0019-spice-live-migration-wip.patch</Patch>
+            <Patch level="1">upstream/0020-spice-display-draw.h-is-internal-now.patch</Patch>
+            <Patch level="1">upstream/0021-spice-display-disable-debug.patch</Patch>
+            <Patch level="1">upstream/0022-spice-display-pci-rev-fixups.patch</Patch>
+            <Patch level="1">upstream/0023-qxl-pci-rev-fixups.patch</Patch>
+            <Patch level="1">upstream/0024-qxl-support-QXL_IO_DESTROY_ALL_SURFACES.patch</Patch>
+            <Patch level="1">upstream/0025-spice-vmc-two-bugfixes-in-vmc_read.patch</Patch>
+            <Patch level="1">upstream/0026-spice-enabling-disabling-jpeg-and-zlib-over-glz-via-.patch</Patch>
+            <Patch level="1">upstream/0027-ifdef-new-config-options.patch</Patch>
+            <Patch level="1">upstream/0028-spice-vmc-add-counter-to-debug-statements.patch</Patch>
+            <Patch level="1">upstream/0029-spice-vmc-split-vmc_write-to-max-sized-virtio_serial.patch</Patch>
+            <Patch level="1">upstream/0030-qxl-add-800x480-resolution-to-qxl_modes-n900-native.patch</Patch>
+            <Patch level="1">upstream/0031-qxl-savevm-fixes.patch</Patch>
+            <Patch level="1">upstream/0032-Revert-spice-vmc-split-vmc_write-to-max-sized-virtio.patch</Patch>
+            <Patch level="1">upstream/0033-Revert-spice-vmc-add-counter-to-debug-statements.patch</Patch>
+            <Patch level="1">upstream/0034-Revert-spice-vmc-two-bugfixes-in-vmc_read.patch</Patch>
+            <Patch level="1">upstream/0035-Revert-spice-live-migration-wip.patch</Patch>
+            <Patch level="1">upstream/0036-Revert-spice-add-pci-vdi-port-backend-obsolete.patch</Patch>
+            <Patch level="1">upstream/0037-Revert-spice-add-virtio-serial-based-vdi-port-backen.patch</Patch>
+            <Patch level="1">upstream/0038-spice-add-virtio-serial-based-spice-vmchannel-backen.patch</Patch>
+            <Patch level="1">upstream/0039-qxl-fix-release-ring-overrun.patch</Patch>
+            <Patch level="1">upstream/0040-qxl-flip-default-to-stable-pci-revision.patch</Patch>
+            <Patch level="1">upstream/0041-vmmouse-adapt-to-mouse-handler-changes.patch</Patch>
+            <Patch level="1">upstream/0042-vhost-net-patches-for-qemu-0.13.0-tarball.patch</Patch>
+
         </Patches>
     </Source>
 
@@ -133,6 +123,13 @@
     </Package>
 
     <History>
+        <Update release="55">
+            <Date>2010-12-08</Date>
+            <Version>0.13.0</Version>
+            <Comment>Version bump</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
         <Update release="54">
             <Date>2010-08-02</Date>
             <Version>0.12.5</Version>

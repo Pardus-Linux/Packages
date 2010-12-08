@@ -1,0 +1,55 @@
+From 84115ef1adf343c34eebfb1045cbc5c72892e3b2 Mon Sep 17 00:00:00 2001
+From: Gerd Hoffmann <kraxel@redhat.com>
+Date: Wed, 8 Sep 2010 11:46:18 +0200
+Subject: [PATCH 34/39] Revert "spice-vmc: two bugfixes in vmc_read"
+
+This reverts commit 71983a37e30c68beab5e9056a4600d2958f77a04.
+---
+ hw/spice-vmc.c |   13 +++++--------
+ 1 files changed, 5 insertions(+), 8 deletions(-)
+
+diff --git a/hw/spice-vmc.c b/hw/spice-vmc.c
+index 06e30e6..3f6a2bb 100644
+--- a/hw/spice-vmc.c
++++ b/hw/spice-vmc.c
+@@ -45,7 +45,7 @@ static int vmc_write(SpiceVDIPortInstance *sin, const uint8_t *buf, int len)
+     ssize_t out;
+
+     out = virtio_serial_write(&svc->port, buf, len);
+-    dprintf(svc, 3, "%s: %lu/%d\n", __func__, out, len);
++    dprintf(svc, 2, "%s: %lu/%d\n", __func__, out, len);
+     return out;
+ }
+
+@@ -54,16 +54,13 @@ static int vmc_read(SpiceVDIPortInstance *sin, uint8_t *buf, int len)
+     SpiceVirtualChannel *svc = container_of(sin, SpiceVirtualChannel, sin);
+     int bytes = MIN(len, svc->datalen);
+
+-    dprintf(svc, 2, "%s: %p %d/%d/%zd\n", __func__, svc->datapos, len, bytes, svc->datalen);
+-    if (bytes > 0) {
++    dprintf(svc, 2, "%s: %d/%zd\n", __func__, bytes, svc->datalen);
++    if (bytes) {
+         memcpy(buf, svc->datapos, bytes);
+         svc->datapos += bytes;
+         svc->datalen -= bytes;
+-        assert(svc->datalen >= 0);
+-        if (svc->datalen == 0) {
+-            svc->datapos = 0;
++        if (0 == svc->datalen) {
+             virtio_serial_throttle_port(&svc->port, false);
+-            // ^^^ !!! may call vmc_have_data, so don't touch svc after it!
+         }
+     }
+     return bytes;
+@@ -143,7 +140,7 @@ static void vmc_have_data(VirtIOSerialPort *port, const uint8_t *buf, size_t len
+     SpiceVirtualChannel *svc = DO_UPCAST(SpiceVirtualChannel, port, port);
+
+     dprintf(svc, 2, "%s: %zd\n", __func__, len);
+-    assert(svc->datalen == 0);
++    assert(svc->datapos == 0);
+     if (svc->bufsize < len) {
+         svc->bufsize = len;
+         svc->buffer = qemu_realloc(svc->buffer, svc->bufsize);
+-- 
+1.7.2.3
+

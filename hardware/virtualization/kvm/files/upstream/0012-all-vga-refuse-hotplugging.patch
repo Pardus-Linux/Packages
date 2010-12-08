@@ -1,0 +1,61 @@
+From a659f6b472d95503657ac68a52242ce769006f17 Mon Sep 17 00:00:00 2001
+From: Gerd Hoffmann <kraxel@redhat.com>
+Date: Tue, 11 May 2010 22:28:44 +0200
+Subject: [PATCH 12/39] all vga: refuse hotplugging.
+
+Try to pci hotplug a vga card, watch qemu die with hw_error().
+This patch fixes it.
+---
+ hw/cirrus_vga.c |    4 ++++
+ hw/vga-pci.c    |    4 ++++
+ hw/vmware_vga.c |    4 ++++
+ 3 files changed, 12 insertions(+), 0 deletions(-)
+
+diff --git a/hw/cirrus_vga.c b/hw/cirrus_vga.c
+index efa7a42..dadaa80 100644
+--- a/hw/cirrus_vga.c
++++ b/hw/cirrus_vga.c
+@@ -3206,6 +3206,10 @@ static int pci_cirrus_vga_initfn(PCIDevice *dev)
+      uint8_t *pci_conf = d->dev.config;
+      int device_id = CIRRUS_ID_CLGD5446;
+
++     if (dev->qdev.hotplugged) {
++         return -1;
++     }
++
+      /* setup VGA */
+      vga_common_init(&s->vga, VGA_RAM_SIZE);
+      cirrus_init_common(s, device_id, 1);
+diff --git a/hw/vga-pci.c b/hw/vga-pci.c
+index 8e1ed35..4e673a5 100644
+--- a/hw/vga-pci.c
++++ b/hw/vga-pci.c
+@@ -81,6 +81,10 @@ static int pci_vga_initfn(PCIDevice *dev)
+      VGACommonState *s = &d->vga;
+      uint8_t *pci_conf = d->dev.config;
+
++     if (dev->qdev.hotplugged) {
++         return -1;
++     }
++
+      // vga + console init
+      vga_common_init(s, VGA_RAM_SIZE);
+      vga_init(s);
+diff --git a/hw/vmware_vga.c b/hw/vmware_vga.c
+index 682f287..7ff89aa 100644
+--- a/hw/vmware_vga.c
++++ b/hw/vmware_vga.c
+@@ -1232,6 +1232,10 @@ static int pci_vmsvga_initfn(PCIDevice *dev)
+     struct pci_vmsvga_state_s *s =
+         DO_UPCAST(struct pci_vmsvga_state_s, card, dev);
+
++    if (dev->qdev.hotplugged) {
++        return -1;
++    }
++
+     pci_config_set_vendor_id(s->card.config, PCI_VENDOR_ID_VMWARE);
+     pci_config_set_device_id(s->card.config, SVGA_PCI_DEVICE_ID);
+     pci_config_set_class(s->card.config, PCI_CLASS_DISPLAY_VGA);
+-- 
+1.7.2.3
+

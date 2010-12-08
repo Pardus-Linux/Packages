@@ -1,0 +1,57 @@
+From 9200133d24ee5b5dab71ce922882c3534d9e8a5a Mon Sep 17 00:00:00 2001
+From: Gerd Hoffmann <kraxel@redhat.com>
+Date: Thu, 15 Jul 2010 09:01:28 +0200
+Subject: [PATCH 27/39] ifdef new config options.
+
+---
+ spice.c |    6 +++++-
+ 1 files changed, 5 insertions(+), 1 deletions(-)
+
+diff --git a/spice.c b/spice.c
+index 201e53c..76e6ac1 100644
+--- a/spice.c
++++ b/spice.c
+@@ -207,6 +207,7 @@ int mon_spice_migrate(Monitor *mon, const QDict *qdict, QObject **ret_data)
+                                      port, tls_port, subject);
+ }
+
++#if defined(SPICE_SERVER_VERSION) && SPICE_SERVER_VERSION >= 0x000503
+ static inline spice_wan_compression_t get_wan_compression_value(const char *str)
+ {
+     if (!strcmp(str, "wan")) {
+@@ -223,6 +224,7 @@ static inline spice_wan_compression_t get_wan_compression_value(const char *str)
+
+     return SPICE_WAN_COMPRESSION_INVALID;
+ }
++#endif
+
+ void qemu_spice_init(void)
+ {
+@@ -235,7 +237,6 @@ void qemu_spice_init(void)
+         *x509_cert_file = NULL,
+         *x509_cacert_file = NULL;
+     int port, tls_port, len;
+-    const char *jpeg, *zlib_glz;
+
+     if (!opts)
+         return;
+@@ -301,6 +302,8 @@ void qemu_spice_init(void)
+     /* TODO: make configurable via cmdline */
+     spice_server_set_image_compression(spice_server, SPICE_IMAGE_COMPRESS_AUTO_GLZ);
+
++#if defined(SPICE_SERVER_VERSION) && SPICE_SERVER_VERSION >= 0x000503
++    const char *jpeg, *zlib_glz;
+     jpeg = qemu_opt_get(opts, "jpeg");
+     zlib_glz = qemu_opt_get(opts, "zlib-glz");
+
+@@ -311,6 +314,7 @@ void qemu_spice_init(void)
+     if (zlib_glz) {
+         spice_server_set_zlib_glz_compression(spice_server, get_wan_compression_value(zlib_glz));
+     }
++#endif
+
+     spice_server_init(spice_server, &core_interface);
+     using_spice = 1;
+-- 
+1.7.2.3
+
