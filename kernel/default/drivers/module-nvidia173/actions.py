@@ -16,10 +16,11 @@ NoStrip = ["/lib/modules"]
 arch = get.ARCH().replace("i686", "x86")
 version = get.srcVERSION()
 driver = "nvidia173"
-base = "/usr/lib/%s" % driver
+libdir = "/usr/lib/%s" % driver
+datadir = "/usr/share/%s" % driver
 
 def setup():
-    shelltools.system("sh NVIDIA-Linux-%s-%s-pkg0.run -x --target tmp" % (arch, get.srcVERSION()))
+    shelltools.system("sh NVIDIA-Linux-%s-%s-pkg0.run -x --target tmp" % (arch, version))
     shelltools.move("tmp/*", ".")
 
     # Our libc is TLS enabled so use TLS library
@@ -30,7 +31,8 @@ def setup():
     # xorg-server provides libwfb.so
     shelltools.unlink("usr/X11R6/lib/modules/libnvidia-wfb.so.*")
 
-    shelltools.echo("ld.so.conf", base)
+    shelltools.echo("ld.so.conf", libdir)
+    shelltools.echo("XvMCConfig", "%s/libXvMCNVIDIA.so" % libdir)
 
 def build():
     shelltools.export("SYSSRC", "/lib/modules/%s/build" % KDIR)
@@ -43,28 +45,29 @@ def install():
     pisitools.insinto("/lib/modules/%s/extra/nvidia" % KDIR, "usr/src/nv/nvidia.ko", "%s.ko" % driver)
 
     # Libraries and X modules
-    pisitools.insinto(base, "usr/X11R6/lib/*")
-    pisitools.insinto(base, "usr/lib/*")
+    pisitools.insinto(libdir, "usr/X11R6/lib/*")
+    pisitools.insinto(libdir, "usr/lib/*")
 
     # Symlinks
-    pisitools.dosym("libGL.so.%s" % version, "%s/libGL.so.1.2" % base)
-    pisitools.dosym("libGLcore.so.%s" % version, "%s/libGLcore.so.1" % base)
+    pisitools.dosym("libGL.so.%s" % version, "%s/libGL.so.1.2" % libdir)
+    pisitools.dosym("libGLcore.so.%s" % version, "%s/libGLcore.so.1" % libdir)
 
-    pisitools.dosym("libXvMCNVIDIA.so.%s" % version, "%s/libXvMCNVIDIA.so.1" % base)
-    pisitools.dosym("libXvMCNVIDIA.so.1", "%s/libXvMCNVIDIA.so" % base)
+    pisitools.dosym("libXvMCNVIDIA.so.%s" % version, "%s/libXvMCNVIDIA.so.1" % libdir)
+    pisitools.dosym("libXvMCNVIDIA.so.1", "%s/libXvMCNVIDIA.so" % libdir)
 
-    pisitools.dosym("libcuda.so.%s" % version, "%s/libcuda.so.1" % base)
-    pisitools.dosym("libcuda.so.1", "%s/libcuda.so" % base)
+    pisitools.dosym("libcuda.so.%s" % version, "%s/libcuda.so.1" % libdir)
+    pisitools.dosym("libcuda.so.1", "%s/libcuda.so" % libdir)
 
-    pisitools.dosym("libnvidia-cfg.so.%s" % version, "%s/libnvidia-cfg.so.1" % base)
-    pisitools.dosym("libnvidia-tls.so.%s" % version, "%s/libnvidia-tls.so.1" % base)
+    pisitools.dosym("libnvidia-cfg.so.%s" % version, "%s/libnvidia-cfg.so.1" % libdir)
+    pisitools.dosym("libnvidia-tls.so.%s" % version, "%s/libnvidia-tls.so.1" % libdir)
 
-    pisitools.dosym("libglx.so.%s" % version, "%s/modules/extensions/libglx.so" % base)
+    pisitools.dosym("libglx.so.%s" % version, "%s/modules/extensions/libglx.so" % libdir)
 
     # Remove static libraries
-    pisitools.remove("%s/*.a" % base)
+    pisitools.remove("%s/*.a" % libdir)
 
-    pisitools.insinto("/usr/share/nvidia173", "ld.so.conf")
+    pisitools.insinto(datadir, "ld.so.conf")
+    pisitools.insinto(datadir, "XvMCConfig")
 
     # Documentation
     docdir = "xorg-video-%s" % driver
