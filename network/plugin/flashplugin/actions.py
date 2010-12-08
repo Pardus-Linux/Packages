@@ -11,5 +11,3 @@ NoStrip = "/"
 
 def install():
     pisitools.doexe("libflashplayer.so", "/usr/lib/browser-plugins")
-    #pisitools.dodir("/usr/lib/nsbrowser/plugins")
-    #pisitools.dosym("/opt/netscape/plugins/libflashplayer.so", "/usr/lib/nsbrowser/plugins/libflashplayer.so")
