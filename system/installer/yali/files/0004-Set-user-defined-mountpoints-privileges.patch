@@ -1,0 +1,77 @@
+From 58938af01fac8cd048d4bccab048c6eb51562afb Mon Sep 17 00:00:00 2001
+From: Mete Alpaslan <mete@pardus.org.tr>
+Date: Wed, 8 Dec 2010 11:56:32 +0200
+Subject: [PATCH 4/4] Set user defined mountpoints privileges
+
+Needs setting user defined devices moountpoints priveleges as user=root
+group=disk  and change mod as 0770
+
+BUG:FIXED:14598
+---
+ yali/postinstall.py |   22 ++++++----------------
+ yali/util.py        |    9 +++++++++
+ 2 files changed, 15 insertions(+), 16 deletions(-)
+
+diff --git a/yali/postinstall.py b/yali/postinstall.py
+index af03049..da32356 100644
+--- a/yali/postinstall.py
++++ b/yali/postinstall.py
+@@ -294,16 +294,6 @@ def writeInitramfsConf(parameters=[]):
+ 
+     initramfsConf.close()
+ 
+-##### FIXME: Be sure after storage api rewrite will be finished
+-#def setPartitionPrivileges(request, mode, uid, gid):
+-#    requestPath =  os.path.join(ctx.consts.target_dir, request.partitionType().mountpoint.lstrip("/"))
+-#    ctx.logger.debug("Trying to change privileges %s path" % requestPath)
+-#    if os.path.exists(requestPath):
+-#        try:
+-#            os.chmod(requestPath, mode)
+-#            os.chown(requestPath, uid, gid)
+-#        except OSError, msg:
+-#                ctx.logger.debug("Unexpected error: %s" % msg)
+ 
+ def fillFstab():
+     ctx.logger.debug("Generating fstab configuration file")
+@@ -322,14 +312,14 @@ def writeBootLooder():
+     ctx.logger.debug("Writing grub.conf and devicemap")
+ 
+ def installBootloader():
+-    #FIXME:Rewrite this to re-fix with new storage api
+     # BUG:#11255 normal user doesn't mount /mnt/archive directory. 
+     # We set new formatted partition priveleges as user=root group=disk and change mod as 0770
+-    # Check archive partition type
+-    #archiveRequest = partrequests.searchPartTypeAndReqType(parttype.archive, request.mountRequestType)
+-    #if archiveRequest:
+-    #    ctx.logger.debug("Archive type request found!")
+-    #    yali.postinstall.setPartitionPrivileges(archiveRequest, 0770, 0, 6)
++    default_mountpoints = ['/', '/boot', '/home', '/tmp', '/var', '/opt']
++    user_defined_mountpoints = [device for mountpoint, device in ctx.storage.mountpoints.items() if mountpoint not in default_mountpoints]
++    if user_defined_mountpoints:
++        ctx.logger.debug("User defined device mountpoints:%s" % [device.format.mountpoint for device in user_defined_mountpoints])
++        for device in user_defined_mountpoints:
++            yali.util.set_partition_privileges(device, 0770, 0, 6)
+ 
+     # Umount system paths
+     ctx.storage.storageset.umountFilesystems()
+diff --git a/yali/util.py b/yali/util.py
+index d4d5873..31ee336 100644
+--- a/yali/util.py
++++ b/yali/util.py
+@@ -515,4 +515,13 @@ def parse_branding_slideshows(release_file):
+ 
+     return slideshows
+ 
++def set_partition_privileges(device, mode, uid, gid):
++    device_path =  os.path.join(ctx.consts.target_dir, device.format.mountpoint.lstrip("/"))
++    ctx.logger.debug("Trying to change privileges %s path" % device_path)
++    if os.path.exists(device_path):
++        try:
++            os.chmod(device_path, mode)
++            os.chown(device_path, uid, gid)
++        except OSError, msg:
++                ctx.logger.debug("Unexpected error: %s" % msg)
+ 
+-- 
+1.7.3.2
+
