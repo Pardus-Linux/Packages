@@ -1,0 +1,464 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>module-nvidia96</Name>
+        <Homepage>http://www.nvidia.com</Homepage>
+        <Packager>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Packager>
+        <License>NVIDIA</License>
+        <IsA>driver</IsA>
+        <Summary>NVIDIA drivers for GeForce 2 through GeForce 4 series GPUs</Summary>
+        <Description>NVIDIA graphics drivers provide optimized 2D/3D performance.</Description>
+        <Archive sha1sum="dc5f0d5b068756991a7d7e50e17bfcf09684702f" type="binary">ftp://download.nvidia.com/XFree86/Linux-x86/96.43.19/NVIDIA-Linux-x86-96.43.19-pkg0.run</Archive>
+        <Archive sha1sum="7dc4d87b3428f383faa143a93c6b45327979439b" type="binary">ftp://download.nvidia.com/XFree86/Linux-x86_64/96.43.19/NVIDIA-Linux-x86_64-96.43.19-pkg0.run</Archive>
+        <AdditionalFiles>
+            <AdditionalFile permission="0644" target="no-smbus.patch">no-smbus.patch</AdditionalFile>
+        </AdditionalFiles>
+        <BuildDependencies>
+            <Dependency release="147">kernel-module-headers</Dependency>
+        </BuildDependencies>
+    </Source>
+
+    <Package>
+        <Name>module-nvidia96</Name>
+        <Summary>Kernel module for NVIDIA driver 96.43.xx releases</Summary>
+        <RuntimeDependencies>
+            <Dependency release="147">kernel</Dependency>
+            <Dependency versionFrom="1.85">zorg</Dependency>
+            <Dependency version="current">module-nvidia96-userspace</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="library" permanent="true">/lib/modules</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>module-nvidia96-userspace</Name>
+        <Summary>Userspace documentation, tools, udev and modprobe rules for the kernel driver nvidia96</Summary>
+        <Conflicts>
+            <Package releaseTo="39">module-nvidia96</Package>
+        </Conflicts>
+        <Files>
+            <Path fileType="data">/etc/modprobe.d</Path>
+        </Files>
+        <AdditionalFiles>
+            <AdditionalFile owner="root" permission="0644" target="/etc/modprobe.d/nvidia96.conf">modprobe.conf</AdditionalFile>
+        </AdditionalFiles>
+    </Package>
+
+    <Package>
+        <Name>xorg-video-nvidia96</Name>
+        <PartOf>x11.driver</PartOf>
+        <RuntimeDependencies>
+            <AnyDependency>
+                <Dependency version="current">module-nvidia96</Dependency>
+                <Dependency version="current">module-pae-nvidia96</Dependency>
+            </AnyDependency>
+            <Dependency>libXext</Dependency>
+            <Dependency>xorg-server</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="library">/usr/lib</Path>
+            <Path fileType="data">/usr/share</Path>
+            <Path fileType="doc">/usr/share/doc</Path>
+        </Files>
+        <Provides>
+            <COMAR script="package.py">System.Package</COMAR>
+        </Provides>
+    </Package>
+
+    <History>
+        <Update release="50">
+            <Date>2010-12-08</Date>
+            <Version>96.43.19</Version>
+            <Comment>New stable release</Comment>
+            <Requires>
+                <Action package="module-nvidia96-userspace">reverseDependencyUpdate</Action>
+                <Action package="module-nvidia96">systemRestart</Action>
+            </Requires>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="49">
+            <Date>2010-12-02</Date>
+            <Version>96.43.18</Version>
+            <Comment>Bump release for new kernel.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="48">
+            <Date>2010-11-24</Date>
+            <Version>96.43.18</Version>
+            <Comment>Bump to 147</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="47">
+            <Date>2010-11-23</Date>
+            <Version>96.43.18</Version>
+            <Comment>Bump for the new kernel</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="46">
+            <Date>2010-10-29</Date>
+            <Version>96.43.18</Version>
+            <Comment>Fix current usage in AnyDependency tags</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="45">
+            <Date>2010-10-28</Date>
+            <Version>96.43.18</Version>
+            <Comment>Mass rebuild for Pardus Corporate 2 Alpha 3</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="44">
+            <Date>2010-08-06</Date>
+            <Version>96.43.18</Version>
+            <Comment>New stable release</Comment>
+            <Requires>
+                <Action package="module-nvidia96-userspace">reverseDependencyUpdate</Action>
+                <Action package="module-nvidia96">systemRestart</Action>
+            </Requires>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="43">
+            <Date>2010-02-17</Date>
+            <Version>96.43.16</Version>
+            <Comment>New stable release</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="42">
+            <Date>2010-01-28</Date>
+            <Version>96.43.14</Version>
+            <Comment>Blacklist nouveau and run mkinitramfs when enabling driver</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="41">
+            <Date>2009-12-16</Date>
+            <Version>96.43.14</Version>
+            <Comment>
+                - New stable release for use with xorg-server 1.7
+                - Use AnyDependency for kernel module
+                - Use correct name for document directory
+            </Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="40">
+            <Date>2009-07-16</Date>
+            <Version>96.43.13</Version>
+            <Comment>Depend on the new sub-package.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="39">
+            <Date>2009-07-14</Date>
+            <Version>96.43.13</Version>
+            <Comment>New pre-release compatible with recent kernels</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="38">
+            <Date>2009-07-13</Date>
+            <Version>96.43.11</Version>
+            <Comment>Fixed dual head configuration</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="37">
+            <Date>2009-07-11</Date>
+            <Version>96.43.11</Version>
+            <Comment>Fixed postInstall method failing when no package attribute exists</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="36">
+            <Date>2009-07-08</Date>
+            <Version>96.43.11</Version>
+            <Comment>Update comar scripts for new zorg</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="35">
+            <Date>2009-07-03</Date>
+            <Version>96.43.11</Version>
+            <Comment>
+                - Update comar script for new zorg
+                - Add missing libXext dependency
+            </Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="34">
+            <Date>2009-06-01</Date>
+            <Version>96.43.11</Version>
+            <Comment>
+                - Add patch for kernel 2.6.30
+                - Split kernel module
+                - Prepare for new zorg
+            </Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="33">
+            <Date>2009-02-26</Date>
+            <Version>96.43.11</Version>
+            <Comment>
+                Bump to new bugfix release. Changes:
+
+                * Fixed a bug that could trigger kernel BUG() failures when
+                  stress testing setup/teardown paths.
+                * Fixed the subpicture component order reported by the NVIDIA
+                  X driver's XvMC implementation.
+                * Fixed a text corruption problem on X.Org 1.5 and newer X.Org
+                  servers.
+                * Fixed a texture corruption problem seen when running
+                  GoogleEarth on some GeForce 4 MX GPUs.
+                * Fixed a server crash triggered by Kopete's 'new message'
+                  popup dialog when a composite manager is enabled.
+                * Fixed an X server crash with multiple server generations when
+                  GLX is disabled.
+                * Fixed a bug that caused window decorations to be corrupted
+                  in Compiz.
+                * Fixed a bug that resulted in AGP FW/SBA settings and overrides
+                  being applied incorrectly when using the Linux kernel's
+                  AGP GART driver.
+            </Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="32">
+            <Date>2008-07-30</Date>
+            <Version>96.43.07</Version>
+            <Comment>Version bump</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="31">
+            <Date>2008-06-12</Date>
+            <Version>96.43.05</Version>
+            <Comment>Fix positions of monitors and write output names with freqs</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="30">
+            <Date>2008-06-06</Date>
+            <Version>96.43.05</Version>
+            <Comment>Use syslog for errors</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="29">
+            <Date>2008-06-05</Date>
+            <Version>96.43.05</Version>
+            <Comment>Compile with new kernel</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="28">
+            <Date>2008-05-10</Date>
+            <Version>96.43.05</Version>
+            <Comment>Load/unload kernel module in enable/disable methods</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="27">
+            <Date>2008-04-26</Date>
+            <Version>96.43.05</Version>
+            <Comment>Install kernel module as nvidia.ko and store its name for new zorg to load when enabled.</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="26">
+            <Date>2008-04-14</Date>
+            <Version>96.43.05</Version>
+            <Comment>Tidy up comar script, change kernel module path</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="25">
+            <Date>2008-03-29</Date>
+            <Version>96.43.05</Version>
+            <Comment>Remove NVIDIA utilities since they are packaged separately.</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="24">
+            <Date>2008-03-23</Date>
+            <Version>96.43.05</Version>
+            <Comment>Make it a single package. Remove conflicts with the other nvidia packages. Add Xorg.Driver script.</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="23">
+            <Date>2008-02-01</Date>
+            <Version>96.43.05</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="22">
+            <Date>2007-11-03</Date>
+            <Version>96.43.01</Version>
+            <Comment>Add libGL.so.1.2 symlink, fixes bug 6490</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="21">
+            <Date>2007-09-27</Date>
+            <Version>96.43.01</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="20">
+            <Date>2007-08-20</Date>
+            <Version>1.0_9631</Version>
+            <Comment>Create a symbolic link under /usr/lib for nvidia-cfg library</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih.asici@gmail.com</Email>
+        </Update>
+        <Update release="19">
+            <Date>2007-04-09</Date>
+            <Version>1.0_9631</Version>
+            <Comment>Don't mess with /etc/modules.autoload.d/kernel-2.6</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="18">
+            <Date>2007-04-09</Date>
+            <Version>1.0_9631</Version>
+            <Comment>Fix post install script</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="17">
+            <Date>2006-12-05</Date>
+            <Version>1.0_9631</Version>
+            <Comment>Important bugfix release</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="16">
+            <Date>2006-11-13</Date>
+            <Version>1.0_9626</Version>
+            <Comment>Revert to 9626 to fix crashes</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="15">
+            <Date>2006-11-09</Date>
+            <Version>1.0_9629</Version>
+            <Comment>Fix deps</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="14">
+            <Date>2006-11-08</Date>
+            <Version>1.0_9629</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="13">
+            <Date>2006-10-17</Date>
+            <Version>1.0_9626</Version>
+            <Comment>Version bump</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="12">
+            <Date>2006-10-16</Date>
+            <Version>1.0_9626</Version>
+            <Comment>Version bump</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="11">
+            <Date>2006-09-23</Date>
+            <Version>1.0_9625</Version>
+            <Comment>Version bump for Compiz support</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="10">
+            <Date>2006-08-25</Date>
+            <Version>1.0_8774</Version>
+            <Comment>New stable release</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="9">
+            <Date>2006-08-08</Date>
+            <Version>1.0_8762</Version>
+            <Comment>Compile with 2.6.18 kernel</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="8">
+            <Date>2006-07-04</Date>
+            <Version>1.0_8762</Version>
+            <Comment>Don't update modules manually</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="7">
+            <Date>2006-06-18</Date>
+            <Version>1.0_8762</Version>
+            <Comment>Conflict with nvidia-old package</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="6">
+            <Date>2006-05-23</Date>
+            <Version>1.0_8762</Version>
+            <Comment>New release</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="5">
+            <Date>2006-04-08</Date>
+            <Version>1.0_8756</Version>
+            <Comment>New release</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="4">
+            <Date>2006-03-21</Date>
+            <Version>1.0_8178</Version>
+            <Comment>Fix compile with 2.6.16 kernel</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="3">
+            <Date>2006-01-14</Date>
+            <Version>1.0_8178</Version>
+            <Comment>Auto load nvidia kernel module</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="2">
+            <Date>2005-12-25</Date>
+            <Version>1.0_8178</Version>
+            <Comment>New stable release</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="1">
+            <Date>2005-12-06</Date>
+            <Version>1.0_8174</Version>
+            <Comment>First release.</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+    </History>
+</PISI>
