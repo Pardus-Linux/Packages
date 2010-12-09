@@ -77,7 +77,7 @@ def setup():
 
 def build():
     shelltools.export("LC_ALL", "en_US.UTF-8")
-    autotools.make("V=1 %s" % buildldflags)
+    autotools.make("V=1 -j1 %s" % buildldflags)
 
 def install():
     autotools.rawInstall('DESTDIR="%s"' % get.installDIR())
