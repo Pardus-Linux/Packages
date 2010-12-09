@@ -8,10 +8,10 @@ from pisi.actionsapi import autotools
 from pisi.actionsapi import pisitools
 from pisi.actionsapi import get
 
-WorkDir = "evas-1.0.0.beta2"
+WorkDir = "evas-1.0.0.beta3"
 
 def setup():
-    autotools.autoreconf("-fi")
+    autotools.autoreconf("-vfi")
 
     # async/pipe rendering is disabled due to bugs shown in x86 and arm.
     # Upstream is aware and has recommended to not to enable them.
