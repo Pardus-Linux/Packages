@@ -77,6 +77,7 @@ def setup():
 
 def build():
     shelltools.export("LC_ALL", "en_US.UTF-8")
+    # parallel build fails on high end machines
     autotools.make("V=1 -j1 %s" % buildldflags)
 
 def install():
