@@ -48,11 +48,9 @@
             <Dependency>postgresql-lib</Dependency>
         </RuntimeDependencies>
         <Files>
+            <Path fileType="config">/etc/php/cli</Path>
             <Path fileType="executable">/usr/bin</Path>
-            <Path fileType="library">/usr/lib</Path>
-            <Path fileType="config">/etc</Path>
             <Path fileType="man">/usr/share/man</Path>
-            <Path fileType="data">/usr/share/php5</Path>
         </Files>
         <AdditionalFiles>
             <AdditionalFile target="/usr/bin/go-pear" permission="0755" owner="root">go-pear</AdditionalFile>
@@ -62,9 +60,13 @@
     <Package>
         <Name>php-common</Name>
         <Summary>Common config files for PHP</Summary>
+        <Conflicts>
+            <Package releaseTo="81">php-cli</Package>
+        </Conflicts>
         <Files>
-            <Path fileType="config">/etc/php</Path>
             <Path fileType="library">/usr/lib/php/modules</Path>
+            <Path fileType="data">/usr/share/php5</Path>
+            <Path fileType="data">/etc/php/ext</Path>
         </Files>
     </Package>
 
@@ -103,6 +105,7 @@
         <Files>
             <Path fileType="library">/usr/lib/apache2/modules/libphp5.so</Path>
             <Path fileType="config">/etc/apache2</Path>
+            <Path fileType="config">/etc/php/apache2</Path>
         </Files>
         <AdditionalFiles>
             <AdditionalFile target="/etc/apache2/modules.d/70_mod_php5.conf" permission="0644" owner="root">70_mod_php5.conf</AdditionalFile>
@@ -113,6 +116,13 @@
     </Package>
 
     <History>
+        <Update release="82">
+            <Date>2010-12-09</Date>
+            <Version>5.2.14</Version>
+            <Comment>Split cli and mod_php config file locations</Comment>
+            <Name>Erdem Bayer</Name>
+            <Email>ebayer@bayer.gen.tr</Email>
+        </Update>
         <Update release="81">
             <Date>2010-10-13</Date>
             <Version>5.2.14</Version>

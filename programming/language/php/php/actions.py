@@ -69,8 +69,6 @@ def setup():
 
     common_options = "--sysconfdir=/etc \
                       --cache-file=./config.cache \
-                      --with-config-file-path=/etc/php \
-                      --with-config-file-scan-dir=/etc/php/ext \
                       --with-zlib-dir=/usr/lib \
                       --with-libxml-dir=/usr/lib \
                       --with-jpeg-dir=/usr/lib/ \
@@ -88,6 +86,8 @@ def setup():
     shelltools.cd("fcgi")
     autotools.configure("--enable-fastcgi \
                          --enable-force-cgi-redirect \
+                         --with-config-file-path=/etc/php/cli \
+                         --with-config-file-scan-dir=/etc/php/cli/ext \
                          %s \
                          %s" % (common_options, extensions()))
 
@@ -95,6 +95,8 @@ def setup():
     shelltools.cd("../apache")
     autotools.configure("--with-apxs2=/usr/sbin/apxs \
                          --disable-cli \
+                         --with-config-file-path=/etc/php/apache2 \
+                         --with-config-file-scan-dir=/etc/php/apache2/ext \
                          %s \
                          %s" % (common_options, extensions()))
 
@@ -119,13 +121,16 @@ def install():
 
     shelltools.cd("..")
 
-    pisitools.insinto("/etc/php/", "php.ini-dist", "php.ini")
+    pisitools.insinto("/etc/php/apache2/", "php.ini-dist", "php.ini")
+    pisitools.insinto("/etc/php/cli/", "php.ini-dist", "php.ini")
 
-    pisitools.dosed("%s/etc/php/php.ini" % get.installDIR(), "(extension_dir = .*)", ";\\1")
-    pisitools.dosed("%s/etc/php/php.ini" % get.installDIR(), r";include_path = \".:/php/includes\"",
+    pisitools.dosed("%s/etc/php/*/php.ini" % get.installDIR(), "(extension_dir = .*)", ";\\1")
+    pisitools.dosed("%s/etc/php/*/php.ini" % get.installDIR(), r";include_path = \".:/php/includes\"",
                                                              "include_path = \".:/usr/share/php5/PEAR\"")
 
     #Remove static modules
     pisitools.remove("/usr/lib/php/modules/*.a")
 
     pisitools.dodir("/etc/php/ext")
+    pisitools.dodir("/etc/php/apache2/ext")
+    pisitools.dodir("/etc/php/cli/ext")
