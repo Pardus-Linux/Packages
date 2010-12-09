@@ -12,7 +12,7 @@ from pisi.actionsapi import get
 def setup():
     shelltools.export("AUTOPOINT", "/bin/true")
 
-    autotools.autoreconf("-fi")
+    autotools.autoreconf("-vfi")
     autotools.configure("--disable-static \
                          --enable-shared \
                          --enable-pam \
