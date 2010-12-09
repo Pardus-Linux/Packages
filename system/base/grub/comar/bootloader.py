@@ -240,6 +240,8 @@ def addNewKernel(grub, version, root):
         except ValueError:
             default_index = 0
 
+    uuid = None
+
     if group_name in versions and any([x == version for x in versions[group_name].values()]):
         # Version is already in list, do nothing
         entry_index = -1
@@ -250,9 +252,13 @@ def addNewKernel(grub, version, root):
     else:
         if group_name in groups:
             entry_index = min(groups[group_name])
+            entry_data = grub.getEntry(entry_index)
             # Get kernel options of first entry in group
-            kernel = grub.getEntry(entry_index).getCommand("kernel")
+            kernel = entry_data.getCommand("kernel")
             options = kernel.value.split(" ", 1)[1]
+            # Check for UUID support
+            if "uuid" in entry_data.listCommands():
+                uuid = entry_data.getCommand("uuid").value
         else:
             entry_index = -1
             # Get kernel options from /proc/cmdline
@@ -262,9 +268,14 @@ def addNewKernel(grub, version, root):
         title = "%s [%s%s]" % (release, version, suffix)
 
         entry = grubEntry(title)
-        entry.setCommand("root", grubAddress(root))
+        if uuid:
+            entry.setCommand("uuid", uuid)
+        else:
+            entry.setCommand("root", grubAddress(root))
+
         entry.setCommand("kernel", "/boot/kernel-%s%s %s" % (version, suffix, options))
         entry.setCommand("initrd", "/boot/initramfs-%s%s" % (version, suffix))
+
         if default_index == "saved":
             entry.setCommand("savedefault", "")
         grub.addEntry(entry, entry_index)
