@@ -12,25 +12,19 @@
         <IsA>service</IsA>
         <Summary>The Berkeley Internet Name Domain (BIND) DNS (Domain Name System) server</Summary>
         <Description>BIND is an implementation of the DNS protocols, bind includes a DNS server (named), a resolver library and tools for verifying that the DNS server is operating properly.</Description>
-        <Archive sha1sum="b24ea0e8a67b841601b803f54070610036931e64" type="targz">http://ftp.isc.org/isc/bind9/9.7.1-P2/bind-9.7.1-P2.tar.gz</Archive>
-        <BuildDependencies>
-            <Dependency>libcap</Dependency>
-        </BuildDependencies>
+        <Archive sha1sum="ca621a23e79298b4da14a3884690edbccda410d4" type="targz">http://ftp.isc.org/isc/bind9/9.7.2-P3/bind-9.7.2-P3.tar.gz</Archive>
         <Patches>
             <Patch level="1">nslookup-pardus.patch</Patch>
 
-            <!-- Common patches -->
             <Patch level="1">fedora/bind-nonexec.patch</Patch>
             <Patch level="1">fedora/bind-9.5-PIE.patch</Patch>
             <Patch level="1">fedora/bind-96-dyndb.patch</Patch>
 
-            <!-- SDB (Simple Database Backend)
-            <Patch level="1">fedora/bind-96-old-api.patch</Patch>
-            <Patch level="1">fedora/bind-9.3.2b2-sdbsrc.patch</Patch>
-            <Patch level="1">fedora/bind-9.5-sdb.patch</Patch>
-            <Patch level="1">fedora/bind-9.3.2b1-fix_sdb_ldap.patch</Patch>
-            <Patch level="1">fedora/bind-9.5-sdb-sqlite-bld.patch</Patch>
-            -->
+            <!--<Patch level="1">fedora/bind-96-old-api.patch</Patch>-->
+            <!--<Patch level="1">fedora/bind-9.3.2b2-sdbsrc.patch</Patch>-->
+            <!--<Patch level="1">fedora/bind-9.5-sdb.patch</Patch>-->
+            <!--<Patch level="1">fedora/bind-9.3.2b1-fix_sdb_ldap.patch</Patch>-->
+            <!--<Patch level="1">fedora/bind-9.5-sdb-sqlite-bld.patch</Patch>-->
 
             <Patch level="1">fedora/bind-9.5-overflow.patch</Patch>
             <Patch level="1">fedora/bind-9.5-dlz-64bit.patch</Patch>
@@ -46,6 +40,8 @@
             <Patch level="1">fedora/bind97-dist-pkcs11.patch</Patch>
             <Patch level="1">fedora/bind97-rh478718.patch</Patch>
             <Patch level="1">fedora/bind97-rh570851.patch</Patch>
+            <Patch level="1">fedora/bind97-exportlib.patch</Patch>
+            <Patch level="1">fedora/bind97-rh645544.patch</Patch>
         </Patches>
     </Source>
 
@@ -53,9 +49,6 @@
         <Name>bind-libs</Name>
         <PartOf>server.library</PartOf>
         <Summary>bind-libs contains the libraries used by both the bind server package and the tools package</Summary>
-        <RuntimeDependencies>
-            <Dependency>libcap</Dependency>
-        </RuntimeDependencies>
         <Files>
             <Path fileType="library">/usr/lib</Path>
         </Files>
@@ -109,7 +102,6 @@
         <Name>bind</Name>
         <RuntimeDependencies>
             <Dependency>bind-libs</Dependency>
-            <Dependency>libcap</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="config">/etc</Path>
@@ -135,6 +127,16 @@
     </Package>
 
     <History>
+        <Update release="30" type="security">
+            <Date>2010-12-10</Date>
+            <Version>9.7.2_p3</Version>
+            <Comment>
+                * Version bump to fix CVE-2010-{3613,3614,3615},
+                * Enable exportlib.
+            </Comment>
+            <Name>H. İbrahim Güngör</Name>
+            <Email>ibrahim@pardus.org.tr</Email>
+        </Update>
         <Update release="29">
             <Date>2010-10-13</Date>
             <Version>9.7.1_p2</Version>
