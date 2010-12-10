@@ -1,8 +1,14 @@
+from comar.service import *
+import os
+
 serviceType = "server"
 serviceDesc = _({"en": "SMB Network Sharing",
                  "tr": "SMB Ağ Paylaşımı"})
 
-from comar.service import *
+WINBINDD_PIDFILE = "/var/run/samba/winbindd.pid"
+NMBD_PIDFILE = "/var/run/samba/nmbd.pid"
+SMBD_PIDFILE = "/var/run/samba/smbd.pid"
+
 
 @synchronized
 def start():
@@ -19,22 +25,25 @@ def start():
 
 @synchronized
 def stop():
-    stopService(pidfile="/var/run/samba/winbindd.pid")
-    stopService(pidfile="/var/run/samba/nmbd.pid")
-    stopService(pidfile="/var/run/samba/smbd.pid",
+    stopService(pidfile=WINBINDD_PIDFILE,
+                donotify=True)
+    stopService(pidfile=NMBD_PIDFILE,
+                donotify=True)
+    stopService(pidfile=SMBD_PIDFILE,
                 donotify=True)
 
 def reload():
-    import signal
-    stopService(pidfile="/var/run/samba/winbindd.pid",
-                signalno=signal.SIGHUP)
-    stopService(pidfile="/var/run/samba/nmbd.pid",
-                signalno=signal.SIGHUP)
-    stopService(pidfile="/var/run/samba/smbd.pid",
-                signalno=signal.SIGHUP)
+    if os.path.exists(WINBINDD_PIDFILE):
+        os.kill(int(file(WINBINDD_PIDFILE).read().strip()), signal.SIGHUP)
+
+    if os.path.exists(NMBD_PIDFILE):
+        os.kill(int(file(NMBD_PIDFILE).read().strip()), signal.SIGHUP)
+
+    if os.path.exists(SMBD_PIDFILE):
+        os.kill(int(file(SMBD_PIDFILE).read().strip()), signal.SIGHUP)
 
 def status():
-    result = isServiceRunning("/var/run/samba/smbd.pid") and isServiceRunning("/var/run/samba/nmbd.pid")
+    result = isServiceRunning(SMBD_PIDFILE) and isServiceRunning(NMBD_PIDFILE)
     if config.get("winbind", "no") == "yes":
-        result = result and isServiceRunning("/var/run/samba/winbindd.pid")
+        result = result and isServiceRunning(WINBINDD_PIDFILE)
     return result
