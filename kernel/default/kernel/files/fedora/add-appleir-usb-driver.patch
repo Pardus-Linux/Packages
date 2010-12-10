@@ -27,10 +27,11 @@ Signed-off-by: Bastien Nocera <hadess@hadess.net>
  create mode 100644 Documentation/input/appleir.txt
  create mode 100644 drivers/input/misc/appleir.c
 
-Index: linux-2.6.35/Documentation/input/appleir.txt
-===================================================================
+diff --git a/Documentation/input/appleir.txt b/Documentation/input/appleir.txt
+new file mode 100644
+index 0000000..db637fb
 --- /dev/null
-+++ linux-2.6.35/Documentation/input/appleir.txt
++++ b/Documentation/input/appleir.txt
 @@ -0,0 +1,46 @@
 +Apple IR receiver Driver (appleir)
 +----------------------------------
@@ -78,11 +79,11 @@ Index: linux-2.6.35/Documentation/input/appleir.txt
 +
 +This should force the creation of a hiddev device for the receiver, and
 +make it usable under lirc.
-Index: linux-2.6.35/drivers/hid/hid-apple.c
-===================================================================
---- linux-2.6.35.orig/drivers/hid/hid-apple.c
-+++ linux-2.6.35/drivers/hid/hid-apple.c
-@@ -361,10 +361,6 @@ static void apple_remove(struct hid_devi
+diff --git a/drivers/hid/hid-apple.c b/drivers/hid/hid-apple.c
+index bba05d0..0059d5a 100644
+--- a/drivers/hid/hid-apple.c
++++ b/drivers/hid/hid-apple.c
+@@ -361,10 +361,6 @@ static void apple_remove(struct hid_device *hdev)
  }
  
  static const struct hid_device_id apple_devices[] = {
@@ -93,11 +94,11 @@ Index: linux-2.6.35/drivers/hid/hid-apple.c
  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MIGHTYMOUSE),
  		.driver_data = APPLE_MIGHTYMOUSE | APPLE_INVERT_HWHEEL },
  
-Index: linux-2.6.35/drivers/hid/hid-core.c
-===================================================================
---- linux-2.6.35.orig/drivers/hid/hid-core.c
-+++ linux-2.6.35/drivers/hid/hid-core.c
-@@ -1244,8 +1244,6 @@ static const struct hid_device_id hid_bl
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index baa25ad..abc5bd7 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1244,8 +1244,6 @@ static const struct hid_device_id hid_blacklist[] = {
  #if defined(CONFIG_HID_ACRUX_FF) || defined(CONFIG_HID_ACRUX_FF_MODULE)
  	{ HID_USB_DEVICE(USB_VENDOR_ID_ACRUX, 0x0802) },
  #endif
@@ -106,7 +107,7 @@ Index: linux-2.6.35/drivers/hid/hid-core.c
  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MIGHTYMOUSE) },
  	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MAGICMOUSE) },
  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_FOUNTAIN_ANSI) },
-@@ -1581,6 +1579,11 @@ static const struct hid_device_id hid_ig
+@@ -1577,6 +1575,11 @@ static const struct hid_device_id hid_ignore_list[] = {
  	{ HID_USB_DEVICE(USB_VENDOR_ID_AIPTEK, USB_DEVICE_ID_AIPTEK_24) },
  	{ HID_USB_DEVICE(USB_VENDOR_ID_AIRCABLE, USB_DEVICE_ID_AIRCABLE1) },
  	{ HID_USB_DEVICE(USB_VENDOR_ID_ALCOR, USB_DEVICE_ID_ALCOR_USBRS232) },
@@ -118,10 +119,10 @@ Index: linux-2.6.35/drivers/hid/hid-core.c
  	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_LCM)},
  	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_LCM2)},
  	{ HID_USB_DEVICE(USB_VENDOR_ID_AVERMEDIA, USB_DEVICE_ID_AVER_FM_MR800) },
-Index: linux-2.6.35/drivers/hid/hid-ids.h
-===================================================================
---- linux-2.6.35.orig/drivers/hid/hid-ids.h
-+++ linux-2.6.35/drivers/hid/hid-ids.h
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 11af537..360a5ca 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
 @@ -100,8 +100,11 @@
  #define USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_JIS   0x023b
  #define USB_DEVICE_ID_APPLE_FOUNTAIN_TP_ONLY	0x030a
@@ -135,11 +136,11 @@ Index: linux-2.6.35/drivers/hid/hid-ids.h
  
  #define USB_VENDOR_ID_ASUS		0x0486
  #define USB_DEVICE_ID_ASUS_T91MT	0x0185
-Index: linux-2.6.35/drivers/input/misc/Kconfig
-===================================================================
---- linux-2.6.35.orig/drivers/input/misc/Kconfig
-+++ linux-2.6.35/drivers/input/misc/Kconfig
-@@ -199,6 +199,19 @@ config INPUT_KEYSPAN_REMOTE
+diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+index 60de906..2f2f2e7 100644
+--- a/drivers/input/misc/Kconfig
++++ b/drivers/input/misc/Kconfig
+@@ -209,6 +209,19 @@ config INPUT_KEYSPAN_REMOTE
  	  To compile this driver as a module, choose M here: the module will
  	  be called keyspan_remote.
  
@@ -159,11 +160,11 @@ Index: linux-2.6.35/drivers/input/misc/Kconfig
  config INPUT_POWERMATE
  	tristate "Griffin PowerMate and Contour Jog support"
  	depends on USB_ARCH_HAS_HCD
-Index: linux-2.6.35/drivers/input/misc/Makefile
-===================================================================
---- linux-2.6.35.orig/drivers/input/misc/Makefile
-+++ linux-2.6.35/drivers/input/misc/Makefile
-@@ -12,6 +12,7 @@ obj-$(CONFIG_INPUT_ADXL34X)		+= adxl34x.
+diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
+index 1fe1f6c..d5ef2b9 100644
+--- a/drivers/input/misc/Makefile
++++ b/drivers/input/misc/Makefile
+@@ -13,6 +13,7 @@ obj-$(CONFIG_INPUT_ADXL34X)		+= adxl34x.o
  obj-$(CONFIG_INPUT_ADXL34X_I2C)		+= adxl34x-i2c.o
  obj-$(CONFIG_INPUT_ADXL34X_SPI)		+= adxl34x-spi.o
  obj-$(CONFIG_INPUT_APANEL)		+= apanel.o
@@ -171,10 +172,11 @@ Index: linux-2.6.35/drivers/input/misc/Makefile
  obj-$(CONFIG_INPUT_ATI_REMOTE)		+= ati_remote.o
  obj-$(CONFIG_INPUT_ATI_REMOTE2)		+= ati_remote2.o
  obj-$(CONFIG_INPUT_ATLAS_BTNS)		+= atlas_btns.o
-Index: linux-2.6.35/drivers/input/misc/appleir.c
-===================================================================
+diff --git a/drivers/input/misc/appleir.c b/drivers/input/misc/appleir.c
+new file mode 100644
+index 0000000..3817a3c
 --- /dev/null
-+++ linux-2.6.35/drivers/input/misc/appleir.c
++++ b/drivers/input/misc/appleir.c
 @@ -0,0 +1,519 @@
 +/*
 + * appleir: USB driver for the apple ir device
@@ -695,3 +697,6 @@ Index: linux-2.6.35/drivers/input/misc/appleir.c
 +
 +module_init(appleir_init);
 +module_exit(appleir_exit);
+-- 
+1.7.2.2
+
