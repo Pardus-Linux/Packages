@@ -17,7 +17,3 @@ def build():
 def install():
     texlivemodules.install()
 
-    # texlive-core tree contains these scripts and binaries
-    pisitools.remove("/usr/share/texmf/scripts/simpdftex/simpdftex")
-    pisitools.remove("/usr/share/texmf/scripts/texlive/rungs.tlu")
-
