@@ -33,7 +33,7 @@ fun! MakeNewActionsPY()
     14
 endfun
 
-com! -nargs=0 NewActioonsPY call MakeNewActionsPY()
+com! -nargs=0 NewActionsPY call MakeNewActionsPY()
 
 augroup NewActionsPY
     au!
