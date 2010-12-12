@@ -15,7 +15,7 @@ from pisi.actionsapi import kde4
 WorkDir = "%s-%s" % (get.srcNAME(), get.srcVERSION().partition("_")[0])
 
 def setup():
-    cmaketools.configure()
+    cmaketools.configure('-DCMAKE_SKIP_RPATH:BOOL=YES')
 
 def install():
     cmaketools.rawInstall("DESTDIR=%s" % get.installDIR())
