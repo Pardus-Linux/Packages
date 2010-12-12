@@ -12,7 +12,7 @@ def setup():
     autotools.configure("--disable-update-mimedb")
 
 def build():
-    autotools.make()
+    autotools.make('-j1')
 
 def check():
     autotools.make("check")
