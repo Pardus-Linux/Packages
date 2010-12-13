@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import os
 import piksemel
 import subprocess
 
@@ -9,7 +10,8 @@ def generate_initramfs(filepath):
     for item in doc.tags("File"):
         path = item.getTagData("Path")
         if path.startswith(patterns):
-            subprocess.call(["/sbin/mkinitramfs", "--type", "kernel"])
+            for kernel in os.listdir("/etc/kernel"):
+                subprocess.call(["/sbin/mkinitramfs", "--type", kernel])
             return
 
 def setupPackage(metapath, filepath):

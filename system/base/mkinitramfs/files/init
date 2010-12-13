@@ -18,7 +18,6 @@ NFSROOT=0
 QUIET=0
 RAID=0
 LVM=0
-VIRTIO=0
 COPYTORAM=0
 
 HOTPLUG="/sbin/hotplug"
@@ -45,6 +44,7 @@ fall2sh() {
     kill -9 $(pidof plymouthd) &> /dev/null
 
     echo "--> $*"
+    echo "Reboot with initramfs=shell(noprobe) to further debug the issue."
 
     # Use a login shell for sourcing /etc/profile
     /bin/sh -l
@@ -81,6 +81,7 @@ probe_devices() {
     fi
 
     probe_pci_devices
+    probe_virtio_devices
     probe_usb_devices
 
     # Unset hotplug helper
@@ -138,9 +139,14 @@ probe_lvm() {
         /sbin/lvm vgchange -ay --ignorelockingfailure
     fi
 }
-probe_virtio() {
+probe_virtio_devices() {
     info "Probing Virtio devices"
-    modprobe -bqa virtio_pci virtio_balloon virtio_blk virtio_net
+    local MODULES=""
+    for module in /sys/bus/virtio/devices/*/modalias; do
+        [ -f $module ] || continue
+        MODULES="$MODULES $(cat $module)"
+    done
+    modprobe -bqa $MODULES
 }
 
 #################################
@@ -303,9 +309,6 @@ parse_config() {
             thin=*)
                 NFSROOT=$(echo $inputline|cut -f2- -d=)
             ;;
-            virtio=*)
-                VIRTIO=$(echo $inputline|cut -f2- -d=)
-            ;;
             root=*)
                 ROOT_TARGET=$(echo $inputline|cut -f2- -d=)
             ;;
@@ -313,7 +316,10 @@ parse_config() {
                 ROOT_FLAGS=$(echo $inputline|cut -f2- -d=)
             ;;
             liveroot=*)
+                # Installation or livecd, enable RAID by default
+                # to be able to read existing RAID installations
                 LIVE=1
+                RAID=1
                 LIVEROOT=$(echo $inputline|cut -f2- -d=)
             ;;
             resume=*)
@@ -355,9 +361,6 @@ parse_cmdline() {
                         ;;
                         thin)
                             NFSROOT=1
-                        ;;
-                        virtio)
-                            VIRTIO=1
                         ;;
                     esac
                 done
@@ -452,7 +455,6 @@ fi
 # Probe devices
 probe_devices --with-kms
 
-[ "${VIRTIO}" -eq "1" ] && probe_virtio
 [ "${RAID}" -eq "1" ] && probe_raid
 [ "${LVM}" -eq "1" ] && probe_lvm
 
