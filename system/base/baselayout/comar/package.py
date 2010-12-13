@@ -167,6 +167,7 @@ def postInstall(fromVersion, fromRelease, toVersion, toRelease):
                 (166, "polipo"),
                 (167, "nginx"),
                 (168, "guests"),
+                (169, "ntop"),
                 # COMAR profile groups
                 (200, "pnp"),
                 (201, "removable"),
@@ -241,6 +242,7 @@ def postInstall(fromVersion, fromRelease, toVersion, toRelease):
                 (164, "polipo", "polipo user", "/", "/sbin/nologin", "", ["polipo"], [], []),
                 (165, "kdm", "kdm", "/var", "/sbin/nologin", "", ["kdm"], [], []),
                 (166, "nginx", "nginx user", "/etc/nginx", "/sbin/nologin", "", ["nginx"], [], []),
+                (167, "ntop", "ntop user", "/var/lib/ntop", "/sbin/nologin", "", ["ntop"], [], []),
                 (200, "pnp", "PnP", "/dev/null", "/bin/false", "", ["pnp"], [], []),
                 (250, "mpd", "Music Player Daemon", "/var/lib/mpd", "/bin/false", "", ["audio", "pulse", "pulse-access", "pulse-rt"], [], []),
             )
