@@ -21,13 +21,16 @@ def setup():
                           -DENGINE_QT_PHONON_ENABLED=OFF \
                           -DENGINE_LIBVLC_ENABLED=OFF \
                           -DENGINE_LIBXINE_ENABLED=OFF \
-                          -DSTATIC_SQLITE=OFF \
-                          -DUSE_SYSTEM_QTSINGLEAPPLICATION=OFF \
                           -DUSE_SYSTEM_QXT=ON \
+                          -DUSE_SYSTEM_QTSINGLEAPPLICATION=OFF \
+                          -DSTATIC_SQLITE=OFF \
                           -DUSE_SYSTEM_PROJECTM=ON \
+                          -DENABLE_WIIMOTEDEV=ON \
+                          -DENABLE_LIBGPOD=ON \
+                          -DENABLE_IMOBILEDEVICE=ON \
                           -DENABLE_LIBMTP=ON \
-                          -DENABLE_VISUALISATIONS=ON \
                           -DENABLE_GIO=ON \
+                          -DENABLE_VISUALISATIONS=ON \
                           -DBUNDLE_PROJECTM_PRESETS=OFF", sourceDir=".")
 
 def build():
