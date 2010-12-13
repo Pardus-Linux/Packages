@@ -1,0 +1,78 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>ntop</Name>
+        <Homepage>http://www.ntop.org/news.php</Homepage>
+        <Packager>
+            <Name>Erdem Bayer</Name>
+            <Email>ebayer@bayer.gen.tr</Email>
+        </Packager>
+        <License>GPLv2</License>
+        <Summary>A network traffic probe similar to the UNIX top command</Summary>
+        <Description>ntop is a network traffic probe that shows the network usage, similar to what the popular top Unix command does. ntop is based on libpcap and it has been written in a portable way in order to virtually run on every Unix platform and on Win32 as well. ntop users can use a a web browser (e.g. firefox) to navigate through ntop (that acts as a web server) traffic information and get a dump of the network status.</Description>
+        <Archive sha1sum="515fbb66f224d0b8292f3299723965f49325dd91" type="targz">mirrors://sourceforge/ntop/ntop-4.0.1.tar.gz</Archive>
+        <Archive sha1sum="a4a3ef8e2b4a9d067e4d54308a133a43c78e8512" type="binary" target=".">http://cekirdek.pardus.org.tr/~ebayer/files/etter.finger.os.gz</Archive>
+        <BuildDependencies>
+            <Dependency>mysql-lib</Dependency>
+            <Dependency>libpcap</Dependency>
+            <Dependency>gd</Dependency>
+            <Dependency>rrdtool-devel</Dependency>
+            <Dependency>geoip</Dependency>
+            <Dependency>net-snmp</Dependency>
+        </BuildDependencies>
+        <Patches>
+            <Patch level="1">dotPath.patch</Patch>
+            <Patch level="1">ntop-running-user.patch</Patch>
+            <Patch level="1">ntop-disable-etter_fingerprint_download.patch</Patch>
+        </Patches>
+    </Source>
+    
+    <Package>
+        <Name>ntop</Name>
+        <RuntimeDependencies>
+            <Dependency>mysql-server</Dependency>
+            <Dependency>mysql-lib</Dependency>
+            <Dependency>libpcap</Dependency>
+            <Dependency>gd</Dependency>
+            <Dependency>rrdtool</Dependency>
+            <Dependency>geoip</Dependency>
+            <Dependency>net-snmp</Dependency>
+            <Dependency>python-mako</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="config">/etc/ntop</Path>
+            <Path fileType="config">/etc/conf.d</Path>
+            <Path fileType="executable">/usr/bin</Path>
+            <Path fileType="library">/usr/lib</Path>
+            <Path fileType="man">/usr/share/man</Path>
+            <Path fileType="data">/usr/share/ntop</Path>
+            <Path fileType="data">/var/lib/ntop</Path>
+            <Path fileType="data">/var/log/ntop</Path>
+        </Files>
+        <AdditionalFiles>
+            <AdditionalFile target="/etc/conf.d/ntop" owner="ntop" group="ntop" permission="0600">ntop.conf</AdditionalFile>
+        </AdditionalFiles>
+        <Provides>
+            <COMAR script="package.py">System.Package</COMAR>
+            <COMAR script="service.py">System.Service</COMAR>
+        </Provides>
+    </Package>
+    
+    <History>
+        <Update release="2">
+            <Date>2010-10-29</Date>
+            <Version>4.0.1</Version>
+            <Comment>Mass rebuild for Pardus Corporate 2 Alpha 3</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="1">
+            <Date>2010-10-18</Date>
+            <Version>4.0.1</Version>
+            <Comment>First Release</Comment>
+            <Name>Erdem Bayer</Name>
+            <Email>ebayer@bayer.gen.tr</Email>
+        </Update>
+    </History>
+</PISI>
