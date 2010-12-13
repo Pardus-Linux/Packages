@@ -36,15 +36,3 @@ def build():
 
 def install():
     autotools.rawInstall("DESTDIR=%s" % get.installDIR())
-    # remove useless .packlist .bs and emptydirs by hand.
-    if(get.ARCH() == "i386"):
-        pisitools.remove("/usr/lib/perl5/vendor_perl/%s/i686-linux-thread-multi/auto/RRDs/.packlist" % get.curPERL())
-        pisitools.remove("/usr/lib/perl5/vendor_perl/%s/i686-linux-thread-multi/auto/RRDp/.packlist" % get.curPERL())
-        pisitools.remove("/usr/lib/perl5/vendor_perl/%s/i686-linux-thread-multi/auto/RRDs/RRDs.bs" % get.curPERL())
-        pisitools.removeDir("/usr/lib/perl5/vendor_perl/%s/i686-linux-thread-multi/auto/RRDp" % get.curPERL())
-    elif(get.ARCH() == "x86_64"):
-        pisitools.remove("/usr/lib/perl5/vendor_perl/%s/x86_64-linux-thread-multi/auto/RRDs/.packlist" % get.curPERL())
-        pisitools.remove("/usr/lib/perl5/vendor_perl/%s/x86_64-linux-thread-multi/auto/RRDp/.packlist" % get.curPERL())
-        pisitools.remove("/usr/lib/perl5/vendor_perl/%s/x86_64-linux-thread-multi/auto/RRDs/RRDs.bs" % get.curPERL())
-        pisitools.removeDir("/usr/lib/perl5/vendor_perl/%s/x86_64-linux-thread-multi/auto/RRDp" % get.curPERL())
-
