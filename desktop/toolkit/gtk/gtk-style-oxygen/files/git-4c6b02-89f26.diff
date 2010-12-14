@@ -1,0 +1,834 @@
+commit 4c6b0212d2b98f7139a0ab0047f8e827d2e743d0
+Author: Ruslan Kabatsayev <b7.10110111@gmail.com>
+Date:   Sun Dec 12 18:04:33 2010 +0300
+
+    Describe meaning of -j2 option for make
+
+diff --git a/INSTALL b/INSTALL
+index 1bda697..0ac0ec8 100644
+--- a/INSTALL
++++ b/INSTALL
+@@ -18,3 +18,4 @@ The default is equivalent to:
+ 2/ on 64 bits machine an extra flag is needed at the CMake stage:
+ 
+   cmake -DLIB_SUFFIX=64 ../
++3/ make -jX uses X parallel jobs so that compilation would speed up on SMP machines with X cores/CPUs/threads
+
+commit 5bdb18926e13b80e239b318a3dd6fc5987231d8b
+Author: Ruslan Kabatsayev <b7.10110111@gmail.com>
+Date:   Sun Dec 12 18:41:09 2010 +0300
+
+    Update hacks documentation
+
+diff --git a/README b/README
+index 32d51fc..cc66084 100644
+--- a/README
++++ b/README
+@@ -44,7 +44,7 @@ These details are given here because:
+ III.1 ARGB support
+ ------------------
+ 
+-By default, the style turns on transparency (ARGB) support in the default colormap used for all widgets. This is needed for menus (GtkMenu) and tooltips to have nice non-pixelated rounded corners, as in Oxygen-Qt, and semi-transparent background for tooltips, when compositing is enabled. 
++By default, the style turns on transparency (ARGB) support in the default colormap used for all widgets. This is needed for menus (GtkMenu), drop-down combobox lists and tooltips to have nice non-pixelated rounded corners, as in Oxygen-Qt, and semi-transparent background for tooltips, when compositing is enabled. 
+ 
+ This feature does work well for some applications (for instance: gimp, pidgin, mandriva configuration tools, gedit, etc.), but results in a number of other applications to crash or display garbage (e.g. nautilus, pgadmin, banshee, etc.)
+ 
+@@ -104,6 +104,9 @@ III.8 Mouse-over support
+ 
+ We added mouse-over support (that is: highlight when mouse pointer enters the widget) for a number of widgets for which gtk did not support it. This is notably the case for: GtkTreeView, GtkEntry, GtkNoteBook. This is achieved by watching enter/leave and mouse-move events for such widgets and some of their children. To our knowledge there is no remaining issue with this feature.
+ 
++III.9 Tab close buttons
++GTK notebook doesn't provide a standard way for apps to put close buttons on tabs. Because of this, close buttons in different apps are implemented differently. Oxygen-gtk hides such buttons' icons/text, and draws Qt close button images instead. But there's no way of detecting if the button is really _close_ one. So, current implementation may break apps which have some additional buttons in the tabs. If you find such apps with multiple buttons on single tab (which all look like close buttons) when using oxygen-gtk, file a bug report.
++
+ IV. Technical details
+ ---------------------
+ 
+
+commit 1279f69eff473118cbc8a7d139221bd723d21354
+Author: Ruslan Kabatsayev <b7.10110111@gmail.com>
+Date:   Sun Dec 12 19:55:09 2010 +0300
+
+    Add missing contents entry in hacks documentation
+
+diff --git a/README b/README
+index cc66084..eb7234b 100644
+--- a/README
++++ b/README
+@@ -14,6 +14,7 @@ III.5 GtkTreeView
+ III.6 GtkScrolledWindow
+ III.7 Button order in dialogs
+ III.8 Mouse-over support
++III.9 Tab close buttons
+ 
+ IV. Technical details
+ IV.1 Directories
+@@ -105,6 +106,7 @@ III.8 Mouse-over support
+ We added mouse-over support (that is: highlight when mouse pointer enters the widget) for a number of widgets for which gtk did not support it. This is notably the case for: GtkTreeView, GtkEntry, GtkNoteBook. This is achieved by watching enter/leave and mouse-move events for such widgets and some of their children. To our knowledge there is no remaining issue with this feature.
+ 
+ III.9 Tab close buttons
++-----------------------
+ GTK notebook doesn't provide a standard way for apps to put close buttons on tabs. Because of this, close buttons in different apps are implemented differently. Oxygen-gtk hides such buttons' icons/text, and draws Qt close button images instead. But there's no way of detecting if the button is really _close_ one. So, current implementation may break apps which have some additional buttons in the tabs. If you find such apps with multiple buttons on single tab (which all look like close buttons) when using oxygen-gtk, file a bug report.
+ 
+ IV. Technical details
+
+commit d3351c9bbc674da91ed58aa078c654e4bbf40858
+Author: Hugo Pereira Da Costa <hugo@oxygen-icons.org>
+Date:   Mon Dec 13 12:11:25 2010 +0100
+
+    cleaned-up FontInfo class
+    Removed use of a default hard-coded font name.
+    If no font is found, add no entry to gtkrc.
+
+diff --git a/src/oxygenfontinfo.cpp b/src/oxygenfontinfo.cpp
+index 6ced616..4fef211 100644
+--- a/src/oxygenfontinfo.cpp
++++ b/src/oxygenfontinfo.cpp
+@@ -27,10 +27,6 @@ namespace Oxygen
+ {
+ 
+     //_____________________________________________
+-    const double FontInfo::_defaultKdeFontSize = 9;
+-    const std::string FontInfo::_defaultKdeFontFamily = "Sans Serif";
+-
+-    //_____________________________________________
+     FontInfo::operator std::string ( void ) const
+     {
+         std::ostringstream out;
+diff --git a/src/oxygenfontinfo.h b/src/oxygenfontinfo.h
+index e920e54..325e4f6 100644
+--- a/src/oxygenfontinfo.h
++++ b/src/oxygenfontinfo.h
+@@ -60,10 +60,13 @@ namespace Oxygen
+             _weight( Normal ),
+             _italic( false ),
+             _fixed( false ),
+-            _size( _defaultKdeFontSize ),
+-            _family( _defaultKdeFontFamily )
++            _size( 0 )
+         {}
+ 
++        //! true if font is valid
++        bool isValid( void ) const
++        { return _size > 0 && !_family.empty(); }
++
+         //! weight
+         FontWeight weight( void ) const
+         { return _weight; }
+@@ -93,12 +96,7 @@ namespace Oxygen
+         std::string weightString( void ) const;
+         std::string italicString( void ) const;
+ 
+-        //! default kde size
+-        static const double _defaultKdeFontSize;
+-        static const std::string _defaultKdeFontFamily;
+-
+-        //! default font
+-        static FontInfo _defaultFont;
++        private:
+ 
+         //! font weight
+         FontWeight _weight;
+diff --git a/src/oxygenqtsettings.cpp b/src/oxygenqtsettings.cpp
+index ba1b679..f095fa9 100644
+--- a/src/oxygenqtsettings.cpp
++++ b/src/oxygenqtsettings.cpp
+@@ -540,18 +540,28 @@ namespace Oxygen
+         }
+ 
+         // pass fonts to RC
+-        _rc.addToHeaderSection( Gtk::RCOption<std::string>( "gtk-font-name", fonts[FontInfo::Default] ) );
++        if( fonts[FontInfo::Default].isValid() )
++        { _rc.addToHeaderSection( Gtk::RCOption<std::string>( "gtk-font-name", fonts[FontInfo::Default] ) ); }
+ 
+-        _rc.setCurrentSection( Gtk::RC::defaultSection() );
+-        _rc.addToCurrentSection( Gtk::RCOption<std::string>( "  font_name", fonts[FontInfo::Default] ) );
++        if( fonts[FontInfo::Default].isValid() )
++        {
++            _rc.setCurrentSection( Gtk::RC::defaultSection() );
++            _rc.addToCurrentSection( Gtk::RCOption<std::string>( "  font_name", fonts[FontInfo::Default] ) );
++        }
+ 
+-        _rc.addSection( "oxygen-menu-font", Gtk::RC::defaultSection() );
+-        _rc.addToCurrentSection( Gtk::RCOption<std::string>( "  font_name", fonts[FontInfo::Menu] ) );
+-        _rc.addToRootSection( "widget_class \"*<GtkMenuItem>.<GtkLabel>\" style \"oxygen-menu-font\"" );
++        if( fonts[FontInfo::Menu].isValid() )
++        {
++            _rc.addSection( "oxygen-menu-font", Gtk::RC::defaultSection() );
++            _rc.addToCurrentSection( Gtk::RCOption<std::string>( "  font_name", fonts[FontInfo::Menu] ) );
++            _rc.addToRootSection( "widget_class \"*<GtkMenuItem>.<GtkLabel>\" style \"oxygen-menu-font\"" );
++        }
+ 
+-        _rc.addSection( "oxygen-toolbar-font", Gtk::RC::defaultSection() );
+-        _rc.addToCurrentSection( Gtk::RCOption<std::string>( "  font_name", fonts[FontInfo::ToolBar] ) );
+-        _rc.addToRootSection( "widget_class \"*<GtkToolbar>.*\" style \"oxygen-toolbar-font\"" );
++        if( fonts[FontInfo::ToolBar].isValid() )
++        {
++            _rc.addSection( "oxygen-toolbar-font", Gtk::RC::defaultSection() );
++            _rc.addToCurrentSection( Gtk::RCOption<std::string>( "  font_name", fonts[FontInfo::ToolBar] ) );
++            _rc.addToRootSection( "widget_class \"*<GtkToolbar>.*\" style \"oxygen-toolbar-font\"" );
++        }
+ 
+         #if OXYGEN_DEBUG
+         std::cout << "Oxygen::QtSettings::loadKdeFonts - done." << std::endl;
+
+commit 3596fe2adcceb2a2466c965a5b18cb8ed3692de5
+Author: Cédric Bellegarde <gnumdk@gmail.com>
+Date:   Mon Dec 13 10:22:49 2010 +0100
+
+    Fix menu items font size
+
+diff --git a/src/oxygenqtsettings.cpp b/src/oxygenqtsettings.cpp
+index f095fa9..158a130 100644
+--- a/src/oxygenqtsettings.cpp
++++ b/src/oxygenqtsettings.cpp
+@@ -428,7 +428,7 @@ namespace Oxygen
+         _rc.addToRootSection( "class \"GtkRadioButton\" style \"oxygen-buttons\"" );
+ 
+         // menu items
+-        _rc.addSection( "oxygen-menubar-item", Gtk::RC::defaultSection() );
++        _rc.addSection( "oxygen-menubar-item", "oxygen-menu-font" );
+         _rc.addToCurrentSection( Gtk::RCOption<std::string>( "  text[NORMAL]", _palette.color( Palette::Text ) ) );
+         _rc.addToCurrentSection( Gtk::RCOption<std::string>( "  fg[NORMAL]", _palette.color( Palette::WindowText ) ) );
+ 
+
+commit 6b4ab948a88f872e2299c177ec110dde79654969
+Author: Cédric Bellegarde <gnumdk@gmail.com>
+Date:   Mon Dec 13 11:32:49 2010 +0100
+
+    Fix Google Chrome/Chromium url bar when using gtk style
+
+diff --git a/src/oxygenstylewrapper.cpp b/src/oxygenstylewrapper.cpp
+index df74896..7b0cc46 100644
+--- a/src/oxygenstylewrapper.cpp
++++ b/src/oxygenstylewrapper.cpp
+@@ -276,6 +276,7 @@ namespace Oxygen
+ 
+             StyleOptions options( widget, state, shadow );
+             if( !Style::instance().settings().applicationName().isOpenOffice() ) options |= NoFill;
++            if( !Style::instance().settings().applicationName().isGoogleChrome() ) options &= ~NoFill;
+ 
+             // calculate proper offsets so that the glow/shadow match parent frame
+             const int xOffset( style ? style->xthickness + 1 : 3);
+
+commit f85356b2f4071f00d36adc0b9f3e8bf0dd2cf97e
+Author: Hugo Pereira Da Costa <hugo@oxygen-icons.org>
+Date:   Mon Dec 13 14:43:38 2010 +0100
+
+    Revert "do not "hack" the widget bg color of openoffice, mozilla and google-chrome."
+    
+    This reverts commit d3fba270921e8cef9efc54a336c51359699a83b6.
+
+diff --git a/src/oxygenqtsettings.cpp b/src/oxygenqtsettings.cpp
+index 158a130..fa57977 100644
+--- a/src/oxygenqtsettings.cpp
++++ b/src/oxygenqtsettings.cpp
+@@ -364,17 +364,7 @@ namespace Oxygen
+ 
+         // default colors
+         _rc.setCurrentSection( Gtk::RC::defaultSection() );
+-        if( applicationName().isMozilla() || applicationName().isGoogleChrome() || applicationName().isOpenOffice() )
+-        {
+-
+-            _rc.addToCurrentSection( Gtk::RCOption<std::string>( "  bg[NORMAL]", _palette.color( Palette::Window ) ) );
+-
+-        } else {
+-
+-            _rc.addToCurrentSection( Gtk::RCOption<std::string>( "  bg[NORMAL]", backgroundBottomColor( _palette.color( Palette::Window ) ) ) );
+-
+-        }
+-
++        _rc.addToCurrentSection( Gtk::RCOption<std::string>( "  bg[NORMAL]", backgroundBottomColor( _palette.color( Palette::Window ) ) ) );
+         _rc.addToCurrentSection( Gtk::RCOption<std::string>( "  bg[PRELIGHT]", _palette.color( Palette::Window ) ) );
+ 
+         if( applicationName().isMozilla() || applicationName().isGoogleChrome() )
+
+commit 4086922804b82618ccf207f3da173500c8a0de5f
+Author: Hugo Pereira Da Costa <hugo@oxygen-icons.org>
+Date:   Mon Dec 13 14:43:56 2010 +0100
+
+    Revert "Fix gconf-editor long description background color and most of other such artefacts. In fact, this is just a hack, but it will more often work than not work."
+    
+    This reverts commit 9c266207432cc89f8de4ea40b15794a90f0fe38b.
+
+diff --git a/src/oxygenqtsettings.cpp b/src/oxygenqtsettings.cpp
+index fa57977..2c8c684 100644
+--- a/src/oxygenqtsettings.cpp
++++ b/src/oxygenqtsettings.cpp
+@@ -364,7 +364,7 @@ namespace Oxygen
+ 
+         // default colors
+         _rc.setCurrentSection( Gtk::RC::defaultSection() );
+-        _rc.addToCurrentSection( Gtk::RCOption<std::string>( "  bg[NORMAL]", backgroundBottomColor( _palette.color( Palette::Window ) ) ) );
++        _rc.addToCurrentSection( Gtk::RCOption<std::string>( "  bg[NORMAL]", _palette.color( Palette::Window ) ) );
+         _rc.addToCurrentSection( Gtk::RCOption<std::string>( "  bg[PRELIGHT]", _palette.color( Palette::Window ) ) );
+ 
+         if( applicationName().isMozilla() || applicationName().isGoogleChrome() )
+
+commit 5e1e3e45a85fd4d3bc68eae15c19f76d8d5be9bc
+Merge: 4086922 6b4ab94
+Author: Hugo Pereira Da Costa <hugo@oxygen-icons.org>
+Date:   Mon Dec 13 14:51:04 2010 +0100
+
+    Merge branch '1.0' of git.kde.org:oxygen-gtk into 1.0
+
+commit c70ba44aea88a08fa2c6afb0dc86276b1c5024be
+Author: Hugo Pereira Da Costa <hugo@oxygen-icons.org>
+Date:   Mon Dec 13 16:28:58 2010 +0100
+
+    added npviewer.bin
+
+diff --git a/rc/argb-apps.conf b/rc/argb-apps.conf
+index 40de7a1..38dafe6 100644
+--- a/rc/argb-apps.conf
++++ b/rc/argb-apps.conf
+@@ -54,6 +54,6 @@ disable:kompozer-bin:gpaint:lernid:totem:truecrypt:checkgmail:gloobus-preview:ex
+ disable:swiftfox-bin:gnome-screensaver:prism-bin:xsane:metacity:mutter
+ disable:gnome-panel:netspeed_applet2:mixer_applet2:multiload-applet-2:gnubiff:mail-notification
+ disable:dockbarx_factory.py:liferea:midori:cheese:gnome-mplayer:gnome-subtitles:subtitleeditor:pitivi:miro
+-disable:miro.real:gflashplayer:swfdec-player:xaralx:notecase:codeblocks:ekiga:xfce4-panel
++disable:npviewer.bin:miro.real:gflashplayer:swfdec-player:xaralx:notecase:codeblocks:ekiga:xfce4-panel
+ disable:chrome:<unknown>:eclipse:Eclipse:.:xmind
+ disable:nautilus:pcmanfm:emacs:AptanaStudio:dia:pgadmin3:kino:winff
+
+commit ac5c9a9a53138544d8b9c94174f311c1a5f8cb0c
+Author: Cédric Bellegarde <gnumdk@gmail.com>
+Date:   Mon Dec 13 14:16:24 2010 +0100
+
+    Enhance chromium application detection
+
+diff --git a/src/oxygenapplicationname.cpp b/src/oxygenapplicationname.cpp
+index 337f417..b9f0dbb 100644
+--- a/src/oxygenapplicationname.cpp
++++ b/src/oxygenapplicationname.cpp
+@@ -44,7 +44,7 @@ namespace Oxygen
+         else if( appName.find("seamonkey" ) == 0 ) _name = Seamonkey;
+         else if( appName == "soffice" ) _name = OpenOffice;
+         else if( appName == "gimp" ) _name = Gimp;
+-        else if( appName == "chromium-browser" || appName == "google-chrome" ) _name = GoogleChrome;
++        else if( appName == "chromium" || appName == "chromium-browser" || appName == "google-chrome" ) _name = GoogleChrome;
+         else _name = Unknown;
+     }
+ 
+diff --git a/src/oxygenstylewrapper.cpp b/src/oxygenstylewrapper.cpp
+index 7b0cc46..e704db1 100644
+--- a/src/oxygenstylewrapper.cpp
++++ b/src/oxygenstylewrapper.cpp
+@@ -276,7 +276,7 @@ namespace Oxygen
+ 
+             StyleOptions options( widget, state, shadow );
+             if( !Style::instance().settings().applicationName().isOpenOffice() ) options |= NoFill;
+-            if( !Style::instance().settings().applicationName().isGoogleChrome() ) options &= ~NoFill;
++            if( Style::instance().settings().applicationName().isGoogleChrome() ) options &= ~NoFill;
+ 
+             // calculate proper offsets so that the glow/shadow match parent frame
+             const int xOffset( style ? style->xthickness + 1 : 3);
+
+commit 660798753c49dc9a32ceef407119b19edc374605
+Author: Hugo Pereira Da Costa <hugo@oxygen-icons.org>
+Date:   Mon Dec 13 18:35:41 2010 +0100
+
+    moved test on button being inactive inside the "withinWidget" test.
+    CCMAIL: gnumdk@gmail.com
+
+diff --git a/src/oxygenwindowmanager.cpp b/src/oxygenwindowmanager.cpp
+index 64b245d..c7fb834 100644
+--- a/src/oxygenwindowmanager.cpp
++++ b/src/oxygenwindowmanager.cpp
+@@ -360,7 +360,7 @@ namespace Oxygen
+                 #endif
+ 
+                 GdkWindow *window = gtk_widget_get_window( childWidget );
+-                if( window && gdk_window_is_visible ( window ) )
++                if( window && gdk_window_is_visible( window ) )
+                 {
+ 
+                     // check against black-list
+@@ -369,6 +369,10 @@ namespace Oxygen
+ 
+                         usable = false;
+ 
++                    } else if( GTK_IS_BUTTON( childWidget ) && gtk_widget_get_state( childWidget ) != GTK_STATE_INSENSITIVE ) {
++
++                        usable = false;
++
+                     } else if( gtk_widget_get_events ( childWidget ) & (GDK_BUTTON_PRESS_MASK|GDK_BUTTON_RELEASE_MASK) ) {
+ 
+                         // widget listening to press event
+
+commit 54edfff79e832bed0895f2519f95a2445d9319d5
+Author: Hugo Pereira Da Costa <hugo@oxygen-icons.org>
+Date:   Mon Dec 13 20:07:43 2010 +0100
+
+    added 'mmc'
+
+diff --git a/rc/argb-apps.conf b/rc/argb-apps.conf
+index 38dafe6..da5fc8f 100644
+--- a/rc/argb-apps.conf
++++ b/rc/argb-apps.conf
+@@ -56,4 +56,4 @@ disable:gnome-panel:netspeed_applet2:mixer_applet2:multiload-applet-2:gnubiff:ma
+ disable:dockbarx_factory.py:liferea:midori:cheese:gnome-mplayer:gnome-subtitles:subtitleeditor:pitivi:miro
+ disable:npviewer.bin:miro.real:gflashplayer:swfdec-player:xaralx:notecase:codeblocks:ekiga:xfce4-panel
+ disable:chrome:<unknown>:eclipse:Eclipse:.:xmind
+-disable:nautilus:pcmanfm:emacs:AptanaStudio:dia:pgadmin3:kino:winff
++disable:nautilus:pcmanfm:emacs:AptanaStudio:dia:pgadmin3:kino:winff:mmc
+
+commit e26c65ac4b9572d3ce4ebbeb6a8be5d08ebb25e1
+Author: Hugo Pereira Da Costa <hugo@oxygen-icons.org>
+Date:   Mon Dec 13 20:43:36 2010 +0100
+
+    added #if check on gtk version around usage of GTK_IS_TOOL_ITEM_GROUP
+
+diff --git a/src/oxygenstylewrapper.cpp b/src/oxygenstylewrapper.cpp
+index e704db1..ac1cfe2 100644
+--- a/src/oxygenstylewrapper.cpp
++++ b/src/oxygenstylewrapper.cpp
+@@ -613,10 +613,12 @@ namespace Oxygen
+                 tiles &= ~TileSet::Left;
+                 Style::instance().renderButtonSlab( window, clipRect, x-7, y, w+7, h, options, tiles );
+ 
++            #if GTK_CHECK_VERSION(2, 20, 0)
+             } else if( GTK_IS_TOOL_ITEM_GROUP( widget ) ) {
+ 
+                 return;
+ 
++            #endif
+             } else {
+ 
+                 // for google chrome, make GtkChromeButton appear as flat
+
+commit 3926140c40b94f6c967dc6638437b2c445206783
+Author: Cédric Bellegarde <gnumdk@gmail.com>
+Date:   Tue Dec 14 10:08:35 2010 +0100
+
+    BUG: 259695
+    Don't parse rc too early.
+
+diff --git a/src/oxygenstylewrapper.cpp b/src/oxygenstylewrapper.cpp
+index ac1cfe2..002de10 100644
+--- a/src/oxygenstylewrapper.cpp
++++ b/src/oxygenstylewrapper.cpp
+@@ -2405,12 +2405,6 @@ namespace Oxygen
+ //_______________________________________________________________________________________________________________
+ extern "C" void instance_init( OxygenStyle* self )
+ {
+-
+-    // this should move somewhere else
+-    Oxygen::Style::instance();
+-    if( Oxygen::Style::instance().settings().applicationName().isOpenOffice() )
+-    { Oxygen::Style::instance().animations().setEnabled( false ); }
+-
+ }
+ 
+ //_______________________________________________________________________________________________________________
+diff --git a/src/oxygentheme.cpp b/src/oxygentheme.cpp
+index 82e4e8e..755d3e2 100644
+--- a/src/oxygentheme.cpp
++++ b/src/oxygentheme.cpp
+@@ -131,6 +131,10 @@ void theme_init( GTypeModule* module )
+         gtk_widget_set_default_colormap(cmap);
+     }
+ 
++    Oxygen::Style::instance();
++    if( Oxygen::Style::instance().settings().applicationName().isOpenOffice() )
++    { Oxygen::Style::instance().animations().setEnabled( false ); }
++
+ }
+ 
+ //_________________________________________________
+
+commit 78b307fc4e63275bb1d995f7ceca986acf53b47e
+Author: Hugo Pereira Da Costa <hugo@oxygen-icons.org>
+Date:   Tue Dec 14 14:13:55 2010 +0100
+
+    changed function names for clarity.
+    
+    Conflicts:
+    
+    	src/oxygenrcstyle.cpp
+    	src/oxygenstylewrapper.cpp
+
+diff --git a/src/oxygenrcstyle.cpp b/src/oxygenrcstyle.cpp
+index 7016256..a8d4887 100644
+--- a/src/oxygenrcstyle.cpp
++++ b/src/oxygenrcstyle.cpp
+@@ -26,6 +26,7 @@
+ #endif
+ 
+ #include "oxygenrcstyle.h"
++#include "oxygenstyle.h"
+ #include "oxygenstylewrapper.h"
+ 
+ #include <gtk/gtk.h>
+@@ -38,7 +39,6 @@ struct _OxygenRcStyle
+ struct _OxygenRcStyleClass
+ { GtkRcStyleClass parent; };
+ 
+-static GType oxygen_rc_style_type = 0;
+ static GtkRcStyleClass *oxygen_rc_style_parent_class = 0L;
+ 
+ //______________________________________________________________________
+@@ -77,13 +77,12 @@ static guint parse(
+ static void merge( GtkRcStyle *dst, GtkRcStyle *src )
+ { oxygen_rc_style_parent_class->merge( dst, src ); }
+ 
+-
+ //______________________________________________________________________
+-static void instance_init( OxygenRcStyle *self )
++extern "C" void oxygen_rc_style_instance_init( OxygenRcStyle *self )
+ {}
+ 
+ //______________________________________________________________________
+-static void class_init( OxygenRcStyleClass *klass )
++extern "C" void oxygen_rc_style_class_init( OxygenRcStyleClass *klass )
+ {
+     GtkRcStyleClass *rc_style_class = GTK_RC_STYLE_CLASS( klass );
+ 
+@@ -95,6 +94,7 @@ static void class_init( OxygenRcStyleClass *klass )
+ }
+ 
+ //______________________________________________________________________
++static GType oxygen_rc_style_type = 0;
+ void oxygen_rc_style_register_type( GTypeModule *module )
+ {
+ 
+@@ -105,12 +105,13 @@ void oxygen_rc_style_register_type( GTypeModule *module )
+             sizeof(OxygenRcStyleClass ),
+             0L,
+             0L,
+-(            GClassInitFunc ) class_init,
++            (GClassInitFunc) oxygen_rc_style_class_init,
+             0L,    /* class_finalize */
+             0L,    /* class_data */
+             sizeof( OxygenRcStyle ),
+             0,    /* n_preallocs */
+-(            GInstanceInitFunc ) instance_init,
++            (GInstanceInitFunc) oxygen_rc_style_instance_init,
++            0L
+         };
+ 
+         oxygen_rc_style_type = g_type_module_register_type( module, GTK_TYPE_RC_STYLE, "OxygenRcStyle", &info, GTypeFlags(0 ) );
+diff --git a/src/oxygenstylewrapper.cpp b/src/oxygenstylewrapper.cpp
+index 002de10..1700d51 100644
+--- a/src/oxygenstylewrapper.cpp
++++ b/src/oxygenstylewrapper.cpp
+@@ -2403,12 +2403,12 @@ namespace Oxygen
+ }
+ 
+ //_______________________________________________________________________________________________________________
+-extern "C" void instance_init( OxygenStyle* self )
++extern "C" void oxygen_style_instance_init( OxygenStyle* self )
+ {
+ }
+ 
+ //_______________________________________________________________________________________________________________
+-static void class_init( OxygenStyleClass* klass )
++extern "C" void oxygen_style_class_init( OxygenStyleClass* klass )
+ {
+     GtkStyleClass* style_class;
+ 
+@@ -2458,12 +2458,13 @@ void oxygen_style_register_type( GTypeModule* module )
+             sizeof( OxygenStyleClass ),
+             0L,
+             0L,
+-            ( GClassInitFunc ) class_init,
++            (GClassInitFunc) oxygen_style_class_init,
+             0L,          /* class_finalize */
+             0L,          /* class_data */
+             sizeof( OxygenStyle ),
+             0,           /* n_preallocs */
+-            ( GInstanceInitFunc ) instance_init,
++            (GInstanceInitFunc) oxygen_style_instance_init,
++            0L
+         };
+ 
+         oxygen_style_type = g_type_module_register_type( module, GTK_TYPE_STYLE, "OxygenStyle", &info, GTypeFlags(0 ) );
+
+commit 408ef38b1c931aedb96cfbfcf19187b12ced4c88
+Author: Hugo Pereira Da Costa <hugo@oxygen-icons.org>
+Date:   Mon Dec 13 18:18:20 2010 +0100
+
+    removed unnecessary G_MODULE_EXPORT calls
+    fixed coding style.
+
+diff --git a/src/oxygentheme.cpp b/src/oxygentheme.cpp
+index 755d3e2..6302ca4 100644
+--- a/src/oxygentheme.cpp
++++ b/src/oxygentheme.cpp
+@@ -138,15 +138,15 @@ void theme_init( GTypeModule* module )
+ }
+ 
+ //_________________________________________________
+-G_MODULE_EXPORT void theme_exit( void )
++void theme_exit( void )
+ {}
+ 
+ //_________________________________________________
+-G_MODULE_EXPORT GtkRcStyle* theme_create_rc_style( void )
++GtkRcStyle* theme_create_rc_style( void )
+ { return GTK_RC_STYLE( g_object_new( OXYGEN_TYPE_RC_STYLE, NULL ) ); }
+ 
+ //_________________________________________________
+-G_MODULE_EXPORT const gchar* g_module_check_init( GModule *module )
++const gchar* g_module_check_init( GModule *module )
+ {
+     return gtk_check_version(
+         GTK_MAJOR_VERSION,
+@@ -155,16 +155,21 @@ G_MODULE_EXPORT const gchar* g_module_check_init( GModule *module )
+ }
+ 
+ //_________________________________________________
+-G_MODULE_EXPORT void drawWindowDecoration(cairo_t* context, unsigned long options, gint x,gint y,gint w,gint h)
++void drawWindowDecoration(cairo_t* context, unsigned long options, gint x,gint y,gint w,gint h)
+ {
+     Oxygen::Style::instance().drawWindowDecoration( context, (Oxygen::WinDeco::Options) options, x, y, w, h);
+ }
+-G_MODULE_EXPORT void drawWindecoButton(cairo_t* context, unsigned long buttonType,unsigned long buttonState, unsigned long windowState, gint x,gint y,gint w,gint h)
++
++//_________________________________________________
++void drawWindecoButton(cairo_t* context, unsigned long buttonType,unsigned long buttonState, unsigned long windowState, gint x,gint y,gint w,gint h)
+ {
+-    Oxygen::Style::instance().drawWindecoButton( context, (Oxygen::WinDeco::ButtonType)buttonType,
+-            (Oxygen::WinDeco::ButtonStatus)buttonState, (Oxygen::WinDeco::Options) windowState, x, y, w, h);
++    Oxygen::Style::instance().drawWindecoButton(
++        context, (Oxygen::WinDeco::ButtonType)buttonType,
++        (Oxygen::WinDeco::ButtonStatus)buttonState, (Oxygen::WinDeco::Options) windowState, x, y, w, h);
+ }
+-G_MODULE_EXPORT void drawWindecoShapeMask(cairo_t* context, unsigned long options, gint x,gint y,gint w,gint h)
++
++//_________________________________________________
++void drawWindecoShapeMask(cairo_t* context, unsigned long options, gint x,gint y,gint w,gint h)
+ {
+     Oxygen::Style::instance().drawWindecoShapeMask( context, (Oxygen::WinDeco::Options) options, x, y, w, h);
+ }
+
+commit b3497f69a31b763860c8d8685d46ab2eef02e33f
+Author: Ruslan Kabatsayev <b7.10110111@gmail.com>
+Date:   Tue Dec 14 00:27:25 2010 +0300
+
+    Blacklist filezilla and acroread
+
+diff --git a/rc/argb-apps.conf b/rc/argb-apps.conf
+index da5fc8f..3a1f893 100644
+--- a/rc/argb-apps.conf
++++ b/rc/argb-apps.conf
+@@ -56,4 +56,4 @@ disable:gnome-panel:netspeed_applet2:mixer_applet2:multiload-applet-2:gnubiff:ma
+ disable:dockbarx_factory.py:liferea:midori:cheese:gnome-mplayer:gnome-subtitles:subtitleeditor:pitivi:miro
+ disable:npviewer.bin:miro.real:gflashplayer:swfdec-player:xaralx:notecase:codeblocks:ekiga:xfce4-panel
+ disable:chrome:<unknown>:eclipse:Eclipse:.:xmind
+-disable:nautilus:pcmanfm:emacs:AptanaStudio:dia:pgadmin3:kino:winff:mmc
++disable:nautilus:pcmanfm:emacs:AptanaStudio:dia:pgadmin3:kino:winff:mmc:acroread:filezilla
+
+commit b754c2420664133c1681350f4a66350ca40c8b9a
+Author: Hugo Pereira Da Costa <hugo@oxygen-icons.org>
+Date:   Tue Dec 14 14:08:06 2010 +0100
+
+    Initialize colors independently from other gtk options.
+    Call initializeColors() inside style_instance to prevent color artifacts in some distros.
+
+diff --git a/src/oxygenqtsettings.cpp b/src/oxygenqtsettings.cpp
+index 2c8c684..ab9ed10 100644
+--- a/src/oxygenqtsettings.cpp
++++ b/src/oxygenqtsettings.cpp
+@@ -70,13 +70,18 @@ namespace Oxygen
+         _startDragDist( 4 ),
+         _startDragTime( 500 ),
+         _buttonSize( ButtonDefault ),
+-        _frameBorder( BorderDefault )
++        _frameBorder( BorderDefault ),
++        _initialized( false ),
++        _colorsInitialized( false )
+     {}
+ 
+     //_________________________________________________________
+-    void QtSettings::initialize( void )
++    bool QtSettings::initialize( void )
+     {
+ 
++        if( _initialized ) return false;
++        _initialized = true;
++
+         // clear RC
+         _rc.clear();
+ 
+@@ -107,9 +112,6 @@ namespace Oxygen
+         std::cout << _oxygen << std::endl;
+         #endif
+ 
+-        // reload palette
+-        loadKdePalette();
+-
+         // reload icons
+         #if OXYGEN_ICON_HACK
+         _kdeIconPathList = kdeIconPathList();
+@@ -125,9 +127,6 @@ namespace Oxygen
+         // oxygen options
+         loadOxygenOptions();
+ 
+-        // gtk colors
+-        generateGtkColors();
+-
+         #if OXYGEN_DEBUG
+         std::cout << "Oxygen::QtSettings::initialize - Gtkrc: " << std::endl;
+         std::cout << _rc << std::endl;
+@@ -140,6 +139,31 @@ namespace Oxygen
+         std::cout << "Oxygen::QtSettings::initialize - done. " << std::endl;
+         #endif
+ 
++        return true;
++
++    }
++
++    //_________________________________________________________
++    bool QtSettings::initializeColors( void )
++    {
++
++        if( _colorsInitialized ) return false;
++        _colorsInitialized = true;
++
++        // clear RC
++        _rc.clear();
++
++        // reload palette
++        loadKdePalette();
++
++        // gtk colors
++        generateGtkColors();
++
++        // pass all resources to gtk
++        gtk_rc_parse_string( _rc.toString().c_str() );
++
++        return true;
++
+     }
+ 
+     //_________________________________________________________
+diff --git a/src/oxygenqtsettings.h b/src/oxygenqtsettings.h
+index 3b5cdb3..aebd7f0 100644
+--- a/src/oxygenqtsettings.h
++++ b/src/oxygenqtsettings.h
+@@ -54,7 +54,10 @@ namespace Oxygen
+         {}
+ 
+         //! initialize
+-        void initialize( void );
++        bool initialize( void );
++
++        //! initialize colors
++        bool initializeColors( void );
+ 
+         //! palette
+         const Palette& palette( void ) const
+@@ -384,6 +387,10 @@ namespace Oxygen
+ 
+         //@}
+ 
++        //! initialization flags
++        bool _initialized;
++        bool _colorsInitialized;
++
+         //! rc options (passed to gtk at the end of init
+         Gtk::RC _rc;
+ 
+diff --git a/src/oxygenstyle.h b/src/oxygenstyle.h
+index e0799eb..ac70d7d 100644
+--- a/src/oxygenstyle.h
++++ b/src/oxygenstyle.h
+@@ -59,6 +59,10 @@ namespace Oxygen
+         const QtSettings& settings( void ) const
+         { return _settings; }
+ 
++        //! settings
++        QtSettings& settings( void )
++        { return _settings; }
++
+         //! helper
+         StyleHelper& helper( void )
+         { return _helper; }
+diff --git a/src/oxygenstylewrapper.cpp b/src/oxygenstylewrapper.cpp
+index 1700d51..5bb8566 100644
+--- a/src/oxygenstylewrapper.cpp
++++ b/src/oxygenstylewrapper.cpp
+@@ -2405,6 +2405,11 @@ namespace Oxygen
+ //_______________________________________________________________________________________________________________
+ extern "C" void oxygen_style_instance_init( OxygenStyle* self )
+ {
++    /*
++    need to initialize the colors here even if done already
++    elsewhere, to fix some overwritting that occurs with some distros
++    */
++    Oxygen::Style::instance().settings().initializeColors();
+ }
+ 
+ //_______________________________________________________________________________________________________________
+
+commit 5257b27d3b90c63ec6ce4d0d20e1be8a7d2571dc
+Author: Hugo Pereira Da Costa <hugo@oxygen-icons.org>
+Date:   Tue Dec 14 14:54:30 2010 +0100
+
+    Fixed splitter handle for wxwidgets (GtkPizza)
+
+diff --git a/src/oxygenstylewrapper.cpp b/src/oxygenstylewrapper.cpp
+index 5bb8566..d42e005 100644
+--- a/src/oxygenstylewrapper.cpp
++++ b/src/oxygenstylewrapper.cpp
+@@ -2191,8 +2191,18 @@ namespace Oxygen
+         {
+ 
+             StyleOptions options( widget, state, shadow );
+-            if( GTK_IS_VPANED( widget ) ) options |= Vertical;
+-            Style::instance().renderSplitter( window, clipRect, x, y, w, h, options );
++            if( GTK_IS_VPANED( widget ) )
++            {
++                options |= Vertical;
++
++            } else if( Gtk::gtk_object_is_a( G_OBJECT( widget ), "GtkPizza" ) ) {
++
++                Style::instance().renderWindowBackground( window, clipRect, x, y, w, h );
++                if( w>h ) options |= Vertical;
++
++            }
++
++            Style::instance().renderSplitter( window, 0L, x, y, w, h, options );
+ 
+         } else if( d.isHandleBox() ) {
+ 
+
+commit d13dc7e1327ac19e3efed1e01e1583e0cd5cfe1f
+Author: Hugo Pereira Da Costa <hugo@oxygen-icons.org>
+Date:   Tue Dec 14 15:21:07 2010 +0100
+
+    fixed color settings for buttons.
+
+diff --git a/src/oxygenqtsettings.cpp b/src/oxygenqtsettings.cpp
+index ab9ed10..43cb34e 100644
+--- a/src/oxygenqtsettings.cpp
++++ b/src/oxygenqtsettings.cpp
+@@ -437,9 +437,7 @@ namespace Oxygen
+         _rc.addToCurrentSection( Gtk::RCOption<std::string>( "  fg[ACTIVE]", _palette.color( Palette::ButtonText ) ) );
+         _rc.addToCurrentSection( Gtk::RCOption<std::string>( "  fg[PRELIGHT]", _palette.color( Palette::ButtonText ) ) );
+         _rc.addToCurrentSection( Gtk::RCOption<std::string>( "  fg[INSENSITIVE]", _palette.color( Palette::Disabled, Palette::Text ) ) );
+-        _rc.addToRootSection( "class \"GtkButton\" style \"oxygen-buttons\"" );
+-        _rc.addToRootSection( "class \"GtkToggleButton\" style \"oxygen-buttons\"" );
+-        _rc.addToRootSection( "class \"GtkRadioButton\" style \"oxygen-buttons\"" );
++        _rc.addToRootSection( "class \"*Button\" style \"oxygen-buttons\"" );
+ 
+         // menu items
+         _rc.addSection( "oxygen-menubar-item", "oxygen-menu-font" );
+
+commit 89f2668abadf0517fcde5c6a635a5499d865bca5
+Author: Hugo Pereira Da Costa <hugo@oxygen-icons.org>
+Date:   Tue Dec 14 15:37:45 2010 +0100
+
+    added audacious.
+
+diff --git a/rc/argb-apps.conf b/rc/argb-apps.conf
+index 3a1f893..548c85c 100644
+--- a/rc/argb-apps.conf
++++ b/rc/argb-apps.conf
+@@ -55,5 +55,5 @@ disable:swiftfox-bin:gnome-screensaver:prism-bin:xsane:metacity:mutter
+ disable:gnome-panel:netspeed_applet2:mixer_applet2:multiload-applet-2:gnubiff:mail-notification
+ disable:dockbarx_factory.py:liferea:midori:cheese:gnome-mplayer:gnome-subtitles:subtitleeditor:pitivi:miro
+ disable:npviewer.bin:miro.real:gflashplayer:swfdec-player:xaralx:notecase:codeblocks:ekiga:xfce4-panel
+-disable:chrome:<unknown>:eclipse:Eclipse:.:xmind
++disable:chrome:<unknown>:eclipse:Eclipse:.:xmind:audacious2
+ disable:nautilus:pcmanfm:emacs:AptanaStudio:dia:pgadmin3:kino:winff:mmc:acroread:filezilla
