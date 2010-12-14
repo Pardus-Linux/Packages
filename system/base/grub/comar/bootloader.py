@@ -746,20 +746,18 @@ def removeEntry(index, title, uninstall):
 
     # Get default index
     default_index = grub.getOption("default", 0)
-    if default_index != "saved":
-        try:
-            default_index = int(default_index)
-        except ValueError:
-            default_index = 0
+    try:
+        default_index = int(default_index)
+    except ValueError:
+        default_index = 0
 
     # Remove entry
     grub.removeEntry(entry)
 
     # Fix default index, if necessary
-    if default_index != "saved":
-        if index < default_index:
-            default_index -= 1
-            grub.setOption("default", default_index)
+    if index <= default_index:
+        default_index = max(0, default_index - 1)
+        grub.setOption("default", default_index)
 
     # Save changes to both files.
     grub.write(CONF_GRUB)
