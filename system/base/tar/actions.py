@@ -5,15 +5,18 @@
 # Licensed under the GNU General Public License, version 2.
 # See the file http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
 
+from pisi.actionsapi import shelltools
 from pisi.actionsapi import autotools
 from pisi.actionsapi import pisitools
 from pisi.actionsapi import get
 
 def setup():
     autotools.autoreconf("-vfi")
-    autotools.configure("--enable-backup-scripts \
-                         --bindir=/bin \
-                         --libexecdir=/usr/sbin \
+
+    # For being able to build as root, pff
+    shelltools.export("FORCE_UNSAFE_CONFIGURE", "1")
+    autotools.configure("--bindir=/bin \
+                         --libexecdir=/bin \
                          --disable-rpath \
                          --enable-nls")
 
@@ -26,13 +29,9 @@ def check():
 def install():
     autotools.rawInstall("DESTDIR=%s" % get.installDIR())
 
-    pisitools.rename("/usr/sbin/backup","backup-tar")
-    pisitools.rename("/usr/sbin/restore","restore-tar")
-
-    pisitools.dosym("/usr/sbin/rmt", "/etc/rmt")
+    pisitools.removeDir("/usr/sbin")
 
     pisitools.doman("doc/tar.1")
-    pisitools.doman("doc/rmt.8")
 
-    pisitools.dodoc("AUTHORS", "ChangeLog*", "NEWS", "README*", "THANKS")
+    pisitools.dodoc("AUTHORS", "ChangeLog", "NEWS", "README*", "THANKS")
 
