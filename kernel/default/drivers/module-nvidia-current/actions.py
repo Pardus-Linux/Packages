@@ -16,7 +16,8 @@ NoStrip = ["/lib/modules"]
 arch = get.ARCH().replace("i686", "x86")
 version = get.srcVERSION()
 driver = "nvidia-current"
-base = "/usr/lib/%s" % driver
+libdir = "/usr/lib/%s" % driver
+datadir = "/usr/share/%s" % driver
 
 def setup():
     shelltools.system("sh NVIDIA-Linux-%s-%s.run -x --target tmp"
@@ -30,11 +31,11 @@ def setup():
     # xorg-server provides libwfb.so
     shelltools.unlink("libnvidia-wfb.so.*")
 
-    shelltools.echo("ld.so.conf", base)
-    shelltools.echo("XvMCConfig", "%s/libXvMCNVIDIA.so" % base)
+    shelltools.echo("ld.so.conf", libdir)
+    shelltools.echo("XvMCConfig", "%s/libXvMCNVIDIA.so" % libdir)
 
     # Fix for 2.6.36
-    pisitools.dosed("kernel/nv.c", r"^ *\.ioctl     = nv_kern_ioctl,$", "")
+    #pisitools.dosed("kernel/nv.c", r"^ *\.ioctl     = nv_kern_ioctl,$", "")
 
 def build():
     shelltools.export("SYSSRC", "/lib/modules/%s/build" % KDIR)
@@ -52,47 +53,47 @@ def install():
     pisitools.doman("nvidia-smi.1.gz")
 
     # Libraries
-    pisitools.dolib("libGL.so.%s" % version, base)
-    pisitools.dosym("libGL.so.%s" % version, "%s/libGL.so.1.2" % base)
+    pisitools.dolib("libGL.so.%s" % version, libdir)
+    pisitools.dosym("libGL.so.%s" % version, "%s/libGL.so.1.2" % libdir)
 
-    pisitools.dolib("libOpenCL.so.1.0.0", base)
-    pisitools.dosym("libOpenCL.so.1.0.0", "%s/libOpenCL.so.1.0" % base)
-    pisitools.dosym("libOpenCL.so.1.0", "%s/libOpenCL.so.1" % base)
+    pisitools.dolib("libOpenCL.so.1.0.0", libdir)
+    pisitools.dosym("libOpenCL.so.1.0.0", "%s/libOpenCL.so.1.0" % libdir)
+    pisitools.dosym("libOpenCL.so.1.0", "%s/libOpenCL.so.1" % libdir)
 
-    pisitools.dolib("libXvMCNVIDIA.so.%s" % version, base)
-    pisitools.dosym("libXvMCNVIDIA.so.%s" % version, "%s/libXvMCNVIDIA.so.1" % base)
-    pisitools.dosym("libXvMCNVIDIA.so.1", "%s/libXvMCNVIDIA.so" % base)
+    pisitools.dolib("libXvMCNVIDIA.so.%s" % version, libdir)
+    pisitools.dosym("libXvMCNVIDIA.so.%s" % version, "%s/libXvMCNVIDIA.so.1" % libdir)
+    pisitools.dosym("libXvMCNVIDIA.so.1", "%s/libXvMCNVIDIA.so" % libdir)
 
-    pisitools.dolib("libcuda.so.%s" % version, base)
-    pisitools.dosym("libcuda.so.%s" % version, "%s/libcuda.so.1" % base)
-    pisitools.dosym("libcuda.so.1", "%s/libcuda.so" % base)
+    pisitools.dolib("libcuda.so.%s" % version, libdir)
+    pisitools.dosym("libcuda.so.%s" % version, "%s/libcuda.so.1" % libdir)
+    pisitools.dosym("libcuda.so.1", "%s/libcuda.so" % libdir)
 
-    pisitools.dolib("libnvcuvid.so.%s" % version, base)
-    pisitools.dosym("libnvcuvid.so.%s" % version, "%s/libnvcuvid.so.1" % base)
-    pisitools.dosym("libnvcuvid.so.1", "%s/libnvcuvid.so" % base)
+    pisitools.dolib("libnvcuvid.so.%s" % version, libdir)
+    pisitools.dosym("libnvcuvid.so.%s" % version, "%s/libnvcuvid.so.1" % libdir)
+    pisitools.dosym("libnvcuvid.so.1", "%s/libnvcuvid.so" % libdir)
 
-    pisitools.dolib("libnvidia-cfg.so.%s" % version, base)
-    pisitools.dosym("libnvidia-cfg.so.%s" % version, "%s/libnvidia-cfg.so.1" % base)
+    pisitools.dolib("libnvidia-cfg.so.%s" % version, libdir)
+    pisitools.dosym("libnvidia-cfg.so.%s" % version, "%s/libnvidia-cfg.so.1" % libdir)
 
-    pisitools.dolib("libnvidia-compiler.so.%s" % version, base)
-    pisitools.dosym("libnvidia-compiler.so.%s" % version, "%s/libnvidia-compiler.so.1" % base)
+    pisitools.dolib("libnvidia-compiler.so.%s" % version, libdir)
+    pisitools.dosym("libnvidia-compiler.so.%s" % version, "%s/libnvidia-compiler.so.1" % libdir)
 
     for lib in ("glcore", "tls"):
-        pisitools.dolib("libnvidia-%s.so.%s" % (lib, version), base)
+        pisitools.dolib("libnvidia-%s.so.%s" % (lib, version), libdir)
 
     # VDPAU driver
-    pisitools.dolib("libvdpau_nvidia.so.%s" % version, "%s/vdpau" % base)
+    pisitools.dolib("libvdpau_nvidia.so.%s" % version, "%s/vdpau" % libdir)
     pisitools.dosym("../nvidia-current/vdpau/libvdpau_nvidia.so.%s" % version, "/usr/lib/vdpau/libvdpau_nvidia.so.1")
 
     # X modules
-    pisitools.dolib("nvidia_drv.so", "%s/modules/drivers" % base)
-    pisitools.dolib("libglx.so.%s" % version, "%s/modules/extensions" % base)
-    pisitools.dosym("libglx.so.%s" % version, "%s/modules/extensions/libglx.so" % base)
+    pisitools.dolib("nvidia_drv.so", "%s/modules/drivers" % libdir)
+    pisitools.dolib("libglx.so.%s" % version, "%s/modules/extensions" % libdir)
+    pisitools.dosym("libglx.so.%s" % version, "%s/modules/extensions/libglx.so" % libdir)
 
     pisitools.insinto("/etc/OpenCL/vendors", "nvidia.icd")
 
-    pisitools.insinto("/usr/share/nvidia-current", "ld.so.conf")
-    pisitools.insinto("/usr/share/nvidia-current", "XvMCConfig")
+    pisitools.insinto(datadir, "ld.so.conf")
+    pisitools.insinto(datadir, "XvMCConfig")
 
     # Documentation
     docdir = "xorg-video-%s" % driver
