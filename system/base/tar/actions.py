@@ -11,6 +11,7 @@ from pisi.actionsapi import pisitools
 from pisi.actionsapi import get
 
 def setup():
+    shelltools.export("AUTOPOINT", "true")
     autotools.autoreconf("-vfi")
 
     # For being able to build as root, pff
