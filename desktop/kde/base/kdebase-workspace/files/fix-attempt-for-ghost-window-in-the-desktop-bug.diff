@@ -1,0 +1,31 @@
+Index: kdebase-workspace-4.5.4/plasma/desktop/shell/panelview.cpp
+===================================================================
+--- kdebase-workspace-4.5.4.orig/plasma/desktop/shell/panelview.cpp
++++ kdebase-workspace-4.5.4/plasma/desktop/shell/panelview.cpp
+@@ -751,12 +751,6 @@ void PanelView::updatePanelGeometry()
+         m_strutsTimer->start(STRUTSTIMERDELAY);
+     } else {
+         setGeometry(geom);
+-        if (m_shadowWindow) {
+-            int left, right, top, bottom;
+-            m_shadowWindow->adjustMargins(geometry());
+-            m_shadowWindow->getContentsMargins(&left, &top, &right, &bottom);
+-            m_shadowWindow->setGeometry(geometry().adjusted(-left, -top, right, bottom));
+-        }
+     }
+ 
+     m_lastMin = c->minimumSize();
+@@ -1252,6 +1246,13 @@ void PanelView::moveEvent(QMoveEvent *ev
+     m_strutsTimer->start(STRUTSTIMERDELAY);
+     recreateUnhideTrigger();
+ 
++    if (m_shadowWindow) {
++        int left, right, top, bottom;
++        m_shadowWindow->adjustMargins(geometry());
++        m_shadowWindow->getContentsMargins(&left, &top, &right, &bottom);
++        m_shadowWindow->setGeometry(geometry().adjusted(-left, -top, right, bottom));
++    }
++
+     if (containment()) {
+         foreach (Plasma::Applet *applet, containment()->applets()) {
+             applet->updateConstraints(Plasma::PopupConstraint);
