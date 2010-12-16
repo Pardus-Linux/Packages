@@ -1,0 +1,26 @@
+# HG changeset patch
+# Parent e386d64898cac5a2e10bc4fbce606ffeefe1f210
+
+diff --git a/browser/locales/Makefile.in b/browser/locales/Makefile.in
+--- a/browser/locales/Makefile.in
++++ b/browser/locales/Makefile.in
+@@ -181,17 +181,19 @@ libs:: $(addsuffix .xml,$(SEARCH_PLUGINS
+ 
+ install:: $(addsuffix .xml,$(SEARCH_PLUGINS))
+ 	$(SYSINSTALL) $(IFLAGS1) $^ $(DESTDIR)$(mozappdir)/searchplugins
+ 
+ 
+ libs-%:
+ 	$(NSINSTALL) -D $(DIST)/install
+ 	@$(MAKE) -C ../../toolkit/locales libs-$* BOTH_MANIFESTS=1
++ifdef MOZ_SERVICES_SYNC
+ 	@$(MAKE) -C ../../services/sync/locales AB_CD=$* XPI_NAME=locale-$* BOTH_MANIFESTS=1
++endif
+ 	@$(MAKE) -C ../../extensions/spellcheck/locales AB_CD=$* XPI_NAME=locale-$* BOTH_MANIFESTS=1
+ 	@$(MAKE) libs AB_CD=$* XPI_NAME=locale-$* PREF_DIR=defaults/pref BOTH_MANIFESTS=1
+ 	@$(MAKE) -C $(DEPTH)/$(MOZ_BRANDING_DIRECTORY)/locales AB_CD=$* XPI_NAME=locale-$* BOTH_MANIFESTS=1
+ 
+ 
+ repackage-win32-installer: WIN32_INSTALLER_OUT="$(_ABS_DIST)/$(PKG_INST_PATH)$(PKG_INST_BASENAME).exe"
+ repackage-win32-installer: $(WIN32_INSTALLER_IN) $(SUBMAKEFILES)
+ 	@echo "Repackaging $(WIN32_INSTALLER_IN) into $(WIN32_INSTALLER_OUT)."

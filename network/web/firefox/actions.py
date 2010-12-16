@@ -12,6 +12,9 @@ from pisi.actionsapi import get
 
 WorkDir = "mozilla"
 
+#locales = ["be", "ca", "de", "es-AR", "es-ES", "fr", "hu", "it", "nl", "pl", "pt-BR", "ru", "sv-SE", "tr"]
+locales = ["be", "ca", "de", "es-AR", "es-ES", "fr", "hu", "it", "nl", "pl", "ru", "sv-SE", "tr"]
+
 def setup():
     #Use autoconf-213 which we provide via a hacky pathc to produce configure
     shelltools.system("/bin/bash ./autoconf-213/autoconf-2.13 --macro-dir=autoconf-213/m4")
@@ -23,27 +26,23 @@ def setup():
 
     shelltools.makedirs("objdir")
     shelltools.cd("objdir")
+
     #this dummy configure is needed to build locales.
-    shelltools.system("../configure --prefix=/usr --libdir=/usr/lib --disable-strip --disable-install-strip")
+    #shelltools.system("../configure --prefix=/usr --libdir=/usr/lib --disable-strip --disable-install-strip")
 
     #now we have Makefiles needed to build locales (like toolkit/Makefile)
     #since we need debug symbols in dbginfo packages, we shouldn't strip binaries
-    shelltools.system("../configure --prefix=/usr --libdir=/usr/lib --with-libxul-sdk=/usr/lib/xulrunner-devel-2.0.0 --disable-strip --disable-install-strip")
+    shelltools.system("../configure --prefix=/usr --libdir=/usr/lib --with-libxul-sdk=/usr/lib/xulrunner-devel-2.0.0 --enable-chrome-format=jar --disable-strip --disable-install-strip")
 
 def build():
     shelltools.cd("objdir")
 
     autotools.make()
 
-    """
-    #TODO: Add hu locale here, and include it in new tarball
-    locales = ["be", "ca", "de", "es-AR", "es-ES", "fr", "it", "nl", "pl", "pt-BR", "sv-SE", "tr"]
-
     for locale in locales:
         autotools.make("-j1 -C browser/locales libs-%s" % locale)
         pisitools.copy("dist/xpi-stage/locale-%s/chrome/%s.jar" % (locale, locale), "dist/bin/chrome/")
         pisitools.copy("dist/xpi-stage/locale-%s/chrome/%s.manifest" % (locale, locale), "dist/bin/chrome/")
-    """
 
 def install():
     shelltools.cd("objdir")
@@ -54,12 +53,9 @@ def install():
 
     pisitools.remove("/usr/bin/firefox")
 
-    """
     #install locales
-    locales = ["be", "ca", "de", "es-AR", "es-ES", "fr", "it", "nl", "pl", "pt-BR", "sv-SE", "tr"]
     for locale in locales:
         pisitools.insinto("/usr/lib/MozillaFirefox/chrome", "dist/bin/chrome/%s.*" % locale)
-    """
 
     # Remove these
     #pisitools.remove("/usr/lib/MozillaFirefox/defaults/profile/mimeTypes.rdf")
