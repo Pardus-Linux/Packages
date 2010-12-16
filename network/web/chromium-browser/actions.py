@@ -22,7 +22,7 @@ def removeBundle():
     # bundles to avoid incompabilities with library linking during compilation
     bundles = ["bzip2", "libpng", "libevent", "libjpeg",
                "libxslt", "libxml", "yasm", "icu", "hunspell",
-               "sqlite/src", "sqlite/preprocessed"]
+               "sqlite/src", "sqlite/preprocessed", "libvpx"]
 
     #TODO remove zlib in the future, for now compilation fails if we remove it due to minizip
     for bundle in bundles:
@@ -51,6 +51,7 @@ def setup():
                         -Duse_system_zlib=1 \
                         -Duse_system_ffmpeg=1 \
                         -Duse_system_libxml=1 \
+                        -Duse_system_vpx=1 \
                         -Duse_system_sqlite=1 \
                         -Duse_system_yasm=1 \
                         -Duse_system_icu=1 \
