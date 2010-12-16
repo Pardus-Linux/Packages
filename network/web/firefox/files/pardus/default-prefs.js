@@ -8,6 +8,7 @@
 //pref("network.protocol-handler.expose.lastfm", true);
 //pref("network.protocol-handler.expose.mailto", true);
 //pref("network.protocol-handler.expose.mms", true);
+
 pref("browser.EULA.override", true);
 pref("browser.backspace_action", 0);
 pref("browser.display.screen_resolution", 0);
@@ -16,6 +17,7 @@ pref("browser.display.use_document_fonts", 1);
 pref("browser.link.open_external", 3);
 pref("browser.startup.homepage_override.mstone", "ignore");
 pref("browser.startup.page", 3);
+pref("browser.startup.homepage", "resource:///browserconfig.properties");
 pref("browser.tabs.autoHide", false);
 pref("browser.throbber.url", "resource:/browserconfig.properties");
 pref("general.autoScroll", true);
