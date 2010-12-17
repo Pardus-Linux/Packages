@@ -10,6 +10,7 @@ from pisi.actionsapi import pisitools
 from pisi.actionsapi import get
 
 def setup():
+    autotools.autoreconf("-vif")
     autotools.configure("--with-openssl=/usr \
                          --enable-smartcard \
                          --with-ipv6 \
