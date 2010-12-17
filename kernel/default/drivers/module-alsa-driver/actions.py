@@ -37,8 +37,16 @@ def setup():
     shelltools.sym("%s/alsa-driver/include/config.h" % get.workDIR(), "%s/alsa-driver/sound/include/config.h" % get.workDIR())
     shelltools.sym("%s/alsa-driver/include/config1.h" % get.workDIR(), "%s/alsa-driver/sound/include/config1.h" % get.workDIR())
 
+    # Configure hda-emu
+    """
+    shelltools.cd("hda-emu")
+    autotools.autoreconf("-fi")
+    autotools.configure("--with-hdadir=../alsa-kernel/pci/hda")
+    """
+
 def build():
     autotools.make()
+    #autotools.make("-C hda-emu")
 
     # Build v4l drivers
     shelltools.copy("Module.symvers", "v4l/")
@@ -46,6 +54,8 @@ def build():
 
 def install():
     autotools.rawInstall("DESTDIR=%s" % get.installDIR(), "install-modules")
+
+    #autotools.rawInstall("DESTDIR=%s -C hda-emu" % get.installDIR())
 
     # Install v4l drivers
     for d in ["saa7134", "cx88", "cx231xx", "em28xx"]:
