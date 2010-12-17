@@ -1,18 +1,18 @@
-From 42f4d3f429dcb163ab356e2c3dc7a8a1f96b2f83 Mon Sep 17 00:00:00 2001
+From 598784a7ef75a7fb7894b7350902916542dc1878 Mon Sep 17 00:00:00 2001
 From: Fatih Arslan <ftharsln@gmail.com>
-Date: Thu, 11 Nov 2010 11:09:28 +0200
-Subject: [PATCH] KAuth implementation for settings preferencies of layouts and variants to system wide
+Date: Thu, 16 Dec 2010 16:40:54 +0200
+Subject: [PATCH] KAuth implementation to save layout and variant settings system wide
 
 ---
  kcontrol/keyboard/CMakeLists.txt      |   15 +++++++
  kcontrol/keyboard/helper.cpp          |   70 +++++++++++++++++++++++++++++++++
  kcontrol/keyboard/helper.h            |   17 ++++++++
- kcontrol/keyboard/kcm_keyboard.cpp    |   13 ++++++
+ kcontrol/keyboard/kcm_keyboard.cpp    |   14 +++++++
  kcontrol/keyboard/kcm_keyboard.h      |    3 +
  kcontrol/keyboard/kcmkeyboard.actions |    9 ++++
  kcontrol/keyboard/keyboard_config.cpp |   29 +++++++++++++-
  kcontrol/keyboard/keyboard_config.h   |    1 +
- 8 files changed, 156 insertions(+), 1 deletions(-)
+ 8 files changed, 157 insertions(+), 1 deletions(-)
  create mode 100644 kcontrol/keyboard/helper.cpp
  create mode 100644 kcontrol/keyboard/helper.h
  create mode 100644 kcontrol/keyboard/kcmkeyboard.actions
@@ -143,7 +143,7 @@ index 0000000..809a3f6
 +
 +};
 diff --git a/kcontrol/keyboard/kcm_keyboard.cpp b/kcontrol/keyboard/kcm_keyboard.cpp
-index 4e3cdaf..f874d55 100644
+index 4e3cdaf..12739b6 100644
 --- a/kcontrol/keyboard/kcm_keyboard.cpp
 +++ b/kcontrol/keyboard/kcm_keyboard.cpp
 @@ -23,6 +23,7 @@
@@ -154,7 +154,7 @@ index 4e3cdaf..f874d55 100644
  
  #include <QtDBus/QDBusMessage>
  #include <QtDBus/QDBusConnection>
-@@ -63,12 +64,15 @@ KCMKeyboard::KCMKeyboard(QWidget *parent, const QVariantList &/*args*/)
+@@ -63,14 +64,18 @@ KCMKeyboard::KCMKeyboard(QWidget *parent, const QVariantList &/*args*/)
  
    keyboardConfig = new KeyboardConfig();
  
@@ -169,8 +169,11 @@ index 4e3cdaf..f874d55 100644
 +  layout->addWidget(systemWide);
  
    connect(widget, SIGNAL(changed(bool)), this, SIGNAL(changed(bool)));
++  connect(systemWide, SIGNAL(clicked(bool)), this, SIGNAL(changed(bool)));
  
-@@ -110,6 +114,15 @@ void KCMKeyboard::save()
+ #ifdef DEFAULT_TAB
+   widget->setCurrentIndex(DEFAULT_TAB);
+@@ -110,6 +115,15 @@ void KCMKeyboard::save()
  	QDBusMessage message = QDBusMessage::createSignal(KEYBOARD_DBUS_OBJECT_PATH, KEYBOARD_DBUS_SERVICE_NAME, KEYBOARD_DBUS_CONFIG_RELOAD_MESSAGE);
      QDBusConnection::sessionBus().send(message);
  
@@ -289,5 +292,5 @@ index bf5e0aa..10f0aa0 100644
  
  #endif /* KEYBOARD_CONFIG_H_ */
 -- 
-1.7.2.2
+1.7.3.2
 
