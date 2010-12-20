@@ -22,7 +22,5 @@ def check():
 def install():
     perlmodules.install()
 
-    # Uncomment for Corporate2
-    #pisitools.removeDir("/usr/lib/perl5/vendor_perl/%s/%s-linux-thread-multi/" % (get.curPERL(), get.ARCH()))
     pisitools.dodoc("Changes", "README")
 
