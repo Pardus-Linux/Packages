@@ -1,0 +1,148 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>supertuxkart</Name>
+        <Homepage>http://supertuxkart.sourceforge.net/</Homepage>
+        <Packager>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Packager>
+        <License>GPLv2</License>
+        <Icon>supertuxkart</Icon>
+        <IsA>app:gui</IsA>
+        <Summary>Gokart game</Summary>
+        <Description>Super Tux Kart is a gokart racing game starring Tux, the linux penguin.</Description>
+        <Archive sha1sum="f7921d0a6ab63eee5ded335c3601cf8d15604e03" type="tarbz2">mirrors://sourceforge/supertuxkart/supertuxkart-0.6.2a-src.tar.bz2</Archive>
+        <BuildDependencies>
+            <Dependency>plib-devel</Dependency>
+            <Dependency>freealut-devel</Dependency>
+            <Dependency>libsdl-devel</Dependency>
+            <Dependency>libvorbis-devel</Dependency>
+            <Dependency>enet-devel</Dependency>
+        </BuildDependencies>
+        <Patches>
+            <!-- sed -i -e '/SUBDIRS/s/doc//' -e '/pkgdata/d' Makefile.am -->
+            <Patch level="1">docdir.patch</Patch>
+            <!-- sed -i -e '/pkgdatadir/s:/games::' -e '/desktop/d' -e '/icon/d' $(find data -name Makefile.am) -->
+            <Patch level="1">nogamesdir.patch</Patch>
+            <!-- sed -i -e '/bindir/d' -e '/AM_CPPFLAGS/s:/games::' src/Makefile.am -->
+            <Patch level="1">flags.patch</Patch>
+            <!-- sed -i -e '/ENETTREE/d' -e '/src\/enet\/Makefile/d' configure.ac -->
+            <Patch level="1">external_enet.patch</Patch>
+            <Patch level="1">duplicate_files_am.patch</Patch>
+	    <Patch level="1">duplicate_files_in.patch</Patch>
+        </Patches>
+    </Source>
+
+    <Package>
+        <Name>supertuxkart</Name>
+        <RuntimeDependencies>
+            <Dependency>plib</Dependency>
+            <Dependency>freealut</Dependency>
+            <Dependency>libsdl</Dependency>
+            <Dependency>libvorbis</Dependency>
+            <Dependency>enet</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="executable">/usr/bin</Path>
+            <Path fileType="data">/usr/share/applications</Path>
+            <Path fileType="doc">/usr/share/doc</Path>
+            <Path fileType="data">/usr/share/pixmaps</Path>
+            <Path fileType="data">/usr/share/supertuxkart</Path>
+            <Path fileType="data">/usr/share/supertuxkart/data</Path>
+        </Files>
+        <AdditionalFiles>
+            <AdditionalFile owner="root" permission="0644" target="/usr/share/applications/supertuxkart.desktop">supertuxkart.desktop</AdditionalFile>
+            <AdditionalFile owner="root" permission="0644" target="/usr/share/pixmaps/supertuxkart.png">supertuxkart.png</AdditionalFile>
+        </AdditionalFiles>
+    </Package>
+
+    <History>
+        <Update release="11">
+            <Date>2010-12-17</Date>
+            <Version>0.6.2a</Version>
+            <Comment>
+	      Tidy up dependencies for 2011
+	      Add patches for remove duplicate files in Makefile
+	    </Comment>
+            <Name>Beyza Ermis</Name>
+            <Email>beyza@pardus.org.tr</Email>
+        </Update>
+        <Update release="10">
+            <Date>2009-09-13</Date>
+            <Version>0.6.2</Version>
+            <Comment>
+                Version bump to bugfix release
+                Fix a random crash
+                Fix slowdowns of karts in a battle area
+                Fix scoring of Grand Prix in case of a restart
+            </Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="9">
+            <Date>2009-08-11</Date>
+            <Version>0.6.1</Version>
+            <Comment>Use external enet</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="8">
+            <Date>2009-07-30</Date>
+            <Version>0.6.1</Version>
+            <Comment>Bump to fix battle mode trac selection</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="7">
+            <Date>2009-01-26</Date>
+            <Version>0.6</Version>
+            <Comment>Version bump for improved physics, tracks and AI, and a good code cleanup</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="6">
+            <Date>2008-11-11</Date>
+            <Version>0.5</Version>
+            <Comment>Fix desktop files to make them XDG compliant</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="5">
+            <Date>2008-06-06</Date>
+            <Version>0.5</Version>
+            <Comment>Version bump</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="4">
+            <Date>2008-03-13</Date>
+            <Version>0.4</Version>
+            <Comment>Version bump for many improvements</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="3">
+            <Date>2007-07-23</Date>
+            <Version>0.3</Version>
+            <Comment>Version bump</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="2">
+            <Date>2006-11-20</Date>
+            <Version>0.2</Version>
+            <Comment>Icon added</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="1">
+            <Date>2006-08-27</Date>
+            <Version>0.2</Version>
+            <Comment>First release</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+    </History>
+</PISI>
