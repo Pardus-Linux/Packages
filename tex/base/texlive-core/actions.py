@@ -129,6 +129,11 @@ def install():
     pisitools.domove("/usr/bin/mpost", "/usr/bin/", "mpost-%s" % get.srcNAME())
     pisitools.dosym("mpost-%s" % get.srcNAME(), "/usr/bin/mpost")
 
+    # Comes from asymptopte
+    pisitools.remove("/usr/share/texmf/tex/latex/asymptote/asycolors.sty")
+    pisitools.remove("/usr/share/texmf/tex/latex/asymptote/asymptote.sty")
+    pisitools.remove("/usr/share/texmf/tex/latex/asymptote/ocg.sty")
+
     # Keep it as that's where the formats will go
     pisitools.dodir("/var/lib/texmf")
 
