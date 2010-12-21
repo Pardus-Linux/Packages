@@ -9,7 +9,6 @@ from pisi.actionsapi import kde4
 from pisi.actionsapi import get
 from pisi.actionsapi import shelltools
 
-WorkDir = "knights-%s" % get.srcVERSION()
 shelltools.export("HOME", get.workDIR())
 
 def setup():
