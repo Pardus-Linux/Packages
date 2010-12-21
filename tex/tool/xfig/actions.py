@@ -14,13 +14,10 @@ WorkDir='xfig.%s' % get.srcVERSION()
 
 def build():
     shelltools.system("xmkmf")
-    autotools.make('-j1 CC="%s" LOCAL_LDFLAGS="%s" CDEBUGFLAGS="%s" USRLIBDIR=/usr/lib' % (get.CC(), get.LDFLAGS(), get.CFLAGS()))
+    autotools.make('CC="%s" LOCAL_LDFLAGS="%s" CDEBUGFLAGS="%s" USRLIBDIR=/usr/lib' % (get.CC(), get.LDFLAGS(), get.CFLAGS()))
 
 def install():
-    autotools.make('DESTDIR=%s \
-                    MANDIR=/usr/share/man/man1 \
-                    MANSUFFIX=1 \
-                    install install.all' % get.installDIR())
+    autotools.make('DESTDIR=%s install.all' % get.installDIR())
 
     pisitools.insinto("/usr/share/pixmaps", "xfig.png")
     pisitools.removeDir("/etc")
