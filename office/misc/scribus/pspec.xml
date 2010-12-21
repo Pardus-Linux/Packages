@@ -1,0 +1,286 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>scribus</Name>
+        <Homepage>http://www.scribus.net/</Homepage>
+        <Packager>
+            <Name>Serdar Dalgıç</Name>
+            <Email>serdar@pardus.org.tr</Email>
+        </Packager>
+        <License>GPLv2</License>
+        <Icon>scribusicon</Icon>
+        <IsA>app:gui</IsA>
+        <Summary>Desktop Publishing (DTP) and Layout program</Summary>
+        <Description>Scribus is an opensource desktop publishing application with features like CMYK colorspace and PDF output.</Description>
+        <Archive sha1sum="86bc4db2d8fbb91fe94f8535327991e9128c5862" type="tarbz2">mirrors://sourceforge/scribus/scribus-1.3.9.tar.bz2</Archive>
+        <BuildDependencies>
+            <Dependency>libart_lgpl-devel</Dependency>
+            <Dependency>ghostscript-devel</Dependency>
+            <Dependency>gnutls-devel</Dependency>
+            <Dependency>python-imaging</Dependency>
+            <Dependency>cups-devel</Dependency>
+            <Dependency versionFrom="1.8.8">cairo-devel</Dependency>
+            <!--
+            <Dependency>enchant-devel</Dependency>
+            -->
+            <Dependency>aspell-devel</Dependency>
+            <Dependency versionFrom="4.6.2">qt-devel</Dependency>
+            <Dependency>boost-devel</Dependency>
+            <Dependency>fontconfig-devel</Dependency>
+            <Dependency versionFrom="0.8.0">podofo-devel</Dependency>
+            <Dependency>tiff-devel</Dependency>
+            <Dependency>jpeg-devel</Dependency>
+            <Dependency>lcms-devel</Dependency>
+            <Dependency>freetype-devel</Dependency>
+        </BuildDependencies>
+        <Patches>
+            <Patch>pardus-default-font.patch</Patch>
+            <Patch>desktoppath.patch</Patch>
+            <Patch level="1">pardus-correctly_link_to_libxml2.patch</Patch>
+
+            <!-- Try enchant first and then aspell -->
+            <!-- The patch has problems. If interested in this issue
+                take a look at http://bugs.scribus.net/view.php?id=8291
+            <Patch level="1">scribus-enchant-support.patch</Patch>
+            -->
+        </Patches>
+    </Source>
+
+    <Package>
+        <Name>scribus</Name>
+        <RuntimeDependencies>
+            <Dependency>libart_lgpl</Dependency>
+            <Dependency>ghostscript</Dependency>
+            <Dependency>gnutls</Dependency>
+            <Dependency>python-imaging</Dependency>
+            <Dependency>cups</Dependency>
+            <Dependency versionFrom="1.8.8">cairo</Dependency>
+            <!--
+            <Dependency>enchant</Dependency>
+            -->
+            <Dependency>aspell</Dependency>
+            <Dependency versionFrom="4.6.2">qt</Dependency>
+            <Dependency>boost</Dependency>
+            <Dependency>fontconfig</Dependency>
+            <Dependency versionFrom="0.8.0">podofo</Dependency>
+            <Dependency>tiff</Dependency>
+            <Dependency>jpeg</Dependency>
+            <Dependency>lcms</Dependency>
+            <Dependency>freetype</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="executable">/usr/bin</Path>
+            <Path fileType="library">/usr/lib</Path>
+            <Path fileType="man">/usr/share/man</Path>
+            <Path fileType="doc">/usr/share/doc/scribus/COPYING</Path>
+            <Path fileType="data">/usr/share/scribus</Path>
+            <Path fileType="data">/usr/share/pixmaps</Path>
+            <Path fileType="data">/usr/share/applications</Path>
+            <Path fileType="data">/usr/share/mime/packages</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>scribus-devel</Name>
+        <Summary>Development files for scribus</Summary>
+        <RuntimeDependencies>
+            <Dependency release="current">scribus</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="header">/usr/include</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>scribus-docs</Name>
+        <Summary>Documentation files for scribus</Summary>
+        <Conflicts>
+            <Package releaseTo="24">scribus</Package>
+        </Conflicts>
+        <Files>
+            <Path fileType="doc">/usr/share/doc/scribus</Path>
+        </Files>
+    </Package>
+
+    <History>
+        <Update release="25">
+            <Date>2010-12-20</Date>
+            <Version>1.3.9</Version>
+            <Comment>Version bump and split docs and devel packages.</Comment>
+            <Name>Serdar Dalgıç</Name>
+            <Email>serdar@pardus.org.tr</Email>
+        </Update>
+        <Update release="24">
+            <Date>2010-05-18</Date>
+            <Version>1.3.6</Version>
+            <Comment>Fix correct linking to libxml2, fixes #12923.</Comment>
+            <Name>Serdar Dalgıç</Name>
+            <Email>serdar@pardus.org.tr</Email>
+        </Update>
+        <Update release="23">
+            <Date>2010-05-15</Date>
+            <Version>1.3.6</Version>
+            <Comment>Strictly depend on podofo version from  0.8.0</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="22">
+            <Date>2010-05-15</Date>
+            <Version>1.3.6</Version>
+            <Comment>Add patch to build with podofo 0.8.0.</Comment>
+            <Name>Serdar Dalgıç</Name>
+            <Email>serdar@pardus.org.tr</Email>
+        </Update>
+        <Update release="21">
+            <Date>2010-05-13</Date>
+            <Version>1.3.6</Version>
+            <Comment>Write strict dependency to new version of kdepimlibs,qt,kdebase,kdebase-runtime,kdebase-workspace,kdelibs,kdelibs-devel,kdepimlibs-devel</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="20">
+            <Date>2010-03-23</Date>
+            <Version>1.3.6</Version>
+            <Comment>- Version bump: Almost 150 bugs have been fixed since the release of 1.3.5. There are new Scripter functions, usability improvements, translation updates, more color palettes, updates to the documentation
+                - Add python-imaging dependency.
+                - Correct doc dir.
+            </Comment>
+            <Name>Serdar Dalgıç</Name>
+            <Email>serdar@pardus.org.tr</Email>
+        </Update>
+        <Update release="19">
+            <Date>2009-08-30</Date>
+            <Version>1.3.5.1</Version>
+            <Comment>Bump to the latest stable release of the Qt4 port.</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="18">
+            <Date>2009-07-21</Date>
+            <Version>1.3.5_rc3</Version>
+            <Comment>Bump to the latest release candidate of the Qt4 port.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="17">
+            <Date>2008-11-11</Date>
+            <Version>1.3.3.12</Version>
+            <Comment>Fix desktop files to make them XDG compliant</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="16">
+            <Date>2008-06-30</Date>
+            <Version>1.3.3.12</Version>
+            <Comment>Stable update, switched to cmake build system</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="15">
+            <Date>2008-01-16</Date>
+            <Version>1.3.3.11</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="14">
+            <Date>2007-05-10</Date>
+            <Version>1.3.3.9</Version>
+            <Comment>Version bump.</Comment>
+            <Name>Furkan Duman</Name>
+            <Email>coderlord@gmail.com</Email>
+        </Update>
+        <Update release="13">
+            <Date>2007-02-27</Date>
+            <Version>1.3.3.8</Version>
+            <Comment>Version bump.</Comment>
+            <Name>Furkan Duman</Name>
+            <Email>coderlord@gmail.com</Email>
+        </Update>
+        <Update release="12">
+            <Date>2007-01-11</Date>
+            <Version>1.3.3.7</Version>
+            <Comment>More translation updates, some bugs were fixed, many improvements to the SVG importer, a new splash screen and other artwork.</Comment>
+            <Name>Furkan Duman</Name>
+            <Email>coderlord@gmail.com</Email>
+        </Update>
+        <Update release="11">
+            <Date>2006-12-05</Date>
+            <Version>1.3.3.6</Version>
+            <Comment>Version bump</Comment>
+            <Name>Furkan Duman</Name>
+            <Email>coderlord@gmail.com</Email>
+        </Update>
+        <Update release="10">
+            <Date>2006-11-11</Date>
+            <Version>1.3.3.5</Version>
+            <Comment>Version bump</Comment>
+            <Name>Furkan Duman</Name>
+            <Email>coderlord@gmail.com</Email>
+        </Update>
+        <Update release="9">
+            <Date>2006-10-07</Date>
+            <Version>1.3.3.4</Version>
+            <Comment>Fixed #2731. Now default font is Nimbus Roman No9 L Regular.</Comment>
+            <Name>Furkan Duman</Name>
+            <Email>coderlord@gmail.com</Email>
+        </Update>
+        <Update release="8">
+            <Date>2006-10-07</Date>
+            <Version>1.3.3.4</Version>
+            <Comment>Version bump. Fixed #3500.</Comment>
+            <Name>Furkan Duman</Name>
+            <Email>coderlord@gmail.com</Email>
+        </Update>
+        <Update release="7">
+            <Date>2006-08-08</Date>
+            <Version>1.3.3.3</Version>
+            <Comment>Version bump. New bugfix release.</Comment>
+            <Name>Furkan Duman</Name>
+            <Email>coderlord@gmail.com</Email>
+        </Update>
+        <Update release="6">
+            <Date>2006-07-17</Date>
+            <Version>1.3.3.2</Version>
+            <Comment>Add turkish localization. Thanks Barış Atasoy. Fixed#1927</Comment>
+            <Name>Furkan Duman</Name>
+            <Email>coderlord@gmail.com</Email>
+        </Update>
+        <Update release="5">
+            <Date>2006-05-30</Date>
+            <Version>1.3.3.2</Version>
+            <Comment>Version bump.</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="4">
+            <Date>2006-04-10</Date>
+            <Version>1.3.3.1</Version>
+            <Comment>Version bump. Bugfix release.</Comment>
+            <Name>Furkan Duman</Name>
+            <Email>coderlord@gmail.com</Email>
+        </Update>
+        <Update release="3">
+            <Date>2006-04-09</Date>
+            <Version>1.3.3</Version>
+            <Comment>Version bump</Comment>
+            <Name>Furkan Duman</Name>
+            <Email>coderlord@gmail.com</Email>
+        </Update>
+        <Update release="2">
+            <Date>2006-01-23</Date>
+            <Version>1.3.2</Version>
+            <Comment>Version bump</Comment>
+            <Name>Furkan Duman</Name>
+            <Email>coderlord@gmail.com</Email>
+        </Update>
+        <Update release="1">
+            <Date>2006-01-21</Date>
+            <Version>1.3.1</Version>
+            <Comment>First release.</Comment>
+            <Name>Furkan Duman</Name>
+            <Email>coderlord@gmail.com</Email>
+        </Update>
+    </History>
+</PISI>
