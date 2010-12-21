@@ -6,8 +6,11 @@
 # See the file http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
 
 from pisi.actionsapi import kde4
+from pisi.actionsapi import get
+from pisi.actionsapi import shelltools
 
-WorkDir = "knights"
+WorkDir = "knights-%s" % get.srcVERSION()
+shelltools.export("HOME", get.workDIR())
 
 def setup():
     kde4.configure()
