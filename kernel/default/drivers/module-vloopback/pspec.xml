@@ -1,0 +1,94 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>module-vloopback</Name>
+        <Homepage>http://www.lavrsen.dk/twiki/bin/view/Motion/WebHome</Homepage>
+        <Packager>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Packager>
+        <License>GPLv2</License>
+        <IsA>driver</IsA>
+        <Summary>Video4Linux loopback device</Summary>
+        <Description>This video4linux device driver implements a video pipe using two video4linux devices, allowing userspace applications to feed the video stream.</Description>
+        <Archive sha1sum="39e0d89262e1bbd2080750e354d0e91c669730fd" type="targz">http://www.lavrsen.dk/twiki/pub/Motion/VideoFourLinuxLoopbackDevice/vloopback-1.3.tar.gz</Archive>
+        <BuildDependencies>
+            <Dependency release="147">kernel-module-headers</Dependency>
+        </BuildDependencies>
+        <Patches>
+            <Patch>branch.patch</Patch>
+            <Patch level="1">v4l2loopback.patch</Patch>
+            <Patch level="1">flags.patch</Patch>
+            <Patch level="1">2.6.35.patch</Patch>
+        </Patches>
+    </Source>
+
+    <Package>
+        <Name>module-vloopback-userspace</Name>
+        <Replaces>
+            <Package>vloopback</Package>
+        </Replaces>
+        <Files>
+            <Path fileType="doc">/usr/share/doc</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>module-vloopback</Name>
+        <RuntimeDependencies>
+            <Dependency release="147">kernel</Dependency>
+            <Dependency>module-vloopback-userspace</Dependency>
+        </RuntimeDependencies>
+        <Replaces>
+            <Package>vloopback</Package>
+        </Replaces>
+        <Files>
+            <Path fileType="library" permanent="true">/lib/modules</Path>
+        </Files>
+    </Package>
+
+    <History>
+        <Update release="5">
+            <Date>2010-01-17</Date>
+            <Version>1.3</Version>
+            <Comment>Fix translations.xml</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="4">
+            <Date>2010-01-11</Date>
+            <Version>1.3</Version>
+            <Comment>
+                Version bump
+                Add support for newer kernels and RT kernels
+            </Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="3">
+            <Date>2009-09-18</Date>
+            <Version>1.2</Version>
+            <Comment>
+                Port to kernel 2.6.30
+                Add v4l2 loopback support
+            </Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="2">
+            <Date>2009-05-05</Date>
+            <Version>1.2</Version>
+            <Comment>Version bump</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="1">
+            <Date>2008-05-21</Date>
+            <Version>1.1</Version>
+            <Comment>First release</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+    </History>
+</PISI>

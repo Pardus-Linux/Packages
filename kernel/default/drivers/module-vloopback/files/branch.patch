@@ -1,0 +1,312 @@
+Index: vloopback.c
+===================================================================
+--- vloopback.c	(revision 19)
++++ vloopback.c	(working copy)
+@@ -164,6 +164,15 @@
+  *
+  * 26.11.09   (Angel Carpintero)
+  *            Release 1.3 stable working with 2.6.31
++ *
++ * 08.12.09   (Manan Tuli)
++ *            Allow to compile with 2.6.32
++ *
++ * 07.01.10   (Angel Carpintero)
++ *            Little patch to allow build with real time kernels.
++ *
++ * 08.09.10   (Darryl Sokoloski)  
++ *            Patch for kernel version >= 2.6.34
+  */
+ 
+ 
+@@ -175,6 +184,9 @@
+ #include <linux/kernel.h>
+ #include <linux/module.h>
+ #include <linux/pagemap.h>
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,32)
++#include <linux/sched.h>
++#endif
+ 
+ #ifndef CONFIG_VIDEO_V4L1_COMPAT
+ #error "need CONFIG_VIDEO_V4L1_COMPAT"
+@@ -223,6 +235,9 @@
+  #include <asm/uaccess.h>
+  #include <linux/init.h>
+  #include <linux/device.h>
++ #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,34)
++    #include <linux/slab.h>
++ #endif
+ #else
+  #include <linux/mm.h>
+  #include <linux/slab.h>
+@@ -406,8 +421,12 @@
+ #endif
+ {    
+     struct video_device *loopdev = video_devdata(f);
+-    priv_ptr ptr = (priv_ptr)loopdev->vd_private_data; 
+-    //priv_ptr ptr = (priv_ptr)video_get_drvdata(loopdev);
++    
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,32)    
++    priv_ptr ptr = (priv_ptr)video_get_drvdata(loopdev);
++#else
++    priv_ptr ptr = (priv_ptr)loopdev->vd_private_data;
++#endif    
+     int nr = ptr->pipenr;
+ 
+     if (debug > LOG_NODEBUG)
+@@ -466,8 +485,11 @@
+ #endif
+ {
+     struct video_device *loopdev = video_devdata(f);
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,32)
++    priv_ptr ptr = (priv_ptr)video_get_drvdata(loopdev);
++#else
+     priv_ptr ptr = (priv_ptr)loopdev->vd_private_data;
+-    //priv_ptr ptr = (priv_ptr)video_get_drvdata(loopdev);
++#endif    
+     int nr = ptr->pipenr;
+ 
+     if (debug > LOG_NODEBUG)
+@@ -520,8 +542,11 @@
+                size_t count, loff_t *offset)
+ {
+     struct video_device *loopdev = video_devdata(f);
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,32)
++    priv_ptr ptr = (priv_ptr)video_get_drvdata(loopdev);
++#else
+     priv_ptr ptr = (priv_ptr)loopdev->vd_private_data;
+-    //priv_ptr ptr = (priv_ptr)video_get_drvdata(loopdev);
++#endif    
+     int nr = ptr->pipenr;
+     unsigned long realcount = count;
+ 
+@@ -572,8 +597,12 @@
+                loff_t *offset)
+ {
+     struct video_device *loopdev = video_devdata(f);
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,32)
++    priv_ptr ptr = (priv_ptr)video_get_drvdata(loopdev);
++#else
+     priv_ptr ptr = (priv_ptr)loopdev->vd_private_data;
+-    //priv_ptr ptr = (priv_ptr)video_get_drvdata(loopdev);
++#endif
++
+     int nr = ptr->pipenr;
+     unsigned long realcount = count;
+ 
+@@ -655,8 +684,11 @@
+ static int vloopback_mmap(struct file *f, struct vm_area_struct *vma)
+ {
+     struct video_device *loopdev = video_devdata(f);
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,32)    
++    priv_ptr ptr = (priv_ptr)video_get_drvdata(loopdev);
++#else
+     priv_ptr ptr = (priv_ptr)loopdev->vd_private_data;
+-    //priv_ptr ptr = (priv_ptr)video_get_drvdata(loopdev);
++#endif
+     int nr = ptr->pipenr;
+     unsigned long start = (unsigned long)vma->vm_start;
+     long size = vma->vm_end - vma->vm_start;
+@@ -732,8 +764,12 @@
+ #endif
+ {
+     struct video_device *loopdev = video_devdata(f);
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,32)    
++    priv_ptr ptr = (priv_ptr)video_get_drvdata(loopdev);
++#else
+     priv_ptr ptr = (priv_ptr)loopdev->vd_private_data;
+-    //priv_ptr ptr = (priv_ptr)video_get_drvdata(loopdev);
++#endif
++
+     int nr = ptr->pipenr;
+     int i;
+ 
+@@ -1129,8 +1165,11 @@
+ static unsigned int vloopback_poll(struct file *f, struct poll_table_struct *wait)
+ {
+     struct video_device *loopdev = video_devdata(f);
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,32)    
++    priv_ptr ptr = (priv_ptr)video_get_drvdata(loopdev);
++#else
+     priv_ptr ptr = (priv_ptr)loopdev->vd_private_data;
+-    //priv_ptr ptr = (priv_ptr)video_get_drvdata(loopdev);
++#endif
+     int nr = ptr->pipenr;
+ 
+     if (debug > LOG_NODEBUG)
+@@ -1210,10 +1249,15 @@
+         return -ENOMEM;
+     *loops[nr]->vloopin = vloopback_template;
+ 
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,32)    
++    video_set_drvdata(loops[nr]->vloopin, kmalloc(sizeof(struct vloopback_private),
++                                                  GFP_KERNEL));
++    if (video_get_drvdata(loops[nr]->vloopin) == NULL) {
++#else
+     loops[nr]->vloopin->vd_private_data = kmalloc(sizeof(struct vloopback_private),
+                                                   GFP_KERNEL);
+-
+     if (loops[nr]->vloopin->vd_private_data == NULL) {
++#endif    
+         kfree(loops[nr]->vloopin);
+         return -ENOMEM;
+     }
+@@ -1221,23 +1265,39 @@
+     loops[nr]->vloopout = video_device_alloc();
+ 
+     if (loops[nr]->vloopout == NULL) {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,32)
++        kfree(video_get_drvdata(loops[nr]->vloopin));
++#else        
+         kfree(loops[nr]->vloopin->vd_private_data);
++#endif        
+         kfree(loops[nr]->vloopin);
+         return -ENOMEM;
+     }
+     *loops[nr]->vloopout = vloopback_template;
++
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,32)    
++    video_set_drvdata(loops[nr]->vloopout, kmalloc(sizeof(struct vloopback_private),
++                                                   GFP_KERNEL));
++    if (video_get_drvdata(loops[nr]->vloopout) == NULL) {
++        kfree(video_get_drvdata(loops[nr]->vloopin));
++#else
+     loops[nr]->vloopout->vd_private_data = kmalloc(sizeof(struct vloopback_private),
+                                                    GFP_KERNEL);
+-
+     if (loops[nr]->vloopout->vd_private_data == NULL) {
+         kfree(loops[nr]->vloopin->vd_private_data);
++#endif    
+         kfree(loops[nr]->vloopin);
+         kfree(loops[nr]->vloopout);
+         return -ENOMEM;
+     }
+ 
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,32)
++    ((priv_ptr)video_get_drvdata(loops[nr]->vloopin))->pipenr = nr;
++    ((priv_ptr)video_get_drvdata(loops[nr]->vloopout))->pipenr = nr;
++#else
+     ((priv_ptr)loops[nr]->vloopin->vd_private_data)->pipenr = nr;
+     ((priv_ptr)loops[nr]->vloopout->vd_private_data)->pipenr = nr;
++#endif    
+     loops[nr]->invalid_ioctl = 0; /* tibit */
+     loops[nr]->buffer = NULL;
+     loops[nr]->width = 0;
+@@ -1249,9 +1309,15 @@
+     loops[nr]->wopen = 0;
+     loops[nr]->ropen = 0;
+     loops[nr]->frame = 0;
+-    
++
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,32)    
++    ((priv_ptr)video_get_drvdata(loops[nr]->vloopin))->in = 1;
++    ((priv_ptr)video_get_drvdata(loops[nr]->vloopout))->in = 0;
++#else
+     ((priv_ptr)loops[nr]->vloopin->vd_private_data)->in = 1;
+     ((priv_ptr)loops[nr]->vloopout->vd_private_data)->in = 0;
++#endif
++
+     sprintf(loops[nr]->vloopin->name, "Video loopback %d input", nr);
+     sprintf(loops[nr]->vloopout->name, "Video loopback %d output", nr);
+ 
+@@ -1263,15 +1329,31 @@
+     loops[nr]->vloopin->minor = minor_in;
+ 
+     init_waitqueue_head(&loops[nr]->wait);
++#ifdef CONFIG_PREEMPT_RT
++    /* for RT kernels */
++#warning "******************************"
++#warning "* Using patch for RT Kernels *"
++#warning "******************************"
++    semaphore_init(&loops[nr]->lock); 
++#else
+     init_MUTEX(&loops[nr]->lock);
+-    
++#endif
++
+     ret = video_register_device(loops[nr]->vloopin, VFL_TYPE_GRABBER, minor_in);
+     
+     if ((ret == -1 ) || ( ret == -23 )) {
+         info("error registering device %s", loops[nr]->vloopin->name);
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,32)        
++        kfree(video_get_drvdata(loops[nr]->vloopin));
++#else
+         kfree(loops[nr]->vloopin->vd_private_data);
++#endif        
+         kfree(loops[nr]->vloopin);
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,32)        
++        kfree(video_get_drvdata(loops[nr]->vloopout));
++#else   
+         kfree(loops[nr]->vloopout->vd_private_data);
++#endif
+         kfree(loops[nr]->vloopout);
+         kfree(loops[nr]);
+         loops[nr] = NULL;
+@@ -1282,9 +1364,17 @@
+     
+     if ((ret ==-1) || (ret == -23)) {
+         info("error registering device %s", loops[nr]->vloopout->name);
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,32)        
++        kfree(video_get_drvdata(loops[nr]->vloopin));
++#else
+         kfree(loops[nr]->vloopin->vd_private_data);
++#endif        
+         video_unregister_device(loops[nr]->vloopin);
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,32)        
++        kfree(video_get_drvdata(loops[nr]->vloopout));
++#else   
+         kfree(loops[nr]->vloopout->vd_private_data);
++#endif        
+         kfree(loops[nr]->vloopout);
+         kfree(loops[nr]);
+         loops[nr] = NULL;
+@@ -1395,9 +1485,17 @@
+ 
+     for (i = 0; i < nr_o_pipes; i++) {
+         if (loops[i]) {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,32)            
++            kfree(video_get_drvdata(loops[i]->vloopin));
++#else
+             kfree(loops[i]->vloopin->vd_private_data);
++#endif            
+             video_unregister_device(loops[i]->vloopin);
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,32)            
++            kfree(video_get_drvdata(loops[i]->vloopout));
++#else
+             kfree(loops[i]->vloopout->vd_private_data);
++#endif            
+             video_unregister_device(loops[i]->vloopout);
+             
+             if (loops[i]->buffer) 
+Index: example/Makefile
+===================================================================
+--- example/Makefile	(revision 19)
++++ example/Makefile	(working copy)
+@@ -1,7 +1,15 @@
+ CFLAGS=-g -Wall
+ 
+-all:	invert resize feed dummy
++all: build
+ 
++build:	invert resize feed dummy
++
++install:
++	/bin/cp invert /usr/sbin/invert_vloopback
++	/bin/cp resize /usr/sbin/resize_vloopback
++	/bin/cp feed /usr/sbin/feed_vloopback
++	/bin/cp dummy /usr/sbin/dummy_vloopback
++
+ clean:
+ 	rm -f dummy resize invert feed *o *~
+ 
+Index: Makefile
+===================================================================
+--- Makefile	(revision 19)
++++ Makefile	(working copy)
+@@ -36,6 +36,7 @@
+ 	svn update
+ 
+ install:
++	$(MAKE) -C example install
+ 	install -d $(DEST)
+ 	install -m 644 -c $(MODULENAME).ko $(DEST)
+ 	-/sbin/depmod -a
