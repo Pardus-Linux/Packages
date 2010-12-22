@@ -1,0 +1,82 @@
+Index: NetworkManager-0.8.2/src/system-settings/nm-sysconfig-connection.c
+===================================================================
+--- NetworkManager-0.8.2.orig/src/system-settings/nm-sysconfig-connection.c
++++ NetworkManager-0.8.2/src/system-settings/nm-sysconfig-connection.c
+@@ -21,6 +21,7 @@
+ 
+ #include <NetworkManager.h>
+ #include <dbus/dbus-glib-lowlevel.h>
++#include <glib/gi18n.h>
+ 
+ #include "nm-sysconfig-connection.h"
+ #include "nm-system-config-error.h"
+@@ -350,7 +351,7 @@ pk_update_cb (GObject *object, GAsyncRes
+ 	if (!polkit_authorization_result_get_is_authorized (pk_result)) {
+ 		error = g_error_new_literal (NM_SYSCONFIG_SETTINGS_ERROR,
+ 		                             NM_SYSCONFIG_SETTINGS_ERROR_NOT_PRIVILEGED,
+-		                             "Insufficient privileges.");
++		                             _("Insufficient privileges."));
+ 		dbus_g_method_return_error (call->context, error);
+ 		g_error_free (error);
+ 		polkit_call_free (call);
+@@ -465,7 +466,7 @@ pk_delete_cb (GObject *object, GAsyncRes
+ 	if (!polkit_authorization_result_get_is_authorized (pk_result)) {
+ 		error = g_error_new_literal (NM_SYSCONFIG_SETTINGS_ERROR,
+ 		                             NM_SYSCONFIG_SETTINGS_ERROR_NOT_PRIVILEGED,
+-		                             "Insufficient privileges.");
++		                             _("Insufficient privileges."));
+ 		dbus_g_method_return_error (call->context, error);
+ 		g_error_free (error);
+ 		polkit_call_free (call);
+@@ -557,7 +558,7 @@ pk_secrets_cb (GObject *object, GAsyncRe
+ 	if (!polkit_authorization_result_get_is_authorized (pk_result)) {
+ 		error = g_error_new_literal (NM_SYSCONFIG_SETTINGS_ERROR,
+ 		                             NM_SYSCONFIG_SETTINGS_ERROR_NOT_PRIVILEGED,
+-		                             "Insufficient privileges.");
++		                             _("Insufficient privileges."));
+ 		dbus_g_method_return_error (call->context, error);
+ 		g_error_free (error);
+ 		polkit_call_free (call);
+Index: NetworkManager-0.8.2/po/POTFILES.in
+===================================================================
+--- NetworkManager-0.8.2.orig/po/POTFILES.in
++++ NetworkManager-0.8.2/po/POTFILES.in
+@@ -20,6 +20,7 @@ src/dhcp-manager/nm-dhcp-manager.c
+ src/logging/nm-logging.c
+ src/dns-manager/nm-dns-manager.c
+ src/system-settings/nm-default-wired-connection.c
++src/system-settings/nm-sysconfig-connection.c
++src/system-settings/nm-sysconfig-settings.c
+ system-settings/plugins/ifcfg-rh/reader.c
+ system-settings/plugins/ifnet/connection_parser.c
+-
+Index: NetworkManager-0.8.2/src/system-settings/nm-sysconfig-settings.c
+===================================================================
+--- NetworkManager-0.8.2.orig/src/system-settings/nm-sysconfig-settings.c
++++ NetworkManager-0.8.2/src/system-settings/nm-sysconfig-settings.c
+@@ -26,6 +26,7 @@
+ #include <unistd.h>
+ #include <string.h>
+ #include <gmodule.h>
++#include <glib/gi18n.h>
+ #include <net/ethernet.h>
+ #include <netinet/ether.h>
+ 
+@@ -660,7 +661,7 @@ pk_add_cb (GObject *object, GAsyncResult
+ 	if (!polkit_authorization_result_get_is_authorized (pk_result)) {
+ 		error = g_error_new_literal (NM_SYSCONFIG_SETTINGS_ERROR,
+ 		                             NM_SYSCONFIG_SETTINGS_ERROR_NOT_PRIVILEGED,
+-		                             "Insufficient privileges.");
++		                             _("Insufficient privileges."));
+ 		call->callback (NM_SETTINGS_INTERFACE (self), error, call->callback_data);
+ 		goto out;
+ 	}
+@@ -758,7 +759,7 @@ pk_hostname_cb (GObject *object, GAsyncR
+ 	if (!polkit_authorization_result_get_is_authorized (pk_result)) {
+ 		error = g_error_new_literal (NM_SYSCONFIG_SETTINGS_ERROR,
+ 		                             NM_SYSCONFIG_SETTINGS_ERROR_NOT_PRIVILEGED,
+-		                             "Insufficient privileges.");
++		                             _("Insufficient privileges."));
+ 		dbus_g_method_return_error (call->context, error);
+ 		goto out;
+ 	}
