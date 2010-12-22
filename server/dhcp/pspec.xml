@@ -14,10 +14,11 @@
         <IsA>service</IsA>
         <Summary>Dynamic host configuration protocol software</Summary>
         <Description>DHCP (Dynamic Host Configuration Protocol) is a protocol which allows individual devices on an IP network to get their own network configuration information (IP address, subnetmask, broadcast address, etc.) from a DHCP server.</Description>
-        <Archive sha1sum="e4c089d976d73c1e5d15bb6c5aedab1124d61de7" type="targz">http://ftp.isc.org/isc/dhcp/dhcp-4.2.0-P1.tar.gz</Archive>
+        <Archive sha1sum="95de255c22643e67d8aca9aa712fb6113b413ef4" type="targz">http://ftp.isc.org/isc/dhcp/dhcp-4.2.0-P2.tar.gz</Archive>
         <BuildDependencies>
             <Dependency>groff</Dependency>
             <Dependency>openldap-client</Dependency>
+            <Dependency>bind-devel</Dependency>
         </BuildDependencies>
         <Patches>
             <Patch level="1">dhcp-4.2.0-errwarn-message.patch</Patch>
@@ -38,7 +39,7 @@
             <Patch level="1">dhcp-4.2.0-missing-ipv6-not-fatal.patch</Patch>
             <Patch level="1">dhcp-4.2.0-IFNAMSIZ.patch</Patch>
             <Patch level="1">dhcp-4.2.0-add_timeout_when_NULL.patch</Patch>
-            <Patch level="1">dhcp-4.2.0-64_bit_lease_parse.patch</Patch>
+            <Patch level="1">dhcp-4.2.0-P1-64_bit_lease_parse.patch</Patch>
             <Patch level="1">dhcp-4.2.0-capability.patch</Patch>
             <Patch level="1">dhcp-4.2.0-logpid.patch</Patch>
             <Patch level="1">dhcp-4.2.0-UseMulticast.patch</Patch>
@@ -47,8 +48,13 @@
             <Patch level="1">dhcp-4.2.0-release6-elapsed.patch</Patch>
             <Patch level="1">dhcp-4.2.0-initialization-delay.patch</Patch>
             <Patch level="1">dhcp-4.2.0-parse_date.patch</Patch>
-            <Patch level="1">dhcp-4.2.0-rfc3442-classless-static-routes.patch</Patch>
             <Patch level="1">dhcp-4.2.0-PIE-RELRO.patch</Patch>
+            <Patch level="1">dhcp-4.2.0-honor-expired.patch</Patch>
+            <Patch level="1">dhcp-4.2.0-noprefixavail.patch</Patch>
+            <Patch level="1">dhcp420-rh637017.patch</Patch>
+            <Patch level="1">dhcp-4.2.0-rfc3442-classless-static-routes.patch</Patch>
+            <Patch level="1">dhcp420-sharedlib.patch</Patch>
+            <Patch level="1">dhcp-4.2.0-PPP.patch</Patch>
         </Patches>
     </Source>
 
@@ -57,6 +63,7 @@
         <RuntimeDependencies>
             <Dependency releaseFrom="70">comar</Dependency>
             <Dependency>openldap-client</Dependency>
+            <Dependency>bind-libs</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="config">/etc</Path>
@@ -88,6 +95,7 @@
         <Summary>Provides the dhclient ISC DHCP client daemon</Summary>
         <RuntimeDependencies>
             <Dependency release="current">dhcp</Dependency>
+            <Dependency>bind-libs</Dependency>
         </RuntimeDependencies>
         <Conflicts>
             <Package releaseTo="22">dhcp</Package>
@@ -129,6 +137,13 @@
     </Package>
 
     <History>
+        <Update release="27" type="security">
+            <Date>2010-12-22</Date>
+            <Version>4.2.0_p2</Version>
+            <Comment>Version bump to fix CVE-2010-3616.</Comment>
+            <Name>H. İbrahim Güngör</Name>
+            <Email>ibrahim@pardus.org.tr</Email>
+        </Update>
         <Update release="26" type="security">
             <Date>2010-11-08</Date>
             <Version>4.2.0_p1</Version>
