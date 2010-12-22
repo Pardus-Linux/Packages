@@ -356,17 +356,16 @@ def addEntry(device, path, fsType, options):
     # if the partition is not mounted anywhere, try to create a path
     # and mount there.
     if not path_own:
+        if not createPath(device, path):
+            # Can't create new path
+            fail(_(FAIL_PATH) % path)
         if not device in [x[0] for x in getMounted()]:
-            if not createPath(device, path):
-                # Can't create new path
-                fail(_(FAIL_PATH) % path)
-            else:
-                # Mount device
-                try:
-                    mount(device, path)
-                except:
-                    removeEntry(device, silent=True)
-                    raise
+            # Mount device
+            try:
+                mount(device, path)
+            except:
+                removeEntry(device, silent=True)
+                raise
 
 def getEntry(device):
     entries = parseFstab(FSTAB)
