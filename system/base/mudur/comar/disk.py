@@ -299,9 +299,10 @@ def listPaths():
 
 def isLabelRecord(device):
     for line in open(FSTAB):
-        line = line.strip()
-        if line.replace('\t', ' ').split()[0] == 'LABEL=' + getLabel(device):
-            return True
+        line = line.strip().replace('\t', ' ').split()
+        if line:
+            if line[0] == 'LABEL=' + getLabel(device):
+                return True
 
 def addEntry(device, path, fsType, options):
     path_own = False
