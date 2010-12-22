@@ -1,0 +1,36 @@
+MDMCTL_HOOKSTATE clashes with FIGETBSZ, starting with 2.6.31 FIGETBSZ ioctl 
+on any file will execute only kernel code, not vfs_ioctl when not a
+regular file as before, which worked and called amrmo_ioctl from slamr.
+
+diff -p -up slmodem-2.9.11-20080817/drivers/amrmo_init.c.orig slmodem-2.9.11-20080817/drivers/amrmo_init.c
+--- slmodem-2.9.11-20080817/drivers/amrmo_init.c.orig	2009-11-11 19:24:14.000000000 -0200
++++ slmodem-2.9.11-20080817/drivers/amrmo_init.c	2009-11-11 19:24:59.000000000 -0200
+@@ -461,6 +461,9 @@ static int amrmo_ioctl(struct inode *ino
+ 		ret = amrmo_card_stop(amrmo->card);
+ 		if(!ret) amrmo->started = 0;
+ 		return 0;
++	/* XXX: crap binary drivers... */
++	case MDMCTL_HOOKSTATE:
++		return amrmo_card_ctl(amrmo->card,0x02,arg);
+ 	default:
+ 		return amrmo_card_ctl(amrmo->card,cmd,arg);
+         }
+diff -p -up slmodem-2.9.11-20080817/modem/modem_defs.h.orig slmodem-2.9.11-20080817/modem/modem_defs.h
+--- slmodem-2.9.11-20080817/modem/modem_defs.h.orig	2008-03-29 09:04:16.000000000 -0300
++++ slmodem-2.9.11-20080817/modem/modem_defs.h	2009-11-11 19:23:38.000000000 -0200
+@@ -63,7 +63,6 @@ typedef __int32_t s32;
+ 
+ /* modem device ctrl interface */
+ #define MDMCTL_CAPABILITIES  0x01
+-#define MDMCTL_HOOKSTATE     0x02
+ #define MDMCTL_SPEED         0x04
+ #define MDMCTL_GETFMTS       0x05
+ #define MDMCTL_SETFMT        0x06
+@@ -76,6 +75,7 @@ typedef __int32_t s32;
+ #define MDMCTL_GETSTAT       0x20
+ #define MDMCTL_START         0x21
+ #define MDMCTL_STOP          0x22
++#define MDMCTL_HOOKSTATE     0x23
+ 
+ 
+ /* modem device status mask */
