@@ -8,6 +8,13 @@ import subprocess
 
 FSTAB = '/etc/fstab'
 
+"""
+Quick list is used for improving efficiency of the script.
+Stores device names and uuids pairs for partitions so prevents multiple
+communication with subprocesses.
+"""
+quickList = {}
+
 FAIL_FSTAB = {
     "en": "Unable to read '%s'.",
     "tr": "'%s' okunamadı.",
@@ -24,6 +31,15 @@ FAIL_PATH = {
     "es": "'%s' no es un punto de montaje válido.",
     "de": "'%s' ist kein gültiger Mount-Punkt.",
     "nl": "'%s' is geen geldig aankoppelpunt.",
+}
+
+FAIL_PATH_ALREADY_EXIST = {
+    "en": "'%s' is already being used by an entry.",
+    "tr": "'%s' zaten bir kayıt tarafından kullanılıyor.",
+    "fr": "'%s' est déjà utilisé par une entrée.",
+    "es": "Ya '%s' siendo utilizado por una entrada.",
+    "de": "'%s' wird bereits durch einen Eintrag verwendet.",
+    "nl": "'%s' bruges allerede af en post.",
 }
 
 FAIL_ENTRY = {
@@ -71,9 +87,19 @@ def parseFstab(fstab):
     entries = []
     for line in open(fstab):
         line = line.strip()
-        if line.startswith('#'):
+        # Check len(line) for empty lines.
+        if line.startswith('#') or len(line) == 0:
             continue
-        entries.append(line.replace('\t', ' ').split())
+        line = line.replace('\t', ' ').split()
+        # Replace UUID value with device name after reading it from fstab
+        if line[0].startswith('UUID='):
+            line[0] = getPartitionNameByUUID(line[0])
+            entries.append(line)
+        elif line[0].startswith('LABEL='):
+            line[0] = getDeviceByLabel(line[0].replace('LABEL=', ''))
+            entries.append(line)
+        elif line[0].startswith('/dev/'):
+            entries.append(line)
     return entries
 
 def createPath(device, path):
@@ -95,10 +121,59 @@ def createPath(device, path):
                 return True
     return False
 
+def getMounted():
+    parts = []
+    for line in open('/proc/mounts'):
+        if line.startswith('/dev/'):
+            device, path, other = line.split(" ", 2)
+            parts.append((device, path, ))
+    return parts
+
 def getFSType(device):
+    if device.startswith('UUID='):
+        device = getPartitionNameByUUID(device)
     cmd = "/sbin/blkid -s TYPE -o value %s" % device
     proc = subprocess.Popen(cmd.split(), stdout=subprocess.PIPE)
     return proc.communicate()[0].strip()
+
+def getUUID(part):
+    """
+    Finds UUID for the given partition.
+    """
+    global quickList
+    if len(quickList) == 0:
+        fillQuickList()
+    return quickList[part]
+
+def getPartitionNameByUUID(part):
+    """
+    Finds name of the partition for the given UUId.
+    """
+    global quickList
+    part = part.replace('UUID=', '')
+    if len(quickList) == 0:
+        fillQuickList()
+    for devName, uuid in quickList.items():
+        if uuid == part:
+            return devName
+    return ''
+
+def fillQuickList():
+    """
+    Fills the quick list.
+    """
+    global quickList
+    cmd = "/sbin/blkid"
+    proc = subprocess.Popen(cmd.split(), stdout=subprocess.PIPE)
+    for line in proc.stdout:
+        line = line.replace(':', '').strip()
+        propList = line.split()
+        devName = label = uuid = fsType = ''
+        devName = propList[0]
+        for property in propList:
+            if property.startswith('UUID'):
+                uuid = property.replace('UUID=', '').replace('"', '')
+        quickList[devName] = uuid
 
 def runCommand(cmd):
     proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -107,6 +182,16 @@ def runCommand(cmd):
         fail(_(FAIL_OPERATION) % err)
 
 # Disk.Manager methods
+
+def isMounted(device):
+    """
+    Searches the given partition in mounted devices. If partition is
+    mounted, returns mount point else returns none.
+    """
+    for _device, _path in getMounted():
+        if device == _device:
+            return _path
+    return ''
 
 def getDevices():
     from pardus.diskutils import EDD
@@ -125,26 +210,71 @@ def getDeviceParts(device):
         return []
     parts = []
     for part in glob.glob("%s*" % device):
-        if part != device and getFSType(part) != "":
+        if not part == device and not getFSType(part) == "":
             parts.append(part)
     return parts
 
-def getMounted():
-    parts = []
-    for line in open('/proc/mounts'):
-        if line.startswith('/dev/'):
-            device, path, other = line.split(" ", 2)
-            parts.append((device, path, ))
-    return parts
+def getLabel(device):
+    """
+    Finds label for the given partition.
+    """
+    cmd = "/sbin/blkid -s LABEL -o value %s" % device
+    proc = subprocess.Popen(cmd.split(), stdout=subprocess.PIPE)
+    return proc.communicate()[0].strip()
+
+def getPath(device):
+    """
+    Gets partition name and determine a path for that partition.
+    """
+    # If there is a entry record for this partition in fstab
+    # use path in there.
+    if device in listEntries():
+        path_, fsType_, options_ = getEntry(device)
+        return path_
+    path = '/media/'
+    label = getLabel(device)
+    # There may be partitions without a label
+    if not label:
+        if not os.path.exists(path+'disk'):
+            path = path+'disk'
+        elif not os.path.ismount(path+'disk'):
+            path = path+'disk'
+        else:
+            for i in range(1, len(getMounted())):
+                if not os.path.exists(path+'disk-'+str(i)):
+                    path = path+'disk-'+str(i)
+                    break
+                elif not os.path.ismount(path+'disk-'+str(i)):
+                    path = path+'disk-'+str(i)
+                    break
+    # Labels may be same
+    else:
+        if not os.path.exists(path+label):
+            path = path+label
+        elif not os.path.ismount(path+label):
+            path = path+label
+        else:
+            for i in range(1, len(getMounted())):
+                if not os.path.exists(path+label+'-'+str(i)):
+                    path = path+label+'-'+str(i)
+                    break
+                elif not os.path.ismount(path+label+'-'+str(i)):
+                    path = path+label+'-'+str(i)
+                    break
+    return path
 
 def mount(device, path):
-    if device.startswith("LABEL="):
-        device = getDeviceByLabel(device.split("LABEL=")[1])
+    if not path:
+        path = getPath(device)
+        if not createPath(device, path):
+            # Can't create new path
+            fail(_(FAIL_PATH) % path)
+        elif device in [x[0] for x in getMounted()]:
+            # Device is mounted
+            fail(_(FAIL_MOUNTED) % device)
     runCommand(['/bin/mount', device, path])
 
 def umount(device):
-    if device.startswith("LABEL="):
-        device = getDeviceByLabel(device.split("LABEL=")[1])
     for dev, path in getMounted():
         if dev == device and path == "/":
             fail(_(FAIL_ROOT) % device)
@@ -157,28 +287,54 @@ def listEntries():
     except DMException:
         return []
 
+def listPaths():
+    """
+    Return paths of the entries in fstab.
+    """
+    try:
+        paths = [x[1] for x in parseFstab(FSTAB)]
+        return paths
+    except DMException:
+        return []
+
+def isLabelRecord(device):
+    for line in open(FSTAB):
+        line = line.strip()
+        if line.replace('\t', ' ').split()[0] == 'LABEL=' + getLabel(device):
+            return True
+
 def addEntry(device, path, fsType, options):
     path_own = False
+    # If the path value already exist in fstab, cut the operation
+    if path in listPaths():
+            fail(_(FAIL_PATH_ALREADY_EXIST) % path)
     if device in listEntries():
         old_path, old_fsType, old_options = getEntry(device)
         # Do not change root
-        if old_path == "/" and old_path != path:
+        if old_path == "/" and not old_path == path:
             fail(_(FAIL_ROOT) % device)
         # Who has that mount point? me?
         if old_path == path:
             path_own = True
     else:
         old_path = None
-    if not path_own:
         if not createPath(device, path):
             # Can't create new path
             fail(_(FAIL_PATH) % path)
-        elif device in [x[0] for x in getMounted()]:
+        #elif device in [x[0] for x in getMounted()]:
             # Device is mounted
-            fail(_(FAIL_MOUNTED) % device)
+            #fail(_(FAIL_MOUNTED) % device)
+    partText = ''
+    # Before removing the entry check if it is a label record or uuid record
     # Remove previous one to prevent duplicates
     if old_path:
+        if isLabelRecord(device):
+            partText = 'LABEL='+getLabel(device)
+        else:
+            partText = 'UUID='+getUUID(device)
         removeEntry(device, silent=True)
+    else:
+        partText = 'UUID='+getUUID(device)
     # Add new entry
     _options = []
     for key, value in options.iteritems():
@@ -186,17 +342,30 @@ def addEntry(device, path, fsType, options):
             _options.append('%s=%s' % (key, value))
         else:
             _options.append(key)
-    if file(FSTAB).read()[-1] != '\n':
+    if not file(FSTAB).read()[-1] == '\n':
         file(FSTAB, 'a').write('\n')
     _options = ','.join(_options)
     if _options:
-        file(FSTAB, 'a').write('%s %s %s %s 0 0\n' % (device, path, fsType, _options))
+        file(FSTAB, 'a').write('%s %s %s %s 0 0\n' % (partText, path, fsType, _options))
     else:
-        file(FSTAB, 'a').write('%s %s %s defaults 0 0\n' % (device, path, fsType))
+        file(FSTAB, 'a').write('%s %s %s defaults 0 0\n' % (partText, path, fsType))
     # Notify clients
     notify("Disk.Manager", "changed", ())
-    # Mount device
-    mount(device, path)
+    # If the partition is not already mounted the given path and,
+    # if the partition is not mounted anywhere, try to create a path
+    # and mount there.
+    if not path_own:
+        if not device in [x[0] for x in getMounted()]:
+            if not createPath(device, path):
+                # Can't create new path
+                fail(_(FAIL_PATH) % path)
+            else:
+                # Mount device
+                try:
+                    mount(device, path)
+                except:
+                    removeEntry(device, silent=True)
+                    raise
 
 def getEntry(device):
     entries = parseFstab(FSTAB)
@@ -214,15 +383,17 @@ def getEntry(device):
     fail(_(FAIL_ENTRY) % device)
 
 def removeEntry(device, silent=False):
+    if isMounted(device) == '/':
+        fail(_(FAIL_ROOT) % device)
     if device not in listEntries():
         return
     newlines = []
     for line in open(FSTAB):
         line = line.strip()
-        if line.replace('\t', ' ').split()[0] != device:
+        if not len(line) == 0 and not (line.replace('\t', ' ').split()[0] == 'UUID='+getUUID(device) or line.replace('\t', ' ').split()[0] == 'LABEL='+getLabel(device) or line.replace('\t', ' ').split()[0] == device):
             newlines.append(line)
     file(FSTAB, 'w').write('\n'.join(newlines))
-    if file(FSTAB).read()[-1] != '\n':
+    if not file(FSTAB).read()[-1] == '\n':
         file(FSTAB, 'a').write('\n')
     # Notify clients
     if not silent:
@@ -310,5 +481,6 @@ def refreshPartitionTable(device):
     os.system(PATH_SYNC)
     sleep(4) # for sync()
     print "Done."
+
 
 
