@@ -1,22 +1,39 @@
-Index: alienarena-7.45/source/qcommon/files.c
+Index: alienarena-7.50/source/qcommon/qcommon.h
 ===================================================================
---- alienarena-7.45.orig/source/qcommon/files.c
-+++ alienarena-7.45/source/qcommon/files.c
-@@ -568,7 +568,7 @@ void FS_AddGameDirectory (char *dir)
- ================
- FS_AddHomeAsGameDirectory
+--- alienarena-7.50.orig/source/qcommon/qcommon.h
++++ alienarena-7.50/source/qcommon/qcommon.h
+@@ -43,7 +43,7 @@ Foundation, Inc., 59 Temple Place - Suit
  
--Use ~/.codered/dir as fs_gamedir
-+Use ~/.alienarena/dir as fs_gamedir
- ================
- */
- void FS_AddHomeAsGameDirectory (char *dir)
-@@ -586,7 +586,7 @@ void FS_AddHomeAsGameDirectory (char *di
- 		homedir = getenv("HOME");
- 		if (!homedir)
- 			return;
--		len = snprintf(gdir,sizeof(gdir),"%s/.codered/%s/", homedir, dir);
-+		len = snprintf(gdir,sizeof(gdir),"%s/.alienarena/%s/", homedir, dir);
- 	}
+ #if !defined USER_GAMEDATA
+ // default for COR_GAME environment variable
+-#define USER_GAMEDATA ".codered"
++#define USER_GAMEDATA ".alienarena"
+ #endif
+ /*----------------------------------------*/
  
- 	Com_Printf("using %s for writing\n",gdir);
+Index: alienarena-7.50/Tools/LinuxScripts/launch-server
+===================================================================
+--- alienarena-7.50.orig/Tools/LinuxScripts/launch-server
++++ alienarena-7.50/Tools/LinuxScripts/launch-server
+@@ -22,7 +22,7 @@
+ if [ $COR_GAME ] ; then
+ aadir=$COR_GAME
+ else
+-aadir=~/.codered
++aadir=~/.alienarena
+ fi
+ 
+ ### Set your AA Binary Name or command string ($1 is the argument
+Index: alienarena-7.50/Tools/LinuxScripts/launchservers
+===================================================================
+--- alienarena-7.50.orig/Tools/LinuxScripts/launchservers
++++ alienarena-7.50/Tools/LinuxScripts/launchservers
+@@ -10,7 +10,7 @@ execname=crx-ded
+ if [ ${COR_GAME} ]; then
+ cfgpath=${COR_GAME}/arena
+ else
+-cfgpath=~/.codered/arena
++cfgpath=~/.alienarena/arena
+ fi
+ 
+ # use to generate core dumps after crashs
