@@ -302,6 +302,7 @@ class BlockIncoming:
         for port in parameters.get("port_exceptions", "").split():
             if port.isdigit():
                 execRule("-A PARDUS-IN-MOD-BLOCK -p tcp -m multiport --dports %s -j ACCEPT" % port)
+                execRule("-A PARDUS-IN-MOD-BLOCK -p udp -m multiport --dports %s -j ACCEPT" % port)
         # Block else...
         execRule("-A PARDUS-IN-MOD-BLOCK -p tcp -m multiport --dports 0:1024 -m tcp --tcp-flags FIN,SYN,RST,ACK SYN -j REJECT --reject-with icmp-port-unreachable")
         execRule("-A PARDUS-IN-MOD-BLOCK -p udp -m multiport --dports 0:1024 -j REJECT --reject-with icmp-port-unreachable")
@@ -341,7 +342,9 @@ class BlockOutgoing:
         for port in parameters.get("port_exceptions", "").split():
             if port.isdigit():
                 execRule("-A PARDUS-OUT-MOD-BLOCK -p tcp -m multiport --dports %s -j DROP" % port)
+                execRule("-A PARDUS-OUT-MOD-BLOCK -p udp -m multiport --dports %s -j DROP" % port)
                 execRule("-A PARDUS-FW-MOD-BLOCK -p tcp -m multiport --dports %s -j DROP" % port)
+                execRule("-A PARDUS-FW-MOD-BLOCK -p udp -m multiport --dports %s -j DROP" % port)
 
     def unloadModule(self, shutdown=False):
         if not shutdown:
