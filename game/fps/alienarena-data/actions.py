@@ -28,5 +28,3 @@ def install():
     for f in data:
         fixperms(f)
         shelltools.copy(f, "%s/%s" % (get.installDIR(), datadir))
-
-    pisitools.remove("%s/data1/game.so" % datadir)
