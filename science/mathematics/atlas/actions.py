@@ -61,5 +61,6 @@ def install():
         pisitools.insinto("/usr/lib/", i)
 
     pisitools.remove("/usr/lib/*.a")
-
+    pisitools.remove("/usr/lib/liblapack.so.3")
+    pisitools.remove("/usr/lib/liblapack.so")
 
