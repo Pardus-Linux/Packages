@@ -14,7 +14,7 @@ WorkDir = "v4l-utils-%s" % get.srcVERSION()
 
 def build():
     # shelltools.export("CC", get.CC())
-    autotools.make('-j1 \
+    autotools.make(' \
                     PREFIX=/usr \
                     LIBDIR=/usr/lib \
                     CFLAGS="%s"' % get.CFLAGS().replace("-O2", "-O3"))
