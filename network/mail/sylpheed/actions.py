@@ -36,5 +36,5 @@ def install():
     pisitools.dodir("/usr/lib/sylpheed/plugins")
     pisitools.insinto("/usr/lib/sylpheed/plugins", "plugin/attachment_tool/.libs/attachment_tool.so")
 
-    for l in ["en", "de", "es", "fr", "it", "ja"]:
-        pisitools.domove("/usr/share/doc/sylpheed/%s" % l, "/usr/share/doc/sylpheed/html/")
+    for lang in ["en", "de", "es", "fr", "it", "ja"]:
+        pisitools.domove("/usr/share/doc/sylpheed/%s" % lang, "/usr/share/doc/sylpheed/html/")
