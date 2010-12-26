@@ -25,8 +25,8 @@
         </BuildDependencies>
         <Patches>
             <!-- Stable patch -->
-            <Patch level="1" compressionType="bz2">kernel/patch-2.6.37-rc5.bz2</Patch>
-            <Patch level="1">kernel/patch-2.6.37-rc5-git3.bz2</Patch>
+            <Patch level="1" compressionType="bz2">kernel/patch-2.6.37-rc6.bz2</Patch>
+            <Patch level="1">kernel/patch-2.6.37-rc7-git3.bz2</Patch>
 
 
             <!-- Moblin patches -->
@@ -62,16 +62,9 @@
             <!-- Don't install scsi headers to avoid conflict with glibc -->
             <Patch level="1">ubuntu/ubuntu-maverick.git-c7a74029969b912241591b2889961b17514ca61f.patch</Patch>
 
-            <!-- aufs-2.1-35 support (buggy)
-            <Patch level="1">aufs/aufs-2.1-35.patch</Patch>
-            <Patch level="1">aufs/aufs2-base.patch</Patch>
-            <Patch level="1">aufs/aufs2-kbuild.patch</Patch>
-            <Patch level="1">aufs/aufs2-build.patch</Patch>
-            -->
-
             <!-- unionfs support -->
-            <Patch level="1" compressionType="gz">unionfs/unionfs-2.5.6_for_2.6.36-rc5.diff.gz</Patch>
-            <Patch level="1">unionfs/unionfs-2.5.6-fix-compat.diff</Patch>
+            <Patch level="1" compressionType="gz">unionfs/unionfs-2.5.7_for_2.6.37-rc1.diff.gz</Patch>
+            <!--<Patch level="1">unionfs/unionfs-2.5.6-fix-compat.diff</Patch>-->
 
 
             <!-- Fedora Kernel Patches -->
@@ -233,26 +226,18 @@
             <!-- Make ext3 mount default to barrier=1 -->
             <Patch level="1">suse/ext3-barrier-default.patch</Patch>
 
-            <!-- NFS4ACL for ext3
-                 FIXME: replace with richacl from suse
-            -->
-
             <!-- fastboot stuff -->
             <Patch level="1">suse/linux-2.6.29-jbd-longer-commit-interval.patch</Patch>
 
             <!-- mouse: Add more touch screen device IDs -->
             <Patch level="1">suse/linux-2.6.29-touchkit.patch</Patch>
 
-            <!-- SCSI driver for HP Smart Array controllers, a replacement for cciss
-            <Patch level="1">suse/scsi-driver-for-hp-smart-array.patch</Patch>-->
-
             <!-- Add new serial Wacom device IDs -->
             <Patch level="1">suse/serial-8250-add-new-wacom-devices.patch</Patch>
 
 
-            <!-- TuxOnIce 3.2-rc2 support for 2.6.36
-            <Patch level="1" compressionType="bz2">tuxonice/tuxonice-3.2-rc2-for-2.6.35.patch.bz2</Patch>
-            -->
+            <!-- TuxOnIce 3.2-rc2 support for 2.6.36 -->
+            <Patch level="1" compressionType="bz2">tuxonice/tuxonice-3.2-rc2-for-2.6.36.patch.bz2</Patch>
 
 
             <!-- Pardus Kernel Patches -->
@@ -292,10 +277,15 @@
         <RuntimeDependencies>
             <!-- For new mkinitramfs pakhandler -->
             <Dependency releaseFrom="84">mkinitramfs</Dependency>
+            <Dependency>linux-firmware</Dependency>
         </RuntimeDependencies>
         <Replaces>
             <Package>module-lirc</Package>
+            <Package>module-gspca</Package>
+            <Package>module-uvcvideo</Package>
+            <Package>module-omnibook</Package>
             <Package>module-ipheth-driver</Package>
+            <Package>module-lenovo-sl-laptop</Package>
         </Replaces>
         <Files>
             <Path fileType="executable" permanent="true">/boot</Path>
@@ -327,31 +317,24 @@
     </Package>
 
     <Package>
-        <Name>kernel-doc</Name>
+        <Name>kernel-docs</Name>
         <Summary>Documentation and scripts for the Linux kernel</Summary>
-        <Description>kernel-doc includes several documentation files and scripts for managing several debugging and other tasks.</Description>
+        <Description>kernel-docs includes several documentation files and scripts for managing several debugging and other tasks.</Description>
+        <Replaces>
+            <Package>kernel-doc</Package>
+        </Replaces>
         <Files>
-            <Path fileType="header">/usr/src/linux-source*/Documentation</Path>
-            <Path fileType="header">/usr/src/linux-source*/scripts</Path>
-        </Files>
-    </Package>
-
-    <Package>
-        <Name>kernel-source</Name>
-        <Summary>Source code for the Linux kernel</Summary>
-        <Description>kernel-source provides the source code for the Linux kernel. If you want to build external modules for your kernel, install the appropriate kernel-headers package instead.</Description>
-        <Files>
-            <Path fileType="header">/usr/src/linux-source*</Path>
+            <Path fileType="header">/usr/src/linux-headers*/Documentation</Path>
         </Files>
     </Package>
 
     <History>
         <!--
         <Update release="148">
-            <Date>2010-12-10</Date>
-            <Version>2.6.37_rc5</Version>
+            <Date>2010-12-26</Date>
+            <Version>2.6.37_rc6</Version>
             <Comment>
-                - Bump to 2.6.37_rc5,
+                - Bump to 2.6.37_rc6,
                 - Fix autoloading problem of mantis dvb (#14647).
             </Comment>
             <Name>Ozan Çağlayan</Name>

@@ -12,19 +12,18 @@ from pisi.actionsapi import pisitools
 from pisi.actionsapi import get
 
 WorkDir = "linux-2.6.36"
-NoStrip = ["/"]
+NoStrip = ["/lib", "/boot"]
+
+abiVersion = "148"
 
 def setup():
-    kerneltools.configure()
+    kerneltools.configure(abiVersion)
 
 def build():
     kerneltools.build(debugSymbols=False)
 
 def install():
     kerneltools.install()
-
-    # Dump kernel version into /etc/kernel/
-    kerneltools.dumpVersion()
 
     # Install kernel headers needed for out-of-tree module compilation
     # You can provide a list of extra directories from which to grab *.h files.
@@ -33,13 +32,3 @@ def install():
                                       "drivers/media/video"])
 
     kerneltools.installLibcHeaders()
-
-    # Install kernel source
-    kerneltools.installSource()
-
-    # Clean module-init-tools related stuff
-    kerneltools.cleanModuleFiles()
-
-    # FIXME
-    pisitools.removeDir("/lib/firmware")
-
