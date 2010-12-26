@@ -20,4 +20,3 @@ def install():
     autotools.rawInstall("DESTDIR=%s" % get.installDIR())
     pisitools.dodoc("AUTHORS", "ChangeLog", "README", "doc/*.txt",
                     "doc/spec/*.txt", "doc/design-paper/tor-design.pdf")
-    pisitools.dohtml("doc/website/*")
