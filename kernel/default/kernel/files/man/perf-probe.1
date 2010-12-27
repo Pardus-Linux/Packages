@@ -1,0 +1,264 @@
+'\" t
+.\"     Title: perf-probe
+.\"    Author: [FIXME: author] [see http://docbook.sf.net/el/author]
+.\" Generator: DocBook XSL Stylesheets v1.75.2 <http://docbook.sf.net/>
+.\"      Date: 12/27/2010
+.\"    Manual: \ \&
+.\"    Source: \ \&
+.\"  Language: English
+.\"
+.TH "PERF\-PROBE" "1" "12/27/2010" "\ \&" "\ \&"
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+perf-probe \- Define new dynamic tracepoints
+.SH "SYNOPSIS"
+.sp
+.nf
+\fIperf probe\fR [options] \-\-add=\fIPROBE\fR [\&...]
+or
+\fIperf probe\fR [options] PROBE
+or
+\fIperf probe\fR [options] \-\-del=\fI[GROUP:]EVENT\fR [\&...]
+or
+\fIperf probe\fR \-\-list
+or
+\fIperf probe\fR [options] \-\-line=\fIFUNC[:RLN[+NUM|:RLN2]]|SRC:ALN[+NUM|:ALN2]\fR
+or
+\fIperf probe\fR [options] \-\-vars=\fIPROBEPOINT\fR
+.fi
+.SH "DESCRIPTION"
+.sp
+This command defines dynamic tracepoint events, by symbol and registers without debuginfo, or by C expressions (C line numbers, C function names, and C local variables) with debuginfo\&.
+.SH "OPTIONS"
+.PP
+\-k, \-\-vmlinux=PATH
+.RS 4
+Specify vmlinux path which has debuginfo (Dwarf binary)\&.
+.RE
+.PP
+\-m, \-\-module=MODNAME
+.RS 4
+Specify module name in which perf\-probe searches probe points or lines\&.
+.RE
+.PP
+\-s, \-\-source=PATH
+.RS 4
+Specify path to kernel source\&.
+.RE
+.PP
+\-v, \-\-verbose
+.RS 4
+Be more verbose (show parsed arguments, etc)\&.
+.RE
+.PP
+\-a, \-\-add=
+.RS 4
+Define a probe event (see PROBE SYNTAX for detail)\&.
+.RE
+.PP
+\-d, \-\-del=
+.RS 4
+Delete probe events\&. This accepts glob wildcards(\fI*\fR,
+\fI?\fR) and character classes(e\&.g\&. [a\-z], [!A\-Z])\&.
+.RE
+.PP
+\-l, \-\-list
+.RS 4
+List up current probe events\&.
+.RE
+.PP
+\-L, \-\-line=
+.RS 4
+Show source code lines which can be probed\&. This needs an argument which specifies a range of the source code\&. (see LINE SYNTAX for detail)
+.RE
+.PP
+\-V, \-\-vars=
+.RS 4
+Show available local variables at given probe point\&. The argument syntax is same as PROBE SYNTAX, but NO ARGs\&.
+.RE
+.PP
+\-\-externs
+.RS 4
+(Only for \-\-vars) Show external defined variables in addition to local variables\&.
+.RE
+.PP
+\-f, \-\-force
+.RS 4
+Forcibly add events with existing name\&.
+.RE
+.PP
+\-n, \-\-dry\-run
+.RS 4
+Dry run\&. With this option, \-\-add and \-\-del doesn\(cqt execute actual adding and removal operations\&.
+.RE
+.PP
+\-\-max\-probes
+.RS 4
+Set the maximum number of probe points for an event\&. Default is 128\&.
+.RE
+.SH "PROBE SYNTAX"
+.sp
+Probe points are defined by following syntax\&.
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+1) Define event based on function name
+ [EVENT=]FUNC[@SRC][:RLN|+OFFS|%return|;PTN] [ARG \&.\&.\&.]
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+2) Define event based on source file with line number
+ [EVENT=]SRC:ALN [ARG \&.\&.\&.]
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+3) Define event based on source file with lazy pattern
+ [EVENT=]SRC;PTN [ARG \&.\&.\&.]
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+\fIEVENT\fR specifies the name of new event, if omitted, it will be set the name of the probed function\&. Currently, event group name is set as \fIprobe\fR\&. \fIFUNC\fR specifies a probed function name, and it may have one of the following options; \fI+OFFS\fR is the offset from function entry address in bytes, \fI:RLN\fR is the relative\-line number from function entry line, and \fI%return\fR means that it probes function return\&. And \fI;PTN\fR means lazy matching pattern (see LAZY MATCHING)\&. Note that \fI;PTN\fR must be the end of the probe point definition\&. In addition, \fI@SRC\fR specifies a source file which has that function\&. It is also possible to specify a probe point by the source line number or lazy matching by using \fISRC:ALN\fR or \fISRC;PTN\fR syntax, where \fISRC\fR is the source file path, \fI:ALN\fR is the line number and \fI;PTN\fR is the lazy matching pattern\&. \fIARG\fR specifies the arguments of this probe point, (see PROBE ARGUMENT)\&.
+.SH "PROBE ARGUMENT"
+.sp
+Each probe argument follows below syntax\&.
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+[NAME=]LOCALVAR|$retval|%REG|@SYMBOL[:TYPE]
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+\fINAME\fR specifies the name of this argument (optional)\&. You can use the name of local variable, local data structure member (e\&.g\&. var\(->field, var\&.field2), local array with fixed index (e\&.g\&. array[1], var\(->array[0], var\(->pointer[2]), or kprobe\-tracer argument format (e\&.g\&. $retval, %ax, etc)\&. Note that the name of this argument will be set as the last member name if you specify a local data structure member (e\&.g\&. field2 for \fIvar\(->field1\&.field2\fR\&.) \fITYPE\fR casts the type of this argument (optional)\&. If omitted, perf probe automatically set the type based on debuginfo\&. You can specify \fIstring\fR type only for the local variable or structure member which is an array of or a pointer to \fIchar\fR or \fIunsigned char\fR type\&.
+.SH "LINE SYNTAX"
+.sp
+Line range is descripted by following syntax\&.
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+"FUNC[:RLN[+NUM|\-RLN2]]|SRC:ALN[+NUM|\-ALN2]"
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+FUNC specifies the function name of showing lines\&. \fIRLN\fR is the start line number from function entry line, and \fIRLN2\fR is the end line number\&. As same as probe syntax, \fISRC\fR means the source file path, \fIALN\fR is start line number, and \fIALN2\fR is end line number in the file\&. It is also possible to specify how many lines to show by using \fINUM\fR\&. So, "source\&.c:100\-120" shows lines between 100th to l20th in source\&.c file\&. And "func:10+20" shows 20 lines from 10th line of func function\&.
+.SH "LAZY MATCHING"
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+The lazy line matching is similar to glob matching but ignoring spaces in both of pattern and target\&. So this accepts wildcards(\'*\', \'?\') and character classes(e\&.g\&. [a\-z], [!A\-Z])\&.
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+e\&.g\&. \fIa=*\fR can matches \fIa=b\fR, \fIa = b\fR, \fIa == b\fR and so on\&.
+.sp
+This provides some sort of flexibility and robustness to probe point definitions against minor code changes\&. For example, actual 10th line of schedule() can be moved easily by modifying schedule(), but the same line matching \fIrq=cpu_rq*\fR may still exist in the function\&.)
+.SH "EXAMPLES"
+.sp
+Display which lines in schedule() can be probed:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+\&./perf probe \-\-line schedule
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+Add a probe on schedule() function 12th line with recording cpu local variable:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+\&./perf probe schedule:12 cpu
+or
+\&./perf probe \-\-add=\'schedule:12 cpu\'
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+this will add one or more probes which has the name start with "schedule"\&.
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+Add probes on lines in schedule() function which calls update_rq_clock()\&.
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+\&./perf probe \'schedule;update_rq_clock*\'
+or
+\&./perf probe \-\-add=\'schedule;update_rq_clock*\'
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+Delete all probes on schedule()\&.
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+\&./perf probe \-\-del=\'schedule*\'
+.fi
+.if n \{\
+.RE
+.\}
+.SH "SEE ALSO"
+.sp
+\fBperf-trace\fR(1), \fBperf-record\fR(1)

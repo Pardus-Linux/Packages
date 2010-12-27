@@ -1,0 +1,186 @@
+'\" t
+.\"     Title: perf-record
+.\"    Author: [FIXME: author] [see http://docbook.sf.net/el/author]
+.\" Generator: DocBook XSL Stylesheets v1.75.2 <http://docbook.sf.net/>
+.\"      Date: 12/27/2010
+.\"    Manual: \ \&
+.\"    Source: \ \&
+.\"  Language: English
+.\"
+.TH "PERF\-RECORD" "1" "12/27/2010" "\ \&" "\ \&"
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+perf-record \- Run a command and record its profile into perf\&.data
+.SH "SYNOPSIS"
+.sp
+.nf
+\fIperf record\fR [\-e <EVENT> | \-\-event=EVENT] [\-l] [\-a] <command>
+\fIperf record\fR [\-e <EVENT> | \-\-event=EVENT] [\-l] [\-a] \(em <command> [<options>]
+.fi
+.SH "DESCRIPTION"
+.sp
+This command runs a command and gathers a performance counter profile from it, into perf\&.data \- without displaying anything\&.
+.sp
+This file can then be inspected later on, using \fIperf report\fR\&.
+.SH "OPTIONS"
+.PP
+<command>\&...
+.RS 4
+Any command you can specify in a shell\&.
+.RE
+.PP
+\-e, \-\-event=
+.RS 4
+Select the PMU event\&. Selection can be:
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+a symbolic event name (use
+\fIperf list\fR
+to list all events)
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+a raw PMU event (eventsel+umask) in the form of rNNN where NNN is a hexadecimal event descriptor\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+a hardware breakpoint event in the form of
+\fI\emem:addr[:access]\fR
+where addr is the address in memory you want to break in\&. Access is the memory access type (read, write, execute) it can be passed as follows:
+\fI\emem:addr[:[r][w][x]]\fR\&. If you want to profile read\-write accesses in 0x1000, just set
+\fImem:0x1000:rw\fR\&.
+.RE
+.RE
+.PP
+\-a
+.RS 4
+System\-wide collection\&.
+.RE
+.PP
+\-l
+.RS 4
+Scale counter values\&.
+.RE
+.PP
+\-p, \-\-pid=
+.RS 4
+Record events on existing pid\&.
+.RE
+.PP
+\-r, \-\-realtime=
+.RS 4
+Collect data with this RT SCHED_FIFO priority\&.
+.RE
+.PP
+\-A, \-\-append
+.RS 4
+Append to the output file to do incremental profiling\&.
+.RE
+.PP
+\-f, \-\-force
+.RS 4
+Overwrite existing data file\&. (deprecated)
+.RE
+.PP
+\-c, \-\-count=
+.RS 4
+Event period to sample\&.
+.RE
+.PP
+\-o, \-\-output=
+.RS 4
+Output file name\&.
+.RE
+.PP
+\-i, \-\-no\-inherit
+.RS 4
+Child tasks do not inherit counters\&.
+.RE
+.PP
+\-F, \-\-freq=
+.RS 4
+Profile at this frequency\&.
+.RE
+.PP
+\-m, \-\-mmap\-pages=
+.RS 4
+Number of mmap data pages\&.
+.RE
+.PP
+\-g, \-\-call\-graph
+.RS 4
+Do call\-graph (stack chain/backtrace) recording\&.
+.RE
+.PP
+\-q, \-\-quiet
+.RS 4
+Don\(cqt print any message, useful for scripting\&.
+.RE
+.PP
+\-v, \-\-verbose
+.RS 4
+Be more verbose (show counter open errors, etc)\&.
+.RE
+.PP
+\-s, \-\-stat
+.RS 4
+Per thread counts\&.
+.RE
+.PP
+\-d, \-\-data
+.RS 4
+Sample addresses\&.
+.RE
+.PP
+\-n, \-\-no\-samples
+.RS 4
+Don\(cqt sample\&.
+.RE
+.PP
+\-R, \-\-raw\-samples
+.RS 4
+Collect raw sample records from all opened counters (default for tracepoint counters)\&.
+.RE
+.PP
+\-C, \-\-cpu
+.RS 4
+Collect samples only on the list of cpus provided\&. Multiple CPUs can be provided as a comma\-sperated list with no space: 0,1\&. Ranges of CPUs are specified with \-: 0\-2\&. In per\-thread mode with inheritance mode on (default), samples are captured only when the thread executes on the designated CPUs\&. Default is to monitor all CPUs\&.
+.RE
+.PP
+\-N, \-\-no\-buildid\-cache
+.RS 4
+Do not update the builid cache\&. This saves some overhead in situations where the information in the perf\&.data file (which includes buildids) is sufficient\&.
+.RE
+.SH "SEE ALSO"
+.sp
+\fBperf-stat\fR(1), \fBperf-list\fR(1)

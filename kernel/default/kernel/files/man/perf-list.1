@@ -1,0 +1,101 @@
+'\" t
+.\"     Title: perf-list
+.\"    Author: [FIXME: author] [see http://docbook.sf.net/el/author]
+.\" Generator: DocBook XSL Stylesheets v1.75.2 <http://docbook.sf.net/>
+.\"      Date: 12/27/2010
+.\"    Manual: \ \&
+.\"    Source: \ \&
+.\"  Language: English
+.\"
+.TH "PERF\-LIST" "1" "12/27/2010" "\ \&" "\ \&"
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+perf-list \- List all symbolic event types
+.SH "SYNOPSIS"
+.sp
+.nf
+\fIperf list\fR
+.fi
+.SH "DESCRIPTION"
+.sp
+This command displays the symbolic event types which can be selected in the various perf commands with the \-e option\&.
+.SH "EVENT MODIFIERS"
+.sp
+Events can optionally have a modifer by appending a colon and one or more modifiers\&. Modifiers allow the user to restrict when events are counted with \fIu\fR for user\-space, \fIk\fR for kernel, \fIh\fR for hypervisor\&.
+.sp
+The \fIp\fR modifier can be used for specifying how precise the instruction address should be\&. The \fIp\fR modifier is currently only implemented for Intel PEBS and can be specified multiple times: 0 \- SAMPLE_IP can have arbitrary skid 1 \- SAMPLE_IP must have constant skid 2 \- SAMPLE_IP requested to have 0 skid 3 \- SAMPLE_IP must have 0 skid
+.sp
+The PEBS implementation now supports up to 2\&.
+.SH "RAW HARDWARE EVENT DESCRIPTOR"
+.sp
+Even when an event is not available in a symbolic form within perf right now, it can be encoded in a per processor specific way\&.
+.sp
+For instance For x86 CPUs NNN represents the raw register encoding with the layout of IA32_PERFEVTSELx MSRs (see [Intel\(rg 64 and IA\-32 Architectures Software Developer\(cqs Manual Volume 3B: System Programming Guide] Figure 30\-1 Layout of IA32_PERFEVTSELx MSRs) or AMD\(cqs PerfEvtSeln (see [AMD64 Architecture Programmer\(cqs Manual Volume 2: System Programming], Page 344, Figure 13\-7 Performance Event\-Select Register (PerfEvtSeln))\&.
+.sp
+Example:
+.sp
+If the Intel docs for a QM720 Core i7 describe an event as:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+Event  Umask  Event Mask
+Num\&.   Value  Mnemonic    Description                        Comment
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+A8H      01H  LSD\&.UOPS    Counts the number of micro\-ops     Use cmask=1 and
+                          delivered by loop stream detector  invert to count
+                                                             cycles
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+raw encoding of 0x1A8 can be used:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+perf stat \-e r1a8 \-a sleep 1
+perf record \-e r1a8 \&.\&.\&.
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+You should refer to the processor specific documentation for getting these details\&. Some of them are referenced in the SEE ALSO section below\&.
+.SH "OPTIONS"
+.sp
+None
+.SH "SEE ALSO"
+.sp
+\fBperf-stat\fR(1), \fBperf-top\fR(1), \fBperf-record\fR(1), \m[blue]\fBIntel\(rg 64 and IA\-32 Architectures Software Developer\(cqs Manual Volume 3B: System Programming Guide\fR\m[]\&\s-2\u[1]\d\s+2, \m[blue]\fBAMD64 Architecture Programmer\(cqs Manual Volume 2: System Programming\fR\m[]\&\s-2\u[2]\d\s+2
+.SH "NOTES"
+.IP " 1." 4
+Intel\(rg 64 and IA-32 Architectures Software Developer\(cqs Manual Volume 3B: System Programming Guide
+.RS 4
+\%http://www.intel.com/Assets/PDF/manual/253669.pdf
+.RE
+.IP " 2." 4
+AMD64 Architecture Programmer\(cqs Manual Volume 2: System Programming
+.RS 4
+\%http://support.amd.com/us/Processor_TechDocs/24593.pdf
+.RE

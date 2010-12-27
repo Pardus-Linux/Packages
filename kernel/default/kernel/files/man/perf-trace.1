@@ -1,0 +1,191 @@
+'\" t
+.\"     Title: perf-trace
+.\"    Author: [FIXME: author] [see http://docbook.sf.net/el/author]
+.\" Generator: DocBook XSL Stylesheets v1.75.2 <http://docbook.sf.net/>
+.\"      Date: 12/27/2010
+.\"    Manual: \ \&
+.\"    Source: \ \&
+.\"  Language: English
+.\"
+.TH "PERF\-TRACE" "1" "12/27/2010" "\ \&" "\ \&"
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+perf-trace \- Read perf\&.data (created by perf record) and display trace output
+.SH "SYNOPSIS"
+.sp
+.nf
+\fIperf trace\fR [<options>]
+\fIperf trace\fR [<options>] record <script> [<record\-options>] <command>
+\fIperf trace\fR [<options>] report <script> [script\-args]
+\fIperf trace\fR [<options>] <script> <required\-script\-args> [<record\-options>] <command>
+\fIperf trace\fR [<options>] <top\-script> [script\-args]
+.fi
+.SH "DESCRIPTION"
+.sp
+This command reads the input file and displays the trace recorded\&.
+.sp
+There are several variants of perf trace:
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+\'perf trace\' to see a detailed trace of the workload that was
+recorded\&.
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+You can also run a set of pre\-canned scripts that aggregate and
+summarize the raw trace data in various ways (the list of scripts is
+available via \'perf trace \-l\')\&.  The following variants allow you to
+record and run those scripts:
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+\'perf trace record <script> <command>\' to record the events required
+for \'perf trace report\'\&.  <script> is the name displayed in the
+output of \'perf trace \-\-list\' i\&.e\&. the actual script name minus any
+language extension\&.  If <command> is not specified, the events are
+recorded using the \-a (system\-wide) \'perf record\' option\&.
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+\'perf trace report <script> [args]\' to run and display the results
+of <script>\&.  <script> is the name displayed in the output of \'perf
+trace \-\-list\' i\&.e\&. the actual script name minus any language
+extension\&.  The perf\&.data output from a previous run of \'perf trace
+record <script>\' is used and should be present for this command to
+succeed\&.  [args] refers to the (mainly optional) args expected by
+the script\&.
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+\'perf trace <script> <required\-script\-args> <command>\' to both
+record the events required for <script> and to run the <script>
+using \'live\-mode\' i\&.e\&. without writing anything to disk\&.  <script>
+is the name displayed in the output of \'perf trace \-\-list\' i\&.e\&. the
+actual script name minus any language extension\&.  If <command> is
+not specified, the events are recorded using the \-a (system\-wide)
+\'perf record\' option\&.  If <script> has any required args, they
+should be specified before <command>\&.  This mode doesn\'t allow for
+optional script args to be specified; if optional script args are
+desired, they can be specified using separate \'perf trace record\'
+and \'perf trace report\' commands, with the stdout of the record step
+piped to the stdin of the report script, using the \'\-o \-\' and \'\-i \-\'
+options of the corresponding commands\&.
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+\'perf trace <top\-script>\' to both record the events required for
+<top\-script> and to run the <top\-script> using \'live\-mode\'
+i\&.e\&. without writing anything to disk\&.  <top\-script> is the name
+displayed in the output of \'perf trace \-\-list\' i\&.e\&. the actual
+script name minus any language extension; a <top\-script> is defined
+as any script name ending with the string \'top\'\&.
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+[<record\-options>] can be passed to the record steps of \'perf trace
+record\' and \'live\-mode\' variants; this isn\'t possible however for
+<top\-script> \'live\-mode\' or \'perf trace report\' variants\&.
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+See the \'SEE ALSO\' section for links to language\-specific
+information on how to write and run your own trace scripts\&.
+.fi
+.if n \{\
+.RE
+.\}
+.SH "OPTIONS"
+.PP
+<command>\&...
+.RS 4
+Any command you can specify in a shell\&.
+.RE
+.PP
+\-D, \-\-dump\-raw\-trace=
+.RS 4
+Display verbose dump of the trace data\&.
+.RE
+.PP
+\-L, \-\-Latency=
+.RS 4
+Show latency attributes (irqs/preemption disabled, etc)\&.
+.RE
+.PP
+\-l, \-\-list=
+.RS 4
+Display a list of available trace scripts\&.
+.RE
+.PP
+\-s [\fIlang\fR], \-\-script=
+.RS 4
+Process trace data with the given script ([lang]:script[\&.ext])\&. If the string
+\fIlang\fR
+is specified in place of a script name, a list of supported languages will be displayed instead\&.
+.RE
+.PP
+\-g, \-\-gen\-script=
+.RS 4
+Generate perf\-trace\&.[ext] starter script for given language, using current perf\&.data\&.
+.RE
+.PP
+\-a
+.RS 4
+Force system\-wide collection\&. Scripts run without a <command> normally use \-a by default, while scripts run with a <command> normally don\(cqt \- this option allows the latter to be run in system\-wide mode\&.
+.RE
+.SH "SEE ALSO"
+.sp
+\fBperf-record\fR(1), \fBperf-trace-perl\fR(1), \fBperf-trace-python\fR(1)

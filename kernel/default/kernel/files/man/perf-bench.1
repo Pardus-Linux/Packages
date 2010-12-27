@@ -1,0 +1,194 @@
+'\" t
+.\"     Title: perf-bench
+.\"    Author: [FIXME: author] [see http://docbook.sf.net/el/author]
+.\" Generator: DocBook XSL Stylesheets v1.75.2 <http://docbook.sf.net/>
+.\"      Date: 12/27/2010
+.\"    Manual: \ \&
+.\"    Source: \ \&
+.\"  Language: English
+.\"
+.TH "PERF\-BENCH" "1" "12/27/2010" "\ \&" "\ \&"
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+perf-bench \- General framework for benchmark suites
+.SH "SYNOPSIS"
+.sp
+.nf
+\fIperf bench\fR [<common options>] <subsystem> <suite> [<options>]
+.fi
+.SH "DESCRIPTION"
+.sp
+This \fIperf bench\fR command is general framework for benchmark suites\&.
+.SH "COMMON OPTIONS"
+.PP
+\-f, \-\-format=
+.RS 4
+Specify format style\&. Current available format styles are:
+.RE
+.PP
+\fIdefault\fR
+.RS 4
+Default style\&. This is mainly for human reading\&.
+.RE
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+% perf bench sched pipe                      # with no style specified
+(executing 1000000 pipe operations between two tasks)
+        Total time:5\&.855 sec
+                5\&.855061 usecs/op
+                170792 ops/sec
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+\fIsimple\fR
+.RS 4
+This simple style is friendly for automated processing by scripts\&.
+.RE
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+% perf bench \-\-format=simple sched pipe      # specified simple
+5\&.988
+.fi
+.if n \{\
+.RE
+.\}
+.SH "SUBSYSTEM"
+.PP
+\fIsched\fR
+.RS 4
+Scheduler and IPC mechanisms\&.
+.RE
+.SS "SUITES FOR \fIsched\fR"
+.PP
+\fBmessaging\fR
+.RS 4
+Suite for evaluating performance of scheduler and IPC mechanisms\&. Based on hackbench by Rusty Russell\&.
+.RE
+.sp
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.ps +1
+\fBOptions of pipe\fR
+.RS 4
+.PP
+\-p, \-\-pipe
+.RS 4
+Use pipe() instead of socketpair()
+.RE
+.PP
+\-t, \-\-thread
+.RS 4
+Be multi thread instead of multi process
+.RE
+.PP
+\-g, \-\-group=
+.RS 4
+Specify number of groups
+.RE
+.PP
+\-l, \-\-loop=
+.RS 4
+Specify number of loops
+.RE
+.RE
+.sp
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.ps +1
+\fBExample of messaging\fR
+.RS 4
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+% perf bench sched messaging                 # run with default
+options (20 sender and receiver processes per group)
+(10 groups == 400 processes run)
+
+      Total time:0\&.308 sec
+
+% perf bench sched messaging \-t \-g 20        # be multi\-thread, with 20 groups
+(20 sender and receiver threads per group)
+(20 groups == 800 threads run)
+
+      Total time:0\&.582 sec
+.fi
+.if n \{\
+.RE
+.\}
+.PP
+\fBpipe\fR
+.RS 4
+Suite for pipe() system call\&. Based on pipe\-test\-1m\&.c by Ingo Molnar\&.
+.RE
+.RE
+.sp
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.ps +1
+\fBOptions of pipe\fR
+.RS 4
+.PP
+\-l, \-\-loop=
+.RS 4
+Specify number of loops\&.
+.RE
+.RE
+.sp
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.ps +1
+\fBExample of pipe\fR
+.RS 4
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+% perf bench sched pipe
+(executing 1000000 pipe operations between two tasks)
+
+        Total time:8\&.091 sec
+                8\&.091833 usecs/op
+                123581 ops/sec
+
+% perf bench sched pipe \-l 1000              # loop 1000
+(executing 1000 pipe operations between two tasks)
+
+        Total time:0\&.016 sec
+                16\&.948000 usecs/op
+                59004 ops/sec
+.fi
+.if n \{\
+.RE
+.\}
+.RE
+.SH "SEE ALSO"
+.sp
+\fBperf\fR(1)
