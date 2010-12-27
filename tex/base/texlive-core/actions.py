@@ -44,7 +44,7 @@ def setup():
                           --disable-luatex \
                           --disable-ps2eps \
                           --disable-psutils \
-                          --disable-tlutils \
+                          --disable-t1utils \
                           --enable-xetex \
                           --disable-xdvik \
                           --disable-xindy \
