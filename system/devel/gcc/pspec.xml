@@ -15,9 +15,9 @@
         <Summary>The GNU Compiler Collection, includes C, C++, Objective-C and Fortran compilers</Summary>
         <Description>The GNU Compiler Collection includes front ends for C, C++, Objective-C, Fortran, as well as libraries for these languages</Description>
         <!-- use for snapshots
-        <Archive sha1sum="b4080efdca3f4e986c2b764225e37a564c57028a" type="tarbz2">http://cekirdek.pardus.org.tr/~onur/distfiles/gcc-4.5-20100729.tar.bz2</Archive>
+        <Archive sha1sum="e9cfac8483fa75e2e321be8c299a10fcad743a50" type="tarbz2">http://cekirdek.pardus.org.tr/~onur/distfiles/gcc-4.5.1-20101208.tar.bz2</Archive>
         -->
-        <Archive sha1sum="78809acdaef48e74165efe3289cb1a3cb344e406" type="tarbz2">ftp://gcc.gnu.org/pub/gcc/releases/gcc-4.5.1/gcc-4.5.1.tar.bz2</Archive>
+        <Archive sha1sum="ad5c440526c98fd17a74eab80c031af6b64d9c90" type="tarbz2">ftp://gcc.gnu.org/pub/gcc/releases/gcc-4.5.2/gcc-4.5.2.tar.bz2</Archive>
         <BuildDependencies>
             <Dependency>binutils</Dependency>
             <Dependency>bison</Dependency>
@@ -55,7 +55,9 @@
             <Patch>redhat/gcc45-libtool-no-rpath.patch</Patch>
             <Patch>redhat/gcc45-pr33763.patch</Patch>
             <Patch>redhat/gcc45-pr38757.patch</Patch>
+            <!-- merged in, check again
             <Patch>redhat/gcc45-pr44542.patch</Patch>
+            -->
             <Patch>redhat/gcc45-rh330771.patch</Patch>
 
             <!-- Patches from Suse -->
@@ -74,7 +76,9 @@
             <Patch>pr42375.patch</Patch>
 
             <!-- If computing a constraint for the rhs handle type punning through unions -->
+            <!-- merged in, check again
             <Patch level="2">pr45623.patch</Patch>
+            -->
 
             <!-- Pardus only patches, put error/warning count -->
             <Patch level="1">pr26061.patch</Patch>
@@ -87,6 +91,9 @@
 
             <!-- Fix uClibc dynamic linker paths to suit our package's needs -->
             <Patch level="1">fix-uClibc-loader-paths.patch</Patch>
+
+            <!-- Fix profiledbootstrap segfaulting on libstdc++, PR43085 -->
+            <Patch>fix_profiledbootstrap.patch</Patch>
         </Patches>
     </Source>
 
@@ -111,9 +118,10 @@
         <IsA>library</IsA>
         <Summary>Contains GCC shared support library which is needed for OpenMP 2.5 support.</Summary>
         <Files>
-            <!-- FIXME: remove static library on the next release -->
-            <Path fileType="library">/usr/lib/libgomp*</Path>
-            <Path fileType="library">/usr/lib32/libgomp*</Path>
+            <Path fileType="library">/usr/lib/libgomp.so*</Path>
+            <Path fileType="library">/usr/lib/libgomp.spec*</Path>
+            <Path fileType="library">/usr/lib32/libgomp.so*</Path>
+            <Path fileType="library">/usr/lib32/libgomp.spec*</Path>
             <Path fileType="info">/usr/share/info/libgomp.info</Path>
         </Files>
     </Package>
@@ -153,6 +161,9 @@
             <Dependency>cloog-ppl</Dependency>
             <Dependency>elfutils</Dependency>
         </RuntimeDependencies>
+        <Conflicts>
+            <Package releaseTo="62">libgomp</Package>
+        </Conflicts>
         <Files>
             <Path fileType="executable">/lib</Path>
             <Path fileType="executable">/usr/bin</Path>
@@ -170,6 +181,185 @@
     </Package>
 
     <History>
+        <Update release="63">
+            <Date>2010-12-17</Date>
+            <Version>4.5.2</Version>
+            <Comment>
+                Minor version bump, contains a lot of fixes
+                PR43715
+                ada/40777
+                boehm-gc/34544
+                bootstrap/44455
+                bootstrap/44621
+                c/44772
+                c/45969
+                c/45079
+                c/46547
+                c++/44991
+                c++/45112
+                c++/45200
+                c++/45293
+                c++/45315
+                c++/45558
+                c++/45894
+                c++/45983
+                c++/46024
+                c++/46058
+                c++/46160
+                c++/46401
+                c++/46538
+                debug/42487
+                debug/43628
+                debug/45055
+                debug/45259
+                debug/45500
+                debug/45660
+                debug/45939
+                debug/46123
+                fortran/31588
+                fortran/42051
+                fortran/42169
+                fortran/43954
+                fortran/44064
+                fortran/44660
+                fortran/44929
+                fortran/45081
+                fortran/45151
+                fortran/45186
+                fortran/45344
+                fortran/45595
+                fortran/45748
+                fortran/46007
+                fortran/46140
+                fortran/46152
+                fortran/46753
+                fortran/46794
+                java/43839
+                java/44095
+                libffi/45677
+                libfortran/45532
+                libfortran/45710
+                libgfortran/46010
+                libgfortran/46373
+                libgomp/45240
+                libstdc++/44963
+                libstdc++/45283
+                libstdc++/45398
+                libstdc++/45403
+                libstdc++/45711
+                libstdc++/45924
+                libstdc++/45999
+                lto/45496
+                middle-end/40386
+                middle-end/43057
+                middle-end/43690
+                middle-end/44554
+                middle-end/44569
+                middle-end/44632
+                middle-end/44763
+                middle-end/45034
+                middle-end/45234
+                middle-end/45262
+                middle-end/45292
+                middle-end/45312
+                middle-end/45423
+                middle-end/45458
+                middle-end/45484
+                middle-end/45567
+                middle-end/45569
+                middle-end/45678
+                middle-end/45704
+                middle-end/45869
+                middle-end/46019
+                middle-end/46419
+                middle-end/46499
+                middle-end/46534
+                middle-end/46629
+                middle-end/46651
+                middle-end/46734
+                other/45443
+                rtl-optimization/41085
+                rtl-optimization/41087
+                rtl-optimization/42775
+                rtl-optimization/43358
+                rtl-optimization/44691
+                rtl-optimization/44858
+                rtl-optimization/44919
+                rtl-optimization/45051
+                rtl-optimization/45137
+                rtl-optimization/45353
+                rtl-optimization/45400
+                rtl-optimization/45593
+                rtl-optimization/45695
+                rtl-optimization/45728
+                rtl-optimization/46237
+                rtl-optimization/46315
+                rtl-optimization/46440
+                rtl-optimization/46614
+                rtl-optimization/46777
+                target/31100
+                target/35664
+                target/36502
+                target/40959
+                target/41089
+                target/41484
+                target/42070
+                target/42313
+                target/43698
+                target/43764
+                target/43897
+                target/44266
+                target/44452
+                target/44651
+                target/44805
+                target/44942
+                target/45070
+                target/45296
+                target/45327
+                target/45693
+                target/45726
+                target/45807
+                target/45820
+                target/45843
+                target/45870
+                target/45946
+                target/46098
+                target/46131
+                target/46153
+                target/46419
+                target/46729
+                target/46915
+                testsuite/43283
+                testsuite/43925
+                tree-optimization/43023
+                tree-optimization/44545
+                tree-optimization/44676
+                tree-optimization/44914
+                tree-optimization/45052
+                tree-optimization/45109
+                tree-optimization/45393
+                tree-optimization/45552
+                tree-optimization/45709
+                tree-optimization/45752
+                tree-optimization/45854
+                tree-optimization/45902
+                tree-optimization/45982
+                tree-optimization/46099
+                tree-optimization/46107
+                tree-optimization/46165
+                tree-optimization/46167
+                tree-optimization/46177
+                tree-optimization/46355
+                tree-optimization/46491
+                tree-optimization/46498
+                tree-optimization/46663
+                tree-optimization/46675
+                tree-optimization/46758
+                tree-optimization/46806
+            </Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
         <Update release="62">
             <Date>2010-10-18</Date>
             <Version>4.5.1</Version>

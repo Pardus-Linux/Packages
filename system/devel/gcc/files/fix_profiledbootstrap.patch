@@ -1,0 +1,26 @@
+
+2010-12-06  Onur Küçük  <onur@pardus.org.tr>
+
+    Revert PR tree-optimization/46806
+    * tree-ssa-copyrename.c (copy_rename_partition_coalesce): Check
+    only if the types are compatible for coalesce.
+
+Index: gcc/tree-ssa-copyrename.c
+===================================================================
+--- gcc/tree-ssa-copyrename.c	(revision 167492)
++++ gcc/tree-ssa-copyrename.c	(revision 167491)
+@@ -225,11 +225,11 @@
+       ign2 = false;
+     }
+ 
+-  /* Don't coalesce if the two variables are not of the same type.  */
+-  if (TREE_TYPE (root1) != TREE_TYPE (root2))
++  /* Don't coalesce if the two variables aren't type compatible.  */
++  if (!types_compatible_p (TREE_TYPE (root1), TREE_TYPE (root2)))
+     {
+       if (debug)
+-	fprintf (debug, " : Different types.  No coalesce.\n");
++	fprintf (debug, " : Incompatible types.  No coalesce.\n");
+       return false;
+     }
+ 

@@ -27,7 +27,7 @@ opt_arch = "--with-arch_32=i686" if get.ARCH() == "x86_64" else "--with-arch=i68
 opt_multilib = "--enable-multilib" if get.ARCH() == "x86_64" else ""
 
 # WARNING: even -fomit-frame-pointer may break the build, stack protector, fortify source etc. are off limits
-cflags = "-O2 -g -pipe"
+cflags = "-O2 -g"
 
 
 def removePardusSection(_dir):
