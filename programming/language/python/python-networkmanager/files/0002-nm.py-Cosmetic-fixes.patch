@@ -1,0 +1,81 @@
+From 0e2102669186bc704e9016d82f4203c9de36587a Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Ozan=20=C3=87a=C4=9Flayan?= <ozan@pardus.org.tr>
+Date: Thu, 23 Dec 2010 12:00:26 +0200
+Subject: [PATCH 2/2] nm.py: Cosmetic fixes
+
+Ensure that objects inherits the 'object' class,
+Some indentation and line continuation fixes.
+Replace type with _type to because type is an internal Python name.
+---
+ networkmanager/networkmanager.py |   22 +++++++++++-----------
+ 1 files changed, 11 insertions(+), 11 deletions(-)
+
+diff --git a/networkmanager/networkmanager.py b/networkmanager/networkmanager.py
+index a0170d9..197b9b8 100644
+--- a/networkmanager/networkmanager.py
++++ b/networkmanager/networkmanager.py
+@@ -221,17 +221,16 @@ def netmask_to_prefixlen(netmask):
+ 
+ class Device(object):
+     _NM_INTERFACE = NM_DEVICE
+-
+     def __new__(cls, bus, path):
+         _subclasses = {
+-            DeviceType.ETHERNET: DeviceWired,
+-            DeviceType.WIFI: DeviceWireless,
+-            DeviceType.CDMA: DeviceCdma,
++            DeviceType.ETHERNET : DeviceWired,
++            DeviceType.WIFI     : DeviceWireless,
++            DeviceType.CDMA     : DeviceCdma,
+         }
+         device = bus.get_object(NM_NAME, path)
+-        type = DeviceType.from_value(device.Get(NM_DEVICE, 'DeviceType'))
++        _type = DeviceType.from_value(device.Get(NM_DEVICE, 'DeviceType'))
+         try:
+-            cls = _subclasses[type]
++            cls = _subclasses[_type]
+         except KeyError:
+             cls = Device
+ 
+@@ -539,8 +538,8 @@ class NetworkManager(object):
+ 
+     @property
+     def active_connections(self):
+-        return [ActiveConnection(self.bus, path)
+-        for path in self.proxy.Get(NM_SETTINGS_CONNECTION, "ActiveConnections")]
++        return [ActiveConnection(self.bus, path) \
++                    for path in self.proxy.Get(NM_NAME, "ActiveConnections")]
+ 
+     def add_connection(self, settings):
+         self.settings.AddConnection(settings._settings, dbus_interface=NM_SETTINGS_NAME)
+@@ -579,7 +578,7 @@ class NetworkManager(object):
+         """
+         return State.from_value(self.proxy.Get(NM_NAME, "State"))
+ 
+-class ActiveConnection():
++class ActiveConnection(object):
+     _NM_INTERFACE = NM_CONN_ACTIVE
+ 
+     def __init__(self, bus, path):
+@@ -622,7 +621,7 @@ class ActiveConnection():
+     def vpn(self):
+         return self._proxy_get("Vpn")
+ 
+-class Connection():
++class Connection(object):
+     def __init__(self, bus, path):
+         self.proxy = bus.get_object(NM_NAME, path);
+ 
+@@ -756,7 +755,8 @@ class BaseSettings(object):
+         within this connection. No addresses usually indicates
+         autoconfiguration
+         """
+-        if not 'ipv4' in self._settings: return False
++        if 'ipv4' not in self._settings:
++            return False
+         return len(self._settings['ipv4']['addresses']) > 0
+ 
+     def _get_first_address(self):
+-- 
+1.7.3.4
+

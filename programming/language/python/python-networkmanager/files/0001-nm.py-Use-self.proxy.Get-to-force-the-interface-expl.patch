@@ -1,0 +1,91 @@
+From c408209d3700008e1aed95e342817b91fb00038d Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Ozan=20=C3=87a=C4=9Flayan?= <ozan@pardus.org.tr>
+Date: Thu, 23 Dec 2010 11:47:16 +0200
+Subject: [PATCH 1/2] nm.py: Use self.proxy.Get to force the interface explicitly
+
+The class-wide _NM_INTERFACE variable was getting overriden
+by the subclasses. This causes the _proxy_get() method in the
+Device class to use the wrong _NM_INTERFACE value when querying
+the D-Bus properties.
+
+Example:
+
+  'state' is a property of Device.Wired. When this property is
+  requested, _proxy_get() queries D-Bus with _NM_INTERFACE which
+  was overriden by Device.Wired to _NM_DEVICE_WIRED.
+
+  Now when you request a property provided by the native Device
+  class like 'interface', the _proxy_get() method should query
+  D-Bus with _NM_INTERFACE == _NM_DEVICE but unfortunately the
+  _NM_INTERFACE got already overridden with _NM_DEVICE_WIRED.
+
+The bug was not discovered until a security issue (CVE-2010-1172)
+is discovered in dbus-glib. The issue got fixed in dbus-glib >= 0.88 and
+upstream NetworkManager took precaution for denying access to not
+exported properties.
+
+This caused the python-networkmanager binding to fallback to the OOP
+mechanism with the __new__() tricks, triggering the bug.
+---
+ networkmanager/networkmanager.py |   14 +++++++-------
+ 1 files changed, 7 insertions(+), 7 deletions(-)
+
+diff --git a/networkmanager/networkmanager.py b/networkmanager/networkmanager.py
+index 8c2c4b1..a0170d9 100644
+--- a/networkmanager/networkmanager.py
++++ b/networkmanager/networkmanager.py
+@@ -255,11 +255,11 @@ class Device(object):
+ 
+     @property
+     def udi(self):
+-        return self._proxy_get("Udi")
++        return self.proxy.Get(NM_DEVICE, "Udi")
+ 
+     @property
+     def interface(self):
+-        return self._proxy_get("Interface")
++        return self.proxy.Get(NM_DEVICE, "Interface")
+ 
+     @property
+     def hwaddress(self):
+@@ -267,12 +267,12 @@ class Device(object):
+ 
+     @property
+     def driver(self):
+-        return self._proxy_get("Driver")
++        return self.proxy.Get(NM_DEVICE, "Driver")
+ 
+     @property
+     def capabilities(self):
+         caps = []
+-        value = self._proxy_get("Capabilities")
++        value = self.proxy.Get(NM_DEVICE, "Capabilities")
+         if value & 0x01:
+             caps.append(DeviceCap.SUPPORTED)
+         if value & 0x02:
+@@ -286,7 +286,7 @@ class Device(object):
+ 
+     @property
+     def state(self):
+-        return DeviceState.from_value(self._proxy_get("State"))
++        return DeviceState.from_value(self.proxy.Get(NM_DEVICE, "State"))
+ 
+     @property
+     def ip4config(self):
+@@ -302,11 +302,11 @@ class Device(object):
+ 
+     @property
+     def managed(self):
+-        return self._proxy_get("Managed") == 1
++        return self.proxy.Get(NM_DEVICE, "Managed") == 1
+ 
+     @property
+     def type(self):
+-        return DeviceType.from_value(self._proxy_get("DeviceType"))
++        return DeviceType.from_value(self.proxy.Get(NM_DEVICE, "DeviceType"))
+ 
+ class DeviceWired(Device):
+     _NM_INTERFACE = NM_DEVICE_WIRED
+-- 
+1.7.3.4
+
