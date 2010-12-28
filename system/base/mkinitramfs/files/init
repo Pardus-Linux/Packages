@@ -16,6 +16,7 @@ NORESUME=0
 LIVE=0
 NFSROOT=0
 QUIET=0
+RAID_INCREMENTAL=1
 RAID=0
 LVM=0
 COPYTORAM=0
@@ -319,7 +320,7 @@ parse_config() {
                 # Installation or livecd, enable RAID by default
                 # to be able to read existing RAID installations
                 LIVE=1
-                RAID=1
+                RAID_INCREMENTAL=0
                 LIVEROOT=$(echo $inputline|cut -f2- -d=)
             ;;
             resume=*)
@@ -532,10 +533,14 @@ fi
 
 [ "${INIT}" == "" ] && INIT="/sbin/init";
 
+# This stops /lib/udev/rules.d/65-md-incremental.rules from medling with mdraid sets.
+[ "${RAID_INCREMENTAL}" -eq "0" ] && touch /dev/.in_sysinit
+
 # Move mounts instead of umount/mount
 mount --move /dev /newroot/dev
 mount --move /proc /newroot/proc
 mount --move /sys /newroot/sys
+
 
 # And we start
 info "Switching to the real root"
