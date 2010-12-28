@@ -153,7 +153,7 @@ def parseVersion(version):
     """
 
     try:
-        k_version, x, x, k_suffix = re.findall("kernel-(([a-z0-9\._]+)-([0-9]+))(-.*)?", version)[0]
+        k_version, x, x, k_suffix = re.findall("kernel-(([a-z0-9\._]+)[\._-]([a-z0-9]+))(-.*)?", version)[0]
     except IndexError:
         return None
     return k_version, k_suffix
