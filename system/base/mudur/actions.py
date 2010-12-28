@@ -12,7 +12,6 @@ from pisi.actionsapi import get
 def install():
     shelltools.system("./setup.py install %s" % get.installDIR())
 
-    pisitools.dodir("/etc/network")
     pisitools.dodir("/etc/mudur/services/enabled")
     pisitools.dodir("/etc/mudur/services/disabled")
     pisitools.dodir("/etc/mudur/services/conditional")

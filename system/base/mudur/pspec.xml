@@ -12,7 +12,10 @@
         <IsA>app:console</IsA>
         <Summary>Pardus boot and initialization system</Summary>
         <Description>mudur handles mounting of the filesystems, loading of the device drivers, starting of the system services, and other jobs during the Pardus boot and shutdown sequences.</Description>
-        <Archive sha1sum="07784af2f72d4eaec159b441023e9bc2c0810da5" type="tarbz2">http://cekirdek.pardus.org.tr/~ozan/dist/sources/mudur-4.1.2.tar.bz2</Archive>
+        <Archive sha1sum="5d08868b2f97ac1ca8f04b107adc86e672a61d26" type="tarbz2">http://cekirdek.pardus.org.tr/~ozan/dist/sources/mudur-4.1.3.tar.bz2</Archive>
+        <Patches>
+            <Patch level="1">drop-network.patch</Patch>
+        </Patches>
     </Source>
 
     <Package>
@@ -38,7 +41,6 @@
         </RuntimeDependencies>
         <Files>
             <Path fileType="config">/etc/conf.d</Path>
-            <Path fileType="config">/etc/network</Path>
             <Path fileType="data">/etc/mudur/services</Path>
             <Path fileType="executable">/etc/init.d</Path>
             <Path fileType="executable">/sbin</Path>
@@ -47,13 +49,21 @@
         </Files>
         <Provides>
             <COMAR script="pakhandler.py">System.PackageHandler</COMAR>
+            <COMAR script="netfs.py" name="netfs">System.Service</COMAR>
             <COMAR script="package.py">System.Package</COMAR>
-            <COMAR script="disk.py">Disk.Manager</COMAR>
             <COMAR script="system.py">System.Settings</COMAR>
+            <COMAR script="disk.py">Disk.Manager</COMAR>
         </Provides>
     </Package>
 
     <History>
+        <Update release="123">
+            <Date>2010-12-28</Date>
+            <Version>4.1.3</Version>
+            <Comment>Version bump</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
         <Update release="122">
             <Date>2010-12-22</Date>
             <Version>4.1.2</Version>

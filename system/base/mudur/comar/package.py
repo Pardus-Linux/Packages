@@ -3,5 +3,5 @@
 import os
 
 def postInstall(fromVersion, fromRelease, toVersion, toRelease):
-    # add disks into fstsb
+    # add disks into fstab
     os.system("/sbin/update-fstab")
