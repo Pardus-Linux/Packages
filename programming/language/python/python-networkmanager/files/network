@@ -97,7 +97,10 @@ def print_connections(nm_handle):
             }
 
     for connection in nm_handle.connections:
-        connections[connection.settings.type].append(connection)
+        try:
+            connections[connection.settings.type].append(connection)
+        except KeyError:
+            connections['unknown'].append(connection)
 
     for connection_key in connections:
         if len(connections[connection_key]) > 0:
@@ -517,6 +520,7 @@ def set_connection_state_up(nm_handle, connection_id, interface=None):
         }
 
         device_list = nm_handle.devices_map[types[conn.settings.type]]
+
         device = get_device(nm_handle, device_list)
 
         if device is not None:
