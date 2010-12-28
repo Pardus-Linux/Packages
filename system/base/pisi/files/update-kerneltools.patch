@@ -19,7 +19,7 @@ Index: pisi-2.4_alpha1/pisi/actionsapi/kerneltools.py
  
  def __getModuleFlavour():
      for fl in [_f for _f in __getAllSupportedFlavours() if "-" in _f]:
-@@ -67,17 +66,14 @@ def __getModuleFlavour():
+@@ -67,14 +66,14 @@ def __getModuleFlavour():
      return "kernel"
  
  def __getKernelARCH():
@@ -29,62 +29,57 @@ Index: pisi-2.4_alpha1/pisi/actionsapi/kerneltools.py
  def __getSuffix():
 -    # Set suffix, e.g. "2.6.30_rc7-119"
 -    suffix = "%s-%s" % (get.srcVERSION(), get.srcRELEASE())
--    if __getFlavour():
--        suffix += "-%s" % __getFlavour()
--
--    return suffix
 +    """Read and return the value read from .suffix file."""
-+    return open(".suffix", "r").read().strip()
++    suffix = get.srcVERSION()
+     if __getFlavour():
+         suffix += "-%s" % __getFlavour()
+-
+     return suffix
  
--def __getExtraVersion():
-+def __getExtraVersion(abiVersion):
-     extraversion = ""
-     try:
-         # if successful, this is something like:
-@@ -88,7 +84,8 @@ def __getExtraVersion():
+ def __getExtraVersion():
+@@ -88,8 +87,6 @@ def __getExtraVersion():
          # e.g. if version == 2.6.30
          pass
  
 -    extraversion += "-%s" % get.srcRELEASE()
-+    # abiVersion will be passed from actions.py e.g. like the old release numbers
-+    extraversion += "-%s" % abiVersion
- 
+-
      # Append pae, default, rt, etc. to the extraversion if available
      if __getFlavour():
-@@ -119,20 +116,25 @@ def getKernelVersion(flavour=None):
+         extraversion += "-%s" % __getFlavour()
+@@ -119,28 +116,19 @@ def getKernelVersion(flavour=None):
          # Fail
          raise ConfigureError(_("Can't find kernel version information file %s.") % kverfile)
  
 -
--def configure():
+ def configure():
 -    # I don't know what for but let's clean *.orig files
 -    shelltools.system("find . -name \"*.orig\" | xargs rm -f")
 -
-+def configure(abiVersion):
      # Copy the relevant configuration file
      shutil.copy("configs/kernel-%s-config" % get.ARCH(), ".config")
  
      # Set EXTRAVERSION
--    pisitools.dosed("Makefile", "EXTRAVERSION =.*", "EXTRAVERSION = %s" % __getExtraVersion())
-+    pisitools.dosed("Makefile", "EXTRAVERSION =.*", "EXTRAVERSION = %s" % __getExtraVersion(abiVersion))
-+
-+    # Create .suffix file which will contain __getSuffix()'s return value
-+    suffix = "%s-%s" % (get.srcVERSION(), abiVersion)
-+    if __getFlavour():
-+        suffix += "-%s" % __getFlavour()
-+    open(".suffix", "w").write(suffix)
+     pisitools.dosed("Makefile", "EXTRAVERSION =.*", "EXTRAVERSION = %s" % __getExtraVersion())
  
 -    # Configure the kernel
 +    # Configure the kernel interactively if
 +    # configuration contains new options
      autotools.make("ARCH=%s oldconfig" % __getKernelARCH())
  
+-
+-def updateKConfig():
+-    # Call this to set newly added symbols to their defaults after sedding some KConfig
+-    # variables.
+-
+-    # Grr ugly but no solution.
+-    shelltools.system('yes "" | make oldconfig')
+-
 +    # Check configuration with listnewconfig
 +    autotools.make("ARCH=%s listnewconfig" % __getKernelARCH())
  
- def updateKConfig():
-     # Call this to set newly added symbols to their defaults after sedding some KConfig
-@@ -164,34 +166,44 @@ def build(debugSymbols=False):
+ ###################################
+ # Building and installation stuff #
+@@ -164,36 +152,46 @@ def build(debugSymbols=False):
      autotools.make("ARCH=%s %s" % (__getKernelARCH(), " ".join(extra_config)))
  
  
@@ -100,14 +95,6 @@ Index: pisi-2.4_alpha1/pisi/actionsapi/kerneltools.py
  
 -    # Check if loadable module support is available or not before doing module specific tasks
 -    if re.search("CONFIG_MODULES=y", open(".config", "r").read().strip()):
--
--        # Install the modules and the firmwares into /lib/{modules,firmware}
--        autotools.rawInstall("INSTALL_MOD_PATH=%s/" % get.installDIR(),
--                             "modules_install")
--
--        # Install Module.symvers and System.map
--        pisitools.insinto("/lib/modules/%s/" % suffix, "System.map")
--        pisitools.insinto("/lib/modules/%s/" % suffix, "Module.symvers")
 +    # Install the modules
 +    # mod-fw= avoids firmwares from installing
 +    # Override DEPMOD= to not call depmod as it will be called
@@ -127,28 +114,39 @@ Index: pisi-2.4_alpha1/pisi/actionsapi/kerneltools.py
 +    for _dir in ("extra", "updates"):
 +        pisitools.dodir("/lib/modules/%s/%s" % (suffix, _dir))
  
+-        # Install the modules and the firmwares into /lib/{modules,firmware}
+-        autotools.rawInstall("INSTALL_MOD_PATH=%s/" % get.installDIR(),
+-                             "modules_install")
+ 
+-        # Install Module.symvers and System.map
+-        pisitools.insinto("/lib/modules/%s/" % suffix, "System.map")
+-        pisitools.insinto("/lib/modules/%s/" % suffix, "Module.symvers")
+-
 -        # Remove wrong symlinks
 -        pisitools.remove("/lib/modules/%s/source" % suffix)
 -        pisitools.remove("/lib/modules/%s/build" % suffix)
++def installHeaders(extraHeaders=None):
++    """ Install the files needed to build out-of-tree kernel modules. """
  
 -        if not installFirmwares:
 -            # For use with PAE e.g.
 -            shelltools.system("rm -rf %s/lib/firmware" % get.installDIR())
-+def installHeaders(extraHeaders=None):
-+    """ Install the files needed to build out-of-tree kernel modules. """
- 
 +    extras = ["drivers/media/dvb/dvb-core",
 +              "drivers/media/dvb/frontends",
 +              "drivers/media/video"]
  
--def installHeaders(extra=[]):
--    """ Install the files needed to build out-of-tree kernel modules. """
 +    if extraHeaders:
 +        extras.extend(extraHeaders)
  
-     pruned = ["include", "scripts"]
+-def installHeaders(extra=[]):
+-    """ Install the files needed to build out-of-tree kernel modules. """
+-
+-    pruned = ["include", "scripts"]
++    pruned = ["include", "scripts", "Documentation"]
      wanted = ["Makefile*", "Kconfig*", "Kbuild*", "*.sh", "*.pl", "*.lds"]
-@@ -212,32 +224,38 @@ def installHeaders(extra=[]):
+ 
+     suffix = __getSuffix()
+@@ -212,32 +210,36 @@ def installHeaders(extra=[]):
  
      shelltools.system(find_cmd)
  
@@ -160,12 +158,14 @@ Index: pisi-2.4_alpha1/pisi/actionsapi/kerneltools.py
 +        shelltools.system("cp -a %s/*.h %s/%s" % (headers, destination, headers))
  
      # Install remaining headers
-     shelltools.system("cp -a scripts include %s" % destination)
- 
-+    # Cleanup scripts directory
+-    shelltools.system("cp -a scripts include %s" % destination)
++    shelltools.system("cp -a %s %s" % (" ".join(pruned), destination))
++
++    # Cleanup directories
 +    shelltools.system("rm -rf %s/scripts/*.o" % destination)
 +    shelltools.system("rm -rf %s/scripts/*/*.o" % destination)
-+
++    shelltools.system("rm -rf %s/Documentation/DocBook" % destination)
+ 
      # Finally copy the include directories found in arch/
      shelltools.system("(find arch -name include -type d -print | \
                          xargs -n1 -i: find : -type f) | \
@@ -179,10 +179,9 @@ Index: pisi-2.4_alpha1/pisi/actionsapi/kerneltools.py
      # Copy .config file which will be needed by some external modules
      shutil.copy(".config", "%s/" % destination)
  
-     # Unset CONFIG_DEBUG_INFO if it's set in the kernel configuration
+-    # Unset CONFIG_DEBUG_INFO if it's set in the kernel configuration
 -    pisitools.dosed(".config", ".*CONFIG_DEBUG_INFO=.*", "# CONFIG_DEBUG_INFO is not set")
-+    # pisitools.dosed(".config", ".*CONFIG_DEBUG_INFO=.*", "# CONFIG_DEBUG_INFO is not set")
- 
+-
      # Settle the correct build symlink to this headers
      pisitools.dosym("/%s" % headersDirectoryName, "/lib/modules/%s/build" % suffix)
 +    pisitools.dosym("build", "/lib/modules/%s/source" % suffix)
@@ -193,7 +192,7 @@ Index: pisi-2.4_alpha1/pisi/actionsapi/kerneltools.py
      headers_tmp = os.path.join(get.installDIR(), 'tmp-headers')
      headers_dir = os.path.join(get.installDIR(), 'usr/include')
  
-@@ -271,30 +289,3 @@ def installLibcHeaders(excludes=[]):
+@@ -271,30 +273,3 @@ def installLibcHeaders(excludes=[]):
  
      # Remove tmp directory
      shelltools.system("rm -rf %s" % headers_tmp)
