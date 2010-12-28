@@ -17,17 +17,17 @@ def setup():
                          --with-ssl \
                          --with-libidn \
                          --with-libssh2 \
-                         --enable-threaded-resolver \
                          --enable-ipv6 \
                          --enable-http \
                          --enable-ftp \
-                         --enable-gopher \
                          --enable-file \
                          --enable-dict \
                          --enable-manual \
+                         --enable-gopher \
                          --enable-telnet \
-                         --enable-nonblocking \
                          --enable-largefile \
+                         --enable-nonblocking \
+                         --enable-threaded-resolver \
                          --with-ca-bundle=/etc/pki/tls/certs/ca-bundle.crt")
 
 def build():

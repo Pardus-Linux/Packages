@@ -14,7 +14,7 @@
         <IsA>library</IsA>
         <Summary>A utility for getting files from remote servers</Summary>
         <Description>curl is a command line tool for transferring data with URL syntax, supporting various protocols.</Description>
-        <Archive sha1sum="d6ad8d7caf6e15f318e7b9f69dee8f67c807b1a0" type="tarbz2">http://curl.haxx.se/download/curl-7.21.1.tar.bz2</Archive>
+        <Archive sha1sum="24a551e3653b91f883638a6ecec1582ae3022f9f" type="tarbz2">http://curl.haxx.se/download/curl-7.21.3.tar.bz2</Archive>
         <BuildDependencies>
             <Dependency>zlib</Dependency>
             <Dependency>openssl</Dependency>
@@ -24,12 +24,20 @@
         <Patches>
             <Patch level="1">fix-anonymous-ftp-login.patch</Patch>
 
-            <!-- Fedora patches -->
-            <Patch level="1">0102-curl-7.20.0-lrt.patch</Patch>
-            <Patch level="1">0103-curl-7.19.4-debug.patch</Patch>
-            <Patch level="1">0104-curl-7.19.7-localhost6.patch</Patch>
-            <Patch level="1">0105-curl-7.20.0-disable-test1112.patch</Patch>
-            <Patch level="1">0106-curl-7.21.0-libssh2-valgrind.patch</Patch>
+            <!-- Avoid buffer overflow report from glibc with FORTIFY_SOURCE -->
+            <Patch level="1">fedora/0005-curl-7.21.3-tftpd-buffer-overflow.patch</Patch>
+
+            <!-- prevent configure script from discarding -g in CFLAGS -->
+            <Patch level="1">fedora/0102-curl-7.21.2-debug.patch</Patch>
+
+            <!-- use localhost6 instead of ip6-localhost in the curl test-suite -->
+            <Patch level="1">fedora/0104-curl-7.19.7-localhost6.patch</Patch>
+
+            <!-- disable valgrind for certain test-cases (libssh2 problem) -->
+            <Patch level="1">fedora/0106-curl-7.21.0-libssh2-valgrind.patch</Patch>
+
+            <!-- exclude test1112 from the test suite -->
+            <Patch level="1">fedora/0105-curl-7.21.3-disable-test1112.patch</Patch>
         </Patches>
     </Source>
 
@@ -67,6 +75,13 @@
     </Package>
 
     <History>
+        <Update release="25">
+            <Date>2010-12-28</Date>
+            <Version>7.21.3</Version>
+            <Comment>Version bump</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
         <Update release="24">
             <Date>2010-10-11</Date>
             <Version>7.21.1</Version>
