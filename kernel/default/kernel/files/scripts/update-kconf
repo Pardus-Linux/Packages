@@ -1,0 +1,34 @@
+#!/bin/bash
+
+# Update $ARCH config, set new values
+# from the one given from cmdline
+
+ARCH=$1
+SRC=$2
+
+# Copy the old config to .config
+cp configs/kernel-$ARCH-config .config
+
+function sync_config {
+    NEWCONFIGS=`make ARCH=$ARCH listnewconfig 2>/dev/null | grep '^CONFIG'`
+    if [ -n "$NEWCONFIGS" ]; then
+        for config in $NEWCONFIGS; do
+            VALUE="`grep -w $config $SRC`"
+            if [ -n "$VALUE" ]; then
+                echo $VALUE >> .config
+            fi
+        done
+        # Recursively call back
+        echo "Calling back sync_config() to update more symbols"
+        sync_config
+    else
+        return 0
+    fi
+}
+
+# Sync config, this will enable more newconfigs
+# from dependencies so we'll recall listnewconfig
+# to complete them too
+sync_config
+
+make ARCH=$ARCH oldconfig
