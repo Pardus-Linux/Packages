@@ -13,13 +13,14 @@ from pisi.actionsapi import get
 
 NoStrip = ["/lib", "/boot"]
 
-abiVersion = get.srcVERSION()
-
 def setup():
-    kerneltools.configure(abiVersion)
+    kerneltools.configure()
 
 def build():
     kerneltools.build(debugSymbols=False)
+
+    # When bumping major version build man files and put them into files/man
+    autotools.make("V=1 -C tools/perf perf LDFLAGS='%s'" % get.LDFLAGS())
 
 def install():
     kerneltools.install()
@@ -33,6 +34,4 @@ def install():
     shelltools.system("./generate-module-list %s/lib/modules/%s" % (get.installDIR(), kerneltools.__getSuffix()))
 
     # Build and install the new 'perf' tool
-    # When bumping major version build man files and put them into files/man
-    autotools.make("V=1 -C tools/perf perf LDFLAGS='%s'" % get.LDFLAGS())
     pisitools.insinto("/usr/bin", "tools/perf/perf", "perf.%s-%s" % (get.srcNAME(), get.srcVERSION()))
