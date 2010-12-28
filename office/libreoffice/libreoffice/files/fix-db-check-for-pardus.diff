@@ -1,0 +1,29 @@
+diff -Naur patches-orig/dev300/apply patches/dev300/apply
+--- patches-orig/dev300/apply	2010-12-28 08:37:05.697000695 +0000
++++ patches/dev300/apply	2010-12-28 08:40:12.063000697 +0000
+@@ -1616,6 +1616,7 @@
+ pardus-xdg-email-senddoc.diff
+ fix-kde4-includedir.diff
+ fix-jpeg-lib64-dir.diff
++fix-db-check-for-pardus.diff
+ 
+ [ UnUsedButNotYetRemovedFromGit ]
+ # diffs kept for reference as there might soon be a need to resurrect
+diff -Naur patches-orig/dev300/fix-db-check-for-pardus.diff patches/dev300/fix-db-check-for-pardus.diff
+--- patches-orig/dev300/fix-db-check-for-pardus.diff	1970-01-01 00:00:00.000000000 +0000
++++ patches/dev300/fix-db-check-for-pardus.diff	2010-12-28 08:38:59.965000697 +0000
+@@ -0,0 +1,14 @@
++--- configure.in.orig	2010-12-27 15:04:05.274000696 +0000
+++++ configure.in	2010-12-27 14:59:41.427000696 +0000
++@@ -4418,9 +4418,9 @@
++     ], [AC_MSG_RESULT([yes])], [AC_MSG_ERROR([no. you need at least db 4.1])])
++     save_LIBS="$LIBS"
++     for dbver in '' -5.1 5.1 -5.0 5.0 -5 5 -4.8 4.8 -4.7 4.7 -4 4; do
++-        AC_CHECK_LIB(db$dbver, db_create, [ DB_LIB="db$dbver"; DB_CPPLIB="db_cxx$dbver"; LIBS="-ldb$dbver $LIBS"; break ])
+++        AC_CHECK_LIB(db$dbver, db_create_4008, [ DB_LIB="db$dbver"; DB_CPPLIB="db_cxx$dbver"; LIBS="-ldb$dbver $LIBS"; break ])
++     done
++-    AC_CHECK_FUNC(db_create, [], [ AC_MSG_ERROR([db not installed or functional]) ])
+++    AC_CHECK_FUNC(db_create_4008, [], [ AC_MSG_ERROR([db not installed or functional]) ])
++     LIBS="$save_LIBS"
++     SCPDEFS="$SCPDEFS -DSYSTEM_DB"
++ else
