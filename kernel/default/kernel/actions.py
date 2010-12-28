@@ -13,8 +13,7 @@ from pisi.actionsapi import get
 
 NoStrip = ["/lib", "/boot"]
 
-# NOTE: Bump this on ABI/Config changes
-abiVersion = "148"
+abiVersion = get.srcVERSION()
 
 def setup():
     kerneltools.configure(abiVersion)

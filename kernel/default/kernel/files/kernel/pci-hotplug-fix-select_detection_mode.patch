@@ -1,0 +1,27 @@
+From: Rafael J. Wysocki <rjw@sisk.pl>
+Subject: PCI / Hotplug: Fix unexpected driver unregister in pciehp_acpi.c
+
+If pcie_ports_disabled is set, pcie_port_service_register() returns
+error code and select_detection_mode() should not attempt to
+unregister dummy_driver and use dummy_slots.  It should return
+PCIEHP_DETECT_ACPI immediately instead.
+
+Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
+---
+ drivers/pci/hotplug/pciehp_acpi.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+Index: linux-2.6/drivers/pci/hotplug/pciehp_acpi.c
+===================================================================
+--- linux-2.6.orig/drivers/pci/hotplug/pciehp_acpi.c
++++ linux-2.6/drivers/pci/hotplug/pciehp_acpi.c
+@@ -115,7 +115,8 @@ static struct pcie_port_service_driver _
+ static int __init select_detection_mode(void)
+ {
+ 	struct dummy_slot *slot, *tmp;
+-	pcie_port_service_register(&dummy_driver);
++	if (pcie_port_service_register(&dummy_driver))
++		return PCIEHP_DETECT_ACPI;
+ 	pcie_port_service_unregister(&dummy_driver);
+ 	list_for_each_entry_safe(slot, tmp, &dummy_slots, list) {
+ 		list_del(&slot->list);
