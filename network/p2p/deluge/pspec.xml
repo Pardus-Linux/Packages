@@ -1,0 +1,169 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>deluge</Name>
+        <Homepage>http://deluge-torrent.org</Homepage>
+        <Packager>
+            <Name>Fatih Arslan</Name>
+            <Email>farslan@pardus.org.tr</Email>
+        </Packager>
+        <License>GPLv3</License>
+        <Icon>deluge</Icon>
+        <IsA>app:gui</IsA>
+        <Summary>Full-featured GTK+ Bittorrent client</Summary>
+        <Description>Deluge is a Bittorrent client. Deluge is intended to bring a native, full-featured client to Linux GTK+ desktop environments such as GNOME and Xfce.</Description>
+        <Archive sha1sum="ed63dd6fa5d485b5091eaa79e29db3e118741b8e" type="tarbz2">http://download.deluge-torrent.org/source/deluge-1.3.1.tar.bz2</Archive>
+        <BuildDependencies>
+            <Dependency>boost-devel</Dependency>
+            <Dependency>imagemagick-devel</Dependency>
+            <Dependency>python-Twisted</Dependency>
+            <Dependency>pyopenssl</Dependency>
+            <Dependency>python-chardet</Dependency>
+            <Dependency versionFrom="0.15.4">libtorrent-devel</Dependency>
+        </BuildDependencies>
+        <Patches>
+            <Patch level="1">do-not-check-update.patch</Patch>
+            <Patch level="1">use-multithreaded-boost.patch</Patch>
+        </Patches>
+    </Source>
+
+    <Package>
+        <Name>deluge</Name>
+        <RuntimeDependencies>
+            <Dependency>boost</Dependency>
+            <Dependency>python-gtk</Dependency>
+            <Dependency>python-setuptools</Dependency>
+            <Dependency>python-pyxdg</Dependency>
+            <Dependency>python-Twisted</Dependency>
+            <Dependency>pyopenssl</Dependency>
+            <Dependency>python-chardet</Dependency>
+            <Dependency versionFrom="0.15.4">libtorrent</Dependency>
+            <Dependency>python-mako</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="executable">/usr/bin</Path>
+            <Path fileType="library">/usr/lib</Path>
+            <Path fileType="man">/usr/share/man</Path>
+            <Path fileType="doc">/usr/share/doc</Path>
+            <Path fileType="data">/usr/share/icons</Path>
+            <Path fileType="data">/usr/share/pixmaps</Path>
+            <Path fileType="data">/usr/share/applications</Path>
+        </Files>
+    </Package>
+
+    <History>
+        <Update release="10">
+            <Date>2010-11-25</Date>
+            <Version>1.3.1</Version>
+            <Comment>
+                * Version bump
+                * Fix non-ascii config folders not working in windows
+                * Fix sidebar not updating show/hide trackers
+                * Fix hang on quit
+                * Fix preferences not saving when the web ui plugin is enabled in classic mode
+                * Fix bug when enabling plugins
+                * Fix issues with preferences
+                * Fix deluge-web using 100% CPU
+            </Comment>
+            <Name>Fatih Arslan</Name>
+            <Email>farslan@pardus.org.tr</Email>
+        </Update>
+        <Update release="9">
+            <Date>2010-08-05</Date>
+            <Version>1.3.0_rc1</Version>
+            <Comment>Version bump.</Comment>
+            <Name>H. İbrahim Güngör</Name>
+            <Email>ibrahim@pardus.org.tr</Email>
+        </Update>
+        <Update release="8">
+            <Date>2009-12-26</Date>
+            <Version>1.2.0_rc5</Version>
+            <Comment>Add python-mako for web interface plugin</Comment>
+            <Name>Mehmet Nur Olcay</Name>
+            <Email>mnurolcay@gmail.com</Email>
+        </Update>
+        <Update release="7">
+            <Date>2009-12-26</Date>
+            <Version>1.2.0_rc5</Version>
+            <Comment>Bump to latest RC, add strict dependency to latest libtorrent, will fix some connection/share bugs</Comment>
+            <Name>Mehmet Nur Olcay</Name>
+            <Email>mnurolcay@gmail.com</Email>
+        </Update>
+        <Update release="6">
+            <Date>2009-10-27</Date>
+            <Version>1.2.0_rc2</Version>
+            <Comment>
+                * Version bump
+                * Fix localclient authentication by stripping the lines read from the auth file
+                * Do not try to call doIteration() on the reactor if it has already stopped
+                * Fix 'autostart localhost if needed' option
+                * Fix starting plugins when the pluginmanager is started
+                * Fix saving torrent state on fresh configs
+                * Fix changing of the allocation in the preferences
+                * Fix updating the Connection Manager when a host is added
+                * Add a --fork option to allow forking the webui to the background
+                * Fix the statusbar menu limits
+                * Fix setting the torrent options via the options tab
+                * Fix the private flag in the options tab
+                * Fix exception when using the 'halt' command
+                * Add new dependencies (Twisted, pyopenssl, chardet)
+            </Comment>
+            <Name>Cihan Okyay</Name>
+            <Email>okyaycihan@gmail.com</Email>
+        </Update>
+        <Update release="5">
+            <Date>2009-08-14</Date>
+            <Version>1.1.9</Version>
+            <Comment>
+                * Version bump:
+                - Only move a torrent due to 'move on complete' when some data has been downloaded.
+                - Update libtorrent for CVE-2009-1760.
+                - Fix #950 renaming a parent folder into multiple folders.
+                - Fix pause all/resume all.
+                - Fix remote torrent add for webui.
+                - Torrent name is now changed when the root folder or file is renamed.
+                - Fix high cpu usage when displaying speeds in titlebar.
+                - Fix showing non-utf8 encoded torrents in add torrent dialog -- this adds an additional dependency on chardet.
+                - Fix exception when timing out trying to send notification email.
+                - Set some sane defaults for peers/file tabs column widths.
+                - Fix starting when -l option is used for webui.
+                - Fix #883 segfault if locale is not using UTF-8 encoding.
+                - Fix for adding torrents with invalid filename encodings.
+                - Fix displaying IPv6 peers in the Peers tab.
+                - Fix loading improperly created torrents with mismatched encodings.
+                - Fix displaying improper progress when creating torrent.
+            </Comment>
+            <Name>Gökmen Görgen</Name>
+            <Email>gkmngrgn@gmail.com</Email>
+        </Update>
+        <Update release="4">
+            <Date>2009-04-10</Date>
+            <Version>1.1.6</Version>
+            <Comment>Version bump.</Comment>
+            <Name>Gökmen Görgen</Name>
+            <Email>gkmngrgn@gmail.com</Email>
+        </Update>
+        <Update release="3">
+            <Date>2009-03-26</Date>
+            <Version>1.1.5</Version>
+            <Comment>Version bump.</Comment>
+            <Name>Gökmen Görgen</Name>
+            <Email>gkmngrgn@gmail.com</Email>
+        </Update>
+        <Update release="2">
+            <Date>2009-03-14</Date>
+            <Version>1.1.4</Version>
+            <Comment>Version bump.</Comment>
+            <Name>Gökmen Görgen</Name>
+            <Email>gkmngrgn@gmail.com</Email>
+        </Update>
+        <Update release="1">
+            <Date>2009-03-08</Date>
+            <Version>1.1.3</Version>
+            <Comment>First release.</Comment>
+            <Name>Gökmen Görgen</Name>
+            <Email>gkmngrgn@gmail.com</Email>
+        </Update>
+    </History>
+</PISI>
