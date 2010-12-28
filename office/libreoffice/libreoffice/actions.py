@@ -36,7 +36,7 @@ def setup():
                        --prefix=%s \
                        --libdir=%s/lib \
                        --sysconfdir=/etc \
-                       --with-lang="de en-US es fr hu it nl pt-BR sv tr" \
+                       --with-lang="de en-US es fr hu it nl pt-BR ru sv tr" \
                        --disable-post-install-scripts \
                        --enable-gtk \
                        --enable-kde4 \
