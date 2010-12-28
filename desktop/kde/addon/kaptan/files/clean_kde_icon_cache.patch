@@ -1,0 +1,45 @@
+Index: src/kaptan/screens/scrSummary.py
+===================================================================
+--- src/kaptan/screens/scrSummary.py	(revision 34477)
++++ src/kaptan/screens/scrSummary.py	(working copy)
+@@ -193,6 +193,17 @@
+ 
+             config.sync()
+ 
++
++        def deleteIconCache():
++            try:
++                os.remove("/var/tmp/kdecache-%s/icon-cache.kcache" % os.environ.get("USER"))
++            except:
++                pass
++
++            for i in range(kdeui.KIconLoader.LastGroup):
++                kdeui.KGlobalSettings.self().emitChange(kdeui.KGlobalSettings.IconChanged, i)
++
++
+         # Theme Settings
+         if self.styleSettings["hasChanged"]:
+             if self.styleSettings["iconChanged"]:
+@@ -208,13 +219,8 @@
+                 # Change Icon theme
+                 kdeui.KIconTheme.reconfigure()
+                 kdeui.KIconCache.deleteCache()
++                deleteIconCache()
+ 
+-                for i in range(kdeui.KIconLoader.LastGroup):
+-                    kdeui.KGlobalSettings.self().emitChange(kdeui.KGlobalSettings.IconChanged, i)
+-
+-
+-
+-
+             if self.styleSettings["styleChanged"]:
+                 hasChanged = True
+                 configKdeGlobals = KConfig("kdeglobals")
+@@ -230,6 +236,7 @@
+                 # Change Icon theme
+                 kdeui.KIconTheme.reconfigure()
+                 kdeui.KIconCache.deleteCache()
++                deleteIconCache()
+ 
+                 for i in range(kdeui.KIconLoader.LastGroup):
+                     kdeui.KGlobalSettings.self().emitChange(kdeui.KGlobalSettings.IconChanged, i)
