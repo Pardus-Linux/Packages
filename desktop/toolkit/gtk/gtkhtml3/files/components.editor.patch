@@ -1,0 +1,58 @@
+--- gtkhtml-3.91.4.orig/components/editor/Makefile.am	2010-12-28 16:06:59.016000041 +0200
++++ gtkhtml-3.91.4/components/editor/Makefile.am	2010-12-28 16:16:08.114000041 +0200
+@@ -1,6 +1,6 @@
+ ### Process this file with automake to produce Makefile.in
+ 
+-gtkhtml_data = $(datadir)/gtkhtml-@EDITOR_API_VERSION@
++gtkhtml_data = $(datadir)/gtkhtml-@GTKHTML_API_VERSION@
+ 
+ bin_PROGRAMS = gtkhtml-editor-test
+ 
+@@ -21,7 +21,7 @@
+ 	gtkhtml-spell-marshal.c			\
+ 	gtkhtml-spell-marshal.h
+ 
+-libgtkhtml_editordir = $(includedir)/libgtkhtml-@EDITOR_API_VERSION@/editor
++libgtkhtml_editordir = $(includedir)/libgtkhtml-@GTKHTML_API_VERSION@/editor
+ 
+ csources = 					\
+ 	$(BUILT_SOURCES)			\
+@@ -68,14 +68,14 @@
+ libgtkhtml_editor_4_0_la_SOURCES = $(csources) 
+ libgtkhtml_editor_4_0_la_LIBADD = \
+ 	@GTKHTML_LIBS@				\
+-	$(top_builddir)/gtkhtml/libgtkhtml-@EDITOR_API_VERSION@.la
++	$(top_builddir)/gtkhtml/libgtkhtml-@GTKHTML_API_VERSION@.la
+ libgtkhtml_editor_4_0_la_LDFLAGS = -no-undefined
+ else
+ lib_LTLIBRARIES = libgtkhtml-editor-3.14.la
+ libgtkhtml_editor_3_14_la_SOURCES = $(csources) 
+ libgtkhtml_editor_3_14_la_LIBADD = \
+ 	@GTKHTML_LIBS@				\
+-	$(top_builddir)/gtkhtml/libgtkhtml-@EDITOR_API_VERSION@.la
++	$(top_builddir)/gtkhtml/libgtkhtml-@GTKHTML_API_VERSION@.la
+ libgtkhtml_editor_3_14_la_LDFLAGS = -no-undefined
+ endif
+ 
+@@ -84,7 +84,7 @@
+ gtkhtml_editor_test_LDADD = \
+ 	@GTKHTML_LIBS@				\
+ 	libgtkhtml-editor-@EDITOR_API_VERSION@.la			\
+-	$(top_builddir)/gtkhtml/libgtkhtml-@EDITOR_API_VERSION@.la
++	$(top_builddir)/gtkhtml/libgtkhtml-@GTKHTML_API_VERSION@.la
+ 
+ gtkhtml-editor-marshal.h: gtkhtml-editor-marshal.list $(GLIB_GENMARSHAL)
+ 	$(GLIB_GENMARSHAL) $< --header --prefix=gtkhtml_editor_marshal > $@
+
+--- gtkhtml-3.91.4.orig/components/editor/gtkhtml-editor.pc.in	2010-12-28 16:06:59.017000041 +0200
++++ gtkhtml-3.91.4/components/editor/gtkhtml-editor.pc.in	2010-12-28 16:18:46.828000040 +0200
+@@ -7,7 +7,7 @@
+ 
+ Name: gtkhtml-editor
+ Description: HTML editor widget
+-Requires: libgtkhtml-@EDITOR_API_VERSION@
++Requires: libgtkhtml-@GTKHTML_API_VERSION@
+ Version: @VERSION@
+ Libs: -L${libdir} -lgtkhtml-editor-@EDITOR_API_VERSION@
+-Cflags: -I${includedir}/libgtkhtml-@EDITOR_API_VERSION@/editor
++Cflags: -I${includedir}/libgtkhtml-@GTKHTML_API_VERSION@/editor
