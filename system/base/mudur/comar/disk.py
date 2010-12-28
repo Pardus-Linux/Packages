@@ -333,7 +333,6 @@ def addEntry(device, path, fsType, options):
             partText = 'LABEL='+getLabel(device)
         else:
             partText = 'UUID='+getUUID(device)
-        removeEntry(device, silent=True)
     else:
         partText = 'UUID='+getUUID(device)
     # Add new entry
@@ -346,17 +345,14 @@ def addEntry(device, path, fsType, options):
     if not file(FSTAB).read()[-1] == '\n':
         file(FSTAB, 'a').write('\n')
     _options = ','.join(_options)
-    if _options:
-        file(FSTAB, 'a').write('%s %s %s %s 0 0\n' % (partText, path, fsType, _options))
-    else:
-        file(FSTAB, 'a').write('%s %s %s defaults 0 0\n' % (partText, path, fsType))
-    # Notify clients
-    notify("Disk.Manager", "changed", ())
+
+    addit = True
     # If the partition is not already mounted the given path and,
     # if the partition is not mounted anywhere, try to create a path
     # and mount there.
     if not path_own:
         if not createPath(device, path):
+            addit = False
             # Can't create new path
             fail(_(FAIL_PATH) % path)
         if not device in [x[0] for x in getMounted()]:
@@ -364,8 +360,18 @@ def addEntry(device, path, fsType, options):
             try:
                 mount(device, path)
             except:
-                removeEntry(device, silent=True)
+                addit = False
                 raise
+    if addit:
+        # try to remove old entry before
+        if old_path:
+            removeEntry(device, silent=True)
+        if _options:
+            file(FSTAB, 'a').write('%s %s %s %s 0 0\n' % (partText, path, fsType, _options))
+        else:
+            file(FSTAB, 'a').write('%s %s %s defaults 0 0\n' % (partText, path, fsType))
+        # Notify clients
+        notify("Disk.Manager", "changed", ())
 
 def getEntry(device):
     entries = parseFstab(FSTAB)
