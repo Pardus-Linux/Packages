@@ -13,7 +13,7 @@ def install():
     pisitools.insinto("/usr/share/hunspell", "*.dic")
     pisitools.insinto("/usr/share/hunspell", "*.aff")
 
-    pisitools.dosym("/usr/share/hunspell/sv_SE.dic", "/usr/share/hunspell/sv_FI.dic")
-    pisitools.dosym("/usr/share/hunspell/sv_SE.aff", "/usr/share/hunspell/sv_FI.aff")
+    pisitools.dosym("sv_SE.dic", "/usr/share/hunspell/sv_FI.dic")
+    pisitools.dosym("sv_SE.aff", "/usr/share/hunspell/sv_FI.aff")
 
     pisitools.dodoc("README*")

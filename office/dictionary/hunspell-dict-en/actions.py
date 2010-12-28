@@ -27,10 +27,10 @@ def install():
     pisitools.insinto("/usr/share/hunspell/", "scowl/speller/en_*.aff")
 
     for f in ("en_AU", "en_BS", "en_BW", "en_BZ", "en_DK", "en_GH", "en_HK", "en_IE", "en_IN", "en_JM", "en_NA", "en_NG", "en_NZ", "en_SG", "en_TT", "en_ZA", "en_ZW"):
-        pisitools.dosym("/usr/share/hunspell/en_GB.dic", "/usr/share/hunspell/%s.dic" % f)
-        pisitools.dosym("/usr/share/hunspell/en_GB.aff", "/usr/share/hunspell/%s.aff" % f)
+        pisitools.dosym("en_GB.dic", "/usr/share/hunspell/%s.dic" % f)
+        pisitools.dosym("en_GB.aff", "/usr/share/hunspell/%s.aff" % f)
 
-    pisitools.dosym("/usr/share/hunspell/en_US.dic", "/usr/share/hunspell/en_PH.dic")
-    pisitools.dosym("/usr/share/hunspell/en_US.aff", "/usr/share/hunspell/en_PH.aff")
+    pisitools.dosym("en_US.dic", "/usr/share/hunspell/en_PH.dic")
+    pisitools.dosym("en_US.aff", "/usr/share/hunspell/en_PH.aff")
 
     pisitools.dodoc("README*", "scowl/speller/README*")

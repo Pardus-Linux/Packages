@@ -23,12 +23,12 @@ def install():
     pisitools.insinto("/usr/share/hunspell", "de_??.dic")
     pisitools.insinto("/usr/share/hunspell", "de_??.aff")
 
-    pisitools.dosym("/usr/share/hunspell/de_DE.dic", "/usr/share/hunspell/de_BE.dic")
-    pisitools.dosym("/usr/share/hunspell/de_DE.aff", "/usr/share/hunspell/de_BE.aff")
-    pisitools.dosym("/usr/share/hunspell/de_DE.dic", "/usr/share/hunspell/de_LU.dic")
-    pisitools.dosym("/usr/share/hunspell/de_DE.aff", "/usr/share/hunspell/de_LU.aff")
+    pisitools.dosym("de_DE.dic", "/usr/share/hunspell/de_BE.dic")
+    pisitools.dosym("de_DE.aff", "/usr/share/hunspell/de_BE.aff")
+    pisitools.dosym("de_DE.dic", "/usr/share/hunspell/de_LU.dic")
+    pisitools.dosym("de_DE.aff", "/usr/share/hunspell/de_LU.aff")
 
-    pisitools.dosym("/usr/share/hunspell/de_CH.dic", "/usr/share/hunspell/de_LI.dic")
-    pisitools.dosym("/usr/share/hunspell/de_CH.aff", "/usr/share/hunspell/de_LI.aff")
+    pisitools.dosym("de_CH.dic", "/usr/share/hunspell/de_LI.dic")
+    pisitools.dosym("de_CH.aff", "/usr/share/hunspell/de_LI.aff")
 
     pisitools.dodoc("README*", "COPYING*")

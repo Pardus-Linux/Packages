@@ -17,7 +17,7 @@ def install():
     pisitools.insinto("/usr/share/hunspell", "*.dic")
     pisitools.insinto("/usr/share/hunspell", "*.aff")
 
-    pisitools.dosym("/usr/share/hunspell/nl_NL.dic", "/usr/share/hunspell/nl_BE.dic")
-    pisitools.dosym("/usr/share/hunspell/nl_NL.aff", "/usr/share/hunspell/nl_BE.aff")
+    pisitools.dosym("nl_NL.dic", "/usr/share/hunspell/nl_BE.dic")
+    pisitools.dosym("nl_NL.aff", "/usr/share/hunspell/nl_BE.aff")
 
     pisitools.dodoc("*.txt")

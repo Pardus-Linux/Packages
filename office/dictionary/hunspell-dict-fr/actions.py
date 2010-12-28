@@ -18,7 +18,7 @@ def install():
     shelltools.chmod("%s/usr/share/hunspell/*" % get.installDIR(), 0644)
 
     for lang in ("fr_BE", "fr_CA", "fr_CH", "fr_LU", "fr_MC"):
-        pisitools.dosym("/usr/share/hunspell/fr_FR.dic", "/usr/share/hunspell/%s.dic" % lang)
-        pisitools.dosym("/usr/share/hunspell/fr_FR.aff", "/usr/share/hunspell/%s.aff" % lang)
+        pisitools.dosym("fr_FR.dic", "/usr/share/hunspell/%s.dic" % lang)
+        pisitools.dosym("fr_FR.aff", "/usr/share/hunspell/%s.aff" % lang)
 
     pisitools.dodoc("README*")

@@ -13,7 +13,7 @@ def install():
     pisitools.insinto("/usr/share/hunspell", "*.dic")
     pisitools.insinto("/usr/share/hunspell", "*.aff")
 
-    pisitools.dosym("/usr/share/hunspell/it_IT.dic", "/usr/share/hunspell/it_CH.dic")
-    pisitools.dosym("/usr/share/hunspell/it_IT.aff", "/usr/share/hunspell/it_CH.aff")
+    pisitools.dosym("it_IT.dic", "/usr/share/hunspell/it_CH.dic")
+    pisitools.dosym("it_IT.aff", "/usr/share/hunspell/it_CH.aff")
 
     pisitools.dodoc("*.txt", "*AUTHORS", "*ChangeLog", "*COPYING")
