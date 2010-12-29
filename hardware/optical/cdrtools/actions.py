@@ -9,6 +9,8 @@ from pisi.actionsapi import autotools
 from pisi.actionsapi import pisitools
 from pisi.actionsapi import get
 
+WorkDir = "%s-%s" % (get.srcNAME(), get.srcVERSION().split("_")[0])
+
 def build():
     #parallel compilation of cdda2wav exetuable is broken in this release
     autotools.make('-j1 CC="%s -D__attribute_const__=const" \
