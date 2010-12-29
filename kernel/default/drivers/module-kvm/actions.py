@@ -21,7 +21,8 @@ def setup():
     # GROUP conversion here (kvm->virt)
     pisitools.dosed("scripts/65-kvm.rules", "GROUP=\"kvm\"", "GROUP=\"virt\"")
 
-    autotools.rawConfigure("--kerneldir=/lib/modules/%s/build" % kerneltools.getKernelVersion())
+    autotools.rawConfigure("--force \
+                            --kerneldir=/lib/modules/%s/build" % kerneltools.getKernelVersion())
 
 def build():
     autotools.make()
