@@ -14,7 +14,7 @@ fun! MakeNewActionsPY()
     0 put = '#!/usr/bin/python'
     put = '# -*- coding: utf-8 -*-'
     put = '#'
-    put = '# Copyright 2010 TUBITAK/UEKAE'
+    put = '# Copyright 2010 TUBITAK/BILGEM'
     put = '# Licensed under the GNU General Public License, version 2.'
     put = '# See the file http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt'
     put = ''
