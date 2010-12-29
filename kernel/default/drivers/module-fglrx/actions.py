@@ -31,6 +31,7 @@ def setup():
 
     shelltools.system("patch -p1 < kernel-2.6.36.patch")
     shelltools.system("patch -p1 < use-cflags_module-together-with-modflags.patch")
+    shelltools.system("patch -p1 < kernel-2.6.37.patch")
 
 def build():
     shelltools.cd(BuildDir)
