@@ -30,7 +30,7 @@ def increment_release(pspec, krel):
     new_release = RELEASE % (release, date, ver, PACKAGER, PACKAGER_EMAIL)
 
     # Update dependency releases if any
-    newpspec = re.sub('\<Dependency release="[0-9]*"\>(kernel.*)<', '<Dependency release="%s">\\1<' % krel, open(pspec, "r").read())
+    newpspec = re.sub('\<Dependency version=".*"\>(kernel.*)<', '<Dependency version="%s">\\1<' % krel, open(pspec, "r").read())
     newpspec = newpspec.replace("<History>\n", "<History>\n%s" % new_release)
 
     open(pspec, "w").write(newpspec)
@@ -39,7 +39,7 @@ def increment_release(pspec, krel):
 if __name__ == "__main__":
 
     if len(sys.argv) < 2:
-        print "Usage: %s <new release>" % sys.argv[0]
+        print "Usage: %s <new version>" % sys.argv[0]
         sys.exit(1)
 
     # Check .packagerinfo
@@ -49,7 +49,8 @@ if __name__ == "__main__":
     krel = sys.argv[1]
     os.chdir("../../")
 
-    packages = os.popen("grep --exclude-dir=.svn -r '<Dependency release=\".*\">kernel.*' * | gawk -F: '{ print $1 }'").read().strip().split()
+    packages = os.popen("grep -l --exclude-dir=.svn -r '<Dependency version=\".*\">kernel.*' * | gawk -F: '{ print $1 }'").read().strip().split()
 
     for p in set(packages):
+        print p
         increment_release(p, krel)
