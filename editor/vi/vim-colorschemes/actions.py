@@ -12,7 +12,7 @@ from pisi.actionsapi import get
 WorkDir = "vim-colorschemes-%s" % get.srcVERSION().split("_")[1]
 NoStrip = "/"
 
-vimdir = "/usr/share/vim/vim73/colors"
+vimdir = "/usr/share/vim/vimfiles/colors"
 DoNotAdd = ["blue.vim",
             "darkblue.vim",
             "default.vim",
