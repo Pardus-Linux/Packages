@@ -19,5 +19,4 @@ def build():
     kde4.make()
 
 def install():
-    #cmaketools.rawInstall("DESTDIR=%s" % get.installDIR())
     kde4.install()
