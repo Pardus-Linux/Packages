@@ -23,3 +23,7 @@ def postInstall(fromVersion, fromRelease, toVersion, toRelease):
 
     if os.path.exists("/lib/udev/devices/rtc"):
         os.unlink("/lib/udev/devices/rtc")
+
+    # Migrate UDEV database
+    if int(fromVersion) < 165:
+        os.system("/sbin/udevadm info --convert-db &> /dev/null")

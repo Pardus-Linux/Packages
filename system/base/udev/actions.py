@@ -31,9 +31,6 @@ def check():
 def install():
     autotools.rawInstall("DESTDIR=%s" % get.installDIR())
 
-    # This were explicitly not installed in Pardus 2008, so I remove it.
-    pisitools.remove("/lib/udev/rules.d/79-fstab_import.rules")
-
     # create needed directories
     for d in ("", "net", "pts", "shm", "hugepages"):
         pisitools.dodir("/lib/udev/devices/%s" % d)
