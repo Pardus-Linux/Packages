@@ -1,0 +1,13 @@
+Index: vloopback-1.3/vloopback.c
+===================================================================
+--- vloopback-1.3.orig/vloopback.c
++++ vloopback-1.3/vloopback.c
+@@ -1336,7 +1336,7 @@ static int create_pipe(int nr)
+ #warning "******************************"
+     semaphore_init(&loops[nr]->lock); 
+ #else
+-    init_MUTEX(&loops[nr]->lock);
++    sema_init(&loops[nr]->lock, 1);
+ #endif
+ 
+     ret = video_register_device(loops[nr]->vloopin, VFL_TYPE_GRABBER, minor_in);
