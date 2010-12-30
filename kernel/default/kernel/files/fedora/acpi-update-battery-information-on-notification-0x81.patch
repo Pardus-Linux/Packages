@@ -16,29 +16,11 @@ Signed-off-by: Matthew Garrett <mjg@redhat.com>
  drivers/acpi/battery.c |   24 +++++++++++++++++-------
  1 files changed, 17 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/acpi/battery.c b/drivers/acpi/battery.c
-index 9fb9d5a..8da9c88 100644
---- a/drivers/acpi/battery.c
-+++ b/drivers/acpi/battery.c
-@@ -130,7 +130,7 @@ struct acpi_battery {
- 	unsigned long flags;
- };
- 
--static int acpi_battery_update(struct acpi_battery *battery);
-+static int acpi_battery_update(struct acpi_battery *battery, bool get_info);
- 
- #define to_acpi_battery(x) container_of(x, struct acpi_battery, bat);
- 
-@@ -186,7 +186,7 @@ static int acpi_battery_get_property(struct power_supply *psy,
- 	int ret = 0;
- 	struct acpi_battery *battery = to_acpi_battery(psy);
- 
--	if (acpi_battery_update(battery))
-+	if (acpi_battery_update(battery, false))
- 		return -ENODEV;
- 
- 	if (acpi_battery_present(battery)) {
-@@ -610,9 +610,11 @@ static void acpi_battery_quirks2(struct acpi_battery *battery)
+Index: linux-2.6.36/drivers/acpi/battery.c
+===================================================================
+--- linux-2.6.36.orig/drivers/acpi/battery.c
++++ linux-2.6.36/drivers/acpi/battery.c
+@@ -605,9 +605,11 @@ static void acpi_battery_quirks2(struct
  	}
  }
  
@@ -51,7 +33,7 @@ index 9fb9d5a..8da9c88 100644
  	result = acpi_battery_get_status(battery);
  	if (result)
  		return result;
-@@ -631,6 +633,14 @@ static int acpi_battery_update(struct acpi_battery *battery)
+@@ -626,6 +628,14 @@ static int acpi_battery_update(struct ac
  	}
  	if (!battery->bat.dev)
  		sysfs_add_battery(battery);
@@ -66,7 +48,7 @@ index 9fb9d5a..8da9c88 100644
  	result = acpi_battery_get_state(battery);
  	acpi_battery_quirks2(battery);
  	return result;
-@@ -808,7 +818,7 @@ static print_func acpi_print_funcs[ACPI_BATTERY_NUMFILES] = {
+@@ -803,7 +813,7 @@ static print_func acpi_print_funcs[ACPI_
  static int acpi_battery_read(int fid, struct seq_file *seq)
  {
  	struct acpi_battery *battery = seq->private;
@@ -75,7 +57,7 @@ index 9fb9d5a..8da9c88 100644
  	return acpi_print_funcs[fid](seq, result);
  }
  
-@@ -919,7 +929,7 @@ static void acpi_battery_notify(struct acpi_device *device, u32 event)
+@@ -914,7 +924,7 @@ static void acpi_battery_notify(struct a
  	if (!battery)
  		return;
  	old = battery->bat.dev;
@@ -84,7 +66,7 @@ index 9fb9d5a..8da9c88 100644
  	acpi_bus_generate_proc_event(device, event,
  				     acpi_battery_present(battery));
  	acpi_bus_generate_netlink_event(device->pnp.device_class,
-@@ -948,7 +958,7 @@ static int acpi_battery_add(struct acpi_device *device)
+@@ -943,7 +953,7 @@ static int acpi_battery_add(struct acpi_
  	if (ACPI_SUCCESS(acpi_get_handle(battery->device->handle,
  			"_BIX", &handle)))
  		set_bit(ACPI_BATTERY_XINFO_PRESENT, &battery->flags);
@@ -93,7 +75,7 @@ index 9fb9d5a..8da9c88 100644
  #ifdef CONFIG_ACPI_PROCFS_POWER
  	result = acpi_battery_add_fs(device);
  #endif
-@@ -989,7 +999,7 @@ static int acpi_battery_resume(struct acpi_device *device)
+@@ -984,7 +994,7 @@ static int acpi_battery_resume(struct ac
  		return -EINVAL;
  	battery = acpi_driver_data(device);
  	battery->update_time = 0;
