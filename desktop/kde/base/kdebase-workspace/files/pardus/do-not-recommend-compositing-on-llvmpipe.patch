@@ -1,0 +1,27 @@
+Index: kdebase-workspace-4.5.4/kwin/compositingprefs.cpp
+===================================================================
+--- kdebase-workspace-4.5.4.orig/kwin/compositingprefs.cpp
++++ kdebase-workspace-4.5.4/kwin/compositingprefs.cpp
+@@ -268,7 +268,7 @@ void CompositingPrefs::detectDriverAndVe
+         if (!mVersion.startsWith("20"))
+             mVersion = Version( mGLRenderer.split(' ')[ 5 ] );
+         }
+-    else if( mGLRenderer == "Software Rasterizer" )
++    else if( mGLRenderer == "Software Rasterizer" || mGLRenderer.endsWith("on llvmpipe"))
+         {
+         mDriver = "software";
+         QStringList words = mGLVersion.split(' ');
+@@ -314,9 +314,10 @@ void CompositingPrefs::applyDriverSpecif
+     //else if( mDriver == "radeon" )
+     //    {
+     //    }
+-    //else if( mDriver == "software" )
+-    //    {
+-    //    }
++    else if( mDriver == "software" )
++        {
++        mRecommendCompositing = false;
++        }
+     }
+ 
+ 
