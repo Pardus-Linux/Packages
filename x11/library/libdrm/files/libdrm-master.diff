@@ -1,0 +1,486 @@
+diff --git a/include/drm/i915_drm.h b/include/drm/i915_drm.h
+index 19da2c0..98e1597 100644
+--- a/include/drm/i915_drm.h
++++ b/include/drm/i915_drm.h
+@@ -279,6 +279,8 @@ typedef struct drm_i915_irq_wait {
+ #define I915_PARAM_HAS_BSD		 10
+ #define I915_PARAM_HAS_BLT		 11
+ #define I915_PARAM_HAS_RELAXED_FENCING	 12
++#define I915_PARAM_HAS_COHERENT_RINGS	 13
++#define I915_PARAM_HAS_EXEC_CONSTANTS	 14
+ 
+ typedef struct drm_i915_getparam {
+ 	int param;
+@@ -625,6 +627,17 @@ struct drm_i915_gem_execbuffer2 {
+ #define I915_EXEC_RENDER                 (1<<0)
+ #define I915_EXEC_BSD                    (2<<0)
+ #define I915_EXEC_BLT                    (3<<0)
++
++/* Used for switching the constants addressing mode on gen4+ RENDER ring.
++ * Gen6+ only supports relative addressing to dynamic state (default) and
++ * absolute addressing.
++ *
++ * These flags are ignored for the BSD and BLT rings.
++ */
++#define I915_EXEC_CONSTANTS_MASK 	(3<<6)
++#define I915_EXEC_CONSTANTS_REL_GENERAL (0<<6) /* default */
++#define I915_EXEC_CONSTANTS_ABSOLUTE 	(1<<6)
++#define I915_EXEC_CONSTANTS_REL_SURFACE (2<<6) /* gen4/5 only */
+ 	__u64 flags;
+ 	__u64 rsvd1;
+ 	__u64 rsvd2;
+diff --git a/intel/intel_bufmgr.c b/intel/intel_bufmgr.c
+index f93a870..b7c5c09 100644
+--- a/intel/intel_bufmgr.c
++++ b/intel/intel_bufmgr.c
+@@ -136,12 +136,12 @@ drm_intel_bo_exec(drm_intel_bo *bo, int used,
+ int
+ drm_intel_bo_mrb_exec(drm_intel_bo *bo, int used,
+ 		drm_clip_rect_t *cliprects, int num_cliprects, int DR4,
+-		int ring_flag)
++		unsigned int rings)
+ {
+ 	if (bo->bufmgr->bo_mrb_exec)
+ 		return bo->bufmgr->bo_mrb_exec(bo, used,
+ 					cliprects, num_cliprects, DR4,
+-					ring_flag);
++					rings);
+ 
+ 	return -ENODEV;
+ }
+diff --git a/intel/intel_bufmgr.h b/intel/intel_bufmgr.h
+index e1b4c45..daa18b4 100644
+--- a/intel/intel_bufmgr.h
++++ b/intel/intel_bufmgr.h
+@@ -114,7 +114,7 @@ int drm_intel_bo_exec(drm_intel_bo *bo, int used,
+ 		      struct drm_clip_rect *cliprects, int num_cliprects, int DR4);
+ int drm_intel_bo_mrb_exec(drm_intel_bo *bo, int used,
+ 			struct drm_clip_rect *cliprects, int num_cliprects, int DR4,
+-			int ring_flag);
++			unsigned int flags);
+ int drm_intel_bufmgr_check_aperture_space(drm_intel_bo ** bo_array, int count);
+ 
+ int drm_intel_bo_emit_reloc(drm_intel_bo *bo, uint32_t offset,
+diff --git a/intel/intel_bufmgr_gem.c b/intel/intel_bufmgr_gem.c
+index c5bb588..72c8731 100644
+--- a/intel/intel_bufmgr_gem.c
++++ b/intel/intel_bufmgr_gem.c
+@@ -1555,13 +1555,13 @@ drm_intel_gem_bo_exec(drm_intel_bo *bo, int used,
+ static int
+ drm_intel_gem_bo_mrb_exec2(drm_intel_bo *bo, int used,
+ 			drm_clip_rect_t *cliprects, int num_cliprects, int DR4,
+-			int ring_flag)
++			unsigned int flags)
+ {
+ 	drm_intel_bufmgr_gem *bufmgr_gem = (drm_intel_bufmgr_gem *)bo->bufmgr;
+ 	struct drm_i915_gem_execbuffer2 execbuf;
+ 	int ret, i;
+ 
+-	switch (ring_flag) {
++	switch (flags & 0x7) {
+ 	default:
+ 		return -EINVAL;
+ 	case I915_EXEC_BLT:
+@@ -1594,7 +1594,7 @@ drm_intel_gem_bo_mrb_exec2(drm_intel_bo *bo, int used,
+ 	execbuf.num_cliprects = num_cliprects;
+ 	execbuf.DR1 = 0;
+ 	execbuf.DR4 = DR4;
+-	execbuf.flags = ring_flag;
++	execbuf.flags = flags;
+ 	execbuf.rsvd1 = 0;
+ 	execbuf.rsvd2 = 0;
+ 
+diff --git a/intel/intel_bufmgr_priv.h b/intel/intel_bufmgr_priv.h
+index 87e91e7..0b62520 100644
+--- a/intel/intel_bufmgr_priv.h
++++ b/intel/intel_bufmgr_priv.h
+@@ -177,8 +177,8 @@ struct _drm_intel_bufmgr {
+ 	 * ring buffer
+ 	 */
+ 	int (*bo_mrb_exec) (drm_intel_bo *bo, int used,
+-			drm_clip_rect_t *cliprects, int num_cliprects,
+-			int DR4, int ring_flag);
++			    drm_clip_rect_t *cliprects, int num_cliprects,
++			    int DR4, unsigned flags);
+ 
+ 	/**
+ 	 * Pin a buffer to the aperture and fix the offset until unpinned
+diff --git a/nouveau/Makefile.am b/nouveau/Makefile.am
+index de3f4df..8b89916 100644
+--- a/nouveau/Makefile.am
++++ b/nouveau/Makefile.am
+@@ -28,6 +28,8 @@ libdrm_nouveaucommoninclude_HEADERS = \
+ 				nouveau_grobj.h \
+ 				nouveau_notifier.h \
+ 				nouveau_pushbuf.h \
++				nv04_pushbuf.h \
++				nvc0_pushbuf.h \
+ 				nouveau_bo.h \
+ 				nouveau_resource.h \
+ 				nouveau_reloc.h
+diff --git a/nouveau/nouveau_channel.c b/nouveau/nouveau_channel.c
+index ded5424..96fa03b 100644
+--- a/nouveau/nouveau_channel.c
++++ b/nouveau/nouveau_channel.c
+@@ -75,20 +75,23 @@ nouveau_channel_alloc(struct nouveau_device *dev, uint32_t fb_ctxdma,
+ 		nvchan->base.subc[i].gr = &gr->base;
+ 	}
+ 
+-	ret = nouveau_bo_wrap(dev, nvchan->drm.notifier_handle,
+-			      &nvchan->notifier_bo);
+-	if (!ret)
+-		ret = nouveau_bo_map(nvchan->notifier_bo, NOUVEAU_BO_RDWR);
+-	if (ret) {
+-		nouveau_channel_free((void *)&nvchan);
+-		return ret;
+-	}
+-
+-	ret = nouveau_grobj_alloc(&nvchan->base, 0x00000000, 0x0030,
+-				  &nvchan->base.nullobj);
+-	if (ret) {
+-		nouveau_channel_free((void *)&nvchan);
+-		return ret;
++	if (dev->chipset < 0xc0) {
++		ret = nouveau_bo_wrap(dev, nvchan->drm.notifier_handle,
++				      &nvchan->notifier_bo);
++		if (!ret)
++			ret = nouveau_bo_map(nvchan->notifier_bo,
++					     NOUVEAU_BO_RDWR);
++		if (ret) {
++			nouveau_channel_free((void *)&nvchan);
++			return ret;
++		}
++
++		ret = nouveau_grobj_alloc(&nvchan->base, 0x00000000, 0x0030,
++					  &nvchan->base.nullobj);
++		if (ret) {
++			nouveau_channel_free((void *)&nvchan);
++			return ret;
++		}
+ 	}
+ 
+ 	ret = nouveau_pushbuf_init(&nvchan->base, pushbuf_size);
+@@ -119,8 +122,10 @@ nouveau_channel_free(struct nouveau_channel **chan)
+ 	FIRE_RING(&nvchan->base);
+ 
+ 	nouveau_pushbuf_fini(&nvchan->base);
+-	nouveau_bo_unmap(nvchan->notifier_bo);
+-	nouveau_bo_ref(NULL, &nvchan->notifier_bo);
++	if (nvchan->notifier_bo) {
++		nouveau_bo_unmap(nvchan->notifier_bo);
++		nouveau_bo_ref(NULL, &nvchan->notifier_bo);
++	}
+ 
+ 	for (i = 0; i < nvchan->drm.nr_subchan; i++)
+ 		free(nvchan->base.subc[i].gr);
+diff --git a/nouveau/nouveau_grobj.c b/nouveau/nouveau_grobj.c
+index df2ffb9..c6b98f1 100644
+--- a/nouveau/nouveau_grobj.c
++++ b/nouveau/nouveau_grobj.c
+@@ -112,6 +112,7 @@ nouveau_grobj_free(struct nouveau_grobj **grobj)
+ void
+ nouveau_grobj_autobind(struct nouveau_grobj *grobj)
+ {
++	struct nouveau_channel *chan = grobj->channel;
+ 	struct nouveau_subchannel *subc = NULL;
+ 	int i;
+ 
+@@ -134,7 +135,13 @@ nouveau_grobj_autobind(struct nouveau_grobj *grobj)
+ 	subc->gr->bound = NOUVEAU_GROBJ_BOUND;
+ 	subc->gr->subc  = subc - &grobj->channel->subc[0];
+ 
+-	BEGIN_RING(grobj->channel, grobj, 0x0000, 1);
+-	OUT_RING  (grobj->channel, grobj->handle);
++	WAIT_RING(chan, 2);
++	if (chan->device->chipset < 0xc0) {
++		OUT_RING (chan, (1 << 18) | (grobj->subc << 13));
++		OUT_RING (chan, grobj->handle);
++	} else {
++		OUT_RING (chan, (2 << 28) | (1 << 16) | (grobj->subc << 13));
++		OUT_RING (chan, grobj->grclass);
++	}
+ }
+ 
+diff --git a/nouveau/nouveau_pushbuf.h b/nouveau/nouveau_pushbuf.h
+index 52d13a0..2a98789 100644
+--- a/nouveau/nouveau_pushbuf.h
++++ b/nouveau/nouveau_pushbuf.h
+@@ -96,49 +96,11 @@ WAIT_RING(struct nouveau_channel *chan, unsigned size)
+ }
+ 
+ static __inline__ void
+-BEGIN_RING(struct nouveau_channel *chan, struct nouveau_grobj *gr,
+-	   unsigned mthd, unsigned size)
+-{
+-	if (gr->bound == NOUVEAU_GROBJ_UNBOUND)
+-		nouveau_grobj_autobind(gr);
+-	chan->subc[gr->subc].sequence = chan->subc_sequence++;
+-
+-	WAIT_RING(chan, size + 1);
+-	OUT_RING(chan, (gr->subc << 13) | (size << 18) | mthd);
+-}
+-
+-/* non-incrementing BEGIN_RING */
+-static __inline__ void
+-BEGIN_RING_NI(struct nouveau_channel *chan, struct nouveau_grobj *gr,
+-	   unsigned mthd, unsigned size)
+-{
+-	BEGIN_RING(chan, gr, mthd | 0x40000000, size);
+-}
+-
+-static __inline__ void
+ FIRE_RING(struct nouveau_channel *chan)
+ {
+ 	nouveau_pushbuf_flush(chan, 0);
+ }
+ 
+-static __inline__ void
+-BIND_RING(struct nouveau_channel *chan, struct nouveau_grobj *gr, unsigned sc)
+-{
+-	struct nouveau_subchannel *subc = &gr->channel->subc[sc];
+-	
+-	if (subc->gr) {
+-		if (subc->gr->bound == NOUVEAU_GROBJ_BOUND_EXPLICIT)
+-			assert(0);
+-		subc->gr->bound = NOUVEAU_GROBJ_UNBOUND;
+-	}
+-	subc->gr = gr;
+-	subc->gr->subc = sc;
+-	subc->gr->bound = NOUVEAU_GROBJ_BOUND_EXPLICIT;
+-
+-	BEGIN_RING(chan, gr, 0x0000, 1);
+-	OUT_RING  (chan, gr->handle);
+-}
+-
+ static __inline__ int
+ OUT_RELOC(struct nouveau_channel *chan, struct nouveau_bo *bo,
+ 	  unsigned data, unsigned flags, unsigned vor, unsigned tor)
+diff --git a/nouveau/nouveau_reloc.c b/nouveau/nouveau_reloc.c
+index 332dfa0..cd219db 100644
+--- a/nouveau/nouveau_reloc.c
++++ b/nouveau/nouveau_reloc.c
+@@ -79,11 +79,7 @@ nouveau_reloc_emit(struct nouveau_channel *chan, struct nouveau_bo *reloc_bo,
+ 	if (!(nvbo->flags & (NOUVEAU_BO_GART | NOUVEAU_BO_VRAM)))
+ 		nvbo->flags |= (flags & (NOUVEAU_BO_GART | NOUVEAU_BO_VRAM));
+ 
+-	rpbbo = nouveau_bo_emit_buffer(chan, reloc_bo);
+-	if (!rpbbo)
+-		return -ENOMEM;
+-	nouveau_bo(reloc_bo)->pending_refcnt++;
+-
++	/* add buffer to validation list */
+ 	pbbo = nouveau_bo_emit_buffer(chan, bo);
+ 	if (!pbbo) {
+ 		fprintf(stderr, "buffer emit fail :(\n");
+@@ -91,10 +87,13 @@ nouveau_reloc_emit(struct nouveau_channel *chan, struct nouveau_bo *reloc_bo,
+ 	}
+ 	nouveau_bo(bo)->pending_refcnt++;
+ 
+-	if (flags & NOUVEAU_BO_VRAM)
+-		domains |= NOUVEAU_GEM_DOMAIN_VRAM;
+-	if (flags & NOUVEAU_BO_GART)
+-		domains |= NOUVEAU_GEM_DOMAIN_GART;
++	if (flags & (NOUVEAU_BO_VRAM | NOUVEAU_BO_GART)) {
++		if (flags & NOUVEAU_BO_VRAM)
++			domains |= NOUVEAU_GEM_DOMAIN_VRAM;
++		if (flags & NOUVEAU_BO_GART)
++			domains |= NOUVEAU_GEM_DOMAIN_GART;
++	} else
++		domains |= nvbo->domain;
+ 
+ 	if (!(pbbo->valid_domains & domains)) {
+ 		fprintf(stderr, "no valid domains remain!\n");
+@@ -111,6 +110,23 @@ nouveau_reloc_emit(struct nouveau_channel *chan, struct nouveau_bo *reloc_bo,
+ 		nvbo->write_marker = 1;
+ 	}
+ 
++	/* nvc0 gallium driver uses reloc_emit() with NULL target buffer
++	 * to inform bufmgr of a buffer's use - however, we need something
++	 * to track, so create a reloc for now, and hope it never triggers
++	 * (it shouldn't, constant virtual address..)..
++	 */
++	if (!reloc_bo) {
++		reloc_bo  = nvpb->buffer[nvpb->current];
++		reloc_offset = 0;
++		reloc_ptr = NULL;
++	}
++
++	/* add reloc target bo to validation list, and create the reloc */
++	rpbbo = nouveau_bo_emit_buffer(chan, reloc_bo);
++	if (!rpbbo)
++		return -ENOMEM;
++	nouveau_bo(reloc_bo)->pending_refcnt++;
++
+ 	r = nvpb->relocs + nvpb->nr_relocs++;
+ 	r->reloc_bo_index = rpbbo - nvpb->buffers;
+ 	r->reloc_bo_offset = reloc_offset;
+diff --git a/nouveau/nv04_pushbuf.h b/nouveau/nv04_pushbuf.h
+new file mode 100644
+index 0000000..586b284
+--- /dev/null
++++ b/nouveau/nv04_pushbuf.h
+@@ -0,0 +1,66 @@
++/*
++ * Copyright 2007 Nouveau Project
++ *
++ * Permission is hereby granted, free of charge, to any person obtaining a
++ * copy of this software and associated documentation files (the "Software"),
++ * to deal in the Software without restriction, including without limitation
++ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
++ * and/or sell copies of the Software, and to permit persons to whom the
++ * Software is furnished to do so, subject to the following conditions:
++ *
++ * The above copyright notice and this permission notice shall be included in
++ * all copies or substantial portions of the Software.
++ *
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
++ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
++ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
++ * THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
++ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF
++ * OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
++ * SOFTWARE.
++ */
++
++#ifndef __NV04_PUSHBUF_H__
++#define __NV04_PUSHBUF_H__
++
++#include "nouveau_pushbuf.h"
++
++static __inline__ void
++BEGIN_RING(struct nouveau_channel *chan, struct nouveau_grobj *gr,
++	   unsigned mthd, unsigned size)
++{
++	if (gr->bound == NOUVEAU_GROBJ_UNBOUND)
++		nouveau_grobj_autobind(gr);
++	chan->subc[gr->subc].sequence = chan->subc_sequence++;
++
++	WAIT_RING(chan, size + 1);
++	OUT_RING(chan, (gr->subc << 13) | (size << 18) | mthd);
++}
++
++/* non-incrementing BEGIN_RING */
++static __inline__ void
++BEGIN_RING_NI(struct nouveau_channel *chan, struct nouveau_grobj *gr,
++	   unsigned mthd, unsigned size)
++{
++	BEGIN_RING(chan, gr, mthd | 0x40000000, size);
++}
++
++static __inline__ void
++BIND_RING(struct nouveau_channel *chan, struct nouveau_grobj *gr, unsigned sc)
++{
++	struct nouveau_subchannel *subc = &gr->channel->subc[sc];
++
++	if (subc->gr) {
++		if (subc->gr->bound == NOUVEAU_GROBJ_BOUND_EXPLICIT)
++			assert(0);
++		subc->gr->bound = NOUVEAU_GROBJ_UNBOUND;
++	}
++	subc->gr = gr;
++	subc->gr->subc = sc;
++	subc->gr->bound = NOUVEAU_GROBJ_BOUND_EXPLICIT;
++
++	BEGIN_RING(chan, gr, 0x0000, 1);
++	OUT_RING  (chan, gr->handle);
++}
++
++#endif
+diff --git a/nouveau/nvc0_pushbuf.h b/nouveau/nvc0_pushbuf.h
+new file mode 100644
+index 0000000..40dc7e6
+--- /dev/null
++++ b/nouveau/nvc0_pushbuf.h
+@@ -0,0 +1,92 @@
++/*
++ * Copyright 2010 Nouveau Project
++ *
++ * Permission is hereby granted, free of charge, to any person obtaining a
++ * copy of this software and associated documentation files (the "Software"),
++ * to deal in the Software without restriction, including without limitation
++ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
++ * and/or sell copies of the Software, and to permit persons to whom the
++ * Software is furnished to do so, subject to the following conditions:
++ *
++ * The above copyright notice and this permission notice shall be included in
++ * all copies or substantial portions of the Software.
++ *
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
++ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
++ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
++ * THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
++ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF
++ * OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
++ * SOFTWARE.
++ */
++
++#ifndef __NVC0_PUSHBUF_H__
++#define __NVC0_PUSHBUF_H__
++
++#include "nouveau_pushbuf.h"
++
++#define SUBC_BIND(chan, gr) do {                                               \
++	if (gr->bound == NOUVEAU_GROBJ_UNBOUND)                                \
++		nouveau_grobj_autobind(gr);                                    \
++	chan->subc[gr->subc].sequence = chan->subc_sequence++;                 \
++} while (0)
++
++/* incremental methods */
++static __inline__ void
++BEGIN_RING(struct nouveau_channel *chan, struct nouveau_grobj *gr,
++	   unsigned mthd, unsigned size)
++{
++	SUBC_BIND(chan, gr);
++	WAIT_RING(chan, size + 1);
++	OUT_RING (chan, (0x2 << 28) | (size << 16) | (gr->subc << 13) | (mthd >> 2));
++}
++
++/* non-incremental */
++static __inline__ void
++BEGIN_RING_NI(struct nouveau_channel *chan, struct nouveau_grobj *gr,
++	      unsigned mthd, unsigned size)
++{
++	SUBC_BIND(chan, gr);
++	WAIT_RING(chan, size + 1);
++	OUT_RING (chan, (0x6 << 28) | (size << 16) | (gr->subc << 13) | (mthd >> 2));
++}
++
++/* increment-once */
++static __inline__ void
++BEGIN_RING_1I(struct nouveau_channel *chan, struct nouveau_grobj *gr,
++	      unsigned mthd, unsigned size)
++{
++	SUBC_BIND(chan, gr);
++	WAIT_RING(chan, size + 1);
++	OUT_RING (chan, (0xa << 28) | (size << 16) | (gr->subc << 13) | (mthd >> 2));
++}
++
++/* inline-data */
++static __inline__ void
++IMMED_RING(struct nouveau_channel *chan, struct nouveau_grobj *gr,
++	   unsigned mthd, unsigned data)
++{
++	SUBC_BIND(chan, gr);
++	WAIT_RING(chan, 1);
++	OUT_RING (chan, (0x8 << 28) | (data << 16) | (gr->subc << 13) | (mthd >> 2));
++}
++
++static __inline__ void
++BIND_RING(struct nouveau_channel *chan, struct nouveau_grobj *gr, unsigned sc)
++{
++	struct nouveau_subchannel *subc = &gr->channel->subc[sc];
++
++	if (subc->gr) {
++		if (subc->gr->bound == NOUVEAU_GROBJ_BOUND_EXPLICIT)
++			assert(0);
++		subc->gr->bound = NOUVEAU_GROBJ_UNBOUND;
++	}
++	subc->gr = gr;
++	subc->gr->subc = sc;
++	subc->gr->bound = NOUVEAU_GROBJ_BOUND_EXPLICIT;
++
++	BEGIN_RING(chan, gr, 0x0000, 1);
++	OUT_RING  (chan, gr->grclass);
++}
++
++#endif
