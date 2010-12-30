@@ -1,0 +1,28 @@
+From 85a7015b65aa7e0c1204599c99449ca661c0fcd8 Mon Sep 17 00:00:00 2001
+From: Mete Alpaslan <mete@pardus.org.tr>
+Date: Thu, 30 Dec 2010 14:44:34 +0200
+Subject: [PATCH 2/2] Hide releasenotes if installation type is firstboot
+
+---
+ yali/gui/YaliWindow.py |    5 ++++-
+ 1 files changed, 4 insertions(+), 1 deletions(-)
+
+diff --git a/yali/gui/YaliWindow.py b/yali/gui/YaliWindow.py
+index 3c437a3..58b2861 100644
+--- a/yali/gui/YaliWindow.py
++++ b/yali/gui/YaliWindow.py
+@@ -152,7 +152,10 @@ class Widget(QWidget):
+         self.connect(self.ui.buttonNext, SIGNAL("clicked()"), self.slotNext)
+         self.connect(self.ui.buttonBack, SIGNAL("clicked()"), self.slotBack)
+         self.connect(self.ui.toggleHelp, SIGNAL("clicked()"), self.pds_helper.toggleHelp)
+-        self.connect(self.ui.releaseNotes, SIGNAL("clicked()"), self.showReleaseNotes)
++        if not ctx.flags.install_type == ctx.STEP_FIRST_BOOT:
++            self.connect(self.ui.releaseNotes, SIGNAL("clicked()"), self.showReleaseNotes)
++        else:
++            self.ui.releaseNotes.hide()
+         self.connect(self.menu, SIGNAL("triggered(QAction*)"), self.slotMenu)
+ 
+         self.cmb = _("right")
+-- 
+1.7.3.4
+
