@@ -19,7 +19,7 @@ def install():
     def chmod(path, mode):
         shelltools.chmod("%s%s" % (get.installDIR(), path), mode)
 
-    shelltools.echo("%s/etc/pardus-release" % get.installDIR(), "Pardus 2011 Beta 2")
+    shelltools.echo("%s/etc/pardus-release" % get.installDIR(), "Pardus 2011 RC")
 
     # Install baselayout documentation
     pisitools.doman("man/*.*")
