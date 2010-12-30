@@ -8,7 +8,6 @@ from pisi.actionsapi import pisitools
 from pisi.actionsapi import shelltools
 from pisi.actionsapi import get
 
-#WorkDir = "Mesa-%s" % get.srcVERSION().replace("_", "-")
 
 def setup():
     shelltools.export("CFLAGS", "%s -DNDEBUG" % get.CFLAGS())
@@ -28,15 +27,16 @@ def setup():
                          --disable-gallium-i965 \
                          --enable-gallium-radeon \
                          --disable-gallium-r600 \
-                         --enable-gallium-nouveau \
+                         --disable-gallium-nouveau \
                          --with-driver=dri \
                          --with-dri-driverdir=/usr/lib/xorg/modules/dri \
-                         --with-dri-drivers=i810,i915,i965,mach64,nouveau,r128,r200,r600,radeon,sis,tdfx \
+                         --with-dri-drivers=i810,i915,i965,mach64,r128,r200,r600,radeon,sis,tdfx \
                          --with-state-trackers=dri,glx")
 
     pisitools.dosed("configs/autoconf", "(PYTHON_FLAGS) = .*", r"\1 = -t")
 
 def build():
+    autotools.make("-C src/glsl glsl_lexer.cpp")
     autotools.make()
 
 def install():
