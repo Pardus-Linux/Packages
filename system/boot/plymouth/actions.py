@@ -47,9 +47,6 @@ def install():
     # Remove glow theme as it's premature
     pisitools.removeDir("/usr/share/plymouth/themes/glow")
 
-    # Remove fedora scripts
-    pisitools.remove("/usr/libexec/plymouth/*")
-
     # Generate initramfs filelist
     #shelltools.system("./generate-flist %s" % get.installDIR())
 
