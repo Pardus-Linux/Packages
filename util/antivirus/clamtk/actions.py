@@ -13,9 +13,6 @@ from pisi.actionsapi import pisitools
 def setup():
     pisitools.dosed("clamtk", "use ClamTk::Prefs", "use lib \"/usr/lib/\";\nuse ClamTk::Prefs")
     pisitools.dosed("clamtk", "use ClamTk::GUI", "use lib \"/usr/lib/\";\nuse ClamTk::GUI")
-    pisitools.dosed("clamtk.desktop", "(?<=Name\=).*", "ClamTK")
-    pisitools.dosed("clamtk.desktop", "(?<=Name\[tr\]\=).*", "ClamTK")
-    pisitools.dosed("clamtk.desktop", "(?<=GenericName\=).*", "Virus Scanner\nGenericName[tr]=Virüs Tarayıcısı")
 
 def install():
     pisitools.dobin("clamtk")
