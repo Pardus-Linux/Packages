@@ -8,7 +8,6 @@ from pisi.actionsapi import get
 def setup():
     autotools.configure("--enable-color \
                          --enable-nanorc \
-                         --enable-multicolor \
                          --enable-utf8 \
                          --disable-speller")
 
