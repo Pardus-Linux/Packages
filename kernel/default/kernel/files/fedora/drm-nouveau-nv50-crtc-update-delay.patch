@@ -1,0 +1,33 @@
+From 8f51b07995c55369bfd27921ef10b76c2b203fe8 Mon Sep 17 00:00:00 2001
+From: Ben Skeggs <bskeggs@redhat.com>
+Date: Tue, 17 Aug 2010 14:20:29 +1000
+Subject: [PATCH] drm-nouveau-nv50-crtc-update-delay
+
+rhbz#614552
+
+Adds a short delay before doing framebuffer-only CRTC updates.  Fixes
+an issue that effects some cards (Quadro NVS295/FX580) where two of
+these updates in quick succession hangs the display engine.
+
+Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
+---
+ drivers/gpu/drm/nouveau/nv50_crtc.c |    3 +++
+ 1 files changed, 3 insertions(+), 0 deletions(-)
+
+diff --git a/drivers/gpu/drm/nouveau/nv50_crtc.c b/drivers/gpu/drm/nouveau/nv50_crtc.c
+index 2423c92..5c2aa1e 100644
+--- a/drivers/gpu/drm/nouveau/nv50_crtc.c
++++ b/drivers/gpu/drm/nouveau/nv50_crtc.c
+@@ -540,6 +540,9 @@ nv50_crtc_do_mode_set_base(struct drm_crtc *crtc, int x, int y,
+ 		nouveau_bo_unpin(ofb->nvbo);
+ 	}
+ 
++	if (update)
++		mdelay(1);
++
+ 	nv_crtc->fb.offset = fb->nvbo->bo.offset - dev_priv->vm_vram_base;
+ 	nv_crtc->fb.tile_flags = fb->nvbo->tile_flags;
+ 	nv_crtc->fb.cpp = drm_fb->bits_per_pixel / 8;
+-- 
+1.7.3.1
+
