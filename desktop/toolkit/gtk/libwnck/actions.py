@@ -13,8 +13,10 @@ from pisi.actionsapi import get
 shelltools.export("HOME", get.workDIR())
 
 def setup():
-    autotools.autoreconf("-fis")
+    #autotools.autoreconf("-fis")
     autotools.configure("--disable-static")
+
+    pisitools.dosed("libtool"," -shared ", " -Wl,--as-needed -shared ")
 
 def build():
     autotools.make()
