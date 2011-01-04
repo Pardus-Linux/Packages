@@ -1,0 +1,55 @@
+# HG changeset patch
+# User Wolfgang Rosenauer <wr@rosenauer.org>
+# Parent 4a8194d5971401441da4f4f3bbd2730e506da4bc
+Bug 583793 - Firefox interface language set to LANG, ignores LANGUAGE
+
+diff --git a/intl/locale/src/nsLocaleService.cpp b/intl/locale/src/nsLocaleService.cpp
+--- a/intl/locale/src/nsLocaleService.cpp
++++ b/intl/locale/src/nsLocaleService.cpp
+@@ -192,22 +192,24 @@ nsLocaleService::nsLocaleService(void)
+             return; 
+         }
+ 
+ #ifdef MOZ_ENABLE_MEEGOTOUCH
+         // Create a snapshot of the gconf locale values into the
+         // corresponding environment variables to obey system settings
+         // as accurately as possible.
+         CopyGConfToEnv("/meegotouch/i18n/language", "LANG");
++        CopyGConfToEnv("/meegotouch/i18n/language", "LANGUAGE");
+         CopyGConfToEnv("/meegotouch/i18n/lc_collate", NSILOCALE_COLLATE);
+         CopyGConfToEnv("/meegotouch/i18n/lc_monetary", NSILOCALE_MONETARY);
+         CopyGConfToEnv("/meegotouch/i18n/lc_numeric", NSILOCALE_NUMERIC);
+         CopyGConfToEnv("/meegotouch/i18n/lc_time", NSILOCALE_TIME);
+ #endif
+         // Get system configuration
++        const char* language = getenv("LANGUAGE");
+         const char* lang = getenv("LANG");
+         for( i = 0; i < LocaleListLength; i++ ) {
+             nsresult result;
+             // setlocale( , "") evaluates LC_* and LANG
+             char* lc_temp = setlocale(posix_locale_category[i], "");
+             CopyASCIItoUTF16(LocaleList[i], category);
+             category_platform = category;
+             category_platform.AppendLiteral("##PLATFORM");
+@@ -222,16 +224,21 @@ nsLocaleService::nsLocaleService(void)
+                 else {
+                     CopyASCIItoUTF16(lang, platformLocale);
+                     result = posixConverter->GetXPLocale(lang, xpLocale);
+                 }
+             }
+             if (NS_FAILED(result)) {
+                 return;
+             }
++            // LANGUAGE is overriding LC_MESSAGES
++            if (i == LC_MESSAGES && language && *language) {
++                CopyASCIItoUTF16(language, platformLocale);
++                result = posixConverter->GetXPLocale(language, xpLocale);
++            }
+             resultLocale->AddCategory(category, xpLocale);
+             resultLocale->AddCategory(category_platform, platformLocale);
+         }
+         mSystemLocale = do_QueryInterface(resultLocale);
+         mApplicationLocale = do_QueryInterface(resultLocale);
+     }  // if ( NS_SUCCEEDED )...
+        
+ #endif // XP_UNIX || XP_BEOS

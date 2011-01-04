@@ -13,7 +13,7 @@ import os
 
 WorkDir = "mozilla"
 NoStrip = ["/usr/include", "/usr/share/idl"]
-XulVersion = "2.0.0"
+XulVersion = "2.0"
 XulDir = "/usr/lib/%s-%s" % (get.srcNAME(), XulVersion)
 
 def setup():
