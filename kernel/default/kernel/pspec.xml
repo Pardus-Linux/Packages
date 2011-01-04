@@ -14,9 +14,9 @@
         <Description>kernel contains the Linux kernel, the core of any Linux operating system. The kernel handles the basic functions of the operating system: memory allocation, process allocation, device input and output, etc.</Description>
         <Archive sha1sum="b546ab66458d7d614151d80adbc03b4d28977ae2" type="tarbz2">http://www.kernel.org/pub/linux/kernel/v2.6/linux-2.6.36.tar.bz2</Archive>
         <AdditionalFiles>
-            <AdditionalFile target="configs/kernel-i686-config">pardus/configs/kernel-i686-config</AdditionalFile>
-            <AdditionalFile target="configs/kernel-x86_64-config">pardus/configs/kernel-x86_64-config</AdditionalFile>
-            <AdditionalFile permission="0755" target="generate-module-list">pardus/generate-module-list</AdditionalFile>
+            <AdditionalFile target="configs/kernel-i686-config">configs/kernel-i686-config</AdditionalFile>
+            <AdditionalFile target="configs/kernel-x86_64-config">configs/kernel-x86_64-config</AdditionalFile>
+            <AdditionalFile permission="0755" target="generate-module-list">scripts/generate-module-list</AdditionalFile>
         </AdditionalFiles>
         <BuildDependencies>
             <Dependency>cpio</Dependency>
@@ -27,13 +27,13 @@
         </BuildDependencies>
         <Patches>
             <!-- Stable patch -->
-            <Patch level="1" compressionType="bz2">kernel/patch-2.6.37-rc8.bz2</Patch>
-            <Patch level="1" compressionType="bz2">kernel/patch-2.6.37-rc8-git4.bz2</Patch>
+            <Patch level="1" compressionType="bz2">patches/mainline/patch-2.6.37-rc8.bz2</Patch>
+            <Patch level="1" compressionType="bz2">patches/mainline/patch-2.6.37-rc8-git4.bz2</Patch>
 
-            <!--<Patch level="1">kernel/pci-pcie-execute-OSC-once-for-each-root.patch</Patch>-->
+            <!--<Patch level="1">patches/mainline/pci-pcie-execute-OSC-once-for-each-root.patch</Patch>-->
 
             <!-- TuxOnIce 3.2-rc2 support for 2.6.36
-            <Patch level="1" compressionType="bz2">tuxonice/tuxonice-3.2-rc2-for-2.6.36.patch.bz2</Patch>
+            <Patch level="1" compressionType="bz2">patches/tuxonice-3.2-rc2-for-2.6.36.patch.bz2</Patch>
             -->
 
 
@@ -41,211 +41,208 @@
             <!-- FIXME: Recheck fastboot stuff from moblin and ubuntu -->
 
             <!-- fastboot: retry mounting / if it fails first time -->
-            <Patch level="1">fastboot/linux-2.6.29-retry-root-mount.patch</Patch>
+            <Patch level="1">patches/meego/linux-2.6.29-retry-root-mount.patch</Patch>
 
-            <!-- fastboot: try mounting / before all devices  (the mouse) are
+            <!-- patches/meego: try mounting / before all devices  (the mouse) are
             done probing. This saves several seconds of boot time. -->
-            <Patch level="1">fastboot/linux-2.6.29-dont-wait-for-mouse.patch</Patch>
+            <Patch level="1">patches/meego/linux-2.6.29-dont-wait-for-mouse.patch</Patch>
 
-            <!-- fastboot: Move kms after SATA in drivers/Makefile -->
-            <Patch level="1">fastboot/0005-Ordering-kms-after-sata-in-drivers-Makefile.patch</Patch>
+            <!-- patches/meego: Move kms after SATA in drivers/Makefile -->
+            <Patch level="1">patches/meego/0005-Ordering-kms-after-sata-in-drivers-Makefile.patch</Patch>
 
 
             <!-- Ubuntu Kernel Patches -->
 
             <!-- Restore VT fonts on switch -->
-            <Patch level="1">ubuntu/ubuntu-intrepid.git-0e1f6f9df557fe4c7d5523275c25c166ee15efb5.patch</Patch>
+            <Patch level="1">patches/ubuntu/ubuntu-intrepid.git-0e1f6f9df557fe4c7d5523275c25c166ee15efb5.patch</Patch>
 
             <!-- frame buffer regression - screen blank except for blinking -->
-            <Patch level="1">ubuntu/ubuntu-intrepid.git-ba0d60fcc049028112c7ae493f5df9e863ea660d.patch</Patch>
+            <Patch level="1">patches/ubuntu/ubuntu-intrepid.git-ba0d60fcc049028112c7ae493f5df9e863ea660d.patch</Patch>
 
             <!-- ata: blacklist FUJITSU MHW2160BH PL -->
-            <Patch level="1">ubuntu/ubuntu-intrepid.git-3522f638ddff561fb46c1056fcb8c678e9e649ab.patch</Patch>
+            <Patch level="1">patches/ubuntu/ubuntu-intrepid.git-3522f638ddff561fb46c1056fcb8c678e9e649ab.patch</Patch>
 
             <!-- Several SAUCE patches from jaunty and karmic -->
-            <Patch level="1">ubuntu/0002-UBUNTU-SAUCE-Dell-XPS710-reboot-quirk.patch</Patch>
-            <Patch level="1">ubuntu/0005-UBUNTU-SAUCE-Correctly-blacklist-Thinkpad-r40e-in-AC.patch</Patch>
+            <Patch level="1">patches/ubuntu/0002-UBUNTU-SAUCE-Dell-XPS710-reboot-quirk.patch</Patch>
+            <Patch level="1">patches/ubuntu/0005-UBUNTU-SAUCE-Correctly-blacklist-Thinkpad-r40e-in-AC.patch</Patch>
 
             <!-- Don't install scsi headers to avoid conflict with glibc -->
-            <Patch level="1">ubuntu/ubuntu-maverick.git-c7a74029969b912241591b2889961b17514ca61f.patch</Patch>
+            <Patch level="1">patches/ubuntu/ubuntu-maverick.git-c7a74029969b912241591b2889961b17514ca61f.patch</Patch>
 
             <!-- unionfs support -->
-            <Patch level="1" compressionType="gz">unionfs/unionfs-2.5.7_for_2.6.37-rc1.diff.gz</Patch>
-            <Patch level="1">unionfs/unionfs-2.5.6-fix-compat.diff</Patch>
+            <Patch level="1" compressionType="gz">patches/unionfs-2.5.7_for_2.6.37-rc1.diff.gz</Patch>
+            <Patch level="1">patches/unionfs-2.5.6-fix-compat.diff</Patch>
 
 
             <!-- Fedora Kernel Patches -->
 
             <!-- Disable floppy pnp alias -->
-            <Patch level="1">fedora/die-floppy-die.patch</Patch>
+            <Patch level="1">patches/fedora/die-floppy-die.patch</Patch>
 
             <!-- Disable pcspkr alias -->
-            <Patch level="1">fedora/linux-2.6.30-no-pcspkr-modalias.patch</Patch>
+            <Patch level="1">patches/fedora/linux-2.6.30-no-pcspkr-modalias.patch</Patch>
 
             <!-- NX support -->
-            <Patch level="1">fedora/linux-2.6-i386-nx-emulation.patch</Patch>
-            <Patch level="1">fedora/linux-2.6-32bit-mmap-exec-randomization.patch</Patch>
+            <Patch level="1">patches/fedora/linux-2.6-i386-nx-emulation.patch</Patch>
+            <Patch level="1">patches/fedora/linux-2.6-32bit-mmap-exec-randomization.patch</Patch>
 
             <!-- runtime pm fixes -->
-            <Patch level="1">fedora/linux-2.6-usb-pci-autosuspend.patch</Patch>
-            <Patch level="1">fedora/linux-2.6-enable-more-pci-autosuspend.patch</Patch>
-            <Patch level="1">fedora/runtime_pm_fixups.patch</Patch>
+            <Patch level="1">patches/fedora/linux-2.6-usb-pci-autosuspend.patch</Patch>
+            <Patch level="1">patches/fedora/linux-2.6-enable-more-pci-autosuspend.patch</Patch>
+            <Patch level="1">patches/fedora/runtime_pm_fixups.patch</Patch>
 
             <!-- Quirk to disable DMAR with Ricoh card reader/firewire -->
-            <Patch level="1">fedora/dmar-disable-when-ricoh-multifunction.patch</Patch>
+            <Patch level="1">patches/fedora/dmar-disable-when-ricoh-multifunction.patch</Patch>
 
             <!-- Add Apple IR driver -->
-            <Patch level="1">fedora/add-appleir-usb-driver.patch</Patch>
+            <Patch level="1">patches/fedora/add-appleir-usb-driver.patch</Patch>
 
             <!-- Disable i8042 check on apple mac -->
-            <Patch level="1">fedora/disable-i8042-check-on-apple-mac.patch</Patch>
+            <Patch level="1">patches/fedora/disable-i8042-check-on-apple-mac.patch</Patch>
 
             <!-- Some ACPI stuff -->
-            <Patch level="1">fedora/acpi-ec-add-delay-before-write.patch</Patch>
-            <Patch level="1">fedora/linux-2.6-silence-acpi-blacklist.patch</Patch>
-            <Patch level="1">fedora/linux-2.6-acpi-video-dos.patch</Patch>
-            <Patch level="1">fedora/linux-2.6-defaults-acpi-video.patch</Patch>
-            <Patch level="1">fedora/linux-2.6-acpi-debug-infinite-loop.patch</Patch>
-            <Patch level="1">fedora/linux-2.6-defaults-aspm.patch</Patch>
-            <Patch level="1">fedora/pci-disable-aspm-if-bios-asks-us-to.patch</Patch>
-            <!--<Patch level="1">fedora/pci-_osc-supported-field-should-contain-supported-features-not-enabled-ones.patch</Patch>-->
+            <Patch level="1">patches/fedora/acpi-ec-add-delay-before-write.patch</Patch>
+            <Patch level="1">patches/fedora/linux-2.6-silence-acpi-blacklist.patch</Patch>
+            <Patch level="1">patches/fedora/linux-2.6-acpi-video-dos.patch</Patch>
+            <Patch level="1">patches/fedora/linux-2.6-defaults-acpi-video.patch</Patch>
+            <Patch level="1">patches/fedora/linux-2.6-acpi-debug-infinite-loop.patch</Patch>
+            <Patch level="1">patches/fedora/linux-2.6-defaults-aspm.patch</Patch>
+            <Patch level="1">patches/fedora/pci-disable-aspm-if-bios-asks-us-to.patch</Patch>
+            <!--<Patch level="1">patches/fedora/pci-_osc-supported-field-should-contain-supported-features-not-enabled-ones.patch</Patch>-->
 
             <!-- acpi: Fix battery status on some devices -->
-            <!--<Patch level="1">fedora/acpi-update-battery-information-on-notification-0x81.patch</Patch>-->
+            <!--<Patch level="1">patches/fedora/acpi-update-battery-information-on-notification-0x81.patch</Patch>-->
 
-            <Patch level="1">fedora/neuter_intel_microcode_load.patch</Patch>
+            <Patch level="1">patches/fedora/neuter_intel_microcode_load.patch</Patch>
 
             <!-- try to fix stalls during boot -->
-            <Patch level="1">fedora/tpm-fix-stall-on-boot.patch</Patch>
+            <Patch level="1">patches/fedora/tpm-fix-stall-on-boot.patch</Patch>
 
             <!-- Use UTF-8 by default on VFAT -->
-            <Patch level="1">fedora/linux-2.6-defaults-fat-utf8.patch</Patch>
+            <Patch level="1">patches/fedora/linux-2.6-defaults-fat-utf8.patch</Patch>
 
             <!-- input: The input layer spews crap no-one cares about -->
-            <Patch level="1">fedora/linux-2.6-input-kill-stupid-messages.patch</Patch>
+            <Patch level="1">patches/fedora/linux-2.6-input-kill-stupid-messages.patch</Patch>
 
             <!-- pci: disable message signaled interrupts  -->
-            <Patch level="1">fedora/linux-2.6-defaults-pci_no_msi.patch</Patch>
+            <Patch level="1">patches/fedora/linux-2.6-defaults-pci_no_msi.patch</Patch>
 
-            <Patch level="1">fedora/linux-2.6-defaults-pci_use_crs.patch</Patch>
+            <Patch level="1">patches/fedora/linux-2.6-defaults-pci_use_crs.patch</Patch>
 
             <!-- Silence some useless messages that still get printed with 'quiet' -->
-            <Patch level="1">fedora/linux-2.6-silence-noise.patch</Patch>
+            <Patch level="1">patches/fedora/linux-2.6-silence-noise.patch</Patch>
 
             <!-- fbcon: Silence fbcon logo if quiet -->
-            <Patch level="1">fedora/linux-2.6-silence-fbcon-logo.patch</Patch>
+            <Patch level="1">patches/fedora/linux-2.6-silence-fbcon-logo.patch</Patch>
 
             <!-- Allow to use 480600 baud on 16C950 UARTs -->
-            <Patch level="1">fedora/linux-2.6-serial-460800.patch</Patch>
+            <Patch level="1">patches/fedora/linux-2.6-serial-460800.patch</Patch>
 
             <!-- hdpvr: Enable IR -->
-            <Patch level="1">fedora/hdpvr-ir-enable.patch</Patch>
+            <Patch level="1">patches/fedora/hdpvr-ir-enable.patch</Patch>
 
             <!-- e1000e: Enable networking on montevina -->
-            <Patch level="1">fedora/linux-2.6-e1000-ich9-montevina.patch</Patch>
+            <Patch level="1">patches/fedora/linux-2.6-e1000-ich9-montevina.patch</Patch>
 
             <!-- various fixes for Apple and EFI -->
-            <Patch level="1">fedora/applesmc_update.patch</Patch>
-            <Patch level="1">fedora/apple_backlight.patch</Patch>
-            <Patch level="1">fedora/efifb_update.patch</Patch>
-            <Patch level="1">fedora/linux-next-macbook-air-input.patch</Patch>
-            <Patch level="1">fedora/acpi_reboot.patch</Patch>
-            <Patch level="1">fedora/efi_default_physical.patch</Patch>
+            <Patch level="1">patches/fedora/applesmc_update.patch</Patch>
+            <Patch level="1">patches/fedora/apple_backlight.patch</Patch>
+            <Patch level="1">patches/fedora/efifb_update.patch</Patch>
+            <Patch level="1">patches/fedora/linux-next-macbook-air-input.patch</Patch>
+            <Patch level="1">patches/fedora/acpi_reboot.patch</Patch>
+            <Patch level="1">patches/fedora/efi_default_physical.patch</Patch>
 
             <!-- backport some fixes for kswapd from mmotm -->
-            <Patch level="1">fedora/mm-page-allocator-adjust-the-per-cpu-counter-threshold-when-memory-is-low.patch</Patch>
-            <Patch level="1">fedora/mm-vmstat-use-a-single-setter-function-and-callback-for-adjusting-percpu-thresholds.patch</Patch>
-            <Patch level="1">fedora/fs-call-security_d_instantiate-in-d_obtain_alias.patch</Patch>
-            <Patch level="1">fedora/net-AF_PACKET-vmalloc.patch</Patch>
+            <Patch level="1">patches/fedora/mm-page-allocator-adjust-the-per-cpu-counter-threshold-when-memory-is-low.patch</Patch>
+            <Patch level="1">patches/fedora/mm-vmstat-use-a-single-setter-function-and-callback-for-adjusting-percpu-thresholds.patch</Patch>
+            <Patch level="1">patches/fedora/fs-call-security_d_instantiate-in-d_obtain_alias.patch</Patch>
+            <Patch level="1">patches/fedora/net-AF_PACKET-vmalloc.patch</Patch>
 
-            <Patch level="1">fedora/flexcop-fix-xlate_proc_name-warning.patch</Patch>
+            <Patch level="1">patches/fedora/flexcop-fix-xlate_proc_name-warning.patch</Patch>
 
 
             <!-- DRM stuff -->
-            <Patch level="1">fedora/drm-nouveau-nva3-noaccel.patch</Patch>
-            <Patch level="1">fedora/drm-nouveau-nv50-crtc-update-delay.patch</Patch>
-            <Patch level="1">fedora/drm-nouveau-imac-g4.patch</Patch>
-            <Patch level="1">fedora/drm-nouveau-evo-hang.patch</Patch>
-            <Patch level="1">fedora/drm-nouveau-nvaf-grclass.patch</Patch>
+            <Patch level="1">patches/fedora/drm-nouveau-nva3-noaccel.patch</Patch>
+            <Patch level="1">patches/fedora/drm-nouveau-nv50-crtc-update-delay.patch</Patch>
+            <Patch level="1">patches/fedora/drm-nouveau-imac-g4.patch</Patch>
+            <Patch level="1">patches/fedora/drm-nouveau-evo-hang.patch</Patch>
+            <Patch level="1">patches/fedora/drm-nouveau-nvaf-grclass.patch</Patch>
 
-            <Patch level="1">fedora/drm-intel-big-hammer.patch</Patch>
-            <Patch level="1">fedora/drm-intel-make-lvds-work.patch</Patch>
-            <Patch level="1">fedora/linux-2.6-intel-iommu-igfx.patch</Patch>
-            <Patch level="1">fedora/drm-intel-edp-fixes.patch</Patch>
+            <Patch level="1">patches/fedora/drm-intel-big-hammer.patch</Patch>
+            <Patch level="1">patches/fedora/drm-intel-make-lvds-work.patch</Patch>
+            <Patch level="1">patches/fedora/linux-2.6-intel-iommu-igfx.patch</Patch>
+            <Patch level="1">patches/fedora/drm-intel-edp-fixes.patch</Patch>
 
 
             <!-- Subset of OpenSuSE Kernel Patches -->
 
             <!-- Eventhough we don't build legacy IDE drivers, prefer libata over them -->
-            <Patch level="1">suse/libata-prefer-over-ide.patch</Patch>
+            <Patch level="1">patches/suse/libata-prefer-over-ide.patch</Patch>
 
             <!-- Add ELO touchpad driver -->
-            <Patch level="1">suse/elousb.patch</Patch>
+            <Patch level="1">patches/suse/elousb.patch</Patch>
 
             <!-- Explain OOM warning better -->
-            <Patch level="1">suse/explain-oom-warning.patch</Patch>
+            <Patch level="1">patches/suse/explain-oom-warning.patch</Patch>
 
             <!-- Input: Add Acer ASpire 5710 to nomux quirk table -->
-            <Patch level="1">suse/input-add-acer-aspire-5710-to-nomux.patch</Patch>
+            <Patch level="1">patches/suse/input-add-acer-aspire-5710-to-nomux.patch</Patch>
 
             <!-- x86: APIC force bigsmp apic on some IBM and DELL stations -->
-            <Patch level="1">suse/x86-apic-force-bigsmp-apic-on-IBM-EXA3-4.patch</Patch>
+            <Patch level="1">patches/suse/x86-apic-force-bigsmp-apic-on-IBM-EXA3-4.patch</Patch>
 
             <!-- Module use count must be updated as bridges are created/destroyed -->
-            <Patch level="1">suse/bridge-module-get-put.patch</Patch>
+            <Patch level="1">patches/suse/bridge-module-get-put.patch</Patch>
 
             <!-- Make tsc disabling optional -->
-            <Patch level="1">suse/seccomp-disable-tsc-option.patch</Patch>
+            <Patch level="1">patches/suse/seccomp-disable-tsc-option.patch</Patch>
 
             <!-- Enable apm=power_off on uniprocessors (Fixes #4519) -->
-            <Patch level="1">suse/apm_setup_UP.patch</Patch>
+            <Patch level="1">patches/suse/apm_setup_UP.patch</Patch>
 
             <!-- Don't force select AES in wireless -->
-            <Patch level="1">suse/wireless-no-aes-select.patch</Patch>
+            <Patch level="1">patches/suse/wireless-no-aes-select.patch</Patch>
 
             <!-- Make ext3 mount default to barrier=1 -->
-            <Patch level="1">suse/ext3-barrier-default.patch</Patch>
+            <Patch level="1">patches/suse/ext3-barrier-default.patch</Patch>
 
             <!-- fastboot stuff -->
-            <Patch level="1">suse/linux-2.6.29-jbd-longer-commit-interval.patch</Patch>
+            <Patch level="1">patches/suse/linux-2.6.29-jbd-longer-commit-interval.patch</Patch>
 
             <!-- mouse: Add more touch screen device IDs -->
-            <Patch level="1">suse/linux-2.6.29-touchkit.patch</Patch>
+            <Patch level="1">patches/suse/linux-2.6.29-touchkit.patch</Patch>
 
             <!-- Add new serial Wacom device IDs -->
-            <Patch level="1">suse/serial-8250-add-new-wacom-devices.patch</Patch>
+            <Patch level="1">patches/suse/serial-8250-add-new-wacom-devices.patch</Patch>
 
 
 
             <!-- Pardus Kernel Patches -->
 
-            <!-- Fix linking of perf tool -->
-            <!--<Patch level="1">pardus/fix-perf-linking.patch</Patch>-->
-
             <!-- Autoload mantis and hopper drivers (#14647) -->
-            <Patch level="1">pardus/mantis-add-device-table.patch</Patch>
+            <Patch level="1">patches/pardus/mantis-add-device-table.patch</Patch>
 
             <!-- hid-apple: Invert Fn+F? behaviour on apple keyboards -->
-            <Patch level="1">pardus/invert-hidapple-fnkey-behaviour.patch</Patch>
+            <Patch level="1">patches/pardus/invert-hidapple-fnkey-behaviour.patch</Patch>
 
             <!-- lmpcm_usb: Logitech lmpcm_usb driver -->
-            <Patch level="1">pardus/linux-2.6-add-lmpcm_usb-driver.patch</Patch>
+            <Patch level="1">patches/pardus/linux-2.6-add-lmpcm_usb-driver.patch</Patch>
 
             <!-- Add RF kill switch drivers for Fujitsu Amilo M7400 and M7440
                  http://fsam7440.sourceforge.net
                  http://www.zwobble.de -->
-            <Patch level="1">pardus/linux-2.6-add-fujitsu-amilo-74xx-rfkill-drivers.patch</Patch>
+            <Patch level="1">patches/pardus/linux-2.6-add-fujitsu-amilo-74xx-rfkill-drivers.patch</Patch>
 
             <!-- Use buildfarm.pardus.org.tr and pardus for /proc/version -->
-            <Patch level="1">pardus/buildhost.patch</Patch>
+            <Patch level="1">patches/pardus/buildhost.patch</Patch>
 
             <!-- Pardus Logo Enhancements -->
-            <Patch level="1">pardus/logo.patch</Patch>
-            <Patch level="1">pardus/logo-vga16.patch</Patch>
-            <Patch level="1">pardus/logo-mono.patch</Patch>
+            <Patch level="1">patches/pardus/logo.patch</Patch>
+            <Patch level="1">patches/pardus/logo-vga16.patch</Patch>
+            <Patch level="1">patches/pardus/logo-mono.patch</Patch>
 
             <!-- Fallback to vesa 640x480x16 on undefined video mode number (Fixes #7117)-->
-            <Patch level="1">pardus/vesa_fallback_on_fail.patch</Patch>
+            <Patch level="1">patches/pardus/vesa_fallback_on_fail.patch</Patch>
         </Patches>
     </Source>
 
