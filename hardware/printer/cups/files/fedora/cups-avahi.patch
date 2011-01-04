@@ -1,6 +1,6 @@
 diff -up cups-1.4.5/backend/dnssd.c.avahi cups-1.4.5/backend/dnssd.c
---- cups-1.4.5/backend/dnssd.c.avahi	2010-12-24 13:11:33.760461375 +0000
-+++ cups-1.4.5/backend/dnssd.c	2010-12-24 13:11:38.325341226 +0000
+--- cups-1.4.5/backend/dnssd.c.avahi	2010-12-31 10:31:00.333635888 +0000
++++ cups-1.4.5/backend/dnssd.c	2010-12-31 10:31:07.791916045 +0000
 @@ -15,14 +15,21 @@
   *
   * Contents:
@@ -264,8 +264,8 @@ diff -up cups-1.4.5/backend/dnssd.c.avahi cups-1.4.5/backend/dnssd.c
 +			     0, avahi_client_callback, NULL, &error);
 +  if (!client)
 +  {
-+    perror ("ERROR: Unable to create avahi client");
-+    return (1);
++    perror ("DEBUG: Unable to create avahi client");
++    return (0);
 +  }
 +
 +  avahi_service_browser_new (client, AVAHI_IF_UNSPEC,
@@ -826,7 +826,7 @@ diff -up cups-1.4.5/backend/dnssd.c.avahi cups-1.4.5/backend/dnssd.c
   */
 diff -up cups-1.4.5/config.h.in.avahi cups-1.4.5/config.h.in
 --- cups-1.4.5/config.h.in.avahi	2010-08-13 05:11:46.000000000 +0100
-+++ cups-1.4.5/config.h.in	2010-12-24 13:11:38.327341170 +0000
++++ cups-1.4.5/config.h.in	2010-12-31 10:31:07.793916122 +0000
 @@ -344,6 +344,13 @@
  
  
@@ -843,7 +843,7 @@ diff -up cups-1.4.5/config.h.in.avahi cups-1.4.5/config.h.in
  
 diff -up cups-1.4.5/config-scripts/cups-dnssd.m4.avahi cups-1.4.5/config-scripts/cups-dnssd.m4
 --- cups-1.4.5/config-scripts/cups-dnssd.m4.avahi	2009-08-28 23:54:34.000000000 +0100
-+++ cups-1.4.5/config-scripts/cups-dnssd.m4	2010-12-24 13:11:38.326341199 +0000
++++ cups-1.4.5/config-scripts/cups-dnssd.m4	2010-12-31 10:31:07.792916086 +0000
 @@ -27,6 +27,21 @@ AC_ARG_WITH(dnssd-includes, [  --with-dn
  DNSSDLIBS=""
  DNSSD_BACKEND=""
@@ -868,7 +868,7 @@ diff -up cups-1.4.5/config-scripts/cups-dnssd.m4.avahi cups-1.4.5/config-scripts
  		case "$uname" in
 diff -up cups-1.4.5/cups/http-support.c.avahi cups-1.4.5/cups/http-support.c
 --- cups-1.4.5/cups/http-support.c.avahi	2010-10-01 23:40:38.000000000 +0100
-+++ cups-1.4.5/cups/http-support.c	2010-12-24 13:11:38.330341093 +0000
++++ cups-1.4.5/cups/http-support.c	2010-12-31 10:31:07.795916189 +0000
 @@ -41,6 +41,10 @@
   *   http_copy_decode()   - Copy and decode a URI.
   *   http_copy_encode()   - Copy and encode a URI.
@@ -1137,9 +1137,9 @@ diff -up cups-1.4.5/cups/http-support.c.avahi cups-1.4.5/cups/http-support.c
   * End of "$Id: http-support.c 9322 2010-10-01 22:40:38Z mike $".
   */
 diff -up cups-1.4.5/scheduler/avahi.c.avahi cups-1.4.5/scheduler/avahi.c
---- cups-1.4.5/scheduler/avahi.c.avahi	2010-12-24 13:11:38.333341014 +0000
-+++ cups-1.4.5/scheduler/avahi.c	2010-12-24 13:11:38.333341014 +0000
-@@ -0,0 +1,441 @@
+--- cups-1.4.5/scheduler/avahi.c.avahi	2010-12-31 10:31:07.801916421 +0000
++++ cups-1.4.5/scheduler/avahi.c	2010-12-31 10:31:07.801916421 +0000
+@@ -0,0 +1,443 @@
 +/*
 + * "$Id$"
 + *
@@ -1347,10 +1347,12 @@ diff -up cups-1.4.5/scheduler/avahi.c.avahi cups-1.4.5/scheduler/avahi.c
 +
 +    watched_fd->fd = fd;
 +    watched_fd->occurred = 0;
++    watched_fd->cups_poll = cups_poll;
 +    watched_fd->watches = cupsArrayNew ((cups_array_func_t)compare_watches,
 +					NULL);
 +  }
 +
++  watch->watched_fd = watched_fd;
 +  cupsArrayAdd(watched_fd->watches, watch);
 +  watched_fd_add_select (watched_fd);
 +  return (watch);
@@ -1582,8 +1584,8 @@ diff -up cups-1.4.5/scheduler/avahi.c.avahi cups-1.4.5/scheduler/avahi.c
 + * End of "$Id$".
 + */
 diff -up cups-1.4.5/scheduler/avahi.h.avahi cups-1.4.5/scheduler/avahi.h
---- cups-1.4.5/scheduler/avahi.h.avahi	2010-12-24 13:11:38.334340988 +0000
-+++ cups-1.4.5/scheduler/avahi.h	2010-12-24 13:11:38.334340988 +0000
+--- cups-1.4.5/scheduler/avahi.h.avahi	2010-12-31 10:31:07.802916458 +0000
++++ cups-1.4.5/scheduler/avahi.h	2010-12-31 10:31:07.802916458 +0000
 @@ -0,0 +1,49 @@
 +/*
 + * "$Id$"
@@ -1636,7 +1638,7 @@ diff -up cups-1.4.5/scheduler/avahi.h.avahi cups-1.4.5/scheduler/avahi.h
 + */
 diff -up cups-1.4.5/scheduler/cupsd.h.avahi cups-1.4.5/scheduler/cupsd.h
 --- cups-1.4.5/scheduler/cupsd.h.avahi	2010-09-21 23:34:57.000000000 +0100
-+++ cups-1.4.5/scheduler/cupsd.h	2010-12-24 13:11:38.335340961 +0000
++++ cups-1.4.5/scheduler/cupsd.h	2010-12-31 10:31:07.803916494 +0000
 @@ -147,6 +147,15 @@ extern const char *cups_hstrerror(int);
  
  typedef void (*cupsd_selfunc_t)(void *data);
@@ -1683,9 +1685,17 @@ diff -up cups-1.4.5/scheduler/cupsd.h.avahi cups-1.4.5/scheduler/cupsd.h
  
  
 diff -up cups-1.4.5/scheduler/dirsvc.c.avahi cups-1.4.5/scheduler/dirsvc.c
---- cups-1.4.5/scheduler/dirsvc.c.avahi	2010-12-24 13:11:33.679463507 +0000
-+++ cups-1.4.5/scheduler/dirsvc.c	2010-12-24 13:11:38.343340751 +0000
-@@ -99,6 +99,13 @@
+--- cups-1.4.5/scheduler/dirsvc.c.avahi	2010-12-31 10:31:00.255632958 +0000
++++ cups-1.4.5/scheduler/dirsvc.c	2010-12-31 10:31:07.808916680 +0000
+@@ -27,6 +27,7 @@
+  *   ldap_connect()             - Start new LDAP connection
+  *   ldap_reconnect()           - Reconnect to LDAP Server
+  *   ldap_disconnect()          - Disconnect from LDAP Server
++ *   cupsdStartAvahiClient()    - Start an Avahi client if needed
+  *   cupsdStartBrowsing()       - Start sending and receiving broadcast
+  *                                information.
+  *   cupsdStartPolling()        - Start polling servers as needed.
+@@ -99,6 +100,13 @@
  #endif /* HAVE_DNSSD */
  
  
@@ -1699,7 +1709,7 @@ diff -up cups-1.4.5/scheduler/dirsvc.c.avahi cups-1.4.5/scheduler/dirsvc.c
  /*
   * Local functions...
   */
-@@ -159,15 +166,20 @@ static void	update_polling(void);
+@@ -159,15 +167,20 @@ static void	update_polling(void);
  static void	update_smb(int onoff);
  
  
@@ -1724,7 +1734,7 @@ diff -up cups-1.4.5/scheduler/dirsvc.c.avahi cups-1.4.5/scheduler/dirsvc.c
  static char	*dnssdPackTxtRecord(int *txt_len, char *keyvalue[][2],
  		                    int count);
  static void	dnssdRegisterCallback(DNSServiceRef sdRef,
-@@ -175,11 +187,20 @@ static void	dnssdRegisterCallback(DNSSer
+@@ -175,11 +188,20 @@ static void	dnssdRegisterCallback(DNSSer
  				      DNSServiceErrorType errorCode,
  				      const char *name, const char *regtype,
  				      const char *domain, void *context);
@@ -1747,7 +1757,7 @@ diff -up cups-1.4.5/scheduler/dirsvc.c.avahi cups-1.4.5/scheduler/dirsvc.c
  #ifdef HAVE_LDAP
  static const char * const ldap_attrs[] =/* CUPS LDAP attributes */
  		{
-@@ -283,10 +304,10 @@ cupsdDeregisterPrinter(
+@@ -283,10 +305,10 @@ cupsdDeregisterPrinter(
      ldap_dereg_printer(p);
  #endif /* HAVE_LDAP */
  
@@ -1761,7 +1771,7 @@ diff -up cups-1.4.5/scheduler/dirsvc.c.avahi cups-1.4.5/scheduler/dirsvc.c
  }
  
  
-@@ -694,10 +715,10 @@ cupsdRegisterPrinter(cupsd_printer_t *p)
+@@ -694,10 +716,10 @@ cupsdRegisterPrinter(cupsd_printer_t *p)
      slpRegisterPrinter(p); */
  #endif /* HAVE_LIBSLP */
  
@@ -1775,7 +1785,32 @@ diff -up cups-1.4.5/scheduler/dirsvc.c.avahi cups-1.4.5/scheduler/dirsvc.c
  }
  
  
-@@ -1535,13 +1556,16 @@ cupsdStartBrowsing(void)
+@@ -1411,6 +1433,24 @@ ldap_disconnect(LDAP *ld)		/* I - LDAP h
+ }
+ #endif /* HAVE_LDAP */
+ 
++#ifdef HAVE_AVAHI
++/*
++ * 'cupsdStartAvahiClient()' - Start an Avahi client if needed
++ */
++
++void
++cupsdStartAvahiClient(void) {
++  if ((!AvahiCupsClient) &&
++      (!AvahiCupsClientConnecting || !(*AvahiCupsClientConnecting)))
++  {
++    if (!AvahiCupsPollHandle)
++      AvahiCupsPollHandle = avahi_cups_poll_new ();
++    if (AvahiCupsPollHandle)
++      avahi_client_new (avahi_cups_poll_get (AvahiCupsPollHandle),
++			AVAHI_CLIENT_NO_FAIL, avahi_client_cb, NULL, NULL);
++  }
++}
++#endif /* HAVE_AVAHI */
+ 
+ /*
+  * 'cupsdStartBrowsing()' - Start sending and receiving broadcast information.
+@@ -1535,13 +1575,16 @@ cupsdStartBrowsing(void)
    else
      BrowseSocket = -1;
  
@@ -1793,7 +1828,7 @@ diff -up cups-1.4.5/scheduler/dirsvc.c.avahi cups-1.4.5/scheduler/dirsvc.c
     /*
      * First create a "master" connection for all registrations...
      */
-@@ -1566,6 +1590,7 @@ cupsdStartBrowsing(void)
+@@ -1566,6 +1609,7 @@ cupsdStartBrowsing(void)
        fcntl(fd, F_SETFD, fcntl(fd, F_GETFD) | FD_CLOEXEC);
  
        cupsdAddSelect(fd, (cupsd_selfunc_t)dnssdUpdate, NULL, NULL);
@@ -1801,7 +1836,7 @@ diff -up cups-1.4.5/scheduler/dirsvc.c.avahi cups-1.4.5/scheduler/dirsvc.c
  
       /*
        * Then get the port we use for registrations.  If we are not listening
-@@ -1607,9 +1632,20 @@ cupsdStartBrowsing(void)
+@@ -1607,9 +1651,16 @@ cupsdStartBrowsing(void)
        */
  
        cupsdUpdateDNSSDName();
@@ -1814,16 +1849,12 @@ diff -up cups-1.4.5/scheduler/dirsvc.c.avahi cups-1.4.5/scheduler/dirsvc.c
 +
 +#ifdef HAVE_AVAHI
 +  if ((BrowseLocalProtocols | BrowseRemoteProtocols) & BROWSE_DNSSD)
-+  {
-+    AvahiCupsPollHandle = avahi_cups_poll_new ();
-+    avahi_client_new (avahi_cups_poll_get (AvahiCupsPollHandle),
-+		      0, avahi_client_cb, NULL, NULL);
-+  }
++    cupsdStartAvahiClient();
 +#endif /* HAVE_AVAHI */
  
  #ifdef HAVE_LIBSLP
    if ((BrowseLocalProtocols | BrowseRemoteProtocols) & BROWSE_SLP)
-@@ -1835,10 +1871,10 @@ cupsdStopBrowsing(void)
+@@ -1835,10 +1886,10 @@ cupsdStopBrowsing(void)
      BrowseSocket = -1;
    }
  
@@ -1837,7 +1868,7 @@ diff -up cups-1.4.5/scheduler/dirsvc.c.avahi cups-1.4.5/scheduler/dirsvc.c
  
  #ifdef HAVE_LIBSLP
    if (((BrowseLocalProtocols | BrowseRemoteProtocols) & BROWSE_SLP) &&
-@@ -1903,7 +1939,7 @@ cupsdStopPolling(void)
+@@ -1903,7 +1954,7 @@ cupsdStopPolling(void)
  }
  
  
@@ -1846,7 +1877,7 @@ diff -up cups-1.4.5/scheduler/dirsvc.c.avahi cups-1.4.5/scheduler/dirsvc.c
  /*
   * 'cupsdUpdateDNSSDName()' - Update the computer name we use for browsing...
   */
-@@ -1911,7 +1947,12 @@ cupsdStopPolling(void)
+@@ -1911,7 +1962,12 @@ cupsdStopPolling(void)
  void
  cupsdUpdateDNSSDName(void)
  {
@@ -1859,7 +1890,7 @@ diff -up cups-1.4.5/scheduler/dirsvc.c.avahi cups-1.4.5/scheduler/dirsvc.c
    char		webif[1024];		/* Web interface share name */
  #ifdef HAVE_COREFOUNDATION_H
    SCDynamicStoreRef sc;			/* Context for dynamic store */
-@@ -2043,6 +2084,7 @@ cupsdUpdateDNSSDName(void)
+@@ -2043,6 +2099,7 @@ cupsdUpdateDNSSDName(void)
      else
        strlcpy(webif, "CUPS Web Interface", sizeof(webif));
  
@@ -1867,7 +1898,7 @@ diff -up cups-1.4.5/scheduler/dirsvc.c.avahi cups-1.4.5/scheduler/dirsvc.c
      if (WebIFRef)
        DNSServiceRefDeallocate(WebIFRef);
  
-@@ -2055,6 +2097,42 @@ cupsdUpdateDNSSDName(void)
+@@ -2055,6 +2112,42 @@ cupsdUpdateDNSSDName(void)
  				    NULL)) != kDNSServiceErr_NoError)
        cupsdLogMessage(CUPSD_LOG_ERROR,
  		      "DNS-SD web interface registration failed: %d", error);
@@ -1910,7 +1941,7 @@ diff -up cups-1.4.5/scheduler/dirsvc.c.avahi cups-1.4.5/scheduler/dirsvc.c
    }
  }
  #endif /* HAVE_DNSSD */
-@@ -2300,162 +2378,7 @@ dequote(char       *d,			/* I - Destinat
+@@ -2300,162 +2393,7 @@ dequote(char       *d,			/* I - Destinat
  }
  
  
@@ -2074,7 +2105,25 @@ diff -up cups-1.4.5/scheduler/dirsvc.c.avahi cups-1.4.5/scheduler/dirsvc.c
  /*
   * 'dnssdComparePrinters()' - Compare the registered names of two printers.
   */
-@@ -2479,6 +2402,10 @@ dnssdDeregisterPrinter(
+@@ -2464,7 +2402,16 @@ static int				/* O - Result of compariso
+ dnssdComparePrinters(cupsd_printer_t *a,/* I - First printer */
+                      cupsd_printer_t *b)/* I - Second printer */
+ {
+-  return (strcasecmp(a->reg_name, b->reg_name));
++  if (!a->reg_name)
++    if (!b->reg_name)
++      return 0;
++    else
++      return -1;
++  else 
++    if (!b->reg_name)
++      return 1;
++    else
++      return (strcasecmp(a->reg_name, b->reg_name));
+ }
+ 
+ 
+@@ -2479,6 +2426,10 @@ dnssdDeregisterPrinter(
  {
    cupsdLogMessage(CUPSD_LOG_DEBUG2, "dnssdDeregisterPrinter(%s)", p->name);
  
@@ -2085,7 +2134,7 @@ diff -up cups-1.4.5/scheduler/dirsvc.c.avahi cups-1.4.5/scheduler/dirsvc.c
   /*
    * Closing the socket deregisters the service
    */
-@@ -2514,6 +2441,23 @@ dnssdDeregisterPrinter(
+@@ -2514,6 +2465,23 @@ dnssdDeregisterPrinter(
      free(p->printer_txt);
      p->printer_txt = NULL;
    }
@@ -2109,7 +2158,7 @@ diff -up cups-1.4.5/scheduler/dirsvc.c.avahi cups-1.4.5/scheduler/dirsvc.c
  
   /*
    * Remove the printer from the array of DNS-SD printers, then clear the
-@@ -2526,140 +2470,53 @@ dnssdDeregisterPrinter(
+@@ -2526,133 +2494,46 @@ dnssdDeregisterPrinter(
  
  
  /*
@@ -2169,14 +2218,11 @@ diff -up cups-1.4.5/scheduler/dirsvc.c.avahi cups-1.4.5/scheduler/dirsvc.c
  
   /*
 -  * Allocate and fill it
-+  * If per-printer sharing was just disabled make sure we're not
-+  * registered before returning.
-   */
- 
+-  */
+-
 -  txtRecord = malloc(length);
 -  if (txtRecord)
-+  if (!p->shared)
-   {
+-  {
 -    *txt_len = length;
 -
 -    for (cursor = txtRecord, i = 0; i < count; i++)
@@ -2273,20 +2319,12 @@ diff -up cups-1.4.5/scheduler/dirsvc.c.avahi cups-1.4.5/scheduler/dirsvc.c
 - /*
 -  * If per-printer sharing was just disabled make sure we're not
 -  * registered before returning.
--  */
--
--  if (!p->shared)
--  {
--    dnssdDeregisterPrinter(p);
--    return;
--  }
-+    dnssdDeregisterPrinter(p);
-+    return;
-+  }
++  * If per-printer sharing was just disabled make sure we're not
++  * registered before returning.
+   */
  
-  /*
-   * The registered name takes the form of "<printer-info> @ <computer name>"...
-@@ -2694,6 +2551,7 @@ dnssdRegisterPrinter(cupsd_printer_t *p)
+   if (!p->shared)
+@@ -2694,6 +2575,7 @@ dnssdRegisterPrinter(cupsd_printer_t *p)
    * Register IPP and (optionally) LPD...
    */
  
@@ -2294,7 +2332,7 @@ diff -up cups-1.4.5/scheduler/dirsvc.c.avahi cups-1.4.5/scheduler/dirsvc.c
    ipp_len = 0;				/* anti-compiler-warning-code */
    ipp_txt = dnssdBuildTxtRecord(&ipp_len, p, 0);
  
-@@ -2860,6 +2718,140 @@ dnssdRegisterPrinter(cupsd_printer_t *p)
+@@ -2860,6 +2742,146 @@ dnssdRegisterPrinter(cupsd_printer_t *p)
      if (printer_txt)
        free(printer_txt);
    }
@@ -2378,6 +2416,9 @@ diff -up cups-1.4.5/scheduler/dirsvc.c.avahi cups-1.4.5/scheduler/dirsvc.c
 +		    "Registering Avahi printer %s with name \"%s\" and "
 +		    "type \"%s\"", p->name, name, regtype);
 +
++    if (!p->avahi_group)
++      goto add_failed;
++
 +    ret = avahi_entry_group_add_service_strlst (p->avahi_group,
 +						AVAHI_IF_UNSPEC,
 +						AVAHI_PROTO_UNSPEC,
@@ -2418,9 +2459,12 @@ diff -up cups-1.4.5/scheduler/dirsvc.c.avahi cups-1.4.5/scheduler/dirsvc.c
 +      cupsdLogMessage (CUPSD_LOG_ERROR,
 +		       "Failed to add Avahi entry for %s: %d",
 +		       name, ret);
-+      avahi_entry_group_reset (p->avahi_group);
-+      avahi_entry_group_free (p->avahi_group);
-+      p->avahi_group = NULL;
++      if (p->avahi_group)
++      {
++	avahi_entry_group_reset (p->avahi_group);
++	avahi_entry_group_free (p->avahi_group);
++	p->avahi_group = NULL;
++      }
 +      ipp_txt = p->ipp_txt;
 +      p->ipp_txt = NULL;
 +    }
@@ -2435,7 +2479,7 @@ diff -up cups-1.4.5/scheduler/dirsvc.c.avahi cups-1.4.5/scheduler/dirsvc.c
  }
  
  
-@@ -2872,6 +2864,10 @@ dnssdStop(void)
+@@ -2872,6 +2894,10 @@ dnssdStop(void)
  {
    cupsd_printer_t	*p;		/* Current printer */
  
@@ -2446,7 +2490,7 @@ diff -up cups-1.4.5/scheduler/dirsvc.c.avahi cups-1.4.5/scheduler/dirsvc.c
  
   /*
    * De-register the individual printers
-@@ -2882,6 +2878,7 @@ dnssdStop(void)
+@@ -2882,6 +2908,7 @@ dnssdStop(void)
         p = (cupsd_printer_t *)cupsArrayNext(Printers))
      dnssdDeregisterPrinter(p);
  
@@ -2454,7 +2498,7 @@ diff -up cups-1.4.5/scheduler/dirsvc.c.avahi cups-1.4.5/scheduler/dirsvc.c
   /*
    * Shutdown the rest of the service refs...
    */
-@@ -2902,6 +2899,7 @@ dnssdStop(void)
+@@ -2902,6 +2929,7 @@ dnssdStop(void)
  
    DNSServiceRefDeallocate(DNSSDRef);
    DNSSDRef = NULL;
@@ -2462,7 +2506,7 @@ diff -up cups-1.4.5/scheduler/dirsvc.c.avahi cups-1.4.5/scheduler/dirsvc.c
  
    cupsArrayDelete(DNSSDPrinters);
    DNSSDPrinters = NULL;
-@@ -2911,6 +2909,272 @@ dnssdStop(void)
+@@ -2911,6 +2939,272 @@ dnssdStop(void)
  
  
  /*
@@ -2735,7 +2779,7 @@ diff -up cups-1.4.5/scheduler/dirsvc.c.avahi cups-1.4.5/scheduler/dirsvc.c
   * 'dnssdUpdate()' - Handle DNS-SD queries.
   */
  
-@@ -2931,6 +3195,126 @@ dnssdUpdate(void)
+@@ -2931,6 +3225,144 @@ dnssdUpdate(void)
  #endif /* HAVE_DNSSD */
  
  
@@ -2830,26 +2874,44 @@ diff -up cups-1.4.5/scheduler/dirsvc.c.avahi cups-1.4.5/scheduler/dirsvc.c
 +    * Avahi client started successfully.
 +    */
 +    AvahiCupsClient = client;
++    AvahiCupsClientConnecting = NULL;
 +    cupsdLogMessage (CUPSD_LOG_DEBUG, "Avahi client started");
 +
 +    cupsdUpdateDNSSDName ();
 +
-+    for (printer = (cupsd_printer_t *)cupsArrayFirst(DNSSDPrinters);
++    for (printer = (cupsd_printer_t *)cupsArrayFirst(Printers);
 +	 printer;
-+	 printer = (cupsd_printer_t *)cupsArrayNext(DNSSDPrinters))
-+    {
-+      if (!printer->avahi_group)
++	 printer = (cupsd_printer_t *)cupsArrayNext(Printers))
++      if (Browsing && (BrowseLocalProtocols & BROWSE_DNSSD) &&
++	  (!(printer->type & (CUPS_PRINTER_REMOTE | CUPS_PRINTER_IMPLICIT |
++			      CUPS_PRINTER_SCANNER))) && printer->shared)
 +	dnssdRegisterPrinter (printer);
-+    }
 +
 +    break;
 +
 +  case AVAHI_CLIENT_CONNECTING:
++   /*
++    * No Avahi daemon, client is waiting.
++    */
++    AvahiCupsClientConnecting = &client;
 +    cupsdLogMessage (CUPSD_LOG_DEBUG, "Avahi client connecting");
 +    break;
 +
 +  case AVAHI_CLIENT_FAILURE:
-+    cupsdLogMessage (CUPSD_LOG_ERROR, "Avahi client failed");
++   /*
++    * Avahi client failed, close it to allow a clean restart.
++    */
++    cupsdLogMessage (CUPSD_LOG_ERROR, "Avahi client failed, closing client to allow a clean restart");
++
++    for (printer = (cupsd_printer_t *)cupsArrayFirst(Printers);
++	 printer;
++	 printer = (cupsd_printer_t *)cupsArrayNext(Printers))
++      dnssdDeregisterPrinter (printer);
++
++    avahi_client_free(AvahiCupsClient);
++    AvahiCupsClientConnecting = NULL;
++    AvahiCupsClient = NULL;
++
 +    break;
 +
 +  default:
@@ -2864,7 +2926,7 @@ diff -up cups-1.4.5/scheduler/dirsvc.c.avahi cups-1.4.5/scheduler/dirsvc.c
   */
 diff -up cups-1.4.5/scheduler/dirsvc.h.avahi cups-1.4.5/scheduler/dirsvc.h
 --- cups-1.4.5/scheduler/dirsvc.h.avahi	2009-05-14 18:54:37.000000000 +0100
-+++ cups-1.4.5/scheduler/dirsvc.h	2010-12-24 13:11:38.344340724 +0000
++++ cups-1.4.5/scheduler/dirsvc.h	2010-12-31 10:31:07.811916792 +0000
 @@ -32,6 +32,10 @@
  #  endif /* HAVE_LDAP_SSL_H */
  #endif /* HAVE_LDAP */
@@ -2902,7 +2964,7 @@ diff -up cups-1.4.5/scheduler/dirsvc.h.avahi cups-1.4.5/scheduler/dirsvc.h
  VAR DNSServiceRef	DNSSDRef	VALUE(NULL),
  					/* Master DNS-SD service reference */
  			WebIFRef	VALUE(NULL),
-@@ -151,6 +158,15 @@ VAR DNSServiceRef	DNSSDRef	VALUE(NULL),
+@@ -151,6 +158,17 @@ VAR DNSServiceRef	DNSSDRef	VALUE(NULL),
  					/* Remote printer browse reference */
  #endif /* HAVE_DNSSD */
  
@@ -2911,6 +2973,8 @@ diff -up cups-1.4.5/scheduler/dirsvc.h.avahi cups-1.4.5/scheduler/dirsvc.h
 +					/* AvahiCupsPoll object */
 +VAR AvahiClient		*AvahiCupsClient	VALUE(NULL);
 +					/* AvahiClient object */
++VAR AvahiClient		**AvahiCupsClientConnecting	VALUE(NULL);
++					/* AvahiClient object (waiting) */
 +VAR AvahiEntryGroup	*AvahiWebIFGroup	VALUE(NULL);
 +					/* Web interface entry group */
 +#endif /* HAVE_AVAHI */
@@ -2918,7 +2982,12 @@ diff -up cups-1.4.5/scheduler/dirsvc.h.avahi cups-1.4.5/scheduler/dirsvc.h
  #ifdef HAVE_LIBSLP
  VAR SLPHandle		BrowseSLPHandle	VALUE(NULL);
  					/* SLP API handle */
-@@ -198,9 +214,9 @@ extern void	cupsdStartBrowsing(void);
+@@ -194,13 +212,14 @@ extern void	cupsdRegisterPrinter(cupsd_p
+ extern void	cupsdRestartPolling(void);
+ extern void	cupsdSaveRemoteCache(void);
+ extern void	cupsdSendBrowseList(void);
++extern void	cupsdStartAvahiClient(void);
+ extern void	cupsdStartBrowsing(void);
  extern void	cupsdStartPolling(void);
  extern void	cupsdStopBrowsing(void);
  extern void	cupsdStopPolling(void);
@@ -2931,9 +3000,20 @@ diff -up cups-1.4.5/scheduler/dirsvc.h.avahi cups-1.4.5/scheduler/dirsvc.h
  extern void	cupsdUpdateLDAPBrowse(void);
  #endif /* HAVE_LDAP */
 diff -up cups-1.4.5/scheduler/main.c.avahi cups-1.4.5/scheduler/main.c
---- cups-1.4.5/scheduler/main.c.avahi	2010-12-24 13:11:33.633464718 +0000
-+++ cups-1.4.5/scheduler/main.c	2010-12-24 13:11:38.348340619 +0000
-@@ -161,6 +161,10 @@ main(int  argc,				/* I - Number of comm
+--- cups-1.4.5/scheduler/main.c.avahi	2010-12-31 10:31:00.209631230 +0000
++++ cups-1.4.5/scheduler/main.c	2010-12-31 10:31:07.813916862 +0000
+@@ -135,6 +135,10 @@ main(int  argc,				/* I - Number of comm
+   cupsd_listener_t	*lis;		/* Current listener */
+   time_t		current_time,	/* Current time */
+ 			activity,	/* Client activity timer */
++#ifdef HAVE_AVAHI
++			avahi_client_time, /* Time for next Avahi client
++					   check */
++#endif /* HAVE_AVAHI */
+ 			browse_time,	/* Next browse send time */
+ 			senddoc_time,	/* Send-Document time */
+ 			expire_time,	/* Subscription expire time */
+@@ -161,6 +165,10 @@ main(int  argc,				/* I - Number of comm
    int			launchd_idle_exit;
  					/* Idle exit on select timeout? */
  #endif	/* HAVE_LAUNCHD */
@@ -2944,7 +3024,7 @@ diff -up cups-1.4.5/scheduler/main.c.avahi cups-1.4.5/scheduler/main.c
  
  
  #ifdef HAVE_GETEUID
-@@ -561,6 +565,14 @@ main(int  argc,				/* I - Number of comm
+@@ -561,6 +569,14 @@ main(int  argc,				/* I - Number of comm
  
    httpInitialize();
  
@@ -2959,7 +3039,17 @@ diff -up cups-1.4.5/scheduler/main.c.avahi cups-1.4.5/scheduler/main.c
    cupsdStartServer();
  
   /*
-@@ -900,6 +912,16 @@ main(int  argc,				/* I - Number of comm
+@@ -686,6 +702,9 @@ main(int  argc,				/* I - Number of comm
+   */
+ 
+   current_time  = time(NULL);
++#ifdef HAVE_AVAHI
++  avahi_client_time = current_time;
++#endif /* HAVE_AVAHI */
+   browse_time   = current_time;
+   event_time    = current_time;
+   expire_time   = current_time;
+@@ -900,6 +919,26 @@ main(int  argc,				/* I - Number of comm
      }
  #endif /* __APPLE__ */
  
@@ -2971,12 +3061,22 @@ diff -up cups-1.4.5/scheduler/main.c.avahi cups-1.4.5/scheduler/main.c
 +    tmo = cupsdNextTimeout (&tmo_delay);
 +    if (tmo && tmo_delay == 0)
 +      cupsdRunTimeout (tmo);
++
++   /*
++    * Try to restart the Avahi client every 10 seconds if needed...
++    */
++
++    if ((current_time - avahi_client_time) >= 10)
++    {
++      avahi_client_time = current_time;
++      cupsdStartAvahiClient();
++    }
 +#endif /* HAVE_AVAHI */
 +
  #ifndef __APPLE__
     /*
      * Update the network interfaces once a minute...
-@@ -1925,6 +1947,10 @@ select_timeout(int fds)			/* I - Number 
+@@ -1925,6 +1964,10 @@ select_timeout(int fds)			/* I - Number 
    cupsd_job_t		*job;		/* Job information */
    cupsd_subscription_t	*sub;		/* Subscription information */
    const char		*why;		/* Debugging aid */
@@ -2987,7 +3087,7 @@ diff -up cups-1.4.5/scheduler/main.c.avahi cups-1.4.5/scheduler/main.c
  
  
   /*
-@@ -1967,6 +1993,19 @@ select_timeout(int fds)			/* I - Number 
+@@ -1967,6 +2010,19 @@ select_timeout(int fds)			/* I - Number 
    }
  #endif /* __APPLE__ */
  
@@ -3008,8 +3108,8 @@ diff -up cups-1.4.5/scheduler/main.c.avahi cups-1.4.5/scheduler/main.c
    * Check whether we are accepting new connections...
    */
 diff -up cups-1.4.5/scheduler/Makefile.avahi cups-1.4.5/scheduler/Makefile
---- cups-1.4.5/scheduler/Makefile.avahi	2010-12-24 13:11:33.739461928 +0000
-+++ cups-1.4.5/scheduler/Makefile	2010-12-24 13:11:38.332341040 +0000
+--- cups-1.4.5/scheduler/Makefile.avahi	2010-12-31 10:31:00.313635137 +0000
++++ cups-1.4.5/scheduler/Makefile	2010-12-31 10:31:07.796916222 +0000
 @@ -17,6 +17,7 @@ include ../Makedefs
  
  CUPSDOBJS =	\
@@ -3029,8 +3129,8 @@ diff -up cups-1.4.5/scheduler/Makefile.avahi cups-1.4.5/scheduler/Makefile
  		filter.o \
  		mime.o \
 diff -up cups-1.4.5/scheduler/printers.c.avahi cups-1.4.5/scheduler/printers.c
---- cups-1.4.5/scheduler/printers.c.avahi	2010-12-24 13:11:33.784460744 +0000
-+++ cups-1.4.5/scheduler/printers.c	2010-12-24 13:11:38.356340409 +0000
+--- cups-1.4.5/scheduler/printers.c.avahi	2010-12-31 10:31:00.355636715 +0000
++++ cups-1.4.5/scheduler/printers.c	2010-12-31 10:31:07.822917201 +0000
 @@ -929,10 +929,10 @@ cupsdDeletePrinter(
    cupsdClearString(&p->alert);
    cupsdClearString(&p->alert_description);
@@ -3101,7 +3201,7 @@ diff -up cups-1.4.5/scheduler/printers.c.avahi cups-1.4.5/scheduler/printers.c
        p->type |= CUPS_PRINTER_REMOTE;
 diff -up cups-1.4.5/scheduler/printers.h.avahi cups-1.4.5/scheduler/printers.h
 --- cups-1.4.5/scheduler/printers.h.avahi	2010-03-30 23:07:33.000000000 +0100
-+++ cups-1.4.5/scheduler/printers.h	2010-12-24 13:11:38.357340382 +0000
++++ cups-1.4.5/scheduler/printers.h	2010-12-31 10:31:07.828917428 +0000
 @@ -16,6 +16,9 @@
  #ifdef HAVE_DNSSD
  #  include <dns_sd.h>
@@ -3142,9 +3242,9 @@ diff -up cups-1.4.5/scheduler/printers.h.avahi cups-1.4.5/scheduler/printers.h
  
  
 diff -up cups-1.4.5/scheduler/timeout.c.avahi cups-1.4.5/scheduler/timeout.c
---- cups-1.4.5/scheduler/timeout.c.avahi	2010-12-24 13:11:38.358340356 +0000
-+++ cups-1.4.5/scheduler/timeout.c	2010-12-24 13:11:38.358340356 +0000
-@@ -0,0 +1,191 @@
+--- cups-1.4.5/scheduler/timeout.c.avahi	2010-12-31 10:31:07.831917542 +0000
++++ cups-1.4.5/scheduler/timeout.c	2010-12-31 10:31:07.831917542 +0000
+@@ -0,0 +1,195 @@
 +/*
 + * "$Id$"
 + *
@@ -3296,7 +3396,11 @@ diff -up cups-1.4.5/scheduler/timeout.c.avahi cups-1.4.5/scheduler/timeout.c
 +void
 +cupsdRunTimeout(cupsd_timeout_t *timeout)	/* I - Timeout */
 +{
++  if (!timeout)
++    return;
 +  timeout->enabled = 0;
++  if (!timeout->callback)
++    return;
 +  timeout->callback (timeout, timeout->data);
 +}
 +
