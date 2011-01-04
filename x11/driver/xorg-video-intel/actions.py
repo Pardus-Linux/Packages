@@ -4,9 +4,7 @@
 # See the file http://www.gnu.org/copyleft/gpl.txt.
 
 from pisi.actionsapi import autotools
-from pisi.actionsapi import get
 
-WorkDir = "xf86-video-intel-%s" % get.srcVERSION()
 
 def setup():
     autotools.autoreconf("-vif")
