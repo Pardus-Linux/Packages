@@ -12,7 +12,7 @@
         <IsA>kernel</IsA>
         <Summary>The Linux kernel (the core of the Linux operating system) for Pardus Linux</Summary>
         <Description>kernel contains the Linux kernel, the core of any Linux operating system. The kernel handles the basic functions of the operating system: memory allocation, process allocation, device input and output, etc.</Description>
-        <Archive sha1sum="b546ab66458d7d614151d80adbc03b4d28977ae2" type="tarbz2">http://www.kernel.org/pub/linux/kernel/v2.6/linux-2.6.36.tar.bz2</Archive>
+        <Archive sha1sum="eba83c89e71a86060ef6ff76aefff660aef819e2" type="tarbz2">http://www.kernel.org/pub/linux/kernel/v2.6/linux-2.6.37.tar.bz2</Archive>
         <AdditionalFiles>
             <AdditionalFile target="configs/kernel-i686-config">configs/kernel-i686-config</AdditionalFile>
             <AdditionalFile target="configs/kernel-x86_64-config">configs/kernel-x86_64-config</AdditionalFile>
@@ -27,10 +27,9 @@
         </BuildDependencies>
         <Patches>
             <!-- Stable patch -->
-            <Patch level="1" compressionType="bz2">patches/mainline/patch-2.6.37-rc8.bz2</Patch>
-            <Patch level="1" compressionType="bz2">patches/mainline/patch-2.6.37-rc8-git4.bz2</Patch>
 
-            <!--<Patch level="1">patches/mainline/pci-pcie-execute-OSC-once-for-each-root.patch</Patch>-->
+            <!-- Fix kworker CPU hogging issue (#14614) -->
+            <Patch level="1">patches/mainline/pci-pcie-execute-OSC-once-for-each-root.patch</Patch>
 
             <!-- TuxOnIce 3.2-rc2 support for 2.6.36
             <Patch level="1" compressionType="bz2">patches/tuxonice-3.2-rc2-for-2.6.36.patch.bz2</Patch>
@@ -68,6 +67,9 @@
 
             <!-- Don't install scsi headers to avoid conflict with glibc -->
             <Patch level="1">patches/ubuntu/ubuntu-maverick.git-c7a74029969b912241591b2889961b17514ca61f.patch</Patch>
+
+            <!-- Add r8192se_pci module (#15534) -->
+            <Patch level="1" compressionType="bz2">patches/ubuntu/rtl8192se_pci.patch.bz2</Patch>
 
             <!-- unionfs support -->
             <Patch level="1" compressionType="gz">patches/unionfs-2.5.7_for_2.6.37-rc1.diff.gz</Patch>
@@ -108,10 +110,9 @@
             <Patch level="1">patches/fedora/linux-2.6-acpi-debug-infinite-loop.patch</Patch>
             <Patch level="1">patches/fedora/linux-2.6-defaults-aspm.patch</Patch>
             <Patch level="1">patches/fedora/pci-disable-aspm-if-bios-asks-us-to.patch</Patch>
-            <!--<Patch level="1">patches/fedora/pci-_osc-supported-field-should-contain-supported-features-not-enabled-ones.patch</Patch>-->
 
             <!-- acpi: Fix battery status on some devices -->
-            <!--<Patch level="1">patches/fedora/acpi-update-battery-information-on-notification-0x81.patch</Patch>-->
+            <Patch level="1">patches/fedora/acpi-update-battery-information-on-notification-0x81.patch</Patch>
 
             <Patch level="1">patches/fedora/neuter_intel_microcode_load.patch</Patch>
 
@@ -145,11 +146,17 @@
             <Patch level="1">patches/fedora/linux-2.6-e1000-ich9-montevina.patch</Patch>
 
             <!-- various fixes for Apple and EFI -->
+
+            <!-- FIXME: Floods dmesg with SMC Interrupt messages
             <Patch level="1">patches/fedora/applesmc_update.patch</Patch>
+            -->
             <Patch level="1">patches/fedora/apple_backlight.patch</Patch>
             <Patch level="1">patches/fedora/efifb_update.patch</Patch>
             <Patch level="1">patches/fedora/linux-next-macbook-air-input.patch</Patch>
+
+            <!-- FIXME: This may be the cause for reboot/shutdown problems
             <Patch level="1">patches/fedora/acpi_reboot.patch</Patch>
+            -->
             <Patch level="1">patches/fedora/efi_default_physical.patch</Patch>
 
             <!-- backport some fixes for kswapd from mmotm -->
@@ -338,17 +345,20 @@
     </Package>
 
     <History>
-        <!--
         <Update release="151">
-            <Date>2011-01-03</Date>
-            <Version>2.6.37_rc8.1</Version>
+            <Date>2011-01-05</Date>
+            <Version>2.6.37</Version>
             <Comment>
+                - Bump to mainline 2.6.37,
                 - drm/nouveau: Add workarounds for some chipsets,
+                - Fix hogging kworker issue (#14614),
+                - Add r8192se_pci module (#15534),
+                - Disable acpi_reboot patch to see what happens,
+                - Disable applesmc patch which floods SMC Interrupt messages,
             </Comment>
             <Name>Ozan Çağlayan</Name>
             <Email>ozan@pardus.org.tr</Email>
         </Update>
-        -->
         <Update release="150">
             <Date>2010-12-31</Date>
             <Version>2.6.37_rc8</Version>

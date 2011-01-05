@@ -37,7 +37,7 @@ if __name__ == "__main__":
             fedora_patch_name = line.split()[1]
             fedora_patch_file = os.path.join(dirname, fedora_patch_name)
             if os.path.exists(fedora_patch_file):
-                pspec_patch_file = os.path.join("files/fedora", fedora_patch_name)
+                pspec_patch_file = os.path.join("files/patches/fedora", fedora_patch_name)
                 if not os.path.exists(pspec_patch_file):
                     patches[fedora_patch_name] = (str(os.stat(fedora_patch_file).st_size),
                                                   False,
