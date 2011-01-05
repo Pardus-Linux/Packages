@@ -7,6 +7,8 @@
 import os
 import sys
 
+blacklist = ("radeon", "radeonfb", "nouveau", "nvidiafb")
+
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         print "Usage: %s <kernel version>" % sys.argv[0]
@@ -20,7 +22,9 @@ if __name__ == "__main__":
         for alias in open(alias_file, "r").readlines():
             if alias and not alias.startswith("#"):
                 modalias, driver = alias.strip().split(" ", 2)[1:]
-                if modalias.startswith("char-"):
+                if not modalias.startswith(("pci", "usb")):
+                    continue
+                if driver in blacklist:
                     continue
                 try:
                     aliases[modalias].add(driver)
