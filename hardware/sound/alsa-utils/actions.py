@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright 2005-2009 TUBITAK/UEKAE
+# Copyright 2005-2010 TUBITAK/UEKAE
 # Licensed under the GNU General Public License, version 2.
 # See the file http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
 
@@ -14,9 +14,9 @@ if "_" in get.srcVERSION():
     WorkDir = get.srcNAME()
 
 def setup():
-    pisitools.dosed("alsactl/init/Makefile.in", "^alsainitdir = .*$", "alsainitdir = /lib/alsa/init")
-
-    autotools.configure("--enable-nls \
+    # asound.state is now in /var/lib
+    autotools.autoreconf("-fi")
+    autotools.configure("--sbindir=/sbin \
                          --disable-alsaconf")
 
 def build():
@@ -24,11 +24,5 @@ def build():
 
 def install():
     autotools.rawInstall("DESTDIR=%s" % get.installDIR())
-
-    pisitools.dosym("/usr/sbin/alsactl", "/sbin/alsactl")
-    pisitools.dosym("/lib/alsa/init", "/usr/share/alsa/init")
-
-    pisitools.dodir("/etc")
-    shelltools.touch("%s/etc/asound.state" % get.installDIR())
 
     pisitools.dodoc("ChangeLog", "README", "TODO", "seq/aconnect/README.aconnect", "seq/aseqnet/README.aseqnet")

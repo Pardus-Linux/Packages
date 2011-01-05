@@ -12,11 +12,14 @@
         <IsA>app:console</IsA>
         <Summary>Advanced Linux Sound Architecture (ALSA) utilities</Summary>
         <Description>alsa-utils contains command line utilities for the Advanced Linux Sound Architecture (ALSA).</Description>
-        <Archive sha1sum="bd2390e52b30e07415cc2e7b5f3df5bebe46e68b" type="tarbz2">ftp://ftp.kernel.org/pub/linux/kernel/people/tiwai/alsa/alsa-utils/alsa-utils-20100819.tar.bz2</Archive>
+        <Archive sha1sum="c06bbc8e213434c4e372cfcce7ab40feff7a6ef4" type="tarbz2">ftp://ftp.kernel.org/pub/linux/kernel/people/tiwai/alsa/alsa-utils/alsa-utils-20101208.tar.bz2</Archive>
         <BuildDependencies>
             <Dependency>xmlto</Dependency>
             <Dependency>alsa-lib-devel</Dependency>
         </BuildDependencies>
+        <Patches>
+            <Patch level="1">fix-xmlto-detection.patch</Patch>
+        </Patches>
     </Source>
 
     <Package>
@@ -30,23 +33,34 @@
             <Path fileType="config">/etc</Path>
             <Path fileType="man">/usr/share/man</Path>
             <Path fileType="data">/usr/share/alsa</Path>
-            <Path fileType="data">/lib/alsa/init</Path>
             <Path fileType="data">/lib/udev/rules.d</Path>
             <Path fileType="data">/usr/share/sounds</Path>
-            <Path fileType="data">/lib/udev/rules.d</Path>
             <Path fileType="executable">/usr/bin</Path>
-            <Path fileType="executable">/usr/sbin</Path>
             <Path fileType="executable">/sbin</Path>
             <Path fileType="localedata">/usr/share/locale</Path>
+            <Path fileType="data">/var/lib/alsa</Path>
         </Files>
         <AdditionalFiles>
             <AdditionalFile owner="root" permission="0644" target="/etc/alsa/alsactl.conf">alsactl.conf</AdditionalFile>
-            <AdditionalFile owner="root" permission="0644" target="/lib/udev/rules.d/40-alsa.rules">40-alsa.rules</AdditionalFile>
             <AdditionalFile owner="root" permission="0755" target="/usr/bin/alsaunmute">alsaunmute</AdditionalFile>
+            <AdditionalFile owner="root" permission="0644" target="/usr/share/man/man1/alsaunmute.1">alsaunmute.1</AdditionalFile>
         </AdditionalFiles>
+        <Provides>
+            <COMAR script="service.py" name="alsactl">System.Service</COMAR>
+        </Provides>
     </Package>
 
     <History>
+        <Update release="45">
+            <Date>2011-01-05</Date>
+            <Version>1.0.23_20101208</Version>
+            <Comment>
+                - Bump to latest,
+                - Add service to store/restore mixer levels.
+            </Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
         <Update release="44">
             <Date>2010-10-13</Date>
             <Version>1.0.23_20100819</Version>
