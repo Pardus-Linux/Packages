@@ -49,8 +49,8 @@ def build():
     #autotools.make("-C hda-emu")
 
     # Build v4l drivers
-    shelltools.copy("Module.symvers", "v4l/")
-    autotools.make("-C /lib/modules/%s/build M=%s/v4l V=1 modules" % (KDIR, get.curDIR()))
+    #shelltools.copy("Module.symvers", "v4l/")
+    #autotools.make("-C /lib/modules/%s/build M=%s/v4l V=1 modules" % (KDIR, get.curDIR()))
 
 def install():
     autotools.rawInstall("DESTDIR=%s" % get.installDIR(), "install-modules")
