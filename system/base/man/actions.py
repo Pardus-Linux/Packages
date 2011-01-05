@@ -16,12 +16,9 @@ def setup():
                           --disable-rpath \
                           --docdir=/%s/%s \
                           --with-device=utf8 \
-                          --with-gnu-ld \
                           --with-config-file=/etc/man.conf \
                           --with-db=gdbm \
-                          --enable-mb-groff \
-                          --enable-nls \
-                          --without-included-gettext" % (get.docDIR(), get.srcNAME()))
+                          --enable-mb-groff" % (get.docDIR(), get.srcNAME()))
 
 def build():
     autotools.make("nls=all")
