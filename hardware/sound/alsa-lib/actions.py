@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright 2005-2009 TUBITAK/UEKAE
+# Copyright 2005-2010 TUBITAK/UEKAE
 # Licensed under the GNU General Public License, version 2.
 # See the file http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
 
@@ -9,21 +9,11 @@ from pisi.actionsapi import autotools
 from pisi.actionsapi import pisitools
 from pisi.actionsapi import get
 
-if "_" in get.srcVERSION():
-    WorkDir = get.srcNAME()
+WorkDir = "alsa-lib"
 
 def setup():
-    autotools.configure("--with-pcm-plugins=all \
-                         --with-ctl-plugins=all \
-                         --disable-dependency-tracking \
-                         --with-versioned \
-                         --with-libdl \
-                         --with-pthread \
-                         --with-librt \
-                         --enable-shared \
-                         --disable-static \
-                         --disable-aload \
-                         --enable-python")
+    autotools.autoreconf("-fi")
+    autotools.configure("--disable-aload")
 
     # rpath fix
     pisitools.dosed("libtool", "^hardcode_libdir_flag_spec=.*", "hardcode_libdir_flag_spec=\"\"")
