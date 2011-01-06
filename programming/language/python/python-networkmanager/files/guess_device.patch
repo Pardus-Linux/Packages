@@ -1,0 +1,76 @@
+Index: python-networkmanager-0.0_20101021/networkmanager/networkmanager.py
+===================================================================
+--- python-networkmanager-0.0_20101021.orig/networkmanager/networkmanager.py
++++ python-networkmanager-0.0_20101021/networkmanager/networkmanager.py
+@@ -544,12 +544,34 @@ class NetworkManager(object):
+     def add_connection(self, settings):
+         self.settings.AddConnection(settings._settings, dbus_interface=NM_SETTINGS_NAME)
+ 
+-    def activate_connection(self, connection, device, service_name="org.freedesktop.NetworkManagerSystemSettings", specific_object="/"):
++    def activate_connection(self, connection, device=None, service_name="org.freedesktop.NetworkManagerSystemSettings", specific_object="/", guess_device=False, interface=None):
++        if not device and interface:
++            for device in self.devices:
++                if device.interface == interface:
++                    conn_mac_addr = connection.settings.mac_address
++                    if conn_mac_addr is None or str(conn_mac_addr) == str(device.hwaddress):
++                        break
++                device = None
++
++        if guess_device:
++            if connection.settings.mac_address:
++                device = self.get_device(mac_address = connection.settings.mac_address)
++
++        if not device:
++            return
++
+         self.proxy.ActivateConnection(service_name, connection.proxy, device.proxy, specific_object, dbus_interface=NM_NAME)
+ 
+     def deactivate_connection(self, active_connection):
+         self.proxy.DeactivateConnection(active_connection, dbus_interface=NM_NAME)
+ 
++    def disconnect_connection_devices(self, connection):
++        for active_conn in self.active_connections:
++            if active_conn.connection.settings.id == connection.settings.id:
++                for device in active_conn.devices:
++                    device.disconnect()
++                break
++
+     @property
+     def wireless_enabled(self):
+         """Indicates if wireless is currently enabled or not."""
+@@ -578,6 +600,35 @@ class NetworkManager(object):
+         """
+         return State.from_value(self.proxy.Get(NM_NAME, "State"))
+ 
++    def get_device(self, type=None, mac_address=None):
++        """
++        Return device object from given mac_address or first device for given type
++        """
++        types = {
++                        '802-11-wireless'   : DeviceType.WIFI,
++                        '802-3-ethernet'    : DeviceType.ETHERNET,
++                    #   'cdma'              : [],
++                    #   'gsm'               : [],
++                    #   'unknown'           : [],
++                }
++
++        devices = None
++        if not type == None:
++            device_type = types[type]
++            devices = self.devices_map[device_type]
++        else:
++            devices = self.devices
++
++        if not mac_address == None:
++            for dev in devices:
++                if mac_address == dev.hwaddress:
++                    return dev
++
++        if len(devices) > 0:
++            return devices[0]
++
++        return None
++
+ class ActiveConnection(object):
+     _NM_INTERFACE = NM_CONN_ACTIVE
+ 
