@@ -32,7 +32,7 @@ def setup():
 
     #now we have Makefiles needed to build locales (like toolkit/Makefile)
     #since we need debug symbols in dbginfo packages, we shouldn't strip binaries
-    shelltools.system("../configure --prefix=/usr --libdir=/usr/lib --with-libxul-sdk=/usr/lib/xulrunner-devel-2.0.0 --enable-chrome-format=jar --disable-strip --disable-install-strip")
+    shelltools.system("../configure --prefix=/usr --libdir=/usr/lib --with-libxul-sdk=/usr/lib/xulrunner-devel-2.0 --enable-chrome-format=jar --disable-strip --disable-install-strip")
 
 def build():
     shelltools.cd("objdir")
