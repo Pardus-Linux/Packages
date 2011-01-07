@@ -15,9 +15,9 @@ def setup():
     pisitools.dosed("Makefile", "^DOC_PATH=.*$", "DOC_PATH=$(PREFIX)/share/doc/smplayer")
 
 def build():
-    autotools.make("QMAKE=qmake-qt4 LRELEASE=lrelease-qt4 PREFIX=/usr")
+    autotools.make("PREFIX=/usr")
 
 def install():
-    autotools.rawInstall("QMAKE=qmake-qt4 LRELEASE=lrelease-qt4 PREFIX=/usr DESTDIR=%s DOC_PATH=/usr/share/doc/%s" % (get.installDIR(),get.srcNAME()))
+    autotools.rawInstall("PREFIX=/usr DESTDIR=%s DOC_PATH=/usr/share/doc/%s" % (get.installDIR(),get.srcNAME()))
 
     pisitools.copytree("../smplayer-oxygen-air-theme", "%s/usr/share/smplayer/themes/Oxygen-Air" % get.installDIR())
