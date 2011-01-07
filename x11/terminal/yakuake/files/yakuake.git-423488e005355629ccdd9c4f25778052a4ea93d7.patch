@@ -1,0 +1,53 @@
+From 423488e005355629ccdd9c4f25778052a4ea93d7 Mon Sep 17 00:00:00 2001
+From: Eike Hein <hein@kde.org>
+Date: Sun, 12 Sep 2010 10:54:36 +0000
+Subject: [PATCH] Update Screen menu contents when the number of screens attached to
+ the system changes. Nice catch and patch by Jeffery MacEachern.
+
+svn path=/trunk/extragear/utils/yakuake/; revision=1174420
+---
+ ChangeLog          |    2 ++
+ app/mainwindow.cpp |    3 ++-
+ app/mainwindow.h   |    4 +++-
+ 3 files changed, 7 insertions(+), 2 deletions(-)
+
+diff --git a/app/mainwindow.cpp b/app/mainwindow.cpp
+index 409d17e..3b4a7e0 100644
+--- a/app/mainwindow.cpp
++++ b/app/mainwindow.cpp
+@@ -99,7 +99,8 @@ MainWindow::MainWindow(QWidget* parent)
+     connect(&m_mousePoller, SIGNAL(timeout()), this, SLOT(pollMouse()));
+ 
+     connect(KWindowSystem::self(), SIGNAL(workAreaChanged()), this, SLOT(applyWindowGeometry()));
+-
++    connect(KApplication::desktop(), SIGNAL(screenCountChanged(int)), this, SLOT(updateScreenMenu()));
++    
+     applySettings();
+ 
+     m_sessionStack->addSession();
+diff --git a/app/mainwindow.h b/app/mainwindow.h
+index c393540..fc03792 100644
+--- a/app/mainwindow.h
++++ b/app/mainwindow.h
+@@ -91,7 +91,9 @@ class MainWindow : public KMainWindow
+         void applyWindowGeometry();
+         void setWindowGeometry(int width, int height, int position);
+ 
++        void updateScreenMenu();
+         void setScreen(QAction* action);
++
+         void setWindowWidth(int width);
+         void setWindowHeight(int height);
+         void setWindowWidth(QAction* action);
+@@ -130,7 +132,7 @@ class MainWindow : public KMainWindow
+         void setupActions();
+ 
+         void setupMenu();
+-        void updateScreenMenu();
++
+         void updateWindowSizeMenus();
+         void updateWindowHeightMenu();
+         void updateWindowWidthMenu();
+-- 
+1.7.3.4
+

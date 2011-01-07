@@ -1,0 +1,35 @@
+From 9b0e175771f358c9953d8158b7294c66522ccd33 Mon Sep 17 00:00:00 2001
+From: Eike Hein <hein@kde.org>
+Date: Fri, 23 Jul 2010 18:58:00 +0000
+Subject: [PATCH] Fix keep above not being applied immediately when toggling keep open
+ outside the config dialog.
+
+CCMAIL:prudy1@o2.pl
+
+svn path=/trunk/extragear/utils/yakuake/; revision=1153679
+---
+ ChangeLog          |    6 ++++++
+ app/mainwindow.cpp |    7 ++++++-
+ 2 files changed, 12 insertions(+), 1 deletions(-)
+
+diff --git a/app/mainwindow.cpp b/app/mainwindow.cpp
+index 180a5fe..03d3dea 100644
+--- a/app/mainwindow.cpp
++++ b/app/mainwindow.cpp
+@@ -931,7 +931,12 @@ void MainWindow::pollMouse()
+ 
+ void MainWindow::setKeepOpen(bool keepOpen)
+ {
+-    Settings::setKeepOpen(keepOpen);
++    if (Settings::keepOpen() != keepOpen)
++    {
++        Settings::setKeepOpen(keepOpen);
++
++        applyWindowProperties();
++    }
+ 
+     actionCollection()->action("keep-open")->setChecked(keepOpen);
+     m_titleBar->setFocusButtonState(keepOpen);
+-- 
+1.7.3.4
+
