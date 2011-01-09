@@ -12,7 +12,7 @@ from pisi.actionsapi import shelltools
 def setup():
     shelltools.export("PKG_CONFIG", "/usr/bin/pkg-config")
     autotools.autoreconf("-fiv")
-    shelltools.export("LDFLAGS", "%s -Wl,-z,defs" % get.LDFLAGS())
+    # shelltools.export("LDFLAGS", "%s -Wl,-z,defs" % get.LDFLAGS())
     shelltools.system("./autogen.sh")
 
     autotools.configure("--disable-spell \
@@ -22,10 +22,11 @@ def setup():
                          #--disable-schemas-install")
 
 def build():
-    # import os
-    # makefiles=os.popen('find . -name Makefile').read().split()
-    # for m in makefiles:
-    #    pisitools.dosed(m, r'(^LDFLAGS\s*=.*)', '\\1 -lglib-2.0 -lgtk-x11-2.0 -lpango-1.0 -lORBit-2')
+    # a workaround for ldflags. will be fixed.
+    import os
+    makefiles=os.popen('find . -name Makefile').read().split()
+    for m in makefiles:
+        pisitools.dosed(m, r'(^LDFLAGS\s*=.*)', '\\1 -lglib-2.0 -lgtk-x11-2.0 -lpango-1.0 -lORBit-2')
     autotools.make()
 
 def install():
