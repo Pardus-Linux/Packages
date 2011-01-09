@@ -7,17 +7,22 @@
 
 from pisi.actionsapi import autotools
 from pisi.actionsapi import pisitools
+from pisi.actionsapi import shelltools
 from pisi.actionsapi import get
 
 def setup():
     autotools.configure("--disable-dependency-tracking \
-                        --with-readline \
-                        --enable-cache-size=32")
+                         --with-readline \
+                         --enable-cache-size=32")
 
 def build():
     autotools.make()
 
+    shelltools.cd("doc")
+    autotools.make("html")
+
 def install():
     autotools.rawInstall("DESTDIR=%s" % get.installDIR())
 
+    pisitools.dohtml("doc/*.html")
     pisitools.dodoc("AUTHORS", "ChangeLog", "NEWS", "TODO", "THANKS", "README")
