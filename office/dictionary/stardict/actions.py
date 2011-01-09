@@ -1,7 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright 2006-2009 TUBITAK/UEKAE
 # Licensed under the GNU General Public License, version 2.
 # See the file http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
 
@@ -12,18 +11,21 @@ from pisi.actionsapi import shelltools
 
 def setup():
     shelltools.export("PKG_CONFIG", "/usr/bin/pkg-config")
+    autotools.autoreconf("-fiv")
+    shelltools.export("LDFLAGS", "%s -Wl,-z,defs" % get.LDFLAGS())
     shelltools.system("./autogen.sh")
-    # autotools.autoreconf("fiv")
-    autotools.configure("--prefix=/usr \
-                         --disable-gnome \
-                         --disable-spell \
+
+    autotools.configure("--disable-spell \
                          --disable-espeak \
                          --disable-festival \
-                         --disable-gucharmap \
-                         --disable-gucharmap \
-                         --disable-schemas-install")
+                         --disable-gucharmap") # \
+                         #--disable-schemas-install")
 
 def build():
+    # import os
+    # makefiles=os.popen('find . -name Makefile').read().split()
+    # for m in makefiles:
+    #    pisitools.dosed(m, r'(^LDFLAGS\s*=.*)', '\\1 -lglib-2.0 -lgtk-x11-2.0 -lpango-1.0 -lORBit-2')
     autotools.make()
 
 def install():
