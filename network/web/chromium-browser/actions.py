@@ -81,7 +81,7 @@ def install():
     # Chromium looks for these in its folder
     # See media_posix.cc and base_paths_linux.cc
     for lib in ["libavcodec.so.52" , "libavformat.so.52", "libavutil.so.50"]:
-        pisitools.dosym("/usr/lib/%s" % lib, "/usr/lib/chrome-browser")
+        shelltools.sym("/usr/lib/%s" % lib, "%s/usr/lib/chromium-browser/%s" % (get.installDIR(), lib))
 
 
     shelltools.cd("../..")
