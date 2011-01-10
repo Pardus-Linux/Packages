@@ -11,7 +11,7 @@
         <License>MIT</License>
         <Summary>X.Org X Server</Summary>
         <Description>X server is the main application that allows a graphical interface.</Description>
-        <Archive sha1sum="b04c88a8ec70cbc6ab7df3ce22be0388696d71cc" type="tarbz2">mirrors://xorg/individual/xserver/xorg-server-1.9.2.tar.bz2</Archive>
+        <Archive sha1sum="b8aeaa90729b91858a4e0ed2114d8c28309d39ba" type="tarbz2">mirrors://xorg/individual/xserver/xorg-server-1.9.3.901.tar.bz2</Archive>
         <BuildDependencies>
             <Dependency>font-util</Dependency>
             <Dependency>jpeg-devel</Dependency>
@@ -46,11 +46,7 @@
             <Patch level="1">fedora/xserver-1.6.0-displayfd.patch</Patch>
             <Patch level="1">fedora/xserver-1.6.0-less-acpi-brokenness.patch</Patch>
             <Patch level="1">fedora/xserver-1.6.99-default-modes.patch</Patch>
-            <!--
             <Patch level="1">fedora/xserver-1.6.99-hush-prerelease-warning.patch</Patch>
-            -->
-            <Patch level="1">fedora/xserver-1.7.0-randr-gamma-restore.patch</Patch>
-            <Patch level="1">fedora/xserver-1.7.1-gamma-kdm-fix.patch</Patch>
             <Patch level="1">fedora/xserver-1.8-disable-vboxvideo.patch</Patch>
             <Patch level="1">fedora/xserver-1.9.0-tcflush-fix.patch</Patch>
             <Patch level="1">fedora/xserver-1.9.0-vbe-panelid-sanity.patch</Patch>
@@ -141,13 +137,18 @@
             <Dependency versionFrom="0.20.0">pixman</Dependency>
             <Dependency>xorg-app</Dependency>
         </RuntimeDependencies>
+        <Conflicts>
+            <Package releaseTo="82">zorg</Package>
+        </Conflicts>
         <Files>
             <Path fileType="config">/etc/X11/xorg.conf.d</Path>
             <Path fileType="executable">/usr/bin/X</Path>
             <Path fileType="executable">/usr/bin/Xorg</Path>
             <Path fileType="executable">/usr/bin/cvt</Path>
             <Path fileType="executable">/usr/bin/gtf</Path>
+            <Path fileType="executable">/usr/libexec</Path>
             <Path fileType="library">/usr/lib/xorg</Path>
+            <Path fileType="data">/usr/share/X11/DriversDB</Path>
             <Path fileType="data">/usr/share/X11/pci</Path>
             <Path fileType="data">/usr/share/X11/xorg.conf.d</Path>
             <Path fileType="man">/usr/share/man/man1/Xorg.1</Path>
@@ -158,6 +159,8 @@
             <Path fileType="man">/usr/share/man/man5/xorg.conf.5</Path>
         </Files>
         <AdditionalFiles>
+            <AdditionalFile owner="root" permission="0755" target="/usr/libexec/xorg-save-xkb-config.sh">xorg-save-xkb-config.sh</AdditionalFile>
+            <AdditionalFile owner="root" permission="0644" target="/usr/share/X11/DriversDB">DriversDB</AdditionalFile>
             <AdditionalFile owner="root" permission="0644" target="/usr/share/X11/xorg.conf.d/10-quirks.conf">fedora/10-quirks.conf</AdditionalFile>
         </AdditionalFiles>
     </Package>
@@ -270,6 +273,16 @@
     </Package>
 
     <History>
+        <Update release="84">
+            <Date>2011-01-10</Date>
+            <Version>1.9.3.901</Version>
+            <Comment>
+                - Bump to the new development release
+                - Add DriversDB and xorg-save-xkb-config.sh to xorg-server package
+            </Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
         <Update release="83">
             <Date>2010-12-08</Date>
             <Version>1.9.2</Version>
