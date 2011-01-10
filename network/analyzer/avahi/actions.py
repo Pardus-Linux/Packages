@@ -16,14 +16,13 @@ def setup():
                          --disable-monodoc \
                          --disable-static \
                          --disable-xmltoman \
-                         --disable-mono \
                          --disable-qt3 \
                          --disable-doxygen-doc \
                          --disable-gtk3 \
                          --disable-introspection \
+                         --enable-mono \
                          --enable-compat-howl \
                          --enable-compat-libdns_sd \
-                         --localstatedir=/var \
                          --with-systemdsystemunitdir=/lib/systemd/system \
                          --with-avahi-user=avahi \
                          --with-avahi-group=avahi \
