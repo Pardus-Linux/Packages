@@ -1,0 +1,31 @@
+From: aj@suse.de
+Subject: Use oom_score_adj on newer kernels
+Date: 2010-09-27
+Signed-Off-by: Andreas Jaeger <aj@suse.de>
+
+I see in dmesg on my 2.6.36 kernel:
+[   19.424535] auditd (2576): /proc/2576/oom_adj is deprecated, please use /proc/2576/oom_score_adj instead.
+
+Since oom_adj is deprecated, let's use oom_score_adj.
+
+Index: src/auditd.c
+===================================================================
+--- src/auditd.c.orig
++++ src/auditd.c
+@@ -265,7 +265,15 @@ static int write_pid_file(void)
+ static void avoid_oom_killer(void)
+ {
+ 	int oomfd;
+-	
++
++	/* Newer kernels (noticed in 2.6.36) */
++	oomfd =	open("/proc/self/oom_score_adj", O_NOFOLLOW | O_WRONLY);
++        if (oomfd >= 0) {
++                (void)write(oomfd, "0", 1);
++                close(oomfd);
++                return;
++        }
++	/* Older kernel */
+ 	oomfd = open("/proc/self/oom_adj", O_NOFOLLOW | O_WRONLY);
+ 	if (oomfd >= 0) {
+ 		(void)write(oomfd, "-17", 3);
