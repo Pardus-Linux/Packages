@@ -10,3 +10,6 @@ def install():
     pythonmodules.install("--install-lib=/usr/lib/pardus")
 
     pisitools.dosym("zorg-cli", "/usr/bin/zorg")
+
+    # This is now provided by xorg-server package.
+    pisitools.remove("/usr/share/X11/DriversDB")
