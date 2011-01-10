@@ -218,7 +218,7 @@ def postInstall(fromVersion, fromRelease, toVersion, toRelease):
                 (123, "ntp", "NTP", "/dev/null", "/bin/false", "", ["ntp"], [], []),
                 (130, "tss", "tss", "/var/lib/tpm", "/bin/false", "", ["tss"], [], []),
                 (131, "ejabberd", "Ejabberd", "/var/lib/ejabberd", "/bin/false", "", ["ejabberd"], [], []),
-                (132, "tomcat", "Tomcat", "/opt/tomcat", "/bin/sh", "", ["tomcat"], [], []),
+                (132, "tomcat", "Tomcat", "/var/lib/tomcat", "/bin/false", "", ["tomcat"], [], []),
                 (133, "ups", "UPS", "/var/lib/nut", "/bin/false", "", ["ups", "dialout", "tty", "pnp"], [], []),
                 (134, "partimag", "Partimage", "/dev/null", "/bin/false", "", ["partimag"], [], []),
                 (135, "radiusd", "Freeradius", "/dev/null", "/bin/false", "", ["radiusd"], [], []),
