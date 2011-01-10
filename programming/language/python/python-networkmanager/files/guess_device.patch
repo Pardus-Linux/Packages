@@ -2,7 +2,7 @@ Index: python-networkmanager-0.0_20101021/networkmanager/networkmanager.py
 ===================================================================
 --- python-networkmanager-0.0_20101021.orig/networkmanager/networkmanager.py
 +++ python-networkmanager-0.0_20101021/networkmanager/networkmanager.py
-@@ -544,12 +544,34 @@ class NetworkManager(object):
+@@ -544,12 +544,36 @@ class NetworkManager(object):
      def add_connection(self, settings):
          self.settings.AddConnection(settings._settings, dbus_interface=NM_SETTINGS_NAME)
  
@@ -19,6 +19,8 @@ Index: python-networkmanager-0.0_20101021/networkmanager/networkmanager.py
 +        if guess_device:
 +            if connection.settings.mac_address:
 +                device = self.get_device(mac_address = connection.settings.mac_address)
++            else:
++                device = self.get_device(str(connection.settings.type))
 +
 +        if not device:
 +            return
@@ -38,7 +40,7 @@ Index: python-networkmanager-0.0_20101021/networkmanager/networkmanager.py
      @property
      def wireless_enabled(self):
          """Indicates if wireless is currently enabled or not."""
-@@ -578,6 +600,35 @@ class NetworkManager(object):
+@@ -578,6 +602,35 @@ class NetworkManager(object):
          """
          return State.from_value(self.proxy.Get(NM_NAME, "State"))
  
