@@ -8,7 +8,3 @@ from pisi.actionsapi import pisitools
 def install():
     for d in ("etc", "usr"):
         pisitools.insinto("/", d)
-
-    # Remove these when KDE is ready for 2011
-    for config in ("ksplashrc",):
-        pisitools.remove("/usr/share/kde4/config/%s" % config)
