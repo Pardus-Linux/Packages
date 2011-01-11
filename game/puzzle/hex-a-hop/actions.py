@@ -12,7 +12,7 @@ from pisi.actionsapi import get
 
 
 def setup():
-    autotools.configure("LIBS=-liconv")
+    autotools.configure()
 
 def build():
     autotools.make()
