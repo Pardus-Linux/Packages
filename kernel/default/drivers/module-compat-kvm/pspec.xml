@@ -2,7 +2,7 @@
 <!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
 <PISI>
     <Source>
-        <Name>module-kvm</Name>
+        <Name>module-compat-kvm</Name>
         <Homepage>http://linux-kvm.org</Homepage>
         <Packager>
             <Name>Onur Küçük</Name>
@@ -24,19 +24,25 @@
     </Source>
 
     <Package>
-        <Name>module-kvm</Name>
+        <Name>module-compat-kvm</Name>
         <RuntimeDependencies>
             <Dependency version="2.6.37">kernel</Dependency>
-            <Dependency>module-kvm-userspace</Dependency>
+            <Dependency>module-compat-kvm-userspace</Dependency>
         </RuntimeDependencies>
+        <Replaces>
+            <Package>module-kvm</Package>
+        </Replaces>
         <Files>
-            <Path fileType="executable" permanent="true">/lib/modules</Path>
+            <Path fileType="executable" permanent="true">/lib/modules/*/updates</Path>
         </Files>
     </Package>
 
     <Package>
-        <Name>module-kvm-userspace</Name>
+        <Name>module-compat-kvm-userspace</Name>
         <Summary>Userspace documentation, tools, headers, udev and modprobe rules for the kernel driver kvm</Summary>
+        <Replaces>
+            <Package>module-kvm-userspace</Package>
+        </Replaces>
         <Files>
             <Path fileType="data">/lib/udev/rules.d</Path>
             <Path fileType="data">/usr/lib/pkgconfig</Path>
@@ -45,6 +51,13 @@
     </Package>
 
     <History>
+        <Update release="28">
+            <Date>2011-01-11</Date>
+            <Version>2.6.36.1</Version>
+            <Comment>Rename module</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
         <Update release="27">
             <Date>2011-01-05</Date>
             <Version>2.6.36.1</Version>
