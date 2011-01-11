@@ -9,11 +9,9 @@ from pisi.actionsapi import pythonmodules
 from pisi.actionsapi import pisitools
 from pisi.actionsapi import get
 
-def setup():
-    pisitools.dosed("setup.cfg", "^prefix=.*$", "prefix=%s" % get.defaultprefixDIR())
-
 def build():
     pythonmodules.compile()
 
 def install():
     pythonmodules.install()
+    pisitools.dosym("/usr/bin/network", "/bin/network")
