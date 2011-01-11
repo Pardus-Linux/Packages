@@ -28,4 +28,4 @@ def build():
     autotools.make()
 
 def install():
-    autotools.rawInstall("DESTDIR=%s" % get.installDIR())
+    autotools.rawInstall("DESTDIR=%s DEPMOD=/bin/true" % get.installDIR())
