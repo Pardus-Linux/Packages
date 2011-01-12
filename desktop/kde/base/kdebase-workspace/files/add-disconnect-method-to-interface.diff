@@ -1,0 +1,118 @@
+Index: kdebase-workspace-4.5.5/libs/solid/control/ifaces/networkinterface.h
+===================================================================
+--- kdebase-workspace-4.5.5.orig/libs/solid/control/ifaces/networkinterface.h
++++ kdebase-workspace-4.5.5/libs/solid/control/ifaces/networkinterface.h
+@@ -69,6 +69,8 @@ namespace Ifaces
+          */
+         virtual QString driver() const = 0;
+ 
++        virtual void disconnect() = 0;
++
+         /**
+          * Access the network configuration for this object
+          */
+@@ -80,6 +82,7 @@ namespace Ifaces
+          * @return true if this network interface is active, false otherwise
+          */
+         virtual bool isActive() const = 0;
++
+         /**
+          * Retrieves the current state of the network connection held by this device.
+          * It's a high level view of the connection. It's user oriented so technically
+Index: kdebase-workspace-4.5.5/solid/networkmanager-0.7/dbus/nm-deviceinterface.h
+===================================================================
+--- kdebase-workspace-4.5.5.orig/solid/networkmanager-0.7/dbus/nm-deviceinterface.h
++++ kdebase-workspace-4.5.5/solid/networkmanager-0.7/dbus/nm-deviceinterface.h
+@@ -76,6 +76,12 @@ public:
+     { return qvariant_cast< QString >(internalPropGet("Udi")); }
+ 
+ public Q_SLOTS: // METHODS
++    inline QDBusPendingReply<> Disconnect()
++    {
++        QList<QVariant> argumentList;
++        return asyncCallWithArgumentList(QLatin1String("Disconnect"), argumentList);
++    }
++
+ Q_SIGNALS: // SIGNALS
+     void StateChanged(uint new_state, uint old_state, uint reason);
+ };
+Index: kdebase-workspace-4.5.5/solid/networkmanager-0.7/networkinterface.cpp
+===================================================================
+--- kdebase-workspace-4.5.5.orig/solid/networkmanager-0.7/networkinterface.cpp
++++ kdebase-workspace-4.5.5/solid/networkmanager-0.7/networkinterface.cpp
+@@ -186,6 +186,12 @@ bool NMNetworkInterface::managed() const
+     return d->managed;
+ }
+ 
++void NMNetworkInterface::disconnect()
++{
++    Q_D(NMNetworkInterface);
++    d->deviceIface.Disconnect();
++}
++
+ void NMNetworkInterface::setManaged(const QVariant & driver)
+ {
+     Q_D(NMNetworkInterface);
+Index: kdebase-workspace-4.5.5/solid/networkmanager-0.7/networkinterface.h
+===================================================================
+--- kdebase-workspace-4.5.5.orig/solid/networkmanager-0.7/networkinterface.h
++++ kdebase-workspace-4.5.5/solid/networkmanager-0.7/networkinterface.h
+@@ -56,6 +56,7 @@ public:
+     void setInterfaceName(const QVariant&);
+     QString driver() const;
+     void setDriver(const QVariant&);
++    void disconnect();
+     int ipV4Address() const;
+     Solid::Control::IPv4Config ipV4Config() const;
+     bool isActive() const;
+Index: kdebase-workspace-4.5.5/solid/wicd/networkinterface.cpp
+===================================================================
+--- kdebase-workspace-4.5.5.orig/solid/wicd/networkinterface.cpp
++++ kdebase-workspace-4.5.5/solid/wicd/networkinterface.cpp
+@@ -135,4 +135,8 @@ bool WicdNetworkInterface::deactivateCon
+     return false;
+ }
+ 
++void WicdNetworkInterface::disconnect()
++{
++}
++
+ #include "networkinterface.moc"
+Index: kdebase-workspace-4.5.5/solid/wicd/networkinterface.h
+===================================================================
+--- kdebase-workspace-4.5.5.orig/solid/wicd/networkinterface.h
++++ kdebase-workspace-4.5.5/solid/wicd/networkinterface.h
+@@ -49,6 +49,7 @@ public:
+ 
+     virtual bool activateConnection(const QString & connectionUni, const QVariantMap & connectionParameters);
+     virtual bool deactivateConnection();
++    virtual void disconnect();
+ Q_SIGNALS:
+     void ipDetailsChanged();
+     void connectionStateChanged(int state);
+Index: kdebase-workspace-4.5.5/libs/solid/control/backends/fakenet/fakenetworkinterface.cpp
+===================================================================
+--- kdebase-workspace-4.5.5.orig/libs/solid/control/backends/fakenet/fakenetworkinterface.cpp
++++ kdebase-workspace-4.5.5/libs/solid/control/backends/fakenet/fakenetworkinterface.cpp
+@@ -111,6 +111,9 @@ void FakeNetworkInterface::deactivate()
+     mActiveConnection = "";
+ }
+ 
++void FakeNetworkInterface::disconnect()
++{
++}
+ 
+ Solid::Control::IPv4Config FakeNetworkInterface::ipV4Config() const
+ {
+Index: kdebase-workspace-4.5.5/libs/solid/control/backends/fakenet/fakenetworkinterface.h
+===================================================================
+--- kdebase-workspace-4.5.5.orig/libs/solid/control/backends/fakenet/fakenetworkinterface.h
++++ kdebase-workspace-4.5.5/libs/solid/control/backends/fakenet/fakenetworkinterface.h
+@@ -43,6 +43,7 @@ public:
+         QString udi() const;
+         QString interfaceName() const;
+         QString driver() const;
++        void disconnect();
+         bool isActive() const;
+         Solid::Control::IPv4Config ipV4Config() const;
+         Solid::Control::NetworkInterface::ConnectionState connectionState() const;
