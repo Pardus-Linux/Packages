@@ -10,7 +10,8 @@ def setup():
     autotools.autoreconf("-vif")
     autotools.configure("--disable-static \
                          --disable-specs \
-                         --disable-xaw6")
+                         --disable-xaw6 \
+                         --without-xmlto")
 
 def build():
     autotools.make()
