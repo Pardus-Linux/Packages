@@ -1,0 +1,53 @@
+From b795ca6e97fae9735843748585401098dae1c3e1 Mon Sep 17 00:00:00 2001
+From: Ben Skeggs <bskeggs@redhat.com>
+Date: Fri, 7 Jan 2011 13:33:36 +1000
+Subject: [PATCH] nv50: fix pitch of linear scanout buffers
+
+Un-breaks NoAccel on these chipsets.
+
+Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
+---
+ src/nv_accel_common.c |   25 +++++++++++++++++++------
+ 1 files changed, 19 insertions(+), 6 deletions(-)
+
+diff --git a/src/nv_accel_common.c b/src/nv_accel_common.c
+index b1553f6..dc7215e 100644
+--- a/src/nv_accel_common.c
++++ b/src/nv_accel_common.c
+@@ -32,13 +32,26 @@ nouveau_allocate_surface(ScrnInfoPtr scrn, int width, int height, int bpp,
+ 	Bool tiled = (usage_hint & NOUVEAU_CREATE_PIXMAP_TILED);
+ 	int tile_mode = 0, tile_flags = 0;
+ 	int flags = NOUVEAU_BO_MAP | (bpp >= 8 ? NOUVEAU_BO_VRAM : 0);
+-	int ret;
+-
+-	if ((scanout && pNv->tiled_scanout) ||
+-	    (!scanout && pNv->Architecture >= NV_ARCH_50 && bpp >= 8))
+-		tiled = TRUE;
+-
+-	*pitch = NOUVEAU_ALIGN(width * bpp, 512) / 8;
++	int cpp = bpp / 8, ret;
++
++	if (pNv->Architecture >= NV_ARCH_50) {
++		if (scanout) {
++			if (pNv->tiled_scanout) {
++				tiled = TRUE;
++				*pitch = NOUVEAU_ALIGN(width * cpp, 64);
++			} else {
++				*pitch = NOUVEAU_ALIGN(width * cpp, 256);
++			}
++		} else {
++			if (bpp >= 8)
++				tiled = TRUE;
++			*pitch = NOUVEAU_ALIGN(width * cpp, 64);
++		}
++	} else {
++		if (scanout && pNv->tiled_scanout)
++			tiled = TRUE;
++		*pitch = NOUVEAU_ALIGN(width * cpp, 64);
++	}
+ 
+ 	if (tiled) {
+ 		if (pNv->Architecture >= NV_ARCH_50) {
+-- 
+1.7.3.4
+
