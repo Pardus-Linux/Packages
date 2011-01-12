@@ -51,6 +51,9 @@ getkernels()
 			if [ "$(echo $ROOT | grep LABEL)" ]; then
 				LABEL=`echo $ROOT | cut -d"=" -f2`
 				ROOT=`readlink -f /dev/disk/by-label/$LABEL`
+			elif [ "$(echo $ROOT | grep UUID)" ]; then
+				UUID=`echo $ROOT | cut -d"=" -f2`
+				ROOT=`readlink -f /dev/disk/by-uuid/$UUID`
 			fi
 			if [ "$(stat -Lc '%t:%T' $ROOT)" != "$(stat -Lc '%t:%T' $ROOTDEV)" ]; then
 				echo "  Skipping grub entry #${J}, because its root= parameter ($ROOT)" >&2
