@@ -11,6 +11,8 @@ from pisi.actionsapi import get
 
 import os
 
+WorkDir="."
+
 def fixperms(d):
     for root, dirs, files in os.walk(d):
         for name in dirs:
@@ -19,8 +21,10 @@ def fixperms(d):
             shelltools.chmod(os.path.join(root, name), 0644)
 
 def setup():
-    fixperms("wallpapers")
+    fixperms("%s-%s/wallpapers" % (get.srcNAME(), get.srcVERSION()))
 
 def install():
-    pisitools.insinto("%s/share/" % get.defaultprefixDIR(), "wallpapers")
+    pisitools.insinto("%s/share/" % get.defaultprefixDIR(), "%s-%s/wallpapers" % (get.srcNAME(), get.srcVERSION()))
+
+    pisitools.insinto("%s/share/" % get.defaultprefixDIR(), "sample-files", "example-content")
 
