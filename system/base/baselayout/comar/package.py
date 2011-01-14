@@ -76,6 +76,21 @@ def migrateUsers():
 
 ### COMAR methods
 
+
+#big ugly zemberek-openoffice hack
+def zemberek_hack():
+    import re
+
+    f = "/var/db/comar3/scripts/System.Package/zemberek_openoffice.py"
+
+    if os.path.exists(f):
+        postContent = open(f).read()
+        pattern = re.compile('oxt"\)\[0\]$', re.M)
+        postContent = re.sub(pattern, 'oxt")', postContent)
+        postContent = re.sub("raise Exception", "print", postContent)
+        postFile = open(f, 'w')
+        postFile.write(postContent)
+
 def postInstall(fromVersion, fromRelease, toVersion, toRelease):
     # We don't want to overwrite an existing file during upgrade
     specialFiles = ["passwd", "shadow", "group", "fstab", "hosts", "ld.so.conf", "resolv.conf"]
@@ -286,3 +301,5 @@ def postInstall(fromVersion, fromRelease, toVersion, toRelease):
     # Save user defined DNS
     if not os.access("/etc/resolv.default.conf", os.R_OK):
         os.system("cp /etc/resolv.conf /etc/resolv.default.conf")
+
+    zemberek_hack()
