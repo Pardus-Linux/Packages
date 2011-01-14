@@ -67,11 +67,8 @@ def install():
     autotools.rawInstall("DESTDIR=%s" % get.installDIR())
 
     #dosym main executables
-    for bin in map(os.path.basename, shelltools.ls("%s/%s/bin/oo*" % (get.installDIR(), AppDir))):
+    for bin in map(os.path.basename, shelltools.ls("%s/%s/bin/*" % (get.installDIR(), AppDir))):
         pisitools.dosym("%s/bin/%s" % (AppDir, bin), "/usr/bin/%s" % bin)
-
-    #make symlink of unopkg
-    pisitools.dosym("%s/bin/unopkg" % AppDir,"/usr/bin/unopkg")
 
     # Icons
     pisitools.insinto("/usr/share/pixmaps","desktop/48x48/*.png")
