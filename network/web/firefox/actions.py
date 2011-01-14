@@ -40,9 +40,7 @@ def build():
     autotools.make()
 
     for locale in locales:
-        autotools.make("-j1 -C browser/locales libs-%s" % locale)
-        pisitools.copy("dist/xpi-stage/locale-%s/chrome/%s.jar" % (locale, locale), "dist/bin/chrome/")
-        pisitools.copy("dist/xpi-stage/locale-%s/chrome/%s.manifest" % (locale, locale), "dist/bin/chrome/")
+        autotools.make("-C browser/locales langpack-%s" % locale)
 
 def install():
     shelltools.cd("objdir")
@@ -55,7 +53,7 @@ def install():
 
     #install locales
     for locale in locales:
-        pisitools.insinto("/usr/lib/MozillaFirefox/chrome", "dist/bin/chrome/%s.*" % locale)
+        pisitools.copytree("dist/xpi-stage/locale-%s" % locale, "%s/usr/lib/MozillaFirefox/extensions/langpack-%s@firefox.mozilla.org" % (get.installDIR(), locale))
 
     # Remove these
     #pisitools.remove("/usr/lib/MozillaFirefox/defaults/profile/mimeTypes.rdf")
