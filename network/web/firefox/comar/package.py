@@ -34,6 +34,7 @@ def postInstall(fromVersion, fromRelease, toVersion, toRelease):
             symlink("/usr/lib/MozillaFirefox/pardus/bookmarks-en.html", "/usr/lib/MozillaFirefox/defaults/profile/bookmarks.html")
         elif lang == "de":
             symlink("/usr/lib/MozillaFirefox/pardus/bookmarks-de.html", "/usr/lib/MozillaFirefox/defaults/profile/bookmarks.html")
+            symlink("/usr/lib/MozillaFirefox/pardus/pardus-wiki_en.xml", "/usr/lib/MozillaFirefox/searchplugins/pardus-wiki.xml")
             symlink("/usr/lib/MozillaFirefox/pardus/wikipedia_de.xml", "/usr/lib/MozillaFirefox/searchplugins/wikipedia.xml")
         else:
             symlink("/usr/lib/MozillaFirefox/pardus/bookmarks-en.html", "/usr/lib/MozillaFirefox/defaults/profile/bookmarks.html")
@@ -41,7 +42,8 @@ def postInstall(fromVersion, fromRelease, toVersion, toRelease):
             symlink("/usr/lib/MozillaFirefox/pardus/wikipedia_en.xml", "/usr/lib/MozillaFirefox/searchplugins/wikipedia.xml")
 
 def preRemove():
-    try:
-        os.unlink("/usr/lib/MozillaFirefox/.autoreg")
-    except OSError:
-        pass
+    for f in  ("/usr/lib/MozillaFirefox/.autoreg", "/usr/lib/MozillaFirefox/defaults/profile/bookmarks.html", "/usr/lib/MozillaFirefox/searchplugins/pardus-wiki.xml", "/usr/lib/MozillaFirefox/searchplugins/wikipedia.xml"):
+        try:
+            os.unlink(f)
+        except:
+            pass
