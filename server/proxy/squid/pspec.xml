@@ -1,0 +1,169 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>squid</Name>
+        <Homepage>http://www.squid-cache.org</Homepage>
+        <Packager>
+            <Name>H. İbrahim Güngör</Name>
+            <Email>ibrahim@pardus.org.tr</Email>
+        </Packager>
+        <License>GPLv2</License>
+        <IsA>service</IsA>
+        <Summary>A caching web proxy, with advanced features</Summary>
+        <Description>Squid is a high-performance proxy caching server for Web clients, supporting FTP, gopher, and HTTP data objects.</Description>
+        <Archive sha1sum="d80045c7ab0cadbaeafdcae42d9dd7d1861fc4c1" type="tarbz2">http://www.squid-cache.org/Versions/v3/3.1/squid-3.1.9.tar.bz2</Archive>
+        <BuildDependencies>
+            <Dependency>cppunit-devel</Dependency>
+            <Dependency>libecap-devel</Dependency>
+            <Dependency>net-snmp-devel</Dependency>
+            <Dependency>mit-kerberos</Dependency>
+            <Dependency>cyrus-sasl-devel</Dependency>
+            <Dependency>openldap-client</Dependency>
+        </BuildDependencies>
+        <Patches>
+            <Patch level="1">squid-config.diff</Patch>
+            <Patch level="1">squid-3.1.0.9-location.patch</Patch>
+            <Patch level="1">squid-3.0.STABLE1-perlpath.patch</Patch>
+            <Patch level="1">squid-3.1.0.15-smb-path.patch</Patch>
+            <Patch level="1">squid-3.0.STABLE7-from_manpg.patch</Patch>
+        </Patches>
+    </Source>
+
+    <Package>
+        <Name>squid</Name>
+        <RuntimeDependencies>
+            <Dependency>net-snmp</Dependency>
+            <Dependency>mit-kerberos</Dependency>
+            <Dependency>cyrus-sasl</Dependency>
+            <Dependency>openldap-client</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="header">/usr/include</Path>
+            <Path fileType="executable">/usr/bin</Path>
+            <Path fileType="executable">/usr/sbin</Path>
+            <Path fileType="config">/etc</Path>
+            <Path fileType="library">/usr/lib</Path>
+            <Path fileType="library">/usr/libexec</Path>
+            <Path fileType="data">/usr/share/squid</Path>
+            <Path fileType="data">/var/lib/squid</Path>
+            <Path fileType="data">/var/cache/squid</Path>
+            <Path fileType="data">/var/log/squid</Path>
+            <Path fileType="data">/var/run</Path>
+            <Path fileType="doc">/usr/share/doc</Path>
+            <Path fileType="man">/usr/share/man</Path>
+        </Files>
+        <AdditionalFiles>
+            <AdditionalFile owner="root" permission="0644" target="/etc/pam.d/squid">squid.pam</AdditionalFile>
+            <AdditionalFile owner="root" permission="0644" target="/etc/squid/squid.conf">squid.conf</AdditionalFile>
+            <AdditionalFile owner="root" permission="0644" target="/etc/conf.d/squid">squid.confd</AdditionalFile>
+            <AdditionalFile owner="root" permission="0644" target="/etc/apache2/conf.d/squid.conf">squid.httpd</AdditionalFile>
+        </AdditionalFiles>
+        <Provides>
+            <COMAR script="package.py">System.Package</COMAR>
+            <COMAR script="service.py">System.Service</COMAR>
+        </Provides>
+    </Package>
+
+    <History>
+        <Update release="13">
+            <Date>2010-11-23</Date>
+            <Version>3.1.9</Version>
+            <Comment>Fix dependency name.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="12">
+            <Date>2010-10-27</Date>
+            <Version>3.1.9</Version>
+            <Comment>
+                * Version bump,
+                * Grab some patches, overhaul configure parameters,
+                * Fix subprocess.call usage,
+            </Comment>
+            <Name>H. İbrahim Güngör</Name>
+            <Email>ibrahim@pardus.org.tr</Email>
+        </Update>
+        <Update release="11">
+            <Date>2010-10-27</Date>
+            <Version>3.1.3</Version>
+            <Comment>Mass rebuild for Pardus Corporate 2 Alpha 3</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="10">
+            <Date>2010-05-13</Date>
+            <Version>3.1.3</Version>
+            <Comment>Version bump. Update patches, add missing dependencies. Remove deprecated parameter in service script.</Comment>
+            <Name>H. İbrahim Güngör</Name>
+            <Email>ibrahim@pardus.org.tr</Email>
+        </Update>
+        <Update release="9">
+            <Date>2008-09-12</Date>
+            <Version>3.0.19</Version>
+            <Comment>
+                3.x branch (with patches from gentoo)
+                Add missing dependencies
+                Add translation file
+            </Comment>
+            <Name>Taner Taş</Name>
+            <Email>taner@pardus.org.tr</Email>
+        </Update>
+        <Update release="8" type="security">
+            <Date>2008-07-17</Date>
+            <Version>2.6.18</Version>
+            <Comment>Stable update to fix SQUID-2007:2 advisory</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="7" type="security">
+            <Date>2007-12-04</Date>
+            <Version>2.6.17</Version>
+            <Comment>Stable update to fix CVE-2007-6239</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="6">
+            <Date>2007-10-25</Date>
+            <Version>2.6.16</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="5">
+            <Date>2007-08-03</Date>
+            <Version>2.6.14</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="4">
+            <Date>2007-05-25</Date>
+            <Version>2.6.13</Version>
+            <Comment>Stable update</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="3">
+            <Date>2007-05-23</Date>
+            <Version>2.6.12</Version>
+            <Comment>Updated Service script.</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="2" type="security">
+            <Date>2007-03-21</Date>
+            <Version>2.6.12</Version>
+            <Comment>Security update to fix CVE-2007-1560</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="1">
+            <Date>2007-02-26</Date>
+            <Version>2.6.9</Version>
+            <Comment>First release.</Comment>
+            <Name>Ali Erdinç Köroğlu</Name>
+            <Email>erdinc@pardus.org.tr</Email>
+        </Update>
+    </History>
+</PISI>
