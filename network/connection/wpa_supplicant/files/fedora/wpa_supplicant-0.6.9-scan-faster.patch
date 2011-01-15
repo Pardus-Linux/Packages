@@ -1,0 +1,270 @@
+Index: wpa_supplicant-0.6.10/wpa_supplicant/ctrl_iface.c
+===================================================================
+--- wpa_supplicant-0.6.10.orig/wpa_supplicant/ctrl_iface.c
++++ wpa_supplicant-0.6.10/wpa_supplicant/ctrl_iface.c
+@@ -733,8 +733,9 @@ static int wpa_supplicant_ctrl_iface_sca
+ static int wpa_supplicant_ctrl_iface_select_network(
+ 	struct wpa_supplicant *wpa_s, char *cmd)
+ {
+-	int id;
++	int id, timeout, do_scan = 1;
+ 	struct wpa_ssid *ssid;
++	struct os_time now;
+ 
+ 	/* cmd: "<network id>" or "any" */
+ 	if (os_strcmp(cmd, "any") == 0) {
+@@ -745,7 +746,22 @@ static int wpa_supplicant_ctrl_iface_sel
+ 			ssid = ssid->next;
+ 		}
+ 		wpa_s->reassociate = 1;
+-		wpa_supplicant_req_scan(wpa_s, 0, 0);
++
++		/* Just associate and don't request a scan if the latest
++		 * scan results are less than 10 seconds old.
++		 */
++		if (os_get_time(&now) == 0) {
++			now.sec -= 10;
++			if (os_time_before(&now, &(wpa_s->last_scan))) {
++				if (wpa_supplicant_select_bss_and_associate (
++						wpa_s, &timeout) >= 0) {
++					do_scan = 0;
++				}
++			}
++		}
++
++		if (do_scan)
++			wpa_supplicant_req_scan(wpa_s, 0, 0);
+ 		return 0;
+ 	}
+ 
+Index: wpa_supplicant-0.6.10/wpa_supplicant/ctrl_iface_dbus_handlers.c
+===================================================================
+--- wpa_supplicant-0.6.10.orig/wpa_supplicant/ctrl_iface_dbus_handlers.c
++++ wpa_supplicant-0.6.10/wpa_supplicant/ctrl_iface_dbus_handlers.c
+@@ -1122,7 +1122,8 @@ DBusMessage * wpas_dbus_iface_select_net
+ 		wpa_supplicant_req_scan(wpa_s, 0, 0);
+ 	} else {
+ 		const char *obj_path;
+-		int nid;
++		int nid, timeout, do_scan = 1;
++		struct os_time now;
+ 
+ 		if (!dbus_message_get_args(message, NULL,
+ 					   DBUS_TYPE_OBJECT_PATH, &op,
+@@ -1173,7 +1174,22 @@ DBusMessage * wpas_dbus_iface_select_net
+ 		}
+ 		wpa_s->disconnected = 0;
+ 		wpa_s->reassociate = 1;
+-		wpa_supplicant_req_scan(wpa_s, 0, 0);
++
++		/* Just associate and don't request a scan if the latest
++		 * scan results are less than 10 seconds old.
++		 */
++		if (os_get_time(&now) == 0) {
++			now.sec -= 10;
++			if (os_time_before(&now, &(wpa_s->last_scan))) {
++				if (wpa_supplicant_select_bss_and_associate (
++						wpa_s, &timeout) >= 0) {
++					do_scan = 0;
++				}
++			}
++		}
++
++		if (do_scan)
++			wpa_supplicant_req_scan(wpa_s, 0, 0);
+ 	}
+ 
+ 	reply = wpas_dbus_new_success_reply(message);
+Index: wpa_supplicant-0.6.10/wpa_supplicant/events.c
+===================================================================
+--- wpa_supplicant-0.6.10.orig/wpa_supplicant/events.c
++++ wpa_supplicant-0.6.10/wpa_supplicant/events.c
+@@ -698,48 +698,17 @@ wpa_supplicant_select_bss(struct wpa_sup
+ }
+ 
+ 
+-static void wpa_supplicant_event_scan_results(struct wpa_supplicant *wpa_s)
++/* Returns 0 on success; -1 when no BSS has been selected */
++int
++wpa_supplicant_select_bss_and_associate (struct wpa_supplicant *wpa_s,
++					 int *out_timeout)
+ {
+-	int prio, timeout;
+ 	struct wpa_scan_res *selected = NULL;
+ 	struct wpa_ssid *ssid = NULL;
++	int prio;
+ 	int qual = 0, max_qual = 0, qual_valid = 0, bssid_valid = 0, i;
+ 	struct cur_ap cur;
+ 
+-	wpa_supplicant_notify_scanning(wpa_s, 0);
+-
+-	if (wpa_supplicant_get_scan_results(wpa_s) < 0) {
+-		if (wpa_s->conf->ap_scan == 2)
+-			return;
+-		wpa_printf(MSG_DEBUG, "Failed to get scan results - try "
+-			   "scanning again");
+-		timeout = 1;
+-		goto req_scan;
+-	}
+-
+-	/*
+-	 * Don't post the results if this was the initial cached
+-	 * and there were no results.
+-	 */
+-	if (wpa_s->scan_res_tried == 1 && wpa_s->conf->ap_scan == 1 &&
+-	    wpa_s->scan_res->num == 0) {
+-		wpa_msg(wpa_s, MSG_DEBUG, "Cached scan results are "
+-			"empty - not posting");
+-	} else {
+-		wpa_printf(MSG_DEBUG, "New scan results available");
+-		wpa_msg_ctrl(wpa_s, MSG_INFO, WPA_EVENT_SCAN_RESULTS);
+-		wpa_supplicant_dbus_notify_scan_results(wpa_s);
+-		wpas_wps_notify_scan_results(wpa_s);
+-	}
+-
+-	if ((wpa_s->conf->ap_scan == 2 && !wpas_wps_searching(wpa_s)))
+-		return;
+-
+-	if (wpa_s->disconnected) {
+-		wpa_supplicant_set_state(wpa_s, WPA_DISCONNECTED);
+-		return;
+-	}
+-
+ 	/* Get current driver BSSID and signal strength */
+ 	os_memset(&cur, 0, sizeof(cur));
+ 
+@@ -792,40 +761,84 @@ static void wpa_supplicant_event_scan_re
+ 		}
+ 	}
+ 
+-	if (selected) {
+-		if (wpas_wps_scan_pbc_overlap(wpa_s, selected, ssid)) {
+-			wpa_msg(wpa_s, MSG_INFO, WPS_EVENT_OVERLAP
+-				"PBC session overlap");
+-			timeout = 10;
+-			goto req_scan;
+-		}
+-
+-		/* Do not trigger new association unless the BSSID has changed
+-		 * or if reassociation is requested. If we are in process of
+-		 * associating with the selected BSSID, do not trigger new
+-		 * attempt. */
+-		if (wpa_s->reassociate ||
+-		    (os_memcmp(selected->bssid, wpa_s->bssid, ETH_ALEN) != 0 &&
+-		     (wpa_s->wpa_state != WPA_ASSOCIATING ||
+-		      os_memcmp(selected->bssid, wpa_s->pending_bssid,
+-				ETH_ALEN) != 0))) {
+-			if (wpa_supplicant_scard_init(wpa_s, ssid)) {
+-				wpa_supplicant_req_scan(wpa_s, 10, 0);
+-				return;
+-			}
+-			wpa_supplicant_associate(wpa_s, selected, ssid);
+-		} else {
+-			wpa_printf(MSG_DEBUG, "Already associated with the "
+-				   "selected AP.");
++	if (!selected) {
++		*out_timeout = 5;
++		return -1;
++	}
++
++	if (wpas_wps_scan_pbc_overlap(wpa_s, selected, ssid)) {
++		wpa_msg(wpa_s, MSG_INFO, WPS_EVENT_OVERLAP
++			"PBC session overlap");
++		*out_timeout = 10;
++		return -1;
++	}
++
++	/* Do not trigger new association unless the BSSID has changed
++	 * or if reassociation is requested. If we are in process of
++	 * associating with the selected BSSID, do not trigger new
++	 * attempt. */
++	if (wpa_s->reassociate ||
++	    (os_memcmp(selected->bssid, wpa_s->bssid, ETH_ALEN) != 0 &&
++	     (wpa_s->wpa_state != WPA_ASSOCIATING ||
++	      os_memcmp(selected->bssid, wpa_s->pending_bssid,
++			ETH_ALEN) != 0))) {
++		if (wpa_supplicant_scard_init(wpa_s, ssid)) {
++			*out_timeout = 10;
++			return -1;
+ 		}
+-		rsn_preauth_scan_results(wpa_s->wpa, wpa_s->scan_res);
++		wpa_supplicant_associate(wpa_s, selected, ssid);
+ 	} else {
+-		wpa_printf(MSG_DEBUG, "No suitable AP found.");
+-		timeout = 5;
++		wpa_printf(MSG_DEBUG, "Already associated with the "
++			   "selected AP.");
++	}
++
++	return 0;
++}
++
++static void wpa_supplicant_event_scan_results(struct wpa_supplicant *wpa_s)
++{
++	int timeout;
++
++	wpa_supplicant_notify_scanning(wpa_s, 0);
++
++	if (wpa_supplicant_get_scan_results(wpa_s) < 0) {
++		if (wpa_s->conf->ap_scan == 2)
++			return;
++		wpa_printf(MSG_DEBUG, "Failed to get scan results - try "
++			   "scanning again");
++		timeout = 1;
+ 		goto req_scan;
+ 	}
+ 
+-	return;
++	/*
++	 * Don't post the results if this was the initial cached
++	 * and there were no results.
++	 */
++	if (wpa_s->scan_res_tried == 1 && wpa_s->conf->ap_scan == 1 &&
++	    wpa_s->scan_res->num == 0) {
++		wpa_msg(wpa_s, MSG_DEBUG, "Cached scan results are "
++			"empty - not posting");
++	} else {
++		wpa_msg(wpa_s, MSG_DEBUG, WPA_EVENT_SCAN_RESULTS);
++		wpa_supplicant_dbus_notify_scan_results(wpa_s);
++		wpas_wps_notify_scan_results(wpa_s);
++	}
++
++	/* Update scan timestamp if there are any scan results */
++	if (wpa_s->scan_res->num > 0)
++		os_get_time(&(wpa_s->last_scan));
++
++	if ((wpa_s->conf->ap_scan == 2 && !wpas_wps_searching(wpa_s)) ||
++	    wpa_s->disconnected)
++		return;
++
++	/* Find a BSS and kick off an association with it */
++	if (wpa_supplicant_select_bss_and_associate(wpa_s, &timeout) == 0) {
++		rsn_preauth_scan_results(wpa_s->wpa, wpa_s->scan_res);
++		return;
++	} else {
++		wpa_printf(MSG_DEBUG, "No suitable AP found.");
++	}
+ 
+ req_scan:
+ 	if (wpa_s->scan_res_tried == 1 && wpa_s->conf->ap_scan == 1) {
+Index: wpa_supplicant-0.6.10/wpa_supplicant/wpa_supplicant_i.h
+===================================================================
+--- wpa_supplicant-0.6.10.orig/wpa_supplicant/wpa_supplicant_i.h
++++ wpa_supplicant-0.6.10/wpa_supplicant/wpa_supplicant_i.h
+@@ -348,6 +348,7 @@ struct wpa_supplicant {
+ 			     * to speed up the first association if the driver
+ 			     * has already available scan results. */
+ 	int scan_runs; /* number of scan runs since WPS was started */
++	struct os_time last_scan; /* timestamp of last scan results */
+ 
+ 	struct wpa_client_mlme mlme;
+ 	int use_client_mlme;
+@@ -421,6 +422,8 @@ void wpa_supplicant_notify_scanning(stru
+ 
+ /* events.c */
+ void wpa_supplicant_mark_disassoc(struct wpa_supplicant *wpa_s);
++int wpa_supplicant_select_bss_and_associate (struct wpa_supplicant *wpa_s,
++					     int *out_timeout);
+ 
+ /* driver_ops */
+ static inline void * wpa_drv_init(struct wpa_supplicant *wpa_s,
