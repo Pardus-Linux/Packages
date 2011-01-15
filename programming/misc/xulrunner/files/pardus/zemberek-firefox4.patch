@@ -1,21 +1,19 @@
-Index: extensions/spellcheck/hunspell/src/mozHunspell.h
-===================================================================
---- extensions/spellcheck/hunspell/src/mozHunspell.h.orig
-+++ extensions/spellcheck/hunspell/src/mozHunspell.h
-@@ -70,7 +70,7 @@
- #include "nsInterfaceHashtable.h"
+diff -Naur extensions/spellcheck-orig//hunspell/src/mozHunspell.h extensions/spellcheck/hunspell/src/mozHunspell.h
+--- extensions/spellcheck-orig//hunspell/src/mozHunspell.h	2011-01-13 19:50:02.000000000 +0000
++++ extensions/spellcheck/hunspell/src/mozHunspell.h	2011-01-15 15:02:35.262000385 +0000
+@@ -71,7 +71,7 @@
  #include "nsWeakReference.h"
+ #include "nsCycleCollectionParticipant.h"
  
 -#define MOZ_HUNSPELL_CONTRACTID "@mozilla.org/spellchecker/engine;1"
 +#define MOZ_HUNSPELL_CONTRACTID "@mozilla.org/spellchecker/hunspell;1"
  #define MOZ_HUNSPELL_CID         \
  /* 56c778e4-1bee-45f3-a689-886692a97fe7 */   \
  { 0x56c778e4, 0x1bee, 0x45f3, \
-Index: extensions/spellcheck/Makefile.in
-===================================================================
---- extensions/spellcheck/Makefile.in.orig
-+++ extensions/spellcheck/Makefile.in
-@@ -47,7 +47,7 @@ DIRS		= idl locales
+diff -Naur extensions/spellcheck-orig//Makefile.in extensions/spellcheck/Makefile.in
+--- extensions/spellcheck-orig//Makefile.in	2011-01-13 19:50:02.000000000 +0000
++++ extensions/spellcheck/Makefile.in	2011-01-15 15:02:35.184000384 +0000
+@@ -47,7 +47,7 @@
  ifeq (camino,$(MOZ_BUILD_APP))
  DIRS		+= osxspell
  else
@@ -24,11 +22,10 @@ Index: extensions/spellcheck/Makefile.in
  endif
  
  DIRS += src
-Index: extensions/spellcheck/src/Makefile.in
-===================================================================
---- extensions/spellcheck/src/Makefile.in.orig
-+++ extensions/spellcheck/src/Makefile.in
-@@ -84,11 +84,16 @@ SHARED_LIBRARY_LIBS += ../hunspell/src/$
+diff -Naur extensions/spellcheck-orig//src/Makefile.in extensions/spellcheck/src/Makefile.in
+--- extensions/spellcheck-orig//src/Makefile.in	2011-01-13 19:50:02.000000000 +0000
++++ extensions/spellcheck/src/Makefile.in	2011-01-15 15:02:35.072000386 +0000
+@@ -70,11 +70,16 @@
  LOCAL_INCLUDES += -I$(srcdir)/../hunspell/src
  endif
  
@@ -45,17 +42,16 @@ Index: extensions/spellcheck/src/Makefile.in
  		$(NULL)
  
  include $(topsrcdir)/config/rules.mk
-@@ -96,3 +101,6 @@ include $(topsrcdir)/config/rules.mk
+@@ -82,3 +87,6 @@
  LOCAL_INCLUDES += \
  	-I$(topsrcdir)/xpcom/io \
  	$(NULL)
 +
 +CXXFLAGS += $(TK_CFLAGS) $(MOZ_DBUS_GLIB_CFLAGS)
 +CXXFLAGS := $(subst -pedantic,,$(CXXFLAGS))
-Index: extensions/spellcheck/src/mozSpellChecker.cpp
-===================================================================
---- extensions/spellcheck/src/mozSpellChecker.cpp.orig
-+++ extensions/spellcheck/src/mozSpellChecker.cpp
+diff -Naur extensions/spellcheck-orig//src/mozSpellChecker.cpp extensions/spellcheck/src/mozSpellChecker.cpp
+--- extensions/spellcheck-orig//src/mozSpellChecker.cpp	2011-01-13 19:50:02.000000000 +0000
++++ extensions/spellcheck/src/mozSpellChecker.cpp	2011-01-15 15:02:35.070000385 +0000
 @@ -43,7 +43,7 @@
  
  #define UNREASONABLE_WORD_LENGTH 64
@@ -63,9 +59,9 @@ Index: extensions/spellcheck/src/mozSpellChecker.cpp
 -#define DEFAULT_SPELL_CHECKER "@mozilla.org/spellchecker/engine;1"
 +#define DEFAULT_SPELL_CHECKER "@mozilla.org/spellchecker/hunspell;1"
  
- NS_IMPL_ISUPPORTS1(mozSpellChecker, nsISpellChecker)
- 
-@@ -356,13 +356,20 @@ mozSpellChecker::SetCurrentDictionary(co
+ NS_IMPL_CYCLE_COLLECTING_ADDREF(mozSpellChecker)
+ NS_IMPL_CYCLE_COLLECTING_RELEASE(mozSpellChecker)
+@@ -367,13 +367,20 @@
    nsresult rv;
    nsCString *contractId;
  
@@ -88,7 +84,7 @@ Index: extensions/spellcheck/src/mozSpellChecker.cpp
      if (NS_FAILED(rv))
        return rv;
  
-@@ -541,7 +548,11 @@ mozSpellChecker::InitSpellCheckDictionar
+@@ -551,7 +558,11 @@
        if (mDictionariesMap.Get(dictName, NULL))
          continue;
  
@@ -101,10 +97,9 @@ Index: extensions/spellcheck/src/mozSpellChecker.cpp
      }
  
      NS_FREE_XPCOM_ALLOCATED_POINTER_ARRAY(count, words);
-Index: extensions/spellcheck/src/mozSpellCheckerFactory.cpp
-===================================================================
---- extensions/spellcheck/src/mozSpellCheckerFactory.cpp.orig
-+++ extensions/spellcheck/src/mozSpellCheckerFactory.cpp
+diff -Naur extensions/spellcheck-orig//src/mozSpellCheckerFactory.cpp extensions/spellcheck/src/mozSpellCheckerFactory.cpp
+--- extensions/spellcheck-orig//src/mozSpellCheckerFactory.cpp	2011-01-13 19:50:02.000000000 +0000
++++ extensions/spellcheck/src/mozSpellCheckerFactory.cpp	2011-01-15 15:02:35.050000390 +0000
 @@ -41,7 +41,9 @@
  #include "mozOSXSpell.h"
  #else
@@ -115,7 +110,7 @@ Index: extensions/spellcheck/src/mozSpellCheckerFactory.cpp
  #endif
  
  #include "mozSpellChecker.h"
-@@ -70,7 +72,9 @@
+@@ -64,7 +66,9 @@
  NS_GENERIC_FACTORY_CONSTRUCTOR(mozOSXSpell)
  #else
  NS_GENERIC_FACTORY_CONSTRUCTOR_INIT(mozHunspell, Init)
@@ -125,38 +120,45 @@ Index: extensions/spellcheck/src/mozSpellCheckerFactory.cpp
  #endif
  
  NS_GENERIC_FACTORY_CONSTRUCTOR_INIT(mozSpellChecker, Init)
-@@ -133,6 +137,12 @@ static const nsModuleComponentInfo compo
-         mozHunspellConstructor
-     },
-     {
-+        "mozZemberek",
-+        MOZ_ZEMBEREK_CID,
-+        MOZ_ZEMBEREK_CONTRACTID,
-+        mozZemberekConstructor
-+    },
-+    {
-         "mozHunspellDirProvider",
-         HUNSPELLDIRPROVIDER_CID,
-         mozHunspellDirProvider::kContractID,
-@@ -140,6 +150,14 @@ static const nsModuleComponentInfo compo
-         mozHunspellDirProvider::Register,
-         mozHunspellDirProvider::Unregister
-     },
-+    {
-+        "mozZemberekDirProvider",
-+        ZEMBEREKDIRPROVIDER_CID,
-+        mozZemberekDirProvider::kContractID,
-+        mozZemberekDirProviderConstructor,
-+        mozZemberekDirProvider::Register,
-+        mozZemberekDirProvider::Unregister
-+    },
+@@ -108,7 +112,9 @@
+ NS_DEFINE_NAMED_CID(MOZ_OSXSPELL_CID);
+ #else
+ NS_DEFINE_NAMED_CID(MOZ_HUNSPELL_CID);
++NS_DEFINE_NAMED_CID(MOZ_ZEMBEREK_CID);
+ NS_DEFINE_NAMED_CID(HUNSPELLDIRPROVIDER_CID);
++NS_DEFINE_NAMED_CID(ZEMBEREKDIRPROVIDER_CID);
  #endif // MOZ_MACBROWSER
-   {
-       NULL,
-Index: extensions/spellcheck/zemberek/Makefile.in
-===================================================================
---- /dev/null
-+++ extensions/spellcheck/zemberek/Makefile.in
+ NS_DEFINE_NAMED_CID(NS_SPELLCHECKER_CID);
+ NS_DEFINE_NAMED_CID(MOZ_PERSONALDICTIONARY_CID);
+@@ -121,6 +127,8 @@
+ #else
+     { &kMOZ_HUNSPELL_CID, false, NULL, mozHunspellConstructor },
+     { &kHUNSPELLDIRPROVIDER_CID, false, NULL, mozHunspellDirProviderConstructor },
++    { &kMOZ_ZEMBEREK_CID, false, NULL, mozZemberekConstructor },
++    { &kZEMBEREKDIRPROVIDER_CID, false, NULL, mozZemberekDirProviderConstructor },
+ #endif // MOZ_MACBROWSER
+     { &kNS_SPELLCHECKER_CID, false, NULL, mozSpellCheckerConstructor },
+     { &kMOZ_PERSONALDICTIONARY_CID, false, NULL, mozPersonalDictionaryConstructor },
+@@ -135,6 +143,8 @@
+ #else
+     { MOZ_HUNSPELL_CONTRACTID, &kMOZ_HUNSPELL_CID },
+     { mozHunspellDirProvider::kContractID, &kHUNSPELLDIRPROVIDER_CID },
++    { MOZ_ZEMBEREK_CONTRACTID, &kMOZ_ZEMBEREK_CID },
++    { mozZemberekDirProvider::kContractID, &kZEMBEREKDIRPROVIDER_CID },
+ #endif // MOZ_MACBROWSER
+     { NS_SPELLCHECKER_CONTRACTID, &kNS_SPELLCHECKER_CID },
+     { MOZ_PERSONALDICTIONARY_CONTRACTID, &kMOZ_PERSONALDICTIONARY_CID },
+@@ -146,6 +156,7 @@
+ static const mozilla::Module::CategoryEntry kSpellcheckCategories[] = {
+ #ifndef MOZ_MACBROWSER
+     { XPCOM_DIRECTORY_PROVIDER_CATEGORY, "spellcheck-directory-provider", mozHunspellDirProvider::kContractID },
++    { XPCOM_DIRECTORY_PROVIDER_CATEGORY, "spellcheck-directory-provider", mozZemberekDirProvider::kContractID },
+ #endif
+     { NULL }
+ };
+diff -Naur extensions/spellcheck-orig//zemberek/Makefile.in extensions/spellcheck/zemberek/Makefile.in
+--- extensions/spellcheck-orig//zemberek/Makefile.in	1970-01-01 00:00:00.000000000 +0000
++++ extensions/spellcheck/zemberek/Makefile.in	2011-01-15 15:02:35.218000385 +0000
 @@ -0,0 +1,50 @@
 +# ***** BEGIN LICENSE BLOCK *****
 +# Version: MPL 1.1/GPL 2.0/LGPL 2.1
@@ -208,10 +210,9 @@ Index: extensions/spellcheck/zemberek/Makefile.in
 +DIRS		= src
 +
 +include $(topsrcdir)/config/rules.mk
-Index: extensions/spellcheck/zemberek/src/Makefile.in
-===================================================================
---- /dev/null
-+++ extensions/spellcheck/zemberek/src/Makefile.in
+diff -Naur extensions/spellcheck-orig//zemberek/src/Makefile.in extensions/spellcheck/zemberek/src/Makefile.in
+--- extensions/spellcheck-orig//zemberek/src/Makefile.in	1970-01-01 00:00:00.000000000 +0000
++++ extensions/spellcheck/zemberek/src/Makefile.in	2011-01-15 15:02:35.205000386 +0000
 @@ -0,0 +1,80 @@
 +# ***** BEGIN LICENSE BLOCK *****
 +# Version: MPL 1.1/GPL 2.0/LGPL 2.1
@@ -293,11 +294,10 @@ Index: extensions/spellcheck/zemberek/src/Makefile.in
 +CXXFLAGS += $(TK_CFLAGS) $(MOZ_DBUS_GLIB_CFLAGS)
 +CXXFLAGS := $(subst -pedantic,,$(CXXFLAGS))
 +
-Index: extensions/spellcheck/zemberek/src/mozZemberek.cpp
-===================================================================
---- /dev/null
-+++ extensions/spellcheck/zemberek/src/mozZemberek.cpp
-@@ -0,0 +1,483 @@
+diff -Naur extensions/spellcheck-orig//zemberek/src/mozZemberek.cpp extensions/spellcheck/zemberek/src/mozZemberek.cpp
+--- extensions/spellcheck-orig//zemberek/src/mozZemberek.cpp	1970-01-01 00:00:00.000000000 +0000
++++ extensions/spellcheck/zemberek/src/mozZemberek.cpp	2011-01-15 15:02:35.199000384 +0000
+@@ -0,0 +1,494 @@
 +/* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 +/*# ***** BEGIN LICENSE BLOCK *****
 +# Version: MPL 1.1/GPL 2.0/LGPL 2.1
@@ -357,10 +357,21 @@ Index: extensions/spellcheck/zemberek/src/mozZemberek.cpp
 +static NS_DEFINE_CID(kCharsetConverterManagerCID, NS_ICHARSETCONVERTERMANAGER_CID);
 +static NS_DEFINE_CID(kUnicharUtilCID, NS_UNICHARUTIL_CID);
 +
-+NS_IMPL_ISUPPORTS3(mozZemberek,
-+                   mozISpellCheckingEngine,
-+                   nsIObserver,
-+                   nsISupportsWeakReference)
++NS_IMPL_CYCLE_COLLECTING_ADDREF(mozZemberek)
++NS_IMPL_CYCLE_COLLECTING_RELEASE(mozZemberek)
++
++NS_INTERFACE_MAP_BEGIN(mozZemberek)
++  NS_INTERFACE_MAP_ENTRY(mozISpellCheckingEngine)
++  NS_INTERFACE_MAP_ENTRY(nsIObserver)
++  NS_INTERFACE_MAP_ENTRY(nsISupportsWeakReference)
++  NS_INTERFACE_MAP_ENTRY_AMBIGUOUS(nsISupports, mozISpellCheckingEngine)
++  NS_INTERFACE_MAP_ENTRIES_CYCLE_COLLECTION(mozZemberek)
++NS_INTERFACE_MAP_END
++
++NS_IMPL_CYCLE_COLLECTION_3(mozZemberek,
++                           mPersonalDictionary,
++                           mEncoder,
++                           mDecoder)
 +
 +nsresult
 +mozZemberek::Init()
@@ -781,11 +792,10 @@ Index: extensions/spellcheck/zemberek/src/mozZemberek.cpp
 +
 +  return NS_OK;
 +}
-Index: extensions/spellcheck/zemberek/src/mozZemberekDirProvider.cpp
-===================================================================
---- /dev/null
-+++ extensions/spellcheck/zemberek/src/mozZemberekDirProvider.cpp
-@@ -0,0 +1,182 @@
+diff -Naur extensions/spellcheck-orig//zemberek/src/mozZemberekDirProvider.cpp extensions/spellcheck/zemberek/src/mozZemberekDirProvider.cpp
+--- extensions/spellcheck-orig//zemberek/src/mozZemberekDirProvider.cpp	1970-01-01 00:00:00.000000000 +0000
++++ extensions/spellcheck/zemberek/src/mozZemberekDirProvider.cpp	2011-01-15 15:02:35.184000385 +0000
+@@ -0,0 +1,144 @@
 +/*# ***** BEGIN LICENSE BLOCK *****
 +# Version: MPL 1.1/GPL 2.0/LGPL 2.1
 +#
@@ -928,51 +938,12 @@ Index: extensions/spellcheck/zemberek/src/mozZemberekDirProvider.cpp
 +  GetNext(nsnull);
 +}
 +
-+NS_METHOD
-+mozZemberekDirProvider::Register(nsIComponentManager* aCompMgr,
-+				nsIFile* aPath, const char *aLoaderStr,
-+				const char *aType,
-+				const nsModuleComponentInfo *aInfo)
-+{
-+  nsresult rv;
-+
-+  nsCOMPtr<nsICategoryManager> catMan =
-+    do_GetService(NS_CATEGORYMANAGER_CONTRACTID);
-+  if (!catMan)
-+    return NS_ERROR_FAILURE;
-+
-+  rv = catMan->AddCategoryEntry(XPCOM_DIRECTORY_PROVIDER_CATEGORY,
-+				"spellcheck-directory-provider",
-+				kContractID, PR_TRUE, PR_TRUE, nsnull);
-+  return rv;
-+}
-+
-+NS_METHOD
-+mozZemberekDirProvider::Unregister(nsIComponentManager* aCompMgr,
-+				  nsIFile* aPath,
-+				  const char *aLoaderStr,
-+				  const nsModuleComponentInfo *aInfo)
-+{
-+  nsresult rv;
-+
-+  nsCOMPtr<nsICategoryManager> catMan =
-+    do_GetService(NS_CATEGORYMANAGER_CONTRACTID);
-+  if (!catMan)
-+    return NS_ERROR_FAILURE;
-+
-+  rv = catMan->DeleteCategoryEntry(XPCOM_DIRECTORY_PROVIDER_CATEGORY,
-+				   "spellcheck-directory-provider",
-+				   PR_TRUE);
-+  return rv;
-+}
-+
 +char const *const
 +mozZemberekDirProvider::kContractID = "@mozilla.org/spellcheck/dir-provider;1";
-Index: extensions/spellcheck/zemberek/src/mozZemberekDirProvider.h
-===================================================================
---- /dev/null
-+++ extensions/spellcheck/zemberek/src/mozZemberekDirProvider.h
-@@ -0,0 +1,85 @@
+diff -Naur extensions/spellcheck-orig//zemberek/src/mozZemberekDirProvider.h extensions/spellcheck/zemberek/src/mozZemberekDirProvider.h
+--- extensions/spellcheck-orig//zemberek/src/mozZemberekDirProvider.h	1970-01-01 00:00:00.000000000 +0000
++++ extensions/spellcheck/zemberek/src/mozZemberekDirProvider.h	2011-01-15 15:02:35.205000386 +0000
+@@ -0,0 +1,75 @@
 +/*# ***** BEGIN LICENSE BLOCK *****
 +# Version: MPL 1.1/GPL 2.0/LGPL 2.1
 +#
@@ -1016,7 +987,6 @@ Index: extensions/spellcheck/zemberek/src/mozZemberekDirProvider.h
 +#define mozZemberekDirProvider_h__
 +
 +#include "nsIDirectoryService.h"
-+#include "nsIGenericFactory.h"
 +#include "nsISimpleEnumerator.h"
 +
 +class mozZemberekDirProvider :
@@ -1026,15 +996,6 @@ Index: extensions/spellcheck/zemberek/src/mozZemberekDirProvider.h
 +  NS_DECL_ISUPPORTS
 +  NS_DECL_NSIDIRECTORYSERVICEPROVIDER
 +  NS_DECL_NSIDIRECTORYSERVICEPROVIDER2
-+
-+  static NS_METHOD Register(nsIComponentManager* aCompMgr,
-+			    nsIFile* aPath, const char *aLoaderStr,
-+			    const char *aType,
-+			    const nsModuleComponentInfo *aInfo);
-+
-+  static NS_METHOD Unregister(nsIComponentManager* aCompMgr,
-+			      nsIFile* aPath, const char *aLoaderStr,
-+			      const nsModuleComponentInfo *aInfo);
 +
 +  static char const *const kContractID;
 +
@@ -1058,99 +1019,10 @@ Index: extensions/spellcheck/zemberek/src/mozZemberekDirProvider.h
 +  { 0xb7, 0x64, 0xaa, 0x3d, 0xcf, 0x27, 0xe4, 0x7d } }
 +
 +#endif // mozZemberekDirProvider
-Index: extensions/spellcheck/zemberek/src/mozZemberekFactory.cpp
-===================================================================
---- /dev/null
-+++ extensions/spellcheck/zemberek/src/mozZemberekFactory.cpp
-@@ -0,0 +1,83 @@
-+/* -*- Mode: C++; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
-+/*# ***** BEGIN LICENSE BLOCK *****
-+# Version: MPL 1.1/GPL 2.0/LGPL 2.1
-+#
-+# The contents of this file are subject to the Mozilla Public License Version
-+# 1.1 (the "License"); you may not use this file except in compliance with
-+# the License. You may obtain a copy of the License at
-+# http://www.mozilla.org/MPL/
-+#
-+# Software distributed under the License is distributed on an "AS IS" basis,
-+# WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
-+# for the specific language governing rights and limitations under the
-+# License.
-+#
-+# The Original Code is Mozilla Spellchecker Component.
-+#
-+# The Initial Developer of the Original Code is Faik Uygur.
-+# Portions created by the Initial Developer are Copyright (C) 2006
-+# TUBITAK/UEKAE. All Rights Reserved.
-+#
-+# Contributor(s): Faik Uygur <faik@pardus.org.tr>
-+#
-+# Mozilla Zemberek Client library is based on zpspell. The Initial Developer
-+# of the zpspell code is Baris Metin. Portions created by the Initial Developer
-+# Copyright (c) 2004, TUBITAK/UEKAE. All Rights Reserved.
-+#
-+# Alternatively, the contents of this file may be used under the terms of
-+# either the GNU General Public License Version 2 or later (the "GPL"), or
-+# the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
-+# in which case the provisions of the GPL or the LGPL are applicable instead
-+# of those above. If you wish to allow use of your version of this file only
-+# under the terms of either the GPL or the LGPL, and not to allow others to
-+# use your version of this file under the terms of the MPL, indicate your
-+# decision by deleting the provisions above and replace them with the notice
-+# and other provisions required by the GPL or the LGPL. If you do not delete
-+# the provisions above, a recipient may use your version of this file under
-+# the terms of any one of the MPL, the GPL or the LGPL.
-+#
-+# ***** END LICENSE BLOCK ***** */
-+
-+#include "nsIGenericFactory.h"
-+
-+#include "mozZemberek.h"
-+
-+#include "mozZemberekDirProvider.h"
-+
-+////////////////////////////////////////////////////////////////////////
-+// Define the contructor function for the objects
-+//
-+// NOTE: This creates an instance of objects by using the default constructor
-+//
-+
-+NS_GENERIC_FACTORY_CONSTRUCTOR_INIT(mozZemberek, Init)
-+
-+NS_GENERIC_FACTORY_CONSTRUCTOR(mozZemberekDirProvider)
-+
-+////////////////////////////////////////////////////////////////////////
-+// Define a table of CIDs implemented by this module along with other
-+// information like the function to create an instance, contractid, and
-+// class name.
-+//
-+static nsModuleComponentInfo components[] = {
-+    {
-+        "mozZemberek",
-+        MOZ_ZEMBEREK_CID,
-+        MOZ_ZEMBEREK_CONTRACTID,
-+        mozZemberekConstructor
-+    }
-+    , {
-+        "mozZemberekDirProvider",
-+        ZEMBEREKDIRPROVIDER_CID,
-+        mozZemberekDirProvider::kContractID,
-+        mozZemberekDirProviderConstructor,
-+        mozZemberekDirProvider::Register,
-+        mozZemberekDirProvider::Unregister
-+    }
-+};
-+
-+////////////////////////////////////////////////////////////////////////
-+// Implement the NSGetModule() exported function for your module
-+// and the entire implementation of the module object.
-+//
-+NS_IMPL_NSGETMODULE(mozZemberekModule, components)
-Index: extensions/spellcheck/zemberek/src/mozZemberek.h
-===================================================================
---- /dev/null
-+++ extensions/spellcheck/zemberek/src/mozZemberek.h
-@@ -0,0 +1,95 @@
+diff -Naur extensions/spellcheck-orig//zemberek/src/mozZemberek.h extensions/spellcheck/zemberek/src/mozZemberek.h
+--- extensions/spellcheck-orig//zemberek/src/mozZemberek.h	1970-01-01 00:00:00.000000000 +0000
++++ extensions/spellcheck/zemberek/src/mozZemberek.h	2011-01-15 15:02:35.205000386 +0000
+@@ -0,0 +1,97 @@
 +/* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 +/*# ***** BEGIN LICENSE BLOCK *****
 +# Version: MPL 1.1/GPL 2.0/LGPL 2.1
@@ -1204,6 +1076,7 @@ Index: extensions/spellcheck/zemberek/src/mozZemberek.h
 +#include "nsIUnicodeDecoder.h"
 +#include "nsInterfaceHashtable.h"
 +#include "nsWeakReference.h"
++#include "nsCycleCollectionParticipant.h"
 +
 +#define MOZ_ZEMBEREK_CONTRACTID "@mozilla.org/spellchecker/zemberek;1"
 +#define MOZ_ZEMBEREK_CID         \
@@ -1216,9 +1089,10 @@ Index: extensions/spellcheck/zemberek/src/mozZemberek.h
 +                   public nsSupportsWeakReference
 +{
 +public:
-+  NS_DECL_ISUPPORTS
++  NS_DECL_CYCLE_COLLECTING_ISUPPORTS
 +  NS_DECL_MOZISPELLCHECKINGENGINE
 +  NS_DECL_NSIOBSERVER
++  NS_DECL_CYCLE_COLLECTION_CLASS_AMBIGUOUS(mozZemberek, mozISpellCheckingEngine)
 +
 +  mozZemberek() : mZemberek(nsnull) { }
 +  virtual ~mozZemberek();
@@ -1246,10 +1120,9 @@ Index: extensions/spellcheck/zemberek/src/mozZemberek.h
 +};
 +
 +#endif
-Index: extensions/spellcheck/zemberek/src/zemberek.cpp
-===================================================================
---- /dev/null
-+++ extensions/spellcheck/zemberek/src/zemberek.cpp
+diff -Naur extensions/spellcheck-orig//zemberek/src/zemberek.cpp extensions/spellcheck/zemberek/src/zemberek.cpp
+--- extensions/spellcheck-orig//zemberek/src/zemberek.cpp	1970-01-01 00:00:00.000000000 +0000
++++ extensions/spellcheck/zemberek/src/zemberek.cpp	2011-01-15 15:02:35.198000385 +0000
 @@ -0,0 +1,79 @@
 +/*
 +  Copyright (c) 2004, TUBITAK/UEKAE
@@ -1330,10 +1203,9 @@ Index: extensions/spellcheck/zemberek/src/zemberek.cpp
 +{
 +    return strdup("UTF-8");
 +}
-Index: extensions/spellcheck/zemberek/src/zemberek.h
-===================================================================
---- /dev/null
-+++ extensions/spellcheck/zemberek/src/zemberek.h
+diff -Naur extensions/spellcheck-orig//zemberek/src/zemberek.h extensions/spellcheck/zemberek/src/zemberek.h
+--- extensions/spellcheck-orig//zemberek/src/zemberek.h	1970-01-01 00:00:00.000000000 +0000
++++ extensions/spellcheck/zemberek/src/zemberek.h	2011-01-15 15:02:35.192000383 +0000
 @@ -0,0 +1,34 @@
 +/*
 +  Copyright (c) 2004, TUBITAK/UEKAE
@@ -1369,10 +1241,9 @@ Index: extensions/spellcheck/zemberek/src/zemberek.h
 +};
 +
 +#endif
-Index: extensions/spellcheck/zemberek/src/zsconn.cpp
-===================================================================
---- /dev/null
-+++ extensions/spellcheck/zemberek/src/zsconn.cpp
+diff -Naur extensions/spellcheck-orig//zemberek/src/zsconn.cpp extensions/spellcheck/zemberek/src/zsconn.cpp
+--- extensions/spellcheck-orig//zemberek/src/zsconn.cpp	1970-01-01 00:00:00.000000000 +0000
++++ extensions/spellcheck/zemberek/src/zsconn.cpp	2011-01-15 15:02:35.212000383 +0000
 @@ -0,0 +1,110 @@
 +/*
 +  Copyright (c) 2004, TUBITAK/UEKAE
@@ -1484,10 +1355,9 @@ Index: extensions/spellcheck/zemberek/src/zsconn.cpp
 +    return suggestions;
 +}
 +
-Index: extensions/spellcheck/zemberek/src/zsconn.h
-===================================================================
---- /dev/null
-+++ extensions/spellcheck/zemberek/src/zsconn.h
+diff -Naur extensions/spellcheck-orig//zemberek/src/zsconn.h extensions/spellcheck/zemberek/src/zsconn.h
+--- extensions/spellcheck-orig//zemberek/src/zsconn.h	1970-01-01 00:00:00.000000000 +0000
++++ extensions/spellcheck/zemberek/src/zsconn.h	2011-01-15 15:02:35.209000385 +0000
 @@ -0,0 +1,43 @@
 +/*
 +  Copyright (c) 2004, TUBITAK/UEKAE
@@ -1532,10 +1402,9 @@ Index: extensions/spellcheck/zemberek/src/zsconn.h
 +};
 +
 +#endif
-Index: extensions/spellcheck/zemberek/src/zstring.cpp
-===================================================================
---- /dev/null
-+++ extensions/spellcheck/zemberek/src/zstring.cpp
+diff -Naur extensions/spellcheck-orig//zemberek/src/zstring.cpp extensions/spellcheck/zemberek/src/zstring.cpp
+--- extensions/spellcheck-orig//zemberek/src/zstring.cpp	1970-01-01 00:00:00.000000000 +0000
++++ extensions/spellcheck/zemberek/src/zstring.cpp	2011-01-15 15:02:35.197000386 +0000
 @@ -0,0 +1,80 @@
 +/*
 +  Copyright (c) 2004, TUBITAK/UEKAE
@@ -1617,10 +1486,9 @@ Index: extensions/spellcheck/zemberek/src/zstring.cpp
 +    return _suggestions;
 +}
 +
-Index: extensions/spellcheck/zemberek/src/zstring.h
-===================================================================
---- /dev/null
-+++ extensions/spellcheck/zemberek/src/zstring.h
+diff -Naur extensions/spellcheck-orig//zemberek/src/zstring.h extensions/spellcheck/zemberek/src/zstring.h
+--- extensions/spellcheck-orig//zemberek/src/zstring.h	1970-01-01 00:00:00.000000000 +0000
++++ extensions/spellcheck/zemberek/src/zstring.h	2011-01-15 15:02:35.204000385 +0000
 @@ -0,0 +1,50 @@
 +/*
 +  Copyright (c) 2004, TUBITAK/UEKAE
