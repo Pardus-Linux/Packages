@@ -1,0 +1,99 @@
+From: Jaroslav Kysela <perex@perex.cz>
+Date: Wed, 22 Dec 2010 07:13:21 +0000 (+0100)
+Subject: alsa-python mixer: add poll_fds property
+X-Git-Url: http://git.alsa-project.org/?p=alsa-python.git;a=commitdiff_plain;h=be65a15ded5055ba69e0b619c66f977eb529e794
+
+alsa-python mixer: add poll_fds property
+
+This patch adds poll_fds property to pyalsa alsamixer. register_poll works
+with Python's select.poll but not with main loop of GUI toolkits. This is
+already done for hcontrol by Clemens Ladisch, patch is based on his patch.
+Other patch fixes memory leak as reported by him.
+
+From: Milan Nikolic <gen2brain@gmail.com>
+Signed-off-by: Jaroslav Kysela <perex@perex.cz>
+---
+
+diff --git a/pyalsa/alsamixer.c b/pyalsa/alsamixer.c
+index 53825cc..81719a7 100644
+--- a/pyalsa/alsamixer.c
++++ b/pyalsa/alsamixer.c
+@@ -164,9 +164,7 @@ pyalsamixer_registerpoll(struct pyalsamixer *self, PyObject *args)
+ 	count = snd_mixer_poll_descriptors_count(self->handle);
+ 	if (count <= 0)
+ 		Py_RETURN_NONE;
+-	pfd = malloc(sizeof(struct pollfd) * count);
+-	if (pfd == NULL)
+-		Py_RETURN_NONE;
++	pfd = alloca(sizeof(struct pollfd) * count);
+ 	count = snd_mixer_poll_descriptors(self->handle, pfd, count);
+ 	if (count <= 0)
+ 		Py_RETURN_NONE;
+@@ -188,6 +186,38 @@ pyalsamixer_registerpoll(struct pyalsamixer *self, PyObject *args)
+ 	Py_RETURN_NONE;
+ }
+ 
++static PyObject *
++pyalsamixer_getpollfds(struct pyalsamixer *self, void *priv)
++{
++	PyObject *l, *t;
++	struct pollfd *pfds;
++	int i, count;
++
++	count = snd_mixer_poll_descriptors_count(self->handle);
++	if (count < 0) {
++pfds_error:
++		PyErr_Format(PyExc_IOError, "poll descriptors error: %s", snd_strerror(count));
++		return NULL;
++	}
++	pfds = alloca(sizeof(struct pollfd) * count);
++	count = snd_mixer_poll_descriptors(self->handle, pfds, count);
++	if (count < 0)
++		goto pfds_error;
++
++	l = PyList_New(count);
++	if (!l)
++		return NULL;
++	for (i = 0; i < count; ++i) {
++		t = PyTuple_New(2);
++		if (t) {
++			PyTuple_SET_ITEM(t, 0, PyInt_FromLong(pfds[i].fd));
++			PyTuple_SET_ITEM(t, 1, PyInt_FromLong(pfds[i].events));
++			PyList_SetItem(l, i, t);
++		}
++	}
++	return l;
++}
++
+ PyDoc_STRVAR(list__doc__,
+ "list() -- Return a list (tuple) of element IDs in (name,index) tuple.");
+ 
+@@ -257,7 +287,8 @@ pyalsamixer_dealloc(struct pyalsamixer *self)
+ 
+ static PyGetSetDef pyalsamixer_getseters[] = {
+ 
+-	{"count",	(getter)pyalsamixer_getcount,	NULL,	"mixer element count",		NULL},
++	{"count",	(getter)pyalsamixer_getcount,   NULL,	"mixer element count",		NULL},
++	{"poll_fds",    (getter)pyalsamixer_getpollfds,     NULL,	"list of (fd, eventbits) tuples",	NULL},
+ 
+ 	{NULL}
+ };
+diff --git a/utils/remove-user-ctl.py b/utils/remove-user-ctl.py
+index 82a9407..feb97ad 100755
+--- a/utils/remove-user-ctl.py
++++ b/utils/remove-user-ctl.py
+@@ -3,11 +3,11 @@
+ 
+ from pyalsa.alsahcontrol import HControl, Element, Info
+ 
+-hctl = HControl()
++hctl = HControl(name='hw:1')
+ list = hctl.list()
+ for id in list:
+ 	elem = Element(hctl, id[1:])
+ 	info = Info(elem)
+-	if info.isUser:
++	if info.is_user:
+ 		print 'Removing element %s' % repr(id)
+-		hctl.elementRemove(id[1:])
++		hctl.element_remove(id[1:])
