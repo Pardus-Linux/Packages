@@ -1,0 +1,108 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>dansguardian</Name>
+        <Homepage>http://www.dansguardian.org</Homepage>
+        <Packager>
+            <Name>H. İbrahim Güngör</Name>
+            <Email>ibrahim@pardus.org.tr</Email>
+        </Packager>
+        <License>GPLv2+</License>
+        <IsA>service</IsA>
+        <Summary>Content filtering web proxy</Summary>
+        <Description>Content filter uses multiple methods, including URL and domain filtering, content phrase filtering, PICS filtering, MIME filtering, file extension filtering, POST filtering.</Description>
+        <Archive sha1sum="ff3012e01130b2269582c21c3eeb4ea013dc9679" type="targz">http://dansguardian.org/downloads/2/Stable/dansguardian-2.10.1.1.tar.gz</Archive>
+        <BuildDependencies>
+            <Dependency>clamav-devel</Dependency>
+        </BuildDependencies>
+        <Patches>
+            <Patch level="1">goodphrases.patch</Patch>
+            <Patch level="1">pisi.patch</Patch>
+            <Patch level="1">default-lists.patch</Patch>
+            <Patch level="1">dansguardian-gcc44.patch</Patch>
+            <Patch level="1">dansguardian-clamav095.patch</Patch>
+            <Patch level="1">dansguardian-must-be-successful.patch</Patch>
+        </Patches>
+    </Source>
+
+    <Package>
+        <Name>dansguardian</Name>
+        <RuntimeDependencies>
+            <Dependency>clamav</Dependency>
+            <Dependency>squid</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="config">/etc</Path>
+            <Path fileType="executable">/usr/sbin</Path>
+            <Path fileType="data">/usr/share/dansguardian</Path>
+            <Path fileType="data">/var/log</Path>
+            <Path fileType="data">/var/run</Path>
+            <Path fileType="man">/usr/share/man</Path>
+            <Path fileType="doc">/usr/share/doc</Path>
+        </Files>
+        <AdditionalFiles>
+            <AdditionalFile owner="root" permission="0644" target="/etc/squid/squid.conf.dansguardian">squid.conf</AdditionalFile>
+            <AdditionalFile owner="root" permission="0644" target="/etc/apache2/conf.d/dansguardian.conf">dansguardian.httpd</AdditionalFile>
+        </AdditionalFiles>
+        <Provides>
+            <COMAR script="service.py">System.Service</COMAR>
+            <COMAR script="package.py">System.Package</COMAR>
+        </Provides>
+    </Package>
+
+    <History>
+        <Update release="7">
+            <Date>2010-11-30</Date>
+            <Version>2.10.1.1</Version>
+            <Comment>Use dansguardian user and group instead of clamav.</Comment>
+            <Name>H. İbrahim Güngör</Name>
+            <Email>ibrahim@pardus.org.tr</Email>
+        </Update>
+        <Update release="6">
+            <Date>2009-09-12</Date>
+            <Version>2.10.1.1</Version>
+            <Comment>
+                Stable update
+                Due to use clamd socket instead clamav libs, removed clamav build dependency
+            </Comment>
+            <Name>Taner Taş</Name>
+            <Email>taner@pardus.org.tr</Email>
+        </Update>
+        <Update release="5">
+            <Date>2009-03-09</Date>
+            <Version>2.10.0.3</Version>
+            <Comment>Stable update</Comment>
+            <Name>Taner Taş</Name>
+            <Email>taner@pardus.org.tr</Email>
+        </Update>
+        <Update release="4">
+            <Date>2007-10-23</Date>
+            <Version>2.9.9.1</Version>
+            <Comment>Version bump</Comment>
+            <Name>Ali Erdinç Köroğlu</Name>
+            <Email>erdinc@pardus.org.tr</Email>
+        </Update>
+        <Update release="3">
+            <Date>2007-06-14</Date>
+            <Version>2.9.8.5</Version>
+            <Comment>Version bump</Comment>
+            <Name>Ali Erdinç Köroğlu</Name>
+            <Email>erdinc@pardus.org.tr</Email>
+        </Update>
+        <Update release="2">
+            <Date>2007-05-23</Date>
+            <Version>2.9.8.2</Version>
+            <Comment>Updated Service script.</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="1">
+            <Date>2007-02-26</Date>
+            <Version>2.9.8.2</Version>
+            <Comment>First release</Comment>
+            <Name>Ali Erdinç Köroğlu</Name>
+            <Email>erdinc@pardus.org.tr</Email>
+        </Update>
+    </History>
+</PISI>
