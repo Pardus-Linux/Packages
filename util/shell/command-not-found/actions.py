@@ -13,7 +13,7 @@ def install():
 
     pisitools.insinto("/var/db/command-not-found", "data/packages-%s.db" % get.ARCH(), "packages.db")
 
-    for lang in ["da", "de", "es", "fr", "hu", "nl", "pl", "ru", "sv", "tr"]:
+    for lang in ["da", "de", "es", "fr", "hu", "it", "nl", "ru", "sv", "tr"]:
         pisitools.domo("po/%s.po" % lang, lang, "command-not-found.mo")
 
     pisitools.dodoc("AUTHORS", "COPYING", "README")
