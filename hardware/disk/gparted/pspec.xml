@@ -1,0 +1,246 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>gparted</Name>
+        <Homepage>http://gparted.sourceforge.net/</Homepage>
+        <Packager>
+            <Name>Mete Alpaslan</Name>
+            <Email>mete@pardus.org.tr</Email>
+        </Packager>
+        <License>GPLv2</License>
+        <Icon>gparted</Icon>
+        <IsA>app:gui</IsA>
+        <Summary>Gnome Partition tool based on GNU-Parted</Summary>
+        <Description>GParted is the Gnome Partition Editor application. GParted is an industrial-strength package for creating, destroying, resizing, moving, checking and copying partitions, and the filesystems on them. This is useful for creating space for new operating systems, reorganizing disk usage, copying data residing on hard disks and mirroring one partition with another (disk imaging).</Description>
+        <Archive sha1sum="d38f71752ea217e9deb911cc2679466faf587cbc" type="tarbz2">mirrors://sourceforge/gparted/gparted-0.7.1.tar.bz2</Archive>
+        <BuildDependencies>
+            <Dependency versionFrom="1.8.8">parted-devel</Dependency>
+            <Dependency versionFrom="2.8.0">gtkmm-devel</Dependency>
+        </BuildDependencies>
+    </Source>
+
+    <Package>
+        <Name>gparted</Name>
+        <RuntimeDependencies>
+            <Dependency versionFrom="1.8.8">parted</Dependency>
+            <Dependency versionFrom="2.8.0">gtkmm</Dependency>
+            <Dependency releaseFrom="5">xdg-utils</Dependency>
+            <Dependency>ntfsprogs</Dependency>
+            <Dependency>reiserfsprogs</Dependency>
+            <Dependency>xfsprogs</Dependency>
+            <Dependency>btrfs-progs</Dependency>
+            <Dependency>dosfstools</Dependency>
+            <Dependency>jfsutils</Dependency>
+            <Dependency>xfsdump</Dependency>
+            <Dependency>mtools</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="executable">/usr/sbin</Path>
+            <Path fileType="data">/usr/share/applications</Path>
+            <Path fileType="data">/usr/share/icons</Path>
+            <Path fileType="localedata">/usr/share/locale</Path>
+            <Path fileType="data">/usr/share/pixmaps</Path>
+            <Path fileType="data">/usr/share/omf</Path>
+            <Path fileType="man">/usr/share/man</Path>
+            <Path fileType="doc">/usr/share/gnome</Path>
+        </Files>
+        <AdditionalFiles>
+            <AdditionalFile owner="root" permission="0644" target="/usr/share/applications/gparted.desktop">gparted.desktop</AdditionalFile>
+        </AdditionalFiles>
+    </Package>
+
+    <History>
+        <Update release="19">
+            <Date>2011-01-16</Date>
+            <Version>0.7.1</Version>
+            <Comment>Version bump to 0.7.1</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="18">
+            <Date>2010-02-26</Date>
+            <Version>0.5.1</Version>
+            <Comment>
+                *Version bump:
+                    -Work around partition resizing problems with newer udev and kernels
+                    -Ensure return code is passed up through commit() method
+                    -Avoid crash by ignoring devices with sector size > 512 bytes
+                    -Capture libparted messages if invalid partition table found
+                    -Fix problem reading some FAT32 partitions
+                    -Updated translations
+            </Comment>
+            <Name>Mete Alpaslan</Name>
+            <Email>mete@pardus.org.tr</Email>
+        </Update>
+        <Update release="17">
+            <Date>2009-11-16</Date>
+            <Version>0.4.5</Version>
+            <Comment>Don't update icon cache and don't install it</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="16">
+            <Date>2009-05-11</Date>
+            <Version>0.4.5</Version>
+            <Comment>
+                * Version bump:
+                  - Updated translations: German, Kazakh, Catalan.
+                  - Improve crypt-luks detection.
+                  - Minor cosmetic fix to reorder Reiser4 detection code.
+                  - Fix typo in gparted short description.
+                  - Enhance to try udevadm if udevsettle is not found.
+                  - Improve initialization logic for FS_Info class.
+                  - Enhance UUID detection to fallback to vol_id if available.
+                  - Improve dmraid device detection with checking udev if needed.
+                  - Minor style change to place braces on a separate line.
+                  - Refactor some logic into separate get_udev_name method.
+                  - Enhance get_dmraid_name to also check udev information if needed.
+                  - Remove temporary debugging information accidentally committed.
+                  - Ensure kpartx is executed even if dmraid fails.
+                  - Remove get_dmraid_prefix method used to specify a single device.
+                  - Improve file system detection with fall back to vol_id.
+                  - Refactor some logic into separate settle_device method.
+                  - Ensure /dev file system device entries created before adding device.
+            </Comment>
+            <Name>Gökmen Görgen</Name>
+            <Email>gkmngrgn@gmail.com</Email>
+        </Update>
+        <Update release="15">
+            <Date>2009-05-08</Date>
+            <Version>0.4.4</Version>
+            <Comment>Version bump:
+                    * Enhanced move/resize functionality
+                    * Added detection of LUKS encrypted partitions
+                    * Added support for btrfs file system
+                    * Added recognition of /dev/mmcblk* SD/MMC devices
+                    * Added dmraid support
+                    * Improved swap and dmraid mountpoint detection
+                    * Enhanced dmraid partition deletion
+                    * And a lot of bug fixes to improve stability
+            </Comment>
+            <Name>Gökmen Göksel</Name>
+            <Email>gokmen@pardus.org.tr</Email>
+        </Update>
+        <Update release="14">
+            <Date>2009-03-16</Date>
+            <Version>0.4.3</Version>
+            <Comment>Version bump:
+                    * Corrected name of lock taken by hal-lock
+                    * Fixed crash on startup with some languages
+                    * Use xdg-su instead of kdesu
+                    * Added support for ext4 file system
+                    * Created application help manual
+                    * Updated gparted manual page
+                    * Made text beside field labels selectable (i.e., copy/paste UUID)
+                    * Added lvm2 physical volume detection
+                    * Reduced file system information disk reads to improve performance
+                    * Fixed application crash when saving details and locale not set
+                    * Enhanced copy/paste checks when MBR/EBR involved
+            </Comment>
+            <Name>Gökmen Göksel</Name>
+            <Email>gokmen@pardus.org.tr</Email>
+        </Update>
+        <Update release="13">
+            <Date>2008-12-02</Date>
+            <Version>0.4.1</Version>
+            <Comment>Version bump:
+                    * Improved read label performance with blkid cached results
+                    * Added read UUID support
+                    * Enforced FAT16/32 compliant volume labels (11 char max)
+                    * Fixed destination too small on copy and paste partition
+                    * Added status bar message updates while scanning devices
+                    * Moved Features entry from menu GParted to View
+                    * Renamed Features dialog to File System Support
+                    * Prevented paste into an existing partition
+                    * Added --disable-doc configure flag to stop building help docs
+            </Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="12">
+            <Date>2008-09-19</Date>
+            <Version>0.3.9</Version>
+            <Comment>Version bump</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="11">
+            <Date>2008-05-27</Date>
+            <Version>0.3.7</Version>
+            <Comment>Version bump</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="10">
+            <Date>2008-02-18</Date>
+            <Version>0.3.5</Version>
+            <Comment>Version bump, some runtime deps added.</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        <Update release="9">
+            <Date>2008-02-04</Date>
+            <Version>0.3.3</Version>
+            <Comment>Fix device reload crash.</Comment>
+            <Name>Eren Türkay</Name>
+            <Email>turkay.eren@gmail.com</Email>
+        </Update>
+        <Update release="8">
+            <Date>2007-08-21</Date>
+            <Version>0.3.3</Version>
+            <Comment>Fix #6091</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="7">
+            <Date>2007-07-09</Date>
+            <Version>0.3.3</Version>
+            <Comment>Fix #6026</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="6">
+            <Date>2007-06-05</Date>
+            <Version>0.3.3</Version>
+            <Comment>Version bump</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="5">
+            <Date>2006-12-10</Date>
+            <Version>0.3.1</Version>
+            <Comment>Fix menu name</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="4">
+            <Date>2006-10-29</Date>
+            <Version>0.3.1</Version>
+            <Comment>Version bump</Comment>
+            <Name>Bahadır Kandemir</Name>
+            <Email>bahadir@pardus.org.tr</Email>
+        </Update>
+        <Update release="3">
+            <Date>2006-08-29</Date>
+            <Version>0.2.5</Version>
+            <Comment>Use kdesu, this time really!</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="2">
+            <Date>2006-08-28</Date>
+            <Version>0.2.5</Version>
+            <Comment>Use kdesu</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="1">
+            <Date>2006-08-06</Date>
+            <Version>0.2.5</Version>
+            <Comment>First release.</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+    </History>
+</PISI>
