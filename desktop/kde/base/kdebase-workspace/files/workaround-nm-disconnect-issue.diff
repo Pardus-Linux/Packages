@@ -1,0 +1,36 @@
+Index: kdebase-workspace-4.5.5/solid/networkmanager-0.7/manager.cpp
+===================================================================
+--- kdebase-workspace-4.5.5.orig/solid/networkmanager-0.7/manager.cpp
++++ kdebase-workspace-4.5.5/solid/networkmanager-0.7/manager.cpp
+@@ -22,6 +22,8 @@ along with this program.  If not, see <h
+ 
+ #include <KDebug>
+ #include <NetworkManager.h>
++#include <QDBusInterface>
++#include <QDBusObjectPath>
+ 
+ #include "dbus/nm-deviceinterface.h"
+ #include "networkmanagerdefinitions.h"
+@@ -184,7 +186,21 @@ void NMNetworkManager::activateConnectio
+ void NMNetworkManager::deactivateConnection( const QString & activeConnectionPath )
+ {
+     Q_D(NMNetworkManager);
+-    d->iface.DeactivateConnection(QDBusObjectPath(activeConnectionPath));
++
++    QDBusInterface activeDeviceIface(NMNetworkManager::DBUS_SERVICE, activeConnectionPath, QLatin1String("org.freedesktop.NetworkManager.Connection.Active"), QDBusConnection::systemBus());
++
++    if (activeDeviceIface.isValid())
++    {
++        QList <QDBusObjectPath>activeDeviceList = activeDeviceIface.property("Devices").value<QList <QDBusObjectPath> >();
++        foreach(QDBusObjectPath activeDevicePath, activeDeviceList)
++        {
++            QDBusInterface deviceIface(NMNetworkManager::DBUS_SERVICE, activeDevicePath.path(), QLatin1String("org.freedesktop.NetworkManager.Device"), QDBusConnection::systemBus());
++            if (deviceIface.isValid())
++                deviceIface.call(QLatin1String("Disconnect"));
++        }
++    }
++
++    //d->iface.DeactivateConnection(QDBusObjectPath(activeConnectionPath));
+ }
+ 
+ void NMNetworkManager::setNetworkingEnabled(bool enabled)
