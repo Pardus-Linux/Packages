@@ -1,0 +1,26 @@
+From c9f9044475d392e55de4dd6e343477ce1a57eabc Mon Sep 17 00:00:00 2001
+From: Gerd Hoffmann <kraxel@redhat.com>
+Date: Thu, 8 Jul 2010 17:51:09 +0200
+Subject: [PATCH 24/39] qxl: support QXL_IO_DESTROY_ALL_SURFACES
+
+---
+ hw/qxl.c |    3 +++
+ 1 files changed, 3 insertions(+), 0 deletions(-)
+
+diff --git a/hw/qxl.c b/hw/qxl.c
+index 2a0ea4e..7bd4467 100644
+--- a/hw/qxl.c
++++ b/hw/qxl.c
+@@ -930,6 +930,9 @@ static void ioport_write(void *opaque, uint32_t addr, uint32_t val)
+     case QXL_IO_DESTROY_SURFACE_WAIT:
+         d->ssd.worker->destroy_surface_wait(d->ssd.worker, val);
+         break;
++    case QXL_IO_DESTROY_ALL_SURFACES:
++        d->ssd.worker->destroy_surfaces(d->ssd.worker);
++        break;
+     default:
+         fprintf(stderr, "%s: ioport=0x%x, abort()\n", __FUNCTION__, io_port);
+         abort();
+-- 
+1.7.2.3
+

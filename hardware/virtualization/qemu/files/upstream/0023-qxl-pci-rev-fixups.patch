@@ -1,0 +1,52 @@
+From 727553e1a33dccab2b27ee5e184e003440765289 Mon Sep 17 00:00:00 2001
+From: Gerd Hoffmann <kraxel@redhat.com>
+Date: Thu, 8 Jul 2010 16:29:27 +0200
+Subject: [PATCH 23/39] qxl: pci rev fixups
+
+---
+ hw/qxl.c |   20 ++++++++------------
+ 1 files changed, 8 insertions(+), 12 deletions(-)
+
+diff --git a/hw/qxl.c b/hw/qxl.c
+index 475360c..2a0ea4e 100644
+--- a/hw/qxl.c
++++ b/hw/qxl.c
+@@ -511,10 +511,6 @@ static const QXLInterface qxl_interface = {
+     .base.major_version      = SPICE_INTERFACE_QXL_MAJOR,
+     .base.minor_version      = SPICE_INTERFACE_QXL_MINOR,
+
+-    .pci_vendor              = REDHAT_PCI_VENDOR_ID,
+-    .pci_id                  = QXL_DEVICE_ID,
+-    .pci_revision            = QXL_REVISION,
+-
+     .attache_worker          = interface_attach_worker,
+     .set_compression_level   = interface_set_compression_level,
+     .set_mm_time             = interface_set_mm_time,
+@@ -1136,16 +1132,16 @@ static int qxl_init(PCIDevice *dev)
+     qxl->generation = 1;
+
+     switch (qxl->revision) {
+-    case 1: /* qxl-1 */
+-        pci_device_id  = 0x0100;
+-        pci_device_rev = 1;
++    case 1: /* spice 0.4 -- qxl-1 */
++        pci_device_id  = QXL_DEVICE_ID_STABLE;
++        pci_device_rev = QXL_REVISION_STABLE_V04;
+         break;
+-    case 2: /* qxl-2 */
+-        pci_device_id  = 0x0100;
+-        pci_device_rev = 2;
++    case 2: /* spice 0.6 -- qxl-2 */
++        pci_device_id  = QXL_DEVICE_ID_STABLE;
++        pci_device_rev = QXL_REVISION_STABLE_V06;
+         break;
+-    default: /* unstable */
+-        pci_device_id  = 0x01ff;
++    default: /* experimental */
++        pci_device_id  = QXL_DEVICE_ID_DEVEL;
+         pci_device_rev = 1;
+         break;
+     }
+-- 
+1.7.2.3
+

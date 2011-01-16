@@ -1,0 +1,259 @@
+From e55e5fd43113a5b266efa6d17e44f0e9231a98ed Mon Sep 17 00:00:00 2001
+From: Gerd Hoffmann <kraxel@redhat.com>
+Date: Wed, 25 Aug 2010 16:08:37 +0000
+Subject: [PATCH 31/39] qxl: savevm fixes
+
+---
+ hw/qxl.c |  125 +++++++++++++++++++++++++++++++++++++++++++++----------------
+ hw/qxl.h |    6 +++
+ 2 files changed, 98 insertions(+), 33 deletions(-)
+
+diff --git a/hw/qxl.c b/hw/qxl.c
+index 86c0e03..4a15200 100644
+--- a/hw/qxl.c
++++ b/hw/qxl.c
+@@ -1087,6 +1087,14 @@ static void qxl_vm_change_state_handler(void *opaque, int running, int reason)
+ {
+     PCIQXLDevice *qxl = opaque;
+     qemu_spice_vm_change_state_handler(&qxl->ssd, running, reason);
++
++    if (!running && qxl->mode == QXL_MODE_NATIVE) {
++        /* dirty all vram (which holds surfaces) to make sure it is saved */
++        /* FIXME #1: should go out during "live" stage */
++        /* FIXME #2: we only need to save the areas which are actually used */
++        ram_addr_t addr = qxl->vram_offset;
++        qxl_set_dirty(addr, addr + qxl->vram_size);
++    }
+ }
+
+ /* display change listener */
+@@ -1134,6 +1142,8 @@ static int qxl_init(PCIDevice *dev)
+     qxl->id = device_id;
+     qxl->mode = QXL_MODE_UNDEFINED;
+     qxl->generation = 1;
++    qxl->num_memslots = NUM_MEMSLOTS;
++    qxl->num_surfaces = NUM_SURFACES;
+
+     switch (qxl->revision) {
+     case 1: /* spice 0.4 -- qxl-1 */
+@@ -1183,7 +1193,8 @@ static int qxl_init(PCIDevice *dev)
+         if (ram_size < 16 * 1024 * 1024)
+             ram_size = 16 * 1024 * 1024;
+         qxl->vga.vram_size = ram_size;
+-        qxl->vga.vram_offset = qemu_ram_alloc(&qxl->pci.qdev, "bar0", qxl->vga.vram_size);
++        qxl->vga.vram_offset = qemu_ram_alloc(&qxl->pci.qdev, "qxl.vgavram",
++                                              qxl->vga.vram_size);
+         qxl->vga.vram_ptr = qemu_get_ram_ptr(qxl->vga.vram_offset);
+
+         pci_config_set_class(config, PCI_CLASS_DISPLAY_OTHER);
+@@ -1195,14 +1206,14 @@ static int qxl_init(PCIDevice *dev)
+     pci_set_byte(&config[PCI_INTERRUPT_PIN], 1);
+
+     qxl->rom_size = qxl_rom_size();
+-    qxl->rom_offset = qemu_ram_alloc(&qxl->pci.qdev, "bar2", qxl->rom_size);
++    qxl->rom_offset = qemu_ram_alloc(&qxl->pci.qdev, "qxl.vrom", qxl->rom_size);
+     init_qxl_rom(qxl);
+     init_qxl_ram(qxl);
+
+     if (qxl->vram_size < 16 * 1024 * 1024)
+         qxl->vram_size = 16 * 1024 * 1024;
+     qxl->vram_size = msb_mask(qxl->vram_size * 2 - 1);
+-    qxl->vram_offset = qemu_ram_alloc(&qxl->pci.qdev, "bar1", qxl->vram_size);
++    qxl->vram_offset = qemu_ram_alloc(&qxl->pci.qdev, "qxl.vram", qxl->vram_size);
+
+     pci_register_bar(&qxl->pci, QXL_IO_RANGE_INDEX,
+                      msb_mask(QXL_IO_RANGE_SIZE * 2 - 1),
+@@ -1237,14 +1248,12 @@ static void qxl_pre_save(void *opaque)
+     uint8_t *ram_start = d->vga.vram_ptr;
+
+     dprintf(d, 1, "%s:\n", __FUNCTION__);
+-#if 1 /* wanna zap this */
+     if (d->last_release == NULL) {
+         d->last_release_offset = 0;
+     } else {
+         d->last_release_offset = (uint8_t *)d->last_release - ram_start;
+     }
+     assert(d->last_release_offset < d->vga.vram_size);
+-#endif
+ }
+
+ static int qxl_pre_load(void *opaque)
+@@ -1306,29 +1315,55 @@ static int qxl_post_load(void *opaque, int version)
+     }
+     dprintf(d, 1, "%s: done\n", __FUNCTION__);
+
+-#if 1 /* wanna zap this */
+-    if (d->last_release_offset >= d->vga.vram_size) {
+-        dprintf(d, 1, "%s: invalid last_release_offset %u, ram_size %u\n",
+-                __FUNCTION__, d->last_release_offset, d->vga.vram_size);
+-        exit(-1);
+-    }
+-
++    assert(d->last_release_offset < d->vga.vram_size);
+     if (d->last_release_offset == 0) {
+         d->last_release = NULL;
+     } else {
+         d->last_release = (QXLReleaseInfo *)(ram_start + d->last_release_offset);
+     }
+-#endif
++
++    /* spice 0.4 compatibility -- accept but ignore */
++    free(d->worker_data);
++    d->worker_data = NULL;
++    d->worker_data_size = 0;
+
+     return 0;
+ }
+
+-#define QXL_VER 1
++#define QXL_SAVE_VERSION 20
++
++static bool qxl_test_worker_data(void *opaque, int version_id)
++{
++    PCIQXLDevice* d = opaque;
++
++    if (d->revision != 1) {
++        return false;
++    }
++    if (!d->worker_data_size) {
++        return false;
++    }
++    if (!d->worker_data) {
++        d->worker_data = qemu_malloc(d->worker_data_size);
++    }
++    return true;
++}
++
++static bool qxl_test_spice04(void *opaque, int version_id)
++{
++    PCIQXLDevice* d = opaque;
++    return d->revision == 1;
++}
++
++static bool qxl_test_spice06(void *opaque)
++{
++    PCIQXLDevice* d = opaque;
++    return d->revision > 1;
++}
+
+ static VMStateDescription qxl_memslot = {
+     .name               = "qxl-memslot",
+-    .version_id         = QXL_VER,
+-    .minimum_version_id = QXL_VER,
++    .version_id         = QXL_SAVE_VERSION,
++    .minimum_version_id = QXL_SAVE_VERSION,
+     .fields = (VMStateField[]) {
+         VMSTATE_UINT64(slot.mem_start, struct guest_slots),
+         VMSTATE_UINT64(slot.mem_end,   struct guest_slots),
+@@ -1339,8 +1374,8 @@ static VMStateDescription qxl_memslot = {
+
+ static VMStateDescription qxl_surface = {
+     .name               = "qxl-surface",
+-    .version_id         = QXL_VER,
+-    .minimum_version_id = QXL_VER,
++    .version_id         = QXL_SAVE_VERSION,
++    .minimum_version_id = QXL_SAVE_VERSION,
+     .fields = (VMStateField[]) {
+         VMSTATE_UINT32(width,      QXLSurfaceCreate),
+         VMSTATE_UINT32(height,     QXLSurfaceCreate),
+@@ -1355,34 +1390,58 @@ static VMStateDescription qxl_surface = {
+     }
+ };
+
++static VMStateDescription qxl_vmstate_spice06 = {
++    .name               = "qxl/spice06",
++    .version_id         = QXL_SAVE_VERSION,
++    .minimum_version_id = QXL_SAVE_VERSION,
++    .fields = (VMStateField []) {
++        VMSTATE_INT32_EQUAL(num_memslots, PCIQXLDevice),
++        VMSTATE_STRUCT_ARRAY(guest_slots, PCIQXLDevice, NUM_MEMSLOTS, 0,
++                             qxl_memslot, struct guest_slots),
++        VMSTATE_STRUCT(guest_primary.surface, PCIQXLDevice, 0,
++                       qxl_surface, QXLSurfaceCreate),
++        VMSTATE_INT32_EQUAL(num_surfaces, PCIQXLDevice),
++        VMSTATE_ARRAY(guest_surfaces.cmds, PCIQXLDevice, NUM_SURFACES, 0,
++                      vmstate_info_uint64, uint64_t),
++        VMSTATE_UINT64(guest_cursor, PCIQXLDevice),
++        VMSTATE_END_OF_LIST()
++    },
++};
++
+ static VMStateDescription qxl_vmstate = {
+     .name               = "qxl",
+-    .version_id         = QXL_VER,
+-    .minimum_version_id = QXL_VER,
++    .version_id         = QXL_SAVE_VERSION,
++    .minimum_version_id = QXL_SAVE_VERSION,
+     .pre_save           = qxl_pre_save,
+     .pre_load           = qxl_pre_load,
+     .post_load          = qxl_post_load,
+     .fields = (VMStateField []) {
+         VMSTATE_PCI_DEVICE(pci, PCIQXLDevice),
+-        VMSTATE_STRUCT(vga, PCIQXLDevice, QXL_VER, vmstate_vga_common, VGACommonState),
++        VMSTATE_STRUCT(vga, PCIQXLDevice, 0, vmstate_vga_common, VGACommonState),
+         VMSTATE_UINT32(shadow_rom.mode, PCIQXLDevice),
+-#if 1 /* wanna zap this */
+         VMSTATE_UINT32(num_free_res, PCIQXLDevice),
+         VMSTATE_UINT32(last_release_offset, PCIQXLDevice),
+-#endif
+         VMSTATE_UINT32(mode, PCIQXLDevice),
+         VMSTATE_UINT32(ssd.unique, PCIQXLDevice),
+-#if 1 /* new stuff */
+-        VMSTATE_STRUCT_ARRAY(guest_slots, PCIQXLDevice, NUM_MEMSLOTS, QXL_VER,
+-                             qxl_memslot, struct guest_slots),
+-        VMSTATE_STRUCT(guest_primary.surface, PCIQXLDevice, QXL_VER,
+-                       qxl_surface, QXLSurfaceCreate),
+-        VMSTATE_ARRAY(guest_surfaces.cmds, PCIQXLDevice, NUM_SURFACES, QXL_VER,
+-                      vmstate_info_uint64, uint64_t),
+-        VMSTATE_UINT64(guest_cursor, PCIQXLDevice),
+-#endif
++
++        /* spice 0.4 sends/expects them */
++        VMSTATE_VBUFFER_UINT32(vga.vram_ptr, PCIQXLDevice, 0, qxl_test_spice04, 0,
++                               vga.vram_size),
++        VMSTATE_UINT32_TEST(worker_data_size, PCIQXLDevice, qxl_test_spice04),
++        VMSTATE_VBUFFER_UINT32(worker_data, PCIQXLDevice, 0, qxl_test_worker_data, 0,
++                               worker_data_size),
++
+         VMSTATE_END_OF_LIST()
+-    }
++    },
++    .subsections = (VMStateSubsection[]) {
++        {
++            /* additional spice 0.6 state */
++            .vmsd   = &qxl_vmstate_spice06,
++            .needed = qxl_test_spice06,
++        },{
++            /* end of list */
++        },
++    },
+ };
+
+ static PCIDeviceInfo qxl_info = {
+diff --git a/hw/qxl.h b/hw/qxl.h
+index 1216405..caf3684 100644
+--- a/hw/qxl.h
++++ b/hw/qxl.h
+@@ -24,6 +24,9 @@ typedef struct PCIQXLDevice {
+     int                generation;
+     uint32_t           revision;
+
++    int32_t            num_memslots;
++    int32_t            num_surfaces;
++
+     struct guest_slots {
+         QXLMemSlot     slot;
+         void           *ptr;
+@@ -74,6 +77,9 @@ typedef struct PCIQXLDevice {
+     /* io bar */
+     uint32_t           io_base;
+
++    /* spice 0.4 loadvm compatibility */
++    void               *worker_data;
++    uint32_t           worker_data_size;
+ } PCIQXLDevice;
+
+ #define PANIC_ON(x) if ((x)) {                         \
+-- 
+1.7.2.3
+

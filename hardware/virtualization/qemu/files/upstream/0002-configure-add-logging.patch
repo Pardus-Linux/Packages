@@ -1,0 +1,39 @@
+From 89df4f8cf7ecde07e3dc5e2ea3c19cbcd02165d0 Mon Sep 17 00:00:00 2001
+From: Gerd Hoffmann <kraxel@redhat.com>
+Date: Fri, 23 Apr 2010 13:44:10 +0200
+Subject: [PATCH 02/39] configure: add logging
+
+Write compile commands and messages to config.log.
+Useful for debugging configure.
+---
+ configure |    7 +++++--
+ 1 files changed, 5 insertions(+), 2 deletions(-)
+
+diff --git a/configure b/configure
+index b85590f..e09c442 100755
+--- a/configure
++++ b/configure
+@@ -16,15 +16,18 @@ TMPO="${TMPDIR1}/qemu-conf-${RANDOM}-$$-${RANDOM}.o"
+ TMPE="${TMPDIR1}/qemu-conf-${RANDOM}-$$-${RANDOM}.exe"
+
+ trap "rm -f $TMPC $TMPO $TMPE ; exit" EXIT INT QUIT TERM
++rm -f config.log
+
+ compile_object() {
+-  $cc $QEMU_CFLAGS -c -o $TMPO $TMPC > /dev/null 2> /dev/null
++  echo $cc $QEMU_CFLAGS -c -o $TMPO $TMPC >> config.log
++  $cc $QEMU_CFLAGS -c -o $TMPO $TMPC >> config.log 2>&1
+ }
+
+ compile_prog() {
+   local_cflags="$1"
+   local_ldflags="$2"
+-  $cc $QEMU_CFLAGS $local_cflags -o $TMPE $TMPC $LDFLAGS $local_ldflags > /dev/null 2> /dev/null
++  echo $cc $QEMU_CFLAGS $local_cflags -o $TMPE $TMPC $LDFLAGS $local_ldflags >> config.log
++  $cc $QEMU_CFLAGS $local_cflags -o $TMPE $TMPC $LDFLAGS $local_ldflags >> config.log 2>&1
+ }
+
+ # check whether a command is available to this shell (may be either an
+-- 
+1.7.2.3
+

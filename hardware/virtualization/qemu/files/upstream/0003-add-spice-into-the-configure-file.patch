@@ -1,0 +1,94 @@
+From 0034da7fb15d1225e0fd725009743d48511a90b7 Mon Sep 17 00:00:00 2001
+From: Gerd Hoffmann <kraxel@redhat.com>
+Date: Wed, 24 Mar 2010 10:26:51 +0100
+Subject: [PATCH 03/39] add spice into the configure file
+
+---
+ configure |   36 ++++++++++++++++++++++++++++++++++++
+ 1 files changed, 36 insertions(+), 0 deletions(-)
+
+diff --git a/configure b/configure
+index e09c442..2aaa6d7 100755
+--- a/configure
++++ b/configure
+@@ -331,6 +331,7 @@ cpu_emulation="yes"
+ check_utests="no"
+ user_pie="no"
+ zero_malloc=""
++spice=""
+
+ # OS specific
+ if check_define __linux__ ; then
+@@ -647,6 +648,10 @@ for opt do
+   ;;
+   --enable-kvm-device-assignment) kvm_cap_device_assignment="yes"
+   ;;
++  --disable-spice) spice="no"
++  ;;
++  --enable-spice) spice="yes"
++  ;;
+   --enable-profiler) profiler="yes"
+   ;;
+   --enable-cocoa)
+@@ -933,6 +938,8 @@ echo "  --enable-docs            enable documentation build"
+ echo "  --disable-docs           disable documentation build"
+ echo "  --disable-vhost-net      disable vhost-net acceleration support"
+ echo "  --enable-vhost-net       enable vhost-net acceleration support"
++echo "  --disable-spice          disable spice"
++echo "  --enable-spice           enable spice"
+ echo ""
+ echo "NOTE: The object files are built at the place where configure is launched"
+ exit 1
+@@ -2184,6 +2191,30 @@ if compile_prog "" ""; then
+     gcc_attribute_warn_unused_result=yes
+ fi
+
++# spice probe
++if test "$spice" != "no" ; then
++  cat > $TMPC << EOF
++#include <spice.h>
++int main(void) { spice_server_new(); return 0; }
++EOF
++  spice_proto_ver=$($pkgconfig --modversion spice-protocol 2>/dev/null)
++  spice_server_ver=$($pkgconfig --modversion spice-server 2>/dev/null)
++  spice_cflags=$($pkgconfig --cflags spice-protocol spice-server 2>/dev/null)
++  spice_libs=$($pkgconfig --libs spice-protocol spice-server 2>/dev/null)
++  if compile_prog "$spice_cflags" "$spice_libs" ; then
++    spice="yes"
++    libs_softmmu="$libs_softmmu $spice_libs"
++    QEMU_CFLAGS="$QEMU_CFLAGS $spice_cflags"
++  else
++    if test "$spice" = "yes" ; then
++      feature_not_found "spice"
++    fi
++    spice="no"
++  fi
++fi
++
++##########################################
++
+ ##########################################
+ # check if we have fdatasync
+
+@@ -2329,6 +2360,7 @@ echo "preadv support    $preadv"
+ echo "fdatasync         $fdatasync"
+ echo "uuid support      $uuid"
+ echo "vhost-net support $vhost_net"
++echo "spice support     $spice"
+
+ if test $sdl_too_old = "yes"; then
+ echo "-> Your SDL version is too old - please upgrade to have SDL support"
+@@ -2574,6 +2606,10 @@ else
+   echo "CONFIG_NO_CPU_EMULATION=y" >> $config_host_mak
+ fi
+
++if test "$spice" = "yes" ; then
++  echo "CONFIG_SPICE=y" >> $config_host_mak
++fi
++
+ # XXX: suppress that
+ if [ "$bsd" = "yes" ] ; then
+   echo "CONFIG_BSD=y" >> $config_host_mak
+-- 
+1.7.2.3
+

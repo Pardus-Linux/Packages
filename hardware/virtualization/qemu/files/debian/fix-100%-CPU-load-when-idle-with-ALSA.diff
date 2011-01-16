@@ -1,0 +1,27 @@
+commit 22d948a2d97434192018bdabaf0a50cda7f994be
+Author: Jindrich Makovicka <makovick@gmail.com>
+Date:   Sun Oct 17 19:28:14 2010 +0200
+
+    fix 100% CPU load when idle with ALSA
+    
+    Playback control function did not disable polling when playback stops.
+    Caused busy spinning of the main loop due to unprocessed events.
+    
+    Signed-off-by: Jindrich Makovicka <makovick@gmail.com>
+    Signed-off-by: malc <av1474@comtv.ru>
+
+diff --git a/audio/alsaaudio.c b/audio/alsaaudio.c
+index f0171f9..3ca4078 100644
+--- a/audio/alsaaudio.c
++++ b/audio/alsaaudio.c
+@@ -889,6 +889,10 @@ static int alsa_ctl_out (HWVoiceOut *hw, int cmd, ...)
+ 
+     case VOICE_DISABLE:
+         ldebug ("disabling voice\n");
++        if (hw->poll_mode) {
++            hw->poll_mode = 0;
++            alsa_fini_poll (&alsa->pollhlp);
++        }
+         return alsa_voice_ctl (alsa->handle, "playback", 1);
+     }
+ 

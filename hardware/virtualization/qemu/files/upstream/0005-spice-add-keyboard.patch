@@ -1,0 +1,118 @@
+From 90f6ec84332857752c252b1c3b89d86eb9714b0e Mon Sep 17 00:00:00 2001
+From: Gerd Hoffmann <kraxel@redhat.com>
+Date: Thu, 11 Mar 2010 11:13:28 -0300
+Subject: [PATCH 05/39] spice: add keyboard
+
+Open keyboard channel.  Now you can type into the spice client and the
+keyboard events are sent to your guest.  You'll need some other display
+like vnc to actually see the guest responding to them though.
+---
+ Makefile.objs |    2 +-
+ qemu-spice.h  |    1 +
+ spice-input.c |   57 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ spice.c       |    2 ++
+ 4 files changed, 61 insertions(+), 1 deletions(-)
+ create mode 100644 spice-input.c
+
+diff --git a/Makefile.objs b/Makefile.objs
+index 569b458..023a0dc 100644
+--- a/Makefile.objs
++++ b/Makefile.objs
+@@ -89,7 +89,7 @@ common-obj-y += pflib.o
+ common-obj-$(CONFIG_BRLAPI) += baum.o
+ common-obj-$(CONFIG_POSIX) += migration-exec.o migration-unix.o migration-fd.o
+
+-common-obj-$(CONFIG_SPICE) += spice.o
++common-obj-$(CONFIG_SPICE) += spice.o spice-input.o
+
+ audio-obj-y = audio.o noaudio.o wavaudio.o mixeng.o
+ audio-obj-$(CONFIG_SDL) += sdlaudio.o
+diff --git a/qemu-spice.h b/qemu-spice.h
+index 5597576..ceb3db2 100644
+--- a/qemu-spice.h
++++ b/qemu-spice.h
+@@ -12,6 +12,7 @@ extern SpiceServer *spice_server;
+ extern int using_spice;
+
+ void qemu_spice_init(void);
++void qemu_spice_input_init(void);
+
+ #else  /* CONFIG_SPICE */
+
+diff --git a/spice-input.c b/spice-input.c
+new file mode 100644
+index 0000000..e1014d7
+--- /dev/null
++++ b/spice-input.c
+@@ -0,0 +1,57 @@
++#include <stdlib.h>
++#include <stdio.h>
++#include <string.h>
++
++#include <spice.h>
++
++#include "qemu-common.h"
++#include "qemu-spice.h"
++#include "console.h"
++
++/* keyboard bits */
++
++typedef struct QemuSpiceKbd {
++    SpiceKbdInstance sin;
++    int ledstate;
++} QemuSpiceKbd;
++
++static void kbd_push_key(SpiceKbdInstance *sin, uint8_t frag);
++static uint8_t kbd_get_leds(SpiceKbdInstance *sin);
++static void kbd_leds(void *opaque, int l);
++
++static const SpiceKbdInterface kbd_interface = {
++    .base.type          = SPICE_INTERFACE_KEYBOARD,
++    .base.description   = "qemu keyboard",
++    .base.major_version = SPICE_INTERFACE_KEYBOARD_MAJOR,
++    .base.minor_version = SPICE_INTERFACE_KEYBOARD_MINOR,
++    .push_scan_freg     = kbd_push_key,
++    .get_leds           = kbd_get_leds,
++};
++
++static void kbd_push_key(SpiceKbdInstance *sin, uint8_t frag)
++{
++    kbd_put_keycode(frag);
++}
++
++static uint8_t kbd_get_leds(SpiceKbdInstance *sin)
++{
++    QemuSpiceKbd *kbd = container_of(sin, QemuSpiceKbd, sin);
++    return kbd->ledstate;
++}
++
++static void kbd_leds(void *opaque, int ledstate)
++{
++    QemuSpiceKbd *kbd = opaque;
++    kbd->ledstate = ledstate;
++    spice_server_kbd_leds(&kbd->sin, ledstate);
++}
++
++void qemu_spice_input_init(void)
++{
++    QemuSpiceKbd *kbd;
++
++    kbd = qemu_mallocz(sizeof(*kbd));
++    kbd->sin.base.sif = &kbd_interface.base;
++    spice_server_add_interface(spice_server, &kbd->sin.base);
++    qemu_add_led_event_handler(kbd_leds, kbd);
++}
+diff --git a/spice.c b/spice.c
+index 50fa5ca..c763d52 100644
+--- a/spice.c
++++ b/spice.c
+@@ -148,4 +148,6 @@ void qemu_spice_init(void)
+
+     spice_server_init(spice_server, &core_interface);
+     using_spice = 1;
++
++    qemu_spice_input_init();
+ }
+-- 
+1.7.2.3
+

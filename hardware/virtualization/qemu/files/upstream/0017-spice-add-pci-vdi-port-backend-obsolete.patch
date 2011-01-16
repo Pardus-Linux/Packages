@@ -1,0 +1,592 @@
+From ee782dec6adaced9c5bb99d02253505fb635fa12 Mon Sep 17 00:00:00 2001
+From: Gerd Hoffmann <kraxel@redhat.com>
+Date: Fri, 12 Mar 2010 16:26:18 +0100
+Subject: [PATCH 17/39] spice: add pci vdi port backend (obsolete).
+
+This is *not* intended to be merged upstream.  It is just here
+because the virtio-serial windows guest drivers are not ready,
+so you can't go with the new spice-vmc yet.
+---
+ Makefile.target |    2 +-
+ hw/spice-vdi.c  |  556 +++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 557 insertions(+), 1 deletions(-)
+ create mode 100644 hw/spice-vdi.c
+
+diff --git a/Makefile.target b/Makefile.target
+index 90544c5..025bdb8 100644
+--- a/Makefile.target
++++ b/Makefile.target
+@@ -217,7 +217,7 @@ obj-i386-y += pc_piix.o
+ obj-i386-y += testdev.o
+ obj-i386-y += acpi.o acpi_piix4.o
+ obj-i386-$(CONFIG_SPICE) += qxl.o qxl-logger.o qxl-render.o
+-obj-i386-$(CONFIG_SPICE) += spice-vmc.o
++obj-i386-$(CONFIG_SPICE) += spice-vmc.o spice-vdi.o
+
+ obj-i386-y += pcspk.o i8254.o
+ obj-i386-$(CONFIG_KVM_PIT) += i8254-kvm.o
+diff --git a/hw/spice-vdi.c b/hw/spice-vdi.c
+new file mode 100644
+index 0000000..23cbbe1
+--- /dev/null
++++ b/hw/spice-vdi.c
+@@ -0,0 +1,556 @@
++#include <pthread.h>
++#include <signal.h>
++
++#include "qemu-common.h"
++#include "qemu-spice.h"
++#include "hw/hw.h"
++#include "hw/pc.h"
++#include "hw/pci.h"
++#include "console.h"
++#include "hw/vga_int.h"
++#include "qemu-timer.h"
++#include "sysemu.h"
++#include "console.h"
++#include "pci.h"
++#include "hw.h"
++#include "cpu-common.h"
++
++#include <spice.h>
++#include <spice-experimental.h>
++#include <spice/ipc_ring.h>
++#include <spice/barrier.h>
++
++#undef SPICE_RING_PROD_ITEM
++#define SPICE_RING_PROD_ITEM(r, ret) {                                  \
++        typeof(r) start = r;                                            \
++        typeof(r) end = r + 1;                                          \
++        uint32_t prod = (r)->prod & SPICE_RING_INDEX_MASK(r);           \
++        typeof(&(r)->items[prod]) m_item = &(r)->items[prod];           \
++        if (!((uint8_t*)m_item >= (uint8_t*)(start) && (uint8_t*)(m_item + 1) <= (uint8_t*)(end))) { \
++            abort();                                                    \
++        }                                                               \
++        ret = &m_item->el;                                              \
++    }
++
++#undef SPICE_RING_CONS_ITEM
++#define SPICE_RING_CONS_ITEM(r, ret) {                                  \
++        typeof(r) start = r;                                            \
++        typeof(r) end = r + 1;                                          \
++        uint32_t cons = (r)->cons & SPICE_RING_INDEX_MASK(r);           \
++        typeof(&(r)->items[cons]) m_item = &(r)->items[cons];           \
++        if (!((uint8_t*)m_item >= (uint8_t*)(start) && (uint8_t*)(m_item + 1) <= (uint8_t*)(end))) { \
++            abort();                                                    \
++        }                                                               \
++        ret = &m_item->el;                                              \
++    }
++
++
++#undef ALIGN
++#define ALIGN(a, b) (((a) + ((b) - 1)) & ~((b) - 1))
++
++#define REDHAT_PCI_VENDOR_ID 0x1b36
++#define VDI_PORT_DEVICE_ID 0x0105
++#define VDI_PORT_REVISION 0x01
++
++#define VDI_PORT_INTERRUPT (1 << 0)
++
++#define VDI_PORT_MAGIC (*(uint32_t*)"VDIP")
++
++#define VDI_PORT_DEV_NAME "vdi_port"
++#define VDI_PORT_SAVE_VERSION 20
++
++#include <spice/start-packed.h>
++
++typedef struct SPICE_ATTR_PACKED VDIPortPacket {
++    uint32_t gen;
++    uint32_t size;
++    uint8_t data[512 - 2 * sizeof(uint32_t)];
++} VDIPortPacket;
++
++SPICE_RING_DECLARE(VDIPortRing, VDIPortPacket, 32);
++
++enum {
++    VDI_PORT_IO_RANGE_INDEX,
++    VDI_PORT_RAM_RANGE_INDEX,
++};
++
++enum {
++    VDI_PORT_IO_CONNECTION,
++    VDI_PORT_IO_NOTIFY = 4,
++    VDI_PORT_IO_UPDATE_IRQ = 8,
++
++    VDI_PORT_IO_RANGE_SIZE = 12
++};
++
++typedef struct SPICE_ATTR_PACKED VDIPortRam {
++    uint32_t magic;
++    uint32_t generation;
++    uint32_t int_pending;
++    uint32_t int_mask;
++    VDIPortRing input;
++    VDIPortRing output;
++    uint32_t reserv[32];
++} VDIPortRam;
++
++#include <spice/end-packed.h>
++
++typedef struct PCIVDIPortDevice {
++    PCIDevice pci_dev;
++    uint32_t io_base;
++    uint64_t ram_offset;
++    uint32_t ram_size;
++    VDIPortRam *ram;
++    uint32_t connected;
++    int running;
++    int new_gen_on_resume;
++    int active_interface;
++    SpiceVDIPortInstance sin;
++    int plug_read_pos;
++} PCIVDIPortDevice;
++
++static int debug = 1;
++
++static inline uint32_t msb_mask(uint32_t val)
++{
++    uint32_t mask;
++
++    do {
++        mask = ~(val - 1) & val;
++        val &= ~mask;
++    } while (mask < val);
++
++    return mask;
++}
++
++static inline void atomic_or(uint32_t *var, uint32_t add)
++{
++   __asm__ __volatile__ ("lock; orl %1, %0" : "+m" (*var) : "r" (add) : "memory");
++}
++
++static inline uint32_t atomic_exchange(uint32_t val, uint32_t *ptr)
++{
++   __asm__ __volatile__("xchgl %0, %1" : "+q"(val), "+m" (*ptr) : : "memory");
++   return val;
++}
++
++static void set_dirty(void *base, ram_addr_t offset, void *start, uint32_t length)
++{
++    assert(start >= base);
++
++    ram_addr_t addr =  (ram_addr_t)((uint8_t*)start - (uint8_t*)base) + offset;
++    ram_addr_t end =  ALIGN(addr + length, TARGET_PAGE_SIZE);
++
++    do {
++        cpu_physical_memory_set_dirty(addr);
++        addr += TARGET_PAGE_SIZE;
++    } while ( addr < end );
++}
++
++static inline void vdi_port_set_dirty(PCIVDIPortDevice *d, void *start, uint32_t length)
++{
++    set_dirty(d->ram, d->ram_offset, start, length);
++}
++
++static void vdi_port_new_gen(PCIVDIPortDevice *d)
++{
++    d->ram->generation = (d->ram->generation + 1 == 0) ? 1 : d->ram->generation + 1;
++    vdi_port_set_dirty(d, &d->ram->generation, sizeof(d->ram->generation));
++}
++
++static int vdi_port_irq_level(PCIVDIPortDevice *d)
++{
++    return !!(d->ram->int_pending & d->ram->int_mask);
++}
++
++static void vdi_port_notify_guest(PCIVDIPortDevice *d)
++{
++    uint32_t events = VDI_PORT_INTERRUPT;
++    uint32_t old_pending;
++
++    if (!d->connected) {
++        return;
++    }
++    old_pending = __sync_fetch_and_or(&d->ram->int_pending, events);
++    if ((old_pending & events) == events) {
++        return;
++    }
++    qemu_set_irq(d->pci_dev.irq[0], vdi_port_irq_level(d));
++    vdi_port_set_dirty(d, &d->ram->int_pending, sizeof(d->ram->int_pending));
++}
++
++static int vdi_port_interface_write(SpiceVDIPortInstance *sin,
++                                    const uint8_t *buf, int len)
++{
++    PCIVDIPortDevice *d = container_of(sin, PCIVDIPortDevice, sin);
++    VDIPortRing *ring = &d->ram->output;
++    int do_notify = false;
++    int actual_write = 0;
++    int l = len;
++
++    if (!d->running) {
++        return 0;
++    }
++
++    while (len) {
++        VDIPortPacket *packet;
++        int notify;
++        int wait;
++
++        SPICE_RING_PROD_WAIT(ring, wait);
++        if (wait) {
++            break;
++        }
++
++        SPICE_RING_PROD_ITEM(ring, packet);
++        packet->gen = d->ram->generation;
++        packet->size = MIN(len, sizeof(packet->data));
++        memcpy(packet->data, buf, packet->size);
++        vdi_port_set_dirty(d, packet, sizeof(*packet) - (sizeof(packet->data) - packet->size));
++
++        SPICE_RING_PUSH(ring, notify);
++        do_notify = do_notify || notify;
++        len -= packet->size;
++        buf += packet->size;
++        actual_write += packet->size;
++    }
++    vdi_port_set_dirty(d, ring, sizeof(*ring) - sizeof(ring->items));
++
++    if (do_notify) {
++        vdi_port_notify_guest(d);
++    }
++    if (debug > 1) {
++        fprintf(stderr, "%s: %d/%d\n", __FUNCTION__, actual_write, l);
++    }
++    return actual_write;
++}
++
++static int vdi_port_interface_read(SpiceVDIPortInstance *sin,
++                                   uint8_t *buf, int len)
++{
++    PCIVDIPortDevice *d = container_of(sin, PCIVDIPortDevice, sin);
++    VDIPortRing *ring = &d->ram->input;
++    uint32_t gen = d->ram->generation;
++    VDIPortPacket *packet;
++    int do_notify = false;
++    int actual_read = 0;
++    int l = len;
++
++    if (!d->running) {
++        return 0;
++    }
++
++    while (!SPICE_RING_IS_EMPTY(ring)) {
++        int notify;
++
++        SPICE_RING_CONS_ITEM(ring, packet);
++        if (packet->gen == gen) {
++            break;
++        }
++        SPICE_RING_POP(ring, notify);
++        do_notify = do_notify || notify;
++    }
++    while (len) {
++        VDIPortPacket *packet;
++        int wait;
++        int now;
++
++        SPICE_RING_CONS_WAIT(ring, wait);
++
++        if (wait) {
++            break;
++        }
++
++        SPICE_RING_CONS_ITEM(ring, packet);
++        if (packet->size > sizeof(packet->data)) {
++            vdi_port_set_dirty(d, ring, sizeof(*ring) - sizeof(ring->items));
++            printf("%s: bad packet size\n", __FUNCTION__);
++            return 0;
++        }
++        now = MIN(len, packet->size - d->plug_read_pos);
++        memcpy(buf, packet->data + d->plug_read_pos, now);
++        len -= now;
++        buf += now;
++        actual_read +=  now;
++        if ((d->plug_read_pos += now) == packet->size) {
++            int notify;
++
++            d->plug_read_pos = 0;
++            SPICE_RING_POP(ring, notify);
++            do_notify = do_notify || notify;
++        }
++    }
++    vdi_port_set_dirty(d, ring, sizeof(*ring) - sizeof(ring->items));
++
++    if (do_notify) {
++        vdi_port_notify_guest(d);
++    }
++    if (debug > 1) {
++        fprintf(stderr, "%s: %d/%d\n", __FUNCTION__, actual_read, l);
++    }
++    return actual_read;
++}
++
++static SpiceVDIPortInterface vdi_port_interface = {
++    .base.type          = SPICE_INTERFACE_VDI_PORT,
++    .base.description   = "vdi port",
++    .base.major_version = SPICE_INTERFACE_VDI_PORT_MAJOR,
++    .base.minor_version = SPICE_INTERFACE_VDI_PORT_MINOR,
++
++    .write              = vdi_port_interface_write,
++    .read               = vdi_port_interface_read,
++};
++
++static void vdi_port_register_interface(PCIVDIPortDevice *d)
++{
++    if (d->active_interface ) {
++        return;
++    }
++
++    if (debug) {
++        fprintf(stderr, "%s\n", __FUNCTION__);
++    }
++    d->sin.base.sif = &vdi_port_interface.base;
++    spice_server_add_interface(spice_server, &d->sin.base);
++    d->active_interface = true;
++}
++
++static void vdi_port_unregister_interface(PCIVDIPortDevice *d)
++{
++    if (!d->active_interface ) {
++        return;
++    }
++    if (debug) {
++        fprintf(stderr, "%s\n", __FUNCTION__);
++    }
++    spice_server_remove_interface(&d->sin.base);
++    d->active_interface = false;
++}
++
++static uint32_t vdi_port_dev_connect(PCIVDIPortDevice *d)
++{
++    if (d->connected) {
++        if (debug) {
++            fprintf(stderr, "%s: already connected\n", __FUNCTION__);
++        }
++        return 0;
++    }
++    vdi_port_new_gen(d);
++    d->connected = true;
++    vdi_port_register_interface(d);
++    return d->ram->generation;
++}
++
++static void vdi_port_dev_disconnect(PCIVDIPortDevice *d)
++{
++    if (!d->connected) {
++        if (debug) {
++            fprintf(stderr, "%s: not connected\n", __FUNCTION__);
++        }
++        return;
++    }
++    d->connected = false;
++    vdi_port_unregister_interface(d);
++}
++
++static void vdi_port_dev_notify(PCIVDIPortDevice *d)
++{
++    spice_server_vdi_port_wakeup(&d->sin);
++}
++
++static void vdi_port_write_dword(void *opaque, uint32_t addr, uint32_t val)
++{
++    PCIVDIPortDevice *d = opaque;
++    uint32_t io_port = addr - d->io_base;
++
++    if (debug > 1) {
++        fprintf(stderr, "%s: addr 0x%x val 0x%x\n", __FUNCTION__, addr, val);
++    }
++    switch (io_port) {
++    case VDI_PORT_IO_NOTIFY:
++        if (!d->connected) {
++            fprintf(stderr, "%s: not connected\n", __FUNCTION__);
++            return;
++        }
++        vdi_port_dev_notify(d);
++        break;
++    case VDI_PORT_IO_UPDATE_IRQ:
++        qemu_set_irq(d->pci_dev.irq[0], vdi_port_irq_level(d));
++        break;
++    case VDI_PORT_IO_CONNECTION:
++        vdi_port_dev_disconnect(d);
++        break;
++    default:
++        if (debug) {
++            fprintf(stderr, "%s: unexpected addr 0x%x val 0x%x\n",
++                    __FUNCTION__, addr, val);
++        }
++    };
++}
++
++static uint32_t vdi_port_read_dword(void *opaque, uint32_t addr)
++{
++    PCIVDIPortDevice *d = opaque;
++    uint32_t io_port = addr - d->io_base;
++
++    if (debug > 1) {
++        fprintf(stderr, "%s: addr 0x%x\n", __FUNCTION__, addr);
++    }
++    if (io_port == VDI_PORT_IO_CONNECTION) {
++        return vdi_port_dev_connect(d);
++    } else {
++        fprintf(stderr, "%s: unexpected addr 0x%x\n", __FUNCTION__, addr);
++    }
++    return 0xffffffff;
++}
++
++static void vdi_port_io_map(PCIDevice *pci_dev, int region_num,
++                            pcibus_t addr, pcibus_t size, int type)
++{
++    PCIVDIPortDevice *d = DO_UPCAST(PCIVDIPortDevice, pci_dev, pci_dev);
++
++    if (debug) {
++        fprintf(stderr, "%s: base 0x%lx size 0x%lx\n", __FUNCTION__, addr, size);
++    }
++    d->io_base = addr;
++    register_ioport_write(addr, size, 4, vdi_port_write_dword, pci_dev);
++    register_ioport_read(addr, size, 4, vdi_port_read_dword, pci_dev);
++}
++
++static void vdi_port_ram_map(PCIDevice *pci_dev, int region_num,
++                             pcibus_t addr, pcibus_t size, int type)
++{
++    PCIVDIPortDevice *d = DO_UPCAST(PCIVDIPortDevice, pci_dev, pci_dev);
++
++    if (debug) {
++        fprintf(stderr, "%s: addr 0x%lx size 0x%lx\n", __FUNCTION__, addr, size);
++    }
++
++    assert((addr & (size - 1)) == 0);
++    assert(size ==  d->ram_size);
++
++    cpu_register_physical_memory(addr, size, d->ram_offset | IO_MEM_RAM);
++}
++
++static void vdi_port_reset(PCIVDIPortDevice *d)
++{
++    memset(d->ram, 0, sizeof(*d->ram));
++    SPICE_RING_INIT(&d->ram->input);
++    SPICE_RING_INIT(&d->ram->output);
++    d->ram->magic = VDI_PORT_MAGIC;
++    d->ram->generation = 0;
++    d->ram->int_pending = 0;
++    d->ram->int_mask = 0;
++    d->connected = false;
++    d->plug_read_pos = 0;
++    vdi_port_set_dirty(d, d->ram, sizeof(*d->ram));
++}
++
++static void vdi_port_reset_handler(DeviceState *dev)
++{
++    PCIVDIPortDevice *d = DO_UPCAST(PCIVDIPortDevice, pci_dev.qdev, dev);
++
++    if (d->connected) {
++        vdi_port_dev_disconnect(d);
++    }
++
++    vdi_port_reset(d);
++    qemu_set_irq(d->pci_dev.irq[0], vdi_port_irq_level(d));
++}
++
++static int vdi_port_pre_load(void* opaque)
++{
++    PCIVDIPortDevice* d = opaque;
++
++    vdi_port_unregister_interface(d);
++    return 0;
++}
++
++static int vdi_port_post_load(void* opaque,int version_id)
++{
++    PCIVDIPortDevice* d = opaque;
++
++    if (d->connected) {
++        vdi_port_register_interface(d);
++    }
++    return 0;
++}
++
++static void vdi_port_vm_change_state_handler(void *opaque, int running, int reason)
++{
++    PCIVDIPortDevice* d = opaque;
++
++    if (running) {
++        d->running = true;
++        if (d->new_gen_on_resume) {
++            d->new_gen_on_resume = false;
++            vdi_port_new_gen(d);
++            vdi_port_notify_guest(d);
++        }
++        qemu_set_irq(d->pci_dev.irq[0], vdi_port_irq_level(d));
++        vdi_port_dev_notify(d);
++    } else {
++        d->running = false;
++    }
++}
++
++static int vdi_port_init(PCIDevice *dev)
++{
++    PCIVDIPortDevice *vdi = (PCIVDIPortDevice *)dev;
++    uint8_t* config = vdi->pci_dev.config;
++    uint32_t ram_size = msb_mask(sizeof(VDIPortRam) * 2 - 1);
++
++    vdi->ram_offset = qemu_ram_alloc(&vdi->pci_dev.qdev, "bar1", ram_size);
++    vdi->ram = qemu_get_ram_ptr(vdi->ram_offset);
++    vdi_port_reset(vdi);
++    vdi->ram_size = ram_size;
++    vdi->new_gen_on_resume = false;
++    vdi->running = false;
++
++    pci_config_set_vendor_id(config, REDHAT_PCI_VENDOR_ID);
++    pci_config_set_device_id(config, VDI_PORT_DEVICE_ID);
++    pci_config_set_class(config, PCI_CLASS_COMMUNICATION_OTHER);
++    pci_set_byte(&config[PCI_REVISION_ID], VDI_PORT_REVISION);
++    pci_set_byte(&config[PCI_INTERRUPT_PIN], 1);
++
++    pci_register_bar(dev, VDI_PORT_IO_RANGE_INDEX,
++                     msb_mask(VDI_PORT_IO_RANGE_SIZE * 2 - 1),
++                     PCI_BASE_ADDRESS_SPACE_IO, vdi_port_io_map);
++
++    pci_register_bar(dev, VDI_PORT_RAM_RANGE_INDEX,
++                     vdi->ram_size , PCI_BASE_ADDRESS_SPACE_MEMORY,
++                     vdi_port_ram_map);
++
++    qemu_add_vm_change_state_handler(vdi_port_vm_change_state_handler, vdi);
++
++    return 0;
++}
++
++static VMStateDescription vdi_port_vmstate = {
++    .name = VDI_PORT_DEV_NAME,
++    .version_id = VDI_PORT_SAVE_VERSION,
++    .minimum_version_id = VDI_PORT_SAVE_VERSION,
++    .pre_load = vdi_port_pre_load,
++    .post_load = vdi_port_post_load,
++    .fields = (VMStateField []) {
++        VMSTATE_PCI_DEVICE(pci_dev, PCIVDIPortDevice),
++        VMSTATE_UINT32(connected, PCIVDIPortDevice),
++        VMSTATE_END_OF_LIST()
++    }
++};
++
++static PCIDeviceInfo vdi_port_info = {
++    .qdev.name = VDI_PORT_DEV_NAME,
++    .qdev.desc = "spice virtual desktop port (obsolete)",
++    .qdev.size = sizeof(PCIVDIPortDevice),
++    .qdev.vmsd = &vdi_port_vmstate,
++    .qdev.reset = vdi_port_reset_handler,
++
++    .init = vdi_port_init,
++};
++
++static void vdi_port_register(void)
++{
++    pci_qdev_register(&vdi_port_info);
++}
++
++device_init(vdi_port_register);
+-- 
+1.7.2.3
+
