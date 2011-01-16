@@ -13,7 +13,7 @@ from pisi.actionsapi import get
 WorkDir="qemu-kvm-%s" % get.srcVERSION()
 NoStrip = ["/usr/share/qemu"]
 
-shelltools.export("LC_ALL", "en_US.UTF-8")
+shelltools.export("LC_ALL", "C")
 
 # disable debug to prevent memory exhaustion by linker
 # cflags = get.CFLAGS().replace("-fpie", "").replace("-fstack-protector", "").replace("-ggdb3 -funwind-tables -fasynchronous-unwind-tables", "")
