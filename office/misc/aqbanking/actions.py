@@ -16,7 +16,6 @@ def setup():
 
 def build():
     autotools.make("-j1")
-    autotools.make("-j1 qt4-port")
 
 def install():
     autotools.rawInstall("DESTDIR=%s" % get.installDIR())
