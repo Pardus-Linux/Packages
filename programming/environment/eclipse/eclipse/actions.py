@@ -13,3 +13,6 @@ WorkDir = get.ARCH()
 def install():
     pisitools.dodir("/opt")
     pisitools.insinto("/opt", "eclipse")
+
+    # Make eclipse icon visible on start menu
+    pisitools.insinto("/usr/share/pixmaps", "%s/opt/eclipse/plugins/org.eclipse.platform_3.6.1.v201009090800/eclipse48.png" % get.installDIR(), "eclipse.png")
