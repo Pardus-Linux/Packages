@@ -26,14 +26,8 @@ def install():
     # Install video quirks
     shelltools.copytree("../video-quirks", "%s/usr/lib/pm-utils" % get.installDIR())
 
-    # Replace with our grub hook
-    pisitools.remove("/usr/lib/pm-utils/sleep.d/01grub")
-
     # Create some initial directories
     for d in ("locks", "storage"):
         pisitools.dodir("/var/run/pm-utils/%s" % d)
-
-    # These break more than they helps, so drop them for now
-    pisitools.removeDir("/usr/lib/pm-utils/power.d")
 
     pisitools.dodoc("COPYING", "ChangeLog", "AUTHORS")
