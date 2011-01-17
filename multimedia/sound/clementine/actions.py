@@ -34,10 +34,10 @@ def setup():
                           -DBUNDLE_PROJECTM_PRESETS=OFF", sourceDir=".")
 
 def build():
-    cmaketools.make("-j1")
+    cmaketools.make()
 
 def install():
-    cmaketools.rawInstall("-j1 DESTDIR=%s" % get.installDIR())
+    cmaketools.rawInstall("DESTDIR=%s" % get.installDIR())
 
     for i in ("16","32","64"):
         pisitools.insinto("/usr/share/icons/hicolor/%sx%s/apps" % (i,i), "dist/clementine_%s.png" % i, "clementine.png")

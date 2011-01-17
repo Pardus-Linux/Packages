@@ -1,0 +1,17 @@
+Index: clementine-0.6/src/core/player.cpp
+===================================================================
+--- clementine-0.6.orig/src/core/player.cpp
++++ clementine-0.6/src/core/player.cpp
+@@ -352,11 +352,7 @@ void Player::EngineMetadataReceived(cons
+   if (dash_pos != -1 && bundle_copy.artist.isEmpty()) {
+     bundle_copy.artist = bundle_copy.title.mid(dash_pos + 1).trimmed();
+     bundle_copy.title = bundle_copy.title.left(dash_pos).trimmed();
+-  }
+-
+-  // Hack as SomaFM's and icecast's artist/title descriptions are backwards.
+-  if (item->Url().host().contains("somafm.com") ||
+-      item->Url().fragment() == "icecast") {
++    // Swap artist and title (#16283) (clementine#1137,1035)
+     qSwap(bundle_copy.artist, bundle_copy.title);
+   }
+ 
