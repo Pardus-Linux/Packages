@@ -20,6 +20,7 @@ RAID_INCREMENTAL=1
 RAID=0
 LVM=0
 COPYTORAM=0
+SPLASH=0
 
 HOTPLUG="/sbin/hotplug"
 
@@ -39,6 +40,10 @@ info() {
     echo "<6>initramfs: $1" > /dev/kmsg
 }
 
+log_output() {
+    $@ | echo "<6>`sed 's#^\(.*\)$#initramfs:\1#g'`" > /dev/kmsg
+}
+
 fall2sh() {
     # Kill any possible plymouth instances
     test -x /bin/plymouth && /bin/plymouth quit &> /dev/null
@@ -53,19 +58,6 @@ fall2sh() {
 
 run_dhcpc() {
     udhcpc -C -i eth0 -s /etc/udhcpc.script
-}
-
-resume_from_hibernate() {
-    if [ -f "/sys/power/resume" ]
-    then
-        if [ -f "/bin/resume" ]
-        then
-            info "Resuming from hibernation"
-            # char device needed by static resume binary
-            /bin/mknod /dev/snapshot c 10 231
-            /bin/resume
-        fi
-    fi
 }
 
 ##################
@@ -136,8 +128,8 @@ probe_lvm() {
     modprobe -qa dm-mod
     if [ -x /sbin/lvm ]
     then
-        /sbin/lvm vgscan --ignorelockingfailure
-        /sbin/lvm vgchange -ay --ignorelockingfailure
+        log_output /sbin/lvm vgscan --ignorelockingfailure
+        log_output /sbin/lvm vgchange -ay --ignorelockingfailure
     fi
 }
 probe_virtio_devices() {
@@ -332,6 +324,9 @@ parse_config() {
             copytoram)
                 COPYTORAM=1
             ;;
+            splash)
+                SPLASH=1
+            ;;
             init=*)
                 INIT="${inputline#INIT=}"
             ;;
@@ -391,6 +386,9 @@ parse_cmdline() {
             copytoram)
                 COPYTORAM=1
             ;;
+            splash)
+                SPLASH=1
+            ;;
             quiet)
                 QUIET=1
             ;;
@@ -418,6 +416,9 @@ info "Starting init on initramfs"
 # Mount needed filesystems
 mount -n -t proc proc /proc
 mount -n -t sysfs sysfs /sys
+
+# Minimize printk log
+test "x$QUIET" = "x1" && echo "1" > /proc/sys/kernel/printk
 
 # Prepare /dev (Needs kernel >= 2.6.32)
 mount -t devtmpfs devtmpfs /dev
@@ -447,25 +448,23 @@ then
     fall2sh "Starting up a shell"
 fi
 
-# Minimizing kernel noise
-if [ "$QUIET" -eq "1" ]
-then
-    echo "1" > /proc/sys/kernel/printk
-fi
-
 # Probe devices
 probe_devices --with-kms
 
 [ "${RAID}" -eq "1" ] && probe_raid
 [ "${LVM}" -eq "1" ] && probe_lvm
 
-if [ "${RESUME_DEVICE}" != "" ]
+if [ -x /bin/resume && "x$NORESUME" != "x1" ]
 then
-    # Write resume device to /sys/power/resume for SATA disks
-    /bin/stat -c%t:%T $RESUME_DEVICE > /sys/power/resume
-
-    # If we suspend2disk resume it from here
-    resume_from_hibernate
+    if [ "x$SPLASH" == "x$1" ]
+    then
+        SPLASHPARAM="-P splash=y"
+    else
+        SPLASHPARAM="-P splash=n"
+    fi
+    # FIXME: This will fail if resume= contains LABEL/UUID
+    # Resume
+    /bin/resume $SPLASHPARAM $RESUME_DEVICE
 fi
 
 echo 0x0100 > /proc/sys/kernel/real-root-dev

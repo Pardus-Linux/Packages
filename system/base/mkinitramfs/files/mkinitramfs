@@ -77,10 +77,6 @@ def touch(_file):
         f = open(_file, 'w')
         f.close()
 
-def uniq(alist):
-    _set = {}
-    return [_set.setdefault(e,e) for e in alist if e not in _set]
-
 def capture(*cmd):
     a = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     return a.communicate()
@@ -205,9 +201,8 @@ class BaseSystem:
             copy(lvmFile, self.getNewRoot(lvmFile.replace(".static", "")))
 
     def addSuspend(self):
-        if os.path.exists("/etc/suspend.conf"):
-            for i in self.suspendFileList:
-                copy(i, self.getNewRoot(self.baseFileList[i]))
+        for i in self.suspendFileList:
+            copy(i, self.getNewRoot(self.suspendFileList[i]))
 
     def addModprobeBlacklists(self):
         for i in self.modprobeBlacklistFileList:
@@ -267,7 +262,7 @@ class KernelModule:
 
 
     def tidyModuleList(self):
-        ml = uniq(self.modulesList)
+        ml = list(set(self.modulesList))
         ml.sort()
         self.modulesList = ml
 
@@ -322,7 +317,6 @@ class KernelModule:
                 copy(src, target)
 
             else:
-                # FIXME: we miss lots of firmware !
                 printWarn("Could not find firmware %s" % src)
                 pass
 
@@ -452,14 +446,24 @@ class Plymouth:
     def __init__(self):
         self.fileList = "/lib/initramfs/plymouth.list"
         self.targetDir = config["tmpDir"]
+        self.theme = "pardus"
+        self.themeDir = "/usr/share/plymouth/themes"
+
+    def install_current_theme(self):
+        self.theme = os.popen("plymouth-set-default-theme").read().strip()
+        if os.path.exists("%s/%s" % (self.themeDir, self.theme)):
+            for themeFile in glob.glob("%s/%s/*" % (self.themeDir, self.theme)):
+                copy(themeFile, os.path.join(self.targetDir, themeFile[1:]))
 
     def install(self):
-        """Will install plymouth related stuff."""
+        """Will install plymouth related base stuff."""
         if os.path.exists(self.fileList):
             with open(self.fileList, "r") as files:
                 for _file in files:
                     filename = _file.strip()
                     copy(filename.strip(), os.path.join(self.targetDir, filename[1:]))
+
+        self.install_current_theme()
 
 class Initramfs:
     def __init__(self):
