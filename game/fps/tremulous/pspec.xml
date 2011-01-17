@@ -1,0 +1,102 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>tremulous</Name>
+        <Homepage>http://www.tremulous.net/</Homepage>
+        <Packager>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Packager>
+        <License>OSML-1.0</License>
+        <Icon>tremulous</Icon>
+        <IsA>app:gui</IsA>
+        <Summary>Team FPS</Summary>
+        <Description>Tremulous is a team FPS with elements of strategy based on the advanced Quake3 engine.</Description>
+        <Archive sha1sum="4797376661cde541088b022dc0b31b10516ed711" type="targz">http://cekirdek.pardus.org.tr/~onur/distfiles/tremulous-1.1.0-src.tar.gz</Archive>
+        <BuildDependencies>
+            <Dependency>libsdl-devel</Dependency>
+            <Dependency>alsa-lib-devel</Dependency>
+            <Dependency>libogg-devel</Dependency>
+            <Dependency>libvorbis-devel</Dependency>
+            <Dependency>openal-devel</Dependency>
+            <Dependency>jpeg-devel</Dependency>
+        </BuildDependencies>
+        <Patches>
+            <!-- sed -i -e '16s/-Werror //' src/tools/asm/Makefile -->
+            <Patch level="1">werror.patch</Patch>
+            <Patch compressionType="bz2">tremulous-svn755-upto-971.patch.bz2</Patch>
+            <Patch>tremulous-t971-client.patch</Patch>
+            <Patch>tremulous-1.1.0-system_jpeg.patch</Patch>
+            <Patch>tremulous-1.1.0-system_jpeg-2.patch</Patch>
+            <!--
+            <Patch>tremulous-1.1.0-ldflags.patch</Patch>
+            -->
+            <Patch level="1">ldflags.patch</Patch>
+        </Patches>
+    </Source>
+
+    <Package>
+        <Name>tremulous</Name>
+        <RuntimeDependencies>
+            <Dependency>libsdl</Dependency>
+            <Dependency>alsa-lib</Dependency>
+            <Dependency>libogg</Dependency>
+            <Dependency>libvorbis</Dependency>
+            <Dependency>openal</Dependency>
+            <Dependency>jpeg</Dependency>
+            <Dependency versionFrom="1.1.0">tremulous-data</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="executable">/usr/bin</Path>
+            <Path fileType="data">/usr/share/applications</Path>
+            <Path fileType="data">/usr/share/pixmaps</Path>
+            <Path fileType="data">/usr/share/tremulous</Path>
+        </Files>
+        <AdditionalFiles>
+            <AdditionalFile owner="root" permission="0644" target="/usr/share/applications/tremulous.desktop">tremulous.desktop</AdditionalFile>
+            <AdditionalFile owner="root" permission="0644" target="/usr/share/applications/tremulous-smp.desktop">tremulous-smp.desktop</AdditionalFile>
+            <AdditionalFile owner="root" permission="0644" target="/usr/share/pixmaps/tremulous.xpm">tremulous.xpm</AdditionalFile>
+        </AdditionalFiles>
+    </Package>
+
+    <History>
+        <Update release="4">
+            <Date>2011-01-17</Date>
+            <Version>1.1.0</Version>
+            <Comment>
+                Adapt to 2011
+                Force and update system jpeg usage
+            </Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="3">
+            <Date>2009-07-24</Date>
+            <Version>1.1.0</Version>
+            <Comment>
+                Fix dependencies
+                Add some security enhancements
+                Use better icon
+                Enable SMP support
+                Bump to svn rev971
+            </Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="2">
+            <Date>2008-11-11</Date>
+            <Version>1.1.0</Version>
+            <Comment>Fix desktop files to make them XDG compliant</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="1">
+            <Date>2006-08-18</Date>
+            <Version>1.1.0</Version>
+            <Comment>First release</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+    </History>
+</PISI>

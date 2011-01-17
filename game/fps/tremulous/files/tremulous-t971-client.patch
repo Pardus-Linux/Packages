@@ -1,0 +1,1431 @@
+Index: src/unix/sdl_glimp.c
+===================================================================
+--- src/unix/sdl_glimp.c	(revision 971)
++++ src/unix/sdl_glimp.c	(working copy)
+@@ -119,6 +119,8 @@
+ static qboolean mouse_active = qfalse;
+ static qboolean sdlrepeatenabled = qfalse;
+ 
++static qboolean fullscreen_minimized = qfalse;
++
+ static cvar_t *in_mouse;
+ static cvar_t *in_disablemacosxmouseaccel;
+ #ifdef MACOS_X
+@@ -376,6 +378,21 @@
+   {
+     switch (e.type)
+     {
++
++    case SDL_ACTIVEEVENT:
++      if( ( e.active.state & SDL_APPACTIVE ) && e.active.gain )
++      {
++        if( fullscreen_minimized )
++        { 
++#ifdef MACOS_X
++          Cvar_Set( "r_fullscreen", "1" );
++#endif
++          fullscreen_minimized = qfalse;
++        }
++        install_grabs();
++      }
++      break;
++
+     case SDL_KEYDOWN:
+       printkey(&e);
+       p = XLateKey(&e.key.keysym, &key);
+@@ -1146,6 +1163,41 @@
+     SDL_GL_SwapBuffers();
+   }
+ 
++  if( r_minimize && r_minimize->integer )
++  {
++    SDL_Surface *s = SDL_GetVideoSurface( );
++    qboolean    fullscreen = qfalse;
++    qboolean    minimized = qfalse;
++
++    fullscreen = ( s && ( s->flags & SDL_FULLSCREEN ) );
++
++#ifdef MACOS_X
++    // this is a bit crap, but the mac SDL_WM_IconifyWindow does not work
++    // on fullscreen windows, nor does the SDL_WM_ToggleFullscreen work
++    if( !fullscreen )
++    {
++      if( SDL_WM_IconifyWindow( ) )
++        uninstall_grabs();
++      Cvar_Set( "r_minimize", "0" ); 
++    }
++    else if( r_fullscreen->integer ) 
++    {
++      Cvar_Set( "r_fullscreen", "0" );
++      fullscreen_minimized = qtrue;
++    }
++#else
++    minimized = ( SDL_WM_IconifyWindow( ) != 0 );
++    if( fullscreen && minimized )
++      fullscreen_minimized = qtrue;
++
++    // this shouldn't be necessary, but seems to prevent X11 mouse problems
++    if( minimized )
++      uninstall_grabs();
++
++    Cvar_Set( "r_minimize", "0" ); 
++#endif // MACOS_X
++  }
++
+   if( r_fullscreen->modified )
+   {
+     qboolean    fullscreen;
+Index: src/win32/win_gamma.c
+===================================================================
+--- src/win32/win_gamma.c	(revision 971)
++++ src/win32/win_gamma.c	(working copy)
+@@ -141,6 +141,9 @@
+ 		return;
+ 	}
+ 
++	if (!g_wv.activeApp)
++		return;
++
+ //mapGammaMax();
+ 
+ 	for ( i = 0; i < 256; i++ ) {
+Index: src/win32/win_glimp.c
+===================================================================
+--- src/win32/win_glimp.c	(revision 971)
++++ src/win32/win_glimp.c	(working copy)
+@@ -44,6 +44,7 @@
+ 
+ extern void WG_CheckHardwareGamma( void );
+ extern void WG_RestoreGamma( void );
++extern void R_SetColorMappings( void );
+ 
+ typedef enum {
+ 	RSERR_OK,
+@@ -77,6 +78,7 @@
+ // variable declarations
+ //
+ glwstate_t glw_state;
++static DEVMODE glw_fs_dm;
+ 
+ cvar_t	*r_allowSoftwareGL;		// don't abort out if the pixelformat claims software
+ cvar_t	*r_maskMinidriver;		// allow a different dll name to be treated as if it were opengl32.dll
+@@ -109,6 +111,26 @@
+ 	return qtrue;
+ }
+ 
++qboolean GLW_ResetDesktopMode( void )
++{
++	WG_RestoreGamma();
++	ChangeDisplaySettings( 0, 0 );
++	return qtrue;
++}
++
++
++qboolean GLW_ResetFullScreenMode( void )
++{
++	if( !glw_fs_dm.dmSize )
++		return qfalse;
++
++	// restore the last working fullscreen DEVMODE 
++	ChangeDisplaySettings( &glw_fs_dm, CDS_FULLSCREEN );
++
++	R_SetColorMappings();
++	return qtrue;
++}
++
+ /*
+ ** ChoosePFD
+ **
+@@ -581,6 +603,9 @@
+ 	int				x, y, w, h;
+ 	int				exstyle;
+ 
++	// fullscreen DEVMODE for use with win_allowAltTab 
++	memset( &glw_fs_dm, 0, sizeof( glw_fs_dm ) );
++
+ 	//
+ 	// register the window class if necessary
+ 	//
+@@ -630,7 +655,7 @@
+ 		else
+ 		{
+ 			exstyle = 0;
+-			stylebits = WINDOW_STYLE|WS_SYSMENU;
++			stylebits = WINDOW_STYLE|WS_SYSMENU|WS_MINIMIZEBOX;
+ 			AdjustWindowRect (&r, stylebits, FALSE);
+ 		}
+ 
+@@ -923,6 +948,10 @@
+ 				}
+ 			}
+ 		}
++		if( glw_state.cdsFullscreen )
++			memcpy( &glw_fs_dm, &dm, sizeof( glw_fs_dm ) );
++		else
++			memset( &glw_fs_dm, 0, sizeof( glw_fs_dm ) );
+ 	}
+ 	else
+ 	{
+@@ -1267,6 +1296,11 @@
+ */
+ void GLimp_EndFrame (void)
+ {
++	if( r_minimize && r_minimize->integer ) {
++		ri.Cvar_Set( "r_minimize", "0" );
++		ShowWindow( g_wv.hWnd, SW_MINIMIZE );
++	}
++
+ 	//
+ 	// swapinterval stuff
+ 	//
+Index: src/win32/win_wndproc.c
+===================================================================
+--- src/win32/win_wndproc.c	(revision 971)
++++ src/win32/win_wndproc.c	(working copy)
+@@ -36,6 +36,7 @@
+ cvar_t		*vid_xpos;			// X coordinate of window position
+ cvar_t		*vid_ypos;			// Y coordinate of window position
+ cvar_t		*r_fullscreen;
++cvar_t          *win_fastModeChange;
+ 
+ #define VID_NUM_MODES ( sizeof( vid_modes ) / sizeof( vid_modes[0] ) )
+ 
+@@ -50,7 +51,7 @@
+ 
+ 	if ( !Q_stricmp( Cvar_VariableString( "arch" ), "winnt" ) )
+ 	{
+-		RegisterHotKey( 0, 0, MOD_ALT, VK_TAB );
++		RegisterHotKey( g_wv.hWnd, 0, MOD_ALT, VK_TAB );
+ 	}
+ 	else
+ 	{
+@@ -67,7 +68,7 @@
+ 	{
+ 		if ( !Q_stricmp( Cvar_VariableString( "arch" ), "winnt" ) )
+ 		{
+-			UnregisterHotKey( 0, 0 );
++			UnregisterHotKey( g_wv.hWnd, 0 );
+ 		}
+ 		else
+ 		{
+@@ -85,8 +86,13 @@
+ VID_AppActivate
+ ==================
+ */
++extern qboolean GLW_ResetFullScreenMode( void );
++extern qboolean GLW_ResetDesktopMode( void );
++
+ static void VID_AppActivate(BOOL fActive, BOOL minimize)
+ {
++	BOOL wasMinimized = g_wv.isMinimized;
++
+ 	g_wv.isMinimized = minimize;
+ 
+ 	Com_DPrintf("VID_AppActivate: %i\n", fActive );
+@@ -107,10 +113,25 @@
+ 	if (!g_wv.activeApp )
+ 	{
+ 		IN_Activate (qfalse);
++		if ( r_fullscreen->integer )
++		{
++			ShowWindow ( g_wv.hWnd, SW_MINIMIZE );
++			GLW_ResetDesktopMode();
++			WIN_EnableAltTab();
++		}
+ 	}
+ 	else
+ 	{
+ 		IN_Activate (qtrue);
++		if ( r_fullscreen->integer && wasMinimized )
++		{
++			WIN_DisableAltTab();
++			if( !win_fastModeChange->integer ||
++				!GLW_ResetFullScreenMode() )
++			{
++				Cbuf_AddText( "vid_restart\n" );
++			}
++		}
+ 	}
+ }
+ 
+@@ -312,7 +333,8 @@
+ 
+ 		vid_xpos = Cvar_Get ("vid_xpos", "3", CVAR_ARCHIVE);
+ 		vid_ypos = Cvar_Get ("vid_ypos", "22", CVAR_ARCHIVE);
+-		r_fullscreen = Cvar_Get ("r_fullscreen", "1", CVAR_ARCHIVE | CVAR_LATCH );
++		r_fullscreen = Cvar_Get ("r_fullscreen", "1", CVAR_ARCHIVE );
++		win_fastModeChange = Cvar_Get( "win_fastModeChange", "0", CVAR_ARCHIVE );
+ 
+ 		MSH_MOUSEWHEEL = RegisterWindowMessage("MSWHEEL_ROLLMSG"); 
+ 		if ( r_fullscreen->integer )
+@@ -427,6 +449,17 @@
+ 			return 0;
+ 		break;
+ 
++	case WM_HOTKEY:
++		// RegisterHotKey 0 is for Alt-Tab, pass tab along
++		if( wParam == 0 )
++		{
++			Sys_QueEvent( g_wv.sysMsgTime, SE_KEY, VK_TAB,
++				qtrue, 0, NULL );
++			Sys_QueEvent( g_wv.sysMsgTime, SE_KEY, VK_TAB,
++				qfalse, 0, NULL );
++		}
++		break;
++
+ 	case WM_SYSKEYDOWN:
+ 		if ( wParam == 13 )
+ 		{
+Index: src/renderer/tr_local.h
+===================================================================
+--- src/renderer/tr_local.h	(revision 971)
++++ src/renderer/tr_local.h	(working copy)
+@@ -867,6 +867,8 @@
+ 	qboolean	projection2D;	// if qtrue, drawstretchpic doesn't need to change modes
+ 	byte		color2D[4];
+ 	qboolean	vertexes2D;		// shader needs to be finished
++	qboolean	doneBloom;		// done bloom this frame
++	qboolean	doneSurfaces;   // done any 3d surfaces already
+ 	trRefEntity_t	entity2D;	// currentEntity will point at this when doing 2D rendering
+ } backEndState_t;
+ 
+@@ -1029,6 +1031,7 @@
+ 
+ extern cvar_t	*r_mode;				// video mode
+ extern cvar_t	*r_fullscreen;
++extern cvar_t	*r_minimize;
+ extern cvar_t	*r_gamma;
+ extern cvar_t	*r_displayRefresh;		// optional display refresh option
+ extern cvar_t	*r_ignorehwgamma;		// overrides hardware gamma capabilities
+@@ -1312,6 +1315,7 @@
+ 
+ extern	shaderCommands_t	tess;
+ 
++void RB_SetGL2D (void);
+ void RB_BeginSurface(shader_t *shader, int fogNum );
+ void RB_EndSurface(void);
+ void RB_CheckOverflow( int verts, int indexes );
+@@ -1664,5 +1668,8 @@
+ void R_DoneFreeType( void );
+ void RE_RegisterFont(const char *fontName, int pointSize, fontInfo_t *font);
+ 
++//Bloom Stuff
++void R_BloomInit( void );
++void R_BloomScreen( void );
+ 
+ #endif //TR_LOCAL_H
+Index: src/renderer/tr_init.c
+===================================================================
+--- src/renderer/tr_init.c	(revision 971)
++++ src/renderer/tr_init.c	(working copy)
+@@ -130,6 +130,7 @@
+ cvar_t	*r_lodCurveError;
+ 
+ cvar_t	*r_fullscreen;
++cvar_t	*r_minimize;
+ 
+ cvar_t	*r_customwidth;
+ cvar_t	*r_customheight;
+@@ -1024,6 +1025,7 @@
+ #else
+ 	r_fullscreen = ri.Cvar_Get( "r_fullscreen", "1", CVAR_ARCHIVE | CVAR_LATCH );
+ #endif
++	r_minimize = ri.Cvar_Get( "r_minimize", "0", 0 );
+ 	r_customwidth = ri.Cvar_Get( "r_customwidth", "1600", CVAR_ARCHIVE | CVAR_LATCH );
+ 	r_customheight = ri.Cvar_Get( "r_customheight", "1024", CVAR_ARCHIVE | CVAR_LATCH );
+ 	r_customPixelAspect = ri.Cvar_Get( "r_customPixelAspect", "1", CVAR_ARCHIVE | CVAR_LATCH );
+@@ -1199,6 +1201,8 @@
+ 
+ 	R_Register();
+ 
++	R_BloomInit();
++
+ 	max_polys = r_maxpolys->integer;
+ 	if (max_polys < MAX_POLYS)
+ 		max_polys = MAX_POLYS;
+Index: src/renderer/tr_bloom.c
+===================================================================
+--- src/renderer/tr_bloom.c	(revision 0)
++++ src/renderer/tr_bloom.c	(revision 0)
+@@ -0,0 +1,387 @@
++/*
++Copyright (C) 1997-2001 Id Software, Inc.
++
++This program is free software; you can redistribute it and/or
++modify it under the terms of the GNU General Public License
++as published by the Free Software Foundation; either version 2
++of the License, or (at your option) any later version.
++
++This program is distributed in the hope that it will be useful,
++but WITHOUT ANY WARRANTY; without even the implied warranty of
++MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
++
++See the GNU General Public License for more details.
++
++You should have received a copy of the GNU General Public License
++along with this program; if not, write to the Free Software
++Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++
++*/
++// tr_bloom.c: 2D lighting post process effect
++
++#include "tr_local.h"
++
++
++static cvar_t *r_bloom;
++static cvar_t *r_bloom_sample_size;
++static cvar_t *r_bloom_fast_sample;
++static cvar_t *r_bloom_alpha;
++static cvar_t *r_bloom_darken;
++static cvar_t *r_bloom_intensity;
++static cvar_t *r_bloom_diamond_size;
++
++/* 
++============================================================================== 
++ 
++						LIGHT BLOOMS
++ 
++============================================================================== 
++*/ 
++
++static float Diamond16x[16][16] =
++{ 
++	{ 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.1f, 0.1f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, },
++	{ 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.2f, 0.3f, 0.3f, 0.2f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, },
++	{ 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.3f, 0.4f, 0.5f, 0.5f, 0.4f, 0.3f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, },
++	{ 0.0f, 0.0f, 0.0f, 0.0f, 0.4f, 0.5f, 0.6f, 0.7f, 0.7f, 0.6f, 0.5f, 0.4f, 0.0f, 0.0f, 0.0f, 0.0f, },
++	{ 0.0f, 0.0f, 0.0f, 0.4f, 0.5f, 0.6f, 0.7f, 0.8f, 0.8f, 0.7f, 0.6f, 0.5f, 0.4f, 0.0f, 0.0f, 0.0f, },
++	{ 0.0f, 0.0f, 0.3f, 0.5f, 0.6f, 0.7f, 0.8f, 0.9f, 0.9f, 0.8f, 0.7f, 0.6f, 0.5f, 0.3f, 0.0f, 0.0f, },
++	{ 0.0f, 0.2f, 0.4f, 0.6f, 0.7f, 0.8f, 0.9f, 1.0f, 1.0f, 0.9f, 0.8f, 0.7f, 0.6f, 0.4f, 0.2f, 0.0f, },
++	{ 0.1f, 0.3f, 0.5f, 0.7f, 0.8f, 0.9f, 1.0f, 1.0f, 1.0f, 1.0f, 0.9f, 0.8f, 0.7f, 0.5f, 0.3f, 0.1f, },
++	{ 0.1f, 0.3f, 0.5f, 0.7f, 0.8f, 0.9f, 1.0f, 1.0f, 1.0f, 1.0f, 0.9f, 0.8f, 0.7f, 0.5f, 0.3f, 0.1f, },
++	{ 0.0f, 0.2f, 0.4f, 0.6f, 0.7f, 0.8f, 0.9f, 1.0f, 1.0f, 0.9f, 0.8f, 0.7f, 0.6f, 0.4f, 0.2f, 0.0f, },
++	{ 0.0f, 0.0f, 0.3f, 0.5f, 0.6f, 0.7f, 0.8f, 0.9f, 0.9f, 0.8f, 0.7f, 0.6f, 0.5f, 0.3f, 0.0f, 0.0f, },
++	{ 0.0f, 0.0f, 0.0f, 0.4f, 0.5f, 0.6f, 0.7f, 0.8f, 0.8f, 0.7f, 0.6f, 0.5f, 0.4f, 0.0f, 0.0f, 0.0f, },
++	{ 0.0f, 0.0f, 0.0f, 0.0f, 0.4f, 0.5f, 0.6f, 0.7f, 0.7f, 0.6f, 0.5f, 0.4f, 0.0f, 0.0f, 0.0f, 0.0f, },
++	{ 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.3f, 0.4f, 0.5f, 0.5f, 0.4f, 0.3f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, },
++	{ 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.2f, 0.3f, 0.3f, 0.2f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, },
++	{ 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.1f, 0.1f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, },
++};
++
++static float Diamond8x[8][8] =
++{ 
++	{ 0.0f, 0.0f, 0.0f, 0.1f, 0.1f, 0.0f, 0.0f, 0.0f, },
++	{ 0.0f, 0.0f, 0.2f, 0.3f, 0.3f, 0.2f, 0.0f, 0.0f, },
++	{ 0.0f, 0.2f, 0.4f, 0.6f, 0.6f, 0.4f, 0.2f, 0.0f, },
++	{ 0.1f, 0.3f, 0.6f, 0.9f, 0.9f, 0.6f, 0.3f, 0.1f, },
++	{ 0.1f, 0.3f, 0.6f, 0.9f, 0.9f, 0.6f, 0.3f, 0.1f, },
++	{ 0.0f, 0.2f, 0.4f, 0.6f, 0.6f, 0.4f, 0.2f, 0.0f, },
++	{ 0.0f, 0.0f, 0.2f, 0.3f, 0.3f, 0.2f, 0.0f, 0.0f, },
++	{ 0.0f, 0.0f, 0.0f, 0.1f, 0.1f, 0.0f, 0.0f, 0.0f  }
++};
++
++static float Diamond6x[6][6] =
++{ 
++	{ 0.0f, 0.0f, 0.1f, 0.1f, 0.0f, 0.0f, },
++	{ 0.0f, 0.3f, 0.5f, 0.5f, 0.3f, 0.0f, }, 
++	{ 0.1f, 0.5f, 0.9f, 0.9f, 0.5f, 0.1f, },
++	{ 0.1f, 0.5f, 0.9f, 0.9f, 0.5f, 0.1f, },
++	{ 0.0f, 0.3f, 0.5f, 0.5f, 0.3f, 0.0f, },
++	{ 0.0f, 0.0f, 0.1f, 0.1f, 0.0f, 0.0f  }
++};
++
++static float Diamond4x[4][4] =
++{  
++	{ 0.3f, 0.4f, 0.4f, 0.3f, },
++	{ 0.4f, 0.9f, 0.9f, 0.4f, },
++	{ 0.4f, 0.9f, 0.9f, 0.4f, },
++	{ 0.3f, 0.4f, 0.4f, 0.3f  }
++};
++
++static struct {
++	struct {
++		image_t	*texture;
++		int		width, height;
++		float	readW, readH;
++	} effect;
++	struct {
++		image_t	*texture;
++		int		width, height;
++		float	readW, readH;
++	} screen;
++	struct {
++		int		width, height;
++	} work;
++	qboolean started;
++} bloom;
++
++
++static void ID_INLINE R_Bloom_Quad( int width, int height, float texX, float texY, float texWidth, float texHeight ) {
++	int x = 0;
++	int y = 0;
++	x = 0;
++	y += glConfig.vidHeight - height;
++	width += x;
++	height += y;
++	
++	texWidth += texX;
++	texHeight += texY;
++
++	qglBegin( GL_QUADS );							
++	qglTexCoord2f(	texX,						texHeight	);	
++	qglVertex2f(	x,							y	);
++
++	qglTexCoord2f(	texX,						texY	);				
++	qglVertex2f(	x,							height	);	
++
++	qglTexCoord2f(	texWidth,					texY	);				
++	qglVertex2f(	width,						height	);	
++
++	qglTexCoord2f(	texWidth,					texHeight	);	
++	qglVertex2f(	width,						y	);				
++	qglEnd ();
++}
++
++
++/*
++=================
++R_Bloom_InitTextures
++=================
++*/
++static void R_Bloom_InitTextures( void )
++{
++	byte	*data;
++
++	// find closer power of 2 to screen size 
++	for (bloom.screen.width = 1;bloom.screen.width< glConfig.vidWidth;bloom.screen.width *= 2);
++	for (bloom.screen.height = 1;bloom.screen.height < glConfig.vidHeight;bloom.screen.height *= 2);
++
++	bloom.screen.readW = glConfig.vidWidth / (float)bloom.screen.width;
++	bloom.screen.readH = glConfig.vidHeight / (float)bloom.screen.height;
++
++	// find closer power of 2 to effect size 
++	bloom.work.width = r_bloom_sample_size->integer;
++	bloom.work.height = bloom.work.width * ( glConfig.vidWidth / glConfig.vidHeight );
++
++	for (bloom.effect.width = 1;bloom.effect.width < bloom.work.width;bloom.effect.width *= 2);
++	for (bloom.effect.height = 1;bloom.effect.height < bloom.work.height;bloom.effect.height *= 2);
++
++	bloom.effect.readW = bloom.work.width / (float)bloom.effect.width;
++	bloom.effect.readH = bloom.work.height / (float)bloom.effect.height;
++
++
++	// disable blooms if we can't handle a texture of that size
++	if( bloom.screen.width > glConfig.maxTextureSize ||
++		bloom.screen.height > glConfig.maxTextureSize ||
++		bloom.effect.width > glConfig.maxTextureSize ||
++		bloom.effect.height > glConfig.maxTextureSize ||
++		bloom.work.width > glConfig.vidWidth ||
++		bloom.work.height > glConfig.vidHeight
++	) {
++		ri.Cvar_Set( "r_bloom", "0" );
++		Com_Printf( S_COLOR_YELLOW"WARNING: 'R_InitBloomTextures' too high resolution for light bloom, effect disabled\n" );
++		return;
++	}
++
++	data = ri.Hunk_AllocateTempMemory( bloom.screen.width * bloom.screen.height * 4 );
++	Com_Memset( data, 0, bloom.screen.width * bloom.screen.height * 4 );
++	bloom.screen.texture = R_CreateImage( "***bloom screen texture***", data, bloom.screen.width, bloom.screen.height, qfalse, qfalse, qfalse );
++	ri.Hunk_FreeTempMemory( data );
++
++	data = ri.Hunk_AllocateTempMemory( bloom.effect.width * bloom.effect.height * 4 );
++	Com_Memset( data, 0, bloom.effect.width * bloom.effect.height * 4 );
++	bloom.effect.texture = R_CreateImage( "***bloom effect texture***", data, bloom.effect.width, bloom.effect.height, qfalse, qfalse, qfalse );
++	ri.Hunk_FreeTempMemory( data );
++	bloom.started = qtrue;
++}
++
++/*
++=================
++R_InitBloomTextures
++=================
++*/
++void R_InitBloomTextures( void )
++{
++	if( !r_bloom->integer )
++		return;
++	memset( &bloom, 0, sizeof( bloom ));
++	R_Bloom_InitTextures ();
++}
++
++/*
++=================
++R_Bloom_DrawEffect
++=================
++*/
++static void R_Bloom_DrawEffect( void )
++{
++	GL_Bind( bloom.effect.texture );
++	GL_State( GLS_DEPTHTEST_DISABLE | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE );
++	qglColor4f( r_bloom_alpha->value, r_bloom_alpha->value, r_bloom_alpha->value, 1.0f );
++	R_Bloom_Quad( glConfig.vidWidth, glConfig.vidHeight, 0, 0, bloom.effect.readW, bloom.effect.readW );
++}
++
++
++/*
++=================
++R_Bloom_GeneratexDiamonds
++=================
++*/
++static void R_Bloom_WarsowEffect( void )
++{
++	int		i, j, k;
++	float	intensity, scale, *diamond;
++
++
++	qglColor4f( 1.0f, 1.0f, 1.0f, 1.0f );
++	//Take the backup texture and downscale it
++	GL_Bind( bloom.screen.texture );
++	GL_State( GLS_DEPTHTEST_DISABLE | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO );
++	R_Bloom_Quad( bloom.work.width, bloom.work.height, 0, 0, bloom.screen.readW, bloom.screen.readH );
++	//Copy downscaled framebuffer into a texture
++	GL_Bind( bloom.effect.texture );
++	qglCopyTexSubImage2D( GL_TEXTURE_2D, 0, 0, 0, 0, 0, bloom.work.width, bloom.work.height );
++	// darkening passes with repeated filter
++	if( r_bloom_darken->integer ) {
++		int i;
++		GL_State( GLS_DEPTHTEST_DISABLE | GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ZERO );
++
++		for( i = 0; i < r_bloom_darken->integer; i++ ) {
++			R_Bloom_Quad( bloom.work.width, bloom.work.height, 
++				0, 0, 
++				bloom.effect.readW, bloom.effect.readH );
++		}
++		qglCopyTexSubImage2D( GL_TEXTURE_2D, 0, 0, 0, 0, 0, bloom.work.width, bloom.work.height );
++	}
++	/* Copy the result to the effect texture */
++	GL_Bind( bloom.effect.texture );
++	qglCopyTexSubImage2D( GL_TEXTURE_2D, 0, 0, 0, 0, 0, bloom.work.width, bloom.work.height );
++
++	// bluring passes, warsow uses a repeated semi blend on a selectable diamond grid
++	qglColor4f( 1.0f, 1.0f, 1.0f, 1.0f );
++	GL_State( GLS_DEPTHTEST_DISABLE | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE_MINUS_SRC_COLOR );
++	if( r_bloom_diamond_size->integer > 15 )
++    ri.Cvar_Set( "r_bloom_diamond_size", "16" );
++  else if( r_bloom_diamond_size->integer > 7 )
++    ri.Cvar_Set( "r_bloom_diamond_size", "8" );
++	else if( r_bloom_diamond_size->integer > 5 )
++    ri.Cvar_Set( "r_bloom_diamond_size", "6" );
++  else //if( r_bloom_diamond_size->integer > 4 )
++    ri.Cvar_Set( "r_bloom_diamond_size", "4" );
++
++	switch( r_bloom_diamond_size->integer ) {
++		case 4:
++			k = 2;
++			diamond = &Diamond4x[0][0];
++			scale = r_bloom_intensity->value * 0.8f;
++			break;
++		case 6:
++			k = 3;
++			diamond = &Diamond6x[0][0];
++			scale = r_bloom_intensity->value * 0.5f;
++			break;
++		case 8:
++			k = 4;
++			diamond = &Diamond8x[0][0];
++			scale = r_bloom_intensity->value * 0.3f;
++			break;
++		default:
++//		case 16:
++			k = 8;
++			diamond = &Diamond16x[0][0];
++			scale = r_bloom_intensity->value * 0.2f;
++			break;
++	}
++
++	for( i = 0; i < r_bloom_diamond_size->integer; i++ ) {
++		for( j = 0; j < r_bloom_diamond_size->integer; j++, diamond++ ) {
++			float x, y;
++			intensity =  *diamond * scale;
++			if( intensity < 0.01f )
++				continue;
++			qglColor4f( intensity, intensity, intensity, 1.0 );
++			x = (i - k) * ( 2 / 640.0f ) * bloom.effect.readW;
++			y = (j - k) * ( 2 / 480.0f ) * bloom.effect.readH;
++
++			R_Bloom_Quad( bloom.work.width, bloom.work.height, x, y, bloom.effect.readW, bloom.effect.readH );
++		}
++	}
++	qglCopyTexSubImage2D( GL_TEXTURE_2D, 0, 0, 0, 0, 0, bloom.work.width, bloom.work.height );
++}											
++
++/*
++=================
++R_Bloom_BackupScreen
++Backup the full original screen to a texture for downscaling and later restoration
++=================
++*/
++static void R_Bloom_BackupScreen( void ) {
++	GL_Bind( bloom.screen.texture );
++	qglCopyTexSubImage2D( GL_TEXTURE_2D, 0, 0, 0, 0, 0, glConfig.vidWidth, glConfig.vidHeight );
++}
++/*
++=================
++R_Bloom_RestoreScreen
++Restore the temporary framebuffer section we used with the backup texture
++=================
++*/
++static void R_Bloom_RestoreScreen( void ) {
++	GL_State( GLS_DEPTHTEST_DISABLE | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO );
++	GL_Bind( bloom.screen.texture );
++	qglColor4f( 1, 1, 1, 1 );
++	R_Bloom_Quad( bloom.work.width, bloom.work.height, 0, 0,
++		bloom.work.width / (float)bloom.screen.width,
++		bloom.work.height / (float)bloom.screen.height );
++}
++
++/*
++=================
++R_BloomScreen
++=================
++*/
++void R_BloomScreen( void )
++{
++	if( !r_bloom->integer )
++		return;
++	if ( backEnd.doneBloom )
++		return;
++	if ( !backEnd.doneSurfaces )
++		return;
++	backEnd.doneBloom = qtrue;
++	if( !bloom.started ) {
++		R_Bloom_InitTextures();
++		if( !bloom.started )
++			return;
++	}
++
++	if ( !backEnd.projection2D )
++		RB_SetGL2D();
++#if 0
++	// set up full screen workspace
++	GL_TexEnv( GL_MODULATE );
++	qglScissor( 0, 0, glConfig.vidWidth, glConfig.vidHeight );
++	qglViewport( 0, 0, glConfig.vidWidth, glConfig.vidHeight );
++	qglMatrixMode( GL_PROJECTION );
++    qglLoadIdentity ();
++	qglOrtho( 0, glConfig.vidWidth, glConfig.vidHeight, 0, 0, 1 );
++	qglMatrixMode( GL_MODELVIEW );
++    qglLoadIdentity ();
++
++	GL_Cull( CT_TWO_SIDED );
++#endif
++
++	qglColor4f( 1, 1, 1, 1 );
++
++	//Backup the old screen in a texture
++	R_Bloom_BackupScreen();
++	// create the bloom texture using one of a few methods
++	R_Bloom_WarsowEffect ();
++//	R_Bloom_CreateEffect();
++	// restore the screen-backup to the screen
++	R_Bloom_RestoreScreen();
++	// Do the final pass using the bloom texture for the final effect
++	R_Bloom_DrawEffect ();
++}
++
++
++void R_BloomInit( void ) {
++	memset( &bloom, 0, sizeof( bloom ));
++
++	r_bloom = ri.Cvar_Get( "r_bloom", "0", CVAR_ARCHIVE );
++	r_bloom_alpha = ri.Cvar_Get( "r_bloom_alpha", "0.3", CVAR_ARCHIVE );
++	r_bloom_diamond_size = ri.Cvar_Get( "r_bloom_diamond_size", "8", CVAR_ARCHIVE );
++	r_bloom_intensity = ri.Cvar_Get( "r_bloom_intensity", "1.3", CVAR_ARCHIVE );
++	r_bloom_darken = ri.Cvar_Get( "r_bloom_darken", "4", CVAR_ARCHIVE );
++	r_bloom_sample_size = ri.Cvar_Get( "r_bloom_sample_size", "128", CVAR_ARCHIVE|CVAR_LATCH );
++	r_bloom_fast_sample = ri.Cvar_Get( "r_bloom_fast_sample", "0", CVAR_ARCHIVE|CVAR_LATCH );
++}
+Index: src/renderer/tr_backend.c
+===================================================================
+--- src/renderer/tr_backend.c	(revision 971)
++++ src/renderer/tr_backend.c	(working copy)
+@@ -901,6 +901,8 @@
+ 	backEnd.refdef = cmd->refdef;
+ 	backEnd.viewParms = cmd->viewParms;
+ 
++	//TODO Maybe check for rdf_noworld stuff but q3mme has full 3d ui
++	backEnd.doneSurfaces = qtrue;
+ 	RB_RenderDrawSurfList( cmd->drawSurfs, cmd->numDrawSurfs );
+ 
+ 	return (const void *)(cmd + 1);
+@@ -1040,6 +1042,9 @@
+ 
+ 	backEnd.projection2D = qfalse;
+ 
++	backEnd.doneBloom = qfalse;
++	backEnd.doneSurfaces = qfalse;
++
+ 	return (const void *)(cmd + 1);
+ }
+ 
+@@ -1068,6 +1073,8 @@
+ 			data = RB_SetColor( data );
+ 			break;
+ 		case RC_STRETCH_PIC:
++			//Check if it's time for BLOOM!
++			R_BloomScreen();
+ 			data = RB_StretchPic( data );
+ 			break;
+ 		case RC_DRAW_SURFS:
+@@ -1077,6 +1084,8 @@
+ 			data = RB_DrawBuffer( data );
+ 			break;
+ 		case RC_SWAP_BUFFERS:
++			//Check if it's time for BLOOM!
++			R_BloomScreen();
+ 			data = RB_SwapBuffers( data );
+ 			break;
+ 		case RC_SCREENSHOT:
+@@ -1123,3 +1132,6 @@
+ 	}
+ }
+ 
++
++
++
+Index: src/qcommon/q_math.c
+===================================================================
+--- src/qcommon/q_math.c	(revision 971)
++++ src/qcommon/q_math.c	(working copy)
+@@ -50,7 +50,7 @@
+ 
+ vec4_t	g_color_table[8] =
+ 	{
+-	{0.0, 0.0, 0.0, 1.0},
++	{0.2, 0.2, 0.2, 1.0},
+ 	{1.0, 0.0, 0.0, 1.0},
+ 	{0.0, 1.0, 0.0, 1.0},
+ 	{1.0, 1.0, 0.0, 1.0},
+Index: src/qcommon/q_shared.h
+===================================================================
+--- src/qcommon/q_shared.h	(revision 971)
++++ src/qcommon/q_shared.h	(working copy)
+@@ -1281,9 +1281,9 @@
+ 
+ // server browser sources
+ // TTimo: AS_MPLAYER is no longer used
+-#define AS_GLOBAL			0
++#define AS_GLOBAL			2
+ #define AS_MPLAYER		1
+-#define AS_LOCAL			2
++#define AS_LOCAL			0
+ #define AS_FAVORITES	3
+ 
+ 
+Index: src/qcommon/qcommon.h
+===================================================================
+--- src/qcommon/qcommon.h	(revision 971)
++++ src/qcommon/qcommon.h	(working copy)
+@@ -224,7 +224,7 @@
+ ==============================================================
+ */
+ 
+-#define	PROTOCOL_VERSION	70
++#define	PROTOCOL_VERSION	69
+ 
+ // maintain a list of compatible protocols for demo playing
+ // NOTE: that stuff only works with two digits protocols
+Index: src/qcommon/msg.c
+===================================================================
+--- src/qcommon/msg.c	(revision 971)
++++ src/qcommon/msg.c	(working copy)
+@@ -827,7 +827,7 @@
+ { NETF(modelindex), 8 },
+ { NETF(otherEntityNum2), GENTITYNUM_BITS },
+ { NETF(loopSound), 8 },
+-{ NETF(generic1), 16 },
++{ NETF(generic1), 8 },
+ { NETF(origin2[2]), 0 },
+ { NETF(origin2[0]), 0 },
+ { NETF(origin2[1]), 0 },
+@@ -1143,7 +1143,7 @@
+ { PSF(damageYaw), 8 },
+ { PSF(damagePitch), 8 },
+ { PSF(damageCount), 8 },
+-{ PSF(generic1), 16 },
++{ PSF(generic1), 8 },
+ { PSF(pm_type), 8 },					
+ { PSF(delta_angles[0]), 16 },
+ { PSF(delta_angles[2]), 16 },
+Index: src/qcommon/common.c
+===================================================================
+--- src/qcommon/common.c	(revision 971)
++++ src/qcommon/common.c	(working copy)
+@@ -33,7 +33,7 @@
+ #endif
+ 
+ int demo_protocols[] =
+-{ PROTOCOL_VERSION, 0 };
++{ 66, 67, 68, 69, 0 };
+ 
+ #define MAX_NUM_ARGVS	50
+ 
+@@ -3101,3 +3101,7 @@
+ 		string[i] = (unsigned char)( rand() % 255 );
+ }
+ 
++
++
++
++
+Index: src/game/bg_public.h
+===================================================================
+--- src/game/bg_public.h	(revision 971)
++++ src/game/bg_public.h	(working copy)
+@@ -454,13 +454,13 @@
+   BIT_NUM_TEAMS
+ } buildableTeam_t;
+ 
+-#define B_HEALTH_BITS       12
++#define B_HEALTH_BITS       5
+ #define B_HEALTH_MASK       ((1<<B_HEALTH_BITS)-1)
+ 
+-#define B_MARKED_TOGGLEBIT  0x00001000
+-#define B_SPAWNED_TOGGLEBIT 0x00002000
+-#define B_POWERED_TOGGLEBIT 0x00004000
+-#define B_DCCED_TOGGLEBIT   0x00008000
++#define B_DCCED_TOGGLEBIT    0x00000000
++#define B_SPAWNED_TOGGLEBIT  0x00000020
++#define B_POWERED_TOGGLEBIT  0x00000040
++#define B_MARKED_TOGGLEBIT   0x00000080
+ 
+ 
+ // reward sounds (stored in ps->persistant[PERS_PLAYEREVENTS])
+@@ -585,8 +585,8 @@
+   MN_TEAM,
+   MN_A_TEAMFULL,
+   MN_H_TEAMFULL,
+-  MN_A_TEAMCHANGEBUILDTIMER,
+-  MN_H_TEAMCHANGEBUILDTIMER,
++  //MN_A_TEAMCHANGEBUILDTIMER,
++  //MN_H_TEAMCHANGEBUILDTIMER,
+ 
+   //alien stuff
+   MN_A_CLASS,
+@@ -597,7 +597,7 @@
+   MN_A_NOEROOM,
+   MN_A_TOOCLOSE,
+   MN_A_NOOVMND_EVOLVE,
+-  MN_A_EVOLVEBUILDTIMER,
++  //MN_A_EVOLVEBUILDTIMER,
+ 
+   //alien build
+   MN_A_SPWNWARN,
+@@ -617,11 +617,11 @@
+   MN_H_NOSLOTS,
+   MN_H_NOFUNDS,
+   MN_H_ITEMHELD,
+-  MN_H_NOENERGYAMMOHERE,
+-  MN_H_NOARMOURYHERE,
+-  MN_H_NOROOMBSUITON,
+-  MN_H_NOROOMBSUITOFF,
+-  MN_H_ARMOURYBUILDTIMER,
++  //MN_H_NOENERGYAMMOHERE,
++  //MN_H_NOARMOURYHERE,
++  //MN_H_NOROOMBSUITON,
++  //MN_H_NOROOMBSUITOFF,
++  //MN_H_ARMOURYBUILDTIMER,
+ 
+   //human build
+   MN_H_REPEATER,
+@@ -633,7 +633,20 @@
+   MN_H_NORMAL,
+   MN_H_TNODEWARN,
+   MN_H_RPTWARN,
+-  MN_H_RPTWARN2
++  //MN_H_RPTWARN2
++  MN_H_RPTWARN2,
++
++  //not used
++  MN_A_TEAMCHANGEBUILDTIMER,
++  MN_H_TEAMCHANGEBUILDTIMER,
++
++  MN_A_EVOLVEBUILDTIMER,
++
++  MN_H_NOENERGYAMMOHERE,
++  MN_H_NOARMOURYHERE,
++  MN_H_NOROOMBSUITON,
++  MN_H_NOROOMBSUITOFF,
++  MN_H_ARMOURYBUILDTIMER
+ } dynMenu_t;
+ 
+ // animations
+@@ -1321,3 +1334,7 @@
+ #define FFF_ALIENS         2
+ #define FFF_BUILDABLES     4
+ 
++
++
++
++
+Index: src/cgame/cg_syscalls.asm
+===================================================================
+--- src/cgame/cg_syscalls.asm	(revision 971)
++++ src/cgame/cg_syscalls.asm	(working copy)
+@@ -64,44 +64,43 @@
+ equ trap_Key_GetCatcher               -62
+ equ trap_Key_SetCatcher               -63
+ equ trap_Key_GetKey                   -64
+-equ trap_S_StopBackgroundTrack        -65
+-equ trap_RealTime                     -66
+-equ trap_SnapVector                   -67
+-equ trap_RemoveCommand                -68
+-equ trap_R_LightForPoint              -69
+-equ trap_CIN_PlayCinematic            -70
+-equ trap_CIN_StopCinematic            -71
+-equ trap_CIN_RunCinematic             -72
+-equ trap_CIN_DrawCinematic            -73
+-equ trap_CIN_SetExtents               -74
+-equ trap_R_RemapShader                -75
+-equ trap_S_AddRealLoopingSound        -76
+-equ trap_S_StopLoopingSound           -77
+-equ trap_CM_TempCapsuleModel          -78
+-equ trap_CM_CapsuleTrace              -79
+-equ trap_CM_TransformedCapsuleTrace   -80
+-equ trap_R_AddAdditiveLightToScene    -81
+-equ trap_GetEntityToken               -82
+-equ trap_R_AddPolysToScene            -83
+-equ trap_R_inPVS                      -84
+-equ trap_FS_Seek                      -85
+-equ trap_FS_GetFileList               -86
+-equ trap_LiteralArgs                  -87
+-equ trap_CM_BiSphereTrace             -88
+-equ trap_CM_TransformedBiSphereTrace  -89
+-equ trap_GetDemoState                 -90
+-equ trap_GetDemoPos                   -91
+-equ trap_GetDemoName                  -92
+-equ trap_Key_KeynumToStringBuf        -93
+-equ trap_Key_GetBindingBuf            -94
+-equ trap_Key_SetBinding               -95
++equ trap_Parse_AddGlobalDefine        -65
++equ trap_Parse_LoadSource             -66
++equ trap_Parse_FreeSource             -67
++equ trap_Parse_ReadToken              -68
++equ trap_Parse_SourceFileAndLine      -69
++equ trap_S_StopBackgroundTrack        -70
++equ trap_RealTime                     -71
++equ trap_SnapVector                   -72
++equ trap_RemoveCommand                -73
++equ trap_R_LightForPoint              -74
++equ trap_CIN_PlayCinematic            -75
++equ trap_CIN_StopCinematic            -76
++equ trap_CIN_RunCinematic             -77
++equ trap_CIN_DrawCinematic            -78
++equ trap_CIN_SetExtents               -79
++equ trap_R_RemapShader                -80
++equ trap_S_AddRealLoopingSound        -81
++equ trap_S_StopLoopingSound           -82
++equ trap_CM_TempCapsuleModel          -83
++equ trap_CM_CapsuleTrace              -84
++equ trap_CM_TransformedCapsuleTrace   -85
++equ trap_R_AddAdditiveLightToScene    -86
++equ trap_GetEntityToken               -87
++equ trap_R_AddPolysToScene            -88
++equ trap_R_inPVS                      -89
++equ trap_FS_Seek                      -90
++equ trap_FS_GetFileList               -91
++equ trap_LiteralArgs                  -92
++equ trap_CM_BiSphereTrace             -93
++equ trap_CM_TransformedBiSphereTrace  -94
++equ trap_GetDemoState                 -95
++equ trap_GetDemoPos                   -96
++equ trap_GetDemoName                  -97
++equ trap_Key_KeynumToStringBuf        -98
++equ trap_Key_GetBindingBuf            -99
++equ trap_Key_SetBinding               -100
+ 
+-equ trap_Parse_AddGlobalDefine        -96
+-equ trap_Parse_LoadSource             -97
+-equ trap_Parse_FreeSource             -98
+-equ trap_Parse_ReadToken              -99
+-equ trap_Parse_SourceFileAndLine      -100
+-
+ equ memset                            -201
+ equ memcpy                            -202
+ equ strncpy                           -203
+@@ -114,3 +113,7 @@
+ equ testPrintInt                      -210
+ equ testPrintFloat                    -211
+ 
++
++
++
++
+Index: src/cgame/cg_public.h
+===================================================================
+--- src/cgame/cg_public.h	(revision 971)
++++ src/cgame/cg_public.h	(working copy)
+@@ -138,6 +138,11 @@
+   CG_KEY_GETCATCHER,
+   CG_KEY_SETCATCHER,
+   CG_KEY_GETKEY,
++  CG_PARSE_ADD_GLOBAL_DEFINE,
++  CG_PARSE_LOAD_SOURCE,
++  CG_PARSE_FREE_SOURCE,
++  CG_PARSE_READ_TOKEN,
++  CG_PARSE_SOURCE_FILE_AND_LINE,
+   CG_S_STOPBACKGROUNDTRACK,
+   CG_REAL_TIME,
+   CG_SNAPVECTOR,
+@@ -172,12 +177,6 @@
+   CG_KEY_GETBINDINGBUF,
+   CG_KEY_SETBINDING,
+ 
+-  CG_PARSE_ADD_GLOBAL_DEFINE,
+-  CG_PARSE_LOAD_SOURCE,
+-  CG_PARSE_FREE_SOURCE,
+-  CG_PARSE_READ_TOKEN,
+-  CG_PARSE_SOURCE_FILE_AND_LINE,
+-
+   CG_MEMSET = 200,
+   CG_MEMCPY,
+   CG_STRNCPY,
+Index: src/ui/ui_public.h
+===================================================================
+--- src/ui/ui_public.h	(revision 971)
++++ src/ui/ui_public.h	(working copy)
+@@ -91,6 +91,11 @@
+   UI_MEMORY_REMAINING,
+   UI_R_REGISTERFONT,
+   UI_R_MODELBOUNDS,
++  UI_PARSE_ADD_GLOBAL_DEFINE,
++  UI_PARSE_LOAD_SOURCE,
++  UI_PARSE_FREE_SOURCE,
++  UI_PARSE_READ_TOKEN,
++  UI_PARSE_SOURCE_FILE_AND_LINE,
+   UI_S_STOPBACKGROUNDTRACK,
+   UI_S_STARTBACKGROUNDTRACK,
+   UI_REAL_TIME,
+@@ -118,12 +123,6 @@
+   UI_FS_SEEK,
+   UI_SET_PBCLSTATUS,
+ 
+-  UI_PARSE_ADD_GLOBAL_DEFINE,
+-  UI_PARSE_LOAD_SOURCE,
+-  UI_PARSE_FREE_SOURCE,
+-  UI_PARSE_READ_TOKEN,
+-  UI_PARSE_SOURCE_FILE_AND_LINE,
+-
+   UI_MEMSET = 100,
+   UI_MEMCPY,
+   UI_STRNCPY,
+Index: src/ui/ui_main.c
+===================================================================
+--- src/ui/ui_main.c	(revision 971)
++++ src/ui/ui_main.c	(working copy)
+@@ -56,9 +56,9 @@
+ 
+ 
+ static const char *netSources[] = {
++  "LAN",
++  "Mplayer",
+   "Internet",
+-  "Mplayer",
+-  "LAN",
+   "Favorites"
+ };
+ static const int numNetSources = sizeof(netSources) / sizeof(const char*);
+@@ -6502,3 +6502,7 @@
+   }
+ }
+ 
++
++
++
++
+Index: src/ui/ui_syscalls.asm
+===================================================================
+--- src/ui/ui_syscalls.asm	(revision 971)
++++ src/ui/ui_syscalls.asm	(working copy)
+@@ -55,37 +55,37 @@
+ equ trap_MemoryRemaining              -53
+ equ trap_R_RegisterFont               -54
+ equ trap_R_ModelBounds                -55
+-equ trap_S_StopBackgroundTrack        -56
+-equ trap_S_StartBackgroundTrack       -57
+-equ trap_RealTime                     -58
+-equ trap_LAN_GetServerCount           -59
+-equ trap_LAN_GetServerAddressString   -60
+-equ trap_LAN_GetServerInfo            -61
+-equ trap_LAN_MarkServerVisible        -62
+-equ trap_LAN_UpdateVisiblePings       -63
+-equ trap_LAN_ResetPings               -64
+-equ trap_LAN_LoadCachedServers        -65
+-equ trap_LAN_SaveCachedServers        -66
+-equ trap_LAN_AddServer                -67
+-equ trap_LAN_RemoveServer             -68
+-equ trap_CIN_PlayCinematic            -69
+-equ trap_CIN_StopCinematic            -70
+-equ trap_CIN_RunCinematic             -71
+-equ trap_CIN_DrawCinematic            -72
+-equ trap_CIN_SetExtents               -73
+-equ trap_R_RemapShader                -74
+-equ trap_LAN_ServerStatus             -75
+-equ trap_LAN_GetServerPing            -76
+-equ trap_LAN_ServerIsVisible          -77
+-equ trap_LAN_CompareServers           -78
+-equ trap_FS_Seek                      -79
+-equ trap_SetPbClStatus                -80
++equ trap_Parse_AddGlobalDefine        -56
++equ trap_Parse_LoadSource             -57
++equ trap_Parse_FreeSource             -58
++equ trap_Parse_ReadToken              -59
++equ trap_Parse_SourceFileAndLine      -60
++equ trap_S_StopBackgroundTrack        -61
++equ trap_S_StartBackgroundTrack       -62
++equ trap_RealTime                     -63
++equ trap_LAN_GetServerCount           -64
++equ trap_LAN_GetServerAddressString   -65
++equ trap_LAN_GetServerInfo            -66
++equ trap_LAN_MarkServerVisible        -67
++equ trap_LAN_UpdateVisiblePings       -68
++equ trap_LAN_ResetPings               -69
++equ trap_LAN_LoadCachedServers        -70
++equ trap_LAN_SaveCachedServers        -71
++equ trap_LAN_AddServer                -72
++equ trap_LAN_RemoveServer             -73
++equ trap_CIN_PlayCinematic            -74
++equ trap_CIN_StopCinematic            -75
++equ trap_CIN_RunCinematic             -76
++equ trap_CIN_DrawCinematic            -77
++equ trap_CIN_SetExtents               -78
++equ trap_R_RemapShader                -79
++equ trap_LAN_ServerStatus             -80
++equ trap_LAN_GetServerPing            -81
++equ trap_LAN_ServerIsVisible          -82
++equ trap_LAN_CompareServers           -83
++equ trap_FS_Seek                      -84
++equ trap_SetPbClStatus                -85
+ 
+-equ trap_Parse_AddGlobalDefine        -81
+-equ trap_Parse_LoadSource             -82
+-equ trap_Parse_FreeSource             -83
+-equ trap_Parse_ReadToken              -84
+-equ trap_Parse_SourceFileAndLine      -85
+ 
+ 
+ equ memset                            -101
+@@ -98,3 +98,7 @@
+ equ floor                             -108
+ equ ceil                              -109
+ 
++
++
++
++
+Index: src/client/client.h
+===================================================================
+--- src/client/client.h	(revision 971)
++++ src/client/client.h	(working copy)
+@@ -372,6 +372,7 @@
+ 
+ extern	cvar_t	*cl_lanForcePackets;
+ extern	cvar_t	*cl_autoRecordDemo;
++extern	cvar_t	*cl_altTab;
+ 
+ //=================================================
+ 
+Index: src/client/cl_parse.c
+===================================================================
+--- src/client/cl_parse.c	(revision 971)
++++ src/client/cl_parse.c	(working copy)
+@@ -423,15 +423,23 @@
+ static void CL_ParseServerInfo(void)
+ {
+ 	const char *serverInfo;
++	const char *systemInfo;
+ 
+-	serverInfo = cl.gameState.stringData
+-		+ cl.gameState.stringOffsets[ CS_SERVERINFO ];
++	serverInfo = cl.gameState.stringData + cl.gameState.stringOffsets[ CS_SERVERINFO ];
++	systemInfo = cl.gameState.stringData + cl.gameState.stringOffsets[ CS_SYSTEMINFO ];
+ 
+-	clc.sv_allowDownload = atoi(Info_ValueForKey(serverInfo,
+-		"sv_allowDownload"));
+-	Q_strncpyz(clc.sv_dlURL,
+-		Info_ValueForKey(serverInfo, "sv_dlURL"),
+-		sizeof(clc.sv_dlURL));
++	clc.sv_allowDownload = atoi(Info_ValueForKey(serverInfo, "sv_allowDownload"));
++	if(!clc.sv_allowDownload)
++	{
++		clc.sv_allowDownload = atoi(Info_ValueForKey(systemInfo, "sv_wwwDownload"));
++	}
++
++	Q_strncpyz(clc.sv_dlURL, Info_ValueForKey(serverInfo, "sv_dlURL"), sizeof(clc.sv_dlURL));
++	if(!*clc.sv_dlURL)
++	{
++		Q_strncpyz(clc.sv_dlURL, Info_ValueForKey(systemInfo, "sv_wwwBaseURL"), sizeof(clc.sv_dlURL));
++	}
++
+ }
+ 
+ /*
+@@ -720,3 +728,5 @@
+ }
+ 
+ 
++
++
+Index: src/client/cl_main.c
+===================================================================
+--- src/client/cl_main.c	(revision 971)
++++ src/client/cl_main.c	(working copy)
+@@ -77,6 +77,8 @@
+ 
+ cvar_t	*cl_guidServerUniq;
+ 
++cvar_t	*cl_altTab;
++
+ clientActive_t		cl;
+ clientConnection_t	clc;
+ clientStatic_t		cls;
+@@ -2563,7 +2565,7 @@
+ 
+ 	cl_showMouseRate = Cvar_Get ("cl_showmouserate", "0", 0);
+ 
+-	cl_allowDownload = Cvar_Get ("cl_allowDownload", "0", CVAR_ARCHIVE);
++	cl_allowDownload = Cvar_Get ("cl_allowDownload", "1", CVAR_ARCHIVE);
+ #if USE_CURL
+ 	cl_cURLLib = Cvar_Get("cl_cURLLib", DEFAULT_CURL_LIB, CVAR_ARCHIVE);
+ #endif
+@@ -2601,6 +2603,8 @@
+ 
+ 	cl_guidServerUniq = Cvar_Get ("cl_guidServerUniq", "1", CVAR_ARCHIVE);
+ 
++	cl_altTab = Cvar_Get ("cl_altTab", "1", CVAR_ARCHIVE);
++
+ 	// userinfo
+ 	playerName = getenv( "USER" ); 				// Unixy stuff
+ 	if( playerName == NULL )
+Index: src/client/cl_console.c
+===================================================================
+--- src/client/cl_console.c	(revision 971)
++++ src/client/cl_console.c	(working copy)
+@@ -87,11 +87,17 @@
+ ================
+ */
+ void Con_MessageMode_f (void) {
++	int i;
+ 	chat_playerNum = -1;
+ 	chat_team = qfalse;
+ 	Field_Clear( &chatField );
+ 	chatField.widthInChars = 30;
+-
++	for(i = 1; i < Cmd_Argc(); i++)
++	{
++		Com_sprintf(chatField.buffer, MAX_SAY_TEXT, "%s%s ", chatField.buffer, Cmd_Argv(i));
++	}
++	chatField.cursor += strlen(chatField.buffer);
++		
+ 	cls.keyCatchers ^= KEYCATCH_MESSAGE;
+ }
+ 
+@@ -101,10 +107,17 @@
+ ================
+ */
+ void Con_MessageMode2_f (void) {
++	int i;
+ 	chat_playerNum = -1;
+ 	chat_team = qtrue;
+ 	Field_Clear( &chatField );
+ 	chatField.widthInChars = 25;
++	for(i = 1; i < Cmd_Argc(); i++)
++	{
++		Com_sprintf(chatField.buffer, MAX_SAY_TEXT, "%s%s ", chatField.buffer, Cmd_Argv(i));
++	}
++	chatField.cursor += strlen(chatField.buffer);
++		
+ 	cls.keyCatchers ^= KEYCATCH_MESSAGE;
+ }
+ 
+@@ -114,6 +127,7 @@
+ ================
+ */
+ void Con_MessageMode3_f (void) {
++	int i;
+ 	chat_playerNum = VM_Call( cgvm, CG_CROSSHAIR_PLAYER );
+ 	if ( chat_playerNum < 0 || chat_playerNum >= MAX_CLIENTS ) {
+ 		chat_playerNum = -1;
+@@ -122,6 +136,12 @@
+ 	chat_team = qfalse;
+ 	Field_Clear( &chatField );
+ 	chatField.widthInChars = 30;
++	for(i = 1; i < Cmd_Argc(); i++)
++	{
++		Com_sprintf(chatField.buffer, MAX_SAY_TEXT, "%s%s ", chatField.buffer, Cmd_Argv(i));
++	}
++	chatField.cursor += strlen(chatField.buffer);
++		
+ 	cls.keyCatchers ^= KEYCATCH_MESSAGE;
+ }
+ 
+@@ -131,6 +151,7 @@
+ ================
+ */
+ void Con_MessageMode4_f (void) {
++	int i;
+ 	chat_playerNum = VM_Call( cgvm, CG_LAST_ATTACKER );
+ 	if ( chat_playerNum < 0 || chat_playerNum >= MAX_CLIENTS ) {
+ 		chat_playerNum = -1;
+@@ -139,6 +160,12 @@
+ 	chat_team = qfalse;
+ 	Field_Clear( &chatField );
+ 	chatField.widthInChars = 30;
++	for(i = 1; i < Cmd_Argc(); i++)
++	{
++		Com_sprintf(chatField.buffer, MAX_SAY_TEXT, "%s%s ", chatField.buffer, Cmd_Argv(i));
++	}
++	chatField.cursor += strlen(chatField.buffer);
++		
+ 	cls.keyCatchers ^= KEYCATCH_MESSAGE;
+ }
+ 
+Index: src/client/cl_keys.c
+===================================================================
+--- src/client/cl_keys.c	(revision 971)
++++ src/client/cl_keys.c	(working copy)
+@@ -1167,6 +1167,13 @@
+ 	}
+ #endif
+ 
++	if( cl_altTab->integer && key == K_TAB && down && keys[K_ALT].down )
++	{
++		Key_ClearStates();
++		Cvar_SetValue( "r_minimize", 1 );
++		return;
++	}
++
+ 	// console key is hardcoded, so the user can never unbind it
+ 	if (key == '`' || key == '~' ||
+ 		( key == K_ESCAPE && keys[K_SHIFT].down ) ) {
+@@ -1180,6 +1187,8 @@
+ 
+ 
+ 	// keys can still be used for bound actions
++	/*
++	 * THIS FRAMGENT OF CODE IS RESPONSIBLE OF QUITING WHEN YOU PRESS ALMOST ANY KEY DURING WATCHING DEMO 
+ 	if ( down && ( key < 128 || key == K_MOUSE1 ) && ( clc.demoplaying || cls.state == CA_CINEMATIC ) && !cls.keyCatchers) {
+ 
+ 		if (Cvar_VariableValue ("com_cameraMode") == 0) {
+@@ -1187,8 +1196,8 @@
+ 			key = K_ESCAPE;
+ 		}
+ 	}
++	*/
+ 
+-
+ 	// escape is always handled special
+ 	if ( key == K_ESCAPE && down ) {
+ 		if ( cls.keyCatchers & KEYCATCH_MESSAGE ) {
+Index: Makefile
+===================================================================
+--- Makefile	(revision 971)
++++ Makefile	(working copy)
+@@ -965,6 +965,7 @@
+   \
+   $(B)/client/tr_animation.o \
+   $(B)/client/tr_backend.o \
++  $(B)/client/tr_bloom.o \
+   $(B)/client/tr_bsp.o \
+   $(B)/client/tr_cmds.o \
+   $(B)/client/tr_curve.o \
