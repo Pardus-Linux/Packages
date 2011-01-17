@@ -17,7 +17,7 @@ def setup():
     autotools.autoreconf("-fis")
 
     # The end-start colors seems to be used by the two-step plugin
-    autotools.configure("--disable-tracing \
+    autotools.configure("--enable-tracing \
                          --with-logo=%s \
                          --with-release-file=/etc/pardus-release \
                          --with-background-color=0x000000 \
