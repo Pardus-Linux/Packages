@@ -258,6 +258,7 @@ def postInstall(fromVersion, fromRelease, toVersion, toRelease):
                 (165, "kdm", "kdm", "/var", "/sbin/nologin", "", ["kdm"], [], []),
                 (166, "nginx", "nginx user", "/etc/nginx", "/sbin/nologin", "", ["nginx"], [], []),
                 (167, "ntop", "ntop user", "/var/lib/ntop", "/sbin/nologin", "", ["ntop"], [], []),
+                (168, "smolt", "smolt user", "/dev/null", "/bin/false", "", [], [], []),
                 (200, "pnp", "PnP", "/dev/null", "/bin/false", "", ["pnp"], [], []),
                 (250, "mpd", "Music Player Daemon", "/var/lib/mpd", "/bin/false", "", ["audio", "pulse", "pulse-access", "pulse-rt"], [], []),
             )
