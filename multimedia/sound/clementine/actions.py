@@ -10,7 +10,7 @@ from pisi.actionsapi import shelltools
 from pisi.actionsapi import get
 
 def setup():
-    for i in ["libprojectm", "qxt", "qtiocompressor"]:
+    for i in ["libprojectm", "qxt", "qtiocompressor", "libechonest"]:
         shelltools.unlinkDir("3rdparty/%s" % (i))
 
     # Upstream supports only gstreamer engine, other engines are unstable and lacking features.
