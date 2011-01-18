@@ -14,7 +14,7 @@ def setup():
     autotools.autoreconf("-vif")
     autotools.configure("--enable-threads \
                          --enable-compress \
-                         --disable-plymouth \
+                         --enable-plymouth \
                          --disable-encrypt \
                          --disable-resume-static \
                          --with-initramfsdir=/usr/sbin")
