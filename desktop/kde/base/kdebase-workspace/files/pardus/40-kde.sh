@@ -7,7 +7,7 @@ if [ "$SESSION" = "kde" -o "$SESSION" = "kde-safe" -o "$SESSION" = "openbox-kde"
     mkdir -m 700 -p $kdehome/share
     mkdir -m 700 -p $kdehome/share/config
     cat >$kdehome/share/config/startupconfigkeys <<EOF
-kcminputrc Mouse cursorTheme 'Oxygen_Black'
+kcminputrc Mouse cursorTheme 'Oxygen_White'
 kcminputrc Mouse cursorSize ''
 EOF
     kstartupconfig4
