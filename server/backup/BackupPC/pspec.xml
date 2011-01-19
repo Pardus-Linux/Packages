@@ -1,0 +1,66 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>BackupPC</Name>
+        <Homepage>http://backuppc.sourceforge.net/</Homepage>
+        <Packager>
+            <Name>Erdem Bayer</Name>
+            <Email>ebayer@bayer.gen.tr</Email>
+        </Packager>
+        <License>GPLv2</License>
+        <Summary>High-performance backup system</Summary>
+        <Description>BackupPC is a high-performance, enterprise-grade system for backing up Linux and WinXX PCs and laptops to a server's disk. BackupPC is highly configurable and easy to install and maintain.</Description>
+        <Archive sha1sum="f6ad9f1605d7816b03d787eb1c79090372232dd2" type="targz">mirrors://sourceforge/backuppc/3.2.0/BackupPC-3.2.0.tar.gz</Archive>
+        <BuildDependencies>
+            <Dependency>samba</Dependency>
+            <Dependency>rsync</Dependency>
+            <Dependency>postfix</Dependency>
+            <Dependency>perl-Compress-Zlib</Dependency>
+            <Dependency>perl-File-RsyncP</Dependency>
+        </BuildDependencies>
+    </Source>
+    
+    <Package>
+        <Name>BackupPC</Name>
+        <RuntimeDependencies>
+            <Dependency>samba</Dependency>
+            <Dependency>rsync</Dependency>
+            <Dependency>postfix</Dependency>
+            <Dependency>mod_perl</Dependency>
+            <Dependency>perl-Compress-Zlib</Dependency>
+            <Dependency>perl-Archive-Zip</Dependency>
+            <Dependency>perl-File-RsyncP</Dependency>
+            <Dependency>perl-libwww</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="config">/etc/BackupPC</Path>
+            <Path fileType="config">/etc/apache2/conf.d/BackupPC.conf</Path>
+            <Path fileType="data">/var/lib/BackupPC</Path>
+            <Path fileType="data">/var/log/BackupPC</Path>
+            <Path fileType="doc">/usr/share/BackupPC/doc</Path>
+            <Path fileType="executable">/usr/share/BackupPC/bin</Path>
+            <Path fileType="executable">/usr/share/BackupPC/cgi-bin</Path>
+            <Path fileType="data">/usr/share/BackupPC/html</Path>
+            <Path fileType="library">/usr/share/BackupPC/lib</Path>
+        </Files>
+        <AdditionalFiles>
+            <AdditionalFile target="/etc/apache2/conf.d/BackupPC.conf" owner="root" group="root" permission="0644">BackupPC-apache.conf</AdditionalFile>
+            <AdditionalFile target="/etc/BackupPC/BackupPC.users" owner="apache" group="apache" permission="0600">BackupPC.users</AdditionalFile>
+        </AdditionalFiles>
+        <Provides>
+            <COMAR script="service.py">System.Service</COMAR>
+            <COMAR script="package.py">System.Package</COMAR>
+        </Provides>
+    </Package>
+    
+    <History>
+        <Update release="1">
+            <Date>2011-01-05</Date>
+            <Version>3.2.0</Version>
+            <Comment>First Release</Comment>
+            <Name>Erdem Bayer</Name>
+            <Email>ebayer@bayer.gen.tr</Email>
+        </Update>
+    </History>
+</PISI>
