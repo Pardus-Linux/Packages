@@ -15,10 +15,11 @@ WorkDir = "volpack-%s" % get.srcVERSION().replace("_pre7","c7")
 def setup():
     shelltools.export("CXXFLAGS", get.CXXFLAGS())
     shelltools.export("CFLAGS", get.CFLAGS())
-    autotools.configure("--enable-static=no")
+    autotools.configure("--disable-dependency-tracking \
+                         --enable-static=no")
 
 def build():
-    autotools.make()
+    autotools.make("-j1")
 
 def install():
     autotools.install()
