@@ -250,7 +250,7 @@ def postInstall(fromVersion, fromRelease, toVersion, toRelease):
                 (152, "memcached", "Memcached daemon", "/var/run/memcached", "/bin/false", "", ["memcached"], [], []),
                 (153, "rtkit", "RealtimeKit", "/proc", "/sbin/nologin", "", ["rtkit"], [], []),
                 (154, "nm-openconnect", "NetworkManager user for OpenConnect", "/", "/sbin/nologin", "", ["nm-openconnect"], [], []),
-                (160, "usbmuxd", "usbmuxd daemon", "/dev/null", "/bin/false", "", ["usbmuxd"], [], []),
+                (160, "usbmuxd", "usbmuxd daemon", "/", "/sbin/nologin", "", ["usbmuxd"], [], []),
                 (161, "openvpn", "OpenVPN", "/etc/openvpn", "/sbin/nologin", "", ["openvpn"], [], []),
                 (162, "privoxy", "Privoxy", "/etc/privoxy", "/sbin/nologin", "", ["privoxy"], [], []),
                 (163, "qemu", "qemu user", "/", "/sbin/nologin", "", ["qemu", "kvm"], [], []),
