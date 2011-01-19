@@ -34,7 +34,7 @@ def setup():
                           -DBUNDLE_PROJECTM_PRESETS=OFF", sourceDir=".")
 
 def build():
-    cmaketools.make("-j1")
+    cmaketools.make()
 
 def install():
     cmaketools.rawInstall("DESTDIR=%s" % get.installDIR())
