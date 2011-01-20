@@ -1,7 +1,8 @@
-diff -Nur kdebase-runtime-4.5.5-orig//kcontrol/locale/CMakeLists.txt kdebase-runtime-4.5.5/kcontrol/locale/CMakeLists.txt
---- kdebase-runtime-4.5.5-orig//kcontrol/locale/CMakeLists.txt	2011-01-13 09:19:53.388000016 +0200
-+++ kdebase-runtime-4.5.5/kcontrol/locale/CMakeLists.txt	2011-01-13 09:20:16.789000019 +0200
-@@ -26,6 +26,16 @@
+Index: kdebase-runtime-4.5.5/kcontrol/locale/CMakeLists.txt
+===================================================================
+--- kdebase-runtime-4.5.5.orig/kcontrol/locale/CMakeLists.txt
++++ kdebase-runtime-4.5.5/kcontrol/locale/CMakeLists.txt
+@@ -26,6 +26,16 @@ target_link_libraries(kcm_locale ${KDE4_
  install(TARGETS kcm_locale  DESTINATION ${PLUGIN_INSTALL_DIR} )
  
  
@@ -18,9 +19,10 @@ diff -Nur kdebase-runtime-4.5.5-orig//kcontrol/locale/CMakeLists.txt kdebase-run
  ########### install files ###############
  
  install( FILES language.desktop  DESTINATION  ${SERVICES_INSTALL_DIR} )
-diff -Nur kdebase-runtime-4.5.5-orig//kcontrol/locale/helper.cpp kdebase-runtime-4.5.5/kcontrol/locale/helper.cpp
---- kdebase-runtime-4.5.5-orig//kcontrol/locale/helper.cpp	1970-01-01 02:00:00.000000000 +0200
-+++ kdebase-runtime-4.5.5/kcontrol/locale/helper.cpp	2011-01-13 09:20:16.795000016 +0200
+Index: kdebase-runtime-4.5.5/kcontrol/locale/helper.cpp
+===================================================================
+--- /dev/null
++++ kdebase-runtime-4.5.5/kcontrol/locale/helper.cpp
 @@ -0,0 +1,77 @@
 +#include "helper.h"
 +#include <iostream>
@@ -50,7 +52,6 @@ diff -Nur kdebase-runtime-4.5.5-orig//kcontrol/locale/helper.cpp kdebase-runtime
 +bool Helper::writeLocale(const QString &locale)
 +{
 +    QString mudurFile = "/etc/conf.d/mudur";
-+    QString mudurNewFile = "/etc/conf.d/mudurnew";
 +
 +    // open file to read
 +    QFile file(mudurFile);
@@ -62,6 +63,7 @@ diff -Nur kdebase-runtime-4.5.5-orig//kcontrol/locale/helper.cpp kdebase-runtime
 +    // read whole file, replace language string and create a new string
 +    QString output;
 +    QTextStream in(&file);
++    in.setCodec("UTF-8");
 +    while (!in.atEnd()) {
 +        QString line = in.readLine();
 +        if (line.contains("language=")) {
@@ -75,13 +77,13 @@ diff -Nur kdebase-runtime-4.5.5-orig//kcontrol/locale/helper.cpp kdebase-runtime
 +    }
 +    file.close();
 +
-+    // create a new file to write
-+    QFile fileNew(mudurNewFile);
++    QFile fileNew(mudurFile);
 +    if( !fileNew.open( QIODevice::WriteOnly | QIODevice::Text)) {
 +        qDebug() << "Failed to write.";
 +        return false;
 +    }
 +    QTextStream out(&fileNew);
++    out.setCodec("UTF-8");
 +    out << output; //write the output to the new file
 +    fileNew.close();
 +
@@ -99,9 +101,10 @@ diff -Nur kdebase-runtime-4.5.5-orig//kcontrol/locale/helper.cpp kdebase-runtime
 +}
 +
 +KDE4_AUTH_HELPER_MAIN("org.kde.kcontrol.kcmlocale", Helper)
-diff -Nur kdebase-runtime-4.5.5-orig//kcontrol/locale/helper.h kdebase-runtime-4.5.5/kcontrol/locale/helper.h
---- kdebase-runtime-4.5.5-orig//kcontrol/locale/helper.h	1970-01-01 02:00:00.000000000 +0200
-+++ kdebase-runtime-4.5.5/kcontrol/locale/helper.h	2011-01-13 09:20:16.805000015 +0200
+Index: kdebase-runtime-4.5.5/kcontrol/locale/helper.h
+===================================================================
+--- /dev/null
++++ kdebase-runtime-4.5.5/kcontrol/locale/helper.h
 @@ -0,0 +1,17 @@
 +#include <kauth.h>
 +#define WriteLocaleError 1
@@ -120,9 +123,10 @@ diff -Nur kdebase-runtime-4.5.5-orig//kcontrol/locale/helper.h kdebase-runtime-4
 +        ActionReply createReply(int code, const QVariantMap *returnData = 0);
 +
 +};
-diff -Nur kdebase-runtime-4.5.5-orig//kcontrol/locale/kcmlocale.actions kdebase-runtime-4.5.5/kcontrol/locale/kcmlocale.actions
---- kdebase-runtime-4.5.5-orig//kcontrol/locale/kcmlocale.actions	1970-01-01 02:00:00.000000000 +0200
-+++ kdebase-runtime-4.5.5/kcontrol/locale/kcmlocale.actions	2011-01-13 09:20:16.810000016 +0200
+Index: kdebase-runtime-4.5.5/kcontrol/locale/kcmlocale.actions
+===================================================================
+--- /dev/null
++++ kdebase-runtime-4.5.5/kcontrol/locale/kcmlocale.actions
 @@ -0,0 +1,9 @@
 +[Domain]
 +Name=Langage Manager Control Module
@@ -133,9 +137,10 @@ diff -Nur kdebase-runtime-4.5.5-orig//kcontrol/locale/kcmlocale.actions kdebase-
 +Description=Administrator authorization is required to change the Locale settings
 +Policy=auth_admin
 +Persistence=session
-diff -Nur kdebase-runtime-4.5.5-orig//kcontrol/locale/kcmlocale.cpp kdebase-runtime-4.5.5/kcontrol/locale/kcmlocale.cpp
---- kdebase-runtime-4.5.5-orig//kcontrol/locale/kcmlocale.cpp	2011-01-13 09:19:53.389000016 +0200
-+++ kdebase-runtime-4.5.5/kcontrol/locale/kcmlocale.cpp	2011-01-13 09:20:16.810000016 +0200
+Index: kdebase-runtime-4.5.5/kcontrol/locale/kcmlocale.cpp
+===================================================================
+--- kdebase-runtime-4.5.5.orig/kcontrol/locale/kcmlocale.cpp
++++ kdebase-runtime-4.5.5/kcontrol/locale/kcmlocale.cpp
 @@ -24,13 +24,14 @@
   */
  
@@ -152,7 +157,7 @@ diff -Nur kdebase-runtime-4.5.5-orig//kcontrol/locale/kcmlocale.cpp kdebase-runt
  
  #include "kcmlocale.moc"
  #include "toplevel.h"
-@@ -73,6 +74,7 @@
+@@ -73,6 +74,7 @@ KLocaleConfig::KLocaleConfig(KControlLoc
  
      m_crLabel->setObjectName(I18N_NOOP("Country or region:"));
      m_languagesLabel->setObjectName(I18N_NOOP("Languages:"));
@@ -160,7 +165,7 @@ diff -Nur kdebase-runtime-4.5.5-orig//kcontrol/locale/kcmlocale.cpp kdebase-runt
      languageRemove->setObjectName(I18N_NOOP("Remove"));
      m_upButton->setObjectName(QString());
      m_downButton->setObjectName(QString());
-@@ -88,6 +90,7 @@
+@@ -88,6 +90,7 @@ KLocaleConfig::KLocaleConfig(KControlLoc
      connect(m_selectedCountryLabel, SIGNAL(linkActivated(const QString &)), SLOT(changeCountry()));
      connect(languageAdd, SIGNAL(activated(const QString &)), SLOT(slotAddLanguage(const QString &)));
      connect(m_languages, SIGNAL(itemSelectionChanged()), SLOT(slotCheckButtons()));
@@ -168,7 +173,7 @@ diff -Nur kdebase-runtime-4.5.5-orig//kcontrol/locale/kcmlocale.cpp kdebase-runt
  
      m_upButton->setIcon(KIcon("arrow-up"));
      m_downButton->setIcon(KIcon("arrow-down"));
-@@ -197,8 +200,33 @@
+@@ -197,8 +200,33 @@ void KLocaleConfig::save()
                           m_languageList.join(":"), KConfig::Persistent|KConfig::Global);
  
    config->sync();
@@ -202,15 +207,16 @@ diff -Nur kdebase-runtime-4.5.5-orig//kcontrol/locale/kcmlocale.cpp kdebase-runt
  void KLocaleConfig::slotCheckButtons()
  {
    languageRemove->setEnabled( selectedRow() != -1 && m_languages->count() > 1 );
-@@ -280,3 +308,4 @@
+@@ -280,3 +308,4 @@ void KLocaleConfig::changedCountry(const
    emit localeChanged();
    emit languageChanged();
  }
 +
-diff -Nur kdebase-runtime-4.5.5-orig//kcontrol/locale/kcmlocale.h kdebase-runtime-4.5.5/kcontrol/locale/kcmlocale.h
---- kdebase-runtime-4.5.5-orig//kcontrol/locale/kcmlocale.h	2011-01-13 09:19:53.388000016 +0200
-+++ kdebase-runtime-4.5.5/kcontrol/locale/kcmlocale.h	2011-01-13 09:20:16.821000011 +0200
-@@ -68,7 +68,7 @@
+Index: kdebase-runtime-4.5.5/kcontrol/locale/kcmlocale.h
+===================================================================
+--- kdebase-runtime-4.5.5.orig/kcontrol/locale/kcmlocale.h
++++ kdebase-runtime-4.5.5/kcontrol/locale/kcmlocale.h
+@@ -68,7 +68,7 @@ private:
    void languageMove(Direction direcition);
    int selectedRow() const;
  
@@ -219,9 +225,10 @@ diff -Nur kdebase-runtime-4.5.5-orig//kcontrol/locale/kcmlocale.h kdebase-runtim
    // NOTE: we need to mantain our own language list instead of using KLocale's
    // because KLocale does not add a language if there is no translation
    // for the current application so it would not be possible to set
-diff -Nur kdebase-runtime-4.5.5-orig//kcontrol/locale/language.ui kdebase-runtime-4.5.5/kcontrol/locale/language.ui
---- kdebase-runtime-4.5.5-orig//kcontrol/locale/language.ui	2011-01-13 09:19:53.389000016 +0200
-+++ kdebase-runtime-4.5.5/kcontrol/locale/language.ui	2011-01-13 09:20:16.832000034 +0200
+Index: kdebase-runtime-4.5.5/kcontrol/locale/language.ui
+===================================================================
+--- kdebase-runtime-4.5.5.orig/kcontrol/locale/language.ui
++++ kdebase-runtime-4.5.5/kcontrol/locale/language.ui
 @@ -1,53 +1,54 @@
 -<ui version="4.0" >
 +<?xml version="1.0" encoding="UTF-8"?>
