@@ -19,6 +19,7 @@ pref("browser.startup.homepage_override.mstone", "ignore");
 pref("browser.startup.page", 3);
 pref("browser.startup.homepage", "resource:///browserconfig.properties");
 pref("browser.tabs.autoHide", false);
+pref("browser.shell.checkDefaultBrowser", false);
 pref("browser.throbber.url", "resource:/browserconfig.properties");
 pref("general.autoScroll", true);
 pref("general.smoothScroll", false);
