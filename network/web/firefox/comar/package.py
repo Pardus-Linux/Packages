@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 import os
+import re
 
 def symlink(src, dest):
     try:
@@ -15,24 +16,32 @@ def postInstall(fromVersion, fromRelease, toVersion, toRelease):
     os.system("/usr/lib/MozillaFirefox/firefox -register")
     os.system("/bin/touch /usr/lib/MozillaFirefox/.autoreg")
 
+    lang = None
+
     if os.path.exists("/etc/mudur/language"):
         lang = open("/etc/mudur/language").read().strip()
+    elif os.path.exists("/etc/env.d/03locale"):
+        fileContent = open("/etc/env.d/03locale").read()
+        lang = re.search("^LANG=(.*)$", fileContent, flags=re.M)
+        if lang:
+            lang = lang.group(1).split(".")[0]
 
+    if lang:
         # Bookmarks & Search plugins
-        if lang == "tr":
+        if lang.startswith("tr"):
             symlink("/usr/lib/MozillaFirefox/pardus/bookmarks-tr.html", "/usr/lib/MozillaFirefox/defaults/profile/bookmarks.html")
             symlink("/usr/lib/MozillaFirefox/pardus/pardus-wiki_tr.xml", "/usr/lib/MozillaFirefox/searchplugins/pardus-wiki.xml")
             symlink("/usr/lib/MozillaFirefox/pardus/wikipedia_tr.xml", "/usr/lib/MozillaFirefox/searchplugins/wikipedia.xml")
-        elif lang == "nl":
+        elif lang.startswith("nl"):
             symlink("/usr/lib/MozillaFirefox/pardus/bookmarks-nl.html", "/usr/lib/MozillaFirefox/defaults/profile/bookmarks.html")
             symlink("/usr/lib/MozillaFirefox/pardus/pardus-wiki_nl.xml", "/usr/lib/MozillaFirefox/searchplugins/pardus-wiki.xml")
             symlink("/usr/lib/MozillaFirefox/pardus/wikipedia_nl.xml", "/usr/lib/MozillaFirefox/searchplugins/wikipedia.xml")
-        elif lang == "pt":
+        elif lang.startswith("pt"):
             symlink("/usr/lib/MozillaFirefox/pardus/pardus-wiki_pt.xml", "/usr/lib/MozillaFirefox/searchplugins/pardus-wiki.xml")
             symlink("/usr/lib/MozillaFirefox/pardus/wikipedia_pt.xml", "/usr/lib/MozillaFirefox/searchplugins/wikipedia.xml")
             #TODO: translate bookmarks to pt also.
             symlink("/usr/lib/MozillaFirefox/pardus/bookmarks-en.html", "/usr/lib/MozillaFirefox/defaults/profile/bookmarks.html")
-        elif lang == "de":
+        elif lang.startswith("de"):
             symlink("/usr/lib/MozillaFirefox/pardus/bookmarks-de.html", "/usr/lib/MozillaFirefox/defaults/profile/bookmarks.html")
             symlink("/usr/lib/MozillaFirefox/pardus/pardus-wiki_en.xml", "/usr/lib/MozillaFirefox/searchplugins/pardus-wiki.xml")
             symlink("/usr/lib/MozillaFirefox/pardus/wikipedia_de.xml", "/usr/lib/MozillaFirefox/searchplugins/wikipedia.xml")
