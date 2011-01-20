@@ -1,3 +1,0 @@
-find_package(Gettext REQUIRED)
-file(GLOB _po_files *.po)
-GETTEXT_PROCESS_PO_FILES(tr ALL INSTALL_DESTINATION ${LOCALE_INSTALL_DIR} ${_po_files} )
