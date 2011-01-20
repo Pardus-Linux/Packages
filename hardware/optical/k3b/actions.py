@@ -10,12 +10,10 @@ from pisi.actionsapi import pisitools
 from pisi.actionsapi import kde4
 from pisi.actionsapi import get
 
-WorkDir = "%s-%s" % (get.srcNAME(), get.srcVERSION().split("_")[0])
-
 shelltools.export("HOME", get.workDIR())
 
 def setup():
-    kde4.configure("-DNEWFFMPEGAVCODECPATH=ON -DK3B_BUILD_K3BSETUP=OFF")
+    kde4.configure("-DK3B_BUILD_K3BSETUP=OFF")
 
 def build():
     kde4.make()
