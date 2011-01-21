@@ -1,8 +1,8 @@
-Index: xorg-server-1.9.0/hw/xfree86/common/xf86pciBus.c
+Index: xorg-server-1.9.3.901/hw/xfree86/common/xf86pciBus.c
 ===================================================================
---- xorg-server-1.9.0.orig/hw/xfree86/common/xf86pciBus.c
-+++ xorg-server-1.9.0/hw/xfree86/common/xf86pciBus.c
-@@ -1066,6 +1066,113 @@ xf86ConfigActivePciEntity(ScrnInfoPtr pS
+--- xorg-server-1.9.3.901.orig/hw/xfree86/common/xf86pciBus.c
++++ xorg-server-1.9.3.901/hw/xfree86/common/xf86pciBus.c
+@@ -1066,6 +1066,126 @@ xf86ConfigActivePciEntity(ScrnInfoPtr pS
      return TRUE;
  }
  
@@ -13,11 +13,24 @@ Index: xorg-server-1.9.0/hw/xfree86/common/xf86pciBus.c
 +{
 +    char impl_path[BUF_LEN+1];
 +    char link_target[BUF_LEN+1];
++    ssize_t len;
++
++    len = readlink("/etc/alternatives/libGL", link_target, BUF_LEN);
++
++    if (len <= 0) {
++	/* Probably this system does not use the expected method
++	 * for switching between libGL implementations. Return TRUE to
++	 * ignore and use the normal behaviour. */
++	return TRUE;
++    }
++
++    link_target[len] = '\0';
 +
 +    snprintf(impl_path, BUF_LEN, "/usr/lib/%s/libGL.so.1.2", impl);
 +
-+    if (readlink("/etc/alternatives/libGL", link_target, BUF_LEN) > 0
-+	    && strncmp(link_target, impl_path, strlen(impl_path))) {
++    if (strcmp(link_target, impl_path)) {
++	/* Paths are different. That means the current implementation is
++	 * different from the one passed with impl parameter. */
 +	return FALSE;
 +    }
 +
@@ -116,7 +129,7 @@ Index: xorg-server-1.9.0/hw/xfree86/common/xf86pciBus.c
  static int
  videoPtrToDriverList(struct pci_device *dev,
  		     char *returnList[], int returnListMax)
-@@ -1074,6 +1181,7 @@ videoPtrToDriverList(struct pci_device *
+@@ -1074,6 +1194,7 @@ videoPtrToDriverList(struct pci_device *
      /* Add more entries here if we ever return more than 4 drivers for
         any device */
      char *driverList[5] = { NULL, NULL, NULL, NULL, NULL };
@@ -124,7 +137,7 @@ Index: xorg-server-1.9.0/hw/xfree86/common/xf86pciBus.c
  
      switch (dev->vendor_id)
      {
-@@ -1103,10 +1211,14 @@ videoPtrToDriverList(struct pci_device *
+@@ -1103,10 +1224,14 @@ videoPtrToDriverList(struct pci_device *
  	case 0xedd8:		    driverList[0] = "ark"; break;
  	case 0x1a03:		    driverList[0] = "ast"; break;
  	case 0x1002:
@@ -142,7 +155,7 @@ Index: xorg-server-1.9.0/hw/xfree86/common/xf86pciBus.c
  	case 0x102c:		    driverList[0] = "chips"; break;
  	case 0x1013:		    driverList[0] = "cirrus"; break;
  	case 0x3d3d:		    driverList[0] = "glint"; break;
-@@ -1126,11 +1238,15 @@ videoPtrToDriverList(struct pci_device *
+@@ -1126,11 +1251,15 @@ videoPtrToDriverList(struct pci_device *
  	case 0x10c8:		    driverList[0] = "neomagic"; break;
  	case 0x12d2:		    driverList[0] = "nv";	break;
  	case 0x10de:
@@ -161,7 +174,7 @@ Index: xorg-server-1.9.0/hw/xfree86/common/xf86pciBus.c
  		}
  		break;
  	case 0x1106:
-@@ -1177,6 +1293,9 @@ videoPtrToDriverList(struct pci_device *
+@@ -1177,6 +1306,9 @@ videoPtrToDriverList(struct pci_device *
      for (i = 0; (i < returnListMax) && (driverList[i] != NULL); i++) {
  	returnList[i] = xnfstrdup(driverList[i]);
      }
@@ -171,10 +184,10 @@ Index: xorg-server-1.9.0/hw/xfree86/common/xf86pciBus.c
      return i;	/* Number of entries added */
  }
  
-Index: xorg-server-1.9.0/hw/xfree86/common/xf86Init.c
+Index: xorg-server-1.9.3.901/hw/xfree86/common/xf86Init.c
 ===================================================================
---- xorg-server-1.9.0.orig/hw/xfree86/common/xf86Init.c
-+++ xorg-server-1.9.0/hw/xfree86/common/xf86Init.c
+--- xorg-server-1.9.3.901.orig/hw/xfree86/common/xf86Init.c
++++ xorg-server-1.9.3.901/hw/xfree86/common/xf86Init.c
 @@ -423,13 +423,6 @@ InitOutput(ScreenInfo *pScreenInfo, int
      xf86OSPMClose = xf86OSPMOpen();
  #endif
