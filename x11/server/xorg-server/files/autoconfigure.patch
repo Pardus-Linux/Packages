@@ -1,8 +1,41 @@
-Index: xorg-server-1.9.3.901/hw/xfree86/common/xf86pciBus.c
-===================================================================
---- xorg-server-1.9.3.901.orig/hw/xfree86/common/xf86pciBus.c
-+++ xorg-server-1.9.3.901/hw/xfree86/common/xf86pciBus.c
-@@ -1066,6 +1066,126 @@ xf86ConfigActivePciEntity(ScrnInfoPtr pS
+diff --git a/hw/xfree86/common/xf86Init.c b/hw/xfree86/common/xf86Init.c
+index ca532ee..fb7c070 100644
+--- a/hw/xfree86/common/xf86Init.c
++++ b/hw/xfree86/common/xf86Init.c
+@@ -412,13 +412,6 @@ InitOutput(ScreenInfo *pScreenInfo, int argc, char **argv)
+     xf86OSPMClose = xf86OSPMOpen();
+ #endif
+ 
+-    /* Load all modules specified explicitly in the config file */
+-    if ((modulelist = xf86ModulelistFromConfig(&optionlist))) {
+-      xf86LoadModules(modulelist, optionlist);
+-      free(modulelist);
+-      free(optionlist);
+-    }
+-
+     /* Load all driver modules specified in the config file */
+     /* If there aren't any specified in the config file, autoconfig them */
+     /* FIXME: Does not handle multiple active screen sections, but I'm not
+@@ -430,6 +423,14 @@ InitOutput(ScreenInfo *pScreenInfo, int argc, char **argv)
+             return ;
+         }
+     }
++
++    /* Load all modules specified explicitly in the config file */
++    if ((modulelist = xf86ModulelistFromConfig(&optionlist))) {
++      xf86LoadModules(modulelist, optionlist);
++      free(modulelist);
++      free(optionlist);
++    }
++
+     if ((modulelist = xf86DriverlistFromConfig())) {
+       xf86LoadModules(modulelist, NULL);
+       free(modulelist);
+diff --git a/hw/xfree86/common/xf86pciBus.c b/hw/xfree86/common/xf86pciBus.c
+index 74016af..7644486 100644
+--- a/hw/xfree86/common/xf86pciBus.c
++++ b/hw/xfree86/common/xf86pciBus.c
+@@ -1066,6 +1066,129 @@ xf86ConfigActivePciEntity(ScrnInfoPtr pScrn, int entityIndex,
      return TRUE;
  }
  
@@ -49,6 +82,8 @@ Index: xorg-server-1.9.3.901/hw/xfree86/common/xf86pciBus.c
 +    System("/sbin/ldconfig -X");
 +}
 +
++#undef BUF_LEN
++
 +static int xchomp(char *line);
 +
 +static char *
@@ -78,6 +113,7 @@ Index: xorg-server-1.9.3.901/hw/xfree86/common/xf86pciBus.c
 +    }
 +
 +    return NULL;
++#undef DRIVERSDB_FILE
 +}
 +
 +static Bool
@@ -129,7 +165,7 @@ Index: xorg-server-1.9.3.901/hw/xfree86/common/xf86pciBus.c
  static int
  videoPtrToDriverList(struct pci_device *dev,
  		     char *returnList[], int returnListMax)
-@@ -1074,6 +1194,7 @@ videoPtrToDriverList(struct pci_device *
+@@ -1074,6 +1197,7 @@ videoPtrToDriverList(struct pci_device *dev,
      /* Add more entries here if we ever return more than 4 drivers for
         any device */
      char *driverList[5] = { NULL, NULL, NULL, NULL, NULL };
@@ -137,15 +173,14 @@ Index: xorg-server-1.9.3.901/hw/xfree86/common/xf86pciBus.c
  
      switch (dev->vendor_id)
      {
-@@ -1103,10 +1224,14 @@ videoPtrToDriverList(struct pci_device *
+@@ -1102,23 +1226,52 @@ videoPtrToDriverList(struct pci_device *dev,
+ 	case 0x1142:		    driverList[0] = "apm"; break;
  	case 0xedd8:		    driverList[0] = "ark"; break;
  	case 0x1a03:		    driverList[0] = "ast"; break;
- 	case 0x1002:
+-	case 0x1002:		    driverList[0] = "ati"; break;
++	case 0x1002:
 +	    if (canLoadFglrx(dev)) {
- 		driverList[0] = "fglrx";
--		driverList[1] = "radeonhd";
--		driverList[2] = "ati";
--		break;
++		driverList[0] = "fglrx";
 +		driverList[1] = "ati";
 +		use_mesa = FALSE;
 +	    } else {
@@ -155,26 +190,60 @@ Index: xorg-server-1.9.3.901/hw/xfree86/common/xf86pciBus.c
  	case 0x102c:		    driverList[0] = "chips"; break;
  	case 0x1013:		    driverList[0] = "cirrus"; break;
  	case 0x3d3d:		    driverList[0] = "glint"; break;
-@@ -1126,11 +1251,15 @@ videoPtrToDriverList(struct pci_device *
+ 	case 0x105d:		    driverList[0] = "i128"; break;
+ 	case 0x8086:
+-	    if ((dev->device_id == 0x00d1) || (dev->device_id == 0x7800)) {
+-		driverList[0] = "i740";
+-            } else if (dev->device_id == 0x8108) {
+-                break; /* "hooray" for poulsbo */
+-	    } else {
+-		driverList[0] = "intel";
++	    switch (dev->device_id)
++	    {
++		case 0x00d1:
++		case 0x7800:
++		    driverList[0] = "i740";
++		    break;
++		case 0x4102:
++		case 0x8108:
++		case 0x8109:
++		    driverList[0] = "psb";
++		    driverList[1] = "psb_drv";
++		    break;
++		default:
++		    driverList[0] = "intel";
++		    break;
+ 	    }
+ 	    break;
+ 	case 0x102b:		    driverList[0] = "mga";	break;
  	case 0x10c8:		    driverList[0] = "neomagic"; break;
- 	case 0x12d2:		    driverList[0] = "nv";	break;
- 	case 0x10de:
--		driverList[0] = "nvidia";
--		driverList[1] = "nouveau";
-+		i = 0;
-+		if (canLoadNvidia(dev)) {
-+			driverList[i++] = "nvidia";
-+			use_mesa = FALSE;
-+		}
-+		driverList[i++] = "nouveau";
- 		/* GeForce 6150SE support broken (bnc #465190/544674) */
- 		if (dev->device_id != 0x03D0) {
--			driverList[2] = "nv";
-+			driverList[i] = "nv";
- 		}
- 		break;
- 	case 0x1106:
-@@ -1177,6 +1306,9 @@ videoPtrToDriverList(struct pci_device *
+-	case 0x10de: case 0x12d2:   driverList[0] = "nv";	break;
++	case 0x10de:
++	    i = 0;
++	    if (canLoadNvidia(dev)) {
++		driverList[i++] = "nvidia";
++		use_mesa = FALSE;
++	    }
++	    driverList[i++] = "nouveau";
++	    /* GeForce 6150SE support broken (bnc #465190/544674) */
++	    if (dev->device_id != 0x03D0) {
++		driverList[i] = "nv";
++	    }
++	    break;
++	case 0x12d2:		    driverList[0] = "nv";	break;
+ 	case 0x1106:		    driverList[0] = "openchrome"; break;
+         case 0x1b36:		    driverList[0] = "qxl"; break;
+ 	case 0x1163:		    driverList[0] = "rendition"; break;
+@@ -1146,7 +1299,7 @@ videoPtrToDriverList(struct pci_device *dev,
+ 	case 0x1011:		    driverList[0] = "tga"; break;
+ 	case 0x1023:		    driverList[0] = "trident"; break;
+ 	case 0x100c:		    driverList[0] = "tseng"; break;
+-	case 0x80ee:		    driverList[0] = "vboxvideo"; break;
++	case 0x80ee:		    driverList[0] = "vesa"; break;
+ 	case 0x15ad:		    driverList[0] = "vmware"; break;
+ 	case 0x18ca:
+ 	    if (dev->device_id == 0x47)
+@@ -1159,6 +1312,9 @@ videoPtrToDriverList(struct pci_device *dev,
      for (i = 0; (i < returnListMax) && (driverList[i] != NULL); i++) {
  	returnList[i] = xnfstrdup(driverList[i]);
      }
@@ -184,36 +253,3 @@ Index: xorg-server-1.9.3.901/hw/xfree86/common/xf86pciBus.c
      return i;	/* Number of entries added */
  }
  
-Index: xorg-server-1.9.3.901/hw/xfree86/common/xf86Init.c
-===================================================================
---- xorg-server-1.9.3.901.orig/hw/xfree86/common/xf86Init.c
-+++ xorg-server-1.9.3.901/hw/xfree86/common/xf86Init.c
-@@ -423,13 +423,6 @@ InitOutput(ScreenInfo *pScreenInfo, int
-     xf86OSPMClose = xf86OSPMOpen();
- #endif
- 
--    /* Load all modules specified explicitly in the config file */
--    if ((modulelist = xf86ModulelistFromConfig(&optionlist))) {
--      xf86LoadModules(modulelist, optionlist);
--      free(modulelist);
--      free(optionlist);
--    }
--
-     /* Load all driver modules specified in the config file */
-     /* If there aren't any specified in the config file, autoconfig them */
-     /* FIXME: Does not handle multiple active screen sections, but I'm not
-@@ -441,6 +434,14 @@ InitOutput(ScreenInfo *pScreenInfo, int
-             return ;
-         }
-     }
-+
-+    /* Load all modules specified explicitly in the config file */
-+    if ((modulelist = xf86ModulelistFromConfig(&optionlist))) {
-+      xf86LoadModules(modulelist, optionlist);
-+      free(modulelist);
-+      free(optionlist);
-+    }
-+
-     if ((modulelist = xf86DriverlistFromConfig())) {
-       xf86LoadModules(modulelist, NULL);
-       free(modulelist);
