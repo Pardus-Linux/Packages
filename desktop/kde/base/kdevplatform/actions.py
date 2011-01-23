@@ -20,5 +20,8 @@ def build():
 
 def install():
     kde4.install()
-
     pisitools.dodoc("ChangeLog", "COPYING.*", "HOWTO.*", "NEWS", "README", "TODO")
+    #locales fi, sl and th are very incomplete
+    pisitools.removeDir(destinationDirectory="/usr/share/locale/fi")
+    pisitools.removeDir(destinationDirectory="/usr/share/locale/sl")
+    pisitools.removeDir(destinationDirectory="/usr/share/locale/th")
