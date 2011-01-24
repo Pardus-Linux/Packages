@@ -26,3 +26,5 @@ def install():
     shelltools.system("python sphinx-build.py doc doc/_build/html")
     pisitools.dohtml("doc/_build/html/*")
 
+    pisitools.dodoc("CHANGES")
+
