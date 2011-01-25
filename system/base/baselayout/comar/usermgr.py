@@ -188,7 +188,7 @@ def checkRealName(realname):
         fail(_(invalid_realname_msg))
 
 def checkPassword(password, badlist):
-    if len(password) < 4:
+    if len(password) < 1:
         fail(_(short_password_msg))
     if password in badlist:
         fail(_(name_password_msg))
