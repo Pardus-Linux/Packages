@@ -10,16 +10,17 @@ from pisi.actionsapi import pisitools
 from pisi.actionsapi import autotools
 from pisi.actionsapi import get
 
-#WorkDir = "%s-0.3" % get.srcNAME()
-
 def setup():
-    #shelltools.system("./autogen.sh")
+    shelltools.system("./autogen.sh")
     autotools.configure("--disable-static \
-                         --enable-more-warnings \
+                         --enable-more-warnings=no \
                          --with-polkit=no")
 
 def build():
     autotools.make()
+
+def check():
+    autotools.make("check")
 
 def install():
     autotools.rawInstall("DESTDIR=%s" % get.installDIR())
