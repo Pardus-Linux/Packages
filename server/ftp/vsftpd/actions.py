@@ -11,7 +11,7 @@ from pisi.actionsapi import shelltools
 from pisi.actionsapi import get
 
 def build():
-    autotools.make('CC="%s" CFLAGS="%s -fpie" LINK="-pie" LDFLAGS="%s"' % (get.CC(),get.CFLAGS(),get.LDFLAGS()))
+    autotools.make('CC="%s" CFLAGS="%s -fpie" LINK="-pie -lssl" LDFLAGS="%s"' % (get.CC(),get.CFLAGS(),get.LDFLAGS()))
 
 def install():
     pisitools.dosbin("vsftpd")
