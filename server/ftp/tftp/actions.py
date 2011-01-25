@@ -19,5 +19,7 @@ def build():
 
 def install():
     autotools.rawInstall("INSTALLROOT=%s" % get.installDIR())
+
     pisitools.dodir("/tftpboot")
+
     pisitools.dodoc("README", "CHANGES")
