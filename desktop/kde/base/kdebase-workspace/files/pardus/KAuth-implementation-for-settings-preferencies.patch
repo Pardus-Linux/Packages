@@ -1,27 +1,7 @@
-From 598784a7ef75a7fb7894b7350902916542dc1878 Mon Sep 17 00:00:00 2001
-From: Fatih Arslan <ftharsln@gmail.com>
-Date: Thu, 16 Dec 2010 16:40:54 +0200
-Subject: [PATCH] KAuth implementation to save layout and variant settings system wide
-
----
- kcontrol/keyboard/CMakeLists.txt      |   15 +++++++
- kcontrol/keyboard/helper.cpp          |   70 +++++++++++++++++++++++++++++++++
- kcontrol/keyboard/helper.h            |   17 ++++++++
- kcontrol/keyboard/kcm_keyboard.cpp    |   14 +++++++
- kcontrol/keyboard/kcm_keyboard.h      |    3 +
- kcontrol/keyboard/kcmkeyboard.actions |    9 ++++
- kcontrol/keyboard/keyboard_config.cpp |   29 +++++++++++++-
- kcontrol/keyboard/keyboard_config.h   |    1 +
- 8 files changed, 157 insertions(+), 1 deletions(-)
- create mode 100644 kcontrol/keyboard/helper.cpp
- create mode 100644 kcontrol/keyboard/helper.h
- create mode 100644 kcontrol/keyboard/kcmkeyboard.actions
-
-diff --git a/kcontrol/keyboard/CMakeLists.txt b/kcontrol/keyboard/CMakeLists.txt
-index 197f4f8..5056965 100644
---- a/kcontrol/keyboard/CMakeLists.txt
-+++ b/kcontrol/keyboard/CMakeLists.txt
-@@ -124,6 +124,21 @@ target_link_libraries(kcm_keyboard
+diff -Nur kdebase-workspace-4.5.5-orig/kcontrol/keyboard/CMakeLists.txt kdebase-workspace-4.5.5/kcontrol/keyboard/CMakeLists.txt
+--- kdebase-workspace-4.5.5-orig/kcontrol/keyboard/CMakeLists.txt	2011-01-26 11:18:02.293000377 +0200
++++ kdebase-workspace-4.5.5/kcontrol/keyboard/CMakeLists.txt	2011-01-26 11:20:34.626000377 +0200
+@@ -124,6 +124,21 @@
      ${KDE4_KIO_LIBS} ${X11_Xkbfile_LIB} ${X11_LIBRARIES}
  )
  
@@ -43,11 +23,9 @@ index 197f4f8..5056965 100644
  install(TARGETS kcm_keyboard DESTINATION ${PLUGIN_INSTALL_DIR} )
  
  install( FILES kcm_keyboard.desktop DESTINATION ${SERVICES_INSTALL_DIR} )
-diff --git a/kcontrol/keyboard/helper.cpp b/kcontrol/keyboard/helper.cpp
-new file mode 100644
-index 0000000..5595c39
---- /dev/null
-+++ b/kcontrol/keyboard/helper.cpp
+diff -Nur kdebase-workspace-4.5.5-orig/kcontrol/keyboard/helper.cpp kdebase-workspace-4.5.5/kcontrol/keyboard/helper.cpp
+--- kdebase-workspace-4.5.5-orig/kcontrol/keyboard/helper.cpp	1970-01-01 02:00:00.000000000 +0200
++++ kdebase-workspace-4.5.5/kcontrol/keyboard/helper.cpp	2011-01-26 11:20:34.633000377 +0200
 @@ -0,0 +1,70 @@
 +#include "helper.h"
 +#include <iostream>
@@ -119,11 +97,9 @@ index 0000000..5595c39
 +
 +
 +KDE4_AUTH_HELPER_MAIN("org.kde.kcontrol.kcmkeyboard", Helper)
-diff --git a/kcontrol/keyboard/helper.h b/kcontrol/keyboard/helper.h
-new file mode 100644
-index 0000000..809a3f6
---- /dev/null
-+++ b/kcontrol/keyboard/helper.h
+diff -Nur kdebase-workspace-4.5.5-orig/kcontrol/keyboard/helper.h kdebase-workspace-4.5.5/kcontrol/keyboard/helper.h
+--- kdebase-workspace-4.5.5-orig/kcontrol/keyboard/helper.h	1970-01-01 02:00:00.000000000 +0200
++++ kdebase-workspace-4.5.5/kcontrol/keyboard/helper.h	2011-01-26 11:20:34.639000377 +0200
 @@ -0,0 +1,17 @@
 +#include <kauth.h>
 +#define WriteKeyboardError 1
@@ -142,10 +118,24 @@ index 0000000..809a3f6
 +        ActionReply createReply(int code, const QVariantMap *returnData = 0);
 +
 +};
-diff --git a/kcontrol/keyboard/kcm_keyboard.cpp b/kcontrol/keyboard/kcm_keyboard.cpp
-index 4e3cdaf..12739b6 100644
---- a/kcontrol/keyboard/kcm_keyboard.cpp
-+++ b/kcontrol/keyboard/kcm_keyboard.cpp
+diff -Nur kdebase-workspace-4.5.5-orig/kcontrol/keyboard/kcmkeyboard.actions kdebase-workspace-4.5.5/kcontrol/keyboard/kcmkeyboard.actions
+--- kdebase-workspace-4.5.5-orig/kcontrol/keyboard/kcmkeyboard.actions	1970-01-01 02:00:00.000000000 +0200
++++ kdebase-workspace-4.5.5/kcontrol/keyboard/kcmkeyboard.actions	2011-01-26 11:20:34.652000372 +0200
+@@ -0,0 +1,11 @@
++[Domain]
++Name=Keyboard Manager Control Module
++Icon=preferences-system-login
++
++[org.kde.kcontrol.kcmkeyboard.managekeyboard]
++Name=Save the Keyboard Manager settings
++Name[tr]=Klave yönetici ayarlarını kaydet
++Description=Administrator authorization is required to change the Keyboard Manager settings
++Description[tr]=Klavye yöneticisi ayarlarını değiştirmek için yönetici hakları gerekiyor
++Policy=auth_admin
++Persistence=session
+diff -Nur kdebase-workspace-4.5.5-orig/kcontrol/keyboard/kcm_keyboard.cpp kdebase-workspace-4.5.5/kcontrol/keyboard/kcm_keyboard.cpp
+--- kdebase-workspace-4.5.5-orig/kcontrol/keyboard/kcm_keyboard.cpp	2011-01-26 11:18:02.294000377 +0200
++++ kdebase-workspace-4.5.5/kcontrol/keyboard/kcm_keyboard.cpp	2011-01-26 11:20:34.663000365 +0200
 @@ -23,6 +23,7 @@
  #include <kaboutdata.h>
  #include <kpluginfactory.h>
@@ -154,7 +144,7 @@ index 4e3cdaf..12739b6 100644
  
  #include <QtDBus/QDBusMessage>
  #include <QtDBus/QDBusConnection>
-@@ -63,14 +64,18 @@ KCMKeyboard::KCMKeyboard(QWidget *parent, const QVariantList &/*args*/)
+@@ -63,12 +64,15 @@
  
    keyboardConfig = new KeyboardConfig();
  
@@ -169,11 +159,8 @@ index 4e3cdaf..12739b6 100644
 +  layout->addWidget(systemWide);
  
    connect(widget, SIGNAL(changed(bool)), this, SIGNAL(changed(bool)));
-+  connect(systemWide, SIGNAL(clicked(bool)), this, SIGNAL(changed(bool)));
  
- #ifdef DEFAULT_TAB
-   widget->setCurrentIndex(DEFAULT_TAB);
-@@ -110,6 +115,15 @@ void KCMKeyboard::save()
+@@ -110,6 +114,15 @@
  	QDBusMessage message = QDBusMessage::createSignal(KEYBOARD_DBUS_OBJECT_PATH, KEYBOARD_DBUS_SERVICE_NAME, KEYBOARD_DBUS_CONFIG_RELOAD_MESSAGE);
      QDBusConnection::sessionBus().send(message);
  
@@ -189,10 +176,9 @@ index 4e3cdaf..12739b6 100644
  //    initializeKeyboardSettings();
  }
  
-diff --git a/kcontrol/keyboard/kcm_keyboard.h b/kcontrol/keyboard/kcm_keyboard.h
-index c88fe3d..64c9226 100644
---- a/kcontrol/keyboard/kcm_keyboard.h
-+++ b/kcontrol/keyboard/kcm_keyboard.h
+diff -Nur kdebase-workspace-4.5.5-orig/kcontrol/keyboard/kcm_keyboard.h kdebase-workspace-4.5.5/kcontrol/keyboard/kcm_keyboard.h
+--- kdebase-workspace-4.5.5-orig/kcontrol/keyboard/kcm_keyboard.h	2011-01-26 11:18:02.294000377 +0200
++++ kdebase-workspace-4.5.5/kcontrol/keyboard/kcm_keyboard.h	2011-01-26 11:20:34.663000365 +0200
 @@ -25,6 +25,7 @@
  class KCMKeyboardWidget;
  class KeyboardConfig;
@@ -201,7 +187,7 @@ index c88fe3d..64c9226 100644
  
  class KCMKeyboard: public KCModule
  {
-@@ -42,6 +43,8 @@ private:
+@@ -42,6 +43,8 @@
  	Rules* rules;
  	KeyboardConfig* keyboardConfig;
  	KCMKeyboardWidget *widget;
@@ -210,25 +196,9 @@ index c88fe3d..64c9226 100644
  
 +
  #endif /* KCM_KEYBOARD_H_ */
-diff --git a/kcontrol/keyboard/kcmkeyboard.actions b/kcontrol/keyboard/kcmkeyboard.actions
-new file mode 100644
-index 0000000..408427b
---- /dev/null
-+++ b/kcontrol/keyboard/kcmkeyboard.actions
-@@ -0,0 +1,9 @@
-+[Domain]
-+Name=Keyboard Manager Control Module
-+Icon=preferences-system-login
-+
-+[org.kde.kcontrol.kcmkeyboard.managekeyboard]
-+Name=Save the Keyboard Manager settings
-+Description=Administrator authorization is required to change the Keyboard Manager settings
-+Policy=auth_admin
-+Persistence=session
-diff --git a/kcontrol/keyboard/keyboard_config.cpp b/kcontrol/keyboard/keyboard_config.cpp
-index 1e1a670..f095f88 100644
---- a/kcontrol/keyboard/keyboard_config.cpp
-+++ b/kcontrol/keyboard/keyboard_config.cpp
+diff -Nur kdebase-workspace-4.5.5-orig/kcontrol/keyboard/keyboard_config.cpp kdebase-workspace-4.5.5/kcontrol/keyboard/keyboard_config.cpp
+--- kdebase-workspace-4.5.5-orig/kcontrol/keyboard/keyboard_config.cpp	2011-01-26 11:18:02.293000377 +0200
++++ kdebase-workspace-4.5.5/kcontrol/keyboard/keyboard_config.cpp	2011-01-26 11:20:34.685000394 +0200
 @@ -18,9 +18,13 @@
  
  #include "keyboard_config.h"
@@ -243,7 +213,7 @@ index 1e1a670..f095f88 100644
  
  
  static const char* SWITCHING_POLICIES[] = {"Global", "Desktop", "WinClass", "Window", NULL };
-@@ -32,7 +36,6 @@ static const QString CONFIG_FILENAME("kxkbrc");
+@@ -32,7 +36,6 @@
  static const QString CONFIG_GROUPNAME("Layout");
  
  
@@ -251,7 +221,7 @@ index 1e1a670..f095f88 100644
  static int findStringIndex(const char* strings[], const QString& toFind, int defaultIndex)
  {
  	for(int i=0; strings[i] != NULL; i++) {
-@@ -144,3 +147,27 @@ void KeyboardConfig::save()
+@@ -144,3 +147,27 @@
  
  	config.sync();
  }
@@ -279,11 +249,10 @@ index 1e1a670..f095f88 100644
 +    KAuth::ActionReply reply = action.execute();
 +    return reply.errorCode();
 +}
-diff --git a/kcontrol/keyboard/keyboard_config.h b/kcontrol/keyboard/keyboard_config.h
-index bf5e0aa..10f0aa0 100644
---- a/kcontrol/keyboard/keyboard_config.h
-+++ b/kcontrol/keyboard/keyboard_config.h
-@@ -65,6 +65,7 @@ public:
+diff -Nur kdebase-workspace-4.5.5-orig/kcontrol/keyboard/keyboard_config.h kdebase-workspace-4.5.5/kcontrol/keyboard/keyboard_config.h
+--- kdebase-workspace-4.5.5-orig/kcontrol/keyboard/keyboard_config.h	2011-01-26 11:18:02.294000377 +0200
++++ kdebase-workspace-4.5.5/kcontrol/keyboard/keyboard_config.h	2011-01-26 11:20:34.763000378 +0200
+@@ -65,6 +65,7 @@
  	void setDefaults();
  	void load();
  	void save();
@@ -291,6 +260,3 @@ index bf5e0aa..10f0aa0 100644
  };
  
  #endif /* KEYBOARD_CONFIG_H_ */
--- 
-1.7.3.2
-
