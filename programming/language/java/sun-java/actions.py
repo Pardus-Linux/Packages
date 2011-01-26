@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright 2006,2007 TUBITAK/UEKAE
+# Copyright 2006,2011 TUBITAK/UEKAE
 # Licensed under the GNU General Public License, version 2.
 # See the file http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
 
@@ -11,7 +11,7 @@ from pisi.actionsapi import get
 
 WorkDir = get.ARCH()
 NoStrip = "/"
-Name = "6u22"
+Name = "6u23"
 Arch = "amd64" if get.ARCH() == "x86_64" else "i586"
 
 def setup():
