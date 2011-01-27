@@ -16,7 +16,6 @@ def install():
     docdir = "%s/%s/%s" % (get.installDIR(), get.docDIR(), get.srcNAME())
     autotools.rawInstall("PKG_ROOT=%s DOC_PREFIX=%s" % (get.installDIR(), docdir))
 
-    pisitools.remove("/usr/X11R6/include/X11/pixmaps/tuxpaint.xpm")
     pisitools.domove("/usr/share/doc/tuxpaint-dev", "%s/%s/dev" % (get.docDIR(), get.srcNAME()))
 
     pisitools.insinto("/usr/share/applications", "src/tuxpaint.desktop")
