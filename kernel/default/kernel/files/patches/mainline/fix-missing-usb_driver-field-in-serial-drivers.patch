@@ -1,0 +1,179 @@
+This patch (as1443) fixes a bug found in many of the USB serial
+drivers: They don't set the .usb_driver field in their
+usb_serial_driver structure.  This field is needed for assigning
+dynamic IDs for device matching.
+
+In addition, starting with the 2.6.37 kernel, the .usb_driver field is
+needed for proper autosuspend operation.  Without it, attempts to open
+the device file will fail.
+
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+Reported-by: Dan Williams <dcbw@redhat.com>
+CC: <stable@kernel.org>
+
+---
+
+This patch is based on 2.6.37.  If any USB serial drivers have been
+added since then, they may need to be fixed too.
+
+
+
+Index: usb-2.6/drivers/usb/serial/io_tables.h
+===================================================================
+--- usb-2.6.orig/drivers/usb/serial/io_tables.h
++++ usb-2.6/drivers/usb/serial/io_tables.h
+@@ -199,6 +199,7 @@ static struct usb_serial_driver epic_dev
+ 		.name		= "epic",
+ 	},
+ 	.description		= "EPiC device",
++	.usb_driver		= &io_driver,
+ 	.id_table		= Epic_port_id_table,
+ 	.num_ports		= 1,
+ 	.open			= edge_open,
+Index: usb-2.6/drivers/usb/serial/iuu_phoenix.c
+===================================================================
+--- usb-2.6.orig/drivers/usb/serial/iuu_phoenix.c
++++ usb-2.6/drivers/usb/serial/iuu_phoenix.c
+@@ -1275,6 +1275,7 @@ static struct usb_serial_driver iuu_devi
+ 		   .name = "iuu_phoenix",
+ 		   },
+ 	.id_table = id_table,
++	.usb_driver = &iuu_driver,
+ 	.num_ports = 1,
+ 	.bulk_in_size = 512,
+ 	.bulk_out_size = 512,
+Index: usb-2.6/drivers/usb/serial/keyspan.h
+===================================================================
+--- usb-2.6.orig/drivers/usb/serial/keyspan.h
++++ usb-2.6/drivers/usb/serial/keyspan.h
+@@ -546,6 +546,7 @@ static struct usb_serial_driver keyspan_
+ 		.name		= "keyspan_no_firm",
+ 	},
+ 	.description		= "Keyspan - (without firmware)",
++	.usb_driver		= &keyspan_driver,
+ 	.id_table		= keyspan_pre_ids,
+ 	.num_ports		= 1,
+ 	.attach			= keyspan_fake_startup,
+@@ -557,6 +558,7 @@ static struct usb_serial_driver keyspan_
+ 		.name		= "keyspan_1",
+ 	},
+ 	.description		= "Keyspan 1 port adapter",
++	.usb_driver		= &keyspan_driver,
+ 	.id_table		= keyspan_1port_ids,
+ 	.num_ports		= 1,
+ 	.open			= keyspan_open,
+@@ -579,6 +581,7 @@ static struct usb_serial_driver keyspan_
+ 		.name		= "keyspan_2",
+ 	},
+ 	.description		= "Keyspan 2 port adapter",
++	.usb_driver		= &keyspan_driver,
+ 	.id_table		= keyspan_2port_ids,
+ 	.num_ports		= 2,
+ 	.open			= keyspan_open,
+@@ -601,6 +604,7 @@ static struct usb_serial_driver keyspan_
+ 		.name		= "keyspan_4",
+ 	},
+ 	.description		= "Keyspan 4 port adapter",
++	.usb_driver		= &keyspan_driver,
+ 	.id_table		= keyspan_4port_ids,
+ 	.num_ports		= 4,
+ 	.open			= keyspan_open,
+Index: usb-2.6/drivers/usb/serial/moto_modem.c
+===================================================================
+--- usb-2.6.orig/drivers/usb/serial/moto_modem.c
++++ usb-2.6/drivers/usb/serial/moto_modem.c
+@@ -44,6 +44,7 @@ static struct usb_serial_driver moto_dev
+ 		.name =		"moto-modem",
+ 	},
+ 	.id_table =		id_table,
++	.usb_driver =		&moto_driver,
+ 	.num_ports =		1,
+ };
+ 
+Index: usb-2.6/drivers/usb/serial/oti6858.c
+===================================================================
+--- usb-2.6.orig/drivers/usb/serial/oti6858.c
++++ usb-2.6/drivers/usb/serial/oti6858.c
+@@ -157,6 +157,7 @@ static struct usb_serial_driver oti6858_
+ 		.name =		"oti6858",
+ 	},
+ 	.id_table =		id_table,
++	.usb_driver =		&oti6858_driver,
+ 	.num_ports =		1,
+ 	.open =			oti6858_open,
+ 	.close =		oti6858_close,
+Index: usb-2.6/drivers/usb/serial/qcaux.c
+===================================================================
+--- usb-2.6.orig/drivers/usb/serial/qcaux.c
++++ usb-2.6/drivers/usb/serial/qcaux.c
+@@ -84,6 +84,7 @@ static struct usb_serial_driver qcaux_de
+ 		.name =		"qcaux",
+ 	},
+ 	.id_table =		id_table,
++	.usb_driver =		&qcaux_driver,
+ 	.num_ports =		1,
+ };
+ 
+Index: usb-2.6/drivers/usb/serial/siemens_mpi.c
+===================================================================
+--- usb-2.6.orig/drivers/usb/serial/siemens_mpi.c
++++ usb-2.6/drivers/usb/serial/siemens_mpi.c
+@@ -42,6 +42,7 @@ static struct usb_serial_driver siemens_
+ 		.name =		"siemens_mpi",
+ 	},
+ 	.id_table =		id_table,
++	.usb_driver =		&siemens_usb_mpi_driver,
+ 	.num_ports =		1,
+ };
+ 
+Index: usb-2.6/drivers/usb/serial/spcp8x5.c
+===================================================================
+--- usb-2.6.orig/drivers/usb/serial/spcp8x5.c
++++ usb-2.6/drivers/usb/serial/spcp8x5.c
+@@ -645,6 +645,7 @@ static struct usb_serial_driver spcp8x5_
+ 		.name =		"SPCP8x5",
+ 	},
+ 	.id_table		= id_table,
++	.usb_driver		= &spcp8x5_driver,
+ 	.num_ports		= 1,
+ 	.open 			= spcp8x5_open,
+ 	.dtr_rts		= spcp8x5_dtr_rts,
+Index: usb-2.6/drivers/usb/serial/usb-serial.c
+===================================================================
+--- usb-2.6.orig/drivers/usb/serial/usb-serial.c
++++ usb-2.6/drivers/usb/serial/usb-serial.c
+@@ -1344,11 +1344,15 @@ int usb_serial_register(struct usb_seria
+ 		return -ENODEV;
+ 
+ 	fixup_generic(driver);
+-	if (driver->usb_driver)
+-		driver->usb_driver->supports_autosuspend = 1;
+ 
+ 	if (!driver->description)
+ 		driver->description = driver->driver.name;
++	if (!driver->usb_driver) {
++		WARN(1, "Serial driver %s has no usb_driver\n",
++				driver->description);
++		return -EINVAL;
++	}
++	driver->usb_driver->supports_autosuspend = 1;
+ 
+ 	/* Add this device to our list of devices */
+ 	mutex_lock(&table_lock);
+Index: usb-2.6/drivers/usb/serial/usb_debug.c
+===================================================================
+--- usb-2.6.orig/drivers/usb/serial/usb_debug.c
++++ usb-2.6/drivers/usb/serial/usb_debug.c
+@@ -75,6 +75,7 @@ static struct usb_serial_driver debug_de
+ 		.name =		"debug",
+ 	},
+ 	.id_table =		id_table,
++	.usb_driver =		&debug_driver,
+ 	.num_ports =		1,
+ 	.bulk_out_size =	USB_DEBUG_MAX_PACKET_SIZE,
+ 	.break_ctl =		usb_debug_break_ctl,
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
