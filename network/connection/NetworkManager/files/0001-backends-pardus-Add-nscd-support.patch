@@ -1,0 +1,29 @@
+From fd5a17a789859310553370abeae72cff113cec64 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Ozan=20=C3=87a=C4=9Flayan?= <ozan@pardus.org.tr>
+Date: Thu, 27 Jan 2011 14:12:39 +0200
+Subject: [PATCH] backends/pardus: Add nscd support
+
+Now that we're running nscd by default, restart it on DNS changes
+and invalidate hosts cache.
+---
+ src/backends/NetworkManagerPardus.c |    5 ++++-
+ 1 files changed, 4 insertions(+), 1 deletions(-)
+
+diff --git a/src/backends/NetworkManagerPardus.c b/src/backends/NetworkManagerPardus.c
+index d952cf3..a5af94e 100644
+--- a/src/backends/NetworkManagerPardus.c
++++ b/src/backends/NetworkManagerPardus.c
+@@ -52,6 +52,9 @@ void nm_system_enable_loopback (void)
+  */
+ void nm_system_update_dns (void)
+ {
+-	/* I'm not running nscd */
++	/* Check if the daemon was already running - do not start a new instance */
++	if (g_file_test("/var/run/nscd/socket", G_FILE_TEST_EXISTS))
++		nm_spawn_process ("/bin/service nscd restart");
++		nm_spawn_process ("/usr/sbin/nscd -i hosts");
+ }
+ 
+-- 
+1.7.3.4
+
