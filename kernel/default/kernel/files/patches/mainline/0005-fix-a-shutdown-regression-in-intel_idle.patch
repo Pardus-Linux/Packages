@@ -1,0 +1,55 @@
+From ec30f343d61391ab23705e50a525da1d55395780 Mon Sep 17 00:00:00 2001
+From: Shaohua Li <shaohua.li@intel.com>
+Date: Mon, 24 Jan 2011 08:00:01 +0000
+Subject: [PATCH 5/5] fix a shutdown regression in intel_idle
+
+Fix a shutdown regression caused by 2a2d31c8dc6f ("intel_idle: open
+broadcast clock event").  The clockevent framework can automatically
+shutdown broadcast timers for hotremove CPUs.  And we get a shutdown
+regression when we shutdown broadcast timer for hot remove CPU, so just
+delete some code.
+
+Also fix some section mismatch.
+
+Reported-by: Ari Savolainen <ari.m.savolainen@gmail.com>
+Signed-off-by: Shaohua Li <shaohua.li@intel.com>
+Tested-by: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: stable@kernel.org
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+---
+ drivers/idle/intel_idle.c |    8 ++------
+ 1 files changed, 2 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/idle/intel_idle.c b/drivers/idle/intel_idle.c
+index 7acb32e..1fa091e 100644
+--- a/drivers/idle/intel_idle.c
++++ b/drivers/idle/intel_idle.c
+@@ -263,7 +263,7 @@ static void __setup_broadcast_timer(void *arg)
+ 	clockevents_notify(reason, &cpu);
+ }
+ 
+-static int __cpuinit setup_broadcast_cpuhp_notify(struct notifier_block *n,
++static int setup_broadcast_cpuhp_notify(struct notifier_block *n,
+ 		unsigned long action, void *hcpu)
+ {
+ 	int hotcpu = (unsigned long)hcpu;
+@@ -273,15 +273,11 @@ static int __cpuinit setup_broadcast_cpuhp_notify(struct notifier_block *n,
+ 		smp_call_function_single(hotcpu, __setup_broadcast_timer,
+ 			(void *)true, 1);
+ 		break;
+-	case CPU_DOWN_PREPARE:
+-		smp_call_function_single(hotcpu, __setup_broadcast_timer,
+-			(void *)false, 1);
+-		break;
+ 	}
+ 	return NOTIFY_OK;
+ }
+ 
+-static struct notifier_block __cpuinitdata setup_broadcast_notifier = {
++static struct notifier_block setup_broadcast_notifier = {
+ 	.notifier_call = setup_broadcast_cpuhp_notify,
+ };
+ 
+-- 
+1.7.3.4
+
