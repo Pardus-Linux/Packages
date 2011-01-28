@@ -7,10 +7,16 @@
 
 from pisi.actionsapi import autotools
 from pisi.actionsapi import pisitools
+from pisi.actionsapi import shelltools
 from pisi.actionsapi import get
+
+shelltools.export("CFLAGS", get.CFLAGS().replace("-D_FORTIFY_SOURCE=2", ""))
 
 def setup():
     autotools.autoreconf("-vfi")
+    shelltools.cd("mediastreamer2")
+    autotools.autoreconf("-vfi")
+    shelltools.cd("..")
     autotools.configure("--enable-shared \
                          --disable-static \
                          --enable-external-ortp \
