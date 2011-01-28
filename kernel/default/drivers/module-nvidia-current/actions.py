@@ -34,9 +34,6 @@ def setup():
     shelltools.echo("ld.so.conf", libdir)
     shelltools.echo("XvMCConfig", "%s/libXvMCNVIDIA.so" % libdir)
 
-    # Fix for 2.6.36
-    #pisitools.dosed("kernel/nv.c", r"^ *\.ioctl     = nv_kern_ioctl,$", "")
-
 def build():
     shelltools.export("SYSSRC", "/lib/modules/%s/build" % KDIR)
     shelltools.cd("kernel")
