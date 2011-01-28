@@ -13,7 +13,7 @@
         <IsA>app:gui</IsA>
         <Summary>VLC media player</Summary>
         <Description>VLC is a famous video player and streamer.</Description>
-        <Archive sha1sum="2c4f85fbccbd11946cb4b2cf94464e5db38db78a" type="tarbz2">http://download.videolan.org/pub/videolan/vlc/1.1.4/vlc-1.1.4.tar.bz2</Archive>
+        <Archive sha1sum="4cb4014d116493cc7d1b09622d0458121c14ce73" type="tarbz2">http://download.videolan.org/pub/videolan/vlc/1.1.6/vlc-1.1.6.tar.bz2</Archive>
         <BuildDependencies>
             <Dependency versionFrom="4.6.2">qt-devel</Dependency>
             <Dependency>hal-devel</Dependency>
@@ -54,6 +54,9 @@
             <Dependency>xulrunner-devel</Dependency>
             <Dependency>avahi-devel</Dependency>
             <Dependency>pulseaudio-libs</Dependency>
+            <!-- Waiting Ozan to merge pulseaudio 0.9.22 to the repositories.
+            <Dependency versionFrom="0.9.22">pulseaudio-libs</Dependency>
+            -->
             <Dependency>sdl-image-devel</Dependency>
             <Dependency>schroedinger-devel</Dependency>
             <Dependency>twolame-devel</Dependency>
@@ -93,6 +96,7 @@
             <Dependency>mesa-devel</Dependency>
             <Dependency>libid3tag-devel</Dependency>
             <Dependency releaseFrom="6">libprojectM-devel</Dependency>
+            <Dependency>gdk-pixbuf-devel</Dependency>
         </BuildDependencies>
         <Patches>
             <Patch level="1">default-font.patch</Patch>
@@ -100,6 +104,7 @@
             <Patch level="0">altivec_in_vlc.1.0.0.patch</Patch>
             <Patch level="1">300_all_pic.patch</Patch>
             <Patch level="1">020_all_check_headers_regexps.patch</Patch>
+            <Patch level="1">add_errno.h.patch</Patch>
             <!--
             <Patch level="1">0001-pulse-Use-the-user-agent-variable-for-the-client-nam.patch</Patch>
             -->
@@ -114,6 +119,7 @@
             <Dependency>libtar</Dependency>
             <Dependency>libXext</Dependency>
             <Dependency>minizip</Dependency>
+            <Dependency>libXpm</Dependency>
             <Dependency versionFrom="4.6.2">qt</Dependency>
             <Dependency release="current">vlc-libs</Dependency>
         </RuntimeDependencies>
@@ -219,6 +225,9 @@
             <Dependency>mesa</Dependency>
             <Dependency>minizip</Dependency>
             <Dependency>pulseaudio-libs</Dependency>
+            <!-- Waiting Ozan to merge pulseaudio 0.9.22 to the repositories.
+            <Dependency versionFrom="0.9.22">pulseaudio-libs</Dependency>
+            -->
             <Dependency>samba</Dependency>
             <Dependency>schroedinger</Dependency>
             <Dependency>sdl-image</Dependency>
@@ -227,9 +236,9 @@
             <Dependency>twolame</Dependency>
             <Dependency>vcdimager</Dependency>
             <Dependency releaseFrom="33">x264</Dependency>
-            <Dependency releaseFrom="33">x264</Dependency>
             <Dependency>xcb-util</Dependency>
             <Dependency>zvbi</Dependency>
+            <Dependency>gdk-pixbuf</Dependency>
         </RuntimeDependencies>
         <Conflicts>
             <Package releaseTo="42">vlc</Package>
@@ -254,6 +263,44 @@
     </Package>
 
     <History>
+        <Update release="47">
+            <Date>2011-01-27</Date>
+            <Version>1.1.6</Version>
+            <Comment>Version bump to vlc 1.1.6:
+                -- Access: * Support for RTP access for H264 streams by specifying the demux in the MRL
+                -- Audio output: * Multiple fixes and improvements on PulseAudio output, PACKAGERS are VERY STRONGLY advised to update libpulse to 0.9.22. Update is required to use PulseAudio with the Phonon-VLC backend (KDE) and with the Mozilla VLC web browser plugin.
+                -- Decoders: * Faster VP8/Webm decoding with recent codecs libraries
+                1.1.4.1 to 1.1.5 fixes: * Fix decoding of H264 using DxVA2 using Intel IGP, thanks to the donation from Puget Systems
+                -- Services Discovery: * Integration in the playlist, of a list of web shows, provided by channels.com
+                -- Demuxers: * Fix Buffer overflow in Real demuxer CVE-2010-3907 / VideoLAN-SA-1007
+                * Fix some asf/wmv seeking issues, notably when seek didn't go to a keyframe
+                * Support for 24-bits PCM over RTP (audio/L24)
+                    1.1.4.1 to 1.1.5 fixes:
+                * Game Music Emu (GME) plugin rewritten, using the proper C API
+                * DVDnav and DVDread fixes for encoding and misc issues
+                * Playback of live http .Webm streams
+                * Taglib thread-safety fix
+                -- Video Output: * fix a bug that could lead to 100% CPU usage on XCB
+                -- Subtitles and renderer: * Do not auto-detect .txt files for subtitles
+                * Mark more freetype options as safe
+                * Fix heap corruption in subtitle decoders, potentially exploitable, discovered by Harry Sintonen - sintonen at iki.fi, pardus bug #16513
+                -- Visualization: * Fix projectM visualization for Linux in all locales
+                * Various projectM improvements: the module should be working now
+                -- Interfaces: * Qt4: fixes for media keys processing and MCE remotes
+                * Qt4: various fixes and portability improvements
+                * KDE: work-around open dialog first slow opening because of KMimeTypeRepository
+                    1.1.4.1 to 1.1.5 fixes:
+                * fixes on luatelnet and luarc
+                Miscellaneous crashes and fixes in various plugins (telnet, live555, theora and TS-mux, Qt)
+                -- Miscellaneous fixes: * KDE device solid actions
+                * XDG screensaver
+                * Transcode integer overflow
+                * HTTP Icy metadata reading
+                -- Translations: * Update translations for Chinese, Nippon, Slovak, Estonian, Spanish, Galician, Swedish, Bulgarian, French, Bengalese, German, Slovak, Japanese, Dutch, Polish, Hungarian, Indonesian, Sinhala and Irish.
+            </Comment>
+            <Name>Serdar Dalgıç</Name>
+            <Email>serdar@pardus.org.tr</Email>
+        </Update>
         <Update release="46">
             <Date>2010-12-01</Date>
             <Version>1.1.4</Version>
