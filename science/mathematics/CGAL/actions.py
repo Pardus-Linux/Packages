@@ -14,6 +14,8 @@ from pisi.actionsapi import Error
 import os
 from stat import *
 
+shelltools.export("HOME", get.workDIR())
+
 def setup():
     shelltools.makedirs("build")
     shelltools.cd("build")
