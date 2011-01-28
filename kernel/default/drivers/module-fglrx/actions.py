@@ -29,9 +29,8 @@ def setup():
     pisitools.dosed("%s/2.6.x/Makefile" % BuildDir, r"^(GCC_VER_MAJ *=).*$", r"\1 4")
     pisitools.dosed("common/etc/ati/authatieventsd.sh", "/var/lib/xdm/authdir/authfiles", "/var/run/xauth")
 
-    shelltools.system("patch -p1 < kernel-2.6.36.patch")
-    shelltools.system("patch -p1 < use-cflags_module-together-with-modflags.patch")
-    shelltools.system("patch -p1 < kernel-2.6.37.patch")
+    shelltools.system("patch -p1 < desktop-files.patch")
+    shelltools.system("patch -p1 < ati-powermode.patch")
 
 def build():
     shelltools.cd(BuildDir)
@@ -86,6 +85,9 @@ def install():
     pisitools.remove("/usr/lib/*.a")
     if shelltools.isFile("%s/usr/lib/fglrx/modules/esut.a" % get.installDIR()):
         pisitools.remove("/usr/lib/fglrx/modules/esut.a")
+
+    # control script for ACPI lid state and AC adapter state
+    pisitools.insinto("/etc/acpi", "common/usr/share/doc/fglrx/examples/etc/acpi/ati-powermode.sh")
 
     # not needed as xdg-utils package provides xdg-su
     pisitools.remove("/usr/bin/amdxdg-su")
