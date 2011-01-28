@@ -30,13 +30,14 @@ def setup():
 
 def build():
     shelltools.cd("build")
-    cmaketools.make("-j1")
+    cmaketools.make()
 
     # remove obsolote demos/examples that wont compile with new boost or qt
     obsolotes = ["demo/Periodic_3_triangulation_3", "demo/Polyhedron", "examples/BGL_arrangement_2",\
                  "examples/Ridges_3", "examples/BGL_polyhedron_3", "examples/Arrangement_on_surface_2",
                  "examples/Envelope_3", "examples/Surface_mesh_simplification", "examples/Jet_fitting_3",
-                 "examples/Modular_arithmetic", "examples/Polynomial", "demo/Mesh_3", "examples/Mesh_3"]
+                 "examples/Modular_arithmetic", "examples/Polynomial", "demo/Mesh_3", "examples/Mesh_3",
+                 "demo/Periodic_Lloyd_3", "demo/Bounding_volumes"]
     try:
         for i in obsolotes:
             shelltools.unlinkDir("%s" % i)
@@ -44,8 +45,8 @@ def build():
     except Error, e:
         print e
 
-    cmaketools.make("-j1 demos")
-    cmaketools.make("-j1 examples")
+    cmaketools.make("demos")
+    cmaketools.make("examples")
 
 def install():
     shelltools.cd("build")
