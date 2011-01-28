@@ -34,7 +34,7 @@ def build():
     obsolotes = ["demo/Periodic_3_triangulation_3", "demo/Polyhedron", "examples/BGL_arrangement_2",\
                  "examples/Ridges_3", "examples/BGL_polyhedron_3", "examples/Arrangement_on_surface_2",
                  "examples/Envelope_3", "examples/Surface_mesh_simplification", "examples/Jet_fitting_3",
-                 "examples/Modular_arithmetic", "examples/Polynomial"]
+                 "examples/Modular_arithmetic", "examples/Polynomial", "demo/Mesh_3", "examples/Mesh_3"]
     try:
         for i in obsolotes:
             shelltools.unlinkDir("%s" % i)
