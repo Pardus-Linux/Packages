@@ -10,9 +10,9 @@ from pisi.actionsapi import get
 
 def setup():
     autotools.configure("--enable-ipv6 \
+                         --enable-shared \
                          --disable-strict \
-                         --disable-static \
-                         --enable-debug=no")
+                         --disable-static")
 
     # Put flags in front of the libs. Needed for --as-needed.
     replace = (r"(\\\$deplibs) (\\\$compiler_flags)", r"\2 \1")
