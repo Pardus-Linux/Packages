@@ -6,10 +6,7 @@
 
 from pisi.actionsapi import autotools
 from pisi.actionsapi import pisitools
-from pisi.actionsapi import shelltools
 from pisi.actionsapi import get
-
-WorkDir = "embryo-1.0.0.beta3"
 
 def setup():
     autotools.autoreconf("-vfi")
