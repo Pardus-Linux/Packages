@@ -8,11 +8,10 @@ from pisi.actionsapi import autotools
 from pisi.actionsapi import pisitools
 from pisi.actionsapi import get
 
-WorkDir = "eina-1.0.0.beta3"
-
 def setup():
     autotools.autoreconf("-vfi")
     autotools.configure("--disable-static\
+                         --disable-valgrind \
                          --disable-magic-debug")
 
 def build():
