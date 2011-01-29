@@ -1,0 +1,29 @@
+From bd769fa98a51cbdc1fe4db7e19a0af5f19e44ac1 Mon Sep 17 00:00:00 2001
+From: Arun Raghavan <arun.raghavan@collabora.co.uk>
+Date: Thu, 2 Dec 2010 16:30:59 +0530
+Subject: [PATCH 101/120] rescue-streams: Fix segfault in some conditions
+
+There is a call to this function where 'skip' variable is NULL. Looks
+like this code doesn't get hit very often, probably because a suitable
+default sink can be found to move the stream to. However, if we can't
+move to the default sink and skip is NULL, there will be a segfault.
+---
+ src/modules/module-rescue-streams.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/src/modules/module-rescue-streams.c b/src/modules/module-rescue-streams.c
+index 722d84b..2fcd21f 100644
+--- a/src/modules/module-rescue-streams.c
++++ b/src/modules/module-rescue-streams.c
+@@ -159,7 +159,7 @@ static pa_source* find_evacuation_source(pa_core *c, pa_source_output *o, pa_sou
+         if (target == skip)
+             continue;
+ 
+-        if (!target->monitor_of != !skip->monitor_of)
++        if (skip && !target->monitor_of != !skip->monitor_of)
+             continue;
+ 
+         if (!PA_SOURCE_IS_LINKED(pa_source_get_state(target)))
+-- 
+1.7.3.4
+

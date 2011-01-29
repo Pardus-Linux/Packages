@@ -1,0 +1,34 @@
+From 1e1b299784d07989901dc9e10ea0df1d2564ec72 Mon Sep 17 00:00:00 2001
+From: Scott Reeves <sreeves@novell.com>
+Date: Thu, 20 Jan 2011 16:41:21 -0700
+Subject: [PATCH 120/120] Core: Fix incorrect check of return value
+
+---
+ src/pulsecore/core-util.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/pulsecore/core-util.c b/src/pulsecore/core-util.c
+index a642553..b662a7e 100644
+--- a/src/pulsecore/core-util.c
++++ b/src/pulsecore/core-util.c
+@@ -680,7 +680,7 @@ int pa_make_realtime(int rtprio) {
+     }
+ 
+     for (p = rtprio-1; p >= 1; p--)
+-        if (set_scheduler(p)) {
++        if (set_scheduler(p) >= 0) {
+             pa_log_info("Successfully enabled SCHED_RR scheduling for thread, with priority %i, which is lower than the requested %i.", p, rtprio);
+             return 0;
+         }
+@@ -750,7 +750,7 @@ int pa_raise_priority(int nice_level) {
+     }
+ 
+     for (n = nice_level+1; n < 0; n++)
+-        if (set_nice(n) > 0) {
++        if (set_nice(n) >= 0) {
+             pa_log_info("Successfully acquired nice level %i, which is lower than the requested %i.", n, nice_level);
+             return 0;
+         }
+-- 
+1.7.3.4
+

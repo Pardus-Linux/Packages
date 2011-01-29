@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*- 
 #
-# Copyright 2005-2010 TUBITAK/UEKAE
+# Copyright 2005-2011 TUBITAK/UEKAE
 # Licensed under the GNU General Public License, version 2.
 # See the file http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
 
@@ -30,8 +30,8 @@ def setup():
                          --with-access-group=pulse-access")
 
 def build():
-    #autotools.make("LIBTOOL=/usr/bin/libtool")
-    autotools.make()
+    autotools.make("LIBTOOL=/usr/bin/libtool")
+    #autotools.make()
 
     #generate html docs
     autotools.make("doxygen")
@@ -43,12 +43,13 @@ def check():
 def install():
     autotools.rawInstall("DESTDIR=%s" % get.installDIR())
 
-    pisitools.dodoc("README", "LICENSE", "GPL", "LGPL", "todo", "ChangeLog")
-    pisitools.dohtml("doxygen/html/*")
-
     # Needed for service.py
     pisitools.dodir("/var/run/pulse")
     pisitools.dodir("/var/lib/pulse")
 
     # HAL is no longer supported by default
     pisitools.removeDir("/etc/dbus-1")
+
+    pisitools.dodoc("README", "LICENSE", "GPL", "LGPL", "todo", "ChangeLog")
+    pisitools.dohtml("doxygen/html/*")
+

@@ -1,0 +1,203 @@
+From 4269b05b975f453f5061cb83177520d95a2225ef Mon Sep 17 00:00:00 2001
+From: Zhang Wanming <wanming.zhang@tieto.com>
+Date: Mon, 20 Dec 2010 17:20:57 +0800
+Subject: [PATCH 111/120] Fix typos
+
+---
+ src/daemon/main.c                   |    2 +-
+ src/modules/alsa/alsa-mixer.c       |    8 ++++----
+ src/modules/module-card-restore.c   |    2 +-
+ src/modules/module-device-manager.c |    2 +-
+ src/modules/module-device-restore.c |    2 +-
+ src/modules/module-pipe-source.c    |    2 +-
+ src/modules/module-rescue-streams.c |    8 ++++----
+ src/modules/module-stream-restore.c |    2 +-
+ src/pulsecore/pdispatch.c           |    2 +-
+ src/pulsecore/pid.c                 |    2 +-
+ 10 files changed, 16 insertions(+), 16 deletions(-)
+
+diff --git a/src/daemon/main.c b/src/daemon/main.c
+index c7e202a..2f5bbe0 100644
+--- a/src/daemon/main.c
++++ b/src/daemon/main.c
+@@ -867,7 +867,7 @@ int main(int argc, char *argv[]) {
+         if (mlockall(MCL_FUTURE) < 0)
+             pa_log_warn("mlockall() failed: %s", pa_cstrerror(errno));
+         else
+-            pa_log_info("Sucessfully locked process into memory.");
++            pa_log_info("Successfully locked process into memory.");
+ #else
+         pa_log_warn("Memory locking requested but not supported on platform.");
+ #endif
+diff --git a/src/modules/alsa/alsa-mixer.c b/src/modules/alsa/alsa-mixer.c
+index 9de59ef..1ede8cf 100644
+--- a/src/modules/alsa/alsa-mixer.c
++++ b/src/modules/alsa/alsa-mixer.c
+@@ -888,7 +888,7 @@ static int element_mute_volume(pa_alsa_element *e, snd_mixer_t *m) {
+         r = snd_mixer_selem_set_capture_volume_all(me, e->min_volume);
+ 
+     if (r < 0)
+-        pa_log_warn("Faile to set volume to muted of %s: %s", e->alsa_name, pa_alsa_strerror(errno));
++        pa_log_warn("Failed to set volume to muted of %s: %s", e->alsa_name, pa_alsa_strerror(errno));
+ 
+     return r;
+ }
+@@ -914,7 +914,7 @@ static int element_zero_volume(pa_alsa_element *e, snd_mixer_t *m) {
+         r = snd_mixer_selem_set_capture_dB_all(me, 0, +1);
+ 
+     if (r < 0)
+-        pa_log_warn("Faile to set volume to 0dB of %s: %s", e->alsa_name, pa_alsa_strerror(errno));
++        pa_log_warn("Failed to set volume to 0dB of %s: %s", e->alsa_name, pa_alsa_strerror(errno));
+ 
+     return r;
+ }
+@@ -1671,13 +1671,13 @@ static int element_set_option(pa_alsa_element *e, snd_mixer_t *m, int alsa_idx)
+             r = snd_mixer_selem_set_capture_switch_all(me, alsa_idx);
+ 
+         if (r < 0)
+-            pa_log_warn("Faile to set switch of %s: %s", e->alsa_name, pa_alsa_strerror(errno));
++            pa_log_warn("Failed to set switch of %s: %s", e->alsa_name, pa_alsa_strerror(errno));
+ 
+     } else {
+         pa_assert(e->enumeration_use == PA_ALSA_ENUMERATION_SELECT);
+ 
+         if ((r = snd_mixer_selem_set_enum_item(me, 0, alsa_idx)) < 0)
+-            pa_log_warn("Faile to set enumeration of %s: %s", e->alsa_name, pa_alsa_strerror(errno));
++            pa_log_warn("Failed to set enumeration of %s: %s", e->alsa_name, pa_alsa_strerror(errno));
+     }
+ 
+     return r;
+diff --git a/src/modules/module-card-restore.c b/src/modules/module-card-restore.c
+index 7dea94f..7c20ce3 100644
+--- a/src/modules/module-card-restore.c
++++ b/src/modules/module-card-restore.c
+@@ -236,7 +236,7 @@ int pa__init(pa_module*m) {
+         goto fail;
+     }
+ 
+-    pa_log_info("Sucessfully opened database file '%s'.", fname);
++    pa_log_info("Successfully opened database file '%s'.", fname);
+     pa_xfree(fname);
+ 
+     for (card = pa_idxset_first(m->core->cards, &idx); card; card = pa_idxset_next(m->core->cards, &idx))
+diff --git a/src/modules/module-device-manager.c b/src/modules/module-device-manager.c
+index 53bb7e2..d1bfcb8 100644
+--- a/src/modules/module-device-manager.c
++++ b/src/modules/module-device-manager.c
+@@ -1463,7 +1463,7 @@ int pa__init(pa_module*m) {
+         goto fail;
+     }
+ 
+-    pa_log_info("Sucessfully opened database file '%s'.", fname);
++    pa_log_info("Successfully opened database file '%s'.", fname);
+     pa_xfree(fname);
+ 
+     /* Attempt to inject the devices into the list in priority order */
+diff --git a/src/modules/module-device-restore.c b/src/modules/module-device-restore.c
+index da6c966..fcd3ccf 100644
+--- a/src/modules/module-device-restore.c
++++ b/src/modules/module-device-restore.c
+@@ -496,7 +496,7 @@ int pa__init(pa_module*m) {
+         goto fail;
+     }
+ 
+-    pa_log_info("Sucessfully opened database file '%s'.", fname);
++    pa_log_info("Successfully opened database file '%s'.", fname);
+     pa_xfree(fname);
+ 
+     for (sink = pa_idxset_first(m->core->sinks, &idx); sink; sink = pa_idxset_next(m->core->sinks, &idx))
+diff --git a/src/modules/module-pipe-source.c b/src/modules/module-pipe-source.c
+index ca8352f..cace143 100644
+--- a/src/modules/module-pipe-source.c
++++ b/src/modules/module-pipe-source.c
+@@ -159,7 +159,7 @@ static void thread_func(void *userdata) {
+                 if (errno == EINTR)
+                     continue;
+                 else if (errno != EAGAIN) {
+-                    pa_log("Faile to read data from FIFO: %s", pa_cstrerror(errno));
++                    pa_log("Failed to read data from FIFO: %s", pa_cstrerror(errno));
+                     goto fail;
+                 }
+ 
+diff --git a/src/modules/module-rescue-streams.c b/src/modules/module-rescue-streams.c
+index 2fcd21f..8b35809 100644
+--- a/src/modules/module-rescue-streams.c
++++ b/src/modules/module-rescue-streams.c
+@@ -108,7 +108,7 @@ static pa_hook_result_t sink_unlink_hook_callback(pa_core *c, pa_sink *sink, voi
+             pa_log_info("Failed to move sink input %u \"%s\" to %s.", i->index,
+                         pa_strnull(pa_proplist_gets(i->proplist, PA_PROP_APPLICATION_NAME)), target->name);
+         else
+-            pa_log_info("Sucessfully moved sink input %u \"%s\" to %s.", i->index,
++            pa_log_info("Successfully moved sink input %u \"%s\" to %s.", i->index,
+                         pa_strnull(pa_proplist_gets(i->proplist, PA_PROP_APPLICATION_NAME)), target->name);
+     }
+ 
+@@ -134,7 +134,7 @@ static pa_hook_result_t sink_input_move_fail_hook_callback(pa_core *c, pa_sink_i
+         return PA_HOOK_OK;
+ 
+     } else {
+-        pa_log_info("Sucessfully moved sink input %u \"%s\" to %s.", i->index,
++        pa_log_info("Successfully moved sink input %u \"%s\" to %s.", i->index,
+                     pa_strnull(pa_proplist_gets(i->proplist, PA_PROP_APPLICATION_NAME)), target->name);
+         return PA_HOOK_STOP;
+     }
+@@ -199,7 +199,7 @@ static pa_hook_result_t source_unlink_hook_callback(pa_core *c, pa_source *sourc
+             pa_log_info("Failed to move source output %u \"%s\" to %s.", o->index,
+                         pa_strnull(pa_proplist_gets(o->proplist, PA_PROP_APPLICATION_NAME)), target->name);
+         else
+-            pa_log_info("Sucessfully moved source output %u \"%s\" to %s.", o->index,
++            pa_log_info("Successfully moved source output %u \"%s\" to %s.", o->index,
+                         pa_strnull(pa_proplist_gets(o->proplist, PA_PROP_APPLICATION_NAME)), target->name);
+     }
+ 
+@@ -225,7 +225,7 @@ static pa_hook_result_t source_output_move_fail_hook_callback(pa_core *c, pa_sou
+         return PA_HOOK_OK;
+ 
+     } else {
+-        pa_log_info("Sucessfully moved source input %u \"%s\" to %s.", i->index,
++        pa_log_info("Successfully moved source input %u \"%s\" to %s.", i->index,
+                     pa_strnull(pa_proplist_gets(i->proplist, PA_PROP_APPLICATION_NAME)), target->name);
+         return PA_HOOK_STOP;
+     }
+diff --git a/src/modules/module-stream-restore.c b/src/modules/module-stream-restore.c
+index 24d1c51..7458c90 100644
+--- a/src/modules/module-stream-restore.c
++++ b/src/modules/module-stream-restore.c
+@@ -1106,7 +1106,7 @@ int pa__init(pa_module*m) {
+         goto fail;
+     }
+ 
+-    pa_log_info("Sucessfully opened database file '%s'.", fname);
++    pa_log_info("Successfully opened database file '%s'.", fname);
+     pa_xfree(fname);
+ 
+     PA_IDXSET_FOREACH(si, m->core->sink_inputs, idx)
+diff --git a/src/pulsecore/pdispatch.c b/src/pulsecore/pdispatch.c
+index f15466c..69f5d9e 100644
+--- a/src/pulsecore/pdispatch.c
++++ b/src/pulsecore/pdispatch.c
+@@ -90,7 +90,7 @@ static const char *command_names[PA_COMMAND_MAX] = {
+ 
+     [PA_COMMAND_SET_SINK_VOLUME] = "SET_SINK_VOLUME",
+     [PA_COMMAND_SET_SINK_INPUT_VOLUME] = "SET_SINK_INPUT_VOLUME",
+-    [PA_COMMAND_SET_SOURCE_VOLUME] = "SET_SOURCE_VOLME",
++    [PA_COMMAND_SET_SOURCE_VOLUME] = "SET_SOURCE_VOLUME",
+ 
+     [PA_COMMAND_SET_SINK_MUTE] = "SET_SINK_MUTE",
+     [PA_COMMAND_SET_SOURCE_MUTE] = "SET_SOURCE_MUTE",
+diff --git a/src/pulsecore/pid.c b/src/pulsecore/pid.c
+index 996946c..c66d390 100644
+--- a/src/pulsecore/pid.c
++++ b/src/pulsecore/pid.c
+@@ -221,7 +221,7 @@ int pa_pid_file_create(const char *procname) {
+             if (procname)
+                 if ((ours = proc_name_ours(pid, procname)) < 0) {
+                     pa_log_warn("Could not check to see if pid %lu is a pulseaudio process. "
+-                                "Asssuming it is and the daemon is already running.", (unsigned long) pid);
++                                "Assuming it is and the daemon is already running.", (unsigned long) pid);
+                     goto fail;
+                 }
+ 
+-- 
+1.7.3.4
+

@@ -1,0 +1,216 @@
+From ec5a7857127a1b3b9c5517c4a70a9b2c8aab35ca Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Sat, 22 Jan 2011 01:08:36 +0100
+Subject: [PATCH 118/120] ratelimit: fix log levels of log suppression messages
+
+When logging a suppression message do so on the same log level as the
+suppressed messages.
+---
+ src/modules/alsa/alsa-sink.c     |    6 +++---
+ src/modules/alsa/alsa-source.c   |    4 ++--
+ src/modules/module-udev-detect.c |    2 +-
+ src/pulsecore/asyncq.c           |    2 +-
+ src/pulsecore/log.c              |    4 ++--
+ src/pulsecore/log.h              |    2 +-
+ src/pulsecore/memblock.c         |    2 +-
+ src/pulsecore/protocol-native.c  |    2 +-
+ src/pulsecore/pstream.c          |    2 +-
+ src/pulsecore/ratelimit.c        |    4 ++--
+ src/pulsecore/ratelimit.h        |    3 ++-
+ 11 files changed, 17 insertions(+), 16 deletions(-)
+
+diff --git a/src/modules/alsa/alsa-sink.c b/src/modules/alsa/alsa-sink.c
+index 112f02e..8984b86 100644
+--- a/src/modules/alsa/alsa-sink.c
++++ b/src/modules/alsa/alsa-sink.c
+@@ -439,7 +439,7 @@ static size_t check_left_to_play(struct userdata *u, size_t n_bytes, pa_bool_t o
+ #endif
+ 
+         if (!u->first && !u->after_rewind)
+-            if (pa_log_ratelimit())
++            if (pa_log_ratelimit(PA_LOG_INFO))
+                 pa_log_info("Underrun!");
+     }
+ 
+@@ -1440,7 +1440,7 @@ static void thread_func(void *userdata) {
+                      * we have filled the buffer at least once
+                      * completely.*/
+ 
+-                    if (pa_log_ratelimit())
++                    if (pa_log_ratelimit(PA_LOG_DEBUG))
+                         pa_log_debug("Cutting sleep time for the initial iterations by half.");
+                     sleep_usec /= 2;
+                 }
+@@ -1492,7 +1492,7 @@ static void thread_func(void *userdata) {
+ 
+                 u->first = TRUE;
+                 u->since_start = 0;
+-            } else if (revents && u->use_tsched && pa_log_ratelimit())
++            } else if (revents && u->use_tsched && pa_log_ratelimit(PA_LOG_DEBUG))
+                 pa_log_debug("Wakeup from ALSA!");
+ 
+         } else
+diff --git a/src/modules/alsa/alsa-source.c b/src/modules/alsa/alsa-source.c
+index b04ac0d..076f044 100644
+--- a/src/modules/alsa/alsa-source.c
++++ b/src/modules/alsa/alsa-source.c
+@@ -428,7 +428,7 @@ static size_t check_left_to_record(struct userdata *u, size_t n_bytes, pa_bool_t
+         PA_DEBUG_TRAP;
+ #endif
+ 
+-        if (pa_log_ratelimit())
++        if (pa_log_ratelimit(PA_LOG_INFO))
+             pa_log_info("Overrun!");
+     }
+ 
+@@ -1315,7 +1315,7 @@ static void thread_func(void *userdata) {
+                     goto fail;
+ 
+                 u->first = TRUE;
+-            } else if (revents && u->use_tsched && pa_log_ratelimit())
++            } else if (revents && u->use_tsched && pa_log_ratelimit(PA_LOG_DEBUG))
+                 pa_log_debug("Wakeup from ALSA!");
+ 
+         } else
+diff --git a/src/modules/module-udev-detect.c b/src/modules/module-udev-detect.c
+index 3cf3e58..439f556 100644
+--- a/src/modules/module-udev-detect.c
++++ b/src/modules/module-udev-detect.c
+@@ -321,7 +321,7 @@ static void verify_access(struct userdata *u, struct device *d) {
+                  * during opening was canceled by a "try again"
+                  * failure or a "fatal" failure. */
+ 
+-                if (pa_ratelimit_test(&d->ratelimit)) {
++                if (pa_ratelimit_test(&d->ratelimit, PA_LOG_DEBUG)) {
+                     pa_log_debug("Loading module-alsa-card with arguments '%s'", d->args);
+                     m = pa_module_load(u->core, "module-alsa-card", d->args);
+ 
+diff --git a/src/pulsecore/asyncq.c b/src/pulsecore/asyncq.c
+index 072ef02..e62d0c1 100644
+--- a/src/pulsecore/asyncq.c
++++ b/src/pulsecore/asyncq.c
+@@ -206,7 +206,7 @@ void pa_asyncq_post(pa_asyncq*l, void *p) {
+     /* OK, we couldn't push anything in the queue. So let's queue it
+      * locally and push it later */
+ 
+-    if (pa_log_ratelimit())
++    if (pa_log_ratelimit(PA_LOG_WARN))
+         pa_log_warn("q overrun, queuing locally");
+ 
+     if (!(q = pa_flist_pop(PA_STATIC_FLIST_GET(localq))))
+diff --git a/src/pulsecore/log.c b/src/pulsecore/log.c
+index 0c5a317..7ba41ee 100644
+--- a/src/pulsecore/log.c
++++ b/src/pulsecore/log.c
+@@ -431,7 +431,7 @@ void pa_log_level(pa_log_level_t level, const char *format, ...) {
+     va_end(ap);
+ }
+ 
+-pa_bool_t pa_log_ratelimit(void) {
++pa_bool_t pa_log_ratelimit(pa_log_level_t level) {
+     /* Not more than 10 messages every 5s */
+     static PA_DEFINE_RATELIMIT(ratelimit, 5 * PA_USEC_PER_SEC, 10);
+ 
+@@ -440,5 +440,5 @@ pa_bool_t pa_log_ratelimit(void) {
+     if (no_rate_limit)
+         return TRUE;
+ 
+-    return pa_ratelimit_test(&ratelimit);
++    return pa_ratelimit_test(&ratelimit, level);
+ }
+diff --git a/src/pulsecore/log.h b/src/pulsecore/log.h
+index 2f379f6..1fd38d4 100644
+--- a/src/pulsecore/log.h
++++ b/src/pulsecore/log.h
+@@ -135,6 +135,6 @@ LOG_FUNC(error, PA_LOG_ERROR)
+ 
+ #define pa_log pa_log_error
+ 
+-pa_bool_t pa_log_ratelimit(void);
++pa_bool_t pa_log_ratelimit(pa_log_level_t level);
+ 
+ #endif
+diff --git a/src/pulsecore/memblock.c b/src/pulsecore/memblock.c
+index f38b17c..454900d 100644
+--- a/src/pulsecore/memblock.c
++++ b/src/pulsecore/memblock.c
+@@ -258,7 +258,7 @@ static struct mempool_slot* mempool_allocate_slot(pa_mempool *p) {
+             slot = (struct mempool_slot*) ((uint8_t*) p->memory.ptr + (p->block_size * (size_t) idx));
+ 
+         if (!slot) {
+-            if (pa_log_ratelimit())
++            if (pa_log_ratelimit(PA_LOG_DEBUG))
+                 pa_log_debug("Pool full");
+             pa_atomic_inc(&p->stat.n_pool_full);
+             return NULL;
+diff --git a/src/pulsecore/protocol-native.c b/src/pulsecore/protocol-native.c
+index 337869d..d4d6c82 100644
+--- a/src/pulsecore/protocol-native.c
++++ b/src/pulsecore/protocol-native.c
+@@ -1384,7 +1384,7 @@ static int sink_input_process_msg(pa_msgobject *o, int code, void *userdata, int
+ 
+             if (pa_memblockq_push_align(s->memblockq, chunk) < 0) {
+ 
+-                if (pa_log_ratelimit())
++                if (pa_log_ratelimit(PA_LOG_WARN))
+                     pa_log_warn("Failed to push data into queue");
+                 pa_asyncmsgq_post(pa_thread_mq_get()->outq, PA_MSGOBJECT(s), PLAYBACK_STREAM_MESSAGE_OVERFLOW, NULL, 0, NULL, NULL);
+                 pa_memblockq_seek(s->memblockq, (int64_t) chunk->length, PA_SEEK_RELATIVE, TRUE);
+diff --git a/src/pulsecore/pstream.c b/src/pulsecore/pstream.c
+index 1d4ac17..3e0bfa3 100644
+--- a/src/pulsecore/pstream.c
++++ b/src/pulsecore/pstream.c
+@@ -832,7 +832,7 @@ static int do_read(pa_pstream *p) {
+                                           ntohl(p->read.shm_info[PA_PSTREAM_SHM_INDEX]),
+                                           ntohl(p->read.shm_info[PA_PSTREAM_SHM_LENGTH])))) {
+ 
+-                    if (pa_log_ratelimit())
++                    if (pa_log_ratelimit(PA_LOG_DEBUG))
+                         pa_log_debug("Failed to import memory block.");
+                 }
+ 
+diff --git a/src/pulsecore/ratelimit.c b/src/pulsecore/ratelimit.c
+index 844dd77..a274d2c 100644
+--- a/src/pulsecore/ratelimit.c
++++ b/src/pulsecore/ratelimit.c
+@@ -35,7 +35,7 @@ static pa_static_mutex mutex = PA_STATIC_MUTEX_INIT;
+ /* Modelled after Linux' lib/ratelimit.c by Dave Young
+  * <hidave.darkstar@gmail.com>, which is licensed GPLv2. */
+ 
+-pa_bool_t pa_ratelimit_test(pa_ratelimit *r) {
++pa_bool_t pa_ratelimit_test(pa_ratelimit *r, pa_log_level_t t) {
+     pa_usec_t now;
+     pa_mutex *m;
+ 
+@@ -52,7 +52,7 @@ pa_bool_t pa_ratelimit_test(pa_ratelimit *r) {
+         r->begin + r->interval < now) {
+ 
+         if (r->n_missed > 0)
+-            pa_log_warn("%u events suppressed", r->n_missed);
++            pa_logl(t, "%u events suppressed", r->n_missed);
+ 
+         r->begin = now;
+ 
+diff --git a/src/pulsecore/ratelimit.h b/src/pulsecore/ratelimit.h
+index 9857a29..9a36195 100644
+--- a/src/pulsecore/ratelimit.h
++++ b/src/pulsecore/ratelimit.h
+@@ -23,6 +23,7 @@
+ ***/
+ 
+ #include <pulse/sample.h>
++#include <pulsecore/log.h>
+ #include <pulsecore/macro.h>
+ 
+ typedef struct pa_ratelimit {
+@@ -51,6 +52,6 @@ typedef struct pa_ratelimit {
+         r->begin = 0;                                   \
+     } while (FALSE);
+ 
+-pa_bool_t pa_ratelimit_test(pa_ratelimit *r);
++pa_bool_t pa_ratelimit_test(pa_ratelimit *r, pa_log_level_t t);
+ 
+ #endif
+-- 
+1.7.3.4
+

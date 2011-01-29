@@ -1,0 +1,31 @@
+From d963b868de4d6cce558bc483d521a57a291e45f2 Mon Sep 17 00:00:00 2001
+From: Yang Xichuan <xichuan.yang@tieto.com>
+Date: Thu, 16 Dec 2010 11:31:36 +0800
+Subject: [PATCH 108/120] core: Fix variable "has_whined" value bug
+
+In the file src/pulsecore/random.c
+
+I found that the log information "Failed to get proper entropy. Falling
+back to seeding with current time." would never be printed.
+
+This change corrects the issue.
+---
+ src/pulsecore/random.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/src/pulsecore/random.c b/src/pulsecore/random.c
+index 518c281..58a5302 100644
+--- a/src/pulsecore/random.c
++++ b/src/pulsecore/random.c
+@@ -37,7 +37,7 @@
+ 
+ #include "random.h"
+ 
+-static pa_bool_t has_whined = TRUE;
++static pa_bool_t has_whined = FALSE;
+ 
+ static const char * const devices[] = { "/dev/urandom", "/dev/random", NULL };
+ 
+-- 
+1.7.3.4
+

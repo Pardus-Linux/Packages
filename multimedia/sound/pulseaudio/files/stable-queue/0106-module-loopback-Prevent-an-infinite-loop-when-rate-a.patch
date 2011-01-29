@@ -1,0 +1,26 @@
+From 3e6af0749635ed8fafef5850483f8a6cbbd47840 Mon Sep 17 00:00:00 2001
+From: Maarten Lankhorst <m.b.lankhorst@gmail.com>
+Date: Sat, 11 Dec 2010 12:05:30 +0100
+Subject: [PATCH 106/120] module-loopback: Prevent an infinite loop when rate adjusting is disabled
+
+---
+ src/modules/module-loopback.c |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletions(-)
+
+diff --git a/src/modules/module-loopback.c b/src/modules/module-loopback.c
+index 15ef96e..265a469 100644
+--- a/src/modules/module-loopback.c
++++ b/src/modules/module-loopback.c
+@@ -493,7 +493,8 @@ static int sink_input_process_msg_cb(pa_msgobject *obj, int code, void *data, in
+ 
+             pa_assert_ctl_context();
+ 
+-            adjust_rates(u);
++            if (u->adjust_time > 0)
++                adjust_rates(u);
+             return 0;
+         }
+     }
+-- 
+1.7.3.4
+
