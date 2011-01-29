@@ -9,8 +9,6 @@ from pisi.actionsapi import pisitools
 from pisi.actionsapi import shelltools
 from pisi.actionsapi import get
 
-WorkDir = "ecore-1.0.0.beta3"
-
 def setup():
     shelltools.export("AUTOPOINT", "/bin/true")
 
@@ -45,5 +43,7 @@ def build():
 
 def install():
     autotools.rawInstall("DESTDIR=%s" % get.installDIR())
+
+    pisitools.removeDir("/usr/bin")
 
     pisitools.dodoc("AUTHORS", "COPYING*", "README")
