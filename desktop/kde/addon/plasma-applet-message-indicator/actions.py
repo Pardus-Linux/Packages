@@ -8,8 +8,11 @@
 from pisi.actionsapi import kde4
 from pisi.actionsapi import pisitools
 from pisi.actionsapi import get
+from pisi.actionsapi import shelltools
 
 WorkDir = "plasma-widget-message-indicator-%s" % get.srcVERSION()
+
+shelltools.export("HOME", get.workDIR())
 
 def setup():
     kde4.configure()
