@@ -12,10 +12,10 @@ from pisi.actionsapi import get
 def setup():
     shelltools.export("AUTOPOINT", "/bin/true")
     autotools.autoreconf("-fi")
-    autotools.configure("--with-qt4-dir=/usr/qt/4 \
-                         --with-x \
-                         --with-aspell \
+    autotools.configure("--with-x \
+                         --without-aspell \
                          --with-enchant \
+                         --with-hunspell \
                          --with-aiksaurus \
                          --enable-shared=yes \
                          --enable-static=no \
