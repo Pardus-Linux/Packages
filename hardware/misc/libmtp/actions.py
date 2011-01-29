@@ -21,10 +21,10 @@ def install():
     autotools.rawInstall("DESTDIR=%s" % get.installDIR())
 
     #install HAL file for portable audio players
-    pisitools.insinto("/usr/share/hal/fdi/information/20thirdparty", "libmtp.fdi", "10-libmtp.fdi")
+    pisitools.insinto("/usr/share/hal/fdi/information/10freedesktop", "libmtp.fdi", "10-usb-music-players-libmtp.fdi")
 
     #rename UDEV rules
-    pisitools.rename("/lib/udev/rules.d/libmtp.rules", "65-mtp.rules")
+    pisitools.rename("/lib/udev/rules.d/libmtp.rules", "60-libmtp.rules")
 
     pisitools.removeDir("/usr/share/doc/libmtp-*")
 
