@@ -1,0 +1,60 @@
+From: Georg Rudolph <georg.rudolph@schwaben.de>
+Date: Sat, 15 May 2010 07:37:34 +0000 (+0200)
+Subject: hdspmixer: Fix buffer overflow
+X-Git-Url: http://git.alsa-project.org/?p=alsa-tools.git;a=commitdiff_plain;h=6af304794723756865caee73593f13bd11a63450
+
+hdspmixer: Fix buffer overflow
+
+A one off string buffer overflow fixed by handling it properly with
+string stream.
+
+Signed-off-by: Georg Rudolph <georg.rudolph@schwaben.de>
+Signed-off-by: Jaroslav Kysela <perex@perex.cz>
+---
+
+diff --git a/hdspmixer/src/HDSPMixerIOMixer.cxx b/hdspmixer/src/HDSPMixerIOMixer.cxx
+index a431de5..a81f4a2 100644
+--- a/hdspmixer/src/HDSPMixerIOMixer.cxx
++++ b/hdspmixer/src/HDSPMixerIOMixer.cxx
+@@ -25,9 +25,9 @@ HDSPMixerIOMixer::HDSPMixerIOMixer(int x, int y, int w, int h, int ch, int type)
+ {
+     mixer_type = type;
+     if (type) {
+-	sprintf(channel_name, "Out %d", ch);
++	channel_name << "Out " << ch;
+     } else {
+-	sprintf(channel_name, "In %d", ch);
++	channel_name << "In " << ch;
+     }
+     channel_num = ch;
+     if (channel_num%2) {
+@@ -73,7 +73,7 @@ void HDSPMixerIOMixer::draw()
+ 	draw_background();
+ 	fl_color(FL_BLACK);
+ 	fl_font(FL_HELVETICA, 8);
+-	fl_draw(channel_name, x()+4, y()+225, 27, 9, FL_ALIGN_CENTER);
++	fl_draw(channel_name.str().c_str(), x()+4, y()+225, 27, 9, FL_ALIGN_CENTER);
+ 	for (int i=children(); i--;) {
+ 	    Fl_Widget& o = **a++;
+ 	    draw_child(o);
+diff --git a/hdspmixer/src/HDSPMixerIOMixer.h b/hdspmixer/src/HDSPMixerIOMixer.h
+index 6286daf..a9a35de 100644
+--- a/hdspmixer/src/HDSPMixerIOMixer.h
++++ b/hdspmixer/src/HDSPMixerIOMixer.h
+@@ -36,6 +36,7 @@
+ #include "HDSPMixerStripData.h"
+ #include "HDSPMixerMeter.h"
+ #include "pixmaps.h"
++#include <sstream>
+ 
+ class HDSPMixerWindow;
+ class HDSPMixerSelector;
+@@ -52,7 +53,7 @@ class HDSPMixerIOMixer:public Fl_Group
+ private:
+     char **p_iomixer_xpm;
+     int channel_num, relative_num, mixer_type;
+-    char channel_name[6];
++	std::stringstream channel_name;
+     void update_child(Fl_Widget &widget);
+ public:
+     HDSPMixerStripData *data[3][3][8]; /* data[card][mode(ss/ds/qs)][preset number] */
