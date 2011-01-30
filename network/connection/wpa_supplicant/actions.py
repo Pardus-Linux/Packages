@@ -13,7 +13,11 @@ from pisi.actionsapi import get
 def build():
     shelltools.cd("wpa_supplicant")
 
-    autotools.make()
+    #Enable syslog output
+    cflags = get.CFLAGS() + " -DCONFIG_DEBUG_SYSLOG"
+    shelltools.export("CFLAGS", cflags)
+
+    autotools.make("V=1")
     autotools.make("eapol_test")
 
 def install():
