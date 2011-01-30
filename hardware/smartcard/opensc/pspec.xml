@@ -13,27 +13,20 @@
         <IsA>library</IsA>
         <Summary>Smart card library and applications</Summary>
         <Description>OpenSC provides a set of libraries and utilities to access smart cards. Its main focus is on cards that support cryptographic operations, and facilitate their use in security applications such as mail encryption, authentication, and digital signature. OpenSC implements the PKCS#11 API so applications supporting this API such as Mozilla Firefox and Thunderbird can use it. OpenSC implements the PKCS#15 standard and aims to be compatible with every software that does so, too.</Description>
-        <Archive sha1sum="408b374286004c3df15ec17856f69fd4c2a1aceb" type="targz">http://www.opensc-project.org/files/opensc/opensc-0.11.13.tar.gz</Archive>
+        <Archive sha1sum="1400da0732a4cbf9ff7f8296bf59c6e153207247" type="targz">http://www.opensc-project.org/files/opensc/opensc-0.12.0.tar.gz</Archive>
         <BuildDependencies>
             <Dependency>docbook-xsl</Dependency>
-            <Dependency>libassuan-devel</Dependency>
             <Dependency>pcsc-lite-devel</Dependency>
-            <Dependency>libopenct-devel</Dependency>
             <Dependency>libgpg-error-devel</Dependency>
         </BuildDependencies>
         <Patches>
             <Patch level="1">fix-pthread.patch</Patch>
-            <Patch level="1">opensc-0.11.7-develconfig.patch</Patch>
-            <Patch level="1">opensc-0.11.13-build-readerstate.patch</Patch>
-            <Patch level="1">opensc-libassuan-2.patch</Patch>
         </Patches>
     </Source>
 
     <Package>
         <Name>opensc</Name>
         <RuntimeDependencies>
-            <Dependency>libopenct</Dependency>
-            <Dependency>libassuan</Dependency>
             <Dependency>pcsc-lite</Dependency>
             <Dependency>libgpg-error</Dependency>
         </RuntimeDependencies>
@@ -47,34 +40,15 @@
         </Files>
     </Package>
 
-    <Package>
-        <Name>mozilla-opensc-signer</Name>
-        <Summary>A plugin for Mozilla compatible web browsers that will generate digital signatures using facilities on PKI-capable smart cards</Summary>
-        <RuntimeDependencies>
-            <Dependency release="current">opensc</Dependency>
-            <Dependency>pinentry</Dependency>
-        </RuntimeDependencies>
-        <Files>
-            <Path fileType="library">/usr/lib/nsbrowser/plugins</Path>
-        </Files>
-    </Package>
-
-    <Package>
-        <Name>opensc-devel</Name>
-        <Summary>Development files for opensc</Summary>
-        <RuntimeDependencies>
-            <Dependency release="current">opensc</Dependency>
-        </RuntimeDependencies>
-        <Files>
-            <Path fileType="executable">/usr/bin/opensc-config</Path>
-            <Path fileType="header">/usr/include</Path>
-            <Path fileType="data">/usr/lib/pkgconfig</Path>
-            <Path fileType="man">/usr/share/man/man1/opensc-config.1*</Path>
-            <Path fileType="man">/usr/share/man/man3</Path>
-        </Files>
-    </Package>
-
     <History>
+        <Update release="16">
+            <Date>2011-01-29</Date>
+            <Version>0.12.0</Version>
+            <Comment>Three stack-based buffer overflows, when processing crafted serial numbers of certain cards (CVE-2010-4523).</Comment>
+            <Type package="opensc">security</Type>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
         <Update release="15">
             <Date>2010-11-24</Date>
             <Version>0.11.13</Version>
