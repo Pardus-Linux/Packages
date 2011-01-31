@@ -1,0 +1,39 @@
+--- SimGear.orig/simgear/scene/sky/cloudfield.hxx	2009-11-26 18:24:02.000000000 +0100
++++ SimGear/simgear/scene/sky/cloudfield.hxx	2010-01-31 23:41:12.835644019 +0100
+@@ -31,6 +31,7 @@
+ 
+ #include <osg/ref_ptr>
+ #include <osg/Array>
++#include <osg/Fog>
+ #include <osg/Geometry>
+ #include <osg/Group>
+ #include <osg/Switch>
+@@ -89,7 +90,11 @@
+         int reposition_count;
+         struct CloudFog : public simgear::Singleton<CloudFog>
+         {
+-                CloudFog();
++                CloudFog() {
++		    fog = new osg::Fog;
++		    fog->setMode(osg::Fog::EXP2);
++		    fog->setDataVariance(osg::Object::DYNAMIC);
++		}
+                 osg::ref_ptr<osg::Fog> fog;
+         };
+ public:
+--- SimGear.orig/simgear/scene/sky/cloudfield.cxx	2010-01-23 12:40:43.000000000 +0100
++++ SimGear/simgear/scene/sky/cloudfield.cxx	2010-01-31 23:37:42.707739218 +0100
+@@ -287,13 +287,6 @@
+     }
+ }
+ 
+-SGCloudField::CloudFog::CloudFog()
+-{
+-    fog = new osg::Fog;
+-    fog->setMode(osg::Fog::EXP2);
+-    fog->setDataVariance(osg::Object::DYNAMIC);
+-}
+-
+ void SGCloudField::updateFog(double visibility, const osg::Vec4f& color)
+ {
+     const double sqrt_m_log01 = sqrt(-log(0.01));

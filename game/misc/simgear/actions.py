@@ -11,7 +11,8 @@ from pisi.actionsapi import get
 WorkDir = "SimGear-%s" % get.srcVERSION()
 
 def setup():
-    autotools.configure()
+    autotools.autoreconf('-if')
+    autotools.configure("--with-jpeg-factory")
 
 def build():
     autotools.make()

@@ -1,0 +1,457 @@
+diff -uNr SimGear.orig/simgear/misc/sg_path.cxx SimGear/simgear/misc/sg_path.cxx
+--- SimGear.orig/simgear/misc/sg_path.cxx	2010-01-23 12:40:37.000000000 +0100
++++ SimGear/simgear/misc/sg_path.cxx	2010-01-31 18:40:57.477501771 +0100
+@@ -27,50 +27,12 @@
+ #include <simgear_config.h>
+ #include <simgear/debug/logstream.hxx>
+ #include <stdio.h>
+-#include <sys/stat.h>
+-#include <sys/stat.h>
+ #ifdef _WIN32
+ #  include <direct.h>
+ #endif
+ #include "sg_path.hxx"
+ 
+ 
+-/**
+- * define directory path separators
+- */
+-
+-static const char sgDirPathSep = '/';
+-static const char sgDirPathSepBad = '\\';
+-
+-#ifdef _WIN32
+-static const char sgSearchPathSep = ';';
+-#else
+-static const char sgSearchPathSep = ':';
+-#endif
+-
+-
+-// If Unix, replace all ":" with "/".  If MacOS, replace all "/" with
+-// ":" it should go without saying that neither of these characters
+-// should be used in file or directory names.  In windoze, allow the
+-// second character to be a ":" for things like c:\foo\bar
+-
+-void
+-SGPath::fix()
+-{
+-    for ( string::size_type i = 0; i < path.size(); ++i ) {
+-#if defined( WIN32 )
+-	// for windoze, don't replace the ":" for the second character
+-	if ( i == 1 ) {
+-	    continue;
+-	}
+-#endif
+-	if ( path[i] == sgDirPathSepBad ) {
+-	    path[i] = sgDirPathSep;
+-	}
+-    }
+-}
+-
+-
+ // default constructor
+ SGPath::SGPath()
+     : path("")
+@@ -78,19 +40,6 @@
+ }
+ 
+ 
+-// create a path based on "path"
+-SGPath::SGPath( const std::string& p )
+-    : path(p)
+-{
+-    fix();
+-}
+-
+-
+-// destructor
+-SGPath::~SGPath() {
+-}
+-
+-
+ // set path
+ void SGPath::set( const string& p ) {
+     path = p;
+@@ -98,37 +47,11 @@
+ }
+ 
+ 
+-// append another piece to the existing path
+-void SGPath::append( const string& p ) {
+-    if ( path.size() == 0 ) {
+-	path = p;
+-    } else {
+-	if ( p[0] != sgDirPathSep ) {
+-	    path += sgDirPathSep;
+-	}
+-	path += p;
+-    }
+-    fix();
+-}
+-
+ //add a new path component to the existing path string
+ void SGPath::add( const string& p ) {
+     append( sgSearchPathSep+p );
+ }
+ 
+-
+-// concatenate a string to the end of the path without inserting a
+-// path separator
+-void SGPath::concat( const string& p ) {
+-    if ( path.size() == 0 ) {
+-	path = p;
+-    } else {
+-	path += p;
+-    }
+-    fix();
+-}
+-
+-
+ // Get the file part of the path (everything after the last path sep)
+ string SGPath::file() const {
+     int index = path.rfind(sgDirPathSep);
+@@ -139,17 +62,6 @@
+     }
+ }
+   
+-
+-// get the directory part of the path.
+-string SGPath::dir() const {
+-    int index = path.rfind(sgDirPathSep);
+-    if (index >= 0) {
+-	return path.substr(0, index);
+-    } else {
+-	return "";
+-    }
+-}
+-
+ // get the base part of the path (everything but the extension.)
+ string SGPath::base() const {
+     int index = path.rfind(".");
+@@ -180,91 +92,3 @@
+     fclose(fp);
+     return true;
+ }
+-
+-#ifdef _WIN32
+-#  define sgMkDir(d,m)       _mkdir(d)
+-#else
+-#  define sgMkDir(d,m)       mkdir(d,m)
+-#endif
+-
+-
+-int SGPath::create_dir( mode_t mode ) {
+-    string_list dirlist = sgPathSplit(dir());
+-    if ( dirlist.empty() )
+-        return -1;
+-    string path = dirlist[0];
+-    string_list path_elements = sgPathBranchSplit(path);
+-    bool absolute = !path.empty() && path[0] == sgDirPathSep;
+-
+-    unsigned int i = 1;
+-    SGPath dir = absolute ? string( 1, sgDirPathSep ) : "";
+-    dir.concat( path_elements[0] );
+-#ifdef _WIN32
+-    if ( dir.str().find(':') != string::npos && path_elements.size() >= 2 ) {
+-        dir.append( path_elements[1] );
+-        i = 2;
+-    }
+-#endif
+-    struct stat info;
+-    int r;
+-    for(; ( r = stat( dir.c_str(), &info ) ) == 0 && i < path_elements.size(); i++) {
+-        dir.append(path_elements[i]);
+-    }
+-    if ( r == 0 ) {
+-        return 0; // Directory already exists
+-    }
+-    if ( sgMkDir( dir.c_str(), mode) ) {
+-        SG_LOG( SG_IO, SG_ALERT, "Error creating directory: " + dir.str() );
+-        return -2;
+-    }
+-    for(; i < path_elements.size(); i++) {
+-        dir.append(path_elements[i]);
+-        if ( sgMkDir( dir.c_str(), mode) ) {
+-            SG_LOG( SG_IO, SG_ALERT, "Error creating directory: " + dir.str() );
+-            return -2;
+-        }
+-    }
+-
+-    return 0;
+-}
+-
+-string_list sgPathBranchSplit( const string &dirpath ) {
+-    string_list path_elements;
+-    string element, path = dirpath;
+-    while ( path.size() ) {
+-        size_t p = path.find( sgDirPathSep );
+-        if ( p != string::npos ) {
+-            element = path.substr( 0, p );
+-            path.erase( 0, p + 1 );
+-        } else {
+-            element = path;
+-            path = "";
+-        }
+-        if ( element.size() )
+-            path_elements.push_back( element );
+-    }
+-    return path_elements;
+-}
+-
+-
+-string_list sgPathSplit( const string &search_path ) {
+-    string tmp = search_path;
+-    string_list result;
+-    result.clear();
+-
+-    bool done = false;
+-
+-    while ( !done ) {
+-        int index = tmp.find(sgSearchPathSep);
+-        if (index >= 0) {
+-            result.push_back( tmp.substr(0, index) );
+-            tmp = tmp.substr( index + 1 );
+-        } else {
+-            if ( !tmp.empty() )
+-                result.push_back( tmp );
+-            done = true;
+-        }
+-    }
+-
+-    return result;
+-}
+diff -uNr SimGear.orig/simgear/misc/sg_path.hxx SimGear/simgear/misc/sg_path.hxx
+--- SimGear.orig/simgear/misc/sg_path.hxx	2008-07-28 09:52:14.000000000 +0200
++++ SimGear/simgear/misc/sg_path.hxx	2010-01-31 18:41:03.790503865 +0100
+@@ -29,6 +29,8 @@
+ #define _SG_PATH_HXX
+ 
+ #include <sys/types.h>
++#include <sys/stat.h>
++#include <simgear/debug/logstream.hxx>
+ 
+ #include <simgear/compiler.h>
+ #include <string>
+@@ -42,6 +44,65 @@
+ #endif
+ 
+ /**
++ * define directory path separators
++ */
++
++static const char sgDirPathSep = '/';
++static const char sgDirPathSepBad = '\\';
++
++#ifdef _WIN32
++static const char sgSearchPathSep = ';';
++#else
++static const char sgSearchPathSep = ':';
++#endif
++
++/**
++ * Split a directory string into a list of it's parent directories.
++ */
++static inline string_list sgPathBranchSplit( const string &dirpath ) {
++    string_list path_elements;
++    string element, path = dirpath;
++    while ( path.size() ) {
++        size_t p = path.find( sgDirPathSep );
++        if ( p != string::npos ) {
++            element = path.substr( 0, p );
++            path.erase( 0, p + 1 );
++        } else {
++            element = path;
++            path = "";
++        }
++        if ( element.size() )
++            path_elements.push_back( element );
++    }
++    return path_elements;
++}
++
++/**
++ * Split a directory search path into a vector of individual paths
++ */
++static inline string_list sgPathSplit( const string &search_path ) {
++    string tmp = search_path;
++    string_list result;
++    result.clear();
++
++    bool done = false;
++
++    while ( !done ) {
++        int index = tmp.find(sgSearchPathSep);
++        if (index >= 0) {
++            result.push_back( tmp.substr(0, index) );
++            tmp = tmp.substr( index + 1 );
++        } else {
++            if ( !tmp.empty() )
++                result.push_back( tmp );
++            done = true;
++        }
++    }
++
++    return result;
++}
++
++/**
+  * A class to hide path separator difference across platforms and assist
+  * in managing file system path names.
+  *
+@@ -64,10 +125,13 @@
+      * Construct a path based on the starting path provided.
+      * @param p initial path
+      */
+-    SGPath( const string& p );
++    SGPath( const string& p ) : path(p)
++    {
++        fix();
++    }
+ 
+     /** Destructor */
+-    ~SGPath();
++    ~SGPath() {}
+ 
+     /**
+      * Set path to a new value
+@@ -80,7 +144,17 @@
+      * Append another piece to the existing path.  Inserts a path
+      * separator between the existing component and the new component.
+      * @param p additional path component */
+-    void append( const string& p );
++    void append( const string& p ) {
++        if ( path.size() == 0 ) {
++	    path = p;
++        } else {
++	    if ( p[0] != sgDirPathSep ) {
++	        path += sgDirPathSep;
++	    }
++	    path += p;
++        }
++        fix();
++    }
+ 
+     /**
+      * Append a new piece to the existing path.  Inserts a search path
+@@ -93,7 +167,14 @@
+      * path separator.
+      * @param p additional path suffix
+      */
+-    void concat( const string& p );
++    void concat( const string& p ) {
++        if ( path.size() == 0 ) {
++	    path = p;
++        } else {
++	    path += p;
++        }
++        fix();
++    }
+ 
+     /**
+      * Get the file part of the path (everything after the last path sep)
+@@ -105,7 +186,14 @@
+      * Get the directory part of the path.
+      * @return directory string
+      */
+-    string dir() const;
++    string dir() const {
++        int index = path.rfind(sgDirPathSep);
++        if (index >= 0) {
++	    return path.substr(0, index);
++        } else {
++	    return "";
++        }
++    }
+   
+     /**
+      * Get the base part of the path (everything but the extension.)
+@@ -141,26 +229,76 @@
+      * Create the designated directory.
+      * @return 0 on success, or <0 on failure.
+      */
+-    int create_dir(mode_t mode);
++    int create_dir(mode_t mode) {
++        string_list dirlist = sgPathSplit(dir());
++        if ( dirlist.empty() )
++            return -1;
++        string path = dirlist[0];
++        string_list path_elements = sgPathBranchSplit(path);
++        bool absolute = !path.empty() && path[0] == sgDirPathSep;
++
++        unsigned int i = 1;
++        SGPath dir = absolute ? string( 1, sgDirPathSep ) : "";
++        dir.concat( path_elements[0] );
++#ifdef _WIN32
++        if ( dir.str().find(':') != string::npos && path_elements.size() >= 2 ) {
++            dir.append( path_elements[1] );
++            i = 2;
++        }
++#endif
++        struct stat info;
++        int r;
++        for(; ( r = stat( dir.c_str(), &info ) ) == 0 && i < path_elements.size(); i++) {
++            dir.append(path_elements[i]);
++        }
++        if ( r == 0 ) {
++            return 0; // Directory already exists
++        }
++#ifdef _WIN32
++#  define sgMkDir(d,m)       _mkdir(d)
++#else
++#  define sgMkDir(d,m)       mkdir(d,m)
++#endif
++        if ( sgMkDir( dir.c_str(), mode) ) {
++            SG_LOG( SG_IO, SG_ALERT, "Error creating directory: " + dir.str() );
++            return -2;
++        }
++        for(; i < path_elements.size(); i++) {
++            dir.append(path_elements[i]);
++            if ( sgMkDir( dir.c_str(), mode) ) {
++                SG_LOG( SG_IO, SG_ALERT, "Error creating directory: " + dir.str() );
++                return -2;
++            }
++        }
++
++        return 0;
++    }
+ 
+ private:
+ 
+-    void fix();
++    // If Unix, replace all ":" with "/".  If MacOS, replace all "/" with
++    // ":" it should go without saying that neither of these characters
++    // should be used in file or directory names.  In windoze, allow the
++    // second character to be a ":" for things like c:\foo\bar
++
++    void fix()
++    {
++        for ( string::size_type i = 0; i < path.size(); ++i ) {
++#if defined( WIN32 )
++	    // for windoze, don't replace the ":" for the second character
++	    if ( i == 1 ) {
++	        continue;
++	    }
++#endif
++	    if ( path[i] == sgDirPathSepBad ) {
++	        path[i] = sgDirPathSep;
++	    }
++        }
++    }
+ 
+ };
+ 
+ 
+-/**
+- * Split a directory string into a list of it's parent directories.
+- */
+-string_list sgPathBranchSplit( const string &path );
+-
+-/**
+- * Split a directory search path into a vector of individual paths
+- */
+-string_list sgPathSplit( const string &search_path );
+-
+-
+ #endif // _SG_PATH_HXX
+ 
+ 
