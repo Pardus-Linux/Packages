@@ -1,0 +1,117 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>google-perftools</Name>
+        <Homepage>http://code.google.com/p/google-perftools/</Homepage>
+        <Packager>
+            <Name>Serdar Dalgıç</Name>
+            <Email>serdar@pardus.org.tr</Email>
+        </Packager>
+        <License>BSD</License>
+        <IsA>library</IsA>
+        <IsA>app:console</IsA>
+        <Summary>Google Performance Tools</Summary>
+        <Description>Perf Tools is a collection of a high-performance multi-threaded malloc() implementation, plus some pretty nifty performance analysis tools.</Description>
+        <Archive sha1sum="b2892d388f35ef09059283b30f7c0a15c66950b4" type="targz">http://google-perftools.googlecode.com/files/google-perftools-1.6.tar.gz</Archive>
+        <BuildDependencies>
+            <Dependency>gv</Dependency>
+        </BuildDependencies>
+        <Patches>
+            <!-- fix pprof jemalloc behaviour, see  https://bugzilla.redhat.com/show_bug.cgi?id=657118 -->
+            <Patch>google-perftools-pprof-jemalloc-fix.patch</Patch>
+            <!-- Do not bork bork after autoreconf-->
+            <Patch>google-perftools-1.5-antibork.diff</Patch>
+
+            <Patch level="1">docdir.patch</Patch>
+        </Patches>
+    </Source>
+
+    <Package>
+        <Name>google-perftools</Name>
+        <!-- just for 2011
+        <RuntimeDependencies>
+            <Dependency>libunwind</Dependency>
+        </RuntimeDependencies>
+        -->
+        <Files>
+            <Path fileType="executable">/usr/bin</Path>
+            <Path fileType="library">/usr/lib</Path>
+            <Path fileType="doc">/usr/share/doc/google-perftools/COPYING</Path>
+            <Path fileType="man">/usr/share/man</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>google-perftools-devel</Name>
+        <IsA>library</IsA>
+        <Summary>Development headers for google-perftools</Summary>
+        <Description>google-perftools-devel provides development headers for google-perftools.</Description>
+        <RuntimeDependencies>
+            <Dependency release="current">google-perftools</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="header">/usr/include</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>google-perftools-docs</Name>
+        <IsA>data:doc</IsA>
+        <Summary>Documentation files for google-perftools</Summary>
+        <Description>google-perftools-docs provides documentation files for google-perftools.</Description>
+        <RuntimeDependencies>
+            <Dependency release="current">google-perftools</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="doc">/usr/share/doc/google-perftools</Path>
+        </Files>
+    </Package>
+
+    <History>
+        <Update release="6">
+            <Date>2010-09-13</Date>
+            <Version>1.6</Version>
+            <Comment>* Version bump, split headers and docs, add translations.xml by Necdet Yucel
+                * Remove unused direct deps, add patch for pprof jemalloc behaviour by Serdar Dalgıç
+            </Comment>
+            <Name>Serdar Dalgıç</Name>
+            <Email>serdar@pardus.org.tr</Email>
+        </Update>
+        <Update release="5">
+            <Date>2008-04-26</Date>
+            <Version>0.97</Version>
+            <Comment>Stable bump</Comment>
+            <Name>Murat Şenel</Name>
+            <Email>muratasenel@gmail.com</Email>
+        </Update>
+        <Update release="4">
+            <Date>2007-12-18</Date>
+            <Version>0.94.1</Version>
+            <Comment>Stable bump</Comment>
+            <Name>Murat Şenel</Name>
+            <Email>muratasenel@gmail.com</Email>
+        </Update>
+        <Update release="3">
+            <Date>2007-08-20</Date>
+            <Version>0.93</Version>
+            <Comment>Stable bump</Comment>
+            <Name>Kenan Pelit</Name>
+            <Email>kpelit@gmail.com</Email>
+        </Update>
+        <Update release="2">
+            <Date>2007-07-28</Date>
+            <Version>0.92</Version>
+            <Comment>Stable bump</Comment>
+            <Name>Murat Şenel</Name>
+            <Email>muratasenel@gmail.com</Email>
+        </Update>
+        <Update release="1">
+            <Date>2007-06-18</Date>
+            <Version>0.91</Version>
+            <Comment>First release</Comment>
+            <Name>Murat Şenel</Name>
+            <Email>muratasenel@gmail.com</Email>
+        </Update>
+    </History>
+</PISI>
