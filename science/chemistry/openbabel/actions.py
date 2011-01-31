@@ -11,7 +11,10 @@ from pisi.actionsapi import pythonmodules
 from pisi.actionsapi import get
 
 def setup():
-    cmaketools.configure("-DCMAKE_ENABLE_SHARED=YES")
+    cmaketools.configure("-DCMAKE_ENABLE_SHARED=YES \
+                          --enable-static=no \
+                          --disable-inchi \
+                          --enable-maintainer-mode")
 
 def build():
     cmaketools.make()
