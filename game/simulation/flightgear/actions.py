@@ -13,8 +13,10 @@ WorkDir = "FlightGear-%s" % get.srcVERSION()
 def setup():
     autotools.configure("--enable-sp-fdms \
                          --with-threads \
+                         --with-logging \
                          --enable-sdl \
-                         --with-x")
+                         --with-x \
+                         --with-simgear=/usr")
 
 def build():
     autotools.make()
