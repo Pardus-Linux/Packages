@@ -22,6 +22,3 @@ def install():
         pisitools.insinto("/usr/share/icons/hicolor/%sx%s/mimetypes" %(size, size), "icons/hicolor/%sx%s/mimetypes/application-vnd.geogebra.tool.png" % (size,size))
 
     pisitools.dosym("/usr/share/icons/hicolor/256x256/apps/geogebra.png", "/usr/share/pixmaps/geogebra.png")
-    #pisitools.dosym("/usr/share/icons/hicolor/64x64/apps/geogebra.png", "/usr/share/icons/hicolor/64x64/mimetypes/application-vnd.geogebra.file.png")
-    #pisitools.dosym("/usr/share/icons/hicolor/64x64/apps/geogebra.png", "/usr/share/icons/hicolor/64x64/mimetypes/application-vnd.geogebra.tool.png")
-
