@@ -13,7 +13,6 @@ from pisi.actionsapi import get
 WorkDir = "v4l-utils-%s" % get.srcVERSION()
 
 def build():
-    # shelltools.export("CC", get.CC())
     autotools.make(' \
                     PREFIX=/usr \
                     LIBDIR=/usr/lib \

@@ -16,25 +16,26 @@
         <!--
         <Archive sha1sum="6fc2c490fb14a109e25745cf2df226bbddda8b0c" type="targz">http://people.fedoraproject.org/~jwrdegoede/libv4l-0.6.4.tar.gz</Archive>
         -->
-        <Archive sha1sum="cef4577d52150c9dd82d163643b86846053a78a1" type="tarbz2">http://linuxtv.org/downloads/v4l-utils/v4l-utils-0.8.1.tar.bz2</Archive>
-        <Patches>
+        <Archive sha1sum="b9e92e9e4814a56ad763406b23b086471bfa9479" type="tarbz2">http://linuxtv.org/downloads/v4l-utils/v4l-utils-0.8.2.tar.bz2</Archive>
             <!--
+        <Patches>
             <Patch level="1">bug11603.patch</Patch>
             <Patch level="1">disabled_utils.patch</Patch>
-            -->
             <Patch level="1">keytables_sandbox.patch</Patch>
         </Patches>
+            -->
         <!-- we don't build qt dependent programs for now, will enable later
-        <BuildDependencies>
-            <Dependency versionFrom="4.6.2">qt-devel</Dependency>
-        </BuildDependencies>
         -->
+        <BuildDependencies>
+            <Dependency>qt-devel</Dependency>
+        </BuildDependencies>
     </Source>
 
     <Package>
         <Name>libv4l</Name>
         <Files>
             <Path fileType="library">/usr/lib</Path>
+            <Path fileType="data">/usr/lib/pkgconfig</Path>
             <Path fileType="doc">/usr/share/doc</Path>
         </Files>
     </Package>
@@ -43,14 +44,13 @@
         <Name>v4l-utils</Name>
         <RuntimeDependencies>
             <Dependency>libv4l</Dependency>
-            <!--
-            <Dependency versionFrom="4.6.2">qt</Dependency>
-            -->
+            <Dependency>qt</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="config">/etc</Path>
             <Path fileType="executable">/usr/bin</Path>
             <Path fileType="executable">/usr/sbin</Path>
+            <Path fileType="man">/usr/share/man</Path>
         </Files>
     </Package>
 
@@ -67,6 +67,21 @@
     </Package>
 
     <History>
+        <Update release="29">
+            <Date>2011-02-01</Date>
+            <Version>0.8.2</Version>
+            <Comment>
+                Minor version bump
+                Various ir-keytable improvements
+                Various v4l2-ctl fixes
+                Add parsers for cx231xx i2c, saa7134 pci, sn9c201 usb and generic usb logs
+                v4l2-compliance: lots of new tests
+                Add many more laptop models to the upside down devices table
+                Add support for 8-bits grey format (V4L2_PIX_FMT_GREY)
+            </Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
         <Update release="28">
             <Date>2010-12-24</Date>
             <Version>0.8.1</Version>
