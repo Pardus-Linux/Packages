@@ -15,7 +15,8 @@ def setup():
                             -bindir /usr/bin \
                             -libdir /usr/lib/ocaml \
                             -mandir /usr/share/man \
-                            --with-pthread")
+                            --with-pthread \
+                            --tklibs")
 
     pisitools.dosed("config/Makefile", "\(BYTECCCOMPOPTS=.*\)", "\1 %s" % (get.CFLAGS()))
     pisitools.dosed("config/Makefile", "\(NATIVECCCOMPOPTS=.*\)", "\1 %s" % (get.CFLAGS()))
