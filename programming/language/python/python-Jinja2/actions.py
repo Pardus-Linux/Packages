@@ -7,6 +7,8 @@
 
 from pisi.actionsapi import pythonmodules
 from pisi.actionsapi import pisitools
+from pisi.actionsapi import autotools
+from pisi.actionsapi import shelltools
 from pisi.actionsapi import get
 
 examples = "%s/%s/examples" % (get.docDIR(), get.srcNAME())
@@ -20,5 +22,11 @@ def install():
     pythonmodules.install()
 
     pisitools.insinto(examples, "examples/*")
+
+    #Create docs with python-Sphinx
+    shelltools.cd("docs")
+    autotools.make("html")
+    shelltools.cd("..")
+
     pisitools.dohtml("docs/_build/html/*")
     pisitools.dodoc("CHANGES")
