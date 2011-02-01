@@ -12,7 +12,7 @@
         <IsA>library</IsA>
         <Summary>Fast numerical expression evaluator for NumPy</Summary>
         <Description>python-numexpr package evaluates multiple-operator array expressions many times faster than NumPy can.</Description>
-        <Archive sha1sum="ad4e3117f1fb2a3a2ca7e785fba1c33abd0da3b7" type="targz">http://numexpr.googlecode.com/files/numexpr-1.4.1.tar.gz</Archive>
+        <Archive sha1sum="9874be16e404d1d8550c2fd14b61a4520a387153" type="targz">http://numexpr.googlecode.com/files/numexpr-1.4.2.tar.gz</Archive>
         <BuildDependencies>
             <Dependency>python-numpy</Dependency>
         </BuildDependencies>
@@ -30,6 +30,20 @@
     </Package>
 
     <History>
+        <Update release="3">
+            <Date>2011-02-01</Date>
+            <Version>1.4.2</Version>
+            <Comment>Version bump:
+                - Multithreaded operation is disabled for small arrays (less than 32 KB). This allows to remove the overhead of multithreading for such a small arrays.  Closes numexpr #36.
+                - Dividing int arrays by zero gives a 0 as result now (and not a floating point exception anymore.  This behaviour mimics NumPy. Thanks to Gaëtan de Menten for the fix.  Closes numexpr #37.
+                - When compiled with VML support, the number of threads is set to 1 for VML core, and to the number of cores for the native pthreads implementation.  This leads to much better performance.  Closes numexpr #39.
+                - Fixed different issues with reduction operations (`sum`, `prod`). The problem is that the threaded code does not work well for broadcasting or reduction operations.  Now, the serial code is used in those cases. Closes numexpr #41.
+                - Optimization of "compilation phase" through a better hash.  This can lead up to a 25% of improvement when operating with variable expressions over small arrays.  Thanks to Gaëtan de Menten for the patch.  Closes numexpr #43.
+                - The ``set_num_threads`` now returns the number of previous thread setting, as stated in the docstrings.
+            </Comment>
+            <Name>Serdar Dalgıç</Name>
+            <Email>serdar@pardus.org.tr</Email>
+        </Update>
         <Update release="2">
             <Date>2010-11-22</Date>
             <Version>1.4.1</Version>
