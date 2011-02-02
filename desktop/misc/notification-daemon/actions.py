@@ -11,6 +11,7 @@ from pisi.actionsapi import pisitools
 from pisi.actionsapi import get
 
 def setup():
+    shelltools.export("AUTOPOINT", "true")
     autotools.autoreconf("-fi")
 
     #workaround for: "error: po/Makefile.in.in was not created by intltoolize." error at the end of configure
