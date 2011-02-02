@@ -8,7 +8,7 @@ import shutil
 locales = ("de", "es", "fr", "hu", "it", "nl", "ru", "sv")
 #files = ("libknetworkmanager.po", "plasma_applet_networkmanagement.po")
 podirname = "po"
-svnrepo = "svn+ssh://svn.kde.org/home/kde/trunk/l10n-kde4/%s/messages/kdepim/"
+svnrepo = "svn+ssh://svn.kde.org/home/kde/branches/KDE/4.4/kde-l10n/%s/messages/kdepim/"
 
 cmaketemplate="""find_package(Gettext REQUIRED)
 file(GLOB _po_files *.po)
