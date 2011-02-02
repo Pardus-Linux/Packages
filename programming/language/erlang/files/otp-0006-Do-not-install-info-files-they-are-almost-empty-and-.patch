@@ -1,0 +1,1959 @@
+From 9652244614a04e252555a36b1b7dbb669a56df10 Mon Sep 17 00:00:00 2001
+From: Peter Lemenkov <lemenkov@gmail.com>
+Date: Sat, 19 Jun 2010 09:29:12 +0400
+Subject: [PATCH] Do not install info files - they are almost empty and useless
+
+Signed-off-by: Peter Lemenkov <lemenkov@gmail.com>
+---
+ erts/doc/src/Makefile                |    9 +--------
+ erts/info.src                        |    3 ---
+ lib/appmon/doc/src/Makefile          |    3 ---
+ lib/appmon/info                      |    5 -----
+ lib/asn1/doc/src/Makefile            |    3 ---
+ lib/asn1/info                        |    2 --
+ lib/common_test/doc/src/Makefile     |    3 ---
+ lib/common_test/info                 |    2 --
+ lib/compiler/doc/src/Makefile        |    3 ---
+ lib/compiler/info                    |    3 ---
+ lib/cosEvent/doc/src/Makefile        |    3 ---
+ lib/cosEvent/info                    |    2 --
+ lib/cosEvent/src/Makefile            |    1 -
+ lib/cosEventDomain/doc/src/Makefile  |    3 ---
+ lib/cosEventDomain/info              |    2 --
+ lib/cosEventDomain/src/Makefile      |    1 -
+ lib/cosFileTransfer/doc/src/Makefile |    4 ----
+ lib/cosFileTransfer/info             |    3 ---
+ lib/cosNotification/doc/src/Makefile |    3 ---
+ lib/cosNotification/info             |    3 ---
+ lib/cosProperty/doc/src/Makefile     |    4 ----
+ lib/cosProperty/info                 |    2 --
+ lib/cosTime/doc/src/Makefile         |    3 ---
+ lib/cosTime/info                     |   12 ------------
+ lib/cosTransactions/doc/src/Makefile |    3 ---
+ lib/cosTransactions/info             |    2 --
+ lib/crypto/doc/src/Makefile          |    3 ---
+ lib/crypto/info                      |    2 --
+ lib/debugger/doc/src/Makefile        |    3 ---
+ lib/debugger/info                    |    2 --
+ lib/dialyzer/doc/src/Makefile        |    3 ---
+ lib/dialyzer/info                    |    2 --
+ lib/docbuilder/doc/src/Makefile      |    3 ---
+ lib/docbuilder/info                  |    2 --
+ lib/edoc/doc/Makefile                |    2 --
+ lib/edoc/doc/src/Makefile            |    3 ---
+ lib/edoc/info                        |    3 ---
+ lib/erl_interface/doc/src/Makefile   |    3 ---
+ lib/erl_interface/info               |    2 --
+ lib/et/doc/src/Makefile              |    3 ---
+ lib/et/info                          |    4 ----
+ lib/eunit/doc/src/Makefile           |    3 ---
+ lib/eunit/info                       |    2 --
+ lib/gs/doc/src/Makefile              |    3 ---
+ lib/gs/info                          |    2 --
+ lib/hipe/doc/src/Makefile            |    2 --
+ lib/hipe/info                        |    2 --
+ lib/ic/doc/src/Makefile              |    3 ---
+ lib/ic/info                          |    2 --
+ lib/inets/doc/src/Makefile           |    3 ---
+ lib/inets/info                       |    2 --
+ lib/inviso/doc/src/Makefile          |    3 ---
+ lib/inviso/info                      |    2 --
+ lib/jinterface/doc/src/Makefile      |    2 --
+ lib/jinterface/info                  |    2 --
+ lib/kernel/doc/src/Makefile          |    3 ---
+ lib/kernel/info                      |    2 --
+ lib/megaco/doc/src/Makefile          |    4 ----
+ lib/megaco/info                      |    5 -----
+ lib/mnesia/doc/src/Makefile          |    3 ---
+ lib/mnesia/info                      |    2 --
+ lib/observer/doc/src/Makefile        |    3 ---
+ lib/observer/info                    |    2 --
+ lib/odbc/doc/src/Makefile            |    3 ---
+ lib/odbc/info                        |    3 ---
+ lib/orber/doc/src/Makefile           |    3 ---
+ lib/orber/info                       |    2 --
+ lib/os_mon/doc/src/Makefile          |    3 ---
+ lib/os_mon/info                      |    3 ---
+ lib/otp_mibs/doc/src/Makefile        |    3 ---
+ lib/otp_mibs/info                    |    2 --
+ lib/parsetools/doc/src/Makefile      |    3 ---
+ lib/parsetools/info                  |    2 --
+ lib/percept/doc/src/Makefile         |    3 ---
+ lib/percept/info                     |    2 --
+ lib/pman/doc/src/Makefile            |    3 ---
+ lib/pman/info                        |    2 --
+ lib/public_key/doc/src/Makefile      |    4 ----
+ lib/public_key/info                  |    2 --
+ lib/reltool/doc/src/Makefile         |    3 ---
+ lib/reltool/info                     |    7 -------
+ lib/runtime_tools/doc/src/Makefile   |    3 ---
+ lib/runtime_tools/info               |    2 --
+ lib/sasl/doc/src/Makefile            |    3 ---
+ lib/sasl/info                        |    3 ---
+ lib/snmp/doc/src/Makefile            |    4 ----
+ lib/snmp/info                        |    3 ---
+ lib/ssh/doc/src/Makefile             |    3 ---
+ lib/ssh/info                         |    2 --
+ lib/ssl/doc/src/Makefile             |    2 --
+ lib/ssl/info                         |    2 --
+ lib/stdlib/doc/src/Makefile          |    3 ---
+ lib/stdlib/info                      |    2 --
+ lib/syntax_tools/doc/Makefile        |    2 --
+ lib/syntax_tools/doc/src/Makefile    |    3 ---
+ lib/syntax_tools/info                |    3 ---
+ lib/test_server/doc/src/Makefile     |    3 ---
+ lib/test_server/info                 |    2 --
+ lib/toolbar/doc/src/Makefile         |    3 ---
+ lib/toolbar/info                     |    2 --
+ lib/tools/doc/src/Makefile           |    3 ---
+ lib/tools/info                       |    2 --
+ lib/tv/doc/src/Makefile              |    3 ---
+ lib/tv/info                          |    2 --
+ lib/webtool/doc/src/Makefile         |    3 ---
+ lib/webtool/info                     |    2 --
+ lib/wx/doc/src/Makefile              |    3 ---
+ lib/wx/info                          |    2 --
+ lib/xmerl/doc/src/Makefile           |    3 ---
+ lib/xmerl/info                       |    2 --
+ 110 files changed, 1 insertions(+), 311 deletions(-)
+ delete mode 100644 erts/info.src
+ delete mode 100644 lib/appmon/info
+ delete mode 100644 lib/asn1/info
+ delete mode 100644 lib/common_test/info
+ delete mode 100644 lib/compiler/info
+ delete mode 100644 lib/cosEvent/info
+ delete mode 100644 lib/cosEventDomain/info
+ delete mode 100644 lib/cosFileTransfer/info
+ delete mode 100644 lib/cosNotification/info
+ delete mode 100644 lib/cosProperty/info
+ delete mode 100644 lib/cosTime/info
+ delete mode 100644 lib/cosTransactions/info
+ delete mode 100644 lib/crypto/info
+ delete mode 100644 lib/debugger/info
+ delete mode 100755 lib/dialyzer/info
+ delete mode 100644 lib/docbuilder/info
+ delete mode 100644 lib/edoc/info
+ delete mode 100644 lib/erl_interface/info
+ delete mode 100644 lib/et/info
+ delete mode 100644 lib/eunit/info
+ delete mode 100644 lib/gs/info
+ delete mode 100644 lib/hipe/info
+ delete mode 100644 lib/ic/info
+ delete mode 100644 lib/inets/info
+ delete mode 100644 lib/inviso/info
+ delete mode 100644 lib/jinterface/info
+ delete mode 100644 lib/kernel/info
+ delete mode 100644 lib/megaco/info
+ delete mode 100644 lib/mnesia/info
+ delete mode 100644 lib/observer/info
+ delete mode 100644 lib/odbc/info
+ delete mode 100644 lib/orber/info
+ delete mode 100644 lib/os_mon/info
+ delete mode 100644 lib/otp_mibs/info
+ delete mode 100644 lib/parsetools/info
+ delete mode 100644 lib/percept/info
+ delete mode 100644 lib/pman/info
+ delete mode 100644 lib/public_key/info
+ delete mode 100644 lib/reltool/info
+ delete mode 100644 lib/runtime_tools/info
+ delete mode 100644 lib/sasl/info
+ delete mode 100644 lib/snmp/info
+ delete mode 100644 lib/ssh/info
+ delete mode 100644 lib/ssl/info
+ delete mode 100644 lib/stdlib/info
+ delete mode 100644 lib/syntax_tools/info
+ delete mode 100644 lib/test_server/info
+ delete mode 100644 lib/toolbar/info
+ delete mode 100644 lib/tools/info
+ delete mode 100644 lib/tv/info
+ delete mode 100644 lib/webtool/info
+ delete mode 100644 lib/wx/info
+ delete mode 100644 lib/xmerl/info
+
+diff --git a/erts/doc/src/Makefile b/erts/doc/src/Makefile
+index 6578923..be99288 100644
+--- a/erts/doc/src/Makefile
++++ b/erts/doc/src/Makefile
+@@ -88,9 +88,6 @@ XML_FILES = \
+ HTML_FILES = $(XML_APPLICATION_FILES:%.xml=$(HTMLDIR)/%.html) \
+ 	$(XML_PART_FILES:%.xml=$(HTMLDIR)/%.html)
+ 
+-INFO_FILE     = ../../info
+-INFO_FILE_SRC = ../../info.src
+-
+ MAN1_FILES = $(XML_REF1_FILES:%.xml=$(MAN1DIR)/%.1)
+ MAN3_FILES = $(XML_REF3_FILES:%.xml=$(MAN3DIR)/%.3)
+ 
+@@ -109,7 +106,7 @@ XML_FLAGS +=
+ $(HTMLDIR)/%.gif: %.gif
+ 	$(INSTALL_DATA) $< $@
+ 
+-docs: pdf html man $(INFO_FILE) 
++docs: pdf html man
+ 
+ $(TOP_PDF_FILE): $(XML_FILES)
+ 
+@@ -121,9 +118,6 @@ man: $(MAN1_FILES) $(MAN3_FILES)
+ 
+ gifs: $(GIF_FILES:%=$(HTMLDIR)/%)
+ 
+-$(INFO_FILE): $(INFO_FILE_SRC) ../../vsn.mk
+-	sed -e 's;%RELEASE%;$(SYSTEM_VSN);' $(INFO_FILE_SRC) > $(INFO_FILE)
+-
+ 
+ debug opt: 
+ 
+@@ -145,7 +139,6 @@ release_docs_spec: docs
+ 	$(INSTALL_DIR) $(RELSYSDIR)/doc/html
+ 	$(INSTALL_DATA) $(HTMLDIR)/* \
+ 		$(RELSYSDIR)/doc/html
+-	$(INSTALL_DATA) $(INFO_FILE) $(RELSYSDIR)
+ 	$(INSTALL_DIR) $(RELEASE_PATH)/man/man3
+ 	$(INSTALL_DATA) $(MAN3DIR)/* $(RELEASE_PATH)/man/man3
+ 	$(INSTALL_DIR) $(RELEASE_PATH)/man/man1
+diff --git a/erts/info.src b/erts/info.src
+deleted file mode 100644
+index 6e295a6..0000000
+--- a/erts/info.src
++++ /dev/null
+@@ -1,3 +0,0 @@
+-group: basic
+-short: Functionality necessary to run the Erlang System itself
+-release: %RELEASE%
+diff --git a/lib/appmon/doc/src/Makefile b/lib/appmon/doc/src/Makefile
+index 743f123..46ee19f 100644
+--- a/lib/appmon/doc/src/Makefile
++++ b/lib/appmon/doc/src/Makefile
+@@ -61,8 +61,6 @@ GIF_FILES = \
+ HTML_FILES = $(XML_APPLICATION_FILES:%.xml=$(HTMLDIR)/%.html) \
+ 	$(XML_PART_FILES:%.xml=$(HTMLDIR)/%.html)
+ 
+-INFO_FILE = ../../info
+-
+ MAN3_FILES = $(XML_REF3_FILES:%.xml=$(MAN3DIR)/%.3)
+ 
+ HTML_REF_MAN_FILE = $(HTMLDIR)/index.html
+@@ -112,7 +110,6 @@ release_docs_spec: docs
+ 	$(INSTALL_DIR) $(RELSYSDIR)/doc/html
+ 	$(INSTALL_DATA) $(HTMLDIR)/* \
+ 		$(RELSYSDIR)/doc/html
+-	$(INSTALL_DATA) $(INFO_FILE) $(RELSYSDIR)
+ 	$(INSTALL_DIR) $(RELEASE_PATH)/man/man3
+ 	$(INSTALL_DATA) $(MAN3DIR)/* $(RELEASE_PATH)/man/man3
+ 
+diff --git a/lib/appmon/info b/lib/appmon/info
+deleted file mode 100644
+index c33a50d..0000000
+--- a/lib/appmon/info
++++ /dev/null
+@@ -1,5 +0,0 @@
+-group: tools
+-short: A utility used to supervise Applications executing on several
+-short: Erlang nodes
+-
+-
+diff --git a/lib/asn1/doc/src/Makefile b/lib/asn1/doc/src/Makefile
+index d29225f..04dc5d1 100644
+--- a/lib/asn1/doc/src/Makefile
++++ b/lib/asn1/doc/src/Makefile
+@@ -77,7 +77,6 @@ ASN1_FILES = \
+ 	Seq.asn \
+ 	Seq.asn1config
+ 
+-INFO_FILE = ../../info
+ EXTRA_FILES = \
+ 	$(DEFAULT_HTML_FILES) \
+ 	$(ASN1_FILES) \
+@@ -187,7 +186,6 @@ release_docs_spec: docs
+ 	$(INSTALL_DIR) $(RELSYSDIR)/doc/html
+ 	$(INSTALL_DATA) $(HTMLDIR)/* \
+ 		$(RELSYSDIR)/doc/html	
+-	$(INSTALL_DATA) $(INFO_FILE) $(RELSYSDIR)
+ 	$(INSTALL_DIR) $(RELEASE_PATH)/man/man3
+ 	$(INSTALL_DATA) $(MAN3DIR)/* $(RELEASE_PATH)/man/man3
+ 
+@@ -207,7 +205,6 @@ release_docs_spec: docs
+ 	$(INSTALL_DIR) $(RELSYSDIR)/doc/html
+ 	$(INSTALL_DATA) $(GIF_FILES) $(EXTRA_FILES) $(HTML_FILES) \
+ 	$(HTML_APPHISTORY) $(RELSYSDIR)/doc/html
+-	$(INSTALL_DATA) $(INFO_FILE) $(RELSYSDIR)
+ 	$(INSTALL_DIR) $(RELEASE_PATH)/man/man3
+ 	$(INSTALL_DATA) $(MAN3_FILES) $(RELEASE_PATH)/man/man3
+ endif
+diff --git a/lib/asn1/info b/lib/asn1/info
+deleted file mode 100644
+index e20b398..0000000
+--- a/lib/asn1/info
++++ /dev/null
+@@ -1,2 +0,0 @@
+-group: comm
+-short: Provides support for Abstract Syntax Notation One
+diff --git a/lib/common_test/doc/src/Makefile b/lib/common_test/doc/src/Makefile
+index 1a767a8..0d9caa2 100644
+--- a/lib/common_test/doc/src/Makefile
++++ b/lib/common_test/doc/src/Makefile
+@@ -91,8 +91,6 @@ XML_FILES=$(XML_APPLICATION_FILES) $(XML_REF1_FILES)  $(XML_REF3_FILES) $(XML_RE
+ HTML_FILES = $(XML_APPLICATION_FILES:%.xml=$(HTMLDIR)/%.html) \
+ 	$(XML_PART_FILES:%.xml=$(HTMLDIR)/%.html)
+ 
+-INFO_FILE = ../../info
+-
+ MAN1_FILES = $(XML_REF1_FILES:%.xml=$(MAN1DIR)/%.1)
+ MAN3_FILES = $(XML_REF3_FILES:%.xml=$(MAN3DIR)/%.3)
+ MAN6_FILES = $(XML_REF6_FILES:%_app.xml=$(MAN6DIR)/%.6)
+@@ -164,7 +162,6 @@ release_docs_spec: docs
+ 	$(INSTALL_DIR) $(RELSYSDIR)/doc/html
+ 	$(INSTALL_DATA) $(HTMLDIR)/* \
+ 		$(RELSYSDIR)/doc/html
+-	$(INSTALL_DATA) $(INFO_FILE) $(RELSYSDIR)
+ 	$(INSTALL_DIR) $(RELEASE_PATH)/man/man1
+ 	$(INSTALL_DATA) $(MAN1DIR)/* $(RELEASE_PATH)/man/man1
+ 	$(INSTALL_DIR) $(RELEASE_PATH)/man/man3
+diff --git a/lib/common_test/info b/lib/common_test/info
+deleted file mode 100644
+index 6b2778f..0000000
+--- a/lib/common_test/info
++++ /dev/null
+@@ -1,2 +0,0 @@
+-group: test
+-short: A portable framework for automatic testing
+diff --git a/lib/compiler/doc/src/Makefile b/lib/compiler/doc/src/Makefile
+index ee41a70..266e024 100644
+--- a/lib/compiler/doc/src/Makefile
++++ b/lib/compiler/doc/src/Makefile
+@@ -54,8 +54,6 @@ XML_FILES = \
+ HTML_FILES = $(XML_APPLICATION_FILES:%.xml=$(HTMLDIR)/%.html) \
+ 	$(XML_PART_FILES:%.xml=$(HTMLDIR)/%.html)
+ 
+-INFO_FILE = ../../info
+-
+ MAN3_FILES = $(XML_REF3_FILES:%.xml=$(MAN3DIR)/%.3)
+ 
+ HTML_REF_MAN_FILE = $(HTMLDIR)/index.html
+@@ -104,7 +102,6 @@ release_docs_spec: docs
+ 	$(INSTALL_DIR) $(RELSYSDIR)/doc/html
+ 	$(INSTALL_DATA) $(HTMLDIR)/* \
+ 		$(RELSYSDIR)/doc/html
+-	$(INSTALL_DATA) $(INFO_FILE) $(RELSYSDIR)
+ 	$(INSTALL_DIR) $(RELEASE_PATH)/man/man3
+ 	$(INSTALL_DATA) $(MAN3DIR)/* $(RELEASE_PATH)/man/man3
+ 
+diff --git a/lib/compiler/info b/lib/compiler/info
+deleted file mode 100644
+index 2005abd..0000000
+--- a/lib/compiler/info
++++ /dev/null
+@@ -1,3 +0,0 @@
+-group: basic
+-short: A byte code compiler for Erlang which produces highly compact
+-short: code
+diff --git a/lib/cosEvent/doc/src/Makefile b/lib/cosEvent/doc/src/Makefile
+index 4b76a64..e3a1ad1 100644
+--- a/lib/cosEvent/doc/src/Makefile
++++ b/lib/cosEvent/doc/src/Makefile
+@@ -89,7 +89,6 @@ INTERNAL_HTML_FILES = $(TECHNICAL_DESCR_FILES:%.xml=$(HTMLDIR)/%.html)
+ HTML_FILES = $(XML_APPLICATION_FILES:%.xml=$(HTMLDIR)/%.html) \
+ 	$(XML_PART_FILES:%.xml=$(HTMLDIR)/%.html)
+ 
+-INFO_FILE = ../../info
+ EXTRA_FILES = summary.html.src \
+ 	$(DEFAULT_GIF_FILES) \
+ 	$(DEFAULT_HTML_FILES) \
+@@ -200,7 +199,6 @@ release_docs_spec: docs
+ 	$(INSTALL_DIR) $(RELSYSDIR)/doc/html
+ 	$(INSTALL_DATA) $(HTMLDIR)/* \
+ 		$(RELSYSDIR)/doc/html
+-	$(INSTALL_DATA) $(INFO_FILE) $(RELSYSDIR)
+ 	$(INSTALL_DIR) $(RELEASE_PATH)/man/man3
+ 	$(INSTALL_DATA) $(MAN3DIR)/* $(RELEASE_PATH)/man/man3
+ 
+@@ -220,7 +218,6 @@ release_docs_spec: docs
+ 	$(INSTALL_DIR) $(RELSYSDIR)/doc/html
+ 	$(INSTALL_DATA) $(GIF_FILES) $(EXTRA_FILES) $(HTML_FILES) \
+ 		$(RELSYSDIR)/doc/html
+-	$(INSTALL_DATA) $(INFO_FILE) $(RELSYSDIR)
+ 	$(INSTALL_DIR) $(RELEASE_PATH)/man/man3
+ 	$(INSTALL_DATA) $(MAN3_FILES) $(RELEASE_PATH)/man/man3
+ 
+diff --git a/lib/cosEvent/info b/lib/cosEvent/info
+deleted file mode 100644
+index dc9f7b7..0000000
+--- a/lib/cosEvent/info
++++ /dev/null
+@@ -1,2 +0,0 @@
+-group: orb
+-short: Orber OMG Event Service
+diff --git a/lib/cosEvent/src/Makefile b/lib/cosEvent/src/Makefile
+index a62d47c..ba6e2b1 100644
+--- a/lib/cosEvent/src/Makefile
++++ b/lib/cosEvent/src/Makefile
+@@ -196,7 +196,6 @@ include $(ERL_TOP)/make/otp_release_targets.mk
+ 
+ release_spec: opt
+ 	$(INSTALL_DIR) $(RELSYSDIR)
+-	$(INSTALL_DATA) ../info $(RELSYSDIR)
+ 	$(INSTALL_DIR) $(RELSYSDIR)/ebin
+ 	$(INSTALL_DATA) $(TARGET_FILES) $(APP_TARGET) $(APPUP_TARGET) $(RELSYSDIR)/ebin
+ 	$(INSTALL_DIR) $(RELSYSDIR)/src
+diff --git a/lib/cosEventDomain/doc/src/Makefile b/lib/cosEventDomain/doc/src/Makefile
+index 6a0d3c3..9f03ad1 100644
+--- a/lib/cosEventDomain/doc/src/Makefile
++++ b/lib/cosEventDomain/doc/src/Makefile
+@@ -84,7 +84,6 @@ INTERNAL_HTML_FILES = $(TECHNICAL_DESCR_FILES:%.xml=$(HTMLDIR)/%.html)
+ HTML_FILES = $(XML_APPLICATION_FILES:%.xml=$(HTMLDIR)/%.html) \
+ 	$(XML_PART_FILES:%.xml=$(HTMLDIR)/%.html)
+ 
+-INFO_FILE = ../../info
+ EXTRA_FILES = summary.html.src \
+ 	$(DEFAULT_GIF_FILES) \
+ 	$(DEFAULT_HTML_FILES) \
+@@ -198,7 +197,6 @@ release_docs_spec: docs
+ 	$(INSTALL_DIR) $(RELSYSDIR)/doc/html
+ 	$(INSTALL_DATA) $(HTMLDIR)/* \
+ 		$(RELSYSDIR)/doc/html
+-	$(INSTALL_DATA) $(INFO_FILE) $(RELSYSDIR)
+ 	$(INSTALL_DIR) $(RELEASE_PATH)/man/man3
+ 	$(INSTALL_DATA) $(MAN3DIR)/* $(RELEASE_PATH)/man/man3
+ else
+@@ -217,7 +215,6 @@ release_docs_spec: docs
+ 	$(INSTALL_DIR) $(RELSYSDIR)/doc/html
+ 	$(INSTALL_DATA) $(GIF_FILES) $(EXTRA_FILES) $(HTML_FILES) \
+ 		$(RELSYSDIR)/doc/html
+-	$(INSTALL_DATA) $(INFO_FILE) $(RELSYSDIR)
+ 	$(INSTALL_DIR) $(RELEASE_PATH)/man/man3
+ 	$(INSTALL_DATA) $(MAN3_FILES) $(RELEASE_PATH)/man/man3
+ 
+diff --git a/lib/cosEventDomain/info b/lib/cosEventDomain/info
+deleted file mode 100644
+index 46ecf95..0000000
+--- a/lib/cosEventDomain/info
++++ /dev/null
+@@ -1,2 +0,0 @@
+-group: orb
+-short: Orber OMG Event Domain Service
+diff --git a/lib/cosEventDomain/src/Makefile b/lib/cosEventDomain/src/Makefile
+index 56a67cd..884c8f1 100644
+--- a/lib/cosEventDomain/src/Makefile
++++ b/lib/cosEventDomain/src/Makefile
+@@ -162,7 +162,6 @@ include $(ERL_TOP)/make/otp_release_targets.mk
+ 
+ release_spec: opt
+ 	$(INSTALL_DIR) $(RELSYSDIR)
+-	$(INSTALL_DATA) ../info $(RELSYSDIR)
+ 	$(INSTALL_DIR) $(RELSYSDIR)/ebin
+ 	$(INSTALL_DATA) $(TARGET_FILES) $(APP_TARGET) $(APPUP_TARGET) $(RELSYSDIR)/ebin
+ 	$(INSTALL_DIR) $(RELSYSDIR)/src
+diff --git a/lib/cosFileTransfer/doc/src/Makefile b/lib/cosFileTransfer/doc/src/Makefile
+index 2286db4..e03991f 100644
+--- a/lib/cosFileTransfer/doc/src/Makefile
++++ b/lib/cosFileTransfer/doc/src/Makefile
+@@ -88,8 +88,6 @@ HTML_FILES = $(XML_APPLICATION_FILES:%.xml=$(HTMLDIR)/%.html) \
+ 	$(XML_PART_FILES:%.xml=$(HTMLDIR)/%.html)
+ 
+ 
+-INFO_FILE = ../../info
+-
+ EXTRA_FILES = summary.html.src \
+ 	$(DEFAULT_GIF_FILES) \
+ 	$(DEFAULT_HTML_FILES) \
+@@ -201,7 +199,6 @@ release_docs_spec: docs
+ 	$(INSTALL_DIR) $(RELSYSDIR)/doc/html
+ 	$(INSTALL_DATA) $(HTMLDIR)/* \
+ 		$(RELSYSDIR)/doc/html
+-	$(INSTALL_DATA) $(INFO_FILE) $(RELSYSDIR)
+ 	$(INSTALL_DIR) $(RELEASE_PATH)/man/man3
+ 	$(INSTALL_DATA) $(MAN3DIR)/* $(RELEASE_PATH)/man/man3
+ else
+@@ -220,7 +217,6 @@ release_docs_spec: docs
+ 	$(INSTALL_DIR) $(RELSYSDIR)/doc/html
+ 	$(INSTALL_DATA) $(GIF_FILES) $(EXTRA_FILES) $(HTML_FILES) \
+ 		$(RELSYSDIR)/doc/html
+-	$(INSTALL_DATA) $(INFO_FILE) $(RELSYSDIR)
+ 	$(INSTALL_DIR) $(RELEASE_PATH)/man/man3
+ 	$(INSTALL_DATA) $(MAN3_FILES) $(RELEASE_PATH)/man/man3
+ 
+diff --git a/lib/cosFileTransfer/info b/lib/cosFileTransfer/info
+deleted file mode 100644
+index e5ca860..0000000
+--- a/lib/cosFileTransfer/info
++++ /dev/null
+@@ -1,3 +0,0 @@
+-group: orb
+-short: Orber OMG File Transfer Service
+-
+diff --git a/lib/cosNotification/doc/src/Makefile b/lib/cosNotification/doc/src/Makefile
+index bfdd2f1..e6a704e 100644
+--- a/lib/cosNotification/doc/src/Makefile
++++ b/lib/cosNotification/doc/src/Makefile
+@@ -113,7 +113,6 @@ INTERNAL_HTML_FILES = $(TECHNICAL_DESCR_FILES:%.xml=$(HTMLDIR)/%.html)
+ HTML_FILES = $(XML_APPLICATION_FILES:%.xml=$(HTMLDIR)/%.html) \
+ 	$(XML_PART_FILES:%.xml=$(HTMLDIR)/%.html)
+ 
+-INFO_FILE = ../../info
+ EXTRA_FILES = summary.html.src \
+ 	$(DEFAULT_GIF_FILES) \
+ 	$(DEFAULT_HTML_FILES) \
+@@ -225,7 +224,6 @@ release_docs_spec: docs
+ 	$(INSTALL_DIR) $(RELSYSDIR)/doc/html
+ 	$(INSTALL_DATA) $(HTMLDIR)/* \
+ 		$(RELSYSDIR)/doc/html
+-	$(INSTALL_DATA) $(INFO_FILE) $(RELSYSDIR)
+ 	$(INSTALL_DIR) $(RELEASE_PATH)/man/man3
+ 	$(INSTALL_DATA) $(MAN3DIR)/* $(RELEASE_PATH)/man/man3
+ else
+@@ -244,7 +242,6 @@ release_docs_spec: docs
+ 	$(INSTALL_DIR) $(RELSYSDIR)/doc/html
+ 	$(INSTALL_DATA) $(GIF_FILES) $(EXTRA_FILES) $(HTML_FILES) \
+ 		$(RELSYSDIR)/doc/html
+-	$(INSTALL_DATA) $(INFO_FILE) $(RELSYSDIR)
+ 	$(INSTALL_DIR) $(RELEASE_PATH)/man/man3
+ 	$(INSTALL_DATA) $(MAN3_FILES) $(RELEASE_PATH)/man/man3
+ 
+diff --git a/lib/cosNotification/info b/lib/cosNotification/info
+deleted file mode 100644
+index 1b634eb..0000000
+--- a/lib/cosNotification/info
++++ /dev/null
+@@ -1,3 +0,0 @@
+-group: orb
+-short: Orber OMG Notification Service
+-
+diff --git a/lib/cosProperty/doc/src/Makefile b/lib/cosProperty/doc/src/Makefile
+index baf995d..1a8b47b 100644
+--- a/lib/cosProperty/doc/src/Makefile
++++ b/lib/cosProperty/doc/src/Makefile
+@@ -87,8 +87,6 @@ INTERNAL_HTML_FILES = $(TECHNICAL_DESCR_FILES:%.xml=$(HTMLDIR)/%.html)
+ HTML_FILES = $(XML_APPLICATION_FILES:%.xml=$(HTMLDIR)/%.html) \
+ 	$(XML_PART_FILES:%.xml=$(HTMLDIR)/%.html)
+ 
+-INFO_FILE = ../../info
+-
+ EXTRA_FILES = summary.html.src \
+ 	$(DEFAULT_GIF_FILES) \
+ 	$(DEFAULT_HTML_FILES) \
+@@ -214,7 +212,6 @@ release_docs_spec: docs
+ 	$(INSTALL_DIR) $(RELSYSDIR)/doc/html
+ 	$(INSTALL_DATA) $(HTMLDIR)/* \
+ 		$(RELSYSDIR)/doc/html
+-	$(INSTALL_DATA) $(INFO_FILE) $(RELSYSDIR)
+ 	$(INSTALL_DIR) $(RELEASE_PATH)/man/man3
+ 	$(INSTALL_DATA) $(MAN3DIR)/* $(RELEASE_PATH)/man/man3
+ else
+@@ -233,7 +230,6 @@ release_docs_spec: docs
+ 	$(INSTALL_DIR) $(RELSYSDIR)/doc/html
+ 	$(INSTALL_DATA) $(GIF_FILES) $(EXTRA_FILES) $(HTML_FILES) \
+ 		$(RELSYSDIR)/doc/html
+-	$(INSTALL_DATA) $(INFO_FILE) $(RELSYSDIR)
+ 	$(INSTALL_DIR) $(RELEASE_PATH)/man/man3
+ 	$(INSTALL_DATA) $(MAN3_FILES) $(RELEASE_PATH)/man/man3
+ 
+diff --git a/lib/cosProperty/info b/lib/cosProperty/info
+deleted file mode 100644
+index 67c56e9..0000000
+--- a/lib/cosProperty/info
++++ /dev/null
+@@ -1,2 +0,0 @@
+-group: orb
+-short: Orber OMG Property Service
+diff --git a/lib/cosTime/doc/src/Makefile b/lib/cosTime/doc/src/Makefile
+index 83abc5e..4927437 100644
+--- a/lib/cosTime/doc/src/Makefile
++++ b/lib/cosTime/doc/src/Makefile
+@@ -84,7 +84,6 @@ INTERNAL_HTML_FILES = $(TECHNICAL_DESCR_FILES:%.xml=$(HTMLDIR)/%.html)
+ HTML_FILES = $(XML_APPLICATION_FILES:%.xml=$(HTMLDIR)/%.html) \
+ 	$(XML_PART_FILES:%.xml=$(HTMLDIR)/%.html)
+ 
+-INFO_FILE = ../../info
+ EXTRA_FILES = summary.html.src \
+ 	$(DEFAULT_GIF_FILES) \
+ 	$(DEFAULT_HTML_FILES) \
+@@ -196,7 +195,6 @@ release_docs_spec: docs
+ 	$(INSTALL_DIR) $(RELSYSDIR)/doc/html
+ 	$(INSTALL_DATA) $(HTMLDIR)/* \
+ 		$(RELSYSDIR)/doc/html
+-	$(INSTALL_DATA) $(INFO_FILE) $(RELSYSDIR)
+ 	$(INSTALL_DIR) $(RELEASE_PATH)/man/man3
+ 	$(INSTALL_DATA) $(MAN3DIR)/* $(RELEASE_PATH)/man/man3
+ else
+@@ -215,7 +213,6 @@ release_docs_spec: docs
+ 	$(INSTALL_DIR) $(RELSYSDIR)/doc/html
+ 	$(INSTALL_DATA) $(GIF_FILES) $(EXTRA_FILES) $(HTML_FILES) \
+ 		$(RELSYSDIR)/doc/html
+-	$(INSTALL_DATA) $(INFO_FILE) $(RELSYSDIR)
+ 	$(INSTALL_DIR) $(RELEASE_PATH)/man/man3
+ 	$(INSTALL_DATA) $(MAN3_FILES) $(RELEASE_PATH)/man/man3
+ 
+diff --git a/lib/cosTime/info b/lib/cosTime/info
+deleted file mode 100644
+index 7820f3f..0000000
+--- a/lib/cosTime/info
++++ /dev/null
+@@ -1,12 +0,0 @@
+-group: orb
+-short: Orber OMG Timer and TimerEvent Services
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+diff --git a/lib/cosTransactions/doc/src/Makefile b/lib/cosTransactions/doc/src/Makefile
+index 1af9ed2..48c7c7c 100644
+--- a/lib/cosTransactions/doc/src/Makefile
++++ b/lib/cosTransactions/doc/src/Makefile
+@@ -88,7 +88,6 @@ INTERNAL_HTML_FILES = $(TECHNICAL_DESCR_FILES:%.xml=$(HTMLDIR)/%.html)
+ HTML_FILES = $(XML_APPLICATION_FILES:%.xml=$(HTMLDIR)/%.html) \
+ 	$(XML_PART_FILES:%.xml=$(HTMLDIR)/%.html)
+ 
+-INFO_FILE = ../../info
+ EXTRA_FILES = summary.html.src \
+ 	$(DEFAULT_GIF_FILES) \
+ 	$(DEFAULT_HTML_FILES) \
+@@ -200,7 +199,6 @@ release_docs_spec: docs
+ 	$(INSTALL_DIR) $(RELSYSDIR)/doc/html
+ 	$(INSTALL_DATA) $(HTMLDIR)/* \
+ 		$(RELSYSDIR)/doc/html
+-	$(INSTALL_DATA) $(INFO_FILE) $(RELSYSDIR)
+ 	$(INSTALL_DIR) $(RELEASE_PATH)/man/man3
+ 	$(INSTALL_DATA) $(MAN3DIR)/* $(RELEASE_PATH)/man/man3
+ else
+@@ -219,7 +217,6 @@ release_docs_spec: docs
+ 	$(INSTALL_DIR) $(RELSYSDIR)/doc/html
+ 	$(INSTALL_DATA) $(GIF_FILES) $(EXTRA_FILES) $(HTML_FILES) \
+ 		$(RELSYSDIR)/doc/html
+-	$(INSTALL_DATA) $(INFO_FILE) $(RELSYSDIR)
+ 	$(INSTALL_DIR) $(RELEASE_PATH)/man/man3
+ 	$(INSTALL_DATA) $(MAN3_FILES) $(RELEASE_PATH)/man/man3
+ 
+diff --git a/lib/cosTransactions/info b/lib/cosTransactions/info
+deleted file mode 100644
+index e5d7c53..0000000
+--- a/lib/cosTransactions/info
++++ /dev/null
+@@ -1,2 +0,0 @@
+-group: orb
+-short: Orber OMG Transaction Service
+diff --git a/lib/crypto/doc/src/Makefile b/lib/crypto/doc/src/Makefile
+index 03aaba9..a504821 100644
+--- a/lib/crypto/doc/src/Makefile
++++ b/lib/crypto/doc/src/Makefile
+@@ -52,8 +52,6 @@ GIF_FILES =
+ HTML_FILES = $(XML_APPLICATION_FILES:%.xml=$(HTMLDIR)/%.html) \
+ 	$(XML_PART_FILES:%.xml=$(HTMLDIR)/%.html)
+ 
+-INFO_FILE = ../../info
+-
+ MAN3_FILES = $(XML_REF3_FILES:%.xml=$(MAN3DIR)/%.3)
+ MAN6_FILES = $(XML_REF6_FILES:%_app.xml=$(MAN6DIR)/%.6)
+ 
+@@ -105,7 +103,6 @@ release_docs_spec: docs
+ 	$(INSTALL_DIR) $(RELSYSDIR)/doc/html
+ 	$(INSTALL_DATA) $(HTMLDIR)/* \
+ 		$(RELSYSDIR)/doc/html
+-	$(INSTALL_DATA) $(INFO_FILE) $(RELSYSDIR)
+ 	$(INSTALL_DIR) $(RELEASE_PATH)/man/man3
+ 	$(INSTALL_DATA) $(MAN3DIR)/* $(RELEASE_PATH)/man/man3
+ 	$(INSTALL_DIR) $(RELEASE_PATH)/man/man6
+diff --git a/lib/crypto/info b/lib/crypto/info
+deleted file mode 100644
+index bb73f01..0000000
+--- a/lib/crypto/info
++++ /dev/null
+@@ -1,2 +0,0 @@
+-group: comm
+-short: Cryptographical support
+diff --git a/lib/debugger/doc/src/Makefile b/lib/debugger/doc/src/Makefile
+index 1c0bbaf..064d167 100644
+--- a/lib/debugger/doc/src/Makefile
++++ b/lib/debugger/doc/src/Makefile
+@@ -62,8 +62,6 @@ GIF_FILES = \
+ HTML_FILES = $(XML_APPLICATION_FILES:%.xml=$(HTMLDIR)/%.html) \
+ 	$(XML_PART_FILES:%.xml=$(HTMLDIR)/%.html)
+ 
+-INFO_FILE = ../../info
+-
+ MAN3_FILES = $(XML_REF3_FILES:%.xml=$(MAN3DIR)/%.3)
+ 
+ HTML_REF_MAN_FILE = $(HTMLDIR)/index.html
+@@ -114,7 +112,6 @@ release_docs_spec: docs
+ 	$(INSTALL_DATA) $(TOP_PDF_FILE) $(RELSYSDIR)/doc/pdf
+ 	$(INSTALL_DIR) $(RELSYSDIR)/doc/html
+ 	(/bin/cp -rf  $(HTMLDIR) $(RELSYSDIR)/doc)
+-	$(INSTALL_DATA) $(INFO_FILE) $(RELSYSDIR)
+ 	$(INSTALL_DIR) $(RELEASE_PATH)/man/man3
+ 	$(INSTALL_DATA) $(MAN3DIR)/* $(RELEASE_PATH)/man/man3
+ 
+diff --git a/lib/debugger/info b/lib/debugger/info
+deleted file mode 100644
+index 3a69a15..0000000
+--- a/lib/debugger/info
++++ /dev/null
+@@ -1,2 +0,0 @@
+-group: tools
+-short: A debugger for debugging and testing of Erlang programs
+diff --git a/lib/dialyzer/doc/src/Makefile b/lib/dialyzer/doc/src/Makefile
+index 45b0ffa..3590523 100755
+--- a/lib/dialyzer/doc/src/Makefile
++++ b/lib/dialyzer/doc/src/Makefile
+@@ -55,8 +55,6 @@ TEXT_FILES = \
+ HTML_FILES = $(XML_APPLICATION_FILES:%.xml=$(HTMLDIR)/%.html) \
+ 	$(XML_PART_FILES:%.xml=$(HTMLDIR)/%.html)
+ 
+-INFO_FILE = ../../info
+-
+ MAN3_FILES = $(XML_REF3_FILES:%.xml=$(MAN3DIR)/%.3)
+ 
+ HTML_REF_MAN_FILE = $(HTMLDIR)/index.html
+@@ -105,7 +103,6 @@ release_docs_spec: docs
+ 	$(INSTALL_DIR) $(RELSYSDIR)/doc/html
+ 	$(INSTALL_DATA) $(HTMLDIR)/* \
+ 		$(RELSYSDIR)/doc/html
+-	$(INSTALL_DATA) $(INFO_FILE) $(RELSYSDIR)
+ 	$(INSTALL_DIR) $(RELEASE_PATH)/man/man3
+ 	$(INSTALL_DATA) $(MAN3DIR)/* $(RELEASE_PATH)/man/man3
+ 
+diff --git a/lib/dialyzer/info b/lib/dialyzer/info
+deleted file mode 100755
+index 9fba4b5..0000000
+--- a/lib/dialyzer/info
++++ /dev/null
+@@ -1,2 +0,0 @@
+-group: tools
+-short: The DIALYZER, a DIscrepany AnaLYZer for ERlang programs.
+diff --git a/lib/docbuilder/doc/src/Makefile b/lib/docbuilder/doc/src/Makefile
+index ae34266..1abbae6 100644
+--- a/lib/docbuilder/doc/src/Makefile
++++ b/lib/docbuilder/doc/src/Makefile
+@@ -71,8 +71,6 @@ HTML_FILES = \
+ 	$(XML_APPLICATION_FILES:%.xml=$(HTMLDIR)/%.html) \
+ 	$(XML_PART_FILES:%.xml=$(HTMLDIR)/%.html)
+ 
+-INFO_FILE = ../../info
+-
+ MAN3_FILES = $(XML_REF3_FILES:%.xml=$(MAN3DIR)/%.3)
+ MAN6_FILES = $(XML_REF6_FILES:%_app.xml=$(MAN6DIR)/%.6)
+ 
+@@ -123,7 +121,6 @@ release_docs_spec: docs
+ 	$(INSTALL_DIR) $(RELSYSDIR)/doc/html
+ 	$(INSTALL_DATA) $(HTMLDIR)/* \
+ 		$(RELSYSDIR)/doc/html
+-	$(INSTALL_DATA) $(INFO_FILE) $(RELSYSDIR)
+ 	$(INSTALL_DIR) $(RELEASE_PATH)/man/man3
+ 	$(INSTALL_DATA) $(MAN3DIR)/* $(RELEASE_PATH)/man/man3
+ 	$(INSTALL_DIR) $(RELEASE_PATH)/man/man6
+diff --git a/lib/docbuilder/info b/lib/docbuilder/info
+deleted file mode 100644
+index 60daa21..0000000
+--- a/lib/docbuilder/info
++++ /dev/null
+@@ -1,2 +0,0 @@
+-group: doc
+-short: Tool for generating HTML documentation for applications.
+diff --git a/lib/edoc/doc/Makefile b/lib/edoc/doc/Makefile
+index a0f6484..b276ab8 100644
+--- a/lib/edoc/doc/Makefile
++++ b/lib/edoc/doc/Makefile
+@@ -37,7 +37,6 @@ APPNAME=edoc
+ DOC_TITLE="Welcome to EDoc"
+ 
+ HTML_FILES = *.html
+-INFO_FILE = ../info
+ # ----------------------------------------------------
+ # Target Specs
+ # ----------------------------------------------------
+@@ -76,7 +75,6 @@ include $(ERL_TOP)/make/otp_release_targets.mk
+ release_docs_spec: docs
+ 	$(INSTALL_DIR) $(RELSYSDIR)/doc/html
+ 	$(INSTALL_DATA)  $(HTML_FILES) $(RELSYSDIR)/doc/html
+-	$(INSTALL_DATA) $(INFO_FILE) $(RELSYSDIR)
+ 
+ 
+ release_spec:
+diff --git a/lib/edoc/doc/src/Makefile b/lib/edoc/doc/src/Makefile
+index 748691d..26f7b74 100644
+--- a/lib/edoc/doc/src/Makefile
++++ b/lib/edoc/doc/src/Makefile
+@@ -60,8 +60,6 @@ XML_FILES=\
+ 	$(XML_NOTES_FILES)
+ 
+ # ----------------------------------------------------
+-INFO_FILE = ../../info
+-
+ HTML_FILES = \
+ 	$(XML_APPLICATION_FILES:%.xml=$(HTMLDIR)/%.html) \
+ 	$(XML_PART_FILES:%.xml=$(HTMLDIR)/%.html)
+@@ -131,7 +129,6 @@ release_docs_spec: docs
+ 	$(INSTALL_DIR) $(RELSYSDIR)/doc/html
+ 	$(INSTALL_DATA) $(HTMLDIR)/* \
+ 		$(RELSYSDIR)/doc/html
+-	$(INSTALL_DATA) $(INFO_FILE) $(RELSYSDIR)
+ 	$(INSTALL_DIR) $(RELEASE_PATH)/man/man3
+ 	$(INSTALL_DATA) $(MAN3DIR)/* $(RELEASE_PATH)/man/man3
+ 
+diff --git a/lib/edoc/info b/lib/edoc/info
+deleted file mode 100644
+index bc52caa..0000000
+--- a/lib/edoc/info
++++ /dev/null
+@@ -1,3 +0,0 @@
+-group: doc Documentation Applications
+-short: A utility used to generate documentation out of tags in source files.
+-
+diff --git a/lib/erl_interface/doc/src/Makefile b/lib/erl_interface/doc/src/Makefile
+index e05b647..98b0fe5 100644
+--- a/lib/erl_interface/doc/src/Makefile
++++ b/lib/erl_interface/doc/src/Makefile
+@@ -63,8 +63,6 @@ XML_FILES = $(XML_REF1_FILES) $(XML_REF3_FILES) $(BOOK_FILES) \
+ HTML_FILES = $(XML_APPLICATION_FILES:%.xml=$(HTMLDIR)/%.html) \
+ 	$(XML_PART_FILES:%.xml=$(HTMLDIR)/%.html)
+ 
+-INFO_FILE = ../../info
+-
+ GIF_FILES = 
+ 
+ MAN1_FILES = $(XML_REF1_FILES:%.xml=$(MAN1DIR)/%.1)
+@@ -118,7 +116,6 @@ release_docs_spec: docs
+ 	$(INSTALL_DIR) $(RELSYSDIR)/doc/html
+ 	$(INSTALL_DATA) $(HTMLDIR)/* \
+ 		$(RELSYSDIR)/doc/html
+-	$(INSTALL_DATA) $(INFO_FILE) $(RELSYSDIR)
+ 	$(INSTALL_DIR) $(RELEASE_PATH)/man/man1
+ 	$(INSTALL_DATA) $(MAN1_FILES) $(RELEASE_PATH)/man/man1
+ 	$(INSTALL_DIR) $(RELEASE_PATH)/man/man3
+diff --git a/lib/erl_interface/info b/lib/erl_interface/info
+deleted file mode 100644
+index 9612b0b..0000000
+--- a/lib/erl_interface/info
++++ /dev/null
+@@ -1,2 +0,0 @@
+-group: comm Interface and Communication Applications
+-short: Low level interface to C
+diff --git a/lib/et/doc/src/Makefile b/lib/et/doc/src/Makefile
+index 6bb8164..3fb9e49 100644
+--- a/lib/et/doc/src/Makefile
++++ b/lib/et/doc/src/Makefile
+@@ -47,8 +47,6 @@ XML_FILES = $(BOOK_FILES) $(XML_APPLICATION_FILES) $(XML_REF3_FILES) \
+ HTML_FILES = $(XML_APPLICATION_FILES:%.xml=$(HTMLDIR)/%.html) \
+ 	$(XML_PART_FILES:%.xml=$(HTMLDIR)/%.html)
+ 
+-INFO_FILE = ../../info
+-
+ MAN3_FILES = $(XML_REF3_FILES:%.xml=$(MAN3DIR)/%.3)
+ 
+ HTML_REF_MAN_FILE = $(HTMLDIR)/index.html
+@@ -102,7 +100,6 @@ release_docs_spec: docs
+ 	$(INSTALL_DIR) $(RELSYSDIR)/doc/html
+ 	$(INSTALL_DATA) $(HTMLDIR)/* \
+ 		$(RELSYSDIR)/doc/html
+-	$(INSTALL_DATA) $(INFO_FILE) $(RELSYSDIR)
+ 	$(INSTALL_DIR) $(RELEASE_PATH)/man/man3
+ 	$(INSTALL_DATA) $(MAN3DIR)/* $(RELEASE_PATH)/man/man3
+ 
+diff --git a/lib/et/info b/lib/et/info
+deleted file mode 100644
+index 984e427..0000000
+--- a/lib/et/info
++++ /dev/null
+@@ -1,4 +0,0 @@
+-group: tools
+-short: Event Tracer (ET), uses the built-in trace mechanism in
+-short: Erlang and provides tools for collection and graphical
+-short: viewing of trace data.
+diff --git a/lib/eunit/doc/src/Makefile b/lib/eunit/doc/src/Makefile
+index 2cdc579..4a952eb 100644
+--- a/lib/eunit/doc/src/Makefile
++++ b/lib/eunit/doc/src/Makefile
+@@ -75,8 +75,6 @@ XML_FILES = \
+ 
+ 
+ # ----------------------------------------------------
+-INFO_FILE = ../../info
+-
+ HTML_FILES = $(XML_APPLICATION_FILES:%.xml=$(HTMLDIR)/%.html) \
+ 	$(XML_PART_FILES:%.xml=$(HTMLDIR)/%.html)
+ 
+@@ -162,7 +160,6 @@ release_docs_spec: docs
+ 	$(INSTALL_DIR) $(RELSYSDIR)/doc/html
+ 	$(INSTALL_DATA) $(HTMLDIR)/* \
+ 		$(RELSYSDIR)/doc/html
+-	$(INSTALL_DATA) $(INFO_FILE) $(RELSYSDIR)
+ 	$(INSTALL_DIR) $(RELEASE_PATH)/man/man3
+ 	$(INSTALL_DATA) $(MAN3DIR)/* $(RELEASE_PATH)/man/man3
+ 
+diff --git a/lib/eunit/info b/lib/eunit/info
+deleted file mode 100644
+index e7e6265..0000000
+--- a/lib/eunit/info
++++ /dev/null
+@@ -1,2 +0,0 @@
+-group: test
+-short: Support for unit testing. 
+diff --git a/lib/gs/doc/src/Makefile b/lib/gs/doc/src/Makefile
+index 192dd67..9f754bc 100644
+--- a/lib/gs/doc/src/Makefile
++++ b/lib/gs/doc/src/Makefile
+@@ -97,8 +97,6 @@ GIF_FILES = images/arc.gif \
+ HTML_FILES = $(XML_APPLICATION_FILES:%.xml=$(HTMLDIR)/%.html) \
+ 	$(XML_PART_FILES:%.xml=$(HTMLDIR)/%.html)
+ 
+-INFO_FILE = ../../info
+-
+ MAN3_FILES = $(XML_REF3_FILES:%.xml=$(MAN3DIR)/%.3)
+ 
+ HTML_REF_MAN_FILE = $(HTMLDIR)/index.html
+@@ -148,7 +146,6 @@ release_docs_spec: docs
+ 	$(INSTALL_DATA) $(TOP_PDF_FILE)  $(RELSYSDIR)/doc/pdf
+ 	$(INSTALL_DIR) $(RELSYSDIR)/doc/html
+ 	(/bin/cp -rf  $(HTMLDIR) $(RELSYSDIR)/doc)
+-	$(INSTALL_DATA) $(INFO_FILE) $(RELSYSDIR)
+ 	$(INSTALL_DIR) $(RELEASE_PATH)/man/man3
+ 	$(INSTALL_DATA) $(MAN3DIR)/* $(RELEASE_PATH)/man/man3
+ 
+diff --git a/lib/gs/info b/lib/gs/info
+deleted file mode 100644
+index 05982e7..0000000
+--- a/lib/gs/info
++++ /dev/null
+@@ -1,2 +0,0 @@
+-group: comm
+-short: A Graphics System used to write platform independent user interfaces
+diff --git a/lib/hipe/doc/src/Makefile b/lib/hipe/doc/src/Makefile
+index d440178..9e0ae62 100644
+--- a/lib/hipe/doc/src/Makefile
++++ b/lib/hipe/doc/src/Makefile
+@@ -53,7 +53,6 @@ GIF_FILES =
+ HTML_FILES = $(XML_APPLICATION_FILES:%.xml=$(HTMLDIR)/%.html) \
+ 	$(XML_PART_FILES:%.xml=$(HTMLDIR)/%.html)
+ 
+-INFO_FILE = ../../info
+ EXTRA_FILES = \
+ 	$(DEFAULT_GIF_FILES) \
+ 	$(DEFAULT_HTML_FILES) \
+@@ -108,7 +107,6 @@ release_docs_spec: docs
+ 	$(INSTALL_DIR) $(RELSYSDIR)/doc/html
+ 	$(INSTALL_DATA) $(HTMLDIR)/* \
+ 		$(RELSYSDIR)/doc/html
+-	$(INSTALL_DATA) $(INFO_FILE) $(RELSYSDIR)
+ 
+ 
+ release_spec:
+diff --git a/lib/hipe/info b/lib/hipe/info
+deleted file mode 100644
+index fe08fc8..0000000
+--- a/lib/hipe/info
++++ /dev/null
+@@ -1,2 +0,0 @@
+-group: misc Miscellaneous Applications
+-short: High Performance Erlang
+\ No newline at end of file
+diff --git a/lib/ic/doc/src/Makefile b/lib/ic/doc/src/Makefile
+index 8eda436..bcf99ec 100644
+--- a/lib/ic/doc/src/Makefile
++++ b/lib/ic/doc/src/Makefile
+@@ -87,7 +87,6 @@ GIF_FILES = \
+ HTML_FILES = $(XML_APPLICATION_FILES:%.xml=$(HTMLDIR)/%.html) \
+ 	$(XML_PART_FILES:%.xml=$(HTMLDIR)/%.html)
+ 
+-INFO_FILE = ../../info
+ EXTRA_FILES = summary.html.src \
+ 	$(DEFAULT_GIF_FILES) \
+ 	$(DEFAULT_HTML_FILES) \
+@@ -282,7 +281,6 @@ ifdef DOCSUPPORT
+ release_docs_spec: docs
+ 	$(INSTALL_DIR) $(RELSYSDIR)/doc/pdf
+ 	$(INSTALL_DATA) $(TOP_PDF_FILE) $(RELSYSDIR)/doc/pdf
+-	$(INSTALL_DATA) $(INFO_FILE) $(RELSYSDIR)
+ 	$(INSTALL_DIR) $(RELSYSDIR)/doc/html
+ 	(/bin/cp -rf  $(HTMLDIR) $(RELSYSDIR)/doc)
+ 	$(INSTALL_DIR) $(RELEASE_PATH)/man/man3
+@@ -304,7 +302,6 @@ release_docs_spec: docs
+ 	$(INSTALL_DIR) $(RELSYSDIR)/doc/html
+ 	$(INSTALL_DATA) $(GIF_FILES) $(EXTRA_FILES) $(HTML_FILES) \
+ 		$(RELSYSDIR)/doc/html
+-	$(INSTALL_DATA) $(INFO_FILE) $(RELSYSDIR)
+ ifneq (,$(JAVA))
+ 	$(INSTALL_DIR) $(RELSYSDIR)/doc/html/java
+ 	$(INSTALL_DIR) $(RELSYSDIR)/doc/html/java/resources
+diff --git a/lib/ic/info b/lib/ic/info
+deleted file mode 100644
+index 96cb88d..0000000
+--- a/lib/ic/info
++++ /dev/null
+@@ -1,2 +0,0 @@
+-group: orb Object Request Broker & IDL Applications
+-short: IDL compiler
+diff --git a/lib/inets/doc/src/Makefile b/lib/inets/doc/src/Makefile
+index e4cb0c4..4f6da7c 100644
+--- a/lib/inets/doc/src/Makefile
++++ b/lib/inets/doc/src/Makefile
+@@ -90,7 +90,6 @@ HTML_FILES = \
+ 	$(XML_APPLICATION_FILES:%.xml=$(HTMLDIR)/%.html) \
+ 	$(XML_PART_FILES:%.xml=$(HTMLDIR)/%.html)
+ 
+-INFO_FILE = ../../info
+ EXTRA_FILES = summary.html.src \
+ 	$(XML_REF3_FILES:%.xml=$(HTMLDIR)/%.html) \
+ 	$(XML_REF6_FILES:%.xml=$(HTMLDIR)/%.html) \
+@@ -212,7 +211,6 @@ release_docs_spec: docs
+ 	$(INSTALL_DATA) $(TOP_PDF_FILE) $(RELSYSDIR)/doc/pdf
+ 	$(INSTALL_DIR) $(RELSYSDIR)/doc/html
+ 	$(INSTALL_DATA) $(HTMLDIR)/* $(RELSYSDIR)/doc/html
+-	$(INSTALL_DATA) $(INFO_FILE) $(RELSYSDIR)
+ 	$(INSTALL_DIR) $(RELEASE_PATH)/man/man3
+ 	$(INSTALL_DATA) $(MAN3DIR)/* $(RELEASE_PATH)/man/man3
+ else
+@@ -234,7 +232,6 @@ release_docs_spec: docs
+ 	$(INSTALL_DIR) $(RELSYSDIR)/doc/html
+ 	$(INSTALL_DATA) $(GIF_FILES) $(EXTRA_FILES) $(HTML_FILES) \
+ 	$(RELSYSDIR)/doc/html
+-	$(INSTALL_DATA) $(INFO_FILE) $(RELSYSDIR)
+ 	$(INSTALL_DIR) $(RELEASE_PATH)/man/man3
+ 	$(INSTALL_DATA) $(MAN3_FILES) $(RELEASE_PATH)/man/man3
+ 
+diff --git a/lib/inets/info b/lib/inets/info
+deleted file mode 100644
+index 079a271..0000000
+--- a/lib/inets/info
++++ /dev/null
+@@ -1,2 +0,0 @@
+-group: comm
+-short: A set of services such as a Web server and a ftp client etc. 
+diff --git a/lib/inviso/doc/src/Makefile b/lib/inviso/doc/src/Makefile
+index 1b184ed..dc339c9 100644
+--- a/lib/inviso/doc/src/Makefile
++++ b/lib/inviso/doc/src/Makefile
+@@ -59,8 +59,6 @@ GIF_FILES = \
+ HTML_FILES = $(XML_APPLICATION_FILES:%.xml=$(HTMLDIR)/%.html) \
+ 	$(XML_PART_FILES:%.xml=$(HTMLDIR)/%.html)
+ 
+-INFO_FILE = ../../info
+-
+ MAN3_FILES = $(XML_REF3_FILES:%.xml=$(MAN3DIR)/%.3)
+ 
+ HTML_REF_MAN_FILE = $(HTMLDIR)/index.html
+@@ -111,7 +109,6 @@ release_docs_spec: docs
+ 	$(INSTALL_DIR) $(RELSYSDIR)/doc/html
+ 	$(INSTALL_DATA) $(HTMLDIR)/* \
+ 		$(RELSYSDIR)/doc/html
+-	$(INSTALL_DATA) $(INFO_FILE) $(RELSYSDIR)
+ 	$(INSTALL_DIR) $(RELEASE_PATH)/man/man3
+ 	$(INSTALL_DATA) $(MAN3DIR)/* $(RELEASE_PATH)/man/man3
+ 
+diff --git a/lib/inviso/info b/lib/inviso/info
+deleted file mode 100644
+index 3190d6d..0000000
+--- a/lib/inviso/info
++++ /dev/null
+@@ -1,2 +0,0 @@
+-group: tools
+-short: A trace tool for both development and delivered systems.
+diff --git a/lib/jinterface/doc/src/Makefile b/lib/jinterface/doc/src/Makefile
+index acd5307..c5a2f15 100644
+--- a/lib/jinterface/doc/src/Makefile
++++ b/lib/jinterface/doc/src/Makefile
+@@ -93,7 +93,6 @@ JAVA_DOC_FILES = \
+ 	stylesheet.css \
+ 	help-doc.html 
+ 
+-INFO_FILE = ../../info
+ JAVA_EXTRA_FILES = $(JAVA_DOC_FILES:%=$(HTMLDIR)/java/%)
+ 
+ JAVA_GEN_FILES = \
+@@ -164,7 +163,6 @@ release_docs_spec: docs
+ 	$(INSTALL_DATA) $(TOP_PDF_FILE) $(RELSYSDIR)/doc/pdf
+ 	$(INSTALL_DIR) $(RELSYSDIR)/doc/html
+ 	$(INSTALL_DIR) $(RELSYSDIR)/doc/html/java/$(JAVA_PKG_PATH)
+-	$(INSTALL_DATA) $(INFO_FILE) $(RELSYSDIR)
+ 	(/bin/cp -rf  ../html $(RELSYSDIR)/doc)
+ 
+ #	$(INSTALL_DATA) $(GIF_FILES) $(EXTRA_FILES) $(HTML_FILES) \
+diff --git a/lib/jinterface/info b/lib/jinterface/info
+deleted file mode 100644
+index 66e8165..0000000
+--- a/lib/jinterface/info
++++ /dev/null
+@@ -1,2 +0,0 @@
+-group: comm
+-short: Low level interface to Java
+diff --git a/lib/kernel/doc/src/Makefile b/lib/kernel/doc/src/Makefile
+index f8c1cac..3238655 100644
+--- a/lib/kernel/doc/src/Makefile
++++ b/lib/kernel/doc/src/Makefile
+@@ -84,8 +84,6 @@ XML_FILES = \
+ HTML_FILES = $(XML_APPLICATION_FILES:%.xml=$(HTMLDIR)/%.html) \
+ 	$(XML_PART_FILES:%.xml=$(HTMLDIR)/%.html)
+ 
+-INFO_FILE = ../../info
+-
+ MAN3_FILES = $(XML_REF3_FILES:%.xml=$(MAN3DIR)/%.3)
+ MAN4_FILES = $(XML_REF4_FILES:%.xml=$(MAN4DIR)/%.4)
+ MAN6_FILES = $(XML_REF6_FILES:%_app.xml=$(MAN6DIR)/%.6)
+@@ -138,7 +136,6 @@ release_docs_spec: docs
+ 	$(INSTALL_DIR) $(RELSYSDIR)/doc/html
+ 	$(INSTALL_DATA) $(HTMLDIR)/* \
+ 		$(RELSYSDIR)/doc/html
+-	$(INSTALL_DATA) $(INFO_FILE) $(RELSYSDIR)
+ 	$(INSTALL_DIR) $(RELEASE_PATH)/man/man3
+ 	$(INSTALL_DATA) $(MAN3DIR)/* $(RELEASE_PATH)/man/man3
+ 	$(INSTALL_DIR) $(RELEASE_PATH)/man/man4
+diff --git a/lib/kernel/info b/lib/kernel/info
+deleted file mode 100644
+index c7c1a89..0000000
+--- a/lib/kernel/info
++++ /dev/null
+@@ -1,2 +0,0 @@
+-group: basic Basic Applications
+-short: Functionality necessary to run the Erlang System itself
+diff --git a/lib/megaco/doc/src/Makefile b/lib/megaco/doc/src/Makefile
+index 4b3c117..39a942f 100644
+--- a/lib/megaco/doc/src/Makefile
++++ b/lib/megaco/doc/src/Makefile
+@@ -60,8 +60,6 @@ HTML_PART_FILES  = $(XML_PART_FILES:%.xml=$(HTMLDIR)/%.html)
+ 
+ HTML_FILES = $(HTML_APP_FILES) $(HTML_EXTRA_FILES) $(HTML_PART_FILES)
+ 
+-INFO_FILE = ../../info
+-
+ HTML_REF3_FILES    = $(XML_REF3_FILES:%.xml=$(HTMLDIR)/%.html)
+ HTML_CHAPTER_FILES = $(XML_CHAPTER_FILES:%.xml=$(HTMLDIR)/%.html)
+ 
+@@ -244,7 +242,6 @@ release_docs_spec: docs
+ 	$(INSTALL_DIR) $(RELSYSDIR)/doc/html
+ 	$(INSTALL_DATA) $(HTMLDIR)/* \
+ 		$(RELSYSDIR)/doc/html
+-	$(INSTALL_DATA) $(INFO_FILE) $(RELSYSDIR)
+ 	$(INSTALL_DIR) $(RELEASE_PATH)/man/man3
+ 	$(INSTALL_DATA) $(MAN3DIR)/* $(RELEASE_PATH)/man/man3
+ 	$(INSTALL_DIR)  $(RELSYSDIR)/doc/standard
+@@ -266,7 +263,6 @@ release_docs_spec: docs
+ 	$(INSTALL_DIR)  $(RELSYSDIR)/doc/html
+ 	$(INSTALL_DATA) $(IMG_FILES) $(EXTRA_FILES) $(HTML_FILES) \
+ 		$(RELSYSDIR)/doc/html
+-	$(INSTALL_DATA) $(INFO_FILE) $(RELSYSDIR)
+ 	$(INSTALL_DIR)  $(RELEASE_PATH)/man/man3
+ 	$(INSTALL_DATA) $(MAN3_FILES) $(RELEASE_PATH)/man/man3
+ 	$(INSTALL_DATA) $(TOP_HTML_FILES) $(RELSYSDIR)/doc
+diff --git a/lib/megaco/info b/lib/megaco/info
+deleted file mode 100644
+index e6d588f..0000000
+--- a/lib/megaco/info
++++ /dev/null
+@@ -1,5 +0,0 @@
+-group: comm
+-short: Megaco/H.248 is a protocol for control of elements in a physically 
+-short: decomposed multimedia gateway, enabling separation of call control 
+-short: from media conversion.
+-
+diff --git a/lib/mnesia/doc/src/Makefile b/lib/mnesia/doc/src/Makefile
+index f45b513..ddcb326 100644
+--- a/lib/mnesia/doc/src/Makefile
++++ b/lib/mnesia/doc/src/Makefile
+@@ -96,7 +96,6 @@ HTML_FILES = $(XML_APPLICATION_FILES:%.xml=$(HTMLDIR)/%.html) \
+ 	$(XML_HTML_FILES:%.xml=$(HTMLDIR)/%.html) \
+ 	$(XML_PART_FILES:%.xml=$(HTMLDIR)/%.html)
+ 
+-INFO_FILE = ../../info
+ EXTRA_FILES = summary.html.src \
+ 	$(DEFAULT_GIF_FILES) \
+ 	$(DEFAULT_HTML_FILES) \
+@@ -207,7 +206,6 @@ release_docs_spec: docs
+ 	$(INSTALL_DIR) $(RELSYSDIR)/doc/html
+ 	$(INSTALL_DATA) $(HTMLDIR)/* \
+ 		$(RELSYSDIR)/doc/html
+-	$(INSTALL_DATA) $(INFO_FILE) $(RELSYSDIR)
+ 	$(INSTALL_DIR) $(RELEASE_PATH)/man/man3
+ 	$(INSTALL_DATA) $(MAN3_FILES) $(RELEASE_PATH)/man/man3
+ 
+@@ -227,7 +225,6 @@ release_docs_spec: docs
+ 	$(INSTALL_DIR) $(RELSYSDIR)/doc/html
+ 	$(INSTALL_DATA) $(GIF_FILES) $(EXTRA_FILES) $(HTML_FILES) \
+ 		$(RELSYSDIR)/doc/html
+-	$(INSTALL_DATA) $(INFO_FILE) $(RELSYSDIR)
+ 	$(INSTALL_DIR) $(RELEASE_PATH)/man/man3
+ 	$(INSTALL_DATA) $(MAN3_FILES) $(RELEASE_PATH)/man/man3
+ endif
+diff --git a/lib/mnesia/info b/lib/mnesia/info
+deleted file mode 100644
+index bfd0816..0000000
+--- a/lib/mnesia/info
++++ /dev/null
+@@ -1,2 +0,0 @@
+-group: dat Database Applications
+-short: A heavy duty real-time distributed database
+diff --git a/lib/observer/doc/src/Makefile b/lib/observer/doc/src/Makefile
+index f82a49a..d99f0fb 100644
+--- a/lib/observer/doc/src/Makefile
++++ b/lib/observer/doc/src/Makefile
+@@ -77,8 +77,6 @@ GIF_FILES = \
+ HTML_FILES = $(XML_APPLICATION_FILES:%.xml=$(HTMLDIR)/%.html) \
+ 	$(XML_PART_FILES:%.xml=$(HTMLDIR)/%.html)
+ 
+-INFO_FILE = ../../info
+-
+ MAN3_FILES = $(XML_REF3_FILES:%.xml=$(MAN3DIR)/%.3)
+ MAN6_FILES = $(XML_REF6_FILES:%_app.xml=$(MAN6DIR)/%.6)
+ 
+@@ -136,7 +134,6 @@ release_docs_spec: docs
+ 	$(INSTALL_DIR) $(RELSYSDIR)/doc/html
+ 	$(INSTALL_DATA) $(HTMLDIR)/* \
+ 		$(RELSYSDIR)/doc/html
+-	$(INSTALL_DATA) $(INFO_FILE) $(RELSYSDIR)
+ 	$(INSTALL_DIR) $(RELEASE_PATH)/man/man3
+ 	$(INSTALL_DATA) $(MAN3DIR)/* $(RELEASE_PATH)/man/man3
+ 	$(INSTALL_DIR) $(RELEASE_PATH)/man/man6
+diff --git a/lib/observer/info b/lib/observer/info
+deleted file mode 100644
+index f419221..0000000
+--- a/lib/observer/info
++++ /dev/null
+@@ -1,2 +0,0 @@
+-group: tools
+-short: Observer, tools for tracing and investigation of distributed systems
+diff --git a/lib/odbc/doc/src/Makefile b/lib/odbc/doc/src/Makefile
+index e2f0973..0e2b686 100644
+--- a/lib/odbc/doc/src/Makefile
++++ b/lib/odbc/doc/src/Makefile
+@@ -81,7 +81,6 @@ HTML_FILES = $(XML_APPLICATION_FILES:%.xml=$(HTMLDIR)/%.html) \
+ 	$(XML_HTML_FILES:%.xml=$(HTMLDIR)/%.html) \
+ 	$(XML_PART_FILES:%.xml=$(HTMLDIR)/%.html) \
+ 
+-INFO_FILE = ../../info
+ EXTRA_FILES = $(DEFAULT_GIF_FILES) \
+ 	$(DEFAULT_HTML_FILES) \
+ 	$(XML_REF3_FILES:%.xml=$(HTMLDIR)/%.html) \
+@@ -190,7 +189,6 @@ release_docs_spec: docs
+ 	$(INSTALL_DIR) $(RELSYSDIR)/doc/html
+ 	$(INSTALL_DATA) $(HTMLDIR)/* \
+ 		$(RELSYSDIR)/doc/html
+-	$(INSTALL_DATA) $(INFO_FILE) $(RELSYSDIR)
+ 	$(INSTALL_DIR) $(RELEASE_PATH)/man/man3
+ 	$(INSTALL_DATA) $(MAN3DIR)/* $(RELEASE_PATH)/man/man3
+ else
+@@ -209,7 +207,6 @@ release_docs_spec: docs
+ 	$(INSTALL_DIR) $(RELSYSDIR)/doc/html
+ 	$(INSTALL_DATA) $(GIF_FILES) $(EXTRA_FILES) $(HTML_FILES) \
+ 	$(RELSYSDIR)/doc/html
+-	$(INSTALL_DATA) $(INFO_FILE) $(RELSYSDIR)
+ 	$(INSTALL_DIR) $(RELEASE_PATH)/man/man3
+ 	$(INSTALL_DATA) $(MAN3_FILES) $(RELEASE_PATH)/man/man3
+ endif
+diff --git a/lib/odbc/info b/lib/odbc/info
+deleted file mode 100644
+index 846dfc2..0000000
+--- a/lib/odbc/info
++++ /dev/null
+@@ -1,3 +0,0 @@
+-group: dat
+-short: An interface to relational SQL-databases built on ODBC (Open Database
+-short: Connectivity). 
+diff --git a/lib/orber/doc/src/Makefile b/lib/orber/doc/src/Makefile
+index b8e26d5..29ebe1f 100644
+--- a/lib/orber/doc/src/Makefile
++++ b/lib/orber/doc/src/Makefile
+@@ -120,7 +120,6 @@ HTML_FILES = $(XML_APPLICATION_FILES:%.xml=$(HTMLDIR)/%.html) \
+ 	$(XML_CHAPTER_FILES:%.xml=$(HTMLDIR)/%.html) \
+ 	$(XML_PART_FILES:%.xml=$(HTMLDIR)/%.html)
+ 
+-INFO_FILE = ../../info
+ EXTRA_FILES = summary.html.src \
+ 	$(DEFAULT_GIF_FILES) \
+ 	$(DEFAULT_HTML_FILES) \
+@@ -233,7 +232,6 @@ release_docs_spec: docs
+ 	$(INSTALL_DIR) $(RELSYSDIR)/doc/html
+ 	$(INSTALL_DATA) $(HTMLDIR)/* \
+ 		$(RELSYSDIR)/doc/html
+-	$(INSTALL_DATA) $(INFO_FILE) $(RELSYSDIR)
+ 	$(INSTALL_DIR) $(RELEASE_PATH)/man/man3
+ 	$(INSTALL_DATA) $(MAN3DIR)/* $(RELEASE_PATH)/man/man3
+ else
+@@ -252,7 +250,6 @@ release_docs_spec: docs
+ 	$(INSTALL_DIR) $(RELSYSDIR)/doc/html
+ 	$(INSTALL_DATA) $(GIF_FILES) $(EXTRA_FILES) $(HTML_FILES) \
+ 		$(RELSYSDIR)/doc/html
+-	$(INSTALL_DATA) $(INFO_FILE) $(RELSYSDIR)
+ 	$(INSTALL_DIR) $(RELEASE_PATH)/man/man3
+ 	$(INSTALL_DATA) $(MAN3_FILES) $(RELEASE_PATH)/man/man3
+ 
+diff --git a/lib/orber/info b/lib/orber/info
+deleted file mode 100644
+index c92ea38..0000000
+--- a/lib/orber/info
++++ /dev/null
+@@ -1,2 +0,0 @@
+-group: orb
+-short: A CORBA Object Request Broker
+diff --git a/lib/os_mon/doc/src/Makefile b/lib/os_mon/doc/src/Makefile
+index c976574..8d75df9 100644
+--- a/lib/os_mon/doc/src/Makefile
++++ b/lib/os_mon/doc/src/Makefile
+@@ -62,8 +62,6 @@ XML_FILES = \
+ HTML_FILES = $(XML_APPLICATION_FILES:%.xml=$(HTMLDIR)/%.html) \
+ 	$(XML_PART_FILES:%.xml=$(HTMLDIR)/%.html)
+ 
+-INFO_FILE = ../../info
+-
+ MAN3_FILES = $(XML_REF3_FILES:%.xml=$(MAN3DIR)/%.3)
+ 
+ MAN6_FILES = $(XML_REF6_FILES:%_app.xml=$(MAN6DIR)/%.6)
+@@ -114,7 +112,6 @@ release_docs_spec: docs
+ 	$(INSTALL_DIR) $(RELSYSDIR)/doc/html
+ 	$(INSTALL_DATA) $(HTMLDIR)/* \
+ 		$(RELSYSDIR)/doc/html
+-	$(INSTALL_DATA) $(INFO_FILE) $(RELSYSDIR)
+ 	$(INSTALL_DIR) $(RELEASE_PATH)/man/man3
+ 	$(INSTALL_DATA) $(MAN3DIR)/* $(RELEASE_PATH)/man/man3
+ 	$(INSTALL_DIR) $(RELEASE_PATH)/man/man6
+diff --git a/lib/os_mon/info b/lib/os_mon/info
+deleted file mode 100644
+index bc3f971..0000000
+--- a/lib/os_mon/info
++++ /dev/null
+@@ -1,3 +0,0 @@
+-group: oam
+-short: A monitor which allows inspection of the underlying operating system
+-
+diff --git a/lib/otp_mibs/doc/src/Makefile b/lib/otp_mibs/doc/src/Makefile
+index bd28100..05ea77f 100644
+--- a/lib/otp_mibs/doc/src/Makefile
++++ b/lib/otp_mibs/doc/src/Makefile
+@@ -56,8 +56,6 @@ GIF_FILES = note.gif
+ HTML_FILES = $(XML_APPLICATION_FILES:%.xml=$(HTMLDIR)/%.html) \
+ 	$(XML_PART_FILES:%.xml=$(HTMLDIR)/%.html)
+ 
+-INFO_FILE = ../../info
+-
+ MAN3_FILES = $(XML_REF3_FILES:%.xml=$(MAN3DIR)/%.3)
+ 
+ HTML_REF_MAN_FILE = $(HTMLDIR)/index.html
+@@ -107,7 +105,6 @@ release_docs_spec: docs
+ 	$(INSTALL_DIR) $(RELSYSDIR)/doc/html
+ 	$(INSTALL_DATA) $(HTMLDIR)/* \
+ 		$(RELSYSDIR)/doc/html
+-	$(INSTALL_DATA) $(INFO_FILE) $(RELSYSDIR)
+ 	$(INSTALL_DIR) $(RELEASE_PATH)/man/man3
+ 	$(INSTALL_DATA) $(MAN3DIR)/* $(RELEASE_PATH)/man/man3
+ 
+diff --git a/lib/otp_mibs/info b/lib/otp_mibs/info
+deleted file mode 100644
+index aedd1c8..0000000
+--- a/lib/otp_mibs/info
++++ /dev/null
+@@ -1,2 +0,0 @@
+-group: oam Operation & Maintenance Applications
+-short: SNMP management information base for Erlang/OTP nodes. 
+diff --git a/lib/parsetools/doc/src/Makefile b/lib/parsetools/doc/src/Makefile
+index 6e693e0..8792cdc 100644
+--- a/lib/parsetools/doc/src/Makefile
++++ b/lib/parsetools/doc/src/Makefile
+@@ -59,8 +59,6 @@ HTML_FILES = $(XML_APPLICATION_FILES:%.xml=$(HTMLDIR)/%.html) \
+ 	$(XML_HTML_FILES:%.xml=$(HTMLDIR)/%.html) \
+ 	$(XML_PART_FILES:%.xml=$(HTMLDIR)/%.html)
+ 
+-INFO_FILE = ../../info
+-
+ MAN3_FILES = $(XML_REF3_FILES:%.xml=$(MAN3DIR)/%.3)
+ 
+ HTML_REF_MAN_FILE = $(HTMLDIR)/index.html
+@@ -110,7 +108,6 @@ release_docs_spec: docs
+ 	$(INSTALL_DIR) $(RELSYSDIR)/doc/html
+ 	$(INSTALL_DATA) $(HTMLDIR)/* \
+ 		$(RELSYSDIR)/doc/html
+-	$(INSTALL_DATA) $(INFO_FILE) $(RELSYSDIR)
+ 	$(INSTALL_DIR) $(RELEASE_PATH)/man/man3
+ 	$(INSTALL_DATA) $(MAN3DIR)/* $(RELEASE_PATH)/man/man3
+ 
+diff --git a/lib/parsetools/info b/lib/parsetools/info
+deleted file mode 100644
+index bcfb652..0000000
+--- a/lib/parsetools/info
++++ /dev/null
+@@ -1,2 +0,0 @@
+-group: tools
+-short: A set of parsing and lexical analysis tools
+diff --git a/lib/percept/doc/src/Makefile b/lib/percept/doc/src/Makefile
+index f0d43c5..56e32db 100644
+--- a/lib/percept/doc/src/Makefile
++++ b/lib/percept/doc/src/Makefile
+@@ -105,8 +105,6 @@ GIF_FILES = \
+ 	img_esi_result.gif 
+ 
+ # ----------------------------------------------------
+-INFO_FILE = ../../info
+-
+ HTML_FILES = \
+ 	$(XML_REF_MAN:%.xml=$(HTMLDIR)/%.html) \
+ 	$(XML_PART_FILES:%.xml=$(HTMLDIR)/%.html)
+@@ -181,7 +179,6 @@ release_docs_spec: docs
+ 	$(INSTALL_DATA) $(HTML_EXAMPLE_FILES) $(HTML_STYLESHEET_FILES) \
+ 		$(HTMLDIR)/* \
+ 		$(RELSYSDIR)/doc/html
+-	$(INSTALL_DATA) $(INFO_FILE) $(RELSYSDIR)
+ 	$(INSTALL_DIR) $(RELEASE_PATH)/man/man3
+ 	$(INSTALL_DATA) $(MAN3DIR)/* $(RELEASE_PATH)/man/man3
+ 
+diff --git a/lib/percept/info b/lib/percept/info
+deleted file mode 100644
+index 07d58d2..0000000
+--- a/lib/percept/info
++++ /dev/null
+@@ -1,2 +0,0 @@
+-group: tools
+-short: A concurrency profiler tool.
+diff --git a/lib/pman/doc/src/Makefile b/lib/pman/doc/src/Makefile
+index 4e116cb..d67b3c1 100644
+--- a/lib/pman/doc/src/Makefile
++++ b/lib/pman/doc/src/Makefile
+@@ -57,8 +57,6 @@ GIF_FILES = \
+ HTML_FILES = $(XML_APPLICATION_FILES:%.xml=$(HTMLDIR)/%.html) \
+ 	$(XML_PART_FILES:%.xml=$(HTMLDIR)/%.html)
+ 
+-INFO_FILE = ../../info
+-
+ MAN3_FILES = $(XML_REF3_FILES:%.xml=$(MAN3DIR)/%.3)
+ 
+ HTML_REF_MAN_FILE = $(HTMLDIR)/index.html
+@@ -108,7 +106,6 @@ release_docs_spec: docs
+ 	$(INSTALL_DIR) $(RELSYSDIR)/doc/html
+ 	$(INSTALL_DATA) $(HTMLDIR)/* \
+ 		$(RELSYSDIR)/doc/html
+-	$(INSTALL_DATA) $(INFO_FILE) $(RELSYSDIR)
+ 	$(INSTALL_DIR) $(RELEASE_PATH)/man/man3
+ 	$(INSTALL_DATA) $(MAN3DIR)/* $(RELEASE_PATH)/man/man3
+ 
+diff --git a/lib/pman/info b/lib/pman/info
+deleted file mode 100644
+index 22003ed..0000000
+--- a/lib/pman/info
++++ /dev/null
+@@ -1,2 +0,0 @@
+-group: tools
+-short: A graphical process manager used to inspect Erlang processes.
+diff --git a/lib/public_key/doc/src/Makefile b/lib/public_key/doc/src/Makefile
+index 298c28a..b5c36de 100644
+--- a/lib/public_key/doc/src/Makefile
++++ b/lib/public_key/doc/src/Makefile
+@@ -68,8 +68,6 @@ TOP_HTML_FILES =
+ HTML_FILES = $(XML_APPLICATION_FILES:%.xml=$(HTMLDIR)/%.html) \
+ 	$(XML_PART_FILES:%.xml=$(HTMLDIR)/%.html)
+ 
+-INFO_FILE = ../../info
+-
+ EXTRA_FILES = \
+ 	$(DEFAULT_GIF_FILES) \
+ 	$(DEFAULT_HTML_FILES) \
+@@ -180,7 +178,6 @@ release_docs_spec: docs
+ 	$(INSTALL_DIR) $(RELSYSDIR)/doc/html
+ 	$(INSTALL_DATA) $(HTMLDIR)/* \
+ 		$(RELSYSDIR)/doc/html
+-	$(INSTALL_DATA) $(INFO_FILE) $(RELSYSDIR)
+ 	$(INSTALL_DIR) $(RELEASE_PATH)/man/man3
+ 	$(INSTALL_DATA) $(MAN3DIR)/* $(RELEASE_PATH)/man/man3
+ else
+@@ -199,7 +196,6 @@ release_docs_spec: docs
+ 	$(INSTALL_DIR) $(RELSYSDIR)/doc/html
+ 	$(INSTALL_DATA) $(GIF_FILES) $(EXTRA_FILES) $(HTML_FILES) \
+ 		$(RELSYSDIR)/doc/html
+-	$(INSTALL_DATA) $(INFO_FILE) $(RELSYSDIR)
+ 	$(INSTALL_DIR) $(RELEASE_PATH)/man/man3
+ 	$(INSTALL_DATA) $(MAN3_FILES) $(RELEASE_PATH)/man/man3
+ endif
+diff --git a/lib/public_key/info b/lib/public_key/info
+deleted file mode 100644
+index 0fa0248..0000000
+--- a/lib/public_key/info
++++ /dev/null
+@@ -1,2 +0,0 @@
+-group: comm
+-short: API to public key infrastructure.
+diff --git a/lib/reltool/doc/src/Makefile b/lib/reltool/doc/src/Makefile
+index 8bc1488..cc96e25 100644
+--- a/lib/reltool/doc/src/Makefile
++++ b/lib/reltool/doc/src/Makefile
+@@ -46,8 +46,6 @@ XML_FILES = \
+ HTML_FILES = $(XML_APPLICATION_FILES:%.xml=$(HTMLDIR)/%.html) \
+ 	$(XML_PART_FILES:%.xml=$(HTMLDIR)/%.html)
+ 
+-INFO_FILE = ../../info
+-
+ MAN3_FILES = $(XML_REF3_FILES:%.xml=$(MAN3DIR)/%.3)
+ 
+ HTML_REF_MAN_FILE = $(HTMLDIR)/index.html
+@@ -101,7 +99,6 @@ release_docs_spec: docs
+ 	$(INSTALL_DATA) $(TOP_PDF_FILE) $(RELSYSDIR)/doc/pdf
+ 	$(INSTALL_DIR) $(RELSYSDIR)/doc/html
+ 	$(INSTALL_DATA) $(HTMLDIR)/* $(RELSYSDIR)/doc/html
+-	$(INSTALL_DATA) $(INFO_FILE) $(RELSYSDIR)
+ 	$(INSTALL_DIR) $(RELEASE_PATH)/man/man3
+ 	$(INSTALL_DATA) $(MAN3DIR)/* $(RELEASE_PATH)/man/man3
+ 
+diff --git a/lib/reltool/info b/lib/reltool/info
+deleted file mode 100644
+index 9aacf0f..0000000
+--- a/lib/reltool/info
++++ /dev/null
+@@ -1,7 +0,0 @@
+-group: tools
+-short: Reltool is a release management tool. It analyses a given
+-short: Erlang/OTP installation and determines various dependencies
+-short: between applications. The graphical frontend depicts the
+-short: dependencies and enables interactive customization of a
+-short: target system. The backend provides a batch interface
+-short: for generation of customized target systems.
+diff --git a/lib/runtime_tools/doc/src/Makefile b/lib/runtime_tools/doc/src/Makefile
+index dbbae81..bf4f9f7 100644
+--- a/lib/runtime_tools/doc/src/Makefile
++++ b/lib/runtime_tools/doc/src/Makefile
+@@ -60,8 +60,6 @@ GIF_FILES =
+ HTML_FILES = $(XML_APPLICATION_FILES:%.xml=$(HTMLDIR)/%.html) \
+ 	$(XML_PART_FILES:%.xml=$(HTMLDIR)/%.html)
+ 
+-INFO_FILE = ../../info
+-
+ MAN3_FILES = $(XML_REF3_FILES:%.xml=$(MAN3DIR)/%.3)
+ MAN6_FILES = $(XML_REF6_FILES:%_app.xml=$(MAN6DIR)/%.6)
+ 
+@@ -113,7 +111,6 @@ release_docs_spec: docs
+ 	$(INSTALL_DIR) $(RELSYSDIR)/doc/html
+ 	$(INSTALL_DATA) $(HTMLDIR)/* \
+ 		$(RELSYSDIR)/doc/html
+-	$(INSTALL_DATA) $(INFO_FILE) $(RELSYSDIR)
+ 	$(INSTALL_DIR) $(RELEASE_PATH)/man/man3
+ 	$(INSTALL_DATA) $(MAN3DIR)/* $(RELEASE_PATH)/man/man3
+ 	$(INSTALL_DIR) $(RELEASE_PATH)/man/man6
+diff --git a/lib/runtime_tools/info b/lib/runtime_tools/info
+deleted file mode 100644
+index 87f0160..0000000
+--- a/lib/runtime_tools/info
++++ /dev/null
+@@ -1,2 +0,0 @@
+-group: tools
+-short: Runtime tools, tools to include in a production system
+diff --git a/lib/sasl/doc/src/Makefile b/lib/sasl/doc/src/Makefile
+index eb880cc..cb045b1 100644
+--- a/lib/sasl/doc/src/Makefile
++++ b/lib/sasl/doc/src/Makefile
+@@ -67,8 +67,6 @@ XML_FILES = \
+ HTML_FILES = $(XML_APPLICATION_FILES:%.xml=$(HTMLDIR)/%.html) \
+ 	$(XML_PART_FILES:%.xml=$(HTMLDIR)/%.html)
+ 
+-INFO_FILE = ../../info
+-
+ MAN3_FILES = $(XML_REF3_FILES:%.xml=$(MAN3DIR)/%.3)
+ MAN4_FILES = $(XML_REF4_FILES:%.xml=$(MAN4DIR)/%.4)
+ MAN6_FILES = $(XML_REF6_FILES:%_app.xml=$(MAN6DIR)/%.6)
+@@ -121,7 +119,6 @@ release_docs_spec: docs
+ 	$(INSTALL_DIR) $(RELSYSDIR)/doc/html
+ 	$(INSTALL_DATA) $(HTMLDIR)/* \
+ 		$(RELSYSDIR)/doc/html
+-	$(INSTALL_DATA) $(INFO_FILE) $(RELSYSDIR)
+ 	$(INSTALL_DIR) $(RELEASE_PATH)/man/man3
+ 	$(INSTALL_DATA) $(MAN3DIR)/* $(RELEASE_PATH)/man/man3
+ 	$(INSTALL_DIR) $(RELEASE_PATH)/man/man4
+diff --git a/lib/sasl/info b/lib/sasl/info
+deleted file mode 100644
+index 479392c..0000000
+--- a/lib/sasl/info
++++ /dev/null
+@@ -1,3 +0,0 @@
+-group: basic
+-short: The System Architecture Support Libraries is a set of tools for
+-short: release upgrades and alarm handling etc.
+diff --git a/lib/snmp/doc/src/Makefile b/lib/snmp/doc/src/Makefile
+index e8d9efb..cf654a6 100644
+--- a/lib/snmp/doc/src/Makefile
++++ b/lib/snmp/doc/src/Makefile
+@@ -65,8 +65,6 @@ XML_ERRS = $(XML_FILES:%.xml=%.latex.xmls_errs) \
+ XML_OUTPUT = $(XML_FILES:%.xml=%.latex.xmls_output) \
+               $(XML_FILES:%.xml=%.html.xmls_output)
+ 
+-INFO_FILE = ../../info
+-
+ HTML_REF3_FILES = $(XML_REF3_FILES:%.xml=$(HTMLDIR)/%.html)
+ HTML_REF6_FILES = $(XML_REF6_FILES:%.xml=$(HTMLDIR)/%.html)
+ HTML_CHAP_FILES = $(XML_CHAPTER_FILES:%.xml=$(HTMLDIR)/%.html)
+@@ -243,7 +241,6 @@ release_docs_spec: docs
+ 	$(INSTALL_DIR) $(RELSYSDIR)/doc/html
+ 	$(INSTALL_DATA) $(HTMLDIR)/* \
+ 		$(RELSYSDIR)/doc/html
+-	$(INSTALL_DATA) $(INFO_FILE) $(RELSYSDIR)
+ 	$(INSTALL_DIR) $(RELEASE_PATH)/man/man3
+ 	$(INSTALL_DATA) $(MAN3DIR)/* $(RELEASE_PATH)/man/man3
+ 	$(INSTALL_DIR) $(RELEASE_PATH)/man/man6
+@@ -268,7 +265,6 @@ release_docs_spec: docs
+ 	$(INSTALL_DIR) $(RELSYSDIR)/doc/html
+ 	$(INSTALL_DATA) $(GIF_FILES) $(EXTRA_FILES) $(HTML_FILES) \
+ 		$(RELSYSDIR)/doc/html
+-	$(INSTALL_DATA) $(INFO_FILE) $(RELSYSDIR)
+ 	$(INSTALL_DIR) $(RELEASE_PATH)/man/man3
+ 	$(INSTALL_DATA) $(MAN3_FILES) $(RELEASE_PATH)/man/man3
+ 	$(INSTALL_DIR) $(RELEASE_PATH)/man/man6
+diff --git a/lib/snmp/info b/lib/snmp/info
+deleted file mode 100644
+index 6bda2fe..0000000
+--- a/lib/snmp/info
++++ /dev/null
+@@ -1,3 +0,0 @@
+-group: oam Operation & Maintenance Applications
+-short: Simple Network Management Protocol (SNMP) support including a
+-short: MIB compiler and tools for creating SNMP agents
+diff --git a/lib/ssh/doc/src/Makefile b/lib/ssh/doc/src/Makefile
+index c4d8d99..9c03dcc 100644
+--- a/lib/ssh/doc/src/Makefile
++++ b/lib/ssh/doc/src/Makefile
+@@ -66,7 +66,6 @@ XML_FILES = $(BOOK_FILES) $(XML_APPLICATION_FILES) $(XML_REF3_FILES) \
+ HTML_FILES = $(XML_APPLICATION_FILES:%.xml=$(HTMLDIR)/%.html) \
+ 	$(XML_PART_FILES:%.xml=$(HTMLDIR)/%.html)
+ 
+-INFO_FILE = ../../info
+ EXTRA_FILES = \
+ 	$(DEFAULT_GIF_FILES) \
+ 	$(DEFAULT_HTML_FILES) \
+@@ -176,7 +175,6 @@ release_docs_spec: docs
+ 	$(INSTALL_DIR) $(RELSYSDIR)/doc/html
+ 	$(INSTALL_DATA) $(HTMLDIR)/* \
+ 		$(RELSYSDIR)/doc/html
+-	$(INSTALL_DATA) $(INFO_FILE) $(RELSYSDIR)
+ 	$(INSTALL_DIR) $(RELEASE_PATH)/man/man3
+ 	$(INSTALL_DATA) $(MAN3DIR)/* $(RELEASE_PATH)/man/man3
+ else
+@@ -195,7 +193,6 @@ release_docs_spec: docs
+ 	$(INSTALL_DIR) $(RELSYSDIR)/doc/html
+ 	$(INSTALL_DATA) $(EXTRA_FILES) $(HTML_FILES) \
+ 		$(RELSYSDIR)/doc/html
+-	$(INSTALL_DATA) $(INFO_FILE) $(RELSYSDIR)
+ 	$(INSTALL_DIR) $(RELEASE_PATH)/man/man3
+ 	$(INSTALL_DATA) $(MAN3_FILES) $(RELEASE_PATH)/man/man3
+ endif
+diff --git a/lib/ssh/info b/lib/ssh/info
+deleted file mode 100644
+index 41a2a2c..0000000
+--- a/lib/ssh/info
++++ /dev/null
+@@ -1,2 +0,0 @@
+-group: comm
+-short: Secure Shell application with sftp and ssh support
+\ No newline at end of file
+diff --git a/lib/ssl/doc/src/Makefile b/lib/ssl/doc/src/Makefile
+index 3119d37..b092eeb 100644
+--- a/lib/ssl/doc/src/Makefile
++++ b/lib/ssl/doc/src/Makefile
+@@ -64,7 +64,6 @@ XML_FLAGS += -defs cite cite.defs -booksty otpA4
+ HTML_FILES = $(XML_APPLICATION_FILES:%.xml=$(HTMLDIR)/%.html) \
+ 	$(XML_PART_FILES:%.xml=$(HTMLDIR)/%.html)
+ 
+-INFO_FILE = ../../info
+ EXTRA_FILES = \
+ 	$(DEFAULT_GIF_FILES) \
+ 	$(DEFAULT_HTML_FILES) \
+@@ -122,7 +121,6 @@ release_docs_spec: docs
+ 	$(INSTALL_DIR) $(RELSYSDIR)/doc/html
+ 	$(INSTALL_DATA) $(HTMLDIR)/* \
+ 		$(RELSYSDIR)/doc/html
+-	$(INSTALL_DATA) $(INFO_FILE) $(RELSYSDIR)
+ 	$(INSTALL_DIR) $(RELEASE_PATH)/man/man3
+ 	$(INSTALL_DATA) $(MAN3DIR)/* $(RELEASE_PATH)/man/man3
+ 	$(INSTALL_DIR) $(RELEASE_PATH)/man/man6
+diff --git a/lib/ssl/info b/lib/ssl/info
+deleted file mode 100644
+index 8f610b8..0000000
+--- a/lib/ssl/info
++++ /dev/null
+@@ -1,2 +0,0 @@
+-group: comm
+-short: ssl- Secure Socket Layer.
+diff --git a/lib/stdlib/doc/src/Makefile b/lib/stdlib/doc/src/Makefile
+index b558697..19cf8e6 100644
+--- a/lib/stdlib/doc/src/Makefile
++++ b/lib/stdlib/doc/src/Makefile
+@@ -116,8 +116,6 @@ HTML_FILES = $(XML_APPLICATION_FILES:%.xml=$(HTMLDIR)/%.html) \
+ 	$(XML_PART_FILES:%.xml=$(HTMLDIR)/%.html) \
+ 	$(GIF_FILES:%.gif=$(HTMLDIR)/%.gif)
+ 
+-INFO_FILE = ../../info
+-
+ MAN3_FILES = $(XML_REF3_FILES:%.xml=$(MAN3DIR)/%.3)
+ MAN6_FILES = $(XML_REF6_FILES:%_app.xml=$(MAN6DIR)/%.6)
+ 
+@@ -168,7 +166,6 @@ release_docs_spec: docs
+ 	$(INSTALL_DIR) $(RELSYSDIR)/doc/html
+ 	$(INSTALL_DATA) $(HTMLDIR)/* \
+ 		$(RELSYSDIR)/doc/html
+-	$(INSTALL_DATA) $(INFO_FILE) $(RELSYSDIR)
+ 	$(INSTALL_DIR) $(RELEASE_PATH)/man/man3
+ 	$(INSTALL_DATA) $(MAN3DIR)/* $(RELEASE_PATH)/man/man3
+ 	$(INSTALL_DIR) $(RELEASE_PATH)/man/man6
+diff --git a/lib/stdlib/info b/lib/stdlib/info
+deleted file mode 100644
+index af2495a..0000000
+--- a/lib/stdlib/info
++++ /dev/null
+@@ -1,2 +0,0 @@
+-group: basic
+-short: The Erlang standard libraries
+diff --git a/lib/syntax_tools/doc/Makefile b/lib/syntax_tools/doc/Makefile
+index 6afd16f..53e0b7c 100644
+--- a/lib/syntax_tools/doc/Makefile
++++ b/lib/syntax_tools/doc/Makefile
+@@ -35,7 +35,6 @@ APPNAME=syntax_tools
+ DOC_TITLE="Welcome to SyntaxTools"
+ 
+ HTML_FILES = *.html
+-INFO_FILE = ../info
+ # ----------------------------------------------------
+ # Target Specs
+ # ----------------------------------------------------
+@@ -74,7 +73,6 @@ include $(ERL_TOP)/make/otp_release_targets.mk
+ release_docs_spec: docs
+ 	$(INSTALL_DIR) $(RELSYSDIR)/doc/html
+ 	$(INSTALL_DATA)  $(HTML_FILES) $(RELSYSDIR)/doc/html
+-	$(INSTALL_DATA) $(INFO_FILE) $(RELSYSDIR)
+ 
+ 
+ release_spec:
+diff --git a/lib/syntax_tools/doc/src/Makefile b/lib/syntax_tools/doc/src/Makefile
+index 291b3e3..7e652f6 100644
+--- a/lib/syntax_tools/doc/src/Makefile
++++ b/lib/syntax_tools/doc/src/Makefile
+@@ -65,8 +65,6 @@ XML_FILES=\
+ 	$(XML_NOTES_FILES)
+ 
+ # ----------------------------------------------------
+-INFO_FILE = ../../info
+-
+ HTML_FILES = \
+ 	$(XML_APPLICATION_FILES:%.xml=$(HTMLDIR)/%.html) \
+ 	$(XML_PART_FILES:%.xml=$(HTMLDIR)/%.html)
+@@ -130,7 +128,6 @@ release_docs_spec: docs
+ 	$(INSTALL_DIR) $(RELSYSDIR)/doc/html
+ 	$(INSTALL_DATA) $(HTMLDIR)/* \
+ 		$(RELSYSDIR)/doc/html
+-	$(INSTALL_DATA) $(INFO_FILE) $(RELSYSDIR)
+ 	$(INSTALL_DIR) $(RELEASE_PATH)/man/man3
+ 	$(INSTALL_DATA) $(MAN3DIR)/* $(RELEASE_PATH)/man/man3
+ 
+diff --git a/lib/syntax_tools/info b/lib/syntax_tools/info
+deleted file mode 100644
+index 79283f5..0000000
+--- a/lib/syntax_tools/info
++++ /dev/null
+@@ -1,3 +0,0 @@
+-group: tools
+-short: A utility used to handle abstract Erlang syntax trees,
+-short: reading source files differently, pretty-printing syntax trees.
+diff --git a/lib/test_server/doc/src/Makefile b/lib/test_server/doc/src/Makefile
+index c7ba415..1b0a187 100644
+--- a/lib/test_server/doc/src/Makefile
++++ b/lib/test_server/doc/src/Makefile
+@@ -72,8 +72,6 @@ HTML_FILES = $(XML_APPLICATION_FILES:%.xml=$(HTMLDIR)/%.html) \
+ 
+ HTML_INTERNAL = $(XML_REF3_INTERNAL:%.xml=$(HTMLDIR)/%.html)
+ 
+-INFO_FILE = ../../info
+-
+ MAN3_FILES = $(XML_REF3_FILES:%.xml=$(MAN3DIR)/%.3)
+ MAN3_INTERNAL = $(XML_REF3_INTERNAL:%.xml=$(MAN3DIR)/%.3)
+ MAN6_FILES = $(XML_REF6_FILES:%_app.xml=$(MAN6DIR)/%.6)
+@@ -124,7 +122,6 @@ release_docs_spec: docs
+ 	$(INSTALL_DIR) $(RELSYSDIR)/doc/html
+ 	$(INSTALL_DATA) $(HTMLDIR)/* \
+ 		$(RELSYSDIR)/doc/html
+-	$(INSTALL_DATA) $(INFO_FILE) $(RELSYSDIR)
+ 	$(INSTALL_DIR) $(RELEASE_PATH)/man/man3
+ 	$(INSTALL_DATA) $(MAN3_FILES) $(RELEASE_PATH)/man/man3
+ 	$(INSTALL_DIR) $(RELEASE_PATH)/man/man6
+diff --git a/lib/test_server/info b/lib/test_server/info
+deleted file mode 100644
+index 7a9ed6c..0000000
+--- a/lib/test_server/info
++++ /dev/null
+@@ -1,2 +0,0 @@
+-group: test Test Applications
+-short: The OTP Test Server
+diff --git a/lib/toolbar/doc/src/Makefile b/lib/toolbar/doc/src/Makefile
+index 76147c1..fde1201 100644
+--- a/lib/toolbar/doc/src/Makefile
++++ b/lib/toolbar/doc/src/Makefile
+@@ -56,8 +56,6 @@ GIF_FILES = \
+ HTML_FILES = $(XML_APPLICATION_FILES:%.xml=$(HTMLDIR)/%.html) \
+ 	$(XML_PART_FILES:%.xml=$(HTMLDIR)/%.html)
+ 
+-INFO_FILE = ../../info
+-
+ MAN3_FILES = $(XML_REF3_FILES:%.xml=$(MAN3DIR)/%.3)
+ 
+ HTML_REF_MAN_FILE = $(HTMLDIR)/index.html
+@@ -107,7 +105,6 @@ release_docs_spec: docs
+ 	$(INSTALL_DIR) $(RELSYSDIR)/doc/html
+ 	$(INSTALL_DATA) $(HTMLDIR)/* \
+ 		$(RELSYSDIR)/doc/html
+-	$(INSTALL_DATA) $(INFO_FILE) $(RELSYSDIR)
+ 	$(INSTALL_DIR) $(RELEASE_PATH)/man/man3
+ 	$(INSTALL_DATA) $(MAN3DIR)/* $(RELEASE_PATH)/man/man3
+ 
+diff --git a/lib/toolbar/info b/lib/toolbar/info
+deleted file mode 100644
+index 706cbdf..0000000
+--- a/lib/toolbar/info
++++ /dev/null
+@@ -1,2 +0,0 @@
+-group: tools
+-short: A tool bar simplifying access to the Erlang tools
+diff --git a/lib/tools/doc/src/Makefile b/lib/tools/doc/src/Makefile
+index 433f123..e65b186 100644
+--- a/lib/tools/doc/src/Makefile
++++ b/lib/tools/doc/src/Makefile
+@@ -76,8 +76,6 @@ GIF_FILES = \
+ HTML_FILES = $(XML_APPLICATION_FILES:%.xml=$(HTMLDIR)/%.html) \
+ 	$(XML_PART_FILES:%.xml=$(HTMLDIR)/%.html)
+ 
+-INFO_FILE = ../../info
+-
+ MAN3_FILES = $(XML_REF3_FILES:%.xml=$(MAN3DIR)/%.3)
+ 
+ HTML_REF_MAN_FILE = $(HTMLDIR)/index.html
+@@ -126,7 +124,6 @@ release_docs_spec: docs
+ 	$(INSTALL_DIR) $(RELSYSDIR)/doc/html
+ 	$(INSTALL_DATA) $(HTMLDIR)/* \
+ 		$(RELSYSDIR)/doc/html
+-	$(INSTALL_DATA) $(INFO_FILE) $(RELSYSDIR)
+ 	$(INSTALL_DIR) $(RELEASE_PATH)/man/man3
+ 	$(INSTALL_DATA) $(MAN3DIR)/* $(RELEASE_PATH)/man/man3
+ 
+diff --git a/lib/tools/info b/lib/tools/info
+deleted file mode 100644
+index a253c25..0000000
+--- a/lib/tools/info
++++ /dev/null
+@@ -1,2 +0,0 @@
+-group: tools Tool Applications
+-short: A set of programming tools including a coverage analyzer etc
+diff --git a/lib/tv/doc/src/Makefile b/lib/tv/doc/src/Makefile
+index f30e030..3a43fda 100644
+--- a/lib/tv/doc/src/Makefile
++++ b/lib/tv/doc/src/Makefile
+@@ -80,7 +80,6 @@ GIF_FILES = tv_start.gif \
+ HTML_FILES = $(XML_APPLICATION_FILES:%.xml=$(HTMLDIR)/%.html) \
+ 	$(XML_PART_FILES:%.xml=$(HTMLDIR)/%.html)
+ 
+-INFO_FILE = ../../info
+ EXTRA_FILES = \
+ 	$(DEFAULT_GIF_FILES) \
+ 	$(DEFAULT_HTML_FILES) \
+@@ -189,7 +188,6 @@ release_docs_spec: docs
+ 	$(INSTALL_DIR) $(RELSYSDIR)/doc/html
+ 	$(INSTALL_DATA) $(HTMLDIR)/* \
+ 		$(RELSYSDIR)/doc/html
+-	$(INSTALL_DATA) $(INFO_FILE) $(RELSYSDIR)
+ 	$(INSTALL_DIR) $(RELEASE_PATH)/man/man3
+ 	$(INSTALL_DATA) $(MAN3_FILES) $(RELEASE_PATH)/man/man3
+ 
+@@ -209,7 +207,6 @@ release_docs_spec: docs
+ 	$(INSTALL_DIR) $(RELSYSDIR)/doc/html
+ 	$(INSTALL_DATA) $(GIF_FILES) $(EXTRA_FILES) $(HTML_FILES) \
+ 		$(RELSYSDIR)/doc/html
+-	$(INSTALL_DATA) $(INFO_FILE) $(RELSYSDIR)
+ 	$(INSTALL_DIR) $(RELEASE_PATH)/man/man3
+ 	$(INSTALL_DATA) $(MAN3_FILES) $(RELEASE_PATH)/man/man3
+ endif
+diff --git a/lib/tv/info b/lib/tv/info
+deleted file mode 100644
+index 63e88b0..0000000
+--- a/lib/tv/info
++++ /dev/null
+@@ -1,2 +0,0 @@
+-group: tools
+-short: An ETS and MNESIA graphical table visualizer
+diff --git a/lib/webtool/doc/src/Makefile b/lib/webtool/doc/src/Makefile
+index 7b86752..b0da3ad 100644
+--- a/lib/webtool/doc/src/Makefile
++++ b/lib/webtool/doc/src/Makefile
+@@ -63,8 +63,6 @@ GIF_FILES =
+ HTML_FILES = $(XML_APPLICATION_FILES:%.xml=$(HTMLDIR)/%.html) \
+ 	$(XML_PART_FILES:%.xml=$(HTMLDIR)/%.html)
+ 
+-INFO_FILE = ../../info
+-
+ MAN1_FILES = $(XML_REF1_FILES:%.xml=$(MAN1DIR)/%.1)
+ MAN3_FILES = $(XML_REF3_FILES:%.xml=$(MAN3DIR)/%.3)
+ 
+@@ -117,7 +115,6 @@ release_docs_spec: docs
+ 	$(INSTALL_DIR) $(RELSYSDIR)/doc/html
+ 	$(INSTALL_DATA) $(HTMLDIR)/* \
+ 		$(RELSYSDIR)/doc/html
+-	$(INSTALL_DATA) $(INFO_FILE) $(RELSYSDIR)
+ 	$(INSTALL_DIR) $(RELEASE_PATH)/man/man1
+ 	$(INSTALL_DATA) $(MAN1_FILES) $(RELEASE_PATH)/man/man1
+ 	$(INSTALL_DIR) $(RELEASE_PATH)/man/man3
+diff --git a/lib/webtool/info b/lib/webtool/info
+deleted file mode 100644
+index 4d8dc6f..0000000
+--- a/lib/webtool/info
++++ /dev/null
+@@ -1,2 +0,0 @@
+-group: tools
+-short: A tool that simplifying the use of  web based Erlang tools
+diff --git a/lib/wx/doc/src/Makefile b/lib/wx/doc/src/Makefile
+index c8eb617..b211eb6 100644
+--- a/lib/wx/doc/src/Makefile
++++ b/lib/wx/doc/src/Makefile
+@@ -83,8 +83,6 @@ XML_FILES = \
+ 	$(XML_NOTES_FILES) $(XML_APPLICATION_FILES)
+ 
+ # ----------------------------------------------------
+-INFO_FILE = ../../info
+-
+ HTML_FILES = \
+ 	$(XML_APPLICATION_FILES:%.xml=$(HTMLDIR)/%.html) \
+ 	$(XML_PART_FILES:%.xml=$(HTMLDIR)/%.html)
+@@ -158,7 +156,6 @@ release_docs_spec: docs
+ 	$(INSTALL_DIR) $(RELSYSDIR)/doc/html
+ 	$(INSTALL_DATA) $(HTMLDIR)/*  \
+ 		$(RELSYSDIR)/doc/html
+-	$(INSTALL_DATA) $(INFO_FILE) $(RELSYSDIR)
+ 	$(INSTALL_DIR) $(RELEASE_PATH)/man/man3
+ 	$(INSTALL_DATA) $(MAN3_FILES) $(RELEASE_PATH)/man/man3
+ 
+diff --git a/lib/wx/info b/lib/wx/info
+deleted file mode 100644
+index 05982e7..0000000
+--- a/lib/wx/info
++++ /dev/null
+@@ -1,2 +0,0 @@
+-group: comm
+-short: A Graphics System used to write platform independent user interfaces
+diff --git a/lib/xmerl/doc/src/Makefile b/lib/xmerl/doc/src/Makefile
+index 100a2fe..0c2c40a 100644
+--- a/lib/xmerl/doc/src/Makefile
++++ b/lib/xmerl/doc/src/Makefile
+@@ -90,8 +90,6 @@ XML_FILES= \
+ 	$(XML_PART_FILES) $(XML_REF3_FILES) $(XML_APPLICATION_FILES)
+ 
+ # ----------------------------------------------------
+-INFO_FILE = ../../info
+-
+ HTML_FILES = $(XML_REF_MAN:%.xml=$(HTMLDIR)/%.html) \
+ 	$(XML_HTML_FILES:%.xml=$(HTMLDIR)/%.html) \
+ 	$(XML_PART_FILES:%.xml=$(HTMLDIR)/%.html)
+@@ -167,7 +165,6 @@ release_docs_spec: docs
+ 	$(INSTALL_DATA) $(HTMLDIR)/* \
+ 		$(RELSYSDIR)/doc/html
+ 	$(INSTALL_DATA) $(EXAMPLE_FILES) $(HTML_EXAMPLE_FILES) $(HTML_STYLESHEET_FILES) $(RELSYSDIR)/doc/html
+-	$(INSTALL_DATA) $(INFO_FILE) $(RELSYSDIR)
+ 	$(INSTALL_DIR) $(RELEASE_PATH)/man/man3
+ 	$(INSTALL_DATA) $(MAN3DIR)/* $(RELEASE_PATH)/man/man3
+ 
+diff --git a/lib/xmerl/info b/lib/xmerl/info
+deleted file mode 100644
+index 81d16ab..0000000
+--- a/lib/xmerl/info
++++ /dev/null
+@@ -1,2 +0,0 @@
+-group: comm
+-short: Provides support for XML 1.0
+-- 
+1.7.3.5
+
