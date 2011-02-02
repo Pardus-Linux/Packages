@@ -14,5 +14,5 @@ def build():
     autotools.make("-C ipheth-pair/")
 
 def install():
-    pisitools.insinto("/usr/bin", "ipheth-pair/ipheth-pair")
+    pisitools.insinto("/lib/udev", "ipheth-pair/ipheth-pair")
     pisitools.insinto("/lib/udev/rules.d", "ipheth-pair/90-iphone-tether.rules")
