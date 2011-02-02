@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright 2005-2008 TUBITAK/UEKAE
+# Copyright 2005-2011 TUBITAK/UEKAE
 # Licensed under the GNU General Public License, version 2.
 # See the file http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
 
@@ -31,7 +31,7 @@ def install():
         pisitools.dosym(os.path.join(javadir, f.replace(".jar", "-%s.jar" % get.srcVERSION())), os.path.join(javadir, f))
 
     #Install optional JAR files to /usr/share/java/ant
-    for f in ("ant-jmf.jar", "ant-nodeps.jar", "ant-swing.jar", "ant-trax.jar"):
+    for f in ("ant-jmf.jar", "ant-junit.jar", "ant-swing.jar"):
         pisitools.insinto(os.path.join(javadir, "ant"), f, f.replace(".jar", "-%s.jar" % get.srcVERSION()))
         pisitools.dosym(os.path.join(javadir, "ant", f.replace(".jar", "-%s.jar" % get.srcVERSION())), os.path.join(anthome, "lib", f))
         pisitools.dosym(os.path.join(javadir, "ant", f.replace(".jar", "-%s.jar" % get.srcVERSION())), os.path.join(javadir, "ant", f))
@@ -51,5 +51,5 @@ def install():
     #Install XSLs
     pisitools.insinto(os.path.join(anthome, "etc"), "src/etc/*.xsl")
 
-    pisitools.dodoc("README", "WHATSNEW", "LICENSE")
+    pisitools.dodoc("KEYS", "NOTICE", "README", "WHATSNEW", "LICENSE")
     pisitools.dohtml("docs/*")
