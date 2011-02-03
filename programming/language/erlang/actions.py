@@ -28,7 +28,7 @@ def setup():
                          --enable-kernel-poll \
                          --enable-hipe \
                          --enable-smp-support \
-                         --with-ssl")
+                         --with-ssl ac_cv_prog_FOP=")
 
 def build():
     autotools.make("-j1")
