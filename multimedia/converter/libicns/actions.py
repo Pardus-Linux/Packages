@@ -1,4 +1,3 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
 # Copyright 2011 TUBITAK/BILGEM-UEKAE
@@ -7,16 +6,15 @@
 
 from pisi.actionsapi import autotools
 from pisi.actionsapi import pisitools
-from pisi.actionsapi import get
 
 
 def setup():
-    autotools.configure()
+    autotools.configure("--disable-static")
 
 def build():
     autotools.make()
 
 def install():
-    autotools.rawInstall('DESTDIR="%s" prefix="/usr"' % get.installDIR())
+    autotools.install()
 
     pisitools.dodoc("README", "AUTHORS", "COPYING", "ChangeLog")
