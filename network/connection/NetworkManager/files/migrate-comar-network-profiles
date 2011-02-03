@@ -38,7 +38,7 @@ def is_migrated_before():
     """Make this tool run once; so after migration, touch a file named '.migrated' 
     under old network manager profiles dir. Check it first and then try to migrate profiles.
     """
-    
+
     global migration_sign
     if os.path.exists(migration_sign):
         return True
@@ -114,7 +114,7 @@ class PardusNetworkProfile:
         return self.name_mode
 
     def get_state(self):
-         return self.state
+        return self.state
 
     def get_name_server(self):
         return self.name_server
@@ -204,9 +204,9 @@ class NetworkManagerProfile:
                 self.ipv6.set_config(self.cfg)
             if attr == "_802_3_ethernet" and not value == "none":
                 self._802_3_ethernet.set_config(self.cfg)
-            if attr=="_802_11_wireless" and not value == "none":
+            if attr == "_802_11_wireless" and not value == "none":
                 self._802_11_wireless.set_config(self.cfg)
-            if attr=="_802_11_wireless_security" and not value == "none":
+            if attr == "_802_11_wireless_security" and not value == "none":
                 self._802_11_wireless_security.set_config(self.cfg)
 
     def write_config(self):
@@ -288,7 +288,7 @@ class IpV4:
         """Decide whether to use default, custom or auto (DHCP assigned) nameservers"""
 
         if pardus_profile.get_name_mode() == "default":
-            default_nameservers =";".join( get_default_nameservers())
+            default_nameservers = ";".join( get_default_nameservers())
             default_nameservers = default_nameservers + ";" # Make sure addresses end with ';'
             self.ignore_auto_dns = "true"
             return str(default_nameservers)
@@ -319,7 +319,7 @@ class IpV4:
     def decimal2binary(self, n):
         """Convert decimal octet value to binary format"""
 
-        octet = ["0","0","0","0","0","0","0","0"]
+        octet = ["0", "0", "0", "0", "0", "0", "0", "0"]
         index = 0
         if n < 0 or n > 255:
             raise ValueError, "Octet value must be between [0-255]"
@@ -401,28 +401,10 @@ class _802_3_Ethernet:
         self.mtu = "none" #0
 
     def set_mac_address(self, iface):
-        """Return MAC addresses of given interface on the machine using ifconfig, inspired from python uuid module"""
-
-        command = "ifconfig"
-        hw_identifiers = ['hwaddr', 'ether']
-
-        for dir in ['', '/sbin', '/usr/sbin']:
-            executable = os.path.join(dir, command)
-            if not os.path.exists(executable):
-                continue
-
-            try:
-                cmd = 'LC_ALL=C %s -a 2>/dev/null ' % executable
-                pipe = os.popen(cmd)
-            except IOError:
-                continue
-
-            for line in pipe:
-                if line.startswith(iface):
-                    words = line.lower().split()
-                    for i in range(len(words)):
-                        if words[i] in hw_identifiers:
-                            return words[i+1]
+        """Return MAC addresses of given interface on the machine"""
+        if os.path.exists("/sys/class/net/%s" % iface):
+            return open("/sys/class/net/%s/address" % iface).read().strip()
+        return None
 
     def set_config(self, cfg):
         """One single config file will be used to write settings"""
@@ -452,28 +434,10 @@ class _802_11_Wireless:
         self.mac_address = self.set_mac_address(pardus_profile.get_device())
 
     def set_mac_address(self, iface):
-        """Return MAC addresses of given interface on the machine using ifconfig, inspired from python uuid module"""
-
-        command = "ifconfig"
-        hw_identifiers = ['hwaddr', 'ether']
-
-        for dir in ['', '/sbin', '/usr/sbin']:
-            executable = os.path.join(dir, command)
-            if not os.path.exists(executable):
-                continue
-
-            try:
-                cmd = 'LC_ALL=C %s -a 2>/dev/null ' % executable
-                pipe = os.popen(cmd)
-            except IOError:
-                continue
-
-            for line in pipe:
-                if line.startswith(iface):
-                    words = line.lower().split()
-                    for i in range(len(words)):
-                        if words[i] in hw_identifiers:
-                            return words[i+1]
+        """Return MAC addresses of given interface on the machine"""
+        if os.path.exists("/sys/class/net/%s" % iface):
+            return open("/sys/class/net/%s/address" % iface).read().strip()
+        return None
 
     def set_mode(self, pardus_profile):
         """One of 'infrastructure' or 'adhoc'. If blank, infrastructure is assumed"""
@@ -513,10 +477,10 @@ class _802_11_Wireless_Security:
         self.pairwise = "none"
         self.group = "none"
         self.leap_username = "none"
-        self.wep_key0 ="none"
-        self.wep_key1 ="none"
-        self.wep_key2 ="none"
-        self.wep_key3 ="none"
+        self.wep_key0 = "none"
+        self.wep_key1 = "none"
+        self.wep_key2 = "none"
+        self.wep_key3 = "none"
         self.psk = "none"
         self.leap_password = "none"
         self.wep_key_type = "0"
