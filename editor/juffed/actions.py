@@ -9,12 +9,10 @@ from pisi.actionsapi import pisitools
 from pisi.actionsapi import shelltools
 from pisi.actionsapi import get
 
-WorkDir = "juffed-0.8"
-
 def setup():
     shelltools.makedirs("build")
     shelltools.cd("build")
-    cmaketools.configure(sourceDir="..")
+    cmaketools.configure("-DBUILD_TERMINAL=ON", sourceDir="..")
 
 def build():
     shelltools.cd("build")
