@@ -10,10 +10,7 @@ from pisi.actionsapi import pisitools
 from pisi.actionsapi import get
 
 def setup():
-    if get.ARCH() == "i686":
-        repo_uri = "http://packages.pardus.org.tr/pardus/2011/devel/i686/pisi-index.xml.xz"
-    else:
-        repo_uri = "http://packages.pardus.org.tr/pardus/2011/devel/x86_64/pisi-index.xml.xz"
+    repo_uri = "http://packages.pardus.org.tr/pardus/2011/devel/%s/pisi-index.xml.xz" % get.ARCH()
 
     pisitools.dosed("yali/constants.py", "@REPO_URI@", repo_uri)
     pisitools.dosed("conf/yali.conf", "@INSTALL_TYPE@", "system")
