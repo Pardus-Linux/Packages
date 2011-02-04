@@ -9,8 +9,6 @@ from pisi.actionsapi import pisitools
 from pisi.actionsapi import get
 from pisi.actionsapi import kde4
 
-WorkDir="build-%s" % get.srcVERSION()
-
 def setup():
     kde4.configure()
 
