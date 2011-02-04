@@ -1,0 +1,202 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>systemtap</Name>
+        <Homepage>http://sourceware.org/systemtap/</Homepage>
+        <Packager>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Packager>
+        <License>GPLv2+</License>
+        <IsA>app:console</IsA>
+        <Summary>Instrumentation System</Summary>
+        <Description>systemtap is an instrumentation system for systems running Linux 2.6. Developers can write instrumentation to collect data on the operation of the system.</Description>
+        <Archive sha1sum="d22184031c69e6844b34a874d573b0f8ac8f450f" type="targz">http://cekirdek.pardus.org.tr/~ozan/dist/sources/systemtap-1.4.tar.gz</Archive>
+        <BuildDependencies>
+            <Dependency>xmlto</Dependency>
+            <Dependency>elfutils</Dependency>
+            <Dependency>nss-devel</Dependency>
+            <Dependency>nspr-devel</Dependency>
+            <Dependency>ghostscript</Dependency>
+            <Dependency>avahi-devel</Dependency>
+            <Dependency>gtkmm-devel</Dependency>
+            <Dependency>glibmm-devel</Dependency>
+            <Dependency>cairomm-devel</Dependency>
+            <Dependency>libsigc++-devel</Dependency>
+            <Dependency>libglademm-devel</Dependency>
+        </BuildDependencies>
+        <Patches>
+            <Patch level="1">stap-report-pisi-support.patch</Patch>
+            <Patch level="1">fix-nss-path.patch</Patch>
+            <Patch level="1">sdt-regtable.patch</Patch>
+        </Patches>
+    </Source>
+
+    <Package>
+        <Name>systemtap</Name>
+        <RuntimeDependencies>
+            <Dependency>nss</Dependency>
+            <Dependency>nspr</Dependency>
+            <!-- stap-gen-cert uses mkpasswd from whois -->
+            <Dependency>whois</Dependency>
+            <Dependency>elfutils</Dependency>
+            <Dependency>avahi-libs</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="executable">/usr/bin/*</Path>
+            <Path fileType="executable">/usr/libexec/systemtap</Path>
+            <Path fileType="config">/etc</Path>
+            <Path fileType="data">/etc/logrotate.d</Path>
+            <Path fileType="man">/usr/share/man</Path>
+            <Path fileType="doc">/usr/share/doc</Path>
+            <Path fileType="data">/var/run/systemtap</Path>
+            <Path fileType="data">/var/run/stap-server</Path>
+            <Path fileType="data">/var/log/stap-server</Path>
+            <Path fileType="data">/var/cache/systemtap</Path>
+            <Path fileType="data">/usr/share/systemtap/runtime</Path>
+            <Path fileType="data">/usr/share/systemtap/tapset</Path>
+        </Files>
+        <Provides>
+            <COMAR script="package.py">System.Package</COMAR>
+        </Provides>
+    </Package>
+
+    <Package>
+        <Name>systemtap-grapher</Name>
+        <Summary>A utility for real-time visualization of data from SystemTap instrumentation scripts</Summary>
+        <RuntimeDependencies>
+            <Dependency>gtkmm</Dependency>
+            <Dependency>glibmm</Dependency>
+            <Dependency>cairomm</Dependency>
+            <Dependency>libsigc++</Dependency>
+            <Dependency>libglademm</Dependency>
+            <Dependency release="current">systemtap</Dependency>
+        </RuntimeDependencies>
+        <Conflicts>
+            <Package releaseTo="7">systemtap</Package>
+        </Conflicts>
+        <Files>
+            <Path fileType="executable">/usr/bin/stapgraph</Path>
+            <Path fileType="data">/usr/share/systemtap/*.glade</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>systemtap-testsuite</Name>
+        <Summary>Testsuite allows testing of the entire SystemTap toolchain without having to rebuild from sources</Summary>
+        <RuntimeDependencies>
+            <Dependency release="current">systemtap</Dependency>
+            <Dependency release="current">systemtap-sdt-devel</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="data">/usr/share/systemtap/testsuite</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>systemtap-sdt-devel</Name>
+        <Summary>Static probe support tools</Summary>
+        <Files>
+            <Path fileType="executable">/usr/bin/dtrace</Path>
+            <Path fileType="header">/usr/include</Path>
+        </Files>
+    </Package>
+
+    <History>
+        <Update release="13">
+            <Date>2011-01-24</Date>
+            <Version>1.4</Version>
+            <Comment>Version bump to fix CVE-2010-4170, CVE-2010-4171 (#15544).</Comment>
+            <Type package="systemtap">security</Type>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="12">
+            <Date>2010-10-31</Date>
+            <Version>1.3</Version>
+            <Comment>Version bump</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="11">
+            <Date>2010-10-29</Date>
+            <Version>1.1</Version>
+            <Comment>Mass rebuild for Pardus Corporate 2 Alpha 3</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="10">
+            <Date>2010-01-23</Date>
+            <Version>1.1</Version>
+            <Comment>Fix sandbox violation when xmlto parameters are checked with links</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="9" type="security">
+            <Date>2010-01-22</Date>
+            <Version>1.1</Version>
+            <Comment>
+                * Version bump to fix remote code execution via stap-server (CVE-2009-4273, #12074)
+            </Comment>
+            <Name>Eren Türkay</Name>
+            <Email>eren@pardus.org.tr</Email>
+        </Update>
+        <Update release="8">
+            <Date>2009-09-29</Date>
+            <Version>1.0</Version>
+            <Comment>Version bump</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="7">
+            <Date>2008-05-08</Date>
+            <Version>0.6_20080503</Version>
+            <Comment>Bump to newer snapshot</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="6">
+            <Date>2008-03-14</Date>
+            <Version>0.6_20080308</Version>
+            <Comment>Bump to newer snapshot</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="5">
+            <Date>2008-01-26</Date>
+            <Version>0.6_20080126</Version>
+            <Comment>Bump to newer snapshot</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="4">
+            <Date>2008-01-05</Date>
+            <Version>0.6_20080105</Version>
+            <Comment>Bump to newer snapshot</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="3">
+            <Date>2007-03-23</Date>
+            <Version>0.5.8_20070317</Version>
+            <Comment>Bump to newer snapshot</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="2">
+            <Date>2007-01-10</Date>
+            <Version>0.5.8_20070106</Version>
+            <Comment>Bump to newer snapshot</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="1">
+            <Date>2006-10-28</Date>
+            <Version>0.5.8</Version>
+            <Comment>First release.</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+    </History>
+</PISI>
