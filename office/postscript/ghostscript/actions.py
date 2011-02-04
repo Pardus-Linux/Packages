@@ -63,7 +63,6 @@ def install():
     # Remove ijs examples
     pisitools.remove("/usr/bin/ijs_*_example")
 
-
     # Install docs
     pisitools.remove("/usr/share/doc/ghostscript/*.htm*")
     pisitools.remove("/usr/share/doc/ghostscript/*.css")
