@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright 2005-2010 TUBITAK/UEKAE
+# Copyright 2005-2011 TUBITAK/UEKAE
 # Licensed under the GNU General Public License, version 2.
 # See the file http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
 
@@ -21,6 +21,7 @@ def setup():
         shelltools.touch(f)
 
     autotools.autoreconf("-fi")
+    pisitools.dosed("Makefile.am", "^rulesdir = .*$", "rulesdir = /lib/udev/rules.d")
 
     # Strip duplex constraints from hpcups
     pisitools.dosed("prnt/drv/hpcups.drv.in", "(UIConstraints.* \*Duplex)", "//\\1")
@@ -31,22 +32,21 @@ def setup():
                          --with-drvdir=/usr/share/cups/drv \
                          --with-hpppddir=/usr/share/cups/model/hplip \
                          --with-docdir=/usr/share/doc/hplip \
-                         --disable-qt3 \
-                         --disable-policykit \
+                         --with-mimedir=/usr/share/cups/mime \
                          --enable-qt4 \
                          --enable-hpijs-install \
                          --enable-udev-acl-rules \
                          --enable-pp-build \
-                         --enable-doc-build \
                          --enable-fax-build \
                          --enable-gui-build \
                          --enable-dbus-build \
                          --enable-scan-build \
                          --enable-network-build \
                          --enable-hpcups-install \
-                         --enable-new-hpcups \
                          --enable-cups-drv-install \
                          --enable-foomatic-drv-install \
+                         --disable-qt3 \
+                         --disable-policykit \
                          --disable-doc-build \
                          --disable-foomatic-ppd-install \
                          --disable-foomatic-rip-hplip-install")
@@ -68,19 +68,18 @@ def install():
     # Remove hal directory as well.
     pisitools.removeDir("/usr/share/hal/")
 
+    # Remove unpackaged stuff (Fedora)
+    pisitools.remove("/usr/share/hplip/fax/pstotiff*")
+    pisitools.remove("/usr/share/cups/mime/pstotiff.types")
+    pisitools.remove("/usr/lib/cups/filter/hpcac")
+    pisitools.remove("/usr/share/hplip/pkservice.py")
+    pisitools.remove("/usr/bin/hp-pkservice")
+
     # Do not mess with sane, init, foomatic etc.
     pisitools.removeDir("/etc/sane.d")
 
     # Create empty plugins directory
     pisitools.dodir("/usr/share/hplip/prnt/plugins")
-
-    # This notifies user through libnotify when the printer requires a firmware
-    # Should port it to KNotify if possible, argh.
-    pisitools.remove("/lib/udev/rules.d/56-hpmud_support.rules")
-
-    # The systray applet doesn't work properly (displays icon as a
-    # window), so don't ship the launcher yet.
-    pisitools.removeDir("/etc/xdg/")
 
     # --disable-doc-build used. It doesn't go to the true directory.
     pisitools.dohtml("doc/*")

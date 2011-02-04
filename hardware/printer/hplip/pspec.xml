@@ -12,7 +12,7 @@
         <License>MIT</License>
         <Summary>HP Linux Imaging and Printing System</Summary>
         <Description>HP Linux Imaging and Printing (HPLIP) System includes printer and scanner drivers and related service tools.</Description>
-        <Archive sha1sum="5e145eafefbc5122bbe98345f2984fc0a55e5787" type="targz">mirrors://sourceforge/hplip/hplip-3.10.9.tar.gz</Archive>
+        <Archive sha1sum="6b06567373cadc7dff48134c6b58f90a4d72582a" type="targz">mirrors://sourceforge/hplip/hplip-3.11.1.tar.gz</Archive>
         <AdditionalFiles>
             <!-- PPD patcher -->
             <AdditionalFile permission="0755" target="patch-ppds">patch-ppds.sh</AdditionalFile>
@@ -79,6 +79,9 @@
             <!-- Fixed Device ID parsing code in hpijs's dj9xxvip.c -->
             <Patch level="1">fedora/hplip-bad-low-ink-warning.patch</Patch>
 
+            <!-- Add Device IDs -->
+            <!-- UNPACKEDPATCH 1 -->
+
             <!-- Hpcups (ljcolor) was putting black lines where should be blank lines -->
             <Patch level="1">fedora/hplip-skip-blank-lines.patch</Patch>
 
@@ -88,17 +91,11 @@
             <!-- Wait longer to see if a system tray becomes available -->
             <Patch level="1">fedora/hplip-no-system-tray.patch</Patch>
 
-            <!-- Prevent segfault in cupsext when opening PPD file -->
-            <Patch level="1">fedora/hplip-openPPD.patch</Patch>
-
             <!-- Fix ImageableArea for LaserJet 8150/9000 -->
             <!-- UNPACKEDPATCH 2 -->
 
             <!-- Increase timeouts for curl, wget, ping for high latency networks -->
             <Patch level="1">fedora/hplip-network-timeout.patch</Patch>
-
-            <!-- utils.addgroup() was returning string instead of array -->
-            <Patch level="1">fedora/hplip-addgroup.patch</Patch>
 
             <!-- Fixed traceback on error condition in device.py -->
             <Patch level="1">fedora/hplip-raw_deviceID-traceback.patch</Patch>
@@ -117,21 +114,33 @@
             <Patch level="1">fedora/hplip-addprinter.patch</Patch>
 
 
+            <!-- Catch D-Bus exceptions in fax dialog -->
+            <Patch level="1">fedora/hplip-dbus-exception.patch</Patch>
+
+            <!-- Prevent hpaio segfaulting on invalid URIs -->
+            <Patch level="1">fedora/hplip-hpaio-segfault.patch</Patch>
+
+            <!-- Another missing newline in filter output -->
+            <Patch level="1">fedora/hplip-newline.patch</Patch>
+
+            <!-- Enable D-Bus threading (and require pygobject2) -->
+            <Patch level="1">fedora/hplip-dbus-threads.patch</Patch>
+
+            <!-- Catch GError exception when notification showing failed -->
+            <Patch level="1">fedora/hplip-notification-exception.patch</Patch>
+
+            <!-- Applied patch to fix CVE-2010-4267, remote stack overflow vulnerability -->
+            <Patch level="1">fedora/hplip-CVE-2010-4267.patch</Patch>
+
+
             <!-- Pardus patches -->
-            <Patch level="1">pardus/add-pardus-support.patch</Patch>
             <Patch level="1">pardus/desktop-i18n.patch</Patch>
-            <Patch level="1">pardus/fix-polkit-directory.patch</Patch>
-            <Patch level="1">pardus/fix-udev-rules-path.patch</Patch>
 
             <!-- Suppress module warnings when the command is run as root -->
             <Patch level="1">pardus/suppress-module-warnings.patch</Patch>
 
             <!-- Consume session parameter from systray as it avoids startup -->
             <Patch level="1">pardus/hp-systray-consume-session-param.patch</Patch>
-
-            <!-- Remove udev rules after plugin installation -->
-            <!--<Patch level="1">pardus/dont-create-udev-rules-after-plugin-installation.patch</Patch>-->
-
         </Patches>
     </Source>
 
@@ -150,9 +159,11 @@
         <Files>
             <Path fileType="data">/etc/sane.d/dll.d</Path>
             <Path fileType="config">/etc/hp/hplip.conf</Path>
-            <Path fileType="executable">/usr/bin</Path>
+            <Path fileType="executable">/usr/bin/hp*</Path>
+            <Path fileType="executable">/usr/lib/cups/backend</Path>
+            <Path fileType="executable">/usr/lib/cups/filter</Path>
             <Path fileType="library">/usr/lib</Path>
-            <Path fileType="data">/var/lib</Path>
+            <Path fileType="data">/var/lib/hp</Path>
             <Path fileType="data">/usr/share/cups</Path>
             <Path fileType="data">/usr/share/hplip</Path>
             <Path fileType="data">/usr/share/dbus-1</Path>
@@ -175,15 +186,21 @@
         <IsA>app:gui</IsA>
         <Summary>A set of useful utilities written in Qt for managing HP devices</Summary>
         <RuntimeDependencies>
-            <Dependency versionFrom="3.10.9">hplip</Dependency>
+            <Dependency versionFrom="3.11.1">hplip</Dependency>
             <Dependency>python-reportlab</Dependency>
+            <Dependency>python-pygobject</Dependency>
             <Dependency>python-qt</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="executable">/usr/bin/hp-toolbox</Path>
             <Path fileType="executable">/usr/bin/hp-systray</Path>
-            <Path fileType="config">/etc/xdg</Path>
-            <Path fileType="data">/usr/share/applications</Path>
+            <Path fileType="executable">/usr/bin/hp-print</Path>
+            <Path fileType="data">/usr/share/hplip/toolbox.py</Path>
+            <Path fileType="data">/usr/share/hplip/systray.py</Path>
+            <Path fileType="data">/usr/share/hplip/print.py</Path>
+
+            <Path fileType="data">/etc/xdg/autostart</Path>
+            <Path fileType="data">/usr/share/applications/*.desktop</Path>
             <Path fileType="data">/usr/share/hplip/data/images</Path>
             <Path fileType="data">/usr/share/hplip/plugins</Path>
             <Path fileType="data">/usr/share/hplip/ui4</Path>
@@ -195,18 +212,32 @@
     </Package>
 
     <Package>
-        <Name>hplip-doc</Name>
+        <Name>hplip-docs</Name>
         <IsA>data:doc</IsA>
         <Summary>Documentation files for HPLIP</Summary>
         <RuntimeDependencies>
-            <Dependency versionFrom="3.10.9">hplip</Dependency>
+            <Dependency versionFrom="3.11.1">hplip</Dependency>
         </RuntimeDependencies>
+        <Replaces>
+            <Package>hplip-doc</Package>
+        </Replaces>
         <Files>
             <Path fileType="doc">/usr/share/doc</Path>
         </Files>
     </Package>
 
     <History>
+        <Update release="45">
+            <Date>2011-01-29</Date>
+            <Version>3.11.1</Version>
+            <Comment>
+                - Version bump to 3.11.1,
+                - Fix CVE-2010-4267, remote stack overflow vulnerability.
+            </Comment>
+            <Type package="hplip">security</Type>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
         <Update release="44">
             <Date>2010-12-02</Date>
             <Version>3.10.9</Version>
