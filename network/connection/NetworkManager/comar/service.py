@@ -8,8 +8,8 @@ serviceDesc = _({"en": "Network Manager",
 serviceDefault = "conditional"
 
 MSG_BACKEND_WARNING = _({
-                        "en" : "NetworkManager is not the default backend. You can change the backend from /etc/conf.d/NetworkManager.",
-                        "tr" : "NetworkManager öntanımlı ağ arkayüzü değil. /etc/conf.d/NetworkManager dosyasından arkayüzü değiştirebilirsiniz."
+                        "en" : "NetworkManager is not enabled by default. You can change this from /etc/conf.d/NetworkManager.",
+                        "tr" : "NetworkManager öntanımlı olarak etkin değil. /etc/conf.d/NetworkManager dosyasından bu ayarı değiştirebilirsiniz."
                         })
 
 PIDFILE="/var/run/NetworkManager/NetworkManager.pid"
