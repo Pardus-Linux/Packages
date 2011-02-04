@@ -9,7 +9,7 @@ from pisi.actionsapi import pisitools
 from pisi.actionsapi import shelltools
 from pisi.actionsapi import get
 
-WorkDir = "dhcp-4.2.0-P2"
+WorkDir = "dhcp-4.2.1b1"
 
 def setup():
     shelltools.export("CFLAGS", "%s -D_GNU_SOURCE -fPIC" % get.CFLAGS())
