@@ -20,5 +20,8 @@ def install():
     autotools.install()
 
     pisitools.removeDir("/usr/share/oaf")
+    # Conflicts with inscape, anyway, this file shouldn't be placed
+    # in the package.
+    pisitools.remove("/usr/share/icons/hicolor/icon-theme.cache")
 
     pisitools.dodoc("AUTHORS", "ChangeLog", "NEWS", "README")
