@@ -12,16 +12,22 @@ from pisi.actionsapi import get
 
 WorkDir = "./"
 source = "source"
-#arch = "i386"
-arch = "x86_64"
+arch = "x86_64" if get.ARCH() == "x86_64" else "i386"
+
+cflags = get.CFLAGS().replace("-fomit-frame-pointer", "")
+cxxflags = get.CXXFLAGS().replace("-fomit-frame-pointer", "")
+
 
 def build():
     shelltools.export("AR", "ar")
     shelltools.export("RANLIB", "ranlib")
 
-    shelltools.cd(source)
+    shelltools.export("CFLAGS", cflags)
+    shelltools.export("CXXFLAGS", cxxflags)
 
+    shelltools.cd(source)
     autotools.make("-C ../libsrcs/angelscript/angelSVN/sdk/angelscript/projects/gnuc")
+
     autotools.make('BINDIR=release \
                     BUILD_CLIENT=YES \
                     BUILD_SERVER=YES \
@@ -30,16 +36,16 @@ def build():
                     BUILD_SND_OPENAL=YES \
                     BUILD_TV_SERVER=YES \
                     BUILD_ANGELWRAP=YES \
-                    DEBUG_BUILD=YES \
+                    DEBUG_BUILD=NO \
                     BASE_ARCH=%s \
-                    CFLAGS_RELEASE="%s -DNDEBUG" \
                     CC="%s" \
-                    all' % (arch, get.CFLAGS(), get.CC()))
+                    CXX="%s" \
+                    V=1 \
+                    all' % (arch, get.CC(), get.CXX()))
 
-                    #shell scripts override these, disabling for now
-                    #SERVER_EXE=warsow-server \
-                    #CLIENT_EXE=warsow \
-
+                    # shell scripts override these, disabling for now
+                    # SERVER_EXE=warsow-server \
+                    # CLIENT_EXE=warsow \
 
 def install():
     for i in ["doc", "rtf", "txt"]:

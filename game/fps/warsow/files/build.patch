@@ -1,70 +1,58 @@
---- libsrcs/angelscript/angelSVN/sdk/angelscript/projects/gnuc/makefile
-+++ libsrcs/angelscript/angelSVN/sdk/angelscript/projects/gnuc/makefile
-@@ -12,7 +12,9 @@
+diff -Nur libsrcs/angelscript/angelSVN/sdk/angelscript/projects/gnuc/makefile libsrcs/angelscript/angelSVN/sdk/angelscript/projects/gnuc/makefile
+--- libsrcs/angelscript/angelSVN/sdk/angelscript/projects/gnuc/makefile	2011-02-07 13:25:12.098744321 +0200
++++ libsrcs/angelscript/angelSVN/sdk/angelscript/projects/gnuc/makefile	2011-02-07 13:28:07.441684273 +0200
+@@ -12,10 +12,10 @@
  INCDIR = ../../include
  OBJDIR = obj
  
--CXX = gcc
+-CXX ?= gcc
 +CXX ?= g++
-+# FIXME: https://bugs.gentoo.org/show_bug.cgi?id=285448
-+#CXXFLAGS += -Wall -fPIC -fno-strict-aliasing
- CXXFLAGS = -g -Wall -fPIC
+ AR ?= ar
+ RANLIB ?= ranlib
+-CXXFLAGS_AS = $(CXXFLAGS) -g -Wall -fPIC
++CXXFLAGS_AS = -O2 -fno-strict-aliasing -fno-omit-frame-pointer -g -Wall -fPIC
  DELETER = rm -f
  COPIER = cp
-@@ -59,8 +61,8 @@
- all: $(BIN)
  
- $(BIN): $(OBJ)
--	ar r $(BIN) $(OBJ)
--	ranlib $(BIN)
-+	$(AR) r $(BIN) $(OBJ)
-+	$(RANLIB) $(BIN)
- 	@echo -------------------------------------------------------------------
- 	@echo Done. As root, type 'make install' to install the library.
- 
---- source/Makefile
-+++ source/Makefile
-@@ -52,7 +52,7 @@
- #LD=gcc
+diff -Nur source/Makefile source/Makefile
+--- source/Makefile	2011-02-07 13:25:12.089690328 +0200
++++ source/Makefile	2011-02-07 13:36:22.667679067 +0200
+@@ -48,7 +48,7 @@
  else
  CC?=gcc
+ CXX?=g++
 -LD=gcc
 +LD=$(CC)
+ AR=ar
+ RANLIB=ranlib
  
- # this nice line comes from the linux kernel makefile
- BASE_ARCH:=$(shell uname -m | sed -e s/i.86/i386/ -e s/sun4u/sparc/ -e s/sparc64/sparc/ -e s/arm.*/arm/ -e s/sa110/arm/ -e s/alpha/axp/)
-@@ -134,9 +134,9 @@
+@@ -166,7 +166,7 @@
  LOCALBASE?=/usr/local
  X11BASE?=/usr/X11R6
  
--CFLAGS_COMMON=$(CFLAGS) -pipe -I. -I$(LOCALBASE)/include -I$(X11BASE)/include -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -Wall
--CFLAGS_RELEASE=-O2 -fno-strict-aliasing -ffast-math -funroll-loops -DNDEBUG
--CFLAGS_DEBUG=-O0 -ggdb -D_DEBUG
-+CFLAGS_COMMON=$(CFLAGS) -I. -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -Wall -fno-strict-aliasing
-+CFLAGS_RELEASE=-DNDEBUG
-+CFLAGS_DEBUG=-D_DEBUG
+-CFLAGS_COMMON=$(CFLAGS) -pipe -I. -I$(LOCALBASE)/include -I$(X11BASE)/include -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -Wall -Wno-unused-function
++CFLAGS_COMMON=$(CFLAGS) -pipe -I. -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -Wall -Wno-unused-function
+ CFLAGS_RELEASE=-O2 -fno-strict-aliasing -ffast-math -funroll-loops -DNDEBUG
+ CFLAGS_DEBUG=-O0 -ggdb -D_DEBUG
  ifeq ($(DEBUG_BUILD),YES)
- CFLAGS_COMMON+=$(CFLAGS_DEBUG)
- else
-@@ -152,7 +152,7 @@
+@@ -184,14 +184,14 @@
  ifeq ($(OS),FreeBSD)
- LDFLAGS_COMMON=-L/usr/local/lib -lm -pthread
+ LDFLAGS_COMMON+= -L/usr/local/lib -lm -pthread
  else
--LDFLAGS_COMMON=-L/usr/local/lib -ldl -lm -Wl -O1 --as-needed
-+LDFLAGS_COMMON=$(LDFLAGS) -ldl -lm
+-LDFLAGS_COMMON+= -L/usr/local/lib -ldl -lm -Wl -O1 --as-needed
++LDFLAGS_COMMON+= -ldl -lm
+ endif
+ ifneq ($(DEBUG_BUILD),YES)
+ LDFLAGS_COMMON+= -s
  endif
  
  ifeq ($(ARCH),x86_64)
-@@ -168,7 +168,7 @@
- 
- # openal
- ifeq ($(BUILD_SND_OPENAL),YES)
--OPENAL_CONFIG?=openal-config
-+OPENAL_CONFIG?=pkg-config openal
- 
- CFLAGS_OPENAL=$(shell $(OPENAL_CONFIG) --cflags)
- LDFLAGS_OPENAL=-lvorbisfile
-@@ -400,16 +400,16 @@
+-LIB=lib64
++LIB=lib
+ else
+ LIB=lib
+ endif
+@@ -477,16 +477,16 @@
  
  all: client openal qf ded cgame game ui irc angelwrap tv_server
  
