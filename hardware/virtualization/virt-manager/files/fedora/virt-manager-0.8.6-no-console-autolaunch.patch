@@ -1,0 +1,18 @@
+# HG changeset patch
+# User Cole Robinson <crobinso@redhat.com>
+# Date 1295638999 18000
+# Node ID f2b2601affd15a20c13d5bebfd00da7de9bc6f06
+# Parent  3d890b23da24d88482f4cd9b621df49867b68cd6
+manager: Don't always launch consoles for running domains, dumb regression
+
+diff -r 3d890b23da24 -r f2b2601affd1 src/virtManager/manager.py
+--- a/src/virtManager/manager.py	Fri Jan 21 11:30:38 2011 -0500
++++ b/src/virtManager/manager.py	Fri Jan 21 14:43:19 2011 -0500
+@@ -721,6 +721,7 @@
+         if (self.config.get_console_popup() != 2 or
+             vm.is_management_domain()):
+             self.emit("action-refresh-console", uri, vmuuid)
++            return
+ 
+         # user has requested consoles on all vms
+         gtype = vm.get_graphics_console()[0]
