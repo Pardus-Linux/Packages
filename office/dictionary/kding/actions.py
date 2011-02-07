@@ -7,6 +7,8 @@
 from pisi.actionsapi import kde4
 from pisi.actionsapi import pisitools
 
+shelltools.export("HOME", get.workDIR())
+
 def setup():
     kde4.configure()
 
