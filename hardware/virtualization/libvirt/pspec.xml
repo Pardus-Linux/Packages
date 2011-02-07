@@ -1,0 +1,228 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>libvirt</Name>
+        <Homepage>http://www.libvirt.org/</Homepage>
+        <Packager>
+            <Name>Emre Erenoglu</Name>
+            <Email>paketci@erenoglu.com</Email>
+        </Packager>
+        <License>LGPLv2.1</License>
+        <IsA>app:console</IsA>
+        <Summary>Library providing a simple API to several virtualization systems</Summary>
+        <Description>libvirt is a toolkit to interact with the virtualization capabilities of recent versions of Linux (and other OSes). libvirt supports Xen hypervisor, QEMU emulator, KVM hypervisor, LXC Linux container system, OpenVZ Linux container system, User Mode Linux paravirtualized kernel and VirtualBox hypervisor together with remote management possibilities.</Description>
+        <Archive sha1sum="53b10513cb04c502a2c8aaf57039c71f0f79ea6f" type="targz">http://libvirt.org/sources/libvirt-0.8.7.tar.gz</Archive>
+        <BuildDependencies>
+            <Dependency>qemu</Dependency>
+            <Dependency>netcat</Dependency>
+            <Dependency>dnsmasq</Dependency>
+            <Dependency>nfs-utils</Dependency>
+            <Dependency>yajl-devel</Dependency>
+            <Dependency>lvm2-devel</Dependency>
+            <Dependency>avahi-devel</Dependency>
+            <Dependency>libnl-devel</Dependency>
+            <Dependency>netcf-devel</Dependency>
+            <Dependency>bridge-utils</Dependency>
+            <Dependency>parted-devel</Dependency>
+            <Dependency>augeas-devel</Dependency>
+            <Dependency>gnutls-devel</Dependency>
+            <Dependency>numactl-devel</Dependency>
+            <Dependency>libpcap-devel</Dependency>
+            <Dependency>iptables-devel</Dependency>
+            <Dependency>libgcrypt-devel</Dependency>
+            <Dependency>libcap-ng-devel</Dependency>
+            <Dependency>cyrus-sasl-devel</Dependency>
+            <Dependency>libpciaccess-devel</Dependency>
+            <Dependency>device-mapper-devel</Dependency>
+            <!--<Dependency>systemtap-sdt-devel</Dependency>-->
+            <!--Dependency>iscsi-initiator-utils</Dependency-->
+        </BuildDependencies>
+        <Patches>
+            <!-- Policy translations -->
+            <Patch level="1">tr.patch</Patch>
+            <Patch level="1">fix-doc-dir.patch</Patch>
+        </Patches>
+    </Source>
+
+    <Package>
+        <Name>libvirt</Name>
+        <RuntimeDependencies>
+            <Dependency>qemu</Dependency>
+            <Dependency>lvm2</Dependency>
+            <Dependency>yajl</Dependency>
+            <Dependency>netcf</Dependency>
+            <Dependency>libnl</Dependency>
+            <Dependency>parted</Dependency>
+            <Dependency>augeas</Dependency>
+            <Dependency>netcat</Dependency>
+            <Dependency>gnutls</Dependency>
+            <Dependency>numactl</Dependency>
+            <Dependency>libpcap</Dependency>
+            <Dependency>dnsmasq</Dependency>
+            <Dependency>iptables</Dependency>
+            <Dependency>libgcrypt</Dependency>
+            <Dependency>nfs-utils</Dependency>
+            <Dependency>libcap-ng</Dependency>
+            <Dependency>cyrus-sasl</Dependency>
+            <Dependency>avahi-libs</Dependency>
+            <Dependency>bridge-utils</Dependency>
+            <Dependency>libpciaccess</Dependency>
+            <Dependency>device-mapper</Dependency>
+            <!--Dependency>iscsi-initiator-utils</Dependency-->
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="config">/etc</Path>
+            <Path fileType="executable">/usr/bin</Path>
+            <Path fileType="executable">/usr/libexec</Path>
+            <Path fileType="executable">/usr/sbin</Path>
+            <Path fileType="library">/usr/lib</Path>
+            <Path fileType="doc">/usr/share/doc</Path>
+            <Path fileType="data">/usr/share/augeas</Path>
+            <Path fileType="data">/usr/share/polkit-1</Path>
+            <Path fileType="data">/usr/share/libvirt</Path>
+            <Path fileType="data">/usr/share/systemtap</Path>
+            <Path fileType="man">/usr/share/man</Path>
+            <Path fileType="data">/var</Path>
+            <Path fileType="localedata">/usr/share/locale</Path>
+        </Files>
+        <AdditionalFiles>
+            <AdditionalFile owner="root" permission="0644" target="/etc/conf.d/libvirt">libvirt.confd</AdditionalFile>
+        </AdditionalFiles>
+        <Provides>
+            <COMAR script="service.py">System.Service</COMAR>
+            <COMAR script="package.py">System.Package</COMAR>
+        </Provides>
+    </Package>
+
+    <Package>
+        <Name>libvirt-devel</Name>
+        <Summary>Development files for libvirt</Summary>
+        <RuntimeDependencies>
+            <Dependency release="current">libvirt</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="header">/usr/include/libvirt</Path>
+            <Path fileType="data">/usr/lib/pkgconfig</Path>
+        </Files>
+    </Package>
+
+    <History>
+        <Update release="16">
+            <Date>2011-02-04</Date>
+            <Version>0.8.7</Version>
+            <Comment>Split devel package.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="15">
+            <Date>2011-02-04</Date>
+            <Version>0.8.7</Version>
+            <Comment>Fix some ownerships</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="14">
+            <Date>2011-02-03</Date>
+            <Version>0.8.7</Version>
+            <Comment>Depend on qemu since kvm is merged into qemu</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="13">
+            <Date>2011-01-14</Date>
+            <Version>0.8.7</Version>
+            <Comment>Update to latest upstream release</Comment>
+            <Name>Emre Erenoglu</Name>
+            <Email>paketci@erenoglu.com</Email>
+        </Update>
+        <Update release="12">
+            <Date>2010-10-27</Date>
+            <Version>0.8.2</Version>
+            <Comment>Mass rebuild for Pardus Corporate 2 Alpha 3</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="11" type="security">
+            <Date>2010-07-13</Date>
+            <Version>0.8.2</Version>
+            <Comment>
+                - Force to run as qemu user,
+                - Enable yajl and netcf support,
+                - Fix CVE-2010-2237, 2238, 2239, 2242 (#13659).
+            </Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="10">
+            <Date>2010-07-09</Date>
+            <Version>0.8.2</Version>
+            <Comment>Version Bump</Comment>
+            <Name>Emre Erenoglu</Name>
+            <Email>paketci@erenoglu.com</Email>
+        </Update>
+        <Update release="9">
+            <Date>2009-08-16</Date>
+            <Version>0.7.0</Version>
+            <Comment>Version Bump</Comment>
+            <Name>Emre Erenoglu</Name>
+            <Email>paketci@erenoglu.com</Email>
+        </Update>
+        <Update release="8">
+            <Date>2009-06-02</Date>
+            <Version>0.6.4</Version>
+            <Comment>Version Bump</Comment>
+            <Name>Emre Erenoglu</Name>
+            <Email>paketci@erenoglu.com</Email>
+        </Update>
+        <Update release="7">
+            <Date>2009-04-25</Date>
+            <Version>0.6.3</Version>
+            <Comment>Version Bump</Comment>
+            <Name>Emre Erenoglu</Name>
+            <Email>paketci@erenoglu.com</Email>
+        </Update>
+        <Update release="6" type="security">
+            <Date>2009-02-12</Date>
+            <Version>0.4.2</Version>
+            <Comment>Fix Buffer Overflow Vulnerability in "proxyReadClientSocket()" (bug#9220)</Comment>
+            <Name>Pınar Yanardağ</Name>
+            <Email>pinar@pardus.org.tr</Email>
+        </Update>
+        <Update release="5">
+            <Date>2008-04-09</Date>
+            <Version>0.4.2</Version>
+            <Comment>Version bump</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="4">
+            <Date>2008-03-04</Date>
+            <Version>0.4.1</Version>
+            <Comment>Version bump</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="3">
+            <Date>2007-12-28</Date>
+            <Version>0.4.0</Version>
+            <Comment>Version bump</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="2">
+            <Date>2007-06-07</Date>
+            <Version>0.2.2</Version>
+            <Comment>Version bump</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+        <Update release="1">
+            <Date>2007-02-09</Date>
+            <Version>0.2.1</Version>
+            <Comment>First release.</Comment>
+            <Name>S.Çağlar Onur</Name>
+            <Email>caglar@pardus.org.tr</Email>
+        </Update>
+    </History>
+</PISI>
