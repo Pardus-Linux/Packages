@@ -6,10 +6,11 @@
 # See the file http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
 
 from pisi.actionsapi import pisitools
+from pisi.actionsapi import shelltools
 from pisi.actionsapi import get
 from pisi.actionsapi import kde4
 
-#WorkDir = "translatoid-%s" % get.srcVERSION()
+shelltools.export("HOME", get.workDIR())
 
 def setup():
     pisitools.dosed("plasma-applet-translatoid.desktop", "Name=Translator", "Name=Translatoid")
