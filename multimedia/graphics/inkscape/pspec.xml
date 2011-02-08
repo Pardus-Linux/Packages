@@ -13,7 +13,7 @@
         <IsA>app:gui</IsA>
         <Summary>SVG vector graphics application</Summary>
         <Description>Inkscape is an application to create, edit, and convert SVG vector graphics images that can also import from and export to bitmap image files.</Description>
-        <Archive sha1sum="a2ab9b34937cc4f2b482c9b3720d8fd4dc7b12e8" type="tarbz2">mirrors://sourceforge/inkscape/inkscape-0.48.0.tar.bz2</Archive>
+        <Archive sha1sum="a43467119925aee70d1d63d746f9846abb4dea91" type="targz">mirrors://sourceforge/inkscape/inkscape-0.48.1.tar.gz</Archive>
         <BuildDependencies>
             <Dependency versionFrom="2.18.5">gtk2-devel</Dependency>
             <Dependency versionFrom="2.8">gtkmm-devel</Dependency>
@@ -49,17 +49,9 @@
             <Dependency>pangomm-devel</Dependency>
         </BuildDependencies>
         <Patches>
-            <!-- Both upstreamed https://bugs.launchpad.net/inkscape/+bug/667265 -->
-            <Patch>tr-language.patch</Patch>
-            <Patch level="1">add-tr-generic-name.diff</Patch>
-
-            <Patch level="1">inkscape-0.48.0-types.patch</Patch>
-
             <!-- Patch for libwpg API breakage http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=604825 -->
             <Patch level="1">inkscape-0.48.0-libwpg.patch</Patch>
-
-            <!-- Fix ruler redraw bug ubuntu#627134  -->
-            <Patch>ruler-redraw-fix-9725.diff</Patch>
+            <Patch level="1">inkscape-0.48.0-types.patch</Patch>
         </Patches>
     </Source>
 
@@ -113,6 +105,30 @@
     </Package>
 
     <History>
+        <Update release="29">
+            <Date>2011-02-08</Date>
+            <Version>0.48.1</Version>
+            <Comment>Version Bump to 0.48.1
+                Regression fixes
+                ----------------
+                - Shift will turn off snapping in the node tool. Bug #588628
+                - Duplication of nodes in the node tool using Shift+D works again. Bug #555449
+                - Changing all selected segments into straight lines in the node tool using Shift+L works again. Bug #532905
+                - Changing the type of nodes to cusp will retract their handles only if all selected nodes are already cusp. This improves usability when working with selections that contain both cusp and smooth nodes.
+
+                Important bugfixes
+                ------------------
+                - Exporting of masks has been substantially improved in all Cairo-based output formats.
+                - Several crash bugs in the node tool have been fixed. Bug #544599, Bug #591986, Bug #605575
+                - Rulers are redrawn properly with recent versions of GTK. Bug #627134
+                - Unlinking an orphaned clone no longer causes a crash. Bug #675309
+                - Inkscape should no longer crash due to missing icons at startup or when opening the document properties dialog. Bug #658055, Bug #651678
+                - Shift-clicking on the top rounding handle of a rectangle will no longer cause a crash. Bug #680520
+                - Inkscape builds correctly with recent versions of Poppler. Bug #676271
+            </Comment>
+            <Name>Renan Çakırerk</Name>
+            <Email>renan@pardus.org.tr</Email>
+        </Update>
         <Update release="28">
             <Date>2010-12-15</Date>
             <Version>0.48.0</Version>
