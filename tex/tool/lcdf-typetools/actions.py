@@ -17,4 +17,8 @@ def build():
 def install():
     autotools.install()
 
+    # Otfinfo also comes with openmpi. These two packages are not identical
+    # but they have the same name. We rename this one to avoid conflicts
+    pisitools.domove("/usr/bin/otfinfo", "/usr/bin", "otfinfo-lcdf")
+
     pisitools.dodoc("ONEWS", "NEWS", "README")
