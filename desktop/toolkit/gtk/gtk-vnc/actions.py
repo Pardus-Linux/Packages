@@ -10,7 +10,7 @@ from pisi.actionsapi import autotools
 from pisi.actionsapi import pisitools
 from pisi.actionsapi import get
 
-#shelltools.export("HOME", get.workDIR())
+shelltools.export("HOME", get.workDIR())
 
 def setup():
     autotools.autoreconf("-fi")
