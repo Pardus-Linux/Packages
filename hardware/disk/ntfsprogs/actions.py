@@ -20,4 +20,8 @@ def build():
 def install():
     autotools.rawInstall("DESTDIR=%s" % get.installDIR())
 
+    # Remove not shipped binaries man pages
+    pisitools.remove("/usr/share/man/man8/ntfsmount.8")
+    pisitools.remove("/usr/share/man/man8/libntfs-gnomevfs.8")
+
     pisitools.dodoc("ChangeLog", "AUTHORS", "CREDITS", "NEWS", "README*")
