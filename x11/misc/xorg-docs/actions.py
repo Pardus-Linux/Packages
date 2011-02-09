@@ -6,17 +6,16 @@
 
 from pisi.actionsapi import autotools
 from pisi.actionsapi import pisitools
+from pisi.actionsapi import shelltools
 from pisi.actionsapi import get
 
 x11docdir = "/%s/%s" % (get.docDIR(), get.srcNAME())
 
+shelltools.export("HOME", get.installDIR())
+
 def setup():
     autotools.autoreconf("-vif")
-    autotools.configure("--enable-txt \
-                         --enable-pdf \
-                         --disable-ps \
-                         --disable-html \
-                         --with-x11docdir=%s" % x11docdir)
+    autotools.configure()
 
 def build():
     autotools.make()
