@@ -35,7 +35,7 @@ def setup():
     #TODO use_system_ssl is disabled -->  https://bugzilla.mozilla.org/show_bug.cgi?id=547312
     #TODO use_system_ffmpeg has linking problems (is searching for libffmpegsumo.so)
     shelltools.system("build/gyp_chromium -f make build/all.gyp --depth=. \
-                        -Dgcc_version=44 \
+                        -Dgcc_version=45 \
                         -Dno_strict_aliasing=1 \
                         -Dwerror= \
                         -Dlinux_strip_binary=1 \
