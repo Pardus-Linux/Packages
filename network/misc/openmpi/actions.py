@@ -25,7 +25,6 @@ def check():
     autotools.make("check")
 
 def install():
-    autotools.install()
-    pisitools.remove("/usr/lib/*.a")
+    autotools.rawInstall("DESTDIR=%s" % get.workDIR())
 
     pisitools.dodoc("AUTHORS","LICENSE","README","NEWS")
