@@ -9,40 +9,63 @@
             <Email>ozan@pardus.org.tr</Email>
         </Packager>
         <License>GPLv2+</License>
-        <IsA>driver</IsA>
+        <IsA>library</IsA>
+        <IsA>app:console</IsA>
         <Summary>Userspace driver for NTFS read/write support</Summary>
         <Description>ntfs_3g allows regular users read/write access to NTFS filesystems.</Description>
-        <Archive sha1sum="f9862700905b23b06e7944f663352227b9c776a6" type="targz">http://tuxera.com/opensource/ntfs-3g-2010.8.8.tgz</Archive>
-        <BuildDependencies>
-            <Dependency>fuse</Dependency>
-        </BuildDependencies>
-        <Patches>
-            <Patch level="1">ntfs-3g-1.2216-nomtab.patch</Patch>
-            <Patch>mount-readlink-hang-workaround.patch</Patch>
-        </Patches>
+        <Archive sha1sum="d7cf0c5e8730568f5fa8802869d6fe8cdd4a0213" type="targz">http://tuxera.com/opensource/ntfs-3g-2011.1.15.tgz</Archive>
     </Source>
 
     <Package>
         <Name>ntfs_3g</Name>
-        <RuntimeDependencies>
-            <Dependency>fuse</Dependency>
-        </RuntimeDependencies>
         <Files>
             <Path fileType="executable">/sbin</Path>
+            <Path fileType="executable">/usr/bin</Path>
             <Path fileType="executable">/bin</Path>
             <Path fileType="library">/usr/lib</Path>
+            <Path fileType="library">/lib</Path>
             <Path fileType="header">/usr/include</Path>
             <Path fileType="data">/usr/lib/pkgconfig</Path>
-            <Path fileType="data">/etc/hal/fdi</Path>
+            <Path fileType="data">/usr/share/hal/fdi</Path>
             <Path fileType="man">/usr/share/doc</Path>
             <Path fileType="man">/usr/share/man</Path>
         </Files>
         <AdditionalFiles>
-            <AdditionalFile owner="root" permission="0644" target="/etc/hal/fdi/policy/25-ntfs-3g-policy.fdi">25-ntfs-3g-policy.fdi</AdditionalFile>
+            <AdditionalFile owner="root" permission="0644" target="/usr/share/hal/fdi/policy/10osvendor/25-ntfs-3g-policy.fdi">25-ntfs-3g-policy.fdi</AdditionalFile>
         </AdditionalFiles>
     </Package>
 
     <History>
+        <Update release="47">
+            <Date>2011-02-08</Date>
+            <Version>0.0_2011.1.15</Version>
+            <Comment>
+                - Version bump to 2011.1.15:
+                    - New: implemented fsync() and fsyncdir().
+                    - New: implemented the ’sync’ mount option.
+                    - New: sanity check upcase table.
+                    - New: added a big-endian extended attribute name for attrib and times.
+                    - New: added an extended attribute name for creation time.
+                    - New: enable renaming of system extended attributes.
+                    - Change: improved appending data to fragmented files.
+                    - Change: improved rebuilding a runlist.
+                    - Change: improved comparing filenames on big-endian CPUs.
+                    - Fixed stat(2) for system files with no data.
+                    - Fixed alignment on cached structures.
+                    - Fixed Posix ACLs for big-endian CPUs.
+                    - Fixed deleting files using ignore_case option.
+                    - Fixed allocated size when an attribute update causes unnamed data to be expelled.
+                    - Fixed filename encoding when standard functions are not available.
+                    - Fixed checking mounted device status on some non-Linux platforms.
+                    - Fixed mounting with SELinux context.
+                    - Fixed -n and –no-mtab mount option handling, needed by automount.
+                    - Improved consistency checks of POSIX ACLs.
+                    - NTFS-3G manual update.
+                - Use internal libfuse.
+            </Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
         <Update release="46">
             <Date>2010-10-13</Date>
             <Version>0.0_2010.8.8</Version>
