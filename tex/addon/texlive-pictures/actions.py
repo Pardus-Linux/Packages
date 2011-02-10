@@ -17,5 +17,5 @@ def build():
 
 def install():
     texlivemodules.install()
-    pisitools.remove("/usr/share/texmf-dist/scripts/fig4latex/fig4latex")
 
+    pisitools.removeDir("/usr/share/texmf-dist/scripts/fig4latex")
