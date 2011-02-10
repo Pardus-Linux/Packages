@@ -16,13 +16,10 @@ shelltools.export("HOME", get.workDIR())
 
 def setup():
     shelltools.unlinkDir("win32build")
-    cmaketools.configure(installPrefix="/usr/kde/4", sourceDir=".")
+    cmaketools.configure(sourceDir=".")
 
 def build():
     cmaketools.make()
 
 def install():
     cmaketools.rawInstall("DESTDIR=%s" % get.installDIR())
-
-    pisitools.dosym("/usr/share/icons/hicolor/128x128/apps/kvirc.png", "/usr/share/pixmaps/kvirc.png")
-    pisitools.domove("/usr/kde/4/share/applications/kvirc.desktop", "/usr/kde/4/share/applications/kde4")
