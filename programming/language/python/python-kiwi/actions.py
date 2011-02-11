@@ -9,7 +9,8 @@ from pisi.actionsapi import pisitools
 from pisi.actionsapi import get
 from pisi.actionsapi import shelltools
 
-WorkDir="kiwi-%s" % get.srcVERSION()
+# No Need to write WorkDir as the new pisi guesses it
+#WorkDir="kiwi-%s" % get.srcVERSION()
 
 examples = "%s/%s/examples" % (get.docDIR(), get.srcNAME())
 
