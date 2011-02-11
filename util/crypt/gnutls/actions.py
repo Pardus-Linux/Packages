@@ -11,7 +11,6 @@ from pisi.actionsapi import shelltools
 def setup():
     shelltools.export("AUTOPOINT", "true")
     autotools.autoreconf("-fi")
-
     autotools.configure("--disable-static \
                          --disable-rpath \
                          --disable-dependency-tracking \
