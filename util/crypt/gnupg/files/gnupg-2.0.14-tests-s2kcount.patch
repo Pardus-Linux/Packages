@@ -1,6 +1,10 @@
-diff -up gnupg-2.0.16/tests/openpgp/conventional-mdc.test.s2k gnupg-2.0.16/tests/openpgp/conventional-mdc.test
---- gnupg-2.0.16/tests/openpgp/conventional-mdc.test.s2k	2009-09-21 11:53:46.000000000 -0500
-+++ gnupg-2.0.16/tests/openpgp/conventional-mdc.test	2010-07-23 12:22:33.892728352 -0500
+We have to use fixed s2k-count number otherwise the gpg2 would
+want to consult gpg-agent which is not yet installed in the mock
+chroot.
+Index: gnupg-2.0.17/tests/openpgp/conventional-mdc.test
+===================================================================
+--- gnupg-2.0.17.orig/tests/openpgp/conventional-mdc.test
++++ gnupg-2.0.17/tests/openpgp/conventional-mdc.test
 @@ -21,9 +21,9 @@ for ciph in `all_cipher_algos`; do
          dd if=data-80000 of=z bs=1 count=$i 2>/dev/null
      fi
@@ -13,9 +17,10 @@ diff -up gnupg-2.0.16/tests/openpgp/conventional-mdc.test.s2k gnupg-2.0.16/tests
      cmp z y || error "$ciph/$i: mismatch"
    done
  done
-diff -up gnupg-2.0.16/tests/openpgp/conventional.test.s2k gnupg-2.0.16/tests/openpgp/conventional.test
---- gnupg-2.0.16/tests/openpgp/conventional.test.s2k	2009-09-21 11:53:46.000000000 -0500
-+++ gnupg-2.0.16/tests/openpgp/conventional.test	2010-07-23 12:22:33.892728352 -0500
+Index: gnupg-2.0.17/tests/openpgp/conventional.test
+===================================================================
+--- gnupg-2.0.17.orig/tests/openpgp/conventional.test
++++ gnupg-2.0.17/tests/openpgp/conventional.test
 @@ -12,8 +12,8 @@
  
  #info Checking conventional encryption
@@ -38,9 +43,10 @@ diff -up gnupg-2.0.16/tests/openpgp/conventional.test.s2k gnupg-2.0.16/tests/ope
        cmp $i y || error "$i: ($a) mismatch"
      done
  done
-diff -up gnupg-2.0.16/tests/openpgp/genkey1024.test.s2k gnupg-2.0.16/tests/openpgp/genkey1024.test
---- gnupg-2.0.16/tests/openpgp/genkey1024.test.s2k	2010-05-11 09:28:03.000000000 -0500
-+++ gnupg-2.0.16/tests/openpgp/genkey1024.test	2010-07-23 12:27:27.217718995 -0500
+Index: gnupg-2.0.17/tests/openpgp/genkey1024.test
+===================================================================
+--- gnupg-2.0.17.orig/tests/openpgp/genkey1024.test
++++ gnupg-2.0.17/tests/openpgp/genkey1024.test
 @@ -10,7 +10,7 @@
  
  . $srcdir/defs.inc || exit 3
