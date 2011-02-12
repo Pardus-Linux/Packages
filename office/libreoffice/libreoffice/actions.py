@@ -28,7 +28,6 @@ def getJobCount():
 
 def setup():
     NoStrip.extend(["%s/lib/ooo-%s/basis%s/share" % (AppDir, baseVersion(), baseVersion()), "%s/lib/ooo-%s/share" % (AppDir, baseVersion())])
-    shelltools.export("LDFLAGS", "")
 
     #libdir is needed to set exec_prefix stuff of patches/dev300/system-python-ure-bootstrap.diff
     #enable-cairo to make HW Acceleration enabled
@@ -55,9 +54,6 @@ def setup():
 
 def build():
     shelltools.export("HOME", get.workDIR())
-
-    #temporary workaround for configure: error: unrecognized option: `-Wl,--hash-style=gnu'
-    shelltools.export("LDFLAGS", "")
 
     autotools.make("-j1")
 
