@@ -7,15 +7,18 @@ from pisi.actionsapi import autotools
 from pisi.actionsapi import pisitools
 from pisi.actionsapi import get
 
-WorkDir = "wine-%s" % get.srcVERSION().replace("_", "-")
 
 def setup():
+    args = "--enable-win64" if get.ARCH() == "x86_64" else ""
+
     autotools.autoreconf("-vif")
+
     autotools.configure("--without-capi \
                          --with-curses \
                          --without-esd \
                          --with-opengl \
-                         --with-pulse")
+                         --with-pulse \
+                         %s" % args)
 
 def build():
     autotools.make()

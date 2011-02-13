@@ -20,7 +20,7 @@
 #---- Constants -------------------------------------------------
 
 # Name of this version of winetricks (YYYYMMDD)
-VERSION=20110105
+VERSION=20110123
 
 #---- Functions -------------------------------------------------
 
@@ -397,7 +397,9 @@ esac
 
 early_wine()
 {
-    WINEDLLOVERRIDES=mshtml= $WINE "$@"
+    # The sed works around http://bugs.winehq.org/show_bug.cgi?id=25838
+    # which unfortunately got released in wine-1.3.12
+    WINEDEBUG=-all WINEDLLOVERRIDES=mshtml= $WINE "$@" | sed 's/.*1h.=//'
 }
 
 case "$OS" in
@@ -2062,7 +2064,7 @@ load_dotnet35()
 
     # See also http://blogs.msdn.com/astebner/archive/2008/07/17/8745415.aspx
     cd "$W_DRIVE_C"
-    w_try_cabextract $W_UNATTENDED_DASH_Q "$W_CACHE"/dotnet35/dotnetfx35.exe
+    w_try_cabextract "$W_CACHE"/dotnet35/dotnetfx35.exe
     cd wcu/dotNetFramework
     $WINE dotNetFx35setup.exe /lang:ENU
 
@@ -2554,7 +2556,7 @@ _EOF_
     # extract the files
     mkdir -p "$GECKO_DIR/gecko/$GECKO_VERSION"
     cd "$GECKO_DIR/gecko/$GECKO_VERSION"
-    w_try_cabextract $W_UNATTENDED_DASH_Q "$GECKOPATH"
+    w_try_cabextract "$GECKOPATH"
     cd "$olddir"
     
     # Repeat for 64-bit. You don't need to set registry, though..
@@ -2581,7 +2583,7 @@ _EOF_
 
         mkdir -p "$GECKO64_DIR/gecko/$GECKO_VERSION"
         cd "$GECKO64_DIR/gecko/$GECKO_VERSION"
-        w_try_cabextract $W_UNATTENDED_DASH_Q "$GECKOPATH"
+        w_try_cabextract "$GECKOPATH"
         cd "$olddir"
     fi
 
@@ -2666,7 +2668,7 @@ _EOF_
     cd "$GECKO_DIR/gecko/$GECKO_VERSION"
     if [ "$GECKO_EXTENSION" = "cab" ]
     then
-        w_try_cabextract $W_UNATTENDED_DASH_Q "$W_CACHE"/wine_gecko-$GECKO_VERSION$GECKO_ARCH-dbg.cab
+        w_try_cabextract "$W_CACHE"/wine_gecko-$GECKO_VERSION$GECKO_ARCH-dbg.cab
     elif [ "$GECKO_EXTENSION" = "tar.bz2" ]
     then
         bunzip2 -cd "$W_CACHE"/wine_gecko-$GECKO_VERSION$GECKO_ARCH-dbg.tar.bz2 | tar -xf -
@@ -3502,9 +3504,9 @@ load_opensymbol()
     # The OpenSymbol fonts are a replacement for the Windows Wingdings font from OpenOffice.org.
     # Need to w_download from Debian since I can't find a standalone download from OpenOffice
     # Note: The source download package on debian is for _all_ of OpenOffice, which is 266 MB.
-    w_download opensymbol http://ftp.us.debian.org/debian/pool/main/o/openoffice.org/ttf-opensymbol_3.2.1-10_all.deb 6b399c9f001ef0aa86661690427d5f84561b6210
+    w_download opensymbol http://ftp.us.debian.org/debian/pool/main/o/openoffice.org/ttf-opensymbol_3.2.1-11_all.deb 51f79c66f7361fae49053d8456ff1e0973748fb8 
     w_try cd "$W_TMP"
-    w_try ar x "$W_CACHE/opensymbol/ttf-opensymbol_3.2.1-10_all.deb" data.tar.bz2
+    w_try ar x "$W_CACHE/opensymbol/ttf-opensymbol_3.2.1-11_all.deb" data.tar.bz2
     w_try tar jvxf data.tar.bz2 ./usr/share/fonts/truetype/openoffice/opens___.ttf
     w_try mv "$W_TMP/usr/share/fonts/truetype/openoffice/opens___.ttf" "$W_FONTSDIR_UNIX"
     w_register_font opens___.ttf "OpenSymbol"
@@ -4651,7 +4653,6 @@ load_windowscodecs()
     w_try $WINE "$W_CACHE"/wic_x86_enu.exe /passive
 }
 
-
 #----------------------------------------------------------------
 
 load_winhttp()
@@ -4969,7 +4970,7 @@ mkdir -p "$W_CACHE"
 olddir=`pwd`
 
 # The folder-name is localized!
-W_PROGRAMS_WIN="`unset WINEDEBUG; WINEDLLOVERRIDES=mshtml= $WINE cmd.exe /c echo "%ProgramFiles%" | tr -d '\015'`"
+W_PROGRAMS_WIN="`early_wine cmd.exe /c echo "%ProgramFiles%" | tr -d '\015'`"
 test x"$W_PROGRAMS_WIN" != x || w_die "$WINE cmd.exe /c echo '%ProgramFiles%' returned empty string"
 W_PROGRAMS_UNIX="`unset WINEDEBUG; $XXXPATH -u "$W_PROGRAMS_WIN" | tr -d '\015' `"
 test x"$W_PROGRAMS_UNIX" != x || w_die "winepath -u $W_PROGRAMS_WIN returned empty string"
