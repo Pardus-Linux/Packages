@@ -24,7 +24,6 @@ def setup():
                          --disable-rpath \
                          --disable-locking \
                          --disable-latex \
-                         --localstatedir=/var \
                          --with-docdir=/usr/share/doc/%s \
                          --with-gphoto2" % get.srcNAME())
 def build():

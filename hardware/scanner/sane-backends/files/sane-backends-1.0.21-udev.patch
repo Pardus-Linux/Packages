@@ -14,10 +14,10 @@ Date:   Wed May 5 11:14:59 2010 +0200
  tools/sane-desc.c |   14 +++++++-------
  1 files changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/tools/sane-desc.c b/tools/sane-desc.c
-index 658555e..0b24e3b 100644
---- a/tools/sane-desc.c
-+++ b/tools/sane-desc.c
+Index: sane-backends-1.0.22/tools/sane-desc.c
+===================================================================
+--- sane-backends-1.0.22.orig/tools/sane-desc.c
++++ sane-backends-1.0.22/tools/sane-desc.c
 @@ -56,9 +56,9 @@
  #define COLOR_NEW          "\"#F00000\""
  #define COLOR_UNKNOWN      "\"#000000\""
@@ -45,22 +45,18 @@ index 658555e..0b24e3b 100644
    printf ("SUBSYSTEMS!=\"scsi\", GOTO=\"libsane_scsi_rules_end\"\n\n");
    printf ("LABEL=\"libsane_scsi_rules_begin\"\n");
    printf ("# Generic: SCSI device type 6 indicates a scanner\n");
--  printf ("KERNEL==\"sg[0-9]*\", ATTRS{type}==\"6\", MODE=\"%s\", GROUP=\"%s\"\n", DEVMODE, DEVGROUP);
+-  printf ("KERNEL==\"sg[0-9]*\", ATTRS{type}==\"6\", MODE=\"%s\", GROUP=\"%s\", ENV{libsane_matched}=\"yes\"\n", DEVMODE, DEVGROUP);
 +  printf ("KERNEL==\"sg[0-9]*\", ATTRS{type}==\"6\", ENV{libsane_matched}=\"yes\"\n");
    printf ("# Some scanners advertise themselves as SCSI device type 3\n");
  
    while (scsiid)
-@@ -3571,8 +3571,8 @@ print_udev (void)
+@@ -3571,8 +3571,7 @@ print_udev (void)
  	    }
          }
        printf ("\n");
--      printf ("KERNEL==\"sg[0-9]*\", ATTRS{type}==\"3\", ATTRS{vendor}==\"%s\", ATTRS{model}==\"%s\", MODE=\"%s\", GROUP=\"%s\"\n",
+-      printf ("KERNEL==\"sg[0-9]*\", ATTRS{type}==\"3\", ATTRS{vendor}==\"%s\", ATTRS{model}==\"%s\", MODE=\"%s\", GROUP=\"%s\", ENV{libsane_matched}=\"yes\"\n",
 -	      scsiid->scsi_vendor_id, scsiid->scsi_product_id, DEVMODE, DEVGROUP);
-+      printf ("KERNEL==\"sg[0-9]*\", ATTRS{type}==\"3\", ATTRS{vendor}==\"%s\", ATTRS{model}==\"%s\", ENV{libsane_matched}=\"yes\"\n",
-+	      scsiid->scsi_vendor_id, scsiid->scsi_product_id);
++      printf ("KERNEL==\"sg[0-9]*\", ATTRS{type}==\"3\", ATTRS{vendor}==\"%s\", ATTRS{model}==\"%s\", ENV{libsane_matched}=\"yes\"\n", scsiid->scsi_vendor_id, scsiid->scsi_product_id);
        scsiid = scsiid->next;
      }
    printf ("LABEL=\"libsane_scsi_rules_end\"\n\n");
--- 
-1.6.6.1
-
