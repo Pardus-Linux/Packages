@@ -16,7 +16,6 @@ def setup():
     # support. The disk stuffs (umount-helper, eject) should be disabled
     # once we have full udisks support.
     autotools.configure("--exec-prefix=/usr \
-                         --localstatedir=/var \
                          --disable-static \
                          --disable-docbook-docs \
                          --disable-gtk-doc \
@@ -30,7 +29,6 @@ def setup():
                          --disable-sonypic \
                          --without-keymaps \
                          --without-usb-csr \
-                         --without-cpufreq \
                          --without-dell-backlight \
                          --without-deprecated-keys \
                          --enable-acpi-acpid \
