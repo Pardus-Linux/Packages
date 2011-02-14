@@ -20,10 +20,14 @@ def setup():
 def build():
     shelltools.cd("build")
     cmaketools.make()
+    cmaketools.make("doc")
 
 def install():
     shelltools.cd("build")
     cmaketools.rawInstall("DESTDIR=%s" % get.installDIR())
+
+    pisitools.doman("doc/man/*/*")
+    pisitools.dohtml("doc/html/*")
 
     shelltools.cd("..")
     pisitools.dodoc("AUTHORS", "ChangeLog", "COPYING", "INSTALL", "README")
