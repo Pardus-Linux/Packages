@@ -31,7 +31,7 @@ def setup():
                          --with-jasper \
                          --with-omni \
                          --with-x \
-                         --with-fontpath=/usr/share/fonts:/usr/share/fonts/default/ghostscript:/usr/share/cups/fonts:/usr/share/fonts/TTF:/usr/share/fonts/Type1")
+                         --with-fontpath=/usr/share/fonts:/usr/share/fonts/default/ghostscript:/usr/share/cups/fonts:/usr/share/fonts/TTF:/usr/share/fonts/Type1:/usr/share/poppler/cMap/*")
 
     shelltools.cd("ijs/")
     shelltools.system("./autogen.sh \
