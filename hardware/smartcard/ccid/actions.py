@@ -10,6 +10,8 @@ from pisi.actionsapi import pisitools
 from pisi.actionsapi import get
 
 def setup():
+    # FIXME: GROUP conversion here (pcscd -> pnp)
+    pisitools.dosed("src/92_pcscd_ccid.rules", 'GROUP="pcscd"', 'GROUP="pnp"')
     autotools.configure("--enable-twinserial \
                          --disable-static \
                          --disable-dependency-tracking")
