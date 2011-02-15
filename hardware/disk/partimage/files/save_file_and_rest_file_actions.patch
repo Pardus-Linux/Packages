@@ -1,0 +1,127 @@
+--- src/client/main.cpp	2006-10-14 14:09:50.000000000 +0200
++++ src/client/main.cpp	2006-10-14 14:00:30.000000000 +0200
+@@ -517,6 +517,10 @@
+       else if (strcmp(argv[optind], "imginfo")==0)
+ 	// show informations about the imagefile
+ 	nChoice = OPERATION_IMGINFO;
++      else if (strcmp(argv[optind], "save_file")==0)
++	      nChoice = OPERATION_SAVE_FILE;
++      else if (strcmp(argv[optind], "rest_file")==0)
++	      nChoice = OPERATION_REST_FILE;
+       else if (strcmp(argv[optind], "save_all")==0)
+ 	nChoice = OPERATION_SAVE_ALL;
+       else if (strcmp(argv[optind], "rest_all")==0)
+@@ -690,7 +694,35 @@
+ 	  nRes = -1;
+ 	}      
+       break;
+-      
++
++	case OPERATION_SAVE_FILE:
++		showDebug(1, "action=SAVE_FILE\n");
++	try { save_file(szImageFile, &options); }
++	catch (CExceptions *excep)
++	{
++		showDebug(1, "save_file caught exception: %d\n", excep->GetExcept());
++		
++		if (options.bBatchMode) ensure_interface_is_non_interactive();
++		g_interface -> Error(excep, szImageFile, "");
++		
++		nRes = -1;
++	}
++	break;
++	
++	case OPERATION_REST_FILE:
++	showDebug(1, "action=REST_FILE\n");
++	try { rest_file(szImageFile, &options); }
++	catch (CExceptions *excep)
++	{
++		showDebug(1, "rest_file caught exception: %d\n", excep->GetExcept());
++		
++		if (options.bBatchMode) ensure_interface_is_non_interactive();
++		g_interface -> Error(excep, szImageFile, "");
++		
++		nRes = -1;
++	}
++	break;
++				
+     default: // exit
+       if (options.bSync)
+         {
+--- src/client/misc.cpp	2006-10-14 14:09:50.000000000 +0200
++++ src/client/misc.cpp	2006-10-14 14:04:24.000000000 +0200
+@@ -2502,3 +2502,52 @@
+   
+   RETURN;
+ }
++
++void save_file(char *szImageFile, COptions *options)
++{
++  BEGIN;
++  int in_offset = 0;
++  char *in = (char *) malloc(MAXPATHLEN);
++
++  CImage image(options);
++  image.set_szImageFilename(szImageFile);
++  image.openWriting();
++
++  while (1) {
++    int len = fread(in + in_offset, 1, MAXPATHLEN, stdin);
++    showDebug(1, "read %d chars on stdin\n", len);
++    if (!len) break;
++    in = (char *) realloc(in, MAXPATHLEN + (in_offset += len));
++  }
++  showDebug(1, "writing %d chars in %s\n", in_offset, szImageFile);
++  write_unsigned(&image, in_offset);
++  image.write((void *) in, in_offset, true);
++  free(in);
++
++  closeFilesSave(false, *options, &image, NULL);
++
++  RETURN;
++}
++
++void rest_file(char *szImageFile, COptions *options)
++{
++  BEGIN;
++
++  CImage image(options);
++
++  {
++    image.set_szImageFilename(szImageFile);
++    image.openReading();
++
++    unsigned int len = read_unsigned(&image);
++    char *s = (char *) malloc(len + 1);
++    image.read(s, len, true);
++    fwrite(s, 1, len, stdout);
++    free(s);
++
++    // since sfdisk.lst is not really nice to the library, we can't close the thread from procReadBuffer$
++    image.closeReading(false);
++  }
++
++  RETURN;
++}
+--- src/client/misc.h	2006-10-14 14:09:50.000000000 +0200
++++ src/client/misc.h	2006-10-14 14:00:30.000000000 +0200
+@@ -47,6 +47,8 @@
+ void savePartition(char *szDevice, char *szImageName, /*char *szFilesystem, */COptions *options);
+ void restorePartition(char *szDevice, char *szImageName, COptions *options);
+ void restoreMbr(char *szImageFile, COptions *options);
++void save_file(char *szImageFile, COptions *options);
++void rest_file(char *szImageFile, COptions *options);
+ void save_all(char *szImageDir, COptions *options);
+ void rest_all(char *szImageDir, COptions *options);
+ 
+--- src/client/partimage.h	2006-10-14 14:09:50.000000000 +0200
++++ src/client/partimage.h	2006-10-14 14:09:18.000000000 +0200
+@@ -96,6 +96,8 @@
+ #define OPERATION_EXIT       5
+ #define OPERATION_SAVE_ALL   6
+ #define OPERATION_REST_ALL   7
++#define OPERATION_SAVE_FILE  8
++#define OPERATION_REST_FILE  9
+ 
+ // returned by CExceptionsGUI::windowError 
+ // user canceled the job
