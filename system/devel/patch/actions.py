@@ -8,11 +8,11 @@ from pisi.actionsapi import pisitools
 from pisi.actionsapi import get
 
 def setup():
-    autotools.autoreconf("-fi")
+    autotools.autoreconf("-fvi")
     autotools.configure()
 
 def build():
-    autotools.make("LDFLAGS=%s" % get.LDFLAGS())
+    autotools.make('LDFLAGS="%s"' % get.LDFLAGS())
 
 def check():
     autotools.make("check")
