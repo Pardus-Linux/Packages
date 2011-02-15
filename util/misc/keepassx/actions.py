@@ -21,4 +21,7 @@ def install():
     shelltools.system("lrelease src/translations/keepassx-tr_TR.ts")
     pisitools.insinto("/usr/share/keepassx/i18n/", "src/translations/*tr*.qm")
 
+    #Remove unused mime info
+    pisitools.removeDir("/usr/share/mimelnk")
+
     pisitools.dodoc("changelog", "COPYING")
