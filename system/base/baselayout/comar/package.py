@@ -191,6 +191,7 @@ def postInstall(fromVersion, fromRelease, toVersion, toRelease):
                 # for RT jackaudio
                 (206, "jackuser"),
                 (207, "wireshark"),
+                (208, "partimag"),
             )
 
     for gid, groupName in groups:
@@ -261,6 +262,7 @@ def postInstall(fromVersion, fromRelease, toVersion, toRelease):
                 (168, "smolt", "smolt user", "/dev/null", "/bin/false", "", [], [], []),
                 (200, "pnp", "PnP", "/dev/null", "/bin/false", "", ["pnp"], [], []),
                 (250, "mpd", "Music Player Daemon", "/var/lib/mpd", "/bin/false", "", ["audio", "pulse", "pulse-access", "pulse-rt"], [], []),
+                (251, "partimag", "Partimage User", "/var/lib/partimaged", "/bin/false", "", ["partimag"], [], []),
             )
 
     for uid, nick, realname, homedir, shell, password, groups, grantedauths, blockedauths in users:
