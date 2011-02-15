@@ -22,6 +22,6 @@ def build():
 def install():
     kde4.install()
 
-    # those come from subversion package
-    for f in ["svnrevertlast", "svnlastchange", "svnlastlog"]:
+    # those come from subversion package, colorsvn is from colorsvn package #16910
+    for f in ["svnrevertlast", "svnlastchange", "svnlastlog", "colorsvn"]:
         pisitools.remove("/usr/bin/%s" % f)
