@@ -22,7 +22,7 @@ def setup():
     autotools.configure("--enable-nls")
 
 def build():
-    autotools.make("LDFLAGS=%s" % get.LDFLAGS())
+    autotools.make('LDFLAGS="%s"' % get.LDFLAGS())
 
 def install():
     autotools.rawInstall("DESTDIR=%s" % get.installDIR())
