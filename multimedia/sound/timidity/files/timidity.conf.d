@@ -4,7 +4,7 @@
 # -Os : Output to ALSA pcm device
 # -Oe : Output to esd
 # -On : Output to NAS
-# -Or : Output to aRts
+# -Oj : Output to JACK
 #
 # -B<n>,<m> :  Set number of buffer fragments(n), and buffer size(2^m)
 #

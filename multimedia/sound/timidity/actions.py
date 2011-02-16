@@ -13,7 +13,7 @@ from pisi.actionsapi import get
 WorkDir = "TiMidity++-%s" % get.srcVERSION()
 
 def setup():
-    audios = "flac,speex,vorbis,ao,alsa"
+    audios = "flac,speex,vorbis,ao,alsa,jack"
     interfaces = "ncurses,vt100,alsaseq,server,network,gtk"
 
     shelltools.export("CFLAGS", "%s -D_GNU_SOURCE" % get.CFLAGS())
