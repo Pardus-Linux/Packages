@@ -31,6 +31,5 @@ def install():
     pisitools.dodoc("README", "cake/LICENSE.txt", "cake/VERSION.txt")
 
     # Remove redundant doc files
-    pisitools.remove("%s/README" % BASEDIR)
-    pisitools.remove("%s/cake/LICENSE.txt" % BASEDIR)
-    pisitools.remove("%s/cake/VERSION.txt" % BASEDIR)
+    for f in ("README", "cake/LICENSE.txt", "cake/VERSION.txt"):
+        pisitools.remove("%s/%s" % (BASEDIR, f))
