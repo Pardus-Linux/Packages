@@ -15,7 +15,7 @@ NoStrip = ["/lib/modules"]
 
 BuildDir = "common/lib/modules/fglrx/build_mod"
 Target = get.ARCH().replace("i686", "x86")
-XDir = "x760" + ("_64a" if Target == "x86_64" else "")
+XDir = "xpic" + ("_64a" if Target == "x86_64" else "")
 
 
 def setup():
