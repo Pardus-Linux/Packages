@@ -1,0 +1,23 @@
+From 48ec15890e1751dede061f6d1f469b6508c13439 Mon Sep 17 00:00:00 2001
+From: Simon Budig <simon@budig.de>
+Date: Mon, 14 Feb 2011 20:46:31 +0000
+Subject: file-psp: fix for bogus input data. Fixes bug #639203
+
+---
+diff --git a/plug-ins/common/file-psp.c b/plug-ins/common/file-psp.c
+index ef39d5b..04897d5 100644
+--- a/plug-ins/common/file-psp.c
++++ b/plug-ins/common/file-psp.c
+@@ -1197,6 +1197,10 @@ read_channel_data (FILE       *f,
+             }
+           else
+             fread (buf, runcount, 1, f);
++
++          /* prevent buffer overflow for bogus data */
++          runcount = MIN (runcount, endq - q);
++
+           if (bytespp == 1)
+             {
+               memmove (q, buf, runcount);
+--
+cgit v0.8.3.1

@@ -1,0 +1,129 @@
+From 7fb0300e1cfdb98a3bde54dbc73a0f3eda375162 Mon Sep 17 00:00:00 2001
+From: Simon Budig <simon@budig.de>
+Date: Tue, 11 Jan 2011 22:28:16 +0000
+Subject: fixes for some buffer overflow problems (see bug #639203)
+
+---
+diff --git a/plug-ins/common/sphere-designer.c b/plug-ins/common/sphere-designer.c
+index 4e5b982..6dea871 100644
+--- a/plug-ins/common/sphere-designer.c
++++ b/plug-ins/common/sphere-designer.c
+@@ -1993,6 +1993,7 @@ loadit (const gchar * fn)
+   gchar    endbuf[21 * (G_ASCII_DTOSTR_BUF_SIZE + 1)];
+   gchar   *end = endbuf;
+   gchar    line[1024];
++  gchar    fmt_str[16];
+   gint     i;
+   texture *t;
+   gint     majtype, type;
+@@ -2017,6 +2018,8 @@ loadit (const gchar * fn)
+ 
+   s.com.numtexture = 0;
+ 
++  snprintf (fmt_str, sizeof (fmt_str), "%%d %%d %%%lds", sizeof (endbuf) - 1);
++
+   while (!feof (f))
+     {
+ 
+@@ -2027,7 +2030,7 @@ loadit (const gchar * fn)
+       t = &s.com.texture[i];
+       setdefaults (t);
+ 
+-      if (sscanf (line, "%d %d %s", &t->majtype, &t->type, end) != 3)
++      if (sscanf (line, fmt_str, &t->majtype, &t->type, end) != 3)
+         t->color1.x = g_ascii_strtod (end, &end);
+       if (end && errno != ERANGE)
+         t->color1.y = g_ascii_strtod (end, &end);
+diff --git a/plug-ins/gfig/gfig-style.c b/plug-ins/gfig/gfig-style.c
+index ee1c7b2..eae78f8 100644
+--- a/plug-ins/gfig/gfig-style.c
++++ b/plug-ins/gfig/gfig-style.c
+@@ -164,6 +164,7 @@ gfig_read_parameter_gimp_rgb (gchar        **text,
+   gchar *ptr;
+   gchar *tmpstr;
+   gchar *endptr;
++  gchar  fmt_str[32];
+   gchar  colorstr_r[G_ASCII_DTOSTR_BUF_SIZE];
+   gchar  colorstr_g[G_ASCII_DTOSTR_BUF_SIZE];
+   gchar  colorstr_b[G_ASCII_DTOSTR_BUF_SIZE];
+@@ -171,6 +172,10 @@ gfig_read_parameter_gimp_rgb (gchar        **text,
+ 
+   style_entry->r = style_entry->g = style_entry->b = style_entry->a = 0.;
+ 
++  snprintf (fmt_str, sizeof (fmt_str), "%%%lds %%%lds %%%lds %%%lds",
++            sizeof (colorstr_r) - 1, sizeof (colorstr_g) - 1,
++            sizeof (colorstr_b) - 1, sizeof (colorstr_a) - 1);
++
+   while (n < nitems)
+     {
+       ptr = strchr (text[n], ':');
+@@ -180,7 +185,8 @@ gfig_read_parameter_gimp_rgb (gchar        **text,
+           ptr++;
+           if (!strcmp (tmpstr, name))
+             {
+-              sscanf (ptr, "%s %s %s %s", colorstr_r, colorstr_g, colorstr_b, colorstr_a);
++              sscanf (ptr, fmt_str,
++                      colorstr_r, colorstr_g, colorstr_b, colorstr_a);
+               style_entry->r = g_ascii_strtod (colorstr_r, &endptr);
+               style_entry->g = g_ascii_strtod (colorstr_g, &endptr);
+               style_entry->b = g_ascii_strtod (colorstr_b, &endptr);
+diff --git a/plug-ins/lighting/lighting-ui.c b/plug-ins/lighting/lighting-ui.c
+index 99fb348..126f6e2 100644
+--- a/plug-ins/lighting/lighting-ui.c
++++ b/plug-ins/lighting/lighting-ui.c
+@@ -1345,6 +1345,7 @@ load_preset_response (GtkFileChooser *chooser,
+   gchar          buffer3[G_ASCII_DTOSTR_BUF_SIZE];
+   gchar          type_label[21];
+   gchar         *endptr;
++  gchar          fmt_str[32];
+ 
+   if (response_id == GTK_RESPONSE_OK)
+     {
+@@ -1384,23 +1385,41 @@ load_preset_response (GtkFileChooser *chooser,
+                   return;
+                 }
+ 
+-              fscanf (fp, " Position: %s %s %s", buffer1, buffer2, buffer3);
++              snprintf (fmt_str, sizeof (fmt_str),
++                        " Position: %%%lds %%%lds %%%lds",
++                        sizeof (buffer1) - 1,
++                        sizeof (buffer2) - 1,
++                        sizeof (buffer3) - 1);
++              fscanf (fp, fmt_str, buffer1, buffer2, buffer3);
+               source->position.x = g_ascii_strtod (buffer1, &endptr);
+               source->position.y = g_ascii_strtod (buffer2, &endptr);
+               source->position.z = g_ascii_strtod (buffer3, &endptr);
+ 
+-              fscanf (fp, " Direction: %s %s %s", buffer1, buffer2, buffer3);
++              snprintf (fmt_str, sizeof (fmt_str),
++                        " Direction: %%%lds %%%lds %%%lds",
++                        sizeof (buffer1) - 1,
++                        sizeof (buffer2) - 1,
++                        sizeof (buffer3) - 1);
++              fscanf (fp, fmt_str, buffer1, buffer2, buffer3);
+               source->direction.x = g_ascii_strtod (buffer1, &endptr);
+               source->direction.y = g_ascii_strtod (buffer2, &endptr);
+               source->direction.z = g_ascii_strtod (buffer3, &endptr);
+ 
+-              fscanf (fp, " Color: %s %s %s", buffer1, buffer2, buffer3);
++              snprintf (fmt_str, sizeof (fmt_str),
++                        " Color: %%%lds %%%lds %%%lds",
++                        sizeof (buffer1) - 1,
++                        sizeof (buffer2) - 1,
++                        sizeof (buffer3) - 1);
++              fscanf (fp, fmt_str, buffer1, buffer2, buffer3);
+               source->color.r = g_ascii_strtod (buffer1, &endptr);
+               source->color.g = g_ascii_strtod (buffer2, &endptr);
+               source->color.b = g_ascii_strtod (buffer3, &endptr);
+               source->color.a = 1.0;
+ 
+-              fscanf (fp, " Intensity: %s", buffer1);
++              snprintf (fmt_str, sizeof (fmt_str),
++                        " Intensity: %%%lds",
++                        sizeof (buffer1) - 1);
++              fscanf (fp, fmt_str, buffer1);
+               source->intensity = g_ascii_strtod (buffer1, &endptr);
+ 
+             }
+--
+cgit v0.8.3.1
