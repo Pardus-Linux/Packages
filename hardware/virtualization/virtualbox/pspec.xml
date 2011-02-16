@@ -40,6 +40,7 @@
             <Patch level="1">wrapper.patch</Patch>
             <Patch level="1">desktop-file.patch</Patch>
             <Patch level="1">fix-tr-keyboard.patch</Patch>
+            <Patch level="1">remove-xserver-check.patch</Patch>
 
             <Patch level="1">disable-help-contents.patch</Patch>
             <Patch level="1">disable-registration-and-update-requests.patch</Patch>
@@ -106,7 +107,7 @@
             <Path fileType="data">/lib/udev/rules.d</Path>
             <Path fileType="library">/lib/security</Path>
             <Path fileType="executable">/sbin</Path>
-            <Path fileType="executable">/usr/bin/VBoxClient</Path>
+            <Path fileType="executable">/usr/bin/VBoxClient*</Path>
             <Path fileType="executable">/usr/bin/VBoxControl</Path>
             <Path fileType="executable">/usr/sbin</Path>
             <Path fileType="library">/usr/lib</Path>
@@ -114,9 +115,22 @@
             <Path fileType="data">/usr/share/X11</Path>
             <Path fileType="library">/usr/lib/xorg/modules</Path>
         </Files>
+        <AdditionalFiles>
+            <AdditionalFile owner="root" permission="0644" target="/etc/X11/Xsession.d/98-vboxclient.sh">vboxclient.sh</AdditionalFile>
+        </AdditionalFiles>
     </Package>
 
     <History>
+        <Update release="56">
+            <Date>2011-02-16</Date>
+            <Version>4.0.2</Version>
+            <Comment>
+                - Xsession script: Do not attempt to start VBoxClient on host machines
+                - VBoxClient-all: Remove redundant check for xserver
+            </Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
         <Update release="55">
             <Date>2011-01-19</Date>
             <Version>4.0.2</Version>

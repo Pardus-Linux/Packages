@@ -35,7 +35,7 @@ def build():
 
 def install():
     pisitools.insinto("/etc/vbox", "vbox.cfg")
-    pisitools.insinto("/etc/X11/Xsession.d", "src/VBox/Additions/x11/Installer/98vboxadd-xclient", "98-vboxclient.sh")
+    pisitools.insinto("/usr/bin", "src/VBox/Additions/x11/Installer/98vboxadd-xclient", "VBoxClient-all")
     pisitools.insinto("/lib/udev/rules.d", "src/VBox/Additions/linux/installer/70-xorg-vboxmouse.rules")
     pisitools.insinto("/usr/share/X11/pci", "src/VBox/Additions/x11/Installer/vboxvideo.ids")
     pisitools.insinto("/usr/share/X11/xorg.conf.d", "src/VBox/Additions/x11/Installer/50-vboxmouse.conf")
