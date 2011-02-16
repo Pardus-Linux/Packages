@@ -22,7 +22,7 @@ NoStrip = [
         ]
 
 def build():
-    autotools.make("LCL_PLATFORM=gtk2 bigide tools -j1")
+    autotools.make("LCL_PLATFORM=qt bigide tools -j1")
 
 def install():
     pisitools.insinto("/usr/lib", ".", "lazarus")
