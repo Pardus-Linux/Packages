@@ -31,7 +31,7 @@ def setup():
 
 def build():
     shelltools.export("MONO_SHARED_DIR", get.curDIR())
-    autotools.make()
+    autotools.make("-j1")
 
 def install():
     autotools.rawInstall("DESTDIR=%s" % get.installDIR())
