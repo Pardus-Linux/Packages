@@ -5,14 +5,9 @@
 
 from pisi.actionsapi import autotools
 from pisi.actionsapi import pisitools
-from pisi.actionsapi import shelltools
 from pisi.actionsapi import get
 
-WorkDir = "xf86-input-wacom-%s" % get.srcVERSION()
-
 def setup():
-    #shelltools.move("fdi/wacom.fdi", "11-x11-wacom.fdi")
-
     autotools.configure()
 
 def build():
@@ -20,7 +15,5 @@ def build():
 
 def install():
     autotools.rawInstall("DESTDIR=%s" % get.installDIR())
-
-    #pisitools.insinto("/usr/share/hal/fdi/policy/20thirdparty", "11-x11-wacom.fdi")
 
     pisitools.dodoc("AUTHORS", "ChangeLog", "GPL", "README")
