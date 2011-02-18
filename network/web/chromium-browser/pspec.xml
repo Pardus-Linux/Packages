@@ -13,7 +13,10 @@
         <IsA>app:gui</IsA>
         <Summary>A WebKit powered web browser</Summary>
         <Description>Chromium-browser is an open-source web browser, powered by WebKit.</Description>
-        <Archive sha1sum="4a870da41ae25781e4806ec2c95703282fccc4d8" type="tarbz2">http://build.chromium.org/buildbot/official/chromium-9.0.597.94.tar.bz2</Archive>
+        <Archive sha1sum="02c61847f3a765cf54e1d67d019fe84ed04d577d" type="tarbz2">http://build.chromium.org/buildbot/official/chromium-10.0.648.82.tar.bz2</Archive>
+        <AdditionalFiles>
+            <AdditionalFile permission="0644" target="third_party/flac/flac.gyp">flac.gyp</AdditionalFile>
+        </AdditionalFiles>
         <BuildDependencies>
             <Dependency>alsa-lib-devel</Dependency>
             <Dependency>libstdc++</Dependency>
@@ -41,10 +44,23 @@
             <Dependency>minizip-devel</Dependency>
             <Dependency>jpeg-devel</Dependency>
             <Dependency>gdk-pixbuf-devel</Dependency>
+            <Dependency>flac-devel</Dependency>
         </BuildDependencies>
         <Patches>
-            <Patch level="0">chromium-system-vpx-r1.patch</Patch>
+            <Patch level="0">chromium-system-vpx-r2.patch</Patch>
             <Patch level="1">pisi_download_warning.patch</Patch>
+
+            <!-- Make sure that we don't use bundled flac-->
+            <Patch level="0">chromium-system-flac-r0.patch</Patch>
+
+            <!-- see crbug.com/61759 -->
+            <Patch level="1">ffmpeg-gyp-vpx.patch</Patch>
+
+            <!-- see crbug.com/26496 -->
+            <Patch level="1">webkit-debug-build.patch</Patch>
+
+            <!--see crbug.com/61759 -->
+            <Patch level="1">version-info-fix.patch</Patch>
         </Patches>
     </Source>
 
@@ -77,6 +93,7 @@
             <Dependency>libgcrypt</Dependency>
             <Dependency>gdk-pixbuf</Dependency>
             <Dependency>libvpx</Dependency>
+            <Dependency>flac</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="config">/etc</Path>
@@ -99,6 +116,27 @@
     </Package>
 
     <History>
+        <Update release="24">
+            <Date>2011-02-18</Date>
+            <Version>10.0.648.82</Version>
+            <Comment>
+                * Update to Beta Channel
+                * Add several patches for support building without the third party libraries
+                * Remove hunspell from system as it has gyp build problems
+                * Use xdg-utils that ships with the system
+                * Enable the to use system library of flac
+                * Several new features:
+                    * New version of V8 - Crankshaft - which greatly improves javascript performance
+                    * New settings pages that open in a tab, rather than a dialog box
+                    * Improved security with malware reporting and disabling outdated plugins by default
+                    * Password sync as part of Chrome Sync now enabled by default
+                    * GPU Accelerated Video
+                    * Background WebApps
+                    * webNavigation extension API
+            </Comment>
+            <Name>Fatih Arslan</Name>
+            <Email>farslan@pardus.org.tr</Email>
+        </Update>
         <Update release="23">
             <Date>2011-02-09</Date>
             <Version>9.0.597.94</Version>

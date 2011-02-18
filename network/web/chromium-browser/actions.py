@@ -20,20 +20,20 @@ ARCH = "x64" if get.ARCH() == "x86_64" else "ia32"
 def removeBundle():
     # All removed bundles are used via use_system. Thus we remove these
     # bundles to avoid incompabilities with library linking during compilation
-    bundles = ["bzip2", "libpng", "libevent", "libjpeg",
-               "libxslt", "libxml", "yasm", "icu", "hunspell",
-               "sqlite/src", "sqlite/preprocessed", "libvpx"]
+    bundles = ["bzip2", "libpng", "libevent", "libjpeg", "icu",
+               "libxslt", "libxml", "yasm", "sqlite/src", "sqlite/preprocessed", "libvpx"]
 
     #TODO remove zlib in the future, for now compilation fails if we remove it due to minizip
     for bundle in bundles:
         # Do not remove .gyp files, the gyp build system need them
-        shelltools.system("find third_party/%s -type f ! -iname '.gyp' -print" % bundle)
+        shelltools.system("find third_party/%s -type f ! -iname '*.gyp*' -delete" % bundle)
 
 def setup():
     removeBundle()
 
     #TODO use_system_ssl is disabled -->  https://bugzilla.mozilla.org/show_bug.cgi?id=547312
     #TODO use_system_ffmpeg has linking problems (is searching for libffmpegsumo.so)
+    #TODO use_system_hunspell has build problems, upstream changes needed
     shelltools.system("build/gyp_chromium -f make build/all.gyp --depth=. \
                         -Dgcc_version=45 \
                         -Dno_strict_aliasing=1 \
@@ -53,9 +53,9 @@ def setup():
                         -Duse_system_libxml=1 \
                         -Duse_system_vpx=1 \
                         -Duse_system_sqlite=1 \
+                        -Duse_system_xdg_utils=1 \
                         -Duse_system_yasm=1 \
                         -Duse_system_icu=1 \
-                        -Duse_system_hunspell=1 \
                         -Duse_system_ssl=0 \
                         -Ddisable_sse2=1 \
                         -Dtarget_arch=%s" % ARCH)
@@ -72,7 +72,6 @@ def install():
     pisitools.insinto("/usr/lib/chromium-browser", "resources.pak")
     pisitools.insinto("/usr/lib/chromium-browser", "chrome", "chromium-browser")
     pisitools.insinto("/usr/lib/chromium-browser", "chrome_sandbox", "chromium_sandbox")
-    pisitools.insinto("/usr/lib/chromium-browser", "xdg-settings")
     pisitools.insinto("/usr/lib/chromium-browser", "locales")
     pisitools.insinto("/usr/lib/chromium-browser", "resources")
 
