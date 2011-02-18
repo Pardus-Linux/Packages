@@ -13,7 +13,7 @@ from pisi.actionsapi import get
 shelltools.export("MONO_SHARED_DIR", get.workDIR())
 
 def setup():
-    autotools.configure()
+    autotools.configure("--disable-mdnsresponder")
 
 def build():
     autotools.make("-j1")
