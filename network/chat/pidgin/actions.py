@@ -34,6 +34,6 @@ def build():
 def install():
     autotools.rawInstall("DESTDIR=%s" % get.installDIR())
 
-    pisitools.dosym("/usr/share/icons/hicolor/48x48/apps/pidgin.png", "/usr/share/pixmaps/pidgin.png")
+    pisitools.dosym("../icons/hicolor/48x48/apps/pidgin.png", "/usr/share/pixmaps/pidgin.png")
 
     pisitools.dodoc("AUTHORS", "COPYING", "HACKING", "NEWS", "README", "ChangeLog")
