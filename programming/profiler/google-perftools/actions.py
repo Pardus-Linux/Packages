@@ -26,4 +26,7 @@ def build():
 def install():
     autotools.install()
 
+    for f in ["INSTALL", "README_windows.txt"]:
+        pisitools.remove("/usr/share/doc/google-perftools/%s" % f)
+
     pisitools.dodoc("AUTHORS", "ChangeLog", "COPYING", "NEWS", "README", "TODO")

@@ -13,15 +13,16 @@
         <IsA>app:console</IsA>
         <Summary>Google Performance Tools</Summary>
         <Description>Perf Tools is a collection of a high-performance multi-threaded malloc() implementation, plus some pretty nifty performance analysis tools.</Description>
-        <Archive sha1sum="b2892d388f35ef09059283b30f7c0a15c66950b4" type="targz">http://google-perftools.googlecode.com/files/google-perftools-1.6.tar.gz</Archive>
+        <Archive sha1sum="e3a65f71aee9270572f7aafa421858e39da1a9a8" type="targz">http://google-perftools.googlecode.com/files/google-perftools-1.7.tar.gz</Archive>
         <BuildDependencies>
             <Dependency>gv</Dependency>
         </BuildDependencies>
         <Patches>
-            <!-- fix pprof jemalloc behaviour, see  https://bugzilla.redhat.com/show_bug.cgi?id=657118 -->
-            <Patch>google-perftools-pprof-jemalloc-fix.patch</Patch>
             <!-- Do not bork bork after autoreconf-->
             <Patch>google-perftools-1.5-antibork.diff</Patch>
+
+            <!-- malloc_hook_c.h has C++ style comment; fails to compile as C -->
+            <Patch level="1">google-perftools-1.7-broken-comment-style.patch</Patch>
 
             <Patch level="1">docdir.patch</Patch>
         </Patches>
@@ -29,11 +30,9 @@
 
     <Package>
         <Name>google-perftools</Name>
-        <!-- just for 2011
         <RuntimeDependencies>
             <Dependency>libunwind</Dependency>
         </RuntimeDependencies>
-        -->
         <Files>
             <Path fileType="executable">/usr/bin</Path>
             <Path fileType="library">/usr/lib</Path>
@@ -52,6 +51,7 @@
         </RuntimeDependencies>
         <Files>
             <Path fileType="header">/usr/include</Path>
+            <Path fileType="data">/usr/lib/pkgconfig</Path>
         </Files>
     </Package>
 
@@ -69,6 +69,13 @@
     </Package>
 
     <History>
+        <Update release="7">
+            <Date>2011-02-20</Date>
+            <Version>1.7</Version>
+            <Comment>Version bump to latest stable: A multi-megabyte reduction in the amount of tcmalloc overhead under x86_64, improved performance in the case of contention, and many bugfixes, especially architecture-specific bugfixes.</Comment>
+            <Name>Serdar Dalgıç</Name>
+            <Email>serdar@pardus.org.tr</Email>
+        </Update>
         <Update release="6">
             <Date>2010-09-13</Date>
             <Version>1.6</Version>
