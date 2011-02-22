@@ -22,9 +22,9 @@ def build():
     autotools.make()
 
 def install():
-    pisitools.dodir("/etc/gtk-2.0/")
     autotools.rawInstall("DESTDIR=%s" % get.installDIR())
 
-    pisitools.removeDir("/usr/share/gtk-doc")
+    for d in ["/usr/share/gtk-doc", "/usr/lib/gtk-3.0", "/usr/share/themes/bubble/gtk-3.0"]:
+        pisitools.removeDir(d)
 
     pisitools.dodoc("COPYING", "AUTHORS", "ChangeLog", "README")
