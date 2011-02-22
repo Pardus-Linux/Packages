@@ -1,0 +1,43 @@
+From d7356c451a0e157eb0609e621f260c07bed1cbd0 Mon Sep 17 00:00:00 2001
+From: fatih <fatih@26e1f6f6-46e4-0310-a0b7-a8a415fd4c45>
+Date: Tue, 22 Feb 2011 14:45:01 +0000
+Subject: [PATCH] build: Reload actions script for each build type
+
+So we can use get.buildTYPE() outside the functions in actions.py.
+
+git-svn-id: https://svn.pardus.org.tr/uludag/trunk/pisi@36248 26e1f6f6-46e4-0310-a0b7-a8a415fd4c45
+---
+ pisi/operations/build.py |    3 +--
+ 1 files changed, 1 insertions(+), 2 deletions(-)
+
+diff --git a/pisi/operations/build.py b/pisi/operations/build.py
+index 5ddba6d..afa1186 100644
+--- a/pisi/operations/build.py
++++ b/pisi/operations/build.py
+@@ -315,7 +315,6 @@ class Builder:
+         ctx.ui.status(_("Building source package: %s")
+                       % self.spec.source.name)
+ 
+-        self.load_action_script()
+         self.compile_comar_script()
+ 
+         # check if all patch files exists, if there are missing no need
+@@ -365,6 +364,7 @@ class Builder:
+ 
+         self.build_type = build_type
+         self.set_environment_vars()
++        self.load_action_script()
+ 
+     def set_environment_vars(self):
+         """Sets the environment variables for actions API to use"""
+@@ -1230,7 +1230,6 @@ def build_until(pspec, state):
+     else:
+         pb = Builder.from_name(pspec)
+ 
+-    pb.load_action_script()
+     pb.compile_comar_script()
+ 
+     if state == "fetch":
+-- 
+1.7.3.4
+
