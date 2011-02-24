@@ -8,20 +8,28 @@
 from pisi.actionsapi import autotools
 from pisi.actionsapi import pisitools
 from pisi.actionsapi import get
-
-WorkDir="pcre-%s" % get.srcVERSION()
+from pisi.actionsapi import shelltools
 
 def setup():
-    autotools.configure("--enable-utf8 \
-                         --enable-unicode-properties \
-                         --docdir=/%s/%s \
-                         --disable-static" % (get.docDIR(), get.srcNAME()))
+    options = "--enable-utf8 \
+               --enable-unicode-properties \
+               --disable-cpp \
+               --docdir=/%s/%s \
+               --disable-static" % (get.docDIR(), get.srcNAME())
+
+    if get.buildTYPE() == "emul32":
+        options += " --libdir=/usr/lib32"
+        shelltools.export("CFLAGS", "%s -m32" % get.CFLAGS())
+        shelltools.export("CXXFLAGS", "%s -m32" % get.CXXFLAGS())
+        shelltools.export("PKG_CONFIG_LIBDIR", "/usr/lib32/pkgconfig")
+
+    autotools.configure(options)
 
 def build():
     autotools.make()
 
-def check():
-    autotools.make("check")
+#def check():
+#    autotools.make("check")
 
 def install():
     autotools.rawInstall("DESTDIR=%s" % get.installDIR())
