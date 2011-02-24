@@ -12,6 +12,7 @@ from pisi.actionsapi import get
 
 import os
 import re
+import glob
 
 WorkDir = "%s-build-%s" % (get.srcNAME(), get.srcVERSION())
 AppDir = "/opt/LibreOffice"
@@ -67,15 +68,9 @@ def install():
         pisitools.dosym("%s/bin/%s" % (AppDir, bin), "/usr/bin/%s" % bin)
 
     # Icons
-    pisitools.insinto("/usr/share/pixmaps","desktop/48x48/*.png")
-
-    # Icon symlinks
-    pisitools.dosym("/usr/share/pixmaps/ooo-impress.png","/usr/share/pixmaps/presentation.png")
-    pisitools.dosym("/usr/share/pixmaps/ooo-writer.png","/usr/share/pixmaps/wordprocessing.png")
-    pisitools.dosym("/usr/share/pixmaps/ooo-calc.png","/usr/share/pixmaps/spreadsheet.png")
-    pisitools.dosym("/usr/share/pixmaps/ooo-base.png","/usr/share/pixmaps/database.png")
-    pisitools.dosym("/usr/share/pixmaps/ooo-draw.png","/usr/share/pixmaps/drawing.png")
-    pisitools.dosym("/usr/share/pixmaps/ooo-math.png","/usr/share/pixmaps/formula.png")
+    for icon in glob.glob("build/libreoffice-%s/sysui/desktop/icons/hicolor/48x48/apps/*.png" % get.srcVERSION()):
+        pisitools.insinto("/usr/share/pixmaps", icon, "libreoffice-%s" % os.path.basename(icon))
+    pisitools.insinto("/usr/share/pixmaps", "build/libreoffice-%s/sysui/desktop/icons/hicolor/48x48/mimetypes/oasis-web-template.png" % get.srcVERSION(), "libreoffice-web.png")
 
     #Put pyuno to python directory and add python modules directory to sys.path in uno.py
     unoPath = "%s/lib/ooo-%s/basis%s/program/uno.py" % (AppDir, baseVersion(), baseVersion())
