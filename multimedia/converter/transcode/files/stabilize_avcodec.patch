@@ -1,0 +1,51 @@
+diff -Nur transcode-1.1.5-old//export/aud_aux.c transcode-1.1.5/export/aud_aux.c
+--- transcode-1.1.5-old//export/aud_aux.c	2011-02-27 00:49:55.855000320 +0200
++++ transcode-1.1.5/export/aud_aux.c	2011-02-27 00:51:53.689000515 +0200
+@@ -46,6 +46,8 @@
+ 
+ #ifdef HAVE_FFMPEG
+ #include "libtc/tcavcodec.h"
++#include "libavcodec/avcodec.h"
++#include "libavutil/mathematics.h"
+ 
+ 
+ static AVCodec        *mpa_codec = NULL;
+@@ -346,7 +348,7 @@
+ 
+     //-- set parameters (bitrate, channels and sample-rate) --
+     //--------------------------------------------------------
+-    memset(&mpa_ctx, 0, sizeof(mpa_ctx));          // default all
++    avcodec_get_context_defaults(&mpa_ctx);        // default all
+     mpa_ctx.codec_type  = CODEC_TYPE_AUDIO;
+     mpa_ctx.bit_rate    = vob->mp3bitrate * 1000;  // bitrate dest.
+     mpa_ctx.channels    = vob->dm_chan;            // channels
+diff -Nur transcode-1.1.5-old//import/Makefile.am transcode-1.1.5/import/Makefile.am
+--- transcode-1.1.5-old//import/Makefile.am	2011-02-27 00:49:55.840000330 +0200
++++ transcode-1.1.5/import/Makefile.am	2011-02-27 00:50:38.750000321 +0200
+@@ -143,9 +143,9 @@
+ import_dvd_la_LIBADD = $(LIBDVDREAD_LIBS)
+ 
+ import_ffmpeg_la_SOURCES = import_ffmpeg.c
+-import_ffmpeg_la_CPPFLAGS = $(AM_CPPFLAGS) $(LIBAVFORMAT_CFLAGS)
++import_ffmpeg_la_CPPFLAGS = $(AM_CPPFLAGS) $(LIBAVFORMAT_CFLAGS) $(LIBAVCODEC_CFLAGS)
+ import_ffmpeg_la_LDFLAGS = -module -avoid-version
+-import_ffmpeg_la_LIBADD = $(LIBAVFORMAT_LIBS)
++import_ffmpeg_la_LIBADD = $(LIBAVFORMAT_LIBS) $(LIBAVCODEC_LIBS)
+ 
+ import_im_la_SOURCES = import_im.c
+ import_im_la_CPPFLAGS = $(AM_CPPFLAGS) $(IMAGEMAGICK_CFLAGS)
+diff -Nur transcode-1.1.5-old//import/Makefile.in transcode-1.1.5/import/Makefile.in
+--- transcode-1.1.5-old//import/Makefile.in	2011-02-27 00:49:55.834000400 +0200
++++ transcode-1.1.5/import/Makefile.in	2011-02-27 00:50:38.752000321 +0200
+@@ -753,9 +753,9 @@
+ import_dvd_la_LDFLAGS = -module -avoid-version
+ import_dvd_la_LIBADD = $(LIBDVDREAD_LIBS)
+ import_ffmpeg_la_SOURCES = import_ffmpeg.c
+-import_ffmpeg_la_CPPFLAGS = $(AM_CPPFLAGS) $(LIBAVFORMAT_CFLAGS)
++import_ffmpeg_la_CPPFLAGS = $(AM_CPPFLAGS) $(LIBAVFORMAT_CFLAGS) $(LIBAVCODEC_CFLAGS)
+ import_ffmpeg_la_LDFLAGS = -module -avoid-version
+-import_ffmpeg_la_LIBADD = $(LIBAVFORMAT_LIBS)
++import_ffmpeg_la_LIBADD = $(LIBAVFORMAT_LIBS) $(LIBAVCODEC_LIBS)
+ import_im_la_SOURCES = import_im.c
+ import_im_la_CPPFLAGS = $(AM_CPPFLAGS) $(IMAGEMAGICK_CFLAGS)
+ import_im_la_LDFLAGS = -module -avoid-version
