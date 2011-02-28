@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright 2005-2010 TUBITAK/UEKAE
+# Copyright 2005-2011 TUBITAK/UEKAE
 # Licensed under the GNU General Public License, version 2.
 # See the file http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
 
@@ -17,10 +17,17 @@ def setup():
 
     pisitools.dosed("libspeex/Makefile.am", "noinst_PROGRAMS", "check_PROGRAMS")
 
-    autotools.autoreconf("-fi")
-    autotools.configure("--enable-ogg \
-                         --enable-sse \
-                         --disable-static")
+    options = "--enable-ogg \
+               --enable-sse \
+               --disable-static"
+
+    if get.buildTYPE() == "emul32":
+        # ogg only affects the executables so it's safe to disable for emul32
+        options += " --libdir=/usr/lib32 --disable-ogg"
+        shelltools.export("CFLAGS", "%s -m32" % get.CFLAGS())
+
+    autotools.autoreconf("-vif")
+    autotools.configure(options)
 
     # Remove rpath from speexenc and speexdec
     pisitools.dosed("libtool", "^hardcode_libdir_flag_spec=.*", "hardcode_libdir_flag_spec=\"\"")
