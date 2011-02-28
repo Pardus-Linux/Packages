@@ -1,0 +1,46 @@
+Index: src/bftextview2.c
+===================================================================
+--- src/bftextview2.c	(revision 6439)
++++ src/bftextview2.c	(working copy)
+@@ -1339,9 +1339,11 @@
+ 		}
+ 	}
+ 	if (event->button == 1) {
+-		btv->needs_blockmatch = TRUE;
+-		if (!btv->mark_set_idle)
+-			btv->mark_set_idle = g_idle_add_full(G_PRIORITY_HIGH_IDLE, mark_set_idle_lcb, btv->master, NULL);
++	    if (btv->show_mbhl) {
++	        btv->needs_blockmatch = TRUE;
++	        if (!btv->mark_set_idle)
++	          btv->mark_set_idle = g_idle_add_full(G_PRIORITY_HIGH_IDLE, mark_set_idle_lcb, btv->master, NULL);
++	    }
+ 
+ 	} else if (event->button == 3) {
+ 		GtkTextIter iter;
+@@ -1405,8 +1407,10 @@
+ 
+ 	DBG_SIGNALS("bluefish_text_view_key_release_event for %p, keyval=%d\n", widget, kevent->keyval);
+ 
+-	if (!btv->mark_set_idle && btv->needs_blockmatch)
+-		btv->mark_set_idle = g_idle_add_full(G_PRIORITY_HIGH_IDLE, mark_set_idle_lcb, btv->master, NULL);
++	if (btv->show_mbhl) {
++	    if (!btv->mark_set_idle && btv->needs_blockmatch)
++	          btv->mark_set_idle = g_idle_add_full(G_PRIORITY_HIGH_IDLE, mark_set_idle_lcb, btv->master, NULL);
++	}
+ 
+ 	/* sometimes we receive a release event for a key that was not pressed in the textview widget!
+ 	   for example if you use the keyboard to navigate the menu, and press enter to activate an item, a 
+@@ -1838,6 +1842,13 @@
+ 	}
+ 
+ 	btv->show_mbhl = show;
++	if (!show && btv->showing_blockmatch) {
++	    GtkTextIter it1,it2;
++	    gtk_text_buffer_get_bounds(btv->buffer, &it1, &it2);
++	    gtk_text_buffer_remove_tag(btv->buffer, BLUEFISH_TEXT_VIEW(btv)->blockmatch, &it1, &it2);
++	    btv->showing_blockmatch = FALSE;
++	}
++
+ 	gtk_widget_queue_draw(GTK_WIDGET(btv));
+ 	if (btv->slave)
+ 		gtk_widget_queue_draw(GTK_WIDGET(btv->slave));
