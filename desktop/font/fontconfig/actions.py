@@ -9,24 +9,31 @@ from pisi.actionsapi import shelltools
 from pisi.actionsapi import get
 
 def setup():
+    options = "--disable-static \
+               --disable-docs \
+               --with-cache-dir=/var/cache/fontconfig \
+               --with-default-fonts=/usr/share/fonts \
+               --with-add-fonts=/usr/local/share/fonts"
+
     # Do not rebuild docs
     shelltools.export("HASDOCBOOK", "no")
 
+    if get.buildTYPE() == "emul32":
+        options += " --libdir=/usr/lib32"
+        shelltools.export("CFLAGS", "%s -m32" % get.CFLAGS())
+        shelltools.export("CXXFLAGS", "%s -m32" % get.CXXFLAGS())
+
     autotools.autoreconf("-vif")
-    autotools.configure("--disable-static \
-                         --disable-docs \
-                         --x-includes=/usr/include \
-                         --x-libraries=/usr/lib \
-                         --localstatedir=/var \
-                         --with-cache-dir=/var/cache/fontconfig \
-                         --with-default-fonts=/usr/share/fonts \
-                         --with-add-fonts=/usr/local/share/fonts")
+    autotools.configure(options)
 
 def build():
     autotools.make()
 
 def install():
     autotools.rawInstall("DESTDIR=%s" % get.installDIR())
+
+    if get.buildTYPE():
+        return
 
     pisitools.insinto("/etc/fonts", "fonts.conf", "fonts.conf.new")
 
