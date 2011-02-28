@@ -38,9 +38,6 @@ def install():
     # Install v4l-dvb-firmware's under /lib/firmware
     pisitools.domove("/lib/firmware/v4l-dvb-firmware/*.fw", "/lib/firmware")
 
-    # Move wrong file under RTL8192SU
-    pisitools.domove("/lib/firmware/RTL8192SE/rtl8192sfw.bin", "/lib/firmware/RTL8192SU/")
-
     # Install LICENSE files
     pisitools.dodoc("WHENCE", "LICENCE.*", "LICENSE.*", "GPL-3")
     pisitools.dodoc("v4l-dvb-firmware/BOM", "v4l-dvb-firmware/LICEN*")
