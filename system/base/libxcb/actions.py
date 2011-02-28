@@ -10,18 +10,23 @@ from pisi.actionsapi import get
 
 def setup():
     shelltools.export("CFLAGS", "%s -DNDEBUG" % get.CFLAGS())
+    options = "--disable-static \
+               --disable-xevie \
+               --disable-xprint \
+               --without-doxygen"
+
+    if get.buildTYPE() == "emul32":
+        options += " --libdir=/usr/lib32"
+        shelltools.export("CFLAGS", "%s -m32" % get.CFLAGS())
 
     autotools.autoreconf("-vif")
-    autotools.configure("--disable-static \
-                         --disable-xevie \
-                         --disable-xprint \
-                         --without-doxygen")
+    autotools.configure(options)
 
 def build():
     autotools.make()
 
 def install():
-    autotools.install()
+    autotools.rawInstall("DESTDIR=%s" % get.installDIR())
 
     pisitools.remove("/usr/include/xcb/xevie.h")
     pisitools.remove("/usr/include/xcb/xprint.h")
