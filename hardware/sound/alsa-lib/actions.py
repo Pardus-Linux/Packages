@@ -8,10 +8,18 @@
 from pisi.actionsapi import autotools
 from pisi.actionsapi import pisitools
 from pisi.actionsapi import get
+from pisi.actionsapi import shelltools
 
 def setup():
+    options = "--disable-aload"
+
+    if get.buildTYPE() == "emul32":
+        options += " --libdir=/usr/lib32 --disable-python"
+        shelltools.export("CFLAGS", "%s -m32" % get.CFLAGS())
+
     autotools.autoreconf("-fi")
-    autotools.configure("--disable-aload")
+
+    autotools.configure(options)
 
     # rpath fix
     pisitools.dosed("libtool", "^hardcode_libdir_flag_spec=.*", "hardcode_libdir_flag_spec=\"\"")
