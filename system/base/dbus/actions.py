@@ -8,22 +8,27 @@
 from pisi.actionsapi import autotools
 from pisi.actionsapi import pisitools
 from pisi.actionsapi import get
+from pisi.actionsapi import shelltools
 
 def setup():
-    autotools.autoreconf("-fi")
-    autotools.configure("--with-xml=expat \
-                         --with-system-pid-file=/var/run/dbus/pid \
-                         --with-system-socket=/var/run/dbus/system_bus_socket \
-                         --with-session-socket-dir=/tmp \
-                         --with-systemdsystemunitdir=/lib/systemd/system/ \
-                         --with-dbus-user=dbus \
-                         --localstatedir=/var \
-                         --disable-selinux \
-                         --disable-static \
-                         --disable-tests \
-                         --disable-asserts \
-                         --disable-doxygen-docs \
-                         --disable-xml-docs")
+    options = "--with-xml=expat \
+               --with-system-pid-file=/var/run/dbus/pid \
+               --with-system-socket=/var/run/dbus/system_bus_socket \
+               --with-session-socket-dir=/tmp \
+               --with-dbus-user=dbus \
+               --disable-selinux \
+               --disable-static \
+               --disable-tests \
+               --disable-asserts \
+               --disable-doxygen-docs \
+               --disable-xml-docs"
+
+    if get.buildTYPE() == "emul32":
+        options += " --libdir=/usr/lib32"
+        shelltools.export("CFLAGS", "%s -m32" % get.CFLAGS())
+
+    autotools.autoreconf("-vif")
+    autotools.configure(options)
 
 def build():
     autotools.make()
