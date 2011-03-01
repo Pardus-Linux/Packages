@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright 2005-2010 TUBITAK/UEKAE
+# Copyright 2005-2011 TUBITAK/UEKAE
 # Licensed under the GNU General Public License, version 2.
 # See the file http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
 
@@ -19,9 +19,6 @@ def build():
 def install():
     autotools.rawInstall("DESTDIR=%s" % get.installDIR())
 
-    pisitools.remove("/usr/sbin/update-usbids.sh")
-    pisitools.dodir("/usr/share/pkgconfig")
-    pisitools.domove("/usr/share/misc/pkgconfig/*.pc", "/usr/share/pkgconfig/")
-    pisitools.removeDir("/usr/share/misc/pkgconfig")
+    pisitools.removeDir("/usr/sbin")
 
     pisitools.dodoc("AUTHORS", "ChangeLog", "NEWS", "README")
