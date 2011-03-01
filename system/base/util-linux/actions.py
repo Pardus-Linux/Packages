@@ -28,7 +28,8 @@ def setup():
                --disable-wall"
 
     if get.buildTYPE() == "emul32":
-        options += " --libdir=/usr/lib32 \
+        options += " --prefix=/emul32 \
+                     --libdir=/usr/lib32 \
                      --without-ncurses \
                      --disable-partx \
                      --disable-raw \
@@ -42,11 +43,10 @@ def setup():
         shelltools.export("CFLAGS", "%s -m32" % get.CFLAGS())
 
     else:
-        options += "--enable-partx \
-                    --enable-raw \
-                    --enable-write \
-                    --with-audit"
-
+        options += " --enable-partx \
+                     --enable-raw \
+                     --enable-write \
+                     --with-audit"
 
 
     autotools.autoreconf("-fi")
@@ -61,6 +61,9 @@ def build():
 
 def install():
     autotools.rawInstall("DESTDIR=%s" % get.installDIR())
+
+    if get.buildTYPE() == "emul32":
+        pisitools.removeDir("/emul32")
 
     pisitools.dodoc("AUTHORS", "COPYING", "DEPRECATED", "README*", "TODO", "docs/*")
     pisitools.insinto("/%s/%s" % (get.docDIR(), get.srcNAME()), "example.files")
