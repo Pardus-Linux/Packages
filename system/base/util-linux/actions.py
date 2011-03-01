@@ -18,23 +18,43 @@ def setup():
     shelltools.export("SUID_LDFLAGS", "-pie")
     shelltools.export("AUTOPOINT", "/bin/true")
 
+    options = "--bindir=/bin \
+               --sbindir=/sbin \
+               --disable-login-utils \
+               --disable-use-tty-group \
+               --disable-makeinstall-chown \
+               --disable-rpath \
+               --disable-static \
+               --disable-wall"
+
+    if get.buildTYPE() == "emul32":
+        options += " --libdir=/usr/lib32 \
+                     --without-ncurses \
+                     --disable-partx \
+                     --disable-raw \
+                     --disable-write \
+                     --disable-libblkid \
+                     --disable-mount \
+                     --disable-fsck \
+                     --disable-libmount \
+                     --without-audit"
+
+        shelltools.export("CFLAGS", "%s -m32" % get.CFLAGS())
+
+    else:
+        options += "--enable-partx \
+                    --enable-raw \
+                    --enable-write \
+                    --with-audit"
+
+
+
     autotools.autoreconf("-fi")
+    autotools.configure(options)
 
     # Extra fedora switches:
     # --enable-login-utils will enable some utilities we ship in shadow
     # --enable-kill will enable the kill utility we ship in coreutils
-    autotools.configure('--bindir=/bin \
-                         --sbindir=/sbin \
-                         --enable-partx \
-                         --enable-raw \
-                         --enable-write \
-                         --with-audit \
-                         --disable-login-utils \
-                         --disable-use-tty-group \
-                         --disable-makeinstall-chown \
-                         --disable-rpath \
-                         --disable-static \
-                         --disable-wall')
 
 def build():
     autotools.make()
