@@ -20,6 +20,8 @@ pathFixList = {"libpath1": ["sys_lib_search_path_spec=.*", "sys_lib_search_path_
                "gccpath2": ["postdep_objects=.*", "postdep_objects=\"\""], \
                "gccpath3": ["compiler_lib_search_path=.*", "compiler_lib_search_path=\"\""]}
 
+cflags = "%s -fPIC" % get.CFLAGS()
+
 def setup():
     # Fix all linkage problems :(((
     # pisi now exports GCC and CXX correctly, so the libtool shall obey it too
@@ -28,9 +30,15 @@ def setup():
     # shelltools.export("CC", "gcc")
     # shelltools.export("C", "g++")
     # shelltools.export("F77", "gfortran")
-    shelltools.export("CFLAGS", "%s -fPIC" % get.CFLAGS())
 
-    autotools.configure("--enable-static=no")
+    options = "--enable-static=no"
+
+    if get.buildTYPE() == "emul32":
+        options += " --libdir=/usr/lib32"
+        cflags += " -m32"
+
+    shelltools.export("CFLAGS", cflags)
+    autotools.configure(options)
 
 def build():
     autotools.make()
