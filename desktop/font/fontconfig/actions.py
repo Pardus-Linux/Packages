@@ -19,7 +19,8 @@ def setup():
     shelltools.export("HASDOCBOOK", "no")
 
     if get.buildTYPE() == "emul32":
-        options += " --libdir=/usr/lib32"
+        options += " --prefix=/emul32 \
+                     --libdir=/usr/lib32"
         shelltools.export("CFLAGS", "%s -m32" % get.CFLAGS())
         shelltools.export("CXXFLAGS", "%s -m32" % get.CXXFLAGS())
 
@@ -33,6 +34,7 @@ def install():
     autotools.rawInstall("DESTDIR=%s" % get.installDIR())
 
     if get.buildTYPE():
+        pisitools.removeDir("/emul32")
         return
 
     pisitools.insinto("/etc/fonts", "fonts.conf", "fonts.conf.new")
