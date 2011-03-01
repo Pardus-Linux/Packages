@@ -24,7 +24,8 @@ def setup():
                --disable-xml-docs"
 
     if get.buildTYPE() == "emul32":
-        options += " --libdir=/usr/lib32"
+        options += " --prefix=/emul32 \
+                     --libdir=/usr/lib32"
         shelltools.export("CFLAGS", "%s -m32" % get.CFLAGS())
         # Build only libdbus
         pisitools.dosed("Makefile.am", "(.*SUBDIRS=dbus) .*", "\\1")
@@ -40,6 +41,9 @@ def check():
 
 def install():
     autotools.rawInstall("DESTDIR=%s" % get.installDIR())
+
+    if get.buildTYPE() == "emul32":
+        pisitools.removeDir("/emul32")
 
     # needs to exist for the system socket
     pisitools.dodir("/var/run/dbus")
