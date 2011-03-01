@@ -15,14 +15,14 @@ def setup():
     options = "--disable-gtk-doc \
                --with-pcre=system \
                --disable-fam \
-               --disable-static"
+               --disable-static \
+               --disable-systemtap"
 
 
     if get.buildTYPE() == "emul32":
         options += " --prefix=/emul32 \
                      --libdir=/usr/lib32 \
-                     --disable-dtrace \
-                     --disable-systemtap"
+                     --disable-dtrace"
         shelltools.export("CC", "%s -m32" % get.CC())
         shelltools.export("PKG_CONFIG_LIBDIR", "/usr/lib32/pkgconfig")
 
