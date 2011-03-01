@@ -21,7 +21,7 @@ def setup():
     if get.buildTYPE() == "emul32":
         options += " --prefix=/emul32 \
                      --libdir=/usr/lib32"
-        shelltools.export("CFLAGS", "%s -m32" % get.CFLAGS())
+        shelltools.export("CC", "%s -m32" % get.CC())
         shelltools.export("PKG_CONFIG_LIBDIR", "/usr/lib32/pkgconfig")
 
     autotools.autoreconf("-vif")
