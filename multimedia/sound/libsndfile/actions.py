@@ -12,6 +12,17 @@ from pisi.actionsapi import libtools
 from pisi.actionsapi import get
 
 def setup():
+    options = "--disable-static \
+               --disable-sqlite \
+               --enable-flac \
+               --enable-alsa \
+               --enable-largefile \
+               --disable-gcc-pipe \
+               --disable-jack \
+               --disable-octave \
+               --disable-gcc-werror \
+               --disable-dependency-tracking"
+
     pisitools.dosed("examples/Makefile.am", "noinst_PROGRAMS", "check_PROGRAMS")
     pisitools.dosed("tests/Makefile.am", "noinst_PROGRAMS", "check_PROGRAMS")
 
@@ -20,25 +31,18 @@ def setup():
     for i in shelltools.ls("M4/lt*.m4"):
         shelltools.unlink(i)
 
+    if get.buildTYPE() == "emul32":
+        options += " --libdir=/usr/lib32"
+        shelltools.export("CFLAGS", "%s -m32" % get.CFLAGS())
+        shelltools.export("CXXFLAGS", "%s -m32" % get.CXXFLAGS())
+
     autotools.autoreconf("-fi -I M4")
-    autotools.configure("--disable-static \
-                         --disable-sqlite \
-                         --enable-flac \
-                         --enable-alsa \
-                         --enable-largefile \
-                         --disable-gcc-pipe \
-                         --disable-jack \
-                         --disable-octave \
-                         --disable-gcc-werror \
-                         --disable-dependency-tracking")
+    autotools.configure(options)
 
     pisitools.dosed("doc/Makefile", "^htmldocdir.*", "htmldocdir = /usr/share/doc/%s/html" % get.srcNAME())
 
 def build():
     autotools.make()
-
-#def check():
-#    autotools.make("check")
 
 def install():
     autotools.rawInstall("DESTDIR=%s" % get.installDIR())
