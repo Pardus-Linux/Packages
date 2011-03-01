@@ -10,9 +10,9 @@ from pisi.actionsapi import pisitools
 from pisi.actionsapi import shelltools
 from pisi.actionsapi import get
 
-cflags = "%s -fPIC" % get.CFLAGS()
 
 def setup():
+    cflags = "%s -fPIC" % get.CFLAGS()
     options = "--disable-static"
 
     if get.buildTYPE() == "emul32":
