@@ -8,14 +8,28 @@
 from pisi.actionsapi import pisitools
 from pisi.actionsapi import autotools
 from pisi.actionsapi import get
+from pisi.actionsapi import shelltools
 
+cflags = get.CFLAGS()
+ldflags = get.LDFLAGS()
+
+if get.buildTYPE() == "emul32":
+    cflags += " -m32"
+    ldflags += " -m32"
 
 def setup():
+    options = "--disable-static"
     pisitools.dosed("doc/Makefile.in", "^docdir = .*$", "docdir = $(datadir)/doc/$(PACKAGE)")
     pisitools.dosed("doc/libogg/Makefile.in", "^docdir = .*$", "docdir = $(datadir)/doc/$(PACKAGE)/ogg")
 
-    pisitools.dosed("configure", "-O20", get.CFLAGS())
-    autotools.configure("--disable-static")
+    if get.buildTYPE() == "emul32":
+        options += " --libdir=/usr/lib32"
+        shelltools.export("CFLAGS", cflags)
+        shelltools.export("LDFLAGS", ldflags)
+
+
+    pisitools.dosed("configure", "-O20", cflags)
+    autotools.configure(options)
 
 def build():
     autotools.make()
