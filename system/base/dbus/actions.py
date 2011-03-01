@@ -26,6 +26,8 @@ def setup():
     if get.buildTYPE() == "emul32":
         options += " --libdir=/usr/lib32"
         shelltools.export("CFLAGS", "%s -m32" % get.CFLAGS())
+        # Build only libdbus
+        pisitools.dosed("Makefile.am", "(.*SUBDIRS=dbus) .*", "\\1")
 
     autotools.autoreconf("-vif")
     autotools.configure(options)
