@@ -25,8 +25,10 @@ def install():
     if get.buildTYPE() == "emul32":
         autotools.rawInstall("FAKEROOT=%s \
                               LIBDIR=%s/usr/lib32 \
-                              emul32=1" % ((get.installDIR(),)*2))
+                              SBINDIR=%s/emul32/sbin \
+                              emul32=1" % ((get.installDIR(),)*3))
         pisitools.remove("/usr/lib32/*.a")
+        pisitools.removeDir("/emul32")
         return
 
     autotools.rawInstall("FAKEROOT=%s" % get.installDIR())
