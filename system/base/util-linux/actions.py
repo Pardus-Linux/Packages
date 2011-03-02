@@ -29,6 +29,8 @@ def setup():
 
     if get.buildTYPE() == "emul32":
         options += " --prefix=/emul32 \
+                     --bindir=/emul32/bin \
+                     --sbindir=/emul32/sbin \
                      --libdir=/usr/lib32 \
                      --without-ncurses \
                      --disable-partx \
