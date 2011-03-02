@@ -1,0 +1,35 @@
+From 59e4212d8437e44e654dbeed61d52e29f830ddaa Mon Sep 17 00:00:00 2001
+From: Herton Ronaldo Krzesinski <herton@mandriva.com.br>
+Date: Mon, 1 Nov 2010 22:59:39 -0200
+Subject: [PATCH 13/13] rtl8187: restore anaparam registers after reset with 8187B
+
+Current 8187B initialization misses anaparam registers restore after
+8187 reset. This causes ANAPARAM register to stay zeroed out (ANAPARAM2
+kept its value on my tests). To avoid this, call rtl8187_set_anaparam
+right after chip reset (to be on the safe side, as it makes sure we
+restore all ANAPARAM registers).
+
+Signed-off-by: Herton Ronaldo Krzesinski <herton@mandriva.com.br>
+Acked-by: Larry Finger <Larry.Finger@lwfinger.net>
+Cc: seno <senada@t-online.de>
+Signed-off-by: John W. Linville <linville@tuxdriver.com>
+---
+ drivers/net/wireless/rtl818x/rtl8187_dev.c |    2 ++
+ 1 files changed, 2 insertions(+), 0 deletions(-)
+
+diff --git a/drivers/net/wireless/rtl818x/rtl8187_dev.c b/drivers/net/wireless/rtl818x/rtl8187_dev.c
+index 4448647..eeee244 100644
+--- a/drivers/net/wireless/rtl818x/rtl8187_dev.c
++++ b/drivers/net/wireless/rtl818x/rtl8187_dev.c
+@@ -771,6 +771,8 @@ static int rtl8187b_init_hw(struct ieee80211_hw *dev)
+ 	if (res)
+ 		return res;
+ 
++	rtl8187_set_anaparam(priv, true);
++
+ 	/* BRSR (Basic Rate Set Register) on 8187B looks to be the same as
+ 	 * RESP_RATE on 8187L in Realtek sources: each bit should be each
+ 	 * one of the 12 rates, all are enabled */
+-- 
+1.7.3.2
+

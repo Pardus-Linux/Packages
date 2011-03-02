@@ -1,0 +1,55 @@
+From d626312f34bfec8833d8a67e709e25430d9aac5a Mon Sep 17 00:00:00 2001
+From: Herton Ronaldo Krzesinski <herton@mandriva.com.br>
+Date: Mon, 1 Nov 2010 22:59:33 -0200
+Subject: [PATCH 07/13] rtl8187: fix wrong register initialization in 8187B
+
+We were using wrong address for BRSR (Basic Rate Set Register) while
+initializing its value, comparing with Realtek sources, for 8187B case.
+
+Also, the same register is initialized in rtl8187b_reg_table, so remove
+the duplicate initialization from the table.
+
+Signed-off-by: Herton Ronaldo Krzesinski <herton@mandriva.com.br>
+Acked-by: Larry Finger <Larry.Finger@lwfinger.net>
+Signed-off-by: John W. Linville <linville@tuxdriver.com>
+---
+ drivers/net/wireless/rtl818x/rtl8187_dev.c |   16 ++++++++++------
+ 1 files changed, 10 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/net/wireless/rtl818x/rtl8187_dev.c b/drivers/net/wireless/rtl818x/rtl8187_dev.c
+index 30c2120..b9ce2a8 100644
+--- a/drivers/net/wireless/rtl818x/rtl8187_dev.c
++++ b/drivers/net/wireless/rtl818x/rtl8187_dev.c
+@@ -725,11 +725,11 @@ static const u8 rtl8187b_reg_table[][3] = {
+ 	{0x62, 0x08, 2}, {0x63, 0x08, 2}, {0x64, 0xCF, 2}, {0x72, 0x56, 2},
+ 	{0x73, 0x9A, 2},
+ 
+-	{0x34, 0xF0, 0}, {0x35, 0x0F, 0}, {0x5B, 0x40, 0}, {0x84, 0x88, 0},
+-	{0x85, 0x24, 0}, {0x88, 0x54, 0}, {0x8B, 0xB8, 0}, {0x8C, 0x07, 0},
+-	{0x8D, 0x00, 0}, {0x94, 0x1B, 0}, {0x95, 0x12, 0}, {0x96, 0x00, 0},
+-	{0x97, 0x06, 0}, {0x9D, 0x1A, 0}, {0x9F, 0x10, 0}, {0xB4, 0x22, 0},
+-	{0xBE, 0x80, 0}, {0xDB, 0x00, 0}, {0xEE, 0x00, 0}, {0x4C, 0x00, 2},
++	{0x5B, 0x40, 0}, {0x84, 0x88, 0}, {0x85, 0x24, 0}, {0x88, 0x54, 0},
++	{0x8B, 0xB8, 0}, {0x8C, 0x07, 0}, {0x8D, 0x00, 0}, {0x94, 0x1B, 0},
++	{0x95, 0x12, 0}, {0x96, 0x00, 0}, {0x97, 0x06, 0}, {0x9D, 0x1A, 0},
++	{0x9F, 0x10, 0}, {0xB4, 0x22, 0}, {0xBE, 0x80, 0}, {0xDB, 0x00, 0},
++	{0xEE, 0x00, 0}, {0x4C, 0x00, 2},
+ 
+ 	{0x9F, 0x00, 3}, {0x8C, 0x01, 0}, {0x8D, 0x10, 0}, {0x8E, 0x08, 0},
+ 	{0x8F, 0x00, 0}
+@@ -770,7 +770,11 @@ static int rtl8187b_init_hw(struct ieee80211_hw *dev)
+ 	if (res)
+ 		return res;
+ 
+-	rtl818x_iowrite16(priv, (__le16 *)0xFF2D, 0x0FFF);
++	/* BRSR (Basic Rate Set Register) on 8187B looks to be the same as
++	 * RESP_RATE on 8187L in Realtek sources: each bit should be each
++	 * one of the 12 rates, all are enabled */
++	rtl818x_iowrite16(priv, (__le16 *)0xFF34, 0x0FFF);
++
+ 	reg = rtl818x_ioread8(priv, &priv->map->CW_CONF);
+ 	reg |= RTL818X_CW_CONF_PERPACKET_RETRY_SHIFT;
+ 	rtl818x_iowrite8(priv, &priv->map->CW_CONF, reg);
+-- 
+1.7.3.2
+

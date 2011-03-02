@@ -1,0 +1,34 @@
+From 101e5f77bf35679809586e250b6c62193d2ed179 Mon Sep 17 00:00:00 2001
+From: Mike Galbraith <efault@gmx.de>
+Date: Fri, 31 Dec 2010 09:32:30 +0100
+Subject: [PATCH] sched, autogroup: Fix reference leak
+
+The cgroup exit mess also uncovered a struct autogroup reference leak.
+copy_process() was simply freeing vs putting the signal_struct,
+stranding a reference.
+
+Signed-off-by: Mike Galbraith <efault@gmx.de>
+Signed-off-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
+Cc: Oleg Nesterov <oleg@redhat.com>
+LKML-Reference: <1293784350.6839.2.camel@marge.simson.net>
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
+---
+ kernel/fork.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/kernel/fork.c b/kernel/fork.c
+index b6f2475..0672444 100644
+--- a/kernel/fork.c
++++ b/kernel/fork.c
+@@ -1317,7 +1317,7 @@ bad_fork_cleanup_mm:
+ 	}
+ bad_fork_cleanup_signal:
+ 	if (!(clone_flags & CLONE_THREAD))
+-		free_signal_struct(p->signal);
++		put_signal_struct(p->signal);
+ bad_fork_cleanup_sighand:
+ 	__cleanup_sighand(p->sighand);
+ bad_fork_cleanup_fs:
+-- 
+1.7.3.4
+

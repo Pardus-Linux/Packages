@@ -1,0 +1,37 @@
+Queue_lock NULL pointer derefence in blk_throtl_exit 
+Performing
+$ sudo mount -o loop -o umask=0 /dev/sdb1 /mnt/
+mount: wrong fs type, bad option, bad superblock on /dev/loop0,
+missing codepage or helper program, or other error
+In some cases useful info is found in syslog - try
+dmesg | tail  or so
+
+$ sudo modprobe -r loop
+results in oops:       
+
+because of an attempt to acquire NULL queue_lock.   
+Added the same lines as in blk_queue_make_request -       
+`fall back to embedded per-queue lock' - when call blk_release_queue on
+allocated but not initialized queue.
+
+v2: According to comment by Vivek Goyal, queue_lock NULL check and fix moved
+out from loop driver code to blk_release_queue, which is more general
+approach.       
+
+Index: linux-2.6.37/block/blk-sysfs.c
+===================================================================
+--- linux-2.6.37.orig/block/blk-sysfs.c
++++ linux-2.6.37/block/blk-sysfs.c
+@@ -471,6 +471,12 @@ static void blk_release_queue(struct kob
+ 
+ 	blk_sync_queue(q);
+ 
++	/* It's possible that blk_release_queue will be called on allocated
++	 * but never initilalized queue. Fall back to our embedded per-queue 
++	 * locks in this case. */
++	if (!q->queue_lock)
++		q->queue_lock = &q->__queue_lock;
++
+ 	blk_throtl_exit(q);
+ 
+ 	if (rl->rq_pool)

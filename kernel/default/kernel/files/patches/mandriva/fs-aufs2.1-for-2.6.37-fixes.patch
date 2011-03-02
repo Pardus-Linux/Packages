@@ -1,0 +1,90 @@
+
+Adapt for unionfs changes and remove duplicate symbol exports.
+Also fix Makefile
+
+Signed-off-by: Thomas Backund <tmb@mageia.org>
+
+ fs/aufs/Makefile       |    2 +-
+ fs/aufs/vfsub.c        |    4 ++--
+ fs/splice.c            |    3 ---
+ include/linux/splice.h |    4 ++--
+ security/security.c    |    1 -
+ 5 files changed, 5 insertions(+), 9 deletions(-)
+
+diff -Nurp linux-2.6.37-mnb3-aufs2/fs/aufs/Makefile linux-2.6.37-mnb3-aufs2.fix/fs/aufs/Makefile
+--- linux-2.6.37-mnb3-aufs2/fs/aufs/Makefile	2011-02-13 14:36:34.051675764 +0200
++++ linux-2.6.37-mnb3-aufs2.fix/fs/aufs/Makefile	2011-02-13 16:20:30.000000000 +0200
+@@ -1,5 +1,5 @@
+ 
+-include ${srctree}/${src}/magic.mk
++include ${srctree}/fs/aufs/magic.mk
+ 
+ # cf. include/linux/kernel.h
+ # enable pr_debug
+diff -Nurp linux-2.6.37-mnb3-aufs2/fs/aufs/vfsub.c linux-2.6.37-mnb3-aufs2.fix/fs/aufs/vfsub.c
+--- linux-2.6.37-mnb3-aufs2/fs/aufs/vfsub.c	2011-02-13 14:36:34.061674507 +0200
++++ linux-2.6.37-mnb3-aufs2.fix/fs/aufs/vfsub.c	2011-02-13 16:17:41.777766642 +0200
+@@ -534,7 +534,7 @@ long vfsub_splice_to(struct file *in, lo
+ {
+ 	long err;
+ 
+-	err = do_splice_to(in, ppos, pipe, len, flags);
++	err = vfs_splice_to(in, ppos, pipe, len, flags);
+ 	file_accessed(in);
+ 	if (err >= 0)
+ 		vfsub_update_h_iattr(&in->f_path, /*did*/NULL); /*ignore*/
+@@ -546,7 +546,7 @@ long vfsub_splice_from(struct pipe_inode
+ {
+ 	long err;
+ 
+-	err = do_splice_from(pipe, out, ppos, len, flags);
++	err = vfs_splice_from(pipe, out, ppos, len, flags);
+ 	if (err >= 0)
+ 		vfsub_update_h_iattr(&out->f_path, /*did*/NULL); /*ignore*/
+ 	return err;
+diff -Nurp linux-2.6.37-mnb3-aufs2/fs/splice.c linux-2.6.37-mnb3-aufs2.fix/fs/splice.c
+--- linux-2.6.37-mnb3-aufs2/fs/splice.c	2011-02-13 14:36:47.598973156 +0200
++++ linux-2.6.37-mnb3-aufs2.fix/fs/splice.c	2011-02-13 16:17:41.807763190 +0200
+@@ -1086,8 +1086,6 @@ ssize_t generic_splice_sendpage(struct p
+ {
+ 	return splice_from_pipe(pipe, out, ppos, len, flags, pipe_to_sendpage);
+ }
+-EXPORT_SYMBOL(do_splice_from);
+-
+ EXPORT_SYMBOL(generic_splice_sendpage);
+ 
+ /*
+@@ -1276,7 +1274,6 @@ static int direct_splice_actor(struct pi
+ 	return vfs_splice_from(pipe, file, &file->f_pos, sd->total_len,
+ 			       sd->flags);
+ }
+-EXPORT_SYMBOL(do_splice_to);
+ 
+ /**
+  * do_splice_direct - splices data directly between two files
+diff -Nurp linux-2.6.37-mnb3-aufs2/include/linux/splice.h linux-2.6.37-mnb3-aufs2.fix/include/linux/splice.h
+--- linux-2.6.37-mnb3-aufs2/include/linux/splice.h	2011-02-13 14:36:34.068673626 +0200
++++ linux-2.6.37-mnb3-aufs2.fix/include/linux/splice.h	2011-02-13 16:17:41.807763190 +0200
+@@ -94,9 +94,9 @@ extern int splice_grow_spd(struct pipe_i
+ extern void splice_shrink_spd(struct pipe_inode_info *,
+ 				struct splice_pipe_desc *);
+ 
+-extern long do_splice_from(struct pipe_inode_info *pipe, struct file *out,
++extern long vfs_splice_from(struct pipe_inode_info *pipe, struct file *out,
+ 			   loff_t *ppos, size_t len, unsigned int flags);
+-extern long do_splice_to(struct file *in, loff_t *ppos,
++extern long vfs_splice_to(struct file *in, loff_t *ppos,
+ 			 struct pipe_inode_info *pipe, size_t len,
+ 			 unsigned int flags);
+ 
+diff -Nurp linux-2.6.37-mnb3-aufs2/security/security.c linux-2.6.37-mnb3-aufs2.fix/security/security.c
+--- linux-2.6.37-mnb3-aufs2/security/security.c	2011-02-13 14:36:47.599972992 +0200
++++ linux-2.6.37-mnb3-aufs2.fix/security/security.c	2011-02-13 16:17:41.808763066 +0200
+@@ -515,7 +515,6 @@ int security_inode_follow_link(struct de
+ 		return 0;
+ 	return security_ops->inode_follow_link(dentry, nd);
+ }
+-EXPORT_SYMBOL(security_inode_permission);
+ 
+ int security_inode_permission(struct inode *inode, int mask)
+ {

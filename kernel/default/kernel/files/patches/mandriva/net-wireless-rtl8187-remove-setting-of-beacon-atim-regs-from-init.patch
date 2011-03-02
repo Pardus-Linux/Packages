@@ -1,0 +1,32 @@
+From f1e1c089aa2f6ad683c34bd3f7d22781937be0bd Mon Sep 17 00:00:00 2001
+From: Herton Ronaldo Krzesinski <herton@mandriva.com.br>
+Date: Mon, 1 Nov 2010 22:59:32 -0200
+Subject: [PATCH 06/13] rtl8187: remove setting of beacon/atim registers from initialization
+
+On 8187B path, we set a initial value for beacon interval and atim
+window on initialization. But this isn't needed, since same setup is
+done on rtl8187_config.
+
+Signed-off-by: Herton Ronaldo Krzesinski <herton@mandriva.com.br>
+Acked-by: Larry Finger <Larry.Finger@lwfinger.net>
+Signed-off-by: John W. Linville <linville@tuxdriver.com>
+---
+ drivers/net/wireless/rtl818x/rtl8187_dev.c |    2 --
+ 1 files changed, 0 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/net/wireless/rtl818x/rtl8187_dev.c b/drivers/net/wireless/rtl818x/rtl8187_dev.c
+index 3dbf305..30c2120 100644
+--- a/drivers/net/wireless/rtl818x/rtl8187_dev.c
++++ b/drivers/net/wireless/rtl818x/rtl8187_dev.c
+@@ -779,8 +779,6 @@ static int rtl8187b_init_hw(struct ieee80211_hw *dev)
+ 	rtl818x_iowrite16_idx(priv, (__le16 *)0xFFE0, 0x0FFF, 1);
+ 	rtl818x_iowrite8_idx(priv, (u8 *)0xFFE2, 0x00, 1);
+ 
+-	rtl818x_iowrite16(priv, &priv->map->BEACON_INTERVAL, 100);
+-	rtl818x_iowrite16(priv, &priv->map->ATIM_WND, 2);
+ 	rtl818x_iowrite16_idx(priv, (__le16 *)0xFFD4, 0xFFFF, 1);
+ 
+ 	rtl818x_iowrite8(priv, &priv->map->EEPROM_CMD,
+-- 
+1.7.3.2
+

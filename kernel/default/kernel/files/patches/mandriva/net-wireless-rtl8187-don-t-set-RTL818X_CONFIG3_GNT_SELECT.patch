@@ -1,0 +1,34 @@
+From cca5c9c1140fb5c4563e5578be10a8e5c38a5dad Mon Sep 17 00:00:00 2001
+From: Herton Ronaldo Krzesinski <herton@mandriva.com.br>
+Date: Mon, 1 Nov 2010 22:59:36 -0200
+Subject: [PATCH 10/13] rtl8187: don't set RTL818X_CONFIG3_GNT_SELECT flag on 8187B
+
+The GNTSel bit should only concern pci devices by looking at RTL8180
+spec, which is not the case of 8187B. Also testing shows that trying to
+set this bit fails, a subsequent read from the register after trying to
+set it shows that the bit isn't set, seems the hardware ignores it,
+which makes sense. This setting was a left over from Realtek sources.
+
+Signed-off-by: Herton Ronaldo Krzesinski <herton@mandriva.com.br>
+Acked-by: Larry Finger <Larry.Finger@lwfinger.net>
+Signed-off-by: John W. Linville <linville@tuxdriver.com>
+---
+ drivers/net/wireless/rtl818x/rtl8187_dev.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/drivers/net/wireless/rtl818x/rtl8187_dev.c b/drivers/net/wireless/rtl818x/rtl8187_dev.c
+index 2b4ee26..d7ea5d1 100644
+--- a/drivers/net/wireless/rtl818x/rtl8187_dev.c
++++ b/drivers/net/wireless/rtl818x/rtl8187_dev.c
+@@ -743,7 +743,7 @@ static int rtl8187b_init_hw(struct ieee80211_hw *dev)
+ 	rtl818x_iowrite8(priv, &priv->map->EEPROM_CMD,
+ 			 RTL818X_EEPROM_CMD_CONFIG);
+ 	reg = rtl818x_ioread8(priv, &priv->map->CONFIG3);
+-	reg |= RTL818X_CONFIG3_ANAPARAM_WRITE | RTL818X_CONFIG3_GNT_SELECT;
++	reg |= RTL818X_CONFIG3_ANAPARAM_WRITE;
+ 	rtl818x_iowrite8(priv, &priv->map->CONFIG3, reg);
+ 	rtl818x_iowrite32(priv, &priv->map->ANAPARAM2,
+ 			  RTL8187B_RTL8225_ANAPARAM2_ON);
+-- 
+1.7.3.2
+

@@ -1,0 +1,27 @@
+commit 0ca0873555c0abe17b28c25b19f82857c0ddd2bc
+Author: Yong Zhang <yong.zhang0@gmail.com>
+Date:   Fri Jan 7 12:43:45 2011 +0800
+
+    sched: Mark autogroup_init() __init
+    
+    autogroup_init() is only called at boot time.
+    
+    Signed-off-by: Yong Zhang <yong.zhang0@gmail.com>
+    Cc: Mike Galbraith <efault@gmx.de>
+    Signed-off-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
+    LKML-Reference: <1294375425-31065-1-git-send-email-yong.zhang0@gmail.com>
+    Signed-off-by: Ingo Molnar <mingo@elte.hu>
+
+diff --git a/kernel/sched_autogroup.c b/kernel/sched_autogroup.c
+index e011e53..32a723b 100644
+--- a/kernel/sched_autogroup.c
++++ b/kernel/sched_autogroup.c
+@@ -9,7 +9,7 @@ unsigned int __read_mostly sysctl_sched_
+ static struct autogroup autogroup_default;
+ static atomic_t autogroup_seq_nr;
+ 
+-static void autogroup_init(struct task_struct *init_task)
++static void __init autogroup_init(struct task_struct *init_task)
+ {
+ 	autogroup_default.tg = &init_task_group;
+ 	init_task_group.autogroup = &autogroup_default;
