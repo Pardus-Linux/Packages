@@ -21,7 +21,4 @@ def build():
 def install():
     autotools.rawInstall("DESTDIR=%s" % get.installDIR())
 
-    # Remove empty gnome-bluetooth directory
-    pisitools.removeDir("/usr/lib")
-
     pisitools.dodoc("README", "COPYING")
