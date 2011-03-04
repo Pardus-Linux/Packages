@@ -61,7 +61,7 @@ def setup():
                         -Dtarget_arch=%s" % ARCH)
 
 def build():
-    autotools.make("chrome chrome_sandbox BUILDTYPE=Release")
+    autotools.make("chrome chrome_sandbox BUILDTYPE=Release V=1")
 
 def install():
     shelltools.cd("out/Release")
