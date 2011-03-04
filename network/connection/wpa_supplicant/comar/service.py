@@ -2,6 +2,7 @@
 from comar.service import *
 
 serviceType = "local"
+serviceDefault = "off" #NM starts wpa_supp automatically. Use at your own risk if you start manually
 serviceDesc = _({"en": "WPA Daemon",
                  "tr": "WPA Hizmeti"})
 

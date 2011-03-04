@@ -17,6 +17,9 @@
         <AdditionalFiles>
             <AdditionalFile target="wpa_supplicant/.config">wpa_supplicant.config</AdditionalFile>
         </AdditionalFiles>
+        <BuildDependencies>
+            <Dependency>libnl</Dependency>
+        </BuildDependencies>
         <Patches>
             <Patch level="1">ubuntu/01_use_pkg-config_for_pcsc-lite_module.patch</Patch>
 
@@ -41,6 +44,9 @@
 
     <Package>
         <Name>wpa_supplicant</Name>
+        <RuntimeDependencies>
+            <Dependency>libnl</Dependency>
+        </RuntimeDependencies>
         <Files>
             <Path fileType="config">/etc</Path>
             <Path fileType="data">/etc/dbus-1</Path>
@@ -61,12 +67,24 @@
             <AdditionalFile owner="root" permission="0644" target="/etc/logrotate.d/wpa_supplicant">wpa_supplicant.logrotate</AdditionalFile>
             <AdditionalFile owner="root" permission="0644" target="/usr/lib/python2.7/site-packages/wpa_supplicant.py">wpa_supplicant.py</AdditionalFile>
         </AdditionalFiles>
+        <!-- This service is not started by default since NM starts it automatically. Keep service for those not using NM and start wpa-supp service manually -->
         <Provides>
             <COMAR script="service.py">System.Service</COMAR>
         </Provides>
     </Package>
 
     <History>
+        <Update release="39">
+            <Date>2011-03-04</Date>
+            <Version>0.7.3</Version>
+            <Comment>
+                * Switch COMAR service to off by default, NM handles starting/stopping wpa_supplicant.
+                * Enable more options in build config file like new DBus interface, libnl driver, some EAP_* options, and WPS.
+                * Remove /etc/wpa_supplicant/wpa_supplicant.conf from Fedora patch, we do not use a default config file.
+            </Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
         <Update release="38">
             <Date>2011-02-14</Date>
             <Version>0.7.3</Version>
