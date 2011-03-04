@@ -9,17 +9,18 @@ from pisi.actionsapi import pisitools
 from pisi.actionsapi import autotools
 from pisi.actionsapi import shelltools
 from pisi.actionsapi import get
+from pisi.actionsapi import qt4
 
 WorkDir = "%s-%s-src" % (get.srcNAME(), get.srcVERSION().replace('_','-'))
 
 def setup():
-    shelltools.system("qmake")
+    qt4.configure()
 
 def build():
-    autotools.make()
+    qt4.make()
 
 def install():
     shelltools.export("HOME", get.curDIR())
-    autotools.rawInstall("INSTALL_ROOT=%s/usr" % get.installDIR())
+    autotools.install("INSTALL_ROOT=%s/usr" % get.installDIR())
     pisitools.dobin("bin/qtcreator")
 
