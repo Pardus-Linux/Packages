@@ -8,7 +8,7 @@ from pisi.actionsapi import autotools
 from pisi.actionsapi import pisitools
 from pisi.actionsapi import get
 
-WorkDir = "%s-%s" % (get.srcNAME(), get.srcVERSION().replace(".", "-", 2).replace("-",".",1))
+WorkDir = "%s-4.2-0.6" % get.srcNAME()
 
 def setup():
     autotools.configure()
@@ -19,5 +19,4 @@ def build():
 def install():
     autotools.rawInstall("DESTDIR=%s" % get.installDIR())
 
-    pisitools.remove("/usr/share/emacs/site-lisp/bashdb.elc")
     pisitools.dodoc("AUTHORS", "ChangeLog*", "COPYING", "NEWS", "README", "THANKS", "TODO")
