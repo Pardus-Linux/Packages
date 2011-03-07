@@ -65,6 +65,8 @@ def install():
     autotools.rawInstall("DESTDIR=%s" % get.installDIR())
 
     if get.buildTYPE() == "emul32":
+        pisitools.domove("/emul32/lib32/libuuid.so", "/usr/lib32")
+        pisitools.domove("/emul32/lib32/pkgconfig/uuid.pc", "/usr/lib32/pkgconfig")
         pisitools.removeDir("/emul32")
 
     pisitools.dodoc("AUTHORS", "COPYING", "DEPRECATED", "README*", "TODO", "docs/*")
