@@ -12,9 +12,9 @@ from pisi.actionsapi import get
 WorkDir = "libffado-2.1.0"
 
 def build():
-    pisitools.dosed("SConstruct", "usr/local", "usr")
-
-    scons.make("BUILD_TESTS=0")
+    scons.make('PREFIX=/usr \
+                COMPILE_FLAGS="%s %s" \
+                BUILD_TESTS=0' % (get.CXXFLAGS(), get.LDFLAGS()))
 
 def install():
     scons.install("install WILL_DEAL_WITH_XDG_MYSELF=1 DESTDIR=%s" % get.installDIR())
