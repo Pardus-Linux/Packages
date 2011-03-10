@@ -1,0 +1,18 @@
+Index: src/file_autosave.c
+===================================================================
+--- src/file_autosave.c	(revision 6439)
++++ src/file_autosave.c	(working copy)
+@@ -178,9 +178,10 @@
+ 	
+ 	/* cancel running autosave */
+ 	if (doc->autosave_progress) {
+-		file_checkNsave_cancel(doc->autosave_action);
+-		main_v->autosave_progress = g_list_delete_link(main_v->autosave_progress, doc->autosave_progress);
+-		doc->autosave_progress = NULL;
++	    if (doc->autosave_action)
++	    	file_checkNsave_cancel(doc->autosave_action);
++	    main_v->autosave_progress = g_list_delete_link(main_v->autosave_progress, doc->autosave_progress);
++	    doc->autosave_progress = NULL;
+ 	}
+ 	
+ 	if (doc->autosave_uri) {
