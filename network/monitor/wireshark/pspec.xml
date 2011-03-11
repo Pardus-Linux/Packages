@@ -13,7 +13,7 @@
         <IsA>app:gui</IsA>
         <Summary>A commercial-quality network traffic analyzer</Summary>
         <Description>Wireshark is a commercial-quality network traffic analyzer useful to investigate packets on the network.</Description>
-        <Archive sha1sum="776c757e6a6a085232ac843ec28b026bf4ca9c8d" type="tarbz2">http://media-2.cacetech.com/wireshark/src/wireshark-1.4.3.tar.bz2</Archive>
+        <Archive sha1sum="4d1d7e7bf07683723b661eb7b7124b2e90106087" type="tarbz2">http://media-2.cacetech.com/wireshark/src/wireshark-1.4.4.tar.bz2</Archive>
         <BuildDependencies>
             <Dependency>gnutls-devel</Dependency>
             <Dependency>c-ares-devel</Dependency>
@@ -34,8 +34,6 @@
             <Patch level="1">wireshark-libtool-pie.patch</Patch>
             <Patch level="1">wireshark-1.4.0-doc-path.patch</Patch>
             <Patch level="1">wireshark-1.4.2-group-msg.patch</Patch>
-            <Patch level="0">CVE-2011-0538.patch</Patch>
-            <Patch level="0">CVE-2011-0713.patch</Patch>
         </Patches>
     </Source>
 
@@ -76,6 +74,20 @@
         </Provides>
     </Package>
     <History>
+        <Update release="43" type="security">
+            <Date>2011-03-11</Date>
+            <Version>1.4.4</Version>
+            <Comment>
+                Version bump to fix multiple security vulnerabilities:
+                * Off-by-one error in the dissect_6lowpan_iphc function causes application crash, CVE-2011-1138 (#17274)
+                * Denial Of Service (application crash) via a pcap-ng file that contains a large packet-length field, CVE-2011-1139 (#17278)
+                * Malformed LDAP filter string causes Denial of Service via excessive memory consumption, CVE-2011-1141 (#17282)
+                * Stack consumption vulnerability in BER dissector can cause DoS, CVE-2011-1142 (#17286)
+                * Multiple stack consumption vulnerabilities caused DoS via crafted SMB or CLDAP packet, CVE-2011-1140 (#17290)
+            </Comment>
+            <Name>H. İbrahim Güngör</Name>
+            <Email>ibrahim@pardus.org.tr</Email>
+        </Update>
         <Update release="42" type="security">
             <Date>2011-02-17</Date>
             <Version>1.4.3</Version>
