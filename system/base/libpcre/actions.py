@@ -13,7 +13,7 @@ from pisi.actionsapi import shelltools
 def setup():
     options = "--enable-utf8 \
                --enable-unicode-properties \
-               --disable-cpp \
+               --enable-cpp \
                --docdir=/%s/%s \
                --disable-static" % (get.docDIR(), get.srcNAME())
 
