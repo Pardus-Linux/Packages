@@ -28,7 +28,8 @@ def build():
 def install():
     autotools.rawInstall("DESTDIR=%s" % get.installDIR())
     # installing schemas by hand since make install causes sandboxviolations
-    pisitools.insinto("/etc/gconf/schemas/", "gecko-mediaplayer.schemas")
+    # enable only if you are using gconf
+    # pisitools.insinto("/etc/gconf/schemas/", "gecko-mediaplayer.schemas")
 
     pisitools.remove("/%s/%s/INSTALL" % (get.docDIR(), get.srcNAME()))
 
