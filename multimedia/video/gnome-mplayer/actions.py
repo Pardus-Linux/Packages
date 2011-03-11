@@ -31,6 +31,7 @@ def build():
 def install():
     autotools.rawInstall("DESTDIR=%s" % get.installDIR())
     # installing manually since make install causes sandbox violation
-    pisitools.insinto("/etc/gconf/schemas/", "gnome-mplayer.schemas")
+    # enable it only if you are using gconf
+    # pisitools.insinto("/etc/gconf/schemas/", "gnome-mplayer.schemas")
 
     pisitools.remove("/%s/%s/INSTALL" % (get.docDIR(), get.srcNAME()))
