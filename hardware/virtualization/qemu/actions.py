@@ -78,10 +78,10 @@ def setup():
 
 
     printfancy("configuring kvmtest")
-    shelltools.cd(builddirkvmtest)
-    autotools.rawConfigure("--prefix=/usr \
-                            --kerneldir=../../kernel")
-    shelltools.cd("../..")
+    #shelltools.cd(builddirkvmtest)
+    #autotools.rawConfigure("--prefix=/usr \
+    #                        --kerneldir=../../kernel")
+    #shelltools.cd("../..")
 
 
     printfancy("configuring qemu")
@@ -103,15 +103,15 @@ def build():
     autotools.make("V=1 -j1 config-host.h %s" % buildldflags)
     autotools.make("V=1 %s" % buildldflags)
 
-    printfancy("building kvmtest")
-    autotools.make("-C %s V=1 kvmtrace" % builddirkvmtest)
+    #printfancy("building kvmtest")
+    #autotools.make("-C %s V=1 kvmtrace" % builddirkvmtest)
 
 def install():
     autotools.rawInstall('DESTDIR="%s"' % get.installDIR())
 
     # Install kvm-tools
-    pisitools.dobin("kvm/test/kvmtrace")
-    pisitools.dobin("kvm/test/kvmtrace_format")
+    #pisitools.dobin("kvm/test/kvmtrace")
+    #pisitools.dobin("kvm/test/kvmtrace_format")
     pisitools.dobin("kvm/kvm_stat")
     pisitools.dobin("qemu-kvm")
 
