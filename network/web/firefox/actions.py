@@ -22,8 +22,6 @@ def setup():
     shelltools.system("/bin/bash ../../autoconf-213/autoconf-2.13 --macro-dir=../../autoconf-213/m4")
     shelltools.cd("../..")
 
-    shelltools.makedirs("../l10n")
-
     shelltools.makedirs("objdir")
     shelltools.cd("objdir")
 

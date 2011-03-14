@@ -1,18 +1,27 @@
 From: various contributors
 Subject: lockdown hooks for Gecko
 
-Index: mozilla/extensions/cookie/nsCookiePermission.cpp
-===================================================================
---- mozilla.orig/extensions/cookie/nsCookiePermission.cpp
-+++ mozilla/extensions/cookie/nsCookiePermission.cpp
-@@ -1,5 +1,5 @@
+diff --git a/extensions/cookie/nsCookiePermission.cpp b/extensions/cookie/nsCookiePermission.cpp
+--- a/extensions/cookie/nsCookiePermission.cpp
++++ b/extensions/cookie/nsCookiePermission.cpp
+@@ -1,10 +1,10 @@
  /* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 -/* vim:ts=2:sw=2:et: */
 +/* vim: set ts=2 sw=2 et: */
  /* ***** BEGIN LICENSE BLOCK *****
   * Version: MPL 1.1/GPL 2.0/LGPL 2.1
   *
-@@ -86,6 +86,7 @@ static const char kCookiesPrefsMigrated[
+  * The contents of this file are subject to the Mozilla Public License Version
+  * 1.1 (the "License"); you may not use this file except in compliance with
+  * the License. You may obtain a copy of the License at
+  * http://www.mozilla.org/MPL/
+  *
+@@ -81,16 +81,17 @@ static const PRBool kDefaultPolicy = PR_
+ static const char kCookiesLifetimePolicy[] = "network.cookie.lifetimePolicy";
+ static const char kCookiesLifetimeDays[] = "network.cookie.lifetime.days";
+ static const char kCookiesAlwaysAcceptSession[] = "network.cookie.alwaysAcceptSessionCookies";
+ 
+ static const char kCookiesPrefsMigrated[] = "network.cookie.prefsMigrated";
  // obsolete pref names for migration
  static const char kCookiesLifetimeEnabled[] = "network.cookie.lifetime.enabled";
  static const char kCookiesLifetimeBehavior[] = "network.cookie.lifetime.behavior";
@@ -20,7 +29,17 @@ Index: mozilla/extensions/cookie/nsCookiePermission.cpp
  static const char kCookiesAskPermission[] = "network.cookie.warnAboutCookies";
  
  static const char kPermissionType[] = "cookie";
-@@ -125,6 +126,7 @@ nsCookiePermission::Init()
+ 
+ #ifdef MOZ_MAIL_NEWS
+ // returns PR_TRUE if URI appears to be the URI of a mailnews protocol
+ // XXXbz this should be a protocol flag, not a scheme list, dammit!
+ static PRBool
+@@ -120,16 +121,17 @@ nsCookiePermission::Init()
+ 
+   // failure to access the pref service is non-fatal...
+   nsCOMPtr<nsIPrefBranch2> prefBranch =
+       do_GetService(NS_PREFSERVICE_CONTRACTID);
+   if (prefBranch) {
      prefBranch->AddObserver(kCookiesLifetimePolicy, this, PR_FALSE);
      prefBranch->AddObserver(kCookiesLifetimeDays, this, PR_FALSE);
      prefBranch->AddObserver(kCookiesAlwaysAcceptSession, this, PR_FALSE);
@@ -28,7 +47,17 @@ Index: mozilla/extensions/cookie/nsCookiePermission.cpp
      PrefChanged(prefBranch, nsnull);
  
      // migration code for original cookie prefs
-@@ -178,6 +180,10 @@ nsCookiePermission::PrefChanged(nsIPrefB
+     PRBool migrated;
+     rv = prefBranch->GetBoolPref(kCookiesPrefsMigrated, &migrated);
+     if (NS_FAILED(rv) || !migrated) {
+       PRBool warnAboutCookies = PR_FALSE;
+       prefBranch->GetBoolPref(kCookiesAskPermission, &warnAboutCookies);
+@@ -173,16 +175,20 @@ nsCookiePermission::PrefChanged(nsIPrefB
+   if (PREF_CHANGED(kCookiesLifetimeDays) &&
+       NS_SUCCEEDED(aPrefBranch->GetIntPref(kCookiesLifetimeDays, &val)))
+     // save cookie lifetime in seconds instead of days
+     mCookiesLifetimeSec = val * 24 * 60 * 60;
+ 
    if (PREF_CHANGED(kCookiesAlwaysAcceptSession) &&
        NS_SUCCEEDED(aPrefBranch->GetBoolPref(kCookiesAlwaysAcceptSession, &val)))
      mCookiesAlwaysAcceptSession = val;
@@ -39,7 +68,17 @@ Index: mozilla/extensions/cookie/nsCookiePermission.cpp
  }
  
  NS_IMETHODIMP
-@@ -207,6 +213,11 @@ nsCookiePermission::CanAccess(nsIURI    
+ nsCookiePermission::SetAccess(nsIURI         *aURI,
+                               nsCookieAccess  aAccess)
+ {
+   //
+   // NOTE: nsCookieAccess values conveniently match up with
+@@ -202,16 +208,21 @@ nsCookiePermission::CanAccess(nsIURI    
+   // it.
+   if (IsFromMailNews(aURI)) {
+     *aResult = ACCESS_DENY;
+     return NS_OK;
+   }
  #endif // MOZ_MAIL_NEWS
    
    // finally, check with permission manager...
@@ -51,11 +90,20 @@ Index: mozilla/extensions/cookie/nsCookiePermission.cpp
    nsresult rv = mPermMgr->TestPermission(aURI, kPermissionType, (PRUint32 *) aResult);
    if (NS_SUCCEEDED(rv)) {
      switch (*aResult) {
-Index: mozilla/extensions/cookie/nsCookiePermission.h
-===================================================================
---- mozilla.orig/extensions/cookie/nsCookiePermission.h
-+++ mozilla/extensions/cookie/nsCookiePermission.h
-@@ -59,6 +59,7 @@ public:
+     // if we have one of the publicly-available values, just return it
+     case nsIPermissionManager::UNKNOWN_ACTION: // ACCESS_DEFAULT
+     case nsIPermissionManager::ALLOW_ACTION:   // ACCESS_ALLOW
+     case nsIPermissionManager::DENY_ACTION:    // ACCESS_DENY
+       break;
+diff --git a/extensions/cookie/nsCookiePermission.h b/extensions/cookie/nsCookiePermission.h
+--- a/extensions/cookie/nsCookiePermission.h
++++ b/extensions/cookie/nsCookiePermission.h
+@@ -54,30 +54,32 @@ public:
+   NS_DECL_ISUPPORTS
+   NS_DECL_NSICOOKIEPERMISSION
+   NS_DECL_NSIOBSERVER
+ 
+   nsCookiePermission() 
      : mCookiesLifetimeSec(LL_MAXINT)
      , mCookiesLifetimePolicy(0) // ACCEPT_NORMALLY
      , mCookiesAlwaysAcceptSession(PR_FALSE)
@@ -63,7 +111,15 @@ Index: mozilla/extensions/cookie/nsCookiePermission.h
      {}
    virtual ~nsCookiePermission() {}
  
-@@ -74,6 +75,7 @@ private:
+   nsresult Init();
+   void     PrefChanged(nsIPrefBranch *, const char *);
+ 
+ private:
+   PRBool InPrivateBrowsing();
+ 
+   nsCOMPtr<nsIPermissionManager> mPermMgr;
+   nsCOMPtr<nsIPrivateBrowsingService> mPBService;
+ 
    PRInt64      mCookiesLifetimeSec;            // lifetime limit specified in seconds
    PRUint8      mCookiesLifetimePolicy;         // pref for how long cookies are stored
    PRPackedBool mCookiesAlwaysAcceptSession;    // don't prompt for session cookies
@@ -71,11 +127,19 @@ Index: mozilla/extensions/cookie/nsCookiePermission.h
  };
  
  // {EF565D0A-AB9A-4A13-9160-0644CDFD859A}
-Index: mozilla/extensions/permissions/nsContentBlocker.cpp
-===================================================================
---- mozilla.orig/extensions/permissions/nsContentBlocker.cpp
-+++ mozilla/extensions/permissions/nsContentBlocker.cpp
-@@ -76,6 +76,7 @@ NS_IMPL_ISUPPORTS3(nsContentBlocker, 
+ #define NS_COOKIEPERMISSION_CID \
+  {0xEF565D0A, 0xAB9A, 0x4A13, {0x91, 0x60, 0x06, 0x44, 0xcd, 0xfd, 0x85, 0x9a }}
+ 
+ #endif
+diff --git a/extensions/permissions/nsContentBlocker.cpp b/extensions/permissions/nsContentBlocker.cpp
+--- a/extensions/permissions/nsContentBlocker.cpp
++++ b/extensions/permissions/nsContentBlocker.cpp
+@@ -71,32 +71,38 @@ static const char *kTypeString[NUMBER_OF
+ NS_IMPL_ISUPPORTS3(nsContentBlocker, 
+                    nsIContentPolicy,
+                    nsIObserver,
+                    nsSupportsWeakReference)
+ 
  nsContentBlocker::nsContentBlocker()
  {
    memset(mBehaviorPref, BEHAVIOR_ACCEPT, NUMBER_OF_TYPES);
@@ -83,7 +147,16 @@ Index: mozilla/extensions/permissions/nsContentBlocker.cpp
  }
  
  nsresult
-@@ -92,6 +93,11 @@ nsContentBlocker::Init()
+ nsContentBlocker::Init()
+ {
+   nsresult rv;
+   mPermissionManager = do_GetService(NS_PERMISSIONMANAGER_CONTRACTID, &rv);
+   NS_ENSURE_SUCCESS(rv, rv);
+ 
+   nsCOMPtr<nsIPrefService> prefService = do_GetService(NS_PREFSERVICE_CONTRACTID, &rv);
+   NS_ENSURE_SUCCESS(rv, rv);
+ 
+   nsCOMPtr<nsIPrefBranch> prefBranch;
    rv = prefService->GetBranch("permissions.default.", getter_AddRefs(prefBranch));
    NS_ENSURE_SUCCESS(rv, rv);
  
@@ -95,7 +168,17 @@ Index: mozilla/extensions/permissions/nsContentBlocker.cpp
    // Migrate old image blocker pref
    nsCOMPtr<nsIPrefBranch> oldPrefBranch;
    oldPrefBranch = do_QueryInterface(prefService);
-@@ -121,8 +127,15 @@ nsContentBlocker::Init()
+   PRInt32 oldPref;
+   rv = oldPrefBranch->GetIntPref("network.image.imageBehavior", &oldPref);
+   if (NS_SUCCEEDED(rv) && oldPref) {
+     PRInt32 newPref;
+     switch (oldPref) {
+@@ -116,39 +122,49 @@ nsContentBlocker::Init()
+ 
+ 
+   // The branch is not a copy of the prefservice, but a new object, because
+   // it is a non-default branch. Adding obeservers to it will only work if
+   // we make sure that the object doesn't die. So, keep a reference to it.
    mPrefBranchInternal = do_QueryInterface(prefBranch, &rv);
    NS_ENSURE_SUCCESS(rv, rv);
  
@@ -112,7 +195,8 @@ Index: mozilla/extensions/permissions/nsContentBlocker.cpp
  
    return rv;
  }
-@@ -131,19 +144,22 @@ nsContentBlocker::Init()
+ 
+ #undef  LIMIT
  #define LIMIT(x, low, high, default) ((x) >= (low) && (x) <= (high) ? (x) : (default))
  
  void
@@ -146,7 +230,17 @@ Index: mozilla/extensions/permissions/nsContentBlocker.cpp
  }
  
  // nsIContentPolicy Implementation
-@@ -269,11 +285,13 @@ nsContentBlocker::TestPermission(nsIURI 
+ NS_IMETHODIMP 
+ nsContentBlocker::ShouldLoad(PRUint32          aContentType,
+                              nsIURI           *aContentLocation,
+                              nsIURI           *aRequestingLocation,
+                              nsISupports      *aRequestingContext,
+@@ -264,21 +280,23 @@ nsContentBlocker::TestPermission(nsIURI 
+   // This default will also get used if there is an unknown value in the
+   // permission list, or if the permission manager returns unknown values.
+   *aPermission = PR_TRUE;
+ 
+   // check the permission list first; if we find an entry, it overrides
    // default prefs.
    // Don't forget the aContentType ranges from 1..8, while the
    // array is indexed 0..7
@@ -165,7 +259,17 @@ Index: mozilla/extensions/permissions/nsContentBlocker.cpp
  
    // If there is nothing on the list, use the default.
    if (!permission) {
-@@ -299,7 +317,7 @@ nsContentBlocker::TestPermission(nsIURI 
+     permission = mBehaviorPref[aContentType - 1];
+     *aFromPrefs = PR_TRUE;
+   }
+ 
+   // Use the fact that the nsIPermissionManager values map to 
+@@ -294,17 +312,17 @@ nsContentBlocker::TestPermission(nsIURI 
+   case BEHAVIOR_NOFOREIGN:
+     // Third party checking
+ 
+     // Need a requesting uri for third party checks to work.
+     if (!aFirstURI)
        return NS_OK;
  
      PRBool trustedSource = PR_FALSE;
@@ -174,7 +278,17 @@ Index: mozilla/extensions/permissions/nsContentBlocker.cpp
      NS_ENSURE_SUCCESS(rv,rv);
      if (!trustedSource) {
        rv = aFirstURI->SchemeIs("resource", &trustedSource);
-@@ -365,7 +383,6 @@ nsContentBlocker::Observe(nsISupports   
+       NS_ENSURE_SUCCESS(rv,rv);
+     }
+     if (trustedSource)
+       return NS_OK;
+ 
+@@ -360,12 +378,11 @@ nsContentBlocker::TestPermission(nsIURI 
+ NS_IMETHODIMP
+ nsContentBlocker::Observe(nsISupports     *aSubject,
+                           const char      *aTopic,
+                           const PRUnichar *aData)
+ {
    NS_ASSERTION(!strcmp(NS_PREFBRANCH_PREFCHANGE_TOPIC_ID, aTopic),
                 "unexpected topic - we only deal with pref changes!");
  
@@ -183,11 +297,15 @@ Index: mozilla/extensions/permissions/nsContentBlocker.cpp
 +  PrefChanged(NS_LossyConvertUTF16toASCII(aData).get());
    return NS_OK;
  }
-Index: mozilla/extensions/permissions/nsContentBlocker.h
-===================================================================
---- mozilla.orig/extensions/permissions/nsContentBlocker.h
-+++ mozilla/extensions/permissions/nsContentBlocker.h
-@@ -66,7 +66,7 @@ public:
+diff --git a/extensions/permissions/nsContentBlocker.h b/extensions/permissions/nsContentBlocker.h
+--- a/extensions/permissions/nsContentBlocker.h
++++ b/extensions/permissions/nsContentBlocker.h
+@@ -61,26 +61,28 @@ public:
+   NS_DECL_NSIOBSERVER
+ 
+   nsContentBlocker();
+   nsresult Init();
+ 
  private:
    ~nsContentBlocker() {}
  
@@ -196,7 +314,8 @@ Index: mozilla/extensions/permissions/nsContentBlocker.h
    nsresult TestPermission(nsIURI *aCurrentURI,
                            nsIURI *aFirstURI,
                            PRInt32 aContentType,
-@@ -75,7 +75,9 @@ private:
+                           PRBool *aPermission,
+                           PRBool *aFromPrefs);
  
    nsCOMPtr<nsIPermissionManager> mPermissionManager;
    nsCOMPtr<nsIPrefBranch2> mPrefBranchInternal;
@@ -206,11 +325,20 @@ Index: mozilla/extensions/permissions/nsContentBlocker.h
  };
  
  #define NS_CONTENTBLOCKER_CID \
-Index: mozilla/modules/libpref/src/init/all.js
-===================================================================
---- mozilla.orig/modules/libpref/src/init/all.js
-+++ mozilla/modules/libpref/src/init/all.js
-@@ -858,6 +858,7 @@ pref("network.automatic-ntlm-auth.truste
+ { 0x4ca6b67b, 0x5cc7, 0x4e71, \
+   { 0xa9, 0x8a, 0x97, 0xaf, 0x1c, 0x13, 0x48, 0x62 } }
+ 
+ #define NS_CONTENTBLOCKER_CONTRACTID "@mozilla.org/permissions/contentblocker;1"
+ 
+diff --git a/modules/libpref/src/init/all.js b/modules/libpref/src/init/all.js
+--- a/modules/libpref/src/init/all.js
++++ b/modules/libpref/src/init/all.js
+@@ -853,16 +853,17 @@ pref("network.automatic-ntlm-auth.truste
+ // response to a NTLM challenge.  By default, this is disabled since servers
+ // should almost never need the LM hash, and the LM hash is what makes NTLM
+ // authentication less secure.  See bug 250691 for further details.
+ // NOTE: automatic-ntlm-auth which leverages the OS-provided NTLM
+ //       implementation will not be affected by this preference.
  pref("network.ntlm.send-lm-response", false);
  
  pref("permissions.default.image",           1); // 1-Accept, 2-Deny, 3-dontAcceptForeign
@@ -218,7 +346,17 @@ Index: mozilla/modules/libpref/src/init/all.js
  
  pref("network.proxy.type",                  5);
  
-@@ -877,6 +878,7 @@ pref("network.proxy.no_proxies_on",     
+ pref("network.proxy.ftp",                   "");
+ pref("network.proxy.ftp_port",              0);
+ pref("network.proxy.gopher",                "");
+ pref("network.proxy.gopher_port",           0);
+ pref("network.proxy.http",                  "");
+@@ -872,16 +873,17 @@ pref("network.proxy.ssl_port",          
+ pref("network.proxy.socks",                 "");
+ pref("network.proxy.socks_port",            0);
+ pref("network.proxy.socks_version",         5);
+ pref("network.proxy.socks_remote_dns",      false);
+ pref("network.proxy.no_proxies_on",         "localhost, 127.0.0.1");
  pref("network.proxy.failover_timeout",      1800); // 30 minutes
  pref("network.online",                      true); //online/offline
  pref("network.cookie.cookieBehavior",       0); // 0-Accept, 1-dontAcceptForeign, 2-dontUse
@@ -226,11 +364,20 @@ Index: mozilla/modules/libpref/src/init/all.js
  pref("network.cookie.lifetimePolicy",       0); // accept normally, 1-askBeforeAccepting, 2-acceptForSession,3-acceptForNDays
  pref("network.cookie.alwaysAcceptSessionCookies", false);
  pref("network.cookie.prefsMigrated",        false);
-Index: mozilla/xpinstall/src/nsXPInstallManager.cpp
-===================================================================
---- mozilla.orig/xpinstall/src/nsXPInstallManager.cpp
-+++ mozilla/xpinstall/src/nsXPInstallManager.cpp
-@@ -305,6 +305,7 @@ nsXPInstallManager::InitManagerInternal(
+ pref("network.cookie.lifetime.days",        90);
+ 
+ // The PAC file to load.  Ignored unless network.proxy.type is 2.
+ pref("network.proxy.autoconfig_url", "");
+ 
+diff --git a/xpinstall/src/nsXPInstallManager.cpp b/xpinstall/src/nsXPInstallManager.cpp
+--- a/xpinstall/src/nsXPInstallManager.cpp
++++ b/xpinstall/src/nsXPInstallManager.cpp
+@@ -300,36 +300,46 @@ nsXPInstallManager::InitManagerInternal(
+             packageList[j++] = item->GetSafeURLString();
+             packageList[j++] = item->mIconURL.get();
+             packageList[j++] = item->mCertName.get();
+         }
+ 
          //-----------------------------------------------------
          // Get permission to install
          //-----------------------------------------------------
@@ -238,7 +385,9 @@ Index: mozilla/xpinstall/src/nsXPInstallManager.cpp
  
  #ifdef ENABLE_SKIN_SIMPLE_INSTALLATION_UI
          if ( mChromeType == CHROME_SKIN )
-@@ -314,17 +315,26 @@ nsXPInstallManager::InitManagerInternal(
+         {
+             // We may want to enable the simple installation UI once
+             // bug 343037 is fixed
  
              // skins get a simpler/friendlier dialog
              // XXX currently not embeddable
@@ -266,3 +415,8 @@ Index: mozilla/xpinstall/src/nsXPInstallManager.cpp
  #ifdef ENABLE_SKIN_SIMPLE_INSTALLATION_UI
          }
  #endif
+ 
+         if (OKtoInstall)
+         {
+             //-----------------------------------------------------
+             // Open the progress dialog
