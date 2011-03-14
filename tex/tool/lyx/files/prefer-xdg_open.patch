@@ -1,7 +1,7 @@
-Index: lyx-2.0.0beta3/lib/configure.py
+Index: lyx-2.0.0rc1/lib/configure.py
 ===================================================================
---- lyx-2.0.0beta3.orig/lib/configure.py
-+++ lyx-2.0.0beta3/lib/configure.py
+--- lyx-2.0.0rc1.orig/lib/configure.py
++++ lyx-2.0.0rc1/lib/configure.py
 @@ -440,25 +440,25 @@ def checkModule(module):
  
  def checkFormatEntries(dtl_tools):  
@@ -64,9 +64,9 @@ Index: lyx-2.0.0beta3/lib/configure.py
   #
 -    path, xhtmlview = checkViewer('an HTML previewer', ['firefox', 'mozilla file://$$p$$i', 'netscape'],
 +    path, xhtmlview = checkViewer('an HTML previewer', ['xdg-open', 'firefox', 'mozilla file://$$p$$i', 'netscape'],
-         rc_entry = [r'\Format xhtml      xhtml   "LyXHTML"              y "%%" ""    "document"'])
+         rc_entry = [r'\Format xhtml      xhtml   "LyXHTML"              y "%%" ""    "document,menu=export"'])
      if xhtmlview == "":
-         addToRC(r'\Format xhtml      xhtml   "LyXHTML"              y "" ""  "document"')
+         addToRC(r'\Format xhtml      xhtml   "LyXHTML"              y "" ""  "document,menu=export"')
   #
 -    checkEditor('a BibTeX editor', ['sensible-editor', 'jabref', 'JabRef', \
 +    checkEditor('a BibTeX editor', ['xdg-open', 'sensible-editor', 'jabref', 'JabRef', \
@@ -85,23 +85,23 @@ Index: lyx-2.0.0beta3/lib/configure.py
 -    checkViewer('a PDF previewer', ['kpdf', 'okular', 'evince', 'kghostview', 'xpdf', 'acrobat', 'acroread', \
 +    checkViewer('a PDF previewer', ['xdg-open', 'kpdf', 'okular', 'evince', 'kghostview', 'xpdf', 'acrobat', 'acroread', \
  		    'gv', 'ghostview'],
-         rc_entry = [r'''\Format pdf        pdf    "PDF (ps2pdf)"          P  "%%"	""	"document,vector"
- \Format pdf2       pdf    "PDF (pdflatex)"        F  "%%"	""	"document,vector"
+         rc_entry = [r'''\Format pdf        pdf    "PDF (ps2pdf)"          P  "%%"	""	"document,vector,menu=export"
+ \Format pdf2       pdf    "PDF (pdflatex)"        F  "%%"	""	"document,vector,menu=export"
 @@ -547,24 +547,24 @@ def checkFormatEntries(dtl_tools):
- \Format pdf4       pdf    "PDF (XeTeX)"           X  "%%"	""	"document,vector"
- \Format pdf5       pdf    "PDF (LuaTeX)"          u  "%%"	""	"document,vector"'''])
+ \Format pdf4       pdf    "PDF (XeTeX)"           X  "%%"	""	"document,vector,menu=export"
+ \Format pdf5       pdf    "PDF (LuaTeX)"          u  "%%"	""	"document,vector,menu=export"'''])
      #
 -    checkViewer('a DVI previewer', ['xdvi', 'kdvi', 'okular', 'yap', 'dviout -Set=!m'],
 +    checkViewer('a DVI previewer', ['xdg-open', 'xdvi', 'kdvi', 'okular', 'yap', 'dviout -Set=!m'],
-         rc_entry = [r'''\Format dvi        dvi     DVI                    D  "%%"	""	"document,vector"
- \Format dvi3       dvi     "DVI (LuaTeX)"          V  "%%"	""	"document,vector"'''])
+         rc_entry = [r'''\Format dvi        dvi     DVI                    D  "%%"	""	"document,vector,menu=export"
+ \Format dvi3       dvi     "DVI (LuaTeX)"          V  "%%"	""	"document,vector,menu=export"'''])
      if dtl_tools:
          # Windows only: DraftDVI
          addToRC(r'\Format dvi2       dvi     DraftDVI               ""	""	""	"vector"')
      #
 -    checkViewer('an HTML previewer', ['firefox', 'mozilla file://$$p$$i', 'netscape'],
 +    checkViewer('an HTML previewer', ['xdg-open', 'firefox', 'mozilla file://$$p$$i', 'netscape'],
-         rc_entry = [r'\Format html       html    HTML                   H  "%%"	""	"document"'])
+         rc_entry = [r'\Format html       html    HTML                   H  "%%"	""	"document,menu=export"'])
      #
 -    checkViewerEditor('Noteedit', ['noteedit'],
 +    checkViewerEditor('Noteedit', ['xdg-open', 'noteedit'],
@@ -109,11 +109,11 @@ Index: lyx-2.0.0beta3/lib/configure.py
      #
 -    checkViewerEditor('an OpenDocument/OpenOffice viewer', ['swriter', 'oowriter', 'abiword'],
 +    checkViewerEditor('an OpenDocument/OpenOffice viewer', ['xdg-open', 'swriter', 'oowriter', 'abiword'],
-         rc_entry = [r'''\Format odt        odt     OpenDocument           "" "%%"	"%%"	"document,vector"
+         rc_entry = [r'''\Format odt        odt     OpenDocument           "" "%%"	"%%"	"document,vector,menu=export"
  \Format sxw        sxw    "OpenOffice.Org (sxw)"  "" ""	""	"document,vector"'''])
      # 
 -    checkViewerEditor('a Rich Text and Word viewer', ['swriter', 'oowriter', 'abiword'],
 +    checkViewerEditor('a Rich Text and Word viewer', ['xdg-open', 'swriter', 'oowriter', 'abiword'],
-         rc_entry = [r'''\Format rtf        rtf    "Rich Text Format"      "" "%%"	"%%"	"document,vector"
- \Format word       doc    "MS Word"               W  "%%"	"%%"	"document,vector"'''])
+         rc_entry = [r'''\Format rtf        rtf    "Rich Text Format"      "" "%%"	"%%"	"document,vector,menu=export"
+ \Format word       doc    "MS Word"               W  "%%"	"%%"	"document,vector,menu=export"'''])
      #
