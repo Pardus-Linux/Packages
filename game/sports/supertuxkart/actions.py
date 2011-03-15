@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright 2006-2009 TUBITAK/UEKAE
+# Copyright 2006-2011 TUBITAK/UEKAE
 # Licensed under the GNU General Public License, version 2.
 # See the file http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
 
@@ -13,6 +13,7 @@ from pisi.actionsapi import get
 import os
 
 #WorkDir = "supertuxkart-%sa" % get.srcVERSION()
+enetsrc = "src/enet"
 
 def removegames(dest):
     for root, dirs, files in os.walk(dest):
@@ -24,6 +25,9 @@ def setup():
     # FIXME: do it by hand until pisi actions api change is packaged
     # for i in `find -name "Makefile*"|xargs grep games|sed 's/:.*//g' |cut -c3-|sort -u`;do sed -i -e 's/\/games//g' $i;done
     # removegames("./")
+
+    if shelltools.isDirectory(enetsrc):
+        shelltools.unlinkDir(enetsrc)
 
     autotools.autoreconf("-vfi")
     autotools.configure()
