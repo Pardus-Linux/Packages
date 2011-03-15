@@ -35,8 +35,7 @@ def setup():
     #autotools.make("-C src autoconf")
 
     # TODO: * We should use "big" feature instead of "huge".
-    #       * Disabling x11 makes vim faster, i guess it will not
-    #         impact the user experience at all
+    #       * Investigate impacts on current use
     options ="--with-features=huge \
               --enable-multibyte \
               --enable-perlinterp \
