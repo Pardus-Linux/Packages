@@ -77,7 +77,8 @@ def setup():
     autotools.make("clean")
 
 
-    printfancy("configuring kvmtest")
+    # kvmtest stuff is not in upstream tarball anymore, but they may put it back, be ready
+    #printfancy("configuring kvmtest")
     #shelltools.cd(builddirkvmtest)
     #autotools.rawConfigure("--prefix=/usr \
     #                        --kerneldir=../../kernel")
