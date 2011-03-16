@@ -31,10 +31,13 @@ def setup():
                           -DENABLE_LIBMTP=ON \
                           -DENABLE_GIO=ON \
                           -DENABLE_VISUALISATIONS=ON \
-                          -DBUNDLE_PROJECTM_PRESETS=OFF", sourceDir=".")
+                          -DENABLE_SCRIPTING_PYTHON=OFF \
+                          -DENABLE_SCRIPTING_ARCHIVES=OFF \
+                          -DENABLE_REMOTE=OFF \
+                          -DBUNDLE_PROJECTM_PRESETS=ON", sourceDir=".")
 
 def build():
-    cmaketools.make("-j1")
+    cmaketools.make()
 
 def install():
     cmaketools.rawInstall("DESTDIR=%s" % get.installDIR())
