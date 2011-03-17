@@ -19,7 +19,7 @@ def extensions():
         'gd-native-ttf'
     ]
     configure_shared = [
-        'dba', 'dbase', 'embedded-mysqli'
+        'dba', 'dbase', 'embedded-mysqli', 'zip'
     ]
     configure_with = [
         'bz2', 'curl', 'iconv', 'mysql', 'mysqli', 'kerberos', 'sqlite', 'mime-magic',
