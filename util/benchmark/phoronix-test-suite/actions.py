@@ -12,5 +12,3 @@ WorkDir = get.srcNAME()
 def install():
     shelltools.export("DESTDIR", get.installDIR())
     shelltools.system("./install-sh")
-
-    pisitools.rename("/usr/share/icons", "pixmaps")
