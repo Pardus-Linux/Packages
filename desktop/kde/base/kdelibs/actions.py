@@ -15,8 +15,9 @@ NoStrip=["/usr/share"]
 shelltools.export("HOME", get.workDIR())
 
 def setup():
+    kde4.configure("-DKDE_DISTRIBUTION_TEXT=\"Pardus\"")
     #kde4.configure("-DKDE4_ENABLE_FINAL=ON -DKDE_DISTRIBUTION_TEXT=\"Pardus\"")
-    kde4.configure("-DKDE_DISTRIBUTION_TEXT=\"Pardus\" -DCMAKE_INSTALL_TYPE=debugfull")
+    #kde4.configure("-DKDE_DISTRIBUTION_TEXT=\"Pardus\" -DCMAKE_BUILD_TYPE=debugfull")
 
 def build():
     kde4.make()
