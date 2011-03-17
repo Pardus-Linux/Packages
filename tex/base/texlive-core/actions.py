@@ -1,139 +1,56 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright 2010 TUBITAK/UEKAE
+# Copyright 2011 TUBITAK/BILGEM
 # Licensed under the GNU General Public License, version 2.
 # See the file http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
 
-from pisi.actionsapi import autotools
 from pisi.actionsapi import pisitools
 from pisi.actionsapi import shelltools
 from pisi.actionsapi import get
-from pisi.actionsapi import libtools
-from pisi.actionsapi import texlivemodules
 
+import os
+from distutils.dir_util import copy_tree
 
-WorkDir = "%s-%s" % (get.srcNAME(), get.srcVERSION().split('_')[-1])
-
-CoreSource="texlive-%s-source" % get.srcVERSION().split('_')[-1]
+WorkDir = "."
 
 def setup():
-    shelltools.move("texmf", "%s/texmf" % CoreSource)
-    shelltools.move("texmf-dist", "%s/texmf-dist" % CoreSource)
-
-    libtools.libtoolize("--copy --force")
-
-    shelltools.cd("%s/%s/%s" % (get.workDIR(), WorkDir, CoreSource))
-
-    autotools.configure(" --bindir=/usr/bin \
-                          --datadir=/usr/share \
-                          --prefix=/usr \
-                          --with-system-freetype2 \
-                          --with-freetype2-include=/usr/include \
-                          --with-system-zlib \
-                          --with-system-pnglib \
-                          --with-system-xpdf \
-                          --with-system-teckit \
-                          --without-texinfo \
-                          --with-xdvipdfmx \
-                          --with-teckit-includes=/usr/include/teckit \
-                          --disable-detex \
-                          --disable-dvi2tty \
-                          --disable-dvipng \
-                          --disable-dvipdfmx \
-                          --disable-luatex \
-                          --disable-ps2eps \
-                          --disable-psutils \
-                          --disable-t1utils \
-                          --enable-xetex \
-                          --disable-xdvik \
-                          --disable-xindy \
-                          --disable-dialog \
-                          --disable-multiplatform \
-                          --with-epsfwin \
-                          --with-mftalkwin \
-                          --with-regiswin \
-                          --with-tektronixwin \
-                          --with-unitermwin \
-                          --with-ps=gs \
-                          --enable-ipc \
-                          --disable-lcdf-typetools \
-                          --disable-pdfopen \
-                          --disable-ttf2pk \
-                          --disable-tex4htk \
-                          --disable-cjkutils \
-                          --disable-vlna \
-                          --disable-largefile \
-                          --enable-shared \
-                          --disable-native-texlive-build")
+    # Unpack and prepare files
+    for tar_file in shelltools.ls(get.workDIR()):
+        if tar_file.endswith("xz"):
+            shelltools.system("tar Jxfv %s" % tar_file)
 
 def build():
-    shelltools.cd(CoreSource)
-    autotools.make()
+    for folder in ["tlpkg", "doc", "source", "omega"]:
+        shelltools.unlinkDir("%s/%s" %(get.workDIR() , folder))
 
 def install():
+    pisitools.dodir("/usr/share")
 
-    shelltools.cd(CoreSource)
-    autotools.install("bindir=%s/usr/bin texmf=%s/usr/share/texmf run_texlinks=true run_mktexlsr=true" % (get.installDIR() , get.installDIR()))
+    wanteddirs = []
+    for file_ in shelltools.ls(get.workDIR()):
+        if shelltools.isDirectory(file_) and not "texmf" in file_:
+            wanteddirs.append(file_)
 
-    # Installing texmf, texmf-dist, tlpkg, texmf-var
+    for folder in wanteddirs:
+        pisitools.insinto("/usr/share/texmf-dist", folder)
 
-    texlivemodules.installTexmfFiles()
+    if shelltools.can_access_directory("texmf-dist"):
+        # Recursively copy on directory on top of another, overwrite duplicate files too
+        copy_tree("texmf-dist", "%s/usr/share/texmf-dist" % get.installDIR())
 
-    shelltools.cd(get.installDIR())
-    shelltools.system("cp -pR usr/texmf usr/share/")
-    shelltools.system("cp -pR usr/texmf-dist usr/share/")
+    ## chmod of script files
+    script_dir = get.installDIR() + "/usr/share/texmf-dist/scripts"
+    if shelltools.can_access_directory(script_dir):
+        for root, dirs, files in os.walk(script_dir):
+            for name in files:
+                shelltools.chmod(os.path.join(root, name), 0755)
 
-    shelltools.system("rm -rf usr/texmf")
-    shelltools.system("rm -rf usr/texmf-dist")
+    # copy config file to texmf-config
+    pisitools.dodir("/etc/texmf/tex/context/config")
+    shelltools.copy("%s/usr/share/texmf-dist/tex/context/config/cont-usr.tex" % get.installDIR(), \
+                    "%s/etc/texmf/tex/context/config/cont-usr.tex" % get.installDIR())
 
-    shelltools.cd("%s/%s/%s" % (get.workDIR(), WorkDir, CoreSource))
-    # Install documents
-    docs = ["ChangeLog", "README", "BUGS", "NEWS", "README.14m", "PROJECTS"]
-    dirs = ["kpathsea", "dviljk", "dvipsk", "makeindexk", "ps2pkm", "web2c"]
-
-    pisitools.dodoc("texk/ChangeLog", "texk/README")
-    for d in docs:
-        for dir in dirs:
-            if shelltools.can_access_file("%s/texk/%s/%s" % (get.curDIR(), dir, d)):
-                pisitools.insinto("usr/share/doc/%s/texk/%s" % (get.srcNAME(), dir) , "texk/%s/%s" % (dir, d))
-
-    # Remove these directories
-    pisitools.removeDir("/usr/share/texmf/doc")
-
-    for d in ["web2c", "updmap.d", "fmtutil.d", "texmf.d", "language.dat.d", "language.def.d"]:
-        pisitools.dodir("/etc/texmf/%s" % d)
-
-    pisitools.domove("/usr/share/texmf/web2c/texmf.cnf", "/etc/texmf/texmf.d/")
-    pisitools.domove("/usr/share/texmf/web2c/fmtutil.cnf", "/etc/texmf/fmtutil.d/")
-    pisitools.domove("/usr/share/texmf/web2c/updmap.cfg","/etc/texmf/updmap.d/", "00updmap.cfg")
-
-    # Remove unnecessary files
-    pisitools.remove("/usr/bin/man")
-
-    shelltools.cd("%s/usr/share/texmf/" % get.installDIR())
-    texlivemodules.handleConfigFiles()
-
-    pisitools.dodir("/usr/share/texmf-site")
-
-    # Symlinks for regenerated files by texmf-update
-    for sym in ["updmap.cfg", "texmf.cnf", "fmtutil.cnf"]:
-        pisitools.dosym("/etc/texmf/web2c/%s" % sym, "/usr/share/web2c/%s" % sym)
-        pisitools.dosym("/etc/texmf/web2c/%s" % sym, "/usr/share/texmf/web2c/%s" % sym)
-    pisitools.dosym("/etc/texmf/dvips/config/config.ps", "/usr/share/dvips/config/config.ps")
-
-    pisitools.dosym("tex", "/usr/bin/virtex")
-    pisitools.dosym("pdftex", "/usr/bin/pdfvirtex")
-
-    # Rename mpost to leave room for mplib
-    pisitools.domove("/usr/bin/mpost", "/usr/bin/", "mpost-%s" % get.srcNAME())
-    pisitools.dosym("mpost-%s" % get.srcNAME(), "/usr/bin/mpost")
-
-    # Comes from asymptopte
-    pisitools.remove("/usr/share/texmf/tex/latex/asymptote/asycolors.sty")
-    pisitools.remove("/usr/share/texmf/tex/latex/asymptote/asymptote.sty")
-    pisitools.remove("/usr/share/texmf/tex/latex/asymptote/ocg.sty")
-
-    # Keep it as that's where the formats will go
-    pisitools.dodir("/var/lib/texmf")
-
+    # old packages, we will not provide them
+    pisitools.remove("/usr/share/texmf-dist/tex/plain/config/omega.ini")
+    pisitools.remove("/usr/share/texmf-dist/tex/plain/config/aleph.ini")
+    pisitools.removeDir("/usr/share/texmf-dist/scripts/context/stubs/mswin/")
