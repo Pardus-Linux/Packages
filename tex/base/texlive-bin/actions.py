@@ -80,11 +80,11 @@ def install():
 
     # replace upstream texmf.cnf with ours
     pisitools.remove("/usr/share/texmf/web2c/texmf.cnf")
-    pisitools.insinto( "/usr/share/texmf/web2c/", "texmf.cnf")
+    pisitools.insinto("/etc/texmf/web2c/", "texmf.cnf")
 
     # the location of texmf.cnf is hard-wired to be under /usr/share/texmf/web2c
     # we make a symlink from /etc/texmf/web2c/texmf.cnf to the latter
-    pisitools.dosym( "/usr/share/texmf/web2c/texmf.cnf", "/etc/texmf/web2c/texmf.cnf")
+    pisitools.dosym("/etc/texmf/web2c/texmf.cnf", "/usr/share/texmf/web2c/texmf.cnf")
 
     # fix location of TEXMFCACHE for luatools
     pisitools.dosed("%s/usr/share/texmf/web2c/texmfcnf.lua" % get.installDIR(), "texlive2010", "texlive")
