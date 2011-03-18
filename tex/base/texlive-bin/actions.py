@@ -34,6 +34,7 @@ def setup():
                          --disable-multiplatform \
                          --disable-dialog \
                          --disable-dvipng \
+                         --disable-lcdf-typetools \
                          --disable-psutils \
                          --disable-t1utils \
                          --disable-bibtexu \
@@ -183,10 +184,25 @@ def install():
     for symlink in symlinks_to_remove:
         pisitools.remove("/usr/bin/%s" % symlink)
 
-    # remove otfinfo, it comes with lcdf-typetools
-    pisitools.remove("/usr/bin/otfinfo")
 
     # remove files form disabled packages
+    # we copy all man and info files into mandir. Disabling packages just remove binaries.
+    # the remaining man and info files should be deleted manually
+
+    # dvipng
     pisitools.remove("/usr/share/man/man1/dvipng.1")
     pisitools.remove("/usr/share/info/dvipng.info")
     pisitools.remove("/usr/share/man/man1/dvigif.1")
+
+    # lcdf-typetools
+    pisitools.remove("/usr/share/man/man1/t1rawafm.1")
+    pisitools.remove("/usr/share/man/man1/cfftot1.1")
+    pisitools.remove("/usr/share/man/man1/t1lint.1")
+    pisitools.remove("/usr/share/man/man1/ttftotype42.1")
+    pisitools.remove("/usr/share/man/man1/t1dotlessj.1")
+    pisitools.remove("/usr/share/man/man1/mmpfb.1")
+    pisitools.remove("/usr/share/man/man1/otftotfm.1")
+    pisitools.remove("/usr/share/man/man1/otfinfo.1")
+    pisitools.remove("/usr/share/man/man1/t1testpage.1")
+    pisitools.remove("/usr/share/man/man1/mmafm.1")
+    pisitools.remove("/usr/share/man/man1/t1reencode.1")
