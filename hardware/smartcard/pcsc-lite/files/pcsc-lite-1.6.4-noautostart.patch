@@ -1,13 +1,15 @@
-diff -up pcsc-lite-1.6.4/src/winscard_clnt.c.noautostart pcsc-lite-1.6.4/src/winscard_clnt.c
---- pcsc-lite-1.6.4/src/winscard_clnt.c.noautostart	2010-12-12 23:46:43.228293593 +0200
-+++ pcsc-lite-1.6.4/src/winscard_clnt.c	2010-12-12 23:52:44.388532774 +0200
-@@ -387,79 +387,15 @@ LONG SCardEstablishContext(DWORD dwScope
+Index: pcsc-lite-1.7.0/src/winscard_clnt.c
+===================================================================
+--- pcsc-lite-1.7.0.orig/src/winscard_clnt.c
++++ pcsc-lite-1.7.0/src/winscard_clnt.c
+@@ -444,79 +444,16 @@ LONG SCardEstablishContext(DWORD dwScope
  	LPCVOID pvReserved2, LPSCARDCONTEXT phContext)
  {
  	LONG rv;
 -	int daemon_launched = FALSE;
 -	int retries = 0;
  
+ 	API_TRACE_IN("%ld, %p, %p", dwScope, pvReserved1, pvReserved2)
  	PROFILE_START
  
 -again:
@@ -48,7 +50,7 @@ diff -up pcsc-lite-1.6.4/src/winscard_clnt.c.noautostart pcsc-lite-1.6.4/src/win
 -
 -			if (0 == pid)
 -			{
--				int ret, i, max;
+-				int i, max;
 -				char *param = getenv("PCSCLITE_PCSCD_ARGS");
 -
 -				/* close all file handles except stdin, stdout and
@@ -61,7 +63,7 @@ diff -up pcsc-lite-1.6.4/src/winscard_clnt.c.noautostart pcsc-lite-1.6.4/src/win
 -					(void)close(i);
 -
 -				/* son process */
--				ret = execl(PCSCD_BINARY, "pcscd", "--auto-exit", param,
+-				execl(PCSCD_BINARY, "pcscd", "--auto-exit", param,
 -					(char *)NULL);
 -				Log2(PCSC_LOG_CRITICAL, "exec " PCSCD_BINARY " failed: %s",
 -					strerror(errno));
@@ -77,11 +79,10 @@ diff -up pcsc-lite-1.6.4/src/winscard_clnt.c.noautostart pcsc-lite-1.6.4/src/win
 -			goto again;
 -		}
 -	}
--
+ 
  	if (rv != SCARD_S_SUCCESS)
  		goto end;
- 
-@@ -468,15 +404,6 @@ launch:
+@@ -526,15 +463,6 @@ launch:
  		pvReserved2, phContext);
  	(void)SCardUnlockThread();
  
@@ -96,4 +97,4 @@ diff -up pcsc-lite-1.6.4/src/winscard_clnt.c.noautostart pcsc-lite-1.6.4/src/win
 -
  end:
  	PROFILE_END(rv)
- 
+ 	API_TRACE_OUT("%ld", *phContext)
