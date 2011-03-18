@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright 2005-2010 TUBITAK/UEKAE
+# Copyright 2005-2011 TUBITAK/UEKAE
 # Licensed under the GNU General Public License, version 2.
 # See the file http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
 
@@ -13,14 +13,22 @@ from pisi.actionsapi import get
 shelltools.export("HOME", get.workDIR())
 
 def setup():
+    options = "--exec-prefix=\"\" \
+               --sbindir=/sbin \
+               --with-systemdsystemunitdir=/lib/systemd/system \
+               --libdir=/usr/lib \
+               --libexecdir=/lib/udev \
+               --disable-introspection \
+               --enable-logging"
+
+    if get.buildTYPE() == "emul32":
+        shelltools.export("CFLAGS", "%s -m32" % get.CFLAGS())
+        options += " --prefix=/emul32 \
+                     --libdir=/usr/lib32 \
+                     --disable-extras"
+
     autotools.autoreconf("-fi")
-    autotools.configure("--exec-prefix=\"\" \
-                         --sbindir=/sbin \
-                         --with-systemdsystemunitdir=/lib/systemd/system \
-                         --libexecdir=/lib/udev \
-                         --libdir=/usr/lib \
-                         --disable-introspection \
-                         --enable-logging")
+    autotools.configure(options)
 
 def build():
     autotools.make("all")
@@ -30,6 +38,10 @@ def check():
 
 def install():
     autotools.rawInstall("DESTDIR=%s" % get.installDIR())
+
+    if get.buildTYPE() == "emul32":
+        pisitools.removeDir("/emul32")
+        return
 
     # create needed directories
     for d in ("", "net", "pts", "shm", "hugepages"):
