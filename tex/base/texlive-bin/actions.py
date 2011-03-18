@@ -53,7 +53,6 @@ def setup():
                          --with-system-gd \
                          --with-system-xpdf \
                          --with-system-freetype2 \
-                         --with-system-graphite \
                          --with-freetype2-libdir=/usr/lib \
                          --with-freetype2-include=/usr/include/freetype2 \
                          --with-xdvi-x-toolkit=xaw \
