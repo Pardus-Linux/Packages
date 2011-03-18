@@ -128,9 +128,12 @@ def install():
     pisitools.dosed("%s/etc/php/*/php.ini" % get.installDIR(), r";include_path = \".:/php/includes\"",
                                                              "include_path = \".:/usr/share/php5/PEAR\"")
 
-    #Remove static modules
+    # Remove static modules
     pisitools.remove("/usr/lib/php/modules/*.a")
 
     pisitools.dodir("/etc/php/ext")
     pisitools.dodir("/etc/php/apache2/ext")
     pisitools.dodir("/etc/php/cli/ext")
+
+    # Operations for php-zip package
+    pisitools.dosym("/etc/php/ext/10-php-zip.ini", "/etc/php/cli/ext/10-php-zip.ini")
