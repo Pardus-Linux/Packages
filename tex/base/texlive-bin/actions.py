@@ -185,8 +185,7 @@ def install():
                           "mk4ht",
                           "ulqda",
                           "vpe",
-                          "tlmgr",
-                          "teckit_compile"]
+                          "tlmgr"]
 
     for symlink in symlinks_to_remove:
         pisitools.remove("/usr/bin/%s" % symlink)
