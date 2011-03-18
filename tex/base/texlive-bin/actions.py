@@ -221,6 +221,7 @@ def install():
     # dvipdfm
     pisitools.remove("/usr/share/texmf/tex/latex/dvipdfm/dvipdfm.def")
     pisitools.remove("/usr/share/man/man1/dvipdfm.1")
+    pisitools.remove("/usr/share/texmf/dvipdfm/config/config")
 
     # xdvik
     pisitools.remove("/usr/share/man/man1/xdvi.1")
