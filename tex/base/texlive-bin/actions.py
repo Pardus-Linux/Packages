@@ -32,13 +32,20 @@ def setup():
     autotools.configure("--disable-native-texlive-build \
                          --with-banner-add=\"/Pardus\" \
                          --disable-multiplatform \
+                         --disable-chktex \
                          --disable-dialog \
+                         --disable-dialog \
+                         --disable-detex \
                          --disable-dvipng \
+                         --disable-dvi2tty \
+                         --disable-dvipdfmx \
                          --disable-lcdf-typetools \
+                         --disable-ps2eps \
                          --disable-psutils \
                          --disable-t1utils \
                          --disable-bibtexu \
                          --disable-xz \
+                         --disable-xdvik \
                          --with-system-zlib \
                          --with-system-pnglib \
                          --with-system-ncurses \
@@ -106,7 +113,6 @@ def install():
                      "/usr/share/texmf/web2c/updmap.cfg",
                      "/usr/share/texmf/web2c/fmtutil.cnf",
                      "/usr/share/texmf/dvips/config/config.ps",
-                     "/usr/share/texmf/dvipdfm/config/config",
                      "/usr/share/texmf/dvipdfmx/dvipdfmx.cfg",
                      "/usr/share/texmf/tex/generic/config/pdftexconfig.tex",
                      "/usr/share/texmf/tex/generic/config/language.dat",
@@ -179,7 +185,8 @@ def install():
                           "mk4ht",
                           "ulqda",
                           "vpe",
-                          "tlmgr"]
+                          "tlmgr",
+                          "teckit_compile"]
 
     for symlink in symlinks_to_remove:
         pisitools.remove("/usr/bin/%s" % symlink)
@@ -206,3 +213,18 @@ def install():
     pisitools.remove("/usr/share/man/man1/t1testpage.1")
     pisitools.remove("/usr/share/man/man1/mmafm.1")
     pisitools.remove("/usr/share/man/man1/t1reencode.1")
+
+    # chktex
+    pisitools.remove("/usr/share/man/man1/deweb.1")
+
+    # dvi2tty
+    pisitools.remove("/usr/share/man/man1/dvi2tty.1")
+
+    # dvipdfm
+    pisitools.remove("/usr/share/texmf/tex/latex/dvipdfm/dvipdfm.def")
+    pisitools.remove("/usr/share/man/man1/dvipdfm.1")
+
+    # xdvik
+    pisitools.remove("/usr/share/man/man1/xdvi.1")
+    pisitools.remove("/usr/share/texmf/xdvi/xdvi.cfg")
+    pisitools.remove("/usr/share/texmf/xdvi/XDvi")
