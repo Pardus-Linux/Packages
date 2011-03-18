@@ -13,7 +13,7 @@ WorkDir= "passivetex"
 def install():
 
     for i in ["*.sty", "*.xmt"]:
-        pisitools.insinto("/usr/share/texmf-site/tex/xmltex/%s" % WorkDir, i)
+        pisitools.insinto("/usr/share/texmf-dist/tex/xmltex/%s" % WorkDir, i)
 
     pisitools.dodoc("README.passivetex", "index.xml")
     pisitools.dohtml("index.html")
