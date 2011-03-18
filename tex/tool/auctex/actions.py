@@ -16,8 +16,8 @@ def setup():
                          --with-auto-dir='/var/lib/auctex' \
                          --with-lispdir='/usr/share/emacs/site-lisp/%s' \
                          --with-packagelispdir='/usr/share/emacs/site-lisp/%s' \
-                         --with-packagedatadir='/usr/share/emacs/etc/%s' \
-                         --with-texmf-dir='/usr/share/texmf-site'" % (get.srcNAME(),get.srcNAME(),get.srcNAME()))
+                         --with-packagedatadir='/usr/share/emacs/etc/%s'" \
+                         % (get.srcNAME(),get.srcNAME(),get.srcNAME()))
 
 def build():
     autotools.make()
