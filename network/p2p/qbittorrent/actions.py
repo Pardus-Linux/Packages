@@ -19,6 +19,4 @@ def build():
 def install():
     autotools.rawInstall("INSTALL_ROOT=%s" % get.installDIR())
 
-    pisitools.dosym("/usr/share/icons/hicolor/128x128/apps/qbittorrent.png", "/usr/share/pixmaps/qbittorrent.png")
-
     pisitools.dodoc("AUTHORS", "Changelog", "COPYING", "NEWS", "README", "TODO")
