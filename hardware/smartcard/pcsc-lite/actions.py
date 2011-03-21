@@ -10,19 +10,22 @@ from pisi.actionsapi import autotools
 from pisi.actionsapi import pisitools
 from pisi.actionsapi import get
 
-USBDROPDIR   = "/usr/lib%s/pcsc/drivers" % ("32" if \
-        get.buildTYPE() == "emul32" else "")
+#USBDROPDIR   = "/usr/lib%s/pcsc/drivers" % ("32" if \
+#        get.buildTYPE() == "emul32" else "")
+
+USBDROPDIR = "/usr/lib/pcsc/drivers"
 
 def setup():
-    print USBDROPDIR
     options = "--enable-usbdropdir=%s \
                --disable-dependency-tracking \
                --disable-static" % USBDROPDIR
 
+    """
     if get.buildTYPE() == "emul32":
         options += " --prefix=/emul32 \
                      --libdir=/usr/lib32"
         shelltools.export("CFLAGS", "%s -m32" % get.CFLAGS())
+    """
 
     autotools.autoreconf("-fi")
     autotools.configure(options)
@@ -35,9 +38,11 @@ def install():
 
     pisitools.dodir(USBDROPDIR)
 
+    """
     if get.buildTYPE() == "emul32":
         pisitools.removeDir("/emul32")
         return
+    """
 
     pisitools.dodir("/etc/reader.conf.d")
 
