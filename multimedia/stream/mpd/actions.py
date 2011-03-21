@@ -16,12 +16,14 @@ def setup():
                          --enable-lame-encoder \
                          --enable-vorbis-encoder \
                          --enable-httpd-output \
+                         --with-zeroconf=avahi \
                          --enable-shout \
+                         --enable-sndfile \
                          --enable-lastfm \
-                         --enable-zip \
                          --enable-bzip2 \
                          --enable-iso9660 \
                          --enable-mms \
+                         --enable-cue \
                          --enable-curl")
 
 def build():
