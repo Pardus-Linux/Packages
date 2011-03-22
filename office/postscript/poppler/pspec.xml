@@ -12,19 +12,24 @@
         <IsA>library</IsA>
         <Summary>PDF rendering library</Summary>
         <Description>poppler is a PDF rendering library based on xpdf.</Description>
-        <Archive sha1sum="a93e85c322ce36da4e9b4e9e52c9fd12ea5f4d6f" type="targz">http://poppler.freedesktop.org/poppler-0.14.2.tar.gz</Archive>
+        <Archive sha1sum="0da87a1c3dc11a2c1e31c5c6603d5479545354bb" type="targz">http://poppler.freedesktop.org/poppler-0.16.3.tar.gz</Archive>
         <BuildDependencies>
             <Dependency>qt-devel</Dependency>
             <Dependency>lcms-devel</Dependency>
             <Dependency>jpeg-devel</Dependency>
+            <Dependency>gtk2-devel</Dependency>
             <Dependency>cairo-devel</Dependency>
             <Dependency>libpng-devel</Dependency>
             <Dependency>openjpeg-devel</Dependency>
             <Dependency>freetype-devel</Dependency>
             <Dependency>fontconfig-devel</Dependency>
+            <Dependency>gdk-pixbuf-devel</Dependency>
         </BuildDependencies>
         <Patches>
             <Patch level="1">poppler-0.12.4-annot-appearance.patch</Patch>
+
+            <!-- Implement tiling/patterns in SplashOutputDev (fdo#13518) -->
+            <Patch level="1">abf167af8b15e5f3b510275ce619e6fdb42edd40.patch</Patch>
         </Patches>
     </Source>
 
@@ -49,6 +54,10 @@
         <Name>poppler-utils</Name>
         <Summary>Command line utilities for converting PDF files</Summary>
         <RuntimeDependencies>
+            <Dependency>gtk2</Dependency>
+            <Dependency>cairo</Dependency>
+            <Dependency>gdk-pixbuf</Dependency>
+            <Dependency>poppler-glib</Dependency>
             <Dependency release="current">poppler</Dependency>
         </RuntimeDependencies>
         <Files>
@@ -109,10 +118,13 @@
         <Summary>Glib wrapper for poppler</Summary>
         <RuntimeDependencies>
             <Dependency>cairo</Dependency>
+            <Dependency>freetype</Dependency>
+            <Dependency>gdk-pixbuf</Dependency>
             <Dependency release="current">poppler</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="library">/usr/lib/libpoppler-glib.so*</Path>
+            <Path fileType="library">/usr/lib/girepository-1.0/Poppler-0.16.typelib</Path>
         </Files>
     </Package>
 
@@ -120,13 +132,16 @@
         <Name>poppler-glib-devel</Name>
         <Summary>Development files for poppler-glib</Summary>
         <RuntimeDependencies>
+            <Dependency>gtk2-devel</Dependency>
             <Dependency>cairo-devel</Dependency>
+            <Dependency>gdk-pixbuf-devel</Dependency>
             <Dependency release="current">poppler-glib</Dependency>
             <Dependency release="current">poppler-devel</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="library">/usr/lib/pkgconfig/poppler-glib.pc</Path>
             <Path fileType="library">/usr/lib/pkgconfig/poppler-cairo.pc</Path>
+            <Path fileType="data">/usr/share/gir-1.0/Poppler-0.16.gir</Path>
         </Files>
     </Package>
 
@@ -143,6 +158,19 @@
     </Package>
 
     <History>
+        <Update release="36">
+            <Date>2011-03-22</Date>
+            <Version>0.16.3</Version>
+            <Comment>
+                - Version bump to 0.16.3,
+                - Add patch to fix slow rendering of PDF files with patterns (#5232).
+            </Comment>
+            <Requires>
+                <Action>reverseDependencyUpdate</Action>
+            </Requires>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
         <Update release="35">
             <Date>2010-10-13</Date>
             <Version>0.14.2</Version>
