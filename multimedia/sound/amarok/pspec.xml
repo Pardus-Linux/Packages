@@ -13,7 +13,7 @@
         <IsA>app:gui</IsA>
         <Summary>Amarok audio player</Summary>
         <Description>Amarok is a feature-rich audio player for the KDE desktop.</Description>
-        <Archive sha1sum="d37ecda0fecdba88bb239f11c6d4ff885d7ac23f" type="tarbz2">mirrors://kde/stable/amarok/2.4.0/src/amarok-2.4.0.tar.bz2</Archive>
+        <Archive sha1sum="c71d7fd28d42030ca887c7f24655ac4a47956c5a" type="tarbz2">mirrors://kde/unstable/amarok/2.4.0.90/src/amarok-2.4.0.90.tar.bz2</Archive>
         <BuildDependencies>
             <Dependency>kdebase-runtime</Dependency>
             <Dependency>kdelibs-devel</Dependency>
@@ -32,13 +32,15 @@
             <Dependency>loudmouth-devel</Dependency>
             <Dependency>qca2-devel</Dependency>
             <Dependency>automoc4</Dependency>
-            <Dependency>gtk2-devel</Dependency>
             <Dependency>gdk-pixbuf-devel</Dependency>
             <Dependency>ffmpeg-devel</Dependency>
             <Dependency>libofa-devel</Dependency>
+            <Dependency>libqjson-devel</Dependency>
         </BuildDependencies>
         <Patches>
             <Patch>fix-append-play-service-actions.diff</Patch>
+            <!-- Upstream Patch -->
+            <Patch level="1">amarok-2.4.0.90-plugin_version.patch</Patch>
         </Patches>
     </Source>
 
@@ -60,7 +62,6 @@
             <Dependency>strigi</Dependency>
             <Dependency>loudmouth</Dependency>
             <Dependency>qca2</Dependency>
-            <Dependency>gtk2</Dependency>
             <Dependency>gdk-pixbuf</Dependency>
             <Dependency>libgcrypt</Dependency>
             <Dependency>phonon</Dependency>
@@ -70,6 +71,7 @@
             <Dependency>taglib</Dependency>
             <Dependency>ffmpeg</Dependency>
             <Dependency>libofa</Dependency>
+            <Dependency>libqjson</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="executable">/usr/bin</Path>
@@ -88,6 +90,35 @@
         </AdditionalFiles>
     </Package>
     <History>
+        <Update release="49">
+            <Date>2011-03-22</Date>
+            <Version>2.4.0.90</Version>
+            <Comment>- Version bump to 2.4.1 beta 1, with new features, changes and bug fixes.
+                - gpodder.net Service will be enabled after libmygpo-qt package hits the repositories.
+                - Missing libqjson dependency added.
+                See ChangeLog for detailed bugfix list, here are the new features and the Changes:
+                NEW FEATURES:
+                * Remote NFS and SMB/CIFS collection support.
+                * New "Preview" feature for the Organize Collection dialog.
+                * String filtering in the albums applet.
+                * Ability to change text alignment in the lyrics applet.
+                * gpodder.net Service, a Podcast Directory displaying the most used Tags from gpodder.net and the top Podcasts of these Tags
+                CHANGES:
+                ** The podcast directory service is now based on incremental parsing of OPML without caching in the database.
+                ** Plugins can now be optionally enabled in the config dialog.
+                ** Script selector is moved from the menubar to the config dialog.
+                ** Now all changes to Preset Formats in Organize Collection dialog get saved on close, doesn't matter If dialog was accepted or rejected.
+                ** Added "Update Preset" button to Organize Collection dialog, which updates currently choosen scheme.
+                ** Renewed FilterEditor dialog.
+                ** Changed tokens syntax in FileNameLayoutDialog (TagGuesser, OrginizeCollection dialogs) now tokens wrapped in percent signs (%token% instead of %token).
+                ** Added ability to guess tags from whole track path. (TagGuesser dialog)
+                ** Use KDirWatch to watch changes to collection.
+                ** Do always store track rating as tags in files.
+                ** Added missing tooltip for animation settings.
+            </Comment>
+            <Name>Serdar Dalgıç</Name>
+            <Email>serdar@pardus.org.tr</Email>
+        </Update>
         <Update release="48">
             <Date>2011-01-15</Date>
             <Version>2.4.0</Version>
