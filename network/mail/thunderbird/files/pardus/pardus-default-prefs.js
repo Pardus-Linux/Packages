@@ -1,19 +1,35 @@
-pref("network.protocol-handler.app.ftp", "LAUNCHER");
-pref("network.protocol-handler.app.http", "LAUNCHER");
-pref("network.protocol-handler.app.https", "LAUNCHER");
 pref("mail.content_disposition_type", 1);
-pref("mailnews.default_sort_type", 2);
-pref("mailnews.default_sort_order", 22);
+pref("mail.shell.checkDefaultClient", false);
+
+// Enable threaded view by default and always sort by date
+pref("mailnews.default_sort_type", 18); // By date
+pref("mailnews.default_sort_order", 1); // Ascending
+pref("mailnews.default_view_flags", 1); // ThreadedView
+
 pref("network.negotiate-auth.gsslib", "GSSAPI");
 
+// Use NM to check for online state
+
+pref("toolkit.networkmanager.disable", false);
+
+// Check all folders for new e-mails by default
 pref("mail.check_all_imap_folders_for_new", true);
 
 pref("mail.compose.max_recycled_windows", 1);
 pref("browser.display.show_image_placeholders", false);
 pref("mailnews.customHeaders", "List-Id");
 
+// Fill user-agent informations during build
 pref("general.useragent.vendor", "DISTRIB_ID");
 pref("general.useragent.vendorSub", "DISTRIB_RELEASE");
+
+// Disable global indexing by default as it slows down Thunderbird a lot
+pref("mailnews.database.global.indexer.enabled", false);
+
+// Change the default sound to a shipped .wav file and disable the sound by default
+pref("mail.biff.play_sound", "false");
+pref("mail.biff.play_sound_type", "1");
+pref("mail.biff.play_sound.url", "file://usr/lib/MozillaThunderbird/sound.wav");
 
 pref("font.name.monospace.null", "DejaVu Sans Mono");
 pref("font.name.monospace.tr", "DejaVu Sans Mono");

@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright 2005-2010 TUBITAK/UEKAE
+# Copyright 2005-2011 TUBITAK/UEKAE
 # Licensed under the GNU General Public License, version 2.
 # See the file http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
 
@@ -11,16 +11,13 @@ from pisi.actionsapi import pisitools
 from pisi.actionsapi import shelltools
 
 WorkDir = "thunderbird"
-AUTOCONF = "autoconf-213/autoconf-2.13"
 MOZAPPDIR= "/usr/lib/MozillaThunderbird"
 
-shelltools.export("CFLAGS", "%s -Os -fno-strict-aliasing" % get.CFLAGS())
-shelltools.export("CXXFLAGS", "%s -Os -fno-strict-aliasing" % get.CFLAGS())
-
 def setup():
-    shelltools.chmod(AUTOCONF, 0755)
+    shelltools.chmod("autoconf-213/autoconf-2.13", 0755)
 
-    pisitools.dosed(".pardus-default-prefs.js", "LAUNCHER", "%s/open-browser.sh" % MOZAPPDIR)
+    # Set job count for make
+    pisitools.dosed(".mozconfig", "%%JOBS%%", get.makeJOBS())
 
     pisitools.dosed(".pardus-default-prefs.js", "DISTRIB_ID", get.lsbINFO()["DISTRIB_ID"])
     pisitools.dosed(".pardus-default-prefs.js", "DISTRIB_RELEASE", get.lsbINFO()["DISTRIB_RELEASE"])
@@ -29,7 +26,7 @@ def build():
     autotools.make("-f client.mk build")
 
     # Compile language files
-    locales = ["be", "ca", "de", "es-AR", "es-ES", "fr", "it", "nl", "pl", "pt-BR", "sv-SE", "tr"]
+    locales = ["ca", "da", "de", "es-AR", "es-ES", "fr", "hu", "it", "nl", "pl", "pt-BR", "ru", "sv-SE", "tr"]
 
     for locale in locales:
         autotools.make("-C mail/locales libs-%s" % locale)
@@ -82,6 +79,13 @@ def install():
     # Fake symlinks to get Turkish spell check support working
     pisitools.dosym("/usr/lib/MozillaThunderbird/dictionaries/en-US.aff", "/usr/lib/MozillaThunderbird/dictionaries/tr-TR.aff")
     pisitools.dosym("/usr/lib/MozillaThunderbird/dictionaries/en-US.dic", "/usr/lib/MozillaThunderbird/dictionaries/tr-TR.dic")
+
+    # FIXME: This is a better solution but breaks TR spellchecking
+    # Create symlink to hunspell dictionaries for being able to spellcheck with available dictionaries
+    """
+    pisitools.removeDir("%s/dictionaries" % MOZAPPDIR)
+    pisitools.dosym("/usr/share/hunspell", "%s/dictionaries" % MOZAPPDIR)
+    """
 
     # Install icons
     pisitools.insinto("/usr/share/pixmaps", "other-licenses/branding/thunderbird/mailicon256.png", "thunderbird.png")

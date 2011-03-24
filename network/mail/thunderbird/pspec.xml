@@ -15,8 +15,8 @@
         <IsA>app:gui</IsA>
         <Summary>The Stand-Alone Mozilla Mail Component</Summary>
         <Description>Thunderbird is a redesign of the Mozilla Mail Component. It is written using the XUL user interface language and designed to be cross-platform.</Description>
-        <Archive sha1sum="58dde3a1e74ea04f2798b02c90c06f0b44e22ae1" type="tarbz2">http://cekirdek.pardus.org.tr/~ozan/dist/sources/thunderbird/thunderbird-3.1.7-source.tar.bz2</Archive>
-        <Archive sha1sum="16ec3a1020bba1b54c44a90cceb4d70c94c24827" type="tarbz2" target="thunderbird">http://cekirdek.pardus.org.tr/~ozan/dist/sources/thunderbird/l10n-3.1.7.tar.bz2</Archive>
+        <Archive sha1sum="dd8605999e3fd1adfdfe95288b1340fc730e1eee" type="tarbz2">http://cekirdek.pardus.org.tr/~ozan/dist/sources/thunderbird/thunderbird-3.1.9-source.tar.bz2</Archive>
+        <Archive sha1sum="7cfd21ac570987c71e0ade648d810e39db443655" type="tarbz2" target="thunderbird">http://cekirdek.pardus.org.tr/~ozan/dist/sources/thunderbird/l10n-3.1.9.tar.bz2</Archive>
         <!--<Archive sha1sum="a437531183b680e5100659f62e231bc8358d5c18" type="tarbz2" target="thunderbird/mailnews/extensions">http://cekirdek.pardus.org.tr/~ozan/dist/sources/thunderbird/enigmail-1.1.2.tar.bz2</Archive>-->
         <AdditionalFiles>
             <AdditionalFile target=".mozconfig">pardus/mozconfig</AdditionalFile>
@@ -54,10 +54,7 @@
             <Patch level="1">suse/thunderbird-appname.patch</Patch>
             <Patch level="1">suse/tb-ssldap.patch</Patch>
 
-            <!--<Patch>suse/tb-develdirs.patch</Patch>-->
             <Patch level="1">suse/mozilla-gdk-pixbuf.patch</Patch>
-
-            <!--<Patch compressionType="bz2">suse/mozilla-system-hunspell.patch.bz2</Patch>-->
 
             <!-- Not useful if we don't package mozilla-nss-helper
             <Patch>suse/mozilla-shared-nss-db.patch</Patch>
@@ -73,12 +70,8 @@
             <!-- fix libpng14 build error -->
             <Patch level="1">pardus/thunderbird-libpng14.patch</Patch>
 
-            <!-- Translation fixes -->
-            <Patch level="1">pardus/some-tr-translations.patch</Patch>
-            <Patch level="1">pardus/fix-fixed-width-tr-translation.patch</Patch>
-
-            <!-- Improve reply_header translations (#15928) -->
-            <Patch level="1">pardus/fix-reply-header-translations.patch</Patch>
+            <!-- Improve Turkish translations -->
+            <Patch level="1">pardus/tr.patch</Patch>
 
             <!-- Zemberek integration -->
             <Patch>pardus/zemberek-firefox3.patch</Patch>
@@ -86,8 +79,10 @@
             <!-- autoconf hack -->
             <Patch level="1">pardus/autoconf-213-hack.diff</Patch>
 
-            <!-- Add default sound in Thunderbird -->
-            <!--<Patch level="1">replace-beep-with-wav.patch</Patch>-->
+
+            <!-- Fedora patches -->
+            <Patch level="1">fedora/xulrunner-1.9.2.1-build.patch</Patch>
+            <Patch level="1">fedora/xulrunner-2.0-os2cc.patch</Patch>
         </Patches>
     </Source>
 
@@ -104,6 +99,7 @@
             <Dependency>libXt</Dependency>
             <Dependency>gconf</Dependency>
             <Dependency>pango</Dependency>
+            <Dependency>esound</Dependency> <!-- For notification sound playing -->
             <Dependency>libIDL</Dependency>
             <Dependency>pixman</Dependency>
             <Dependency>hunspell</Dependency>
@@ -115,6 +111,7 @@
             <Dependency>libgnomeui</Dependency>
             <Dependency>fontconfig</Dependency>
             <Dependency>libXrender</Dependency>
+            <Dependency>libcanberra</Dependency> <!-- For XDG themed event sound support -->
             <Dependency>openldap-client</Dependency>
             <Dependency>startup-notification</Dependency>
         </RuntimeDependencies>
@@ -134,9 +131,6 @@
         <AdditionalFiles>
             <!-- wrapper -->
             <AdditionalFile owner="root" permission="0755" target="/usr/bin/thunderbird">thunderbird</AdditionalFile>
-
-            <!-- Script to open web links with the default browser -->
-            <AdditionalFile owner="root" permission="0755" target="/usr/lib/MozillaThunderbird/open-browser.sh">pardus/thunderbird-open-browser</AdditionalFile>
 
             <!-- Desktop file -->
             <AdditionalFile owner="root" permission="0644" target="/usr/share/applications/mozillathunderbird.desktop">mozillathunderbird.desktop</AdditionalFile>
@@ -161,6 +155,23 @@
     -->
 
     <History>
+        <Update release="61">
+            <Date>2011-03-04</Date>
+            <Version>3.1.9</Version>
+            <Comment>
+                - Disable global indexing for performance issues,
+                - Add more Turkish translations,
+                - Enable threaded view by default,
+                - Fix playing notification sound and add the necessary dependencies,
+                - Fix multiple vulnerabilities (pb#17177)
+                    - MFSA 2011-09 Crash caused by corrupted JPEG image (CVE-2011-0061)
+                    - MFSA 2011-08 ParanoidFragmentSink allows javascript: URLs in chrome documents (CVE-2010-1585)
+                    - MFSA 2011-01 Miscellaneous memory safety hazards (rv:1.9.2.14/ 1.9.1.17) (CVE-2011-0053)
+            </Comment>
+            <Type package="thunderbird">security</Type>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
         <Update release="60">
             <Date>2011-01-10</Date>
             <Version>3.1.7</Version>
