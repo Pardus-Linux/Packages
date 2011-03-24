@@ -27,8 +27,21 @@
         </BuildDependencies>
         <Patches>
             <!-- Stable patch -->
-            <Patch level="1" compressionType="bz2">patches/mainline/patch-2.6.37.2.bz2</Patch>
-            <Patch level="1">patches/pardus/nx_wakeup_32v2.diff</Patch>
+            <!-- xfs: prevent leaking uninitialized stack memory in FSGEOMETRY_V1 (CVE-2011-0711) (pb#17149) -->
+            <!-- rdma: panic in ib_cm:cm_work_handler (CVE-2011-0695) (pb#17486) -->
+            <!-- nfs4: Ensure that ACL pages sent over NFS were not allocated from the slab (CVE-2011-1090) (pb#17448) -->
+            <!-- epoll subsystem in did not prevent users from creating circular epoll file structures leading to a DoS (CVE-2011-{1082,1083}) (pb#17423) -->
+            <!-- fs/partitions: Validate map_count in Mac partition tables (CVE-2011-1010) (pb#17157) -->
+            <!-- Corrupted LDM partition table can cause kernel oops (CVE-2011-1012) (pb#17379) -->
+            <Patch level="1" compressionType="bz2">patches/mainline/patch-2.6.37.5.bz2</Patch>
+
+            <!-- bridge: Fix mglist corruption that leads to memory corruption (CVE-2011-0716) (pb#17153) -->
+            <Patch level="1">patches/mainline/net-2.6.git-6b0d6a9b4296fa16a28d10d416db7a770fc03287.patch</Patch>
+
+            <!-- bluetooth: sco: fix information leak to userspace (CVE-2011-1078)
+                 bluetooth: bnep: fix buffer overflow (CVE-2011-1079)
+                 bridge: netfilter: fix information leak (CVE-2011-1080)    (pb#17459) -->
+            <Patch level="1">patches/mainline/fix-memleaks-CVE-2011-1078-1079-1080.patch</Patch>
 
             <!-- unionfs support -->
             <Patch level="1" compressionType="gz">patches/unionfs-2.5.7_for_2.6.37-rc1.diff.gz</Patch>
@@ -39,6 +52,7 @@
 
             <!-- Sync samsung backlight driver -->
             <Patch level="1">patches/mainline/sync-samsung-laptop-driver-from-upstream.patch</Patch>
+
 
 
             <!-- Mandriva/Mageia patches -->
@@ -62,16 +76,17 @@
             <Patch level="1">patches/mandriva/fs-unionfs-2.5.3-oops.patch</Patch>
             <Patch level="1">patches/mandriva/fs-unionfs-buildfix.patch</Patch>
 
-            <!-- Backport sched-autogroup feature (#16584) -->
+            <!-- (Can be problematic, disable) Backport sched-autogroup feature (#16584)
             <Patch level="1">patches/mandriva/kernel-sched-automated-per-session-task-groups-20101130.patch</Patch>
             <Patch level="1">patches/mandriva/kernel-sched-autogroup-Fix-reference-leak.patch</Patch>
             <Patch level="1">patches/mandriva/kernel-sched-fix-potential-access-to-freed-memory.patch</Patch>
             <Patch level="1">patches/mandriva/kernel-sched-sched-Move-sched_autogroup_exit-to-free_signal_struct.patch</Patch>
             <Patch level="1">patches/mandriva/kernel-sched-Mark-autogroup_init-__init.patch</Patch>
             <Patch level="1">patches/mandriva/kernel-sched-Fix-struct-autogroup-memory-leak.patch</Patch>
-
-            <!-- Patch to fix broken RT-scheduling with Jack when autogroup is enabled -->
+            -->
+            <!-- Patch to fix broken RT-scheduling with Jack when autogroup is enabled
             <Patch level="1">patches/mainline/linux-2.6.git-f44937718ce3b8360f72f6c68c9481712517a867.patch</Patch>
+            -->
 
             <!-- Add AuFS support -->
             <Patch level="1">patches/mandriva/fs-aufs2.1-for-2.6.37.patch</Patch>
@@ -224,7 +239,6 @@
             <Patch level="1">patches/fedora/efi_default_physical.patch</Patch>
 
             <!-- backport some fixes for kswapd from mmotm -->
-            <Patch level="1">patches/fedora/mm-vmstat-use-a-single-setter-function-and-callback-for-adjusting-percpu-thresholds.patch</Patch>
             <Patch level="1">patches/fedora/fs-call-security_d_instantiate-in-d_obtain_alias.patch</Patch>
             <Patch level="1">patches/fedora/net-AF_PACKET-vmalloc.patch</Patch>
 
@@ -424,6 +438,29 @@
     </Package>
 
     <History>
+        <Update release="156">
+            <Date>2011-03-24</Date>
+            <Version>2.6.37.5</Version>
+            <Comment>
+                - Bump to 2.6.37.5,
+                - Disable sched-autogroup as it may cause problems with RT stuff,
+                - Fix hang after unplugging rt2x00 wlan dongles,
+                - Fix multiple memleaks/overflows in ebtables and bluetooth (CVE-2011-{1078,1079,1080}) (pb#17459),
+                - xfs: prevent leaking uninitialized stack memory in FSGEOMETRY_V1 (CVE-2011-0711) (pb#17149),
+                - nfs4: Ensure that ACL pages sent over NFS were not allocated from the slab (CVE-2011-1090) (pb#17448),
+                - rdma: panic in ib_cm:cm_work_handler (CVE-2011-0695) (pb#17486),
+                - epoll: Prevent users from creating circular epoll file structures to avoid a DoS (CVE-2011-{1082,1083}) (pb#17423),
+                - fs/partitions: Validate map_count in Mac partition tables (CVE-2011-1010) (pb#17157),
+                - Corrupted LDM partition table can cause kernel oops (CVE-2011-1012) (pb#17379),
+                - bridge: Fix mglist corruption that leads to memory corruption (CVE-2011-0716) (pb#17153),
+            </Comment>
+            <Requires>
+                <Action package="kernel">systemRestart</Action>
+            </Requires>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+
         <Update release="155">
             <Date>2011-02-28</Date>
             <Version>2.6.37.2</Version>
