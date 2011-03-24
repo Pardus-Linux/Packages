@@ -9,7 +9,6 @@ from pisi.actionsapi import autotools
 from pisi.actionsapi import pisitools
 from pisi.actionsapi import shelltools
 from pisi.actionsapi import get
-import os
 
 WorkDir = "chromium-%s" % get.srcVERSION()
 
@@ -17,23 +16,16 @@ shelltools.export("HOME", get.workDIR())
 
 ARCH = "x64" if get.ARCH() == "x86_64" else "ia32"
 
-def removeBundle():
-    # All removed bundles are used via use_system. Thus we remove these
-    # bundles to avoid incompabilities with library linking during compilation
-    bundles = ["bzip2", "libpng", "libevent", "libjpeg", "icu",
-               "libxslt", "libxml", "yasm", "sqlite/src", "sqlite/preprocessed", "libvpx"]
-
-    #TODO remove zlib in the future, for now compilation fails if we remove it due to minizip
-    for bundle in bundles:
-        # Do not remove .gyp files, the gyp build system need them
-        shelltools.system("find third_party/%s -type f ! -iname '*.gyp*' -delete" % bundle)
-
 def setup():
-    removeBundle()
+    # Remove included libvpx libraries expcept the header itself. The header is including
+    # system wide headers. The inclduded libraries causes compile problems.
+    shelltools.system("find third_party/libvpx/ -type f \
+                        \! -iname '*.gyp*' \
+                        \! -path 'third_party/libvpx/libvpx.h' -delete")
 
     #TODO use_system_ssl is disabled -->  https://bugzilla.mozilla.org/show_bug.cgi?id=547312
-    #TODO use_system_ffmpeg has linking problems (is searching for libffmpegsumo.so)
     #TODO use_system_hunspell has build problems, upstream changes needed
+    #TODO use_system_sqlite has build problems, upstream changes needed
     shelltools.system("build/gyp_chromium -f make build/all.gyp --depth=. \
                         -Dgcc_version=45 \
                         -Dno_strict_aliasing=1 \
@@ -50,9 +42,9 @@ def setup():
                         -Duse_system_libxslt=1 \
                         -Duse_system_zlib=1 \
                         -Duse_system_ffmpeg=1 \
+                        -Duse_system_flac=1 \
                         -Duse_system_libxml=1 \
                         -Duse_system_vpx=1 \
-                        -Duse_system_sqlite=1 \
                         -Duse_system_xdg_utils=1 \
                         -Duse_system_yasm=1 \
                         -Duse_system_icu=1 \
