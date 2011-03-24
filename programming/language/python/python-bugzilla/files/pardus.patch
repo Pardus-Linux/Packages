@@ -1,0 +1,34 @@
+Index: python-bugzilla-0.6.1/bin/bugzilla
+===================================================================
+--- python-bugzilla-0.6.1.orig/bin/bugzilla
++++ python-bugzilla-0.6.1/bin/bugzilla
+@@ -21,7 +21,7 @@ import socket
+ import xmlrpclib
+ 
+ version = '0.6.1'
+-default_bz = 'https://bugzilla.redhat.com/xmlrpc.cgi'
++default_bz = 'https://bugzilla.pardus.org.tr/xmlrpc.cgi'
+ 
+ # Initial simple logging stuff
+ logging.basicConfig()
+@@ -30,7 +30,7 @@ if '--debug' in sys.argv:
+     log.setLevel(logging.DEBUG)
+ elif '--verbose' in sys.argv:
+     log.setLevel(logging.INFO)
+-        
++
+ cmdlist = ['info','query','new','modify','login']
+ 
+ def to_encoding(ustring):
+@@ -300,9 +300,8 @@ def main():
+     if global_opt.bztype == 'auto':
+         log.info('Autodetecting Bugzilla type')
+         # Cheat a little, for the sake of speed
+-        if 'bugzilla.redhat.com' in global_opt.bugzilla:
+-            log.info('Using RHBugzilla3 for URL containing bugzilla.redhat.com')
+-            bzclass = bugzilla.RHBugzilla3
++        if 'pardus.org.tr' in global_opt.bugzilla:
++            bzclass = bugzilla.Bugzilla36
+         else:
+             bzclass = bugzilla.Bugzilla
+     elif global_opt.bztype in bugzilla.classlist:
