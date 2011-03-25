@@ -1,36 +1,41 @@
-Index: plasma/shells/desktop/panelcontroller.cpp
+Index: plasma/desktop/shell/panelcontroller.cpp
 ===================================================================
---- plasma/shells/desktop/panelcontroller.cpp.orig
-+++ plasma/shells/desktop/panelcontroller.cpp
-@@ -949,6 +949,7 @@ void PanelController::mouseMoveFilter(QM
-             newX - screenGeom.left() <= screenGeom.width()/3) {
-             move(newX, pos().y());
-             d->resizeFrameHeight(geometry().left() - screenGeom.left());
-+            d->sizeTool->setText(i18n("Width: %1", screenGeom.left() + (mapToGlobal(event->pos()).x() - d->startDragPos.x())));
-         }
+--- plasma/desktop/shell/panelcontroller.cpp.orig	2010-10-05 13:39:06.000000000 +0200
++++ plasma/desktop/shell/panelcontroller.cpp	2010-11-21 20:47:03.782718456 +0100
+@@ -627,6 +627,8 @@ void PanelController::mouseMoveFilter(QM
+         newX = qMin(newX, screenGeom.left() + screenGeom.width()/3);
+         move(newX, pos().y());
+         resizeFrameHeight(geometry().left() - screenGeom.left());
++        m_sizeTool->setText(i18n("Width: %1", geometry().left() - screenGeom.left()));
++
          break;
      }
-@@ -958,6 +959,7 @@ void PanelController::mouseMoveFilter(QM
-             newX + width() - screenGeom.left() >= 2*(screenGeom.width()/3)) {
-             move(newX, pos().y());
-             d->resizeFrameHeight(screenGeom.right() - geometry().right());
-+            d->sizeTool->setText(i18n("Width: %1", screenGeom.right() - (mapToGlobal(event->pos()).x() - d->startDragPos.x()) - width() + 1));
-         }
+     case Plasma::RightEdge: {
+@@ -635,6 +637,8 @@ void PanelController::mouseMoveFilter(QM
+         newX = qMax(newX, screenGeom.left() + 2*(screenGeom.width()/3) - width());
+         move(newX, pos().y());
+         resizeFrameHeight(screenGeom.right() - geometry().right());
++        m_sizeTool->setText(i18n("Width: %1", screenGeom.right() - geometry().right()));
++
          break;
      }
-@@ -967,6 +969,7 @@ void PanelController::mouseMoveFilter(QM
-              newY - screenGeom.top()<= screenGeom.height()/3) {
-             move(pos().x(), newY);
-             d->resizeFrameHeight(geometry().top() - screenGeom.top());
-+            d->sizeTool->setText(i18n("Height: %1", screenGeom.top() + (mapToGlobal(event->pos()).y() - d->startDragPos.y())));
-         }
+     case Plasma::TopEdge: {
+@@ -643,6 +647,9 @@ void PanelController::mouseMoveFilter(QM
+         newY = qMin(newY, screenGeom.top() + screenGeom.height()/3);
+         move(pos().x(), newY);
+         resizeFrameHeight(geometry().top() - screenGeom.top());
++        m_sizeTool->setText(i18n("Height: %1", geometry().top() - screenGeom.top()));
++
++
          break;
      }
-@@ -977,6 +980,7 @@ void PanelController::mouseMoveFilter(QM
-              newY + height() - screenGeom.top() >= 2*(screenGeom.height()/3)) {
-             move(pos().x(), newY);
-             d->resizeFrameHeight(screenGeom.bottom() - geometry().bottom());
-+            d->sizeTool->setText(i18n("Height: %1", screenGeom.bottom() - (mapToGlobal(event->pos()).y() - d->startDragPos.y()) - height() + 1));
-         }
+     case Plasma::BottomEdge:
+@@ -652,6 +659,8 @@ void PanelController::mouseMoveFilter(QM
+         newY = qMax(newY, screenGeom.top() + 2*(screenGeom.height()/3) - height());
+         move(pos().x(), newY);
+         resizeFrameHeight(screenGeom.bottom() - geometry().bottom());
++        m_sizeTool->setText(i18n("Height: %1", screenGeom.bottom() - geometry().bottom()));
++
          break;
+     }
      }

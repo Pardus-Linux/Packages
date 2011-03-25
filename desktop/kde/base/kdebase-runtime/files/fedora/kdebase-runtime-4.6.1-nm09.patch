@@ -1,0 +1,54 @@
+commit 5f3693be6ed8b375de5d313a1acbaf0d46c4dd51
+Author: Lukas Tinkl <lukas@kde.org>
+Date:   Wed Mar 23 14:41:59 2011 +0100
+
+    support the new NM 0.9 network states
+
+diff --git a/solid-networkstatus/kded/networkmanagerstatus.cpp b/solid-networkstatus/kded/networkmanagerstatus.cpp
+index 7f287a2..0339ffc 100644
+--- a/solid-networkstatus/kded/networkmanagerstatus.cpp
++++ b/solid-networkstatus/kded/networkmanagerstatus.cpp
+@@ -4,6 +4,8 @@
+                        a KDAB Group company <info@kdab.com>
+     Author: Kevin Ottens <kevin.ottens@kdab.com>
+ 
++    Copyright (c) 2011 Lukas Tinkl <ltinkl@redhat.com>
++
+     This library is free software; you can redistribute it and/or
+     modify it under the terms of the GNU Lesser General Public
+     License as published by the Free Software Foundation; either
+@@ -27,6 +29,10 @@
+ 
+ #include <NetworkManager.h>
+ 
++#if !defined(NM_CHECK_VERSION)
++    #define NM_CHECK_VERSION(x,y,z) 0
++#endif
++
+ NetworkManagerStatus::NetworkManagerStatus( QObject *parent )
+     : SystemStatusInterface( parent ),
+       m_manager( "org.freedesktop.NetworkManager",
+@@ -70,12 +76,23 @@ Solid::Networking::Status NetworkManagerStatus::convertNmState( uint nmState )
+     case NM_STATE_CONNECTING:
+         status = Solid::Networking::Connecting;
+         break;
++#if NM_CHECK_VERSION(0,8,992)
++    case NM_STATE_CONNECTED_LOCAL:
++    case NM_STATE_CONNECTED_SITE:
++    case NM_STATE_CONNECTED_GLOBAL:
++#else
+     case NM_STATE_CONNECTED:
++#endif
+         status = Solid::Networking::Connected;
+         break;
+     case NM_STATE_DISCONNECTED:
+         status = Solid::Networking::Unconnected;
+         break;
++#if NM_CHECK_VERSION(0,8,992)
++    case NM_STATE_DISCONNECTING:
++        status = Solid::Networking::Disconnecting;
++        break;
++#endif
+     }
+ 
+     return status;

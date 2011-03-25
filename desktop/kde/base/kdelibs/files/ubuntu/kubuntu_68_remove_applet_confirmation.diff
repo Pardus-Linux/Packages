@@ -1,8 +1,8 @@
-Index: kdelibs-4.5.2/plasma/applet.cpp
+Index: kde4libs-4.3.85/plasma/applet.cpp
 ===================================================================
---- kdelibs-4.5.2.orig/plasma/applet.cpp
-+++ kdelibs-4.5.2/plasma/applet.cpp
-@@ -57,6 +57,7 @@
+--- kde4libs-4.3.85.orig/plasma/applet.cpp	2009-12-18 09:25:19.000000000 -0500
++++ kde4libs-4.3.85/plasma/applet.cpp	2009-12-18 09:25:25.000000000 -0500
+@@ -55,6 +55,7 @@
  #include <kicon.h>
  #include <kiconloader.h>
  #include <kkeysequencewidget.h>
@@ -10,7 +10,7 @@ Index: kdelibs-4.5.2/plasma/applet.cpp
  #include <kplugininfo.h>
  #include <kstandarddirs.h>
  #include <kservice.h>
-@@ -465,15 +466,25 @@ void Applet::destroy()
+@@ -448,16 +449,25 @@
          return; //don't double delete
      }
  
@@ -20,9 +20,10 @@ Index: kdelibs-4.5.2/plasma/applet.cpp
 +        d->transient = true;
          d->cleanUpAndDelete();
      } else {
--        Animation *zoomAnim = Plasma::Animator::create(Plasma::Animator::ZoomAnimation);
+-        Animation *zoomAnim =
+-        Plasma::Animator::create(Plasma::Animator::ZoomAnimation);
 -        connect(zoomAnim, SIGNAL(finished()), this, SLOT(appletAnimationComplete()));
--        zoomAnim->setTargetWidget(this);
+-        zoomAnim->setWidgetToAnimate(this);
 -        zoomAnim->start();
 +        //HACK: Don't ask for confirmation if we're not in a panel, as it triggers a crash in the applethandle
 +        if (containment()->containmentType() != Containment::PanelContainment ||
@@ -35,7 +36,7 @@ Index: kdelibs-4.5.2/plasma/applet.cpp
 +            Animation *zoomAnim =
 +            Plasma::Animator::create(Plasma::Animator::ZoomAnimation);
 +            connect(zoomAnim, SIGNAL(finished()), this, SLOT(appletAnimationComplete()));
-+            zoomAnim->setTargetWidget(this);
++            zoomAnim->setWidgetToAnimate(this);
 +            zoomAnim->start();
 +        }
      }

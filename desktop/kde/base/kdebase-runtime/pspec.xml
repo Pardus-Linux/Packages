@@ -12,13 +12,14 @@
         <IsA>app:gui</IsA>
         <Summary>KDE4 Runtime Requirements</Summary>
         <Description>kdebase-runtime contains KDE4 base runtime applications and data files needed at runtime by other KDE applications. In this package, core applications and libraries like Nepomuk server, kcmshell4, kwalletd, kio libraries and kdesu are included.</Description>
-        <Archive type="tarbz2" sha1sum="3827a38727e077a2aef6d63f38e68ec72bd01a84">mirrors://kde/stable/4.5.5/src/kdebase-runtime-4.5.5.tar.bz2</Archive>
+        <Archive type="tarbz2" sha1sum="7c6704d72577ed88acccc767d0a6a8adf7e8e9ac">mirrors://kde/stable/4.6.1/src/kdebase-runtime-4.6.1.tar.bz2</Archive>
         <BuildDependencies>
-            <Dependency versionFrom="4.5.5">kdelibs-devel</Dependency>
+            <Dependency versionFrom="4.6.1">kdelibs-devel</Dependency>
             <Dependency versionFrom="4.7.0">qt-devel</Dependency>
             <Dependency versionFrom="4.4.3">phonon-devel</Dependency>
-            <Dependency>shared-desktop-ontologies</Dependency>
+            <Dependency versionFrom="0.6.0">shared-desktop-ontologies</Dependency>
             <Dependency>clucene-devel</Dependency>
+            <Dependency>ntrack-qt4-devel</Dependency>
             <Dependency>samba-devel</Dependency>
             <Dependency releaseFrom="9">redland-devel</Dependency>
             <Dependency>strigi-devel</Dependency>
@@ -36,6 +37,7 @@
         <Patches>
             <!-- Fedora -->
             <Patch level="1">fedora/kdebase-runtime-4.1.1-iconthemes-inherit.patch</Patch>
+            <Patch level="1">fedora/kdebase-runtime-4.6.1-nm09.patch</Patch>
 
             <!-- Mandriva patches -->
             <Patch level="1">mandriva/kdebase-runtime-4.3.2-knotify-fix-cpu-charge.patch</Patch>
@@ -44,16 +46,18 @@
             <!-- Disable logout sound to decrease logout time 3-4 times, now we are the KDE4 distro with fastest logout time :)-->
             <Patch level="1">pardus/disable-logout-sound.diff</Patch>
 
-            <!-- Disable systray app. by default, it can be enabled by adding 'enable systray applet=true' to nepomukstrigirc -->
+            <!-- Disable systray app. by default, it can be enabled by adding 'enable systray applet=true' to nepomukstrigirc
             <Patch>pardus/strigi-systray-config.diff</Patch>
+            -->
 
             <!-- Disable all nepomuk/strigi popup notifications, it can be enabled in System Settins - Notifications module -->
             <Patch level="1">pardus/disable-nepomuk-popups.diff</Patch>
 
             <!-- TODO: NEEDED? <Patch>pardus/fix-kglobalaccel-sandbox-violation.diff</Patch>-->
 
-            <!-- Set users locale user to system default (aka set language in mudur.conf)-->
+            <!-- Set users locale user to system default (aka set language in mudur.conf)
             <Patch level="1">pardus/save_locale_system_wide.patch</Patch>
+            -->
 
             <!-- If there is no enough space in HOME partition while moving a file into trash, raise error -->
             <Patch level="1">pardus/take-home-partition-freespace-into-account-in-trash.diff</Patch>
@@ -74,9 +78,10 @@
         <Name>kdebase-runtime</Name>
         <RuntimeDependencies>
             <Dependency versionFrom="4.7.0">qt</Dependency>
-            <Dependency versionFrom="4.5.5">kdelibs</Dependency>
-            <Dependency versionFrom="4.4.3">phonon</Dependency>
-            <Dependency>shared-desktop-ontologies</Dependency>
+            <Dependency versionFrom="4.6.1">kdelibs</Dependency>
+            <Dependency versionFrom="4.4.4">phonon</Dependency>
+            <Dependency versionFrom="0.6.0">shared-desktop-ontologies</Dependency>
+            <Dependency>ntrack-qt4</Dependency>
             <Dependency>clucene</Dependency>
             <Dependency>xine-lib</Dependency>
             <Dependency>samba</Dependency>
@@ -126,6 +131,15 @@
     </Package>
 
     <Package>
+        <Name>kdebase-runtime-devel</Name>
+        <Summary>Development files for kdebase-runtime package</Summary>
+        <Files>
+            <Path fileType="header">/usr/include</Path>
+        </Files>
+    </Package>
+
+
+    <Package>
         <Name>kdebase-sounds</Name>
         <Summary>KDE4 System Sounds</Summary>
         <Description>kdebase-sounds contains default KDE4 system sounds.</Description>
@@ -147,6 +161,13 @@
     </Package>
 
     <History>
+        <Update release="62">
+            <Date>2011-03-25</Date>
+            <Version>4.6.1</Version>
+            <Comment>Version bump to 4.6.1</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
         <Update release="61">
             <Date>2011-01-26</Date>
             <Version>4.5.5</Version>

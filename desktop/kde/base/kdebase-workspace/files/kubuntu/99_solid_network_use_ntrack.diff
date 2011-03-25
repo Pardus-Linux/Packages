@@ -1,0 +1,272 @@
+Patch by Sune Vuorela <sune@debian.org>
+
+By default, solidnetworkstatus trusts networkmanager too much. NetworkManager reports offline, if
+all devices managed by NM is offline. But there might be devices that aren't managed by NM.
+
+This patch adds the ntrack library to give a additional set of data points for wether or not 
+the status is online.
+
+If one datapoint reports offline and another datapoint reports online, then solidnetworkstatus
+reports online as status.
+
+Patch forwarded, hopefully it will soon be applied
+--- /dev/null
++++ b/solid/networking/kded/ntracknetworkstate.cpp
+@@ -0,0 +1,74 @@
++/*
++    Copyright (c) 2010 Sune Vuorela <sune@debian.org>
++
++    Permission is hereby granted, free of charge, to any person
++    obtaining a copy of this software and associated documentation
++    files (the "Software"), to deal in the Software without
++    restriction, including without limitation the rights to use,
++    copy, modify, merge, publish, distribute, sublicense, and/or sell
++    copies of the Software, and to permit persons to whom the
++    Software is furnished to do so, subject to the following
++    conditions:
++
++    The above copyright notice and this permission notice shall be
++    included in all copies or substantial portions of the Software.
++
++    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
++    EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
++    OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
++    NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
++    HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
++    WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
++    FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
++    OTHER DEALINGS IN THE SOFTWARE.
++
++*/
++
++#include "ntracknetworkstate.h"
++
++#include "networkstatus.h"
++
++#include <Solid/Networking>
++
++#include <KDebug>
++
++Solid::Networking::Status ntrackstate2solidstatus(QNTrackState state)
++{
++    kDebug( 1222 ) << "ntrackstate2solidstatus changed status: " << state;
++    switch(state) {
++        case NTRACK_STATE_UNKNOWN:
++        case NTRACK_STATE_UNSET: {
++            return Solid::Networking::Unknown;
++        }
++        case NTRACK_STATE_ONLINE: {
++            return Solid::Networking::Connected;
++        }
++        case NTRACK_STATE_BLOCKED:
++        case NTRACK_STATE_OFFLINE: {
++            return Solid::Networking::Unconnected;
++        }
++    }
++    //FAILSAFE
++    return Solid::Networking::Unknown;
++}
++
++NtrackNetworkState::NtrackNetworkState( NetworkStatusModule* statusmodule ) : QObject(statusmodule),m_statusmodule(statusmodule)
++{
++    m_statusmodule->registerNetwork("ntrack", ntrackstate2solidstatus(QNtrack::instance()->networkState()),"ntrack backend");
++    connect(QNtrack::instance(),SIGNAL(stateChanged(QNTrackState,QNTrackState)),this,SLOT(ntrackStateChangedSlot(QNTrackState,QNTrackState)));
++}
++
++NtrackNetworkState::~NtrackNetworkState()
++{
++    m_statusmodule->setNetworkStatus("ntrack",Solid::Networking::Unknown);
++}
++
++
++
++void NtrackNetworkState::ntrackStateChangedSlot(QNTrackState /*oldstate*/ , QNTrackState newstate )
++{
++    kDebug( 1222 ) << "ntrack changed status: " << newstate;
++    m_statusmodule->setNetworkStatus("ntrack",ntrackstate2solidstatus(newstate));
++}
++
++
+--- a/solid/networking/kded/CMakeLists.txt
++++ b/solid/networking/kded/CMakeLists.txt
+@@ -6,6 +6,20 @@
+ #    MESSAGE(STATUS "Adding in-process NetworkManager service-wart to kded module")
+ #endif(NETWORKMANAGER_FOUND)
+ 
++find_package(QNtrack)
++
++if(QNTRACK_FOUND)
++    MESSAGE(STATUS "Found QNtrack, will use it as a additional data point for KDED network status module")
++    set(kded_networkstatus_PART_SRCS ${kded_networkstatus_PART_SRCS} ntracknetworkstate.cpp)
++    add_definitions(-DHAVE_QNTRACK)
++    include_directories(${QNTRACK_INCLUDE_DIR})
++else(QNTRACK_FOUND)
++    MESSAGE(STATUS "QNtrack not found. Consider installing it for more data points to network status module. See https://launchpad.net/ntrack")
++endif(QNTRACK_FOUND)
++
++macro_log_feature(QNTRACK_FOUND "QNtrack" "Network status tracking library" "http://launchpad.net/ntrack" FALSE "" "Needed to provide more data points for KDED Networkstatus module")
++
++
+ qt4_add_dbus_adaptor(kded_networkstatus_PART_SRCS ../org.kde.Solid.Networking.Service.xml
+         networkstatus.h NetworkStatusModule)
+ 
+@@ -17,7 +31,10 @@
+ 
+ kde4_add_plugin(kded_networkstatus ${kded_networkstatus_PART_SRCS})
+ 
+-target_link_libraries(kded_networkstatus ${KDE4_KIO_LIBS} solidcontrol)
++target_link_libraries(kded_networkstatus ${KDE4_KIO_LIBS} solidcontrol )
++if(QNTRACK_FOUND)
++    target_link_libraries(kded_networkstatus ${QNTRACK_LIBRARIES})
++endif(QNTRACK_FOUND)
+ 
+ install(TARGETS kded_networkstatus DESTINATION ${PLUGIN_INSTALL_DIR})
+ 
+--- /dev/null
++++ b/solid/networking/kded/ntracknetworkstate.h
+@@ -0,0 +1,51 @@
++/*
++    Copyright (c) 2010 Sune Vuorela <sune@debian.org>
++
++    Permission is hereby granted, free of charge, to any person
++    obtaining a copy of this software and associated documentation
++    files (the "Software"), to deal in the Software without
++    restriction, including without limitation the rights to use,
++    copy, modify, merge, publish, distribute, sublicense, and/or sell
++    copies of the Software, and to permit persons to whom the
++    Software is furnished to do so, subject to the following
++    conditions:
++
++    The above copyright notice and this permission notice shall be
++    included in all copies or substantial portions of the Software.
++
++    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
++    EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
++    OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
++    NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
++    HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
++    WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
++    FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
++    OTHER DEALINGS IN THE SOFTWARE.
++
++*/
++
++#ifndef NTRACKNETWORKSTATE_H
++#define NTRACKNETWORKSTATE_H
++#ifdef HAVE_QNTRACK
++
++#include <QObject>
++#include <QNtrack.h>
++
++class NetworkStatusModule;
++
++class NtrackNetworkState : public QObject {
++  Q_OBJECT
++  public:
++    NtrackNetworkState(NetworkStatusModule* statusmodule /*also parent in object hierachy*/);
++    virtual ~NtrackNetworkState();
++private Q_SLOTS:
++    /**
++     * A slot to register the new state as reported by the ntrack part of things
++     */
++    void ntrackStateChangedSlot(QNTrackState, QNTrackState newstate);
++  private:
++    NetworkStatusModule* m_statusmodule;
++};
++
++#endif // HAVE_QNTRACK
++#endif // NTRACKNETWORKSTATE_H
+--- a/solid/networking/kded/networkstatus.cpp
++++ b/solid/networking/kded/networkstatus.cpp
+@@ -33,6 +33,7 @@
+ #include "serviceadaptor.h"
+ 
+ #include <kpluginfactory.h>
++#include "ntracknetworkstate.h"
+ 
+ K_PLUGIN_FACTORY(NetworkStatusFactory,
+                  registerPlugin<NetworkStatusModule>();
+@@ -68,6 +69,10 @@
+     new ClientAdaptor( this );
+     new ServiceAdaptor( this );
+ 
++#ifdef HAVE_QNTRACK
++    new NtrackNetworkState( this );
++#endif
++
+     init();
+ }
+ 
+--- /dev/null
++++ b/cmake/modules/FindQNtrack.cmake
+@@ -0,0 +1,70 @@
++# - Try to find the QNtrack library
++# Once done this will define
++#
++#  QNTRACK_FOUND - system has the CK Connector
++#  QNTRACK_INCLUDE_DIR - the CK Connector include directory
++#  QNTRACK_LIBRARIES - the libraries needed to use CK Connector
++
++# Copyright (C) 2010 Sune Vuorela <sune@debian.org>
++# modeled after FindCkConnector.cmake:
++# Copyright (c) 2008, Kevin Kofler, <kevin.kofler@chello.at>
++# modeled after FindLibArt.cmake:
++# Copyright (c) 2006, Alexander Neundorf, <neundorf@kde.org>
++#
++# Redistribution and use is allowed according to the terms of the BSD license.
++# For details see the accompanying COPYING-CMAKE-SCRIPTS file.
++
++
++if(QNTRACK_INCLUDE_DIR AND QNTRACK_LIBRARIES)
++
++  # in cache already
++  SET(QNTRACK_FOUND TRUE)
++
++else (QNTRACK_INCLUDE_DIR AND QNTRACK_LIBRARIES)
++
++  IF (NOT WIN32)
++    FIND_PACKAGE(PkgConfig)
++    IF (PKG_CONFIG_FOUND)
++      # use pkg-config to get the directories and then use these values
++      # in the FIND_PATH() and FIND_LIBRARY() calls
++      pkg_check_modules(_QNTRACK_PC QUIET libntrack-qt4 )
++    ENDIF (PKG_CONFIG_FOUND)
++  ENDIF (NOT WIN32)
++
++  FIND_PATH(QNTRACK_QT_INCLUDE_DIR QNtrack.h
++     ${_QNTRACK_PC_INCLUDE_DIRS}
++  )
++  #Hide from cmake user interfaces
++  SET(QNTRACK_QT_INCLUDE_DIR ${QNTRACK_QT_INCLUDE_DIR} CACHE INTERNAL "" FORCE)
++
++  FIND_PATH(NTRACK_INCLUDE_DIR ntrackmonitor.h
++     ${_QNTRACK_PC_INCLUDE_DIRS}
++  )
++  #Hide from cmake user interfaces
++  SET(NTRACK_INCLUDE_DIR ${NTRACK_INCLUDE_DIR} CACHE INTERNAL "" FORCE)
++
++  FIND_LIBRARY(QNTRACK_LIBRARIES NAMES ntrack-qt4
++     PATHS
++     ${_QNTRACK_PC_LIBDIR}
++  )
++
++
++  if (QNTRACK_QT_INCLUDE_DIR AND NTRACK_INCLUDE_DIR AND QNTRACK_LIBRARIES)
++     set(QNTRACK_FOUND TRUE)
++     set(QNTRACK_INCLUDE_DIR ${QNTRACK_QT_INCLUDE_DIR} ${NTRACK_INCLUDE_DIR})
++  endif (QNTRACK_QT_INCLUDE_DIR AND NTRACK_INCLUDE_DIR AND QNTRACK_LIBRARIES)
++
++
++  if (QNTRACK_FOUND)
++     if (NOT QNtrack_FIND_QUIETLY)
++        message(STATUS "Found QNtrack: ${QNTRACK_LIBRARIES}")
++     endif (NOT QNtrack_FIND_QUIETLY)
++  else (QNTRACK_FOUND)
++     if (QNtrack_FIND_REQUIRED)
++        message(FATAL_ERROR "Could NOT find QNtrack")
++     endif (QNtrack_FIND_REQUIRED)
++  endif (QNTRACK_FOUND)
++
++  MARK_AS_ADVANCED(QNTRACK_INCLUDE_DIR QNTRACK_LIBRARIES)
++
++endif (QNTRACK_INCLUDE_DIR AND QNTRACK_LIBRARIES)

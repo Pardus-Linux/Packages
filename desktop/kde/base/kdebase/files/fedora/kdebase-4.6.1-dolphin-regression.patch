@@ -1,0 +1,66 @@
+commit 6577a4db9e42f1a1a9b319894bd00da36634e45b
+Author: Peter Penz <peter.penz19@gmail.com>
+Date:   Mon Feb 28 22:04:00 2011 +0100
+
+    Fix issue that wrong directory is shown
+    
+    Commit 680009b522b2c9eda03201ac02dc18994b5a8bd0 resulted in a regression when switching from a view in the column-mode to a view in the icon- or details-mode: The wrong content has been shown. This patch reverts commit 680009b522b2c9eda03201ac02dc18994b5a8bd0 and solves the performance-issue in combination with previews by triggering the preview-generation in a queued way.
+
+diff --git a/dolphin/src/views/dolphinview.cpp b/dolphin/src/views/dolphinview.cpp
+index 9d46739..29f62f7 100644
+--- a/dolphin/src/views/dolphinview.cpp
++++ b/dolphin/src/views/dolphinview.cpp
+@@ -430,12 +430,8 @@ void DolphinView::refresh()
+     m_active = true;
+ 
+     createView();
+-    reload();
+-
+-    // For performance reasons applying the view properties should be done after updating
+-    // the directory-lister URL with reload(). Otherwise in combination with enabled
+-    // previews the creation of already obsolete directory items gets triggered.
+     applyViewProperties();
++    reload();
+ 
+     setActive(oldActivationState);
+     updateZoomLevel(oldZoomLevel);
+@@ -539,6 +535,7 @@ void DolphinView::setUrl(const KUrl& url)
+ 
+     m_viewModeController->setUrl(url); // emits urlChanged, which we forward
+     m_viewAccessor.prepareUrlChange(url);
++    applyViewProperties();
+ 
+     // When changing the URL there is no need to keep the version
+     // data of the previous URL.
+@@ -548,11 +545,6 @@ void DolphinView::setUrl(const KUrl& url)
+     connectViewAccessor();
+     loadDirectory(url);
+ 
+-    // For performance reasons applying the view properties should be done after updating
+-    // the directory-lister URL with loadDirectory(). Otherwise in combination with enabled
+-    // previews the creation of already obsolete directory items gets triggered.
+-    applyViewProperties();
+-
+     if (hadSelection || hasSelection()) {
+         emitSelectionChangedSignal();
+     }
+diff --git a/dolphin/src/views/viewextensionsfactory.cpp b/dolphin/src/views/viewextensionsfactory.cpp
+index 7b51af2..5685ada 100644
+--- a/dolphin/src/views/viewextensionsfactory.cpp
++++ b/dolphin/src/views/viewextensionsfactory.cpp
+@@ -73,8 +73,14 @@ ViewExtensionsFactory::ViewExtensionsFactory(QAbstractItemView* view,
+             this, SLOT(slotZoomLevelChanged()));
+     connect(viewModeController, SIGNAL(cancelPreviews()),
+             this, SLOT(cancelPreviews()));
++
++    // slotPreviewChanged() is connected as Qt::QueuedConnection to prevent performance
++    // issues when the directory lister changes its URL after the preview-changes have
++    // been applied. Usecase: Switch from directory A having no previews to
++    // directory B with previews (see sequence in DolphinView::setUrl()).
+     connect(dolphinViewController->view(), SIGNAL(showPreviewChanged()),
+-            this, SLOT(slotShowPreviewChanged()));
++            this, SLOT(slotShowPreviewChanged()),
++            Qt::QueuedConnection);
+ 
+     // initialize selection manager
+     m_selectionManager = new SelectionManager(view);

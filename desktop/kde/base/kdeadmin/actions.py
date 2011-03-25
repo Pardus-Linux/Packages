@@ -14,8 +14,7 @@ shelltools.export("HOME", get.workDIR())
 NoStrip=["/usr/share/icons"]
 
 def setup():
-    for d in ["kuser","knetworkconf"]:
-        shelltools.unlinkDir(d)
+    shelltools.unlinkDir("kuser")
 
     kde4.configure()
 

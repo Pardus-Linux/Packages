@@ -1,6 +1,8 @@
---- kdm/backend/ctrl.c
-+++ kdm/backend/ctrl.c
-@@ -499,6 +499,10 @@
+Index: kdm/backend/ctrl.c
+===================================================================
+--- kdm/backend/ctrl.c.orig	2010-08-05 18:55:40.000000000 +0200
++++ kdm/backend/ctrl.c	2010-11-21 20:47:03.492842634 +0100
+@@ -499,6 +499,10 @@ processCtrl(const char *string, int len,
                              Reply("nuke\t");
                      }
                  }
@@ -11,9 +13,11 @@
                  if ((d->displayType & d_location) == dLocal &&
                      anyReserveDisplays())
                  {
---- kdm/backend/greet.h
-+++ kdm/backend/greet.h
-@@ -150,6 +150,7 @@
+Index: kdm/backend/greet.h
+===================================================================
+--- kdm/backend/greet.h.orig	2010-07-06 08:54:30.000000000 +0200
++++ kdm/backend/greet.h	2010-11-21 20:47:03.492842634 +0100
+@@ -150,6 +150,7 @@ from the copyright holder.
  # define SHUT_REBOOT      1     /* how */
  # define SHUT_HALT        2
  # define SHUT_CONSOLE     -1 /* pseudo-code */
@@ -21,9 +25,11 @@
  # define SHUT_SCHEDULE    0     /* when; config only */
  # define SHUT_TRYNOW      1
  # define SHUT_FORCENOW    2
---- kdm/config.def
-+++ kdm/config.def
-@@ -1818,6 +1818,19 @@
+Index: kdm/config.def
+===================================================================
+--- kdm/config.def.orig	2010-10-12 15:07:22.000000000 +0200
++++ kdm/config.def	2010-11-21 20:47:31.380718279 +0100
+@@ -1794,6 +1794,19 @@ Description:
   Who is allowed to shut down the system. This applies both to the
   greeter and to the command sockets.
  
@@ -43,9 +49,11 @@
  Key: AllowSdForceNow
  Type: enum
   None: no forced shutdown is allowed at all
---- kdm/kfrontend/CMakeLists.txt
-+++ kdm/kfrontend/CMakeLists.txt
-@@ -6,10 +6,14 @@
+Index: kdm/kfrontend/CMakeLists.txt
+===================================================================
+--- kdm/kfrontend/CMakeLists.txt.orig	2010-10-27 21:55:03.000000000 +0200
++++ kdm/kfrontend/CMakeLists.txt	2010-11-21 20:47:31.380718279 +0100
+@@ -4,10 +4,14 @@ add_subdirectory( themes )
  add_subdirectory( pics )
  add_subdirectory( sessions )
  
@@ -53,14 +61,14 @@
 +PKG_CHECK_MODULES(LAZY lazy)
 +
  include_directories(
- 	${KDEBASE_WORKSPACE_SOURCE_DIR}/kcontrol/kdm/background
+ 	${CMAKE_CURRENT_SOURCE_DIR}/../kcm/background
  	${KDEBASE_WORKSPACE_SOURCE_DIR}/libs/kdm
  	${QIMAGEBLITZ_INCLUDES}
 +	${LAZY_INCLUDE_DIRS}
  )
  
  set(kdmthemer_SRCS
-@@ -72,7 +76,7 @@
+@@ -70,7 +74,7 @@ endif (WITH_KDM_XCONSOLE)
  
  macro_add_file_dependencies(kdm_greet.h ${confci})
  kde4_add_executable(kdm_greet ${kdm_greet_SRCS})
@@ -69,9 +77,11 @@
  if (X11_XTest_FOUND)
    target_link_libraries(kdm_greet ${X11_XTest_LIB})
  endif (X11_XTest_FOUND)
---- kdm/kfrontend/kdmshutdown.cpp
-+++ kdm/kfrontend/kdmshutdown.cpp
-@@ -22,6 +22,7 @@
+Index: kdm/kfrontend/kdmshutdown.cpp
+===================================================================
+--- kdm/kfrontend/kdmshutdown.cpp.orig	2010-07-06 08:54:31.000000000 +0200
++++ kdm/kfrontend/kdmshutdown.cpp	2010-11-21 20:47:03.494842502 +0100
+@@ -22,6 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fi
  
  */
  
@@ -79,7 +89,7 @@
  #include "kdmshutdown.h"
  #include "kdm_greet.h"
  #include "utils.h"
-@@ -33,6 +34,7 @@
+@@ -33,6 +34,7 @@ Foundation, Inc., 51 Franklin Street, Fi
  #include <kstandarddirs.h>
  #include <KStandardGuiItem>
  #include <kuser.h>
@@ -87,7 +97,7 @@
  
  #include <QAction>
  #include <QApplication>
-@@ -55,6 +57,10 @@
+@@ -55,6 +57,10 @@ Foundation, Inc., 51 Franklin Street, Fi
  int KDMShutdownBase::curPlugin = -1;
  PluginList KDMShutdownBase::pluginList;
  
@@ -98,7 +108,7 @@
  KDMShutdownBase::KDMShutdownBase(int _uid, QWidget *_parent)
      : inherited(_parent)
      , box(new QVBoxLayout(this))
-@@ -65,6 +71,7 @@
+@@ -65,6 +71,7 @@ KDMShutdownBase::KDMShutdownBase(int _ui
      , doesNuke(false)
      , mayOk(true)
      , maySched(false)
@@ -106,7 +116,7 @@
      , rootlab(0)
      , verify(0)
      , needRoot(-1)
-@@ -85,6 +92,7 @@
+@@ -85,6 +92,7 @@ KDMShutdownBase::complete(QWidget *prevW
  
      if (uid &&
          ((willShut && _allowShutdown == SHUT_ROOT) ||
@@ -114,7 +124,7 @@
           (mayNuke && _allowNuke == SHUT_ROOT)))
      {
          rootlab = new QLabel(i18n("Root authorization required."), this);
-@@ -171,6 +179,7 @@
+@@ -171,6 +179,7 @@ KDMShutdownBase::updateNeedRoot()
  {
      int nNeedRoot = uid &&
          (((willShut && _allowShutdown == SHUT_ROOT) ||
@@ -122,7 +132,7 @@
            (_allowNuke == SHUT_ROOT && doesNuke)));
      if (verify && nNeedRoot != needRoot) {
          if (needRoot == 1)
-@@ -488,6 +497,63 @@
+@@ -488,6 +497,63 @@ KDMSlimShutdown::KDMSlimShutdown(QWidget
      buttonlay->addWidget(btnReboot);
      connect(btnReboot, SIGNAL(clicked()), SLOT(slotReboot()));
  
@@ -186,7 +196,7 @@
      int dummy, cur;
      if (getBootOptions(&targetList, &dummy, &cur)) {
          QMenu *targets = new QMenu(this);
-@@ -523,6 +589,65 @@
+@@ -523,6 +589,65 @@ KDMSlimShutdown::KDMSlimShutdown(QWidget
      buttonlay->addSpacing(KDialog::spacingHint());
  }
  
@@ -252,9 +262,11 @@
  void
  KDMSlimShutdown::slotSched()
  {
---- kdm/kfrontend/kdmshutdown.h
-+++ kdm/kfrontend/kdmshutdown.h
-@@ -67,7 +67,7 @@
+Index: kdm/kfrontend/kdmshutdown.h
+===================================================================
+--- kdm/kfrontend/kdmshutdown.h.orig	2010-07-06 08:54:31.000000000 +0200
++++ kdm/kfrontend/kdmshutdown.h	2010-11-21 20:47:03.494842502 +0100
+@@ -67,7 +67,7 @@ class KDMShutdownBase : public FDialog,
  #else
      static const bool willShut = true;
  #endif
@@ -263,7 +275,7 @@
  
    private Q_SLOTS:
      void slotSched();
-@@ -118,7 +118,6 @@
+@@ -118,7 +118,6 @@ class KDMShutdown : public KDMShutdownBa
      QComboBox *targets;
      int oldTarget;
      int sch_st, sch_to;
@@ -271,7 +283,7 @@
  };
  
  class KDMRadioButton : public QRadioButton {
-@@ -161,11 +160,15 @@
+@@ -161,11 +160,15 @@ class KDMSlimShutdown : public FDialog {
      void slotReboot();
      void slotReboot(QAction *);
      void slotSched();
