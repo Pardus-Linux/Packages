@@ -25,7 +25,6 @@ def install():
     autotools.rawInstall("DESTDIR=%(DESTDIR)s INSTALL_ROOT=%(DESTDIR)s" % {'DESTDIR':get.installDIR()})
 
     pisitools.dohtml("doc/html/*")
-    pisitools.dosym("/usr/share/doc/%s/html/classes.html" % get.srcNAME(),"/usr/share/doc/%s/html/index.html" % get.srcNAME())
 
     pisitools.dodoc("NEWS", "README", "THANKS", "LICENSE*", "GPL*", "OPENSOURCE*")
 
