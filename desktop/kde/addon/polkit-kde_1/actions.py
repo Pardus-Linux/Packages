@@ -11,7 +11,7 @@ from pisi.actionsapi import get
 from pisi.actionsapi import kde4
 
 shelltools.export("HOME", get.workDIR())
-WorkDir = "%s-%s" % (get.srcNAME().replace("_", "-"), get.srcVERSION())
+WorkDir = "polkit-kde-agent-1-%s" % get.srcVERSION()
 
 def setup():
     kde4.configure()
@@ -22,4 +22,4 @@ def build():
 def install():
     kde4.install()
 
-    pisitools.dodoc("COPYING", "agent/README*")
+    pisitools.dodoc("COPYING")
