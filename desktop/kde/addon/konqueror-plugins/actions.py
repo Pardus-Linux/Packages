@@ -11,7 +11,6 @@ from pisi.actionsapi import pisitools
 from pisi.actionsapi import get
 
 #WorkDir = "konq-plugins-%s" % get.srcVERSION()
-WorkDir = "konq-plugins"
 NoStrip=["/usr/share"]
 
 shelltools.export("HOME", get.workDIR())
