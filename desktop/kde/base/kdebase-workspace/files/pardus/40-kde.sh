@@ -1,5 +1,5 @@
 
-if [ "$SESSION" = "kde" -o "$SESSION" = "kde-safe" -o "$SESSION" = "openbox-kde" ]; then
+if [ "$SESSION" = "kde-plasma" -o "$SESSION" = "kde-plasma-safe" -o "$SESSION" = "openbox-kde" ]; then
     kdehome=$HOME/.kde
     test -n "$KDEHOME" && kdehome=`echo "$KDEHOME"|sed "s,^~/,$HOME/,"`
 
