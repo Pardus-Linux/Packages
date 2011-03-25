@@ -14,11 +14,13 @@ from pisi.actionsapi import kde4
 shelltools.export("HOME", get.workDIR())
 
 def setup():
+    #smoke does not compile in farm :/
+    pisitools.dosed("smoke/CMakeLists.txt", "add_subdirectory\\(kde\\)")
+
     #Since Mono cs compiler raises sandbox violation we disable CS bindings for now
     #kde4.configure("-DBUILD_csharp=OFF -DENABLE_KROSSFALCON=OFF -DENABLE_PHP-QT=ON -DENABLE_SMOKE=ON -DRUBY_SITE_LIB_DIR=/usr/lib/ruby/site_ruby/1.8 -DRUBY_SITE_ARCH_DIR=/usr/lib/ruby/site_ruby/1.8/i686-linux")
 
-    #smoke does not compile in farm :/
-    kde4.configure("-DBUILD_csharp=OFF -DENABLE_KROSSFALCON=OFF -DENABLE_PHP-QT=ON -DBUILD_smoke=OFF -DRUBY_SITE_LIB_DIR=/usr/lib/ruby/site_ruby/1.8 -DRUBY_SITE_ARCH_DIR=/usr/lib/ruby/site_ruby/1.8/i686-linux")
+    kde4.configure("-DBUILD_csharp=OFF -DENABLE_KROSSFALCON=OFF -DENABLE_PHP-QT=ON -DBUILD_perl=OFF -DBUILD_smoke=OFF -DRUBY_SITE_LIB_DIR=/usr/lib/ruby/site_ruby/1.8 -DRUBY_SITE_ARCH_DIR=/usr/lib/ruby/site_ruby/1.8/i686-linux")
 
 def build():
     kde4.make()
