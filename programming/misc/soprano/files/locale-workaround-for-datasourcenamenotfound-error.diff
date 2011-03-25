@@ -1,7 +1,7 @@
-Index: soprano-2.4.1/backends/virtuoso/odbcconnectionpool.cpp
+Index: soprano-2.6.0/backends/virtuoso/odbcconnectionpool.cpp
 ===================================================================
---- soprano-2.4.1.orig/backends/virtuoso/odbcconnectionpool.cpp
-+++ soprano-2.4.1/backends/virtuoso/odbcconnectionpool.cpp
+--- soprano-2.6.0.orig/backends/virtuoso/odbcconnectionpool.cpp
++++ soprano-2.6.0/backends/virtuoso/odbcconnectionpool.cpp
 @@ -32,13 +32,18 @@
  #include <QtCore/QMutexLocker>
  
@@ -29,7 +29,7 @@ Index: soprano-2.4.1/backends/virtuoso/odbcconnectionpool.cpp
          return 0;
      }
  
-@@ -73,6 +79,7 @@ Soprano::ODBC::Connection* Soprano::ODBC
+@@ -72,6 +78,7 @@ Soprano::ODBC::Connection* Soprano::ODBC
          setError( Virtuoso::convertSqlError( SQL_HANDLE_DBC, hdbc ) );
          SQLFreeHandle( SQL_HANDLE_DBC, hdbc );
          delete env;
@@ -37,10 +37,15 @@ Index: soprano-2.4.1/backends/virtuoso/odbcconnectionpool.cpp
          return 0;
      }
  
-@@ -82,6 +89,7 @@ Soprano::ODBC::Connection* Soprano::ODBC
-     conn->d->m_env = env;
-     conn->d->m_hdbc = hdbc;
-     conn->d->m_pool = this;
+@@ -87,10 +94,12 @@ Soprano::ODBC::Connection* Soprano::ODBC
+         if ( conn->executeCommand( command ) != Error::ErrorNone ) {
+             setError( conn->lastError() );
+             delete conn;
++            setlocale(LC_CTYPE, tmpLocale);
+             return 0;
+         }
+     }
+ 
 +    setlocale(LC_CTYPE, tmpLocale);
      return conn;
  }
