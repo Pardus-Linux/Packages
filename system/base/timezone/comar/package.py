@@ -14,6 +14,12 @@ def postInstall(fromVersion, fromRelease, toVersion, toRelease):
     # e.g. tz will be 'Europe/Istanbul'
     tz = os.popen("/usr/bin/timezone").read().strip()
 
+    if tz == "Not found":
+        if os.path.exists("/etc/timezone"):
+            tz = open("/etc/timezone").read()
+        else:
+            tz = "Europe/Istanbul"
+
     # This file is used by CRDA to set regulatory domain for WLAN interfaces
     if tz and not os.path.exists("/etc/timezone"):
         open("/etc/timezone", "w").write("%s" % tz)
