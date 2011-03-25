@@ -1,5 +1,6 @@
 
-if [ "$SESSION" = "kde-plasma" -o "$SESSION" = "kde-plasma-safe" -o "$SESSION" = "openbox-kde" ]; then
+#kde and kde-safe is changed to kde-plasma and kde-plasma-safe in KDE 4.6
+if [ "$SESSION" = "kde" -o "$SESSION" = "kde-safe" -o "$SESSION" = "kde-plasma" -o "$SESSION" = "kde-plasma-safe" -o "$SESSION" = "openbox-kde" ]; then
     kdehome=$HOME/.kde
     test -n "$KDEHOME" && kdehome=`echo "$KDEHOME"|sed "s,^~/,$HOME/,"`
 
