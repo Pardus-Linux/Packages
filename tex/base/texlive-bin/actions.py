@@ -227,3 +227,7 @@ def install():
     pisitools.remove("/usr/share/man/man1/xdvi.1")
     pisitools.remove("/usr/share/texmf/xdvi/xdvi.cfg")
     pisitools.remove("/usr/share/texmf/xdvi/XDvi")
+
+    #ps2eps
+    pisitools.remove("/usr/share/man/man1/bbox.1")
+    pisitools.remove("/usr/share/man/man1/ps2eps.1")
