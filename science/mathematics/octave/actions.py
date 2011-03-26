@@ -27,8 +27,7 @@ def setup():
 
 
 def build():
-    autotools.make("-j1")
-    #autotools.make()
+    autotools.make() #use parallel build patch to turn parallel build on
 
 def install():
     autotools.install()
