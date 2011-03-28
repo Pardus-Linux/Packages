@@ -5,7 +5,7 @@ import os
 serviceType = "local"
 serviceDesc = _({"en": "Hardware Abstraction Layer",
                  "tr": "Donanım Soyutlama Katmanı (HAL)"})
-serviceDefault = "on"
+serviceDefault = "off"
 serviceConf = "hal"
 
 MSG_ERR_DBUS = _({"en": "Couldn't start HAL, please ensure DBus is running.",
