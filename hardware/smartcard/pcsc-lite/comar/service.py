@@ -9,8 +9,6 @@ PIDFILE = "/var/run/pcscd/pcscd.pid"
 
 @synchronized
 def start():
-    startDependencies("hal")
-
     # pcscd wont start if these exist
     import os
     try:
