@@ -23,7 +23,8 @@ def setup():
                          --with-system-libpng")
 
 def build():
-    autotools.make('-C src -f scripts/gcc.mak LDFLAGS="%s" CFLAGS="%s" CC="%s"' % (get.LDFLAGS(), get.CFLAGS(), get.CC()))
+    # define PNG_USER_PRIVATEBUILD to pass ifdef check in opngreduc.c file
+    autotools.make('-C src -f scripts/gcc.mak LDFLAGS="%s" CFLAGS="%s" CC="%s"' % (get.LDFLAGS(), get.CFLAGS() + " -DPNG_USER_PRIVATEBUILD", get.CC()))
 
 def install():
     pisitools.dobin("src/optipng")
