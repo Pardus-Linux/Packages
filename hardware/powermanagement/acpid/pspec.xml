@@ -1,24 +1,23 @@
 <?xml version="1.0" ?>
 <!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
-
 <PISI>
     <Source>
         <Name>acpid</Name>
         <Homepage>http://tedfelix.com/linux/acpid-netlink.html</Homepage>
         <Packager>
-            <Name>Fatih Aşıcı</Name>
-            <Email>fatih@pardus.org.tr</Email>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
         </Packager>
         <License>GPLv2+</License>
         <IsA>service</IsA>
         <IsA>app:console</IsA>
         <Summary>ACPI daemon that dispatches ACPI events to user-space programs</Summary>
         <Description>acpid is a flexible and extensible daemon for ACPI (Advanced Configuration and Power Interface) event dispatching.</Description>
-        <Archive sha1sum="d2f5fdb80c6cee8b49250435d66828a4610b0846" type="targz">http://tedfelix.com/linux/acpid-2.0.6.tar.gz</Archive>
+        <Archive sha1sum="a5d4e0c6b3a3d4a217c7e6cbc5d6fbd3fac84bf8" type="targz">http://tedfelix.com/linux/acpid-2.0.8.tar.gz</Archive>
         <Patches>
             <Patch level="1">fedora/acpid-2.0.2-makefile.patch</Patch>
-            <Patch level="1">fedora/acpid-2.0.5-forking.patch</Patch>
             <Patch level="1">acpid-2.0.6-event-skip-messages.patch</Patch>
+            <Patch level="1">remove-trailing-newlines-from-syslog.patch</Patch>
         </Patches>
     </Source>
 
@@ -29,14 +28,16 @@
             <Path fileType="executable">/usr/sbin</Path>
             <Path fileType="executable">/etc/acpi/actions</Path>
             <Path fileType="data">/etc/acpi/events</Path>
+            <Path fileType="config">/etc/conf.d</Path>
             <Path fileType="data">/lib/systemd</Path>
             <Path fileType="doc">/usr/share/doc</Path>
             <Path fileType="man">/usr/share/man</Path>
         </Files>
         <AdditionalFiles>
             <AdditionalFile owner="root" permission="0755" target="/etc/acpi/actions/power.sh">acpid.power.sh</AdditionalFile>
-            <AdditionalFile owner="root" permission="0644" target="/etc/acpi/events/power.conf">acpid.power.conf</AdditionalFile>
-            <AdditionalFile owner="root" permission="0644" target="/etc/acpi/events/video.conf">acpid.video.conf</AdditionalFile>
+            <AdditionalFile owner="root" permission="0644" target="/etc/acpi/events/power.conf">fedora/acpid.power.conf</AdditionalFile>
+            <AdditionalFile owner="root" permission="0644" target="/etc/acpi/events/video.conf">fedora/acpid.video.conf</AdditionalFile>
+            <AdditionalFile owner="root" permission="0644" target="/etc/conf.d/acpid">fedora/acpid.sysconfig</AdditionalFile>
             <AdditionalFile owner="root" permission="0644" target="/lib/systemd/system/acpid.service">fedora/acpid.service</AdditionalFile>
         </AdditionalFiles>
         <Provides>
@@ -45,6 +46,13 @@
     </Package>
 
     <History>
+        <Update release="20">
+            <Date>2011-03-29</Date>
+            <Version>2.0.8</Version>
+            <Comment>Version bump to 2.0.8</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
         <Update release="19">
             <Date>2010-10-15</Date>
             <Version>2.0.6</Version>

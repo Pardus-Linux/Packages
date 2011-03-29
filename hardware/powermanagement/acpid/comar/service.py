@@ -3,30 +3,34 @@ from comar.service import *
 
 serviceType = "local"
 serviceDesc = _({"en": "ACPI Daemon",
-                 "tr": "ACPI Servisi"})
+                 "tr": "ACPI Hizmeti"})
 serviceDefault = "on"
+
+PIDFILE = "/var/run/acpid.pid"
+
+MSG_NO_PIDFILE = _({
+                    "en" : "Could not reload acpid daemon as the PID file %s does not exist." % PIDFILE,
+                    "tr" : "%s PID dosyası mevcut olmadığından acpid hizmeti yeniden yüklenemiyor." % PIDFILE,
+                   })
 
 @synchronized
 def start():
     startService(command="/usr/sbin/acpid",
-                 args="-c /etc/acpi/events",
+                 args=config.get("OPTIONS", ""),
                  donotify=True)
 
 @synchronized
 def stop():
-    stopService(command="/usr/sbin/acpid",
+    stopService(pidfile=PIDFILE,
                 donotify=True)
-
-def ready():
-    import os
-
-    if is_on() == "on" and os.path.exists("/proc/acpi/event"):
-        start()
 
 def reload():
     import signal
-    stopService(command="/usr/sbin/acpid",
-                signal=signal.SIGHUP)
+    import os
+    try:
+        os.kill(int(open(PIDFILE, "r").read().strip()), signal.SIGHUP)
+    except:
+        fail(MSG_NO_PIDFILE)
 
 def status():
-    return isServiceRunning(command="/usr/sbin/acpid")
+    return isServiceRunning(pidfile=PIDFILE)
