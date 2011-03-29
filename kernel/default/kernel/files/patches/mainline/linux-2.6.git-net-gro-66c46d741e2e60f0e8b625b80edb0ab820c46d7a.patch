@@ -1,0 +1,33 @@
+commit 66c46d741e2e60f0e8b625b80edb0ab820c46d7a
+Author: Herbert Xu <herbert@gondor.apana.org.au>
+Date:   Sat Jan 29 20:44:54 2011 -0800
+
+    gro: Reset dev pointer on reuse
+    
+    On older kernels the VLAN code may zero skb->dev before dropping
+    it and causing it to be reused by GRO.
+    
+    Unfortunately we didn't reset skb->dev in that case which causes
+    the next GRO user to get a bogus skb->dev pointer.
+    
+    This particular problem no longer happens with the current upstream
+    kernel due to changes in VLAN processing.
+    
+    However, for correctness we should still reset the skb->dev pointer
+    in the GRO reuse function in case a future user does the same thing.
+    
+    Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+    Signed-off-by: David S. Miller <davem@davemloft.net>
+
+diff --git a/net/core/dev.c b/net/core/dev.c
+index 24ea2d7..93e44db 100644
+--- a/net/core/dev.c
++++ b/net/core/dev.c
+@@ -3424,6 +3424,7 @@ static void napi_reuse_skb(struct napi_struct *napi, struct sk_buff *skb)
+ 	__skb_pull(skb, skb_headlen(skb));
+ 	skb_reserve(skb, NET_IP_ALIGN - skb_headroom(skb));
+ 	skb->vlan_tci = 0;
++	skb->dev = napi->dev;
+ 
+ 	napi->skb = skb;
+ }

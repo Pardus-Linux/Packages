@@ -1,0 +1,30 @@
+commit 6d152e23ad1a7a5b40fef1f42e017d66e6115159
+Author: Andy Gospodarek <andy@greyhouse.net>
+Date:   Wed Feb 2 14:53:25 2011 -0800
+
+    gro: reset skb_iif on reuse
+    
+    Like Herbert's change from a few days ago:
+    
+    66c46d741e2e60f0e8b625b80edb0ab820c46d7a gro: Reset dev pointer on reuse
+    
+    this may not be necessary at this point, but we should still clean up
+    the skb->skb_iif.  If not we may end up with an invalid valid for
+    skb->skb_iif when the skb is reused and the check is done in
+    __netif_receive_skb.
+    
+    Signed-off-by: Andy Gospodarek <andy@greyhouse.net>
+    Signed-off-by: David S. Miller <davem@davemloft.net>
+
+diff --git a/net/core/dev.c b/net/core/dev.c
+index 4c90789..b6d0bf8 100644
+--- a/net/core/dev.c
++++ b/net/core/dev.c
+@@ -3426,6 +3426,7 @@ static void napi_reuse_skb(struct napi_struct *napi, struct sk_buff *skb)
+ 	skb_reserve(skb, NET_IP_ALIGN - skb_headroom(skb));
+ 	skb->vlan_tci = 0;
+ 	skb->dev = napi->dev;
++	skb->skb_iif = 0;
+ 
+ 	napi->skb = skb;
+ }
