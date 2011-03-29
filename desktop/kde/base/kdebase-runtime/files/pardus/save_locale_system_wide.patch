@@ -1,10 +1,10 @@
-Index: kdebase-runtime-4.5.5/kcontrol/locale/CMakeLists.txt
+Index: kdebase-runtime-4.6.1/kcontrol/locale/CMakeLists.txt
 ===================================================================
---- kdebase-runtime-4.5.5.orig/kcontrol/locale/CMakeLists.txt
-+++ kdebase-runtime-4.5.5/kcontrol/locale/CMakeLists.txt
-@@ -26,6 +26,16 @@ target_link_libraries(kcm_locale ${KDE4_
- install(TARGETS kcm_locale  DESTINATION ${PLUGIN_INSTALL_DIR} )
+--- kdebase-runtime-4.6.1.orig/kcontrol/locale/CMakeLists.txt
++++ kdebase-runtime-4.6.1/kcontrol/locale/CMakeLists.txt
+@@ -13,6 +13,15 @@ target_link_libraries(kcm_locale ${KDE4_
  
+ install(TARGETS kcm_locale  DESTINATION ${PLUGIN_INSTALL_DIR} )
  
 +#### KAuth helper and actions ####
 +kde4_add_executable(kcmlocalehelper helper.cpp)
@@ -15,14 +15,13 @@ Index: kdebase-runtime-4.5.5/kcontrol/locale/CMakeLists.txt
 +
 +kde4_install_auth_actions(org.kde.kcontrol.kcmlocale kcmlocale.actions)
 +
-+
  ########### install files ###############
  
  install( FILES language.desktop  DESTINATION  ${SERVICES_INSTALL_DIR} )
-Index: kdebase-runtime-4.5.5/kcontrol/locale/helper.cpp
+Index: kdebase-runtime-4.6.1/kcontrol/locale/helper.cpp
 ===================================================================
 --- /dev/null
-+++ kdebase-runtime-4.5.5/kcontrol/locale/helper.cpp
++++ kdebase-runtime-4.6.1/kcontrol/locale/helper.cpp
 @@ -0,0 +1,77 @@
 +#include "helper.h"
 +#include <iostream>
@@ -101,10 +100,10 @@ Index: kdebase-runtime-4.5.5/kcontrol/locale/helper.cpp
 +}
 +
 +KDE4_AUTH_HELPER_MAIN("org.kde.kcontrol.kcmlocale", Helper)
-Index: kdebase-runtime-4.5.5/kcontrol/locale/helper.h
+Index: kdebase-runtime-4.6.1/kcontrol/locale/helper.h
 ===================================================================
 --- /dev/null
-+++ kdebase-runtime-4.5.5/kcontrol/locale/helper.h
++++ kdebase-runtime-4.6.1/kcontrol/locale/helper.h
 @@ -0,0 +1,17 @@
 +#include <kauth.h>
 +#define WriteLocaleError 1
@@ -123,10 +122,10 @@ Index: kdebase-runtime-4.5.5/kcontrol/locale/helper.h
 +        ActionReply createReply(int code, const QVariantMap *returnData = 0);
 +
 +};
-Index: kdebase-runtime-4.5.5/kcontrol/locale/kcmlocale.actions
+Index: kdebase-runtime-4.6.1/kcontrol/locale/kcmlocale.actions
 ===================================================================
 --- /dev/null
-+++ kdebase-runtime-4.5.5/kcontrol/locale/kcmlocale.actions
++++ kdebase-runtime-4.6.1/kcontrol/locale/kcmlocale.actions
 @@ -0,0 +1,11 @@
 +[Domain]
 +Name=Langage Manager Control Module
@@ -139,348 +138,166 @@ Index: kdebase-runtime-4.5.5/kcontrol/locale/kcmlocale.actions
 +Description[tr]=Yerel ayarlarını değiştirmek için yönetici hakları gerekiyor
 +Policy=auth_admin
 +Persistence=session
-Index: kdebase-runtime-4.5.5/kcontrol/locale/kcmlocale.cpp
+Index: kdebase-runtime-4.6.1/kcontrol/locale/kcmlocale.cpp
 ===================================================================
---- kdebase-runtime-4.5.5.orig/kcontrol/locale/kcmlocale.cpp
-+++ kdebase-runtime-4.5.5/kcontrol/locale/kcmlocale.cpp
-@@ -24,13 +24,14 @@
-  */
- 
- #include "kcmlocale.h"
--
-+#include "helper.h"
- #include <QPushButton>
- 
- #include <KDebug>
- #include <KConfig>
- #include <KConfigGroup>
+--- kdebase-runtime-4.6.1.orig/kcontrol/locale/kcmlocale.cpp
++++ kdebase-runtime-4.6.1/kcontrol/locale/kcmlocale.cpp
+@@ -39,8 +39,10 @@
+ #include <KPluginFactory>
  #include <KStandardDirs>
+ #include <KCurrencyCode>
 +#include <KMessageBox>
  
- #include "kcmlocale.moc"
- #include "toplevel.h"
-@@ -73,6 +74,7 @@ KLocaleConfig::KLocaleConfig(KControlLoc
+ #include "ui_kcmlocalewidget.h"
++#include "helper.h"
  
-     m_crLabel->setObjectName(I18N_NOOP("Country or region:"));
-     m_languagesLabel->setObjectName(I18N_NOOP("Languages:"));
-+    m_systemWide->setObjectName(I18N_NOOP("Set the first language as the system default"));
-     languageRemove->setObjectName(I18N_NOOP("Remove"));
-     m_upButton->setObjectName(QString());
-     m_downButton->setObjectName(QString());
-@@ -88,6 +90,7 @@ KLocaleConfig::KLocaleConfig(KControlLoc
-     connect(m_selectedCountryLabel, SIGNAL(linkActivated(const QString &)), SLOT(changeCountry()));
-     connect(languageAdd, SIGNAL(activated(const QString &)), SLOT(slotAddLanguage(const QString &)));
-     connect(m_languages, SIGNAL(itemSelectionChanged()), SLOT(slotCheckButtons()));
-+    connect(m_systemWide, SIGNAL(clicked()), this, SIGNAL(localeChanged()));
+ K_PLUGIN_FACTORY( KCMLocaleFactory, registerPlugin<KCMLocale>(); )
+ K_EXPORT_PLUGIN( KCMLocaleFactory( "kcmlocale" ) )
+@@ -100,6 +102,9 @@ KCMLocale::KCMLocale( QWidget *parent, c
+     // User has clicked Default button, resest lists to Defaults
+     connect( m_ui->m_buttonDefaultTranslations,    SIGNAL( clicked() ),
+              this,                               SLOT( defaultTranslations() ) );
++    // Reflect changes system wide (to mudur.conf)
++    connect( m_ui->m_systemWide,                 SIGNAL( clicked() ),
++             this,                               SIGNAL( localeChanged() ) );
  
-     m_upButton->setIcon(KIcon("arrow-up"));
-     m_downButton->setIcon(KIcon("arrow-down"));
-@@ -197,8 +200,33 @@ void KLocaleConfig::save()
-                          m_languageList.join(":"), KConfig::Persistent|KConfig::Global);
+     // Numbers tab
  
-   config->sync();
+@@ -599,6 +604,15 @@ void KCMLocale::save()
+ {
+     m_userConfig->sync();
+ 
++    // Apply language settings to system wide
++    if (m_ui->m_systemWide->isChecked()) {
++        int replyErrorCode = saveSystemWide();
++        qDebug() << replyErrorCode << endl;
++        if (replyErrorCode != 0)
++            KMessageBox::error(this, i18n("KAuth returned an error code: %1", replyErrorCode));
++    };
 +
-+  if (m_systemWide->isChecked()) {
-+      int replyErrorCode = saveSystemWide();
-+      qDebug() << replyErrorCode << endl;
-+      if (replyErrorCode != 0)
-+          KMessageBox::error(this, i18n("KAuth returned an error code: %1", replyErrorCode));
-+  };
++    qDebug() << "Bakalim neler olacak artik" << endl;
+     // rebuild the date base if language was changed
+     if ( m_currentTranslations != m_kcmSettings.readEntry( "Language", QString() ) ) {
+         KMessageBox::information(this, ki18n("Changed language settings apply only to "
+@@ -1192,6 +1206,7 @@ void KCMLocale::changedTranslationsAvail
+     int row = m_ui->m_selectTranslations->availableListWidget()->currentRow();
+     changedTranslations();
+     m_ui->m_selectTranslations->availableListWidget()->setCurrentRow( row );
++    emit localeChanged();
+ }
+ 
+ void KCMLocale::changedTranslationsSelected( QListWidgetItem *item )
+@@ -1200,6 +1215,7 @@ void KCMLocale::changedTranslationsSelec
+     int row = m_ui->m_selectTranslations->selectedListWidget()->currentRow();
+     changedTranslations();
+     m_ui->m_selectTranslations->selectedListWidget()->setCurrentRow( row );
++    emit localeChanged();
+ }
+ 
+ void KCMLocale::changedTranslations()
+@@ -1243,6 +1259,35 @@ void KCMLocale::installTranslations()
+     // User has clicked Install Languages button, trigger distro specific install routine
+ }
+ 
++void KCMLocale::initLocaleChange()
++{
++    m_ui->m_systemWide->setText( ki18n( "Set the first language as the system default" ).toString( m_kcmLocale ) );
++    QString helpText = ki18n( "<p>Click here to set the first language in the list as the system default</p>" ).toString( m_kcmLocale );
++    m_ui->m_systemWide->setToolTip( helpText );
++    m_ui->m_systemWide->setWhatsThis( helpText );
 +}
 +
-+int  KLocaleConfig::saveSystemWide()
++int KCMLocale::saveSystemWide()
 +{
-+  KAuth::Action action("org.kde.kcontrol.kcmlocale.managelocale");
-+  action.setHelperID("org.kde.kcontrol.kcmlocale");
++    QStringList selectedTranslations;
++    for ( int i = 0; i < m_ui->m_selectTranslations->selectedListWidget()->count(); ++i ) {
++        selectedTranslations.append(  m_ui->m_selectTranslations->selectedListWidget()->item( i )->data( Qt::UserRole ).toString() );
++    }
 +
-+  QVariantMap helperargs;
-+  helperargs["locale"] = m_languageList.at(0);
++    KAuth::Action action("org.kde.kcontrol.kcmlocale.managelocale");
++    action.setHelperID("org.kde.kcontrol.kcmlocale");
 +
-+  qDebug() << m_languageList.at(0);
++    QVariantMap helperargs;
++    helperargs["locale"] = selectedTranslations.at(0);
 +
-+  action.setArguments(helperargs);
++    qDebug() << selectedTranslations.at(0);
 +
-+  KAuth::ActionReply reply = action.execute();
-+  return reply.errorCode();
++    action.setArguments(helperargs);
 +
- }
- 
++    KAuth::ActionReply reply = action.execute();
++    return reply.errorCode();
++}
 +
- void KLocaleConfig::slotCheckButtons()
+ void KCMLocale::initNumericThousandsSeparator()
  {
-   languageRemove->setEnabled( selectedRow() != -1 && m_languages->count() > 1 );
-@@ -280,3 +308,4 @@ void KLocaleConfig::changedCountry(const
-   emit localeChanged();
-   emit languageChanged();
- }
-+
-Index: kdebase-runtime-4.5.5/kcontrol/locale/kcmlocale.h
+     m_ui->m_comboThousandsSeparator->blockSignals( true );
+Index: kdebase-runtime-4.6.1/kcontrol/locale/kcmlocale.h
 ===================================================================
---- kdebase-runtime-4.5.5.orig/kcontrol/locale/kcmlocale.h
-+++ kdebase-runtime-4.5.5/kcontrol/locale/kcmlocale.h
-@@ -68,7 +68,7 @@ private:
-   void languageMove(Direction direcition);
-   int selectedRow() const;
+--- kdebase-runtime-4.6.1.orig/kcontrol/locale/kcmlocale.h
++++ kdebase-runtime-4.6.1/kcontrol/locale/kcmlocale.h
+@@ -162,6 +162,8 @@ private:
  
--
-+  int saveSystemWide();
-   // NOTE: we need to mantain our own language list instead of using KLocale's
-   // because KLocale does not add a language if there is no translation
-   // for the current application so it would not be possible to set
-Index: kdebase-runtime-4.5.5/kcontrol/locale/language.ui
+     void initTranslationsInstall();
+ 
++    void initLocaleChange();
++    int saveSystemWide();
+     //Numeric tab
+ 
+     void initNumericThousandsSeparator();
+@@ -262,6 +264,9 @@ private:
+     void initBinaryUnitDialect();
+     void setBinaryUnitDialect( int newValue );
+ 
++Q_SIGNALS:
++    void localeChanged();
++
+ private Q_SLOTS:
+ 
+     void updateSample();
+@@ -456,6 +461,8 @@ private:
+     KLocale *m_defaultLocale;
+ 
+     Ui::KCMLocaleWidget *m_ui;
++
++
+ };
+ 
+-#endif //KCMLOCALE_H
+\ No newline at end of file
++#endif //KCMLOCALE_H
+Index: kdebase-runtime-4.6.1/kcontrol/locale/kcmlocalewidget.ui
 ===================================================================
---- kdebase-runtime-4.5.5.orig/kcontrol/locale/language.ui
-+++ kdebase-runtime-4.5.5/kcontrol/locale/language.ui
-@@ -1,53 +1,54 @@
--<ui version="4.0" >
-+<?xml version="1.0" encoding="UTF-8"?>
-+<ui version="4.0">
-  <class>Language</class>
-- <widget class="QWidget" name="Language" >
--  <property name="geometry" >
-+ <widget class="QWidget" name="Language">
-+  <property name="geometry">
-    <rect>
+--- kdebase-runtime-4.6.1.orig/kcontrol/locale/kcmlocalewidget.ui
++++ kdebase-runtime-4.6.1/kcontrol/locale/kcmlocalewidget.ui
+@@ -7,7 +7,7 @@
      <x>0</x>
      <y>0</y>
--    <width>482</width>
--    <height>303</height>
-+    <width>1031</width>
-+    <height>595</height>
+     <width>702</width>
+-    <height>408</height>
++    <height>448</height>
     </rect>
    </property>
--  <layout class="QGridLayout" >
--   <item row="0" column="0" >
--    <layout class="QVBoxLayout" >
-+  <layout class="QGridLayout">
-+   <item row="0" column="0">
-+    <layout class="QVBoxLayout">
-      <item>
--      <layout class="QHBoxLayout" >
-+      <layout class="QHBoxLayout">
-        <item>
--        <layout class="QGridLayout" >
--         <item row="0" column="0" colspan="3" >
--          <widget class="QLabel" name="m_crLabel" >
--           <property name="sizePolicy" >
--            <sizepolicy vsizetype="Fixed" hsizetype="Preferred" >
-+        <layout class="QGridLayout">
-+         <item row="0" column="0" colspan="3">
-+          <widget class="QLabel" name="m_crLabel">
-+           <property name="sizePolicy">
-+            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
--           <property name="text" >
-+           <property name="text">
-             <string>Country or region:</string>
-            </property>
--           <property name="alignment" >
-+           <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-            </property>
-           </widget>
-          </item>
--         <item row="1" column="0" colspan="3" >
--          <widget class="QLabel" name="m_languagesLabel" >
--           <property name="text" >
-+         <item row="1" column="0" colspan="3">
-+          <widget class="QLabel" name="m_languagesLabel">
-+           <property name="text">
-             <string>Languages:</string>
-            </property>
--           <property name="alignment" >
-+           <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTop|Qt::AlignTrailing</set>
-            </property>
-           </widget>
-          </item>
--         <item row="3" column="0" colspan="2" >
-+         <item row="3" column="0" colspan="2">
-           <spacer>
--           <property name="orientation" >
-+           <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
--           <property name="sizeHint" stdset="0" >
-+           <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-@@ -55,96 +56,119 @@
-            </property>
-           </spacer>
-          </item>
--         <item row="3" column="2" >
--          <layout class="QVBoxLayout" >
-+         <item row="2" column="0">
-+          <spacer name="verticalSpacer">
-+           <property name="orientation">
-+            <enum>Qt::Vertical</enum>
-+           </property>
-+           <property name="sizeHint" stdset="0">
-+            <size>
-+             <width>20</width>
-+             <height>40</height>
-+            </size>
-+           </property>
-+          </spacer>
-+         </item>
-+         <item row="3" column="2">
-+          <layout class="QVBoxLayout">
-            <item>
--            <widget class="QPushButton" name="m_upButton" >
--             <property name="text" >
-+            <widget class="QPushButton" name="m_upButton">
-+             <property name="text">
-               <string/>
-              </property>
--             <property name="icon" >
-+             <property name="icon">
-               <iconset>
-                <normaloff>../../../../../../../../opt/kde3/share/icons/crystalsvg/32x32/actions/up.png</normaloff>../../../../../../../../opt/kde3/share/icons/crystalsvg/32x32/actions/up.png</iconset>
-              </property>
-             </widget>
-            </item>
-            <item>
--            <widget class="QPushButton" name="m_downButton" >
--             <property name="text" >
-+            <widget class="QPushButton" name="m_downButton">
-+             <property name="text">
-               <string/>
-              </property>
--             <property name="icon" >
-+             <property name="icon">
-               <iconset>
-                <normaloff>../../../../../../../../opt/kde3/share/icons/crystalsvg/32x32/actions/down.png</normaloff>../../../../../../../../opt/kde3/share/icons/crystalsvg/32x32/actions/down.png</iconset>
-              </property>
-             </widget>
-            </item>
-+           <item>
-+            <spacer name="verticalSpacer_2">
-+             <property name="orientation">
-+              <enum>Qt::Vertical</enum>
-+             </property>
-+             <property name="sizeType">
-+              <enum>QSizePolicy::Fixed</enum>
-+             </property>
-+             <property name="sizeHint" stdset="0">
-+              <size>
-+               <width>20</width>
-+               <height>30</height>
-+              </size>
-+             </property>
-+            </spacer>
-+           </item>
-           </layout>
-          </item>
--         <item row="2" column="0" >
--          <spacer name="verticalSpacer" >
--           <property name="orientation" >
--            <enum>Qt::Vertical</enum>
--           </property>
--           <property name="sizeHint" stdset="0" >
--            <size>
--             <width>20</width>
--             <height>40</height>
--            </size>
--           </property>
--          </spacer>
--         </item>
-         </layout>
-        </item>
-        <item>
--        <layout class="QVBoxLayout" >
-+        <layout class="QVBoxLayout">
-          <item>
--          <widget class="QLabel" name="m_selectedCountryLabel" >
--           <property name="sizePolicy" >
--            <sizepolicy vsizetype="Preferred" hsizetype="Preferred" >
-+          <widget class="QLabel" name="m_selectedCountryLabel">
-+           <property name="sizePolicy">
-+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
--           <property name="text" >
--            <string>None selected (&lt;a href="/change">change...&lt;/a>)</string>
-+           <property name="text">
-+            <string>None selected (&lt;a href=&quot;/change&quot;&gt;change...&lt;/a&gt;)</string>
-            </property>
-           </widget>
-          </item>
-          <item>
--          <widget class="QListWidget" name="m_languages" />
-+          <widget class="QListWidget" name="m_languages"/>
-+         </item>
-+         <item>
-+          <layout class="QHBoxLayout">
-+           <item>
-+            <widget class="QCheckBox" name="m_systemWide">
-+             <property name="text">
-+              <string>Set the first language as the system default</string>
-+             </property>
-+            </widget>
-+           </item>
-+           <item>
-+            <spacer>
-+             <property name="orientation">
-+              <enum>Qt::Horizontal</enum>
-+             </property>
-+             <property name="sizeHint" stdset="0">
-+              <size>
-+               <width>40</width>
-+               <height>20</height>
-+              </size>
-+             </property>
-+            </spacer>
-+           </item>
-+           <item>
-+            <widget class="KLanguageButton" name="languageAdd"/>
-+           </item>
-+           <item>
-+            <widget class="QPushButton" name="languageRemove">
-+             <property name="text">
-+              <string>Remove</string>
-+             </property>
-+            </widget>
-+           </item>
-+          </layout>
+   <property name="sizePolicy">
+@@ -20,7 +20,7 @@
+    <item>
+     <widget class="KTabWidget" name="m_tabWidgetSettings">
+      <property name="currentIndex">
+-      <number>0</number>
++      <number>1</number>
+      </property>
+      <widget class="QWidget" name="m_tabLocation">
+       <attribute name="title">
+@@ -147,6 +147,13 @@
           </item>
          </layout>
         </item>
++       <item>
++        <widget class="QCheckBox" name="m_systemWide">
++         <property name="text">
++          <string>Set the first language as the system default</string>
++         </property>
++        </widget>
++       </item>
        </layout>
-      </item>
--     <item>
--      <layout class="QHBoxLayout" >
--       <item>
--        <spacer>
--         <property name="orientation" >
--          <enum>Qt::Horizontal</enum>
--         </property>
--         <property name="sizeHint" stdset="0" >
--          <size>
--           <width>40</width>
--           <height>20</height>
--          </size>
--         </property>
--        </spacer>
--       </item>
--       <item>
--        <widget class="KLanguageButton" name="languageAdd" />
--       </item>
--       <item>
--        <widget class="QPushButton" name="languageRemove" >
--         <property name="text" >
--          <string>Remove</string>
--         </property>
--        </widget>
--       </item>
--      </layout>
--     </item>
-     </layout>
-    </item>
-   </layout>
+      </widget>
+      <widget class="QWidget" name="m_tabNumbers">
