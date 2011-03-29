@@ -23,6 +23,7 @@ def setup():
                           -DENGINE_LIBXINE_ENABLED=OFF \
                           -DUSE_SYSTEM_QXT=ON \
                           -DUSE_SYSTEM_QTSINGLEAPPLICATION=OFF \
+                          -DUSE_SYSTEM_GMOCK=OFF \
                           -DSTATIC_SQLITE=OFF \
                           -DUSE_SYSTEM_PROJECTM=ON \
                           -DENABLE_WIIMOTEDEV=ON \

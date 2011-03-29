@@ -1,0 +1,98 @@
+diff -rupN clementine-0.7.old/CMakeLists.txt clementine-0.7/CMakeLists.txt
+--- clementine-0.7.old/CMakeLists.txt	2011-03-19 15:13:18.000000000 -0400
++++ clementine-0.7/CMakeLists.txt	2011-03-28 21:56:39.000000000 -0400
+@@ -303,6 +303,18 @@ if(NOT ECHONEST_INCLUDE_DIRS OR NOT ECHO
+   set(ECHONEST_LIBRARIES echonest)
+ endif(NOT ECHONEST_INCLUDE_DIRS OR NOT ECHONEST_LIBRARIES)
+ 
++# Use system gmock if it's available
++# We need to look for both gmock and gtest
++find_path(GMOCK_INCLUDE_DIRS gmock/gmock.h)
++find_library(GMOCK_LIBRARIES gmock)
++if(GMOCK_INCLUDE_DIRS)
++  find_path(GTEST_INCLUDE_DIRS gtest/gtest.h)
++  find_library(GTEST_LIBRARIES gtest)
++  if(GTEST_INCLUDE_DIRS)
++    set(USE_SYSTEM_GMOCK 1)
++    set(GMOCK_LIBRARIES ${GMOCK_LIBRARIES} ${GTEST_LIBRARIES})
++  endif(GTEST_INCLUDE_DIRS)
++endif(GMOCK_INCLUDE_DIRS)
+ 
+ # Subdirectories
+ add_subdirectory(src)
+diff -rupN clementine-0.7.old/tests/CMakeLists.txt clementine-0.7/tests/CMakeLists.txt
+--- clementine-0.7.old/tests/CMakeLists.txt	2011-03-13 16:01:24.000000000 -0400
++++ clementine-0.7/tests/CMakeLists.txt	2011-03-28 21:55:51.000000000 -0400
+@@ -1,8 +1,10 @@
+ cmake_minimum_required(VERSION 2.6)
+ 
+-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/gmock/include)
+-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/gmock/gtest/include)
+-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/gmock/gtest)
++if(NOT USE_SYSTEM_GMOCK)
++  include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/gmock/include)
++  include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/gmock/gtest/include)
++  include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/gmock/gtest)
++endif(NOT USE_SYSTEM_GMOCK)
+ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../src)
+ include_directories(${CMAKE_CURRENT_BINARY_DIR}/../src)
+ include_directories(${QT_QTTEST_INCLUDE_DIR})
+@@ -15,6 +17,7 @@ if(HAVE_LIBLASTFM)
+   include_directories(${LASTFM_INCLUDE_DIRS})
+ endif(HAVE_LIBLASTFM)
+ 
++if(NOT USE_SYSTEM_GMOCK)
+ set(GTEST-SOURCES
+     ../3rdparty/gmock/gtest/src/gtest.cc
+     ../3rdparty/gmock/gtest/src/gtest-death-test.cc
+@@ -24,7 +27,6 @@ set(GTEST-SOURCES
+     ../3rdparty/gmock/gtest/src/gtest-typed-test.cc
+ )
+ 
+-add_definitions(-DGTEST_USE_OWN_TR1_TUPLE=1)
+ add_library(gtest STATIC EXCLUDE_FROM_ALL ${GTEST-SOURCES})
+ 
+ set(GMOCK-SOURCES
+@@ -36,7 +38,10 @@ set(GMOCK-SOURCES
+     ../3rdparty/gmock/src/gmock-spec-builders.cc)
+ 
+ add_library(gmock STATIC EXCLUDE_FROM_ALL ${GMOCK-SOURCES})
+-target_link_libraries(gmock gtest)
++set(GMOCK_LIBRARIES gmock gtest)
++endif(NOT USE_SYSTEM_GMOCK)
++
++add_definitions(-DGTEST_USE_OWN_TR1_TUPLE=1)
+ 
+ set(TESTUTILS-SOURCES
+     test_utils.cpp
+@@ -52,7 +57,7 @@ set(TESTUTILS-MOC-HEADERS
+ qt4_wrap_cpp(TESTUTILS-SOURCES-MOC ${TESTUTILS-MOC-HEADERS})
+ 
+ add_library(test_utils STATIC EXCLUDE_FROM_ALL ${TESTUTILS-SOURCES} ${TESTUTILS-SOURCES-MOC})
+-target_link_libraries(test_utils gmock ${QT_LIBRARIES} ${QT_QTTEST_LIBRARY})
++target_link_libraries(test_utils ${GMOCK_LIBRARIES} ${QT_LIBRARIES} ${QT_QTTEST_LIBRARY})
+ 
+ add_custom_target(test
+     echo "Running tests"
+@@ -79,7 +84,7 @@ macro(add_test_file test_source gui_requ
+       EXCLUDE_FROM_ALL
+       ${test_source}
+     )
+-    target_link_libraries(${TEST_NAME} gmock clementine_lib test_utils)
++    target_link_libraries(${TEST_NAME} ${GMOCK_LIBRARIES} clementine_lib test_utils)
+     set(GUI_REQUIRED ${gui_required})
+     if (GUI_REQUIRED)
+       target_link_libraries(${TEST_NAME} test_gui_main)
+diff -rupN clementine-0.7.old/tests/mock_playlistmanager.h clementine-0.7/tests/mock_playlistmanager.h
+--- clementine-0.7.old/tests/mock_playlistmanager.h	2011-03-10 17:05:56.000000000 -0500
++++ clementine-0.7/tests/mock_playlistmanager.h	2011-03-28 21:57:16.000000000 -0400
+@@ -73,6 +73,9 @@ public:
+   void EmitPlaylistManagerInitialized() {
+     emit PlaylistManagerInitialized();
+   }
++
++  void InvalidateDeletedSongs() {}
++
+ };
+ 
+ #endif // MOCK_PLAYLISTMANAGER_H
