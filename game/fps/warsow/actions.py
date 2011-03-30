@@ -14,6 +14,7 @@ WorkDir = "./"
 source = "source"
 arch = "x86_64" if get.ARCH() == "x86_64" else "i386"
 
+# this package is fragile to flags, you have been warned
 cflags = get.CFLAGS().replace("-fomit-frame-pointer", "")
 cxxflags = get.CXXFLAGS().replace("-fomit-frame-pointer", "")
 
@@ -41,6 +42,7 @@ def build():
                     CC="%s" \
                     CXX="%s" \
                     V=1 \
+                    VERBOSE=1 \
                     all' % (arch, get.CC(), get.CXX()))
 
                     # shell scripts override these, disabling for now
