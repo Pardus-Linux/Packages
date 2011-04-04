@@ -7,7 +7,7 @@ from pisi.actionsapi import autotools
 from pisi.actionsapi import pisitools
 
 def setup():
-    pisitools.dosed("test/Makefile.am", "^SUBDIRS = .*$", "")
+    pisitools.dosed("test/Makefile.am", "^(SUBDIRS =).*$", r"\1 vainfo")
 
     autotools.autoreconf("-vif")
     autotools.configure("--enable-glx \
