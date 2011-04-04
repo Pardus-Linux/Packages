@@ -1,19 +1,19 @@
-commit 1df06d813ab8363dee2dc3c5d7856b155c1c8da2
+commit ed7041cd41a517dbd42da8b4e1a8c10b7d6689bd
 Author: Gwenole Beauchesne <gbeauchesne@splitted-desktop.com>
 Date:   Tue Feb 23 10:05:25 2010 +0000
 
     Detect Broadcom Crystal HD chip.
 
 diff --git a/va/Makefile.am b/va/Makefile.am
-index 2ff3a23..633d42b 100644
+index 5018ef0..014ba8e 100644
 --- a/va/Makefile.am
 +++ b/va/Makefile.am
 @@ -27,7 +27,7 @@ INCLUDES = \
  LDADD = \
  	$(LIBVA_LT_LDFLAGS)
  
--libva_la_SOURCES = va.c va_trace.c
-+libva_la_SOURCES = va.c va_trace.c va_crystalhd.c
+-libva_la_SOURCES = va.c va_trace.c va_fool.c va_fool_getframe.c
++libva_la_SOURCES = va.c va_trace.c va_fool.c va_fool_getframe.c va_crystalhd.c
  libva_ladir = $(libdir)
  libva_la_LDFLAGS = $(LDADD) -no-undefined
  libva_la_LIBADD = $(LIBVA_LIBS) -ldl
@@ -25,23 +25,18 @@ index 2ff3a23..633d42b 100644
 +	va_version.h.in \
 +	va_crystalhd.h
 diff --git a/va/va.c b/va/va.c
-index 5ff3563..cfdb5b4 100644
+index 10befe8..17ed08d 100644
 --- a/va/va.c
 +++ b/va/va.c
-@@ -23,9 +23,11 @@
-  */
- 
- #define _GNU_SOURCE 1
-+
-+#include "config.h"
- #include "va.h"
+@@ -28,6 +28,7 @@
  #include "va_backend.h"
--#include "config.h"
+ #include "va_trace.h"
+ #include "va_fool.h"
 +#include "va_crystalhd.h"
  
  #include <assert.h>
  #include <stdarg.h>
-@@ -360,6 +362,15 @@ VAStatus vaInitialize (
+@@ -415,6 +416,15 @@ VAStatus vaInitialize (
          vaStatus = va_openDriver(dpy, driver_name);
          va_infoMessage("va_openDriver() returns %d\n", vaStatus);
  
