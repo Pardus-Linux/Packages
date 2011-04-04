@@ -1,0 +1,232 @@
+Index: src/playlist/playlisttabbar.h
+===================================================================
+--- src/playlist/playlisttabbar.h	(revision 3104)
++++ src/playlist/playlisttabbar.h	(revision 3105)
+@@ -22,6 +22,7 @@
+ #include <QTabBar>
+ 
+ class PlaylistManager;
++class RenameTabLineEdit;
+ 
+ class QMenu;
+ 
+@@ -69,6 +70,8 @@
+ private slots:
+   void CurrentIndexChanged(int index);
+   void Rename();
++  void RenameInline();
++  void HideEditor();
+   void Remove();
+   void TabMoved();
+   void Save();
+@@ -87,6 +90,9 @@
+   int drag_hover_tab_;
+ 
+   bool suppress_current_changed_;
++
++  //editor for inline renaming
++  RenameTabLineEdit* rename_editor_;
+ };
+ 
+ #endif // PLAYLISTTABBAR_H
+Index: src/playlist/playlisttabbar.cpp
+===================================================================
+--- src/playlist/playlisttabbar.cpp	(revision 3104)
++++ src/playlist/playlisttabbar.cpp	(revision 3105)
+@@ -18,9 +18,11 @@
+ #include "playlist.h"
+ #include "playlistmanager.h"
+ #include "playlisttabbar.h"
++#include "playlistview.h"
+ #include "songmimedata.h"
+ #include "radio/radiomimedata.h"
+ #include "ui/iconloader.h"
++#include "widgets/renametablineedit.h"
+ 
+ #include <QContextMenuEvent>
+ #include <QMenu>
+@@ -32,15 +34,22 @@
+     manager_(NULL),
+     menu_(new QMenu(this)),
+     menu_index_(-1),
+-    suppress_current_changed_(false)
++    suppress_current_changed_(false),
++    rename_editor_(new RenameTabLineEdit(this))
+ {
+   setAcceptDrops(true);
++  setElideMode(Qt::ElideRight);
++  setUsesScrollButtons(false);
+ 
+   remove_ = menu_->addAction(IconLoader::Load("list-remove"), tr("Remove playlist"), this, SLOT(Remove()));
+   rename_ = menu_->addAction(IconLoader::Load("edit-rename"), tr("Rename playlist..."), this, SLOT(Rename()));
+   save_ = menu_->addAction(IconLoader::Load("document-save"), tr("Save playlist..."), this, SLOT(Save()));
+   menu_->addSeparator();
+ 
++  rename_editor_->setVisible(false);
++  connect(rename_editor_, SIGNAL(editingFinished()), SLOT(RenameInline()));
++  connect(rename_editor_, SIGNAL(EditingCanceled()), SLOT(HideEditor()));
++
+   connect(this, SIGNAL(currentChanged(int)), this, SLOT(CurrentIndexChanged(int)));
+   connect(this, SIGNAL(tabMoved(int,int)), this, SLOT(TabMoved()));
+ }
+@@ -58,6 +67,12 @@
+ }
+ 
+ void PlaylistTabBar::contextMenuEvent(QContextMenuEvent* e) {
++  //we need to finish the renaming action before showing context menu
++  if (rename_editor_->isVisible()) {
++    //discard any change
++    HideEditor();
++  }
++
+   menu_index_ = tabAt(e->pos());
+   rename_->setEnabled(menu_index_ != -1);
+   remove_->setEnabled(menu_index_ != -1 && count() > 1);
+@@ -82,7 +97,17 @@
+   if (index == -1) {
+     new_->activate(QAction::Trigger);
+   }
++  else {
++    //update current tab
++    menu_index_ = index;
+ 
++    //set position
++    rename_editor_->setGeometry(tabRect(index));
++    rename_editor_->setText(tabText(index));
++    rename_editor_->setVisible(true);
++    rename_editor_->setFocus();
++  }
++
+   QTabBar::mouseDoubleClickEvent(e);
+ }
+ 
+@@ -101,6 +126,19 @@
+   emit Rename(tabData(menu_index_).toInt(), name);
+ }
+ 
++void PlaylistTabBar::RenameInline() {
++  emit Rename(tabData(menu_index_).toInt(), rename_editor_->text());
++  HideEditor();
++}
++
++void PlaylistTabBar::HideEditor() {
++  //editingFinished() will be called twice due to Qt bug #40, so we reuse the same instance, don't delete it
++  rename_editor_->setVisible(false);
++
++  //hack to give back focus to playlist view
++  manager_->SetCurrentPlaylist(manager_->current()->id());
++}
++
+ void PlaylistTabBar::Remove() {
+   if (menu_index_ == -1)
+     return;
+Index: src/widgets/renametablineedit.h
+===================================================================
+--- src/widgets/renametablineedit.h	(revision 0)
++++ src/widgets/renametablineedit.h	(revision 3105)
+@@ -0,0 +1,39 @@
++/* This file is part of Clementine.
++   Copyright 2011, Andrea Decorte <adecorte@gmail.com>
++
++   Clementine is free software: you can redistribute it and/or modify
++   it under the terms of the GNU General Public License as published by
++   the Free Software Foundation, either version 3 of the License, or
++   (at your option) any later version.
++
++   Clementine is distributed in the hope that it will be useful,
++   but WITHOUT ANY WARRANTY; without even the implied warranty of
++   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++   GNU General Public License for more details.
++
++   You should have received a copy of the GNU General Public License
++   along with Clementine.  If not, see <http://www.gnu.org/licenses/>.
++*/
++
++#ifndef RENAMETABLINEEDIT_H
++#define RENAMETABLINEEDIT_H
++
++#include <QLineEdit>
++
++class RenameTabLineEdit : public QLineEdit {
++  Q_OBJECT
++
++public:
++  RenameTabLineEdit(QWidget* parent = 0);
++
++signals:
++  void EditingCanceled();
++
++public slots:
++
++protected:
++  void focusOutEvent(QFocusEvent* e);
++  void keyPressEvent(QKeyEvent* e);
++};
++
++#endif // RENAMETABLINEEDIT_H
+Index: src/widgets/renametablineedit.cpp
+===================================================================
+--- src/widgets/renametablineedit.cpp	(revision 0)
++++ src/widgets/renametablineedit.cpp	(revision 3105)
+@@ -0,0 +1,41 @@
++/* This file is part of Clementine.
++   Copyright 2011, Andrea Decorte <adecorte@gmail.com>
++
++   Clementine is free software: you can redistribute it and/or modify
++   it under the terms of the GNU General Public License as published by
++   the Free Software Foundation, either version 3 of the License, or
++   (at your option) any later version.
++
++   Clementine is distributed in the hope that it will be useful,
++   but WITHOUT ANY WARRANTY; without even the implied warranty of
++   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++   GNU General Public License for more details.
++
++   You should have received a copy of the GNU General Public License
++   along with Clementine.  If not, see <http://www.gnu.org/licenses/>.
++*/
++
++#include "renametablineedit.h"
++
++#include <QKeyEvent>
++
++RenameTabLineEdit::RenameTabLineEdit(QWidget *parent) :
++    QLineEdit(parent)
++{
++}
++
++void RenameTabLineEdit::keyPressEvent (QKeyEvent *e) {
++  if (e->key() == Qt::Key_Escape) {
++    e->accept();
++    emit EditingCanceled();
++  }
++  else {
++    QLineEdit::keyPressEvent(e);
++  }
++}
++
++void RenameTabLineEdit::focusOutEvent(QFocusEvent *e) {
++  //if the user hasn't explicitly accepted, discard the value
++  emit EditingCanceled();
++  //we don't call the default event since it will trigger editingFished()
++}
+Index: src/CMakeLists.txt
+===================================================================
+--- src/CMakeLists.txt	(revision 3104)
++++ src/CMakeLists.txt	(revision 3105)
+@@ -253,6 +253,7 @@
+   widgets/prettyimageview.cpp
+   widgets/progressitemdelegate.cpp
+   widgets/ratingwidget.cpp
++  widgets/renametablineedit.cpp
+   widgets/sliderwidget.cpp
+   widgets/spinbox.cpp
+   widgets/stickyslider.cpp
+@@ -440,6 +441,7 @@
+   widgets/prettyimageview.h
+   widgets/progressitemdelegate.h
+   widgets/ratingwidget.h
++  widgets/renametablineedit.h
+   widgets/sliderwidget.h
+   widgets/spinbox.h
+   widgets/stickyslider.h

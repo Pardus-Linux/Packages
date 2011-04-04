@@ -1,0 +1,50 @@
+Index: src/playlist/playlisttabbar.cpp
+===================================================================
+--- src/playlist/playlisttabbar.cpp	(revision 3106)
++++ src/playlist/playlisttabbar.cpp	(revision 3108)
+@@ -94,18 +94,22 @@
+ 
+ void PlaylistTabBar::mouseDoubleClickEvent(QMouseEvent *e) {
+   int index = tabAt(e->pos());
+-  if (index == -1) {
+-    new_->activate(QAction::Trigger);
+-  }
+-  else {
+-    //update current tab
+-    menu_index_ = index;
+ 
+-    //set position
+-    rename_editor_->setGeometry(tabRect(index));
+-    rename_editor_->setText(tabText(index));
+-    rename_editor_->setVisible(true);
+-    rename_editor_->setFocus();
++  //discard a double click with the middle button
++  if (e->button() != Qt::MidButton) {
++    if (index == -1) {
++      new_->activate(QAction::Trigger);
++    }
++    else {
++      //update current tab
++      menu_index_ = index;
++
++      //set position
++      rename_editor_->setGeometry(tabRect(index));
++      rename_editor_->setText(tabText(index));
++      rename_editor_->setVisible(true);
++      rename_editor_->setFocus();
++    }
+   }
+ 
+   QTabBar::mouseDoubleClickEvent(e);
+Index: src/widgets/fancytabwidget.cpp
+===================================================================
+--- src/widgets/fancytabwidget.cpp	(revision 3106)
++++ src/widgets/fancytabwidget.cpp	(revision 3108)
+@@ -673,6 +673,7 @@
+   bar->setShape(shape);
+   bar->setDocumentMode(true);
+   bar->setUsesScrollButtons(true);
++  bar->setElideMode(Qt::ElideRight);
+ 
+   if (shape == QTabBar::RoundedWest) {
+     bar->setIconSize(QSize(22, 22));
