@@ -22,11 +22,9 @@ def setup():
     shelltools.export("SETUP_NOCHECK", "1")
     shelltools.system("sh ati-driver-installer-%s-x86.x86_64.run --extract ." % get.srcVERSION().replace(".", "-"))
 
-    shelltools.sym("../../../../../arch/%s/lib/modules/fglrx/build_mod/libfglrx_ip.a.GCC4" % Target, "%s/libfglrx_ip.a.GCC4" % BuildDir)
-
+    shelltools.sym("../../../../../arch/%s/lib/modules/fglrx/build_mod/libfglrx_ip.a" % Target, "%s/libfglrx_ip.a" % BuildDir)
     pisitools.dosed("%s/make.sh" % BuildDir, r"^linuxincludes=.*", "linuxincludes=/lib/modules/%s/build/include" % KDIR)
     pisitools.dosed("%s/make.sh" % BuildDir, r"^uname_r=.*", "uname_r=%s" % KDIR)
-    pisitools.dosed("%s/2.6.x/Makefile" % BuildDir, r"^(GCC_VER_MAJ *=).*$", r"\1 4")
     pisitools.dosed("common/etc/ati/authatieventsd.sh", "/var/lib/xdm/authdir/authfiles", "/var/run/xauth")
 
     shelltools.system("patch -p1 < desktop-files.patch")
@@ -36,12 +34,17 @@ def build():
     shelltools.cd(BuildDir)
     shelltools.system("sh make.sh")
 
+
 def install():
+    # Controlcenter binaries
     pisitools.dobin("arch/%s/usr/X11R6/bin/*" % Target)
     pisitools.dobin("common/usr/X11R6/bin/*")
     pisitools.dosbin("arch/%s/usr/sbin/*" % Target)
     pisitools.dosbin("common/usr/sbin/*")
 
+    # Files under arch are Controlcenter libraries
+    # Under acpi is an example file
+    # The other files under /usr/share are common files like icon,man,doc ,etc ..
     DIRS = {
             "common/usr/share/doc/fglrx/examples/etc/acpi/events":  "/etc/acpi",
             "common/etc/ati":                       "/etc",
@@ -53,20 +56,27 @@ def install():
     for source, target in DIRS.items():
         pisitools.insinto(target, source)
 
-    pisitools.domove("/usr/lib/modules", "/usr/lib/fglrx")
-    pisitools.insinto("/usr/lib/fglrx/modules", "%s/usr/X11R6/lib*/modules/*" % XDir)
+    # This is a Xorg library
+    pisitools.domove("/usr/lib/modules", "/usr/lib/xorg/modules")
 
-    pisitools.domove("/usr/lib/libGL.so.1.2", "/usr/lib/fglrx")
-    pisitools.domove("/usr/lib/fglrx/modules/dri", "/usr/lib/xorg/modules/")
+    # X.org drivers
+    pisitools.insinto("/usr/lib/xorg/modules", "%s/usr/X11R6/lib*/modules/*" % XDir)
+
+#    pisitools.domove("/usr/lib/libGL.so.1.2", "/usr/lib/fglrx")
+#    pisitools.domove("/usr/lib/fglrx/modules/dri", "/usr/lib/xorg/modules/")
+#    pisitools.domove("/usr/lib/fglrx/modules/drivers", "/usr/lib/xorg/modules")
+#    pisitools.domove("/usr/lib/fglrx/modules/linux", "/usr/lib/xorg/modules")
+#    pisitools.domove("/usr/lib/fglrx/modules/extensions/fglrx", "/usr/lib/xorg/modules/extensions/")
+
+
+    # Necessary symlinks
+    pisitools.dosym("/usr/lib/xorg/modules/dri/fglrx_dri.so", "/usr/lib/dri/fglrx_dri.so")
 
     pisitools.dosym("libatiuki.so.1.0", "/usr/lib/libatiuki.so.1")
     pisitools.dosym("libatiuki.so.1", "/usr/lib/libatiuki.so")
 
     pisitools.dosym("libfglrx_dm.so.1.0", "/usr/lib/libfglrx_dm.so.1")
     pisitools.dosym("libfglrx_dm.so.1", "/usr/lib/libfglrx_dm.so")
-
-    pisitools.dosym("libfglrx_gamma.so.1.0", "/usr/lib/libfglrx_gamma.so.1")
-    pisitools.dosym("libfglrx_gamma.so.1", "/usr/lib/libfglrx_gamma.so")
 
     pisitools.dosym("libAMDXvBA.so.1.0", "/usr/lib/libAMDXvBA.so.1")
     pisitools.dosym("libAMDXvBA.so.1", "/usr/lib/libAMDXvBA.so")
