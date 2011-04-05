@@ -22,7 +22,9 @@ def setup():
     shelltools.export("SETUP_NOCHECK", "1")
     shelltools.system("sh ati-driver-installer-%s-x86.x86_64.run --extract ." % get.srcVERSION().replace(".", "-"))
 
+    # Needed during kernel module compiling
     shelltools.sym("../../../../../arch/%s/lib/modules/fglrx/build_mod/libfglrx_ip.a" % Target, "%s/libfglrx_ip.a" % BuildDir)
+
     pisitools.dosed("%s/make.sh" % BuildDir, r"^linuxincludes=.*", "linuxincludes=/lib/modules/%s/build/include" % KDIR)
     pisitools.dosed("%s/make.sh" % BuildDir, r"^uname_r=.*", "uname_r=%s" % KDIR)
     pisitools.dosed("common/etc/ati/authatieventsd.sh", "/var/lib/xdm/authdir/authfiles", "/var/run/xauth")
@@ -42,8 +44,7 @@ def install():
     pisitools.dosbin("arch/%s/usr/sbin/*" % Target)
     pisitools.dosbin("common/usr/sbin/*")
 
-    # Files under arch are Controlcenter libraries
-    # Under acpi is an example file
+    # Controlcenter libraries
     # The other files under /usr/share are common files like icon,man,doc ,etc ..
     DIRS = {
             "common/usr/share/doc/fglrx/examples/etc/acpi/events":  "/etc/acpi",
@@ -56,18 +57,12 @@ def install():
     for source, target in DIRS.items():
         pisitools.insinto(target, source)
 
-    # This is a Xorg library
-    pisitools.domove("/usr/lib/modules", "/usr/lib/xorg/modules")
-
     # X.org drivers
-    pisitools.insinto("/usr/lib/xorg/modules", "%s/usr/X11R6/lib*/modules/*" % XDir)
+    pisitools.domove("/usr/lib/modules", "/usr/lib/fglrx")
+    pisitools.insinto("/usr/lib/fglrx/modules", "%s/usr/X11R6/lib*/modules/*" % XDir)
 
-#    pisitools.domove("/usr/lib/libGL.so.1.2", "/usr/lib/fglrx")
-#    pisitools.domove("/usr/lib/fglrx/modules/dri", "/usr/lib/xorg/modules/")
-#    pisitools.domove("/usr/lib/fglrx/modules/drivers", "/usr/lib/xorg/modules")
-#    pisitools.domove("/usr/lib/fglrx/modules/linux", "/usr/lib/xorg/modules")
-#    pisitools.domove("/usr/lib/fglrx/modules/extensions/fglrx", "/usr/lib/xorg/modules/extensions/")
-
+    pisitools.domove("/usr/lib/libGL.so.1.2", "/usr/lib/fglrx")
+    pisitools.domove("/usr/lib/fglrx/modules/dri", "/usr/lib/xorg/modules/")
 
     # Necessary symlinks
     pisitools.dosym("/usr/lib/xorg/modules/dri/fglrx_dri.so", "/usr/lib/dri/fglrx_dri.so")
