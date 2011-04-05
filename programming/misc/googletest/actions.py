@@ -7,14 +7,16 @@
 
 from pisi.actionsapi import autotools
 from pisi.actionsapi import pisitools
-from pisi.actionsapi import shelltools
 from pisi.actionsapi import get
 
-shelltools.export("LDFLAGS", "%s -lpthread" % get.LDFLAGS())
 
 def setup():
     autotools.autoreconf("-vfi")
     autotools.configure("--disable-static")
+
+    # Remove rpath from speexenc and speexdec
+    pisitools.dosed("libtool", "^hardcode_libdir_flag_spec=.*", "hardcode_libdir_flag_spec=\"\"")
+    pisitools.dosed("libtool", "^runpath_var=LD_RUN_PATH", "runpath_var=DIE_RPATH_DIE")
 
 def build():
     autotools.make()
