@@ -8,13 +8,16 @@
 from pisi.actionsapi import autotools
 from pisi.actionsapi import pisitools
 from pisi.actionsapi import get
+from pisi.actionsapi import shelltools
 
 def setup():
     autotools.autoreconf("-vfi")
+    # autotools.configure()
     autotools.configure("--disable-static \
                          --disable-deprecated-warning-flags")
 
 def build():
+    # shelltools.export("LC_ALL", "C")
     autotools.make()
 
 def install():
