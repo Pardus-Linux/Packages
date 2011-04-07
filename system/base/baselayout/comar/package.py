@@ -192,6 +192,7 @@ def postInstall(fromVersion, fromRelease, toVersion, toRelease):
                 (206, "jackuser"),
                 (207, "wireshark"),
                 (208, "partimag"),
+                (209, "vdr"),
             )
 
     for gid, groupName in groups:
@@ -263,6 +264,7 @@ def postInstall(fromVersion, fromRelease, toVersion, toRelease):
                 (200, "pnp", "PnP", "/dev/null", "/bin/false", "", ["pnp"], [], []),
                 (250, "mpd", "Music Player Daemon", "/var/lib/mpd", "/bin/false", "", ["audio", "pulse", "pulse-access", "pulse-rt"], [], []),
                 (251, "partimag", "Partimage User", "/var/lib/partimaged", "/bin/false", "", ["partimag"], [], []),
+                (252, "vdr", "VDR User", "/var/vdr", "/bin/false", "", ["audio", "video", "cdrom", "dialout"], [], []),
             )
 
     for uid, nick, realname, homedir, shell, password, groups, grantedauths, blockedauths in users:
