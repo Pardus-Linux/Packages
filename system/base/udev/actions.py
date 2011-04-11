@@ -25,6 +25,9 @@ def setup():
         shelltools.export("CFLAGS", "%s -m32" % get.CFLAGS())
         options += " --prefix=/emul32 \
                      --libdir=/usr/lib32 \
+                     --libexecdir=/emul32/lib \
+                     --bindir=/emul32/bin \
+                     --sbindir=/emul32/sbin \
                      --disable-extras"
 
     autotools.autoreconf("-fi")
