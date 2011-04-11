@@ -13,7 +13,7 @@ from pisi.actionsapi import get
 WorkDir = "ogre_src_v1-7-2"
 
 def setup():
-    cmaketools.configure("--disable-cg --disable-devil --enable-openexr")
+    cmaketools.configure("--enable-cg --disable-devil --enable-openexr")
 
 def build():
     autotools.make()
