@@ -10,6 +10,8 @@ from pisi.actionsapi import get
 WorkDir = "."
 SkipList = (".", "filelist", "patches", "pisiBuildState")
 
+shelltools.export("HOME", get.workDIR())
+
 def setup():
     # Speed up xkbcomp
     shelltools.export("CFLAGS","%s -DHAVE_STRCASECMP" % get.CFLAGS())
