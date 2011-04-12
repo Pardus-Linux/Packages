@@ -21,68 +21,71 @@ def setup():
 
     shelltools.export("AUTOPOINT", "true")
     autotools.autoreconf("-vfi")
-    autotools.configure("--enable-shared \
-                         --enable-qt4 \
-                         --enable-vlm \
-                         --enable-lua \
-                         --enable-sout \
-                         --enable-live555 \
-                         --enable-realrtsp \
-                         --enable-dvdread \
-                         --enable-dvdnav \
-                         --enable-smb \
-                         --enable-dvbpsi \
-                         --enable-v4l \
-                         --enable-libcddb \
-                         --enable-vcdx \
-                         --enable-vcd \
-                         --enable-dvb \
-                         --enable-screen \
-                         --enable-ogg \
-                         --enable-mkv \
-                         --enable-mpc \
-                         --enable-mod \
-                         --enable-mad \
-                         --enable-twolame \
+    autotools.configure("--enable-aa \
                          --enable-a52 \
+                         --enable-alsa \
+                         --enable-dvb \
+                         --enable-dvbpsi \
+                         --enable-dc1394 \
                          --enable-dca \
-                         --enable-flac \
-                         --enable-libmpeg2 \
-                         --enable-vorbis \
-                         --enable-speex \
-                         --enable-theora \
-                         --enable-png \
+                         --enable-dv \
+                         --enable-dvdnav \
+                         --enable-dvdread \
                          --enable-faad \
-                         --enable-aa \
-                         --enable-loader \
-                         --enable-xvideo \
-                         --enable-glx \
-                         --enable-opengl \
-                         --enable-sdl \
+                         --enable-flac \
                          --enable-freetype \
                          --enable-fribidi \
-                         --enable-libxml2 \
-                         --enable-svg \
-                         --enable-skins2 \
-                         --enable-alsa \
-                         --enable-pulse \
-                         --enable-lirc \
+                         --enable-glx \
                          --enable-gnutls \
-                         --enable-mozilla \
-                         --with-mozilla-pkg=libxul \
-                         --enable-x264 \
-                         --enable-upnp \
                          --enable-id3tag \
+                         --enable-libcddb \
+                         --enable-libmpeg2 \
+                         --enable-libxml2 \
+                         --enable-lirc \
+                         --enable-live555 \
+                         --enable-loader \
+                         --enable-lua \
+                         --enable-mad \
+                         --enable-mkv \
+                         --enable-mod \
+                         --enable-mozilla \
+                         --enable-mpc \
+                         --enable-ogg \
+                         --enable-opengl \
+                         --enable-png \
                          --enable-projectm \
-                         --with-x \
-                         --disable-static \
+                         --enable-pulse \
+                         --enable-qt4 \
+                         --enable-realrtsp \
+                         --enable-screen \
+                         --enable-sdl \
+                         --enable-shared \
+                         --enable-skins2 \
+                         --enable-smb \
+                         --enable-sout \
+                         --enable-speex \
+                         --enable-svg \
+                         --enable-theora \
+                         --enable-twolame \
+                         --enable-upnp \
+                         --enable-v4l \
+                         --enable-vcd \
+                         --enable-vcdx \
+                         --enable-vlm \
+                         --enable-vorbis \
+                         --enable-x264 \
+                         --enable-xvideo \
                          --disable-altivec \
-                         --disable-snapshot \
-                         --disable-gnomevfs \
                          --disable-bonjour \
-                         --disable-jack \
+                         --disable-gnomevfs \
                          --disable-growl \
-                         --disable-portaudio %s " % dllloader )
+                         --disable-jack \
+                         --disable-portaudio \
+                         --disable-snapshot \
+                         --disable-static \
+                         --with-mozilla-pkg=libxul \
+                         --with-x %s " % dllloader )
+
 
 def build():
     autotools.make()
