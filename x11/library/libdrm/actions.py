@@ -8,11 +8,9 @@ from pisi.actionsapi import shelltools
 from pisi.actionsapi import get
 
 def setup():
-
     options = "--enable-udev \
                --enable-vmwgfx-experimental-api \
                --enable-nouveau-experimental-api"
-
 
     if get.buildTYPE() == "emul32":
         options += " --libdir=/usr/lib32"
