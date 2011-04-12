@@ -121,6 +121,9 @@ def install():
     pisitools.dodir("/var/lib/samba/printers/W32MIPS")
     pisitools.dodir("/var/lib/samba/printers/W32PPC")
 
+    # Needed by "net usershare" support
+    pisitools.dodir("/var/lib/samba/usershares")
+
     pisitools.dodir("/usr/lib/samba/auth")
     pisitools.dodir("/usr/lib/samba/idmap")
 
