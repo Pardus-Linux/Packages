@@ -65,6 +65,7 @@ def install():
     if get.buildTYPE() == "gui":
         return
 
+    # Vi != Vim, it's hard to break habbits
     pisitools.dosym("vim", "/usr/bin/vi")
     pisitools.dosym("/usr/bin/vim", "/bin/ex")
 
