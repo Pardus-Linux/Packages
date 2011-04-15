@@ -21,6 +21,9 @@ configparams = "--without-debug \
                --enable-widec \
                --with-terminfo-dirs='/etc/terminfo:/usr/share/terminfo' \
                --disable-termcap \
+               --enable-hard-tabs \
+               --enable-xmc-glitch \
+               --enable-colorfgbg \
                --with-shared \
                --with-rcs-ids \
                --with-chtype='long' \
