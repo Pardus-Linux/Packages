@@ -5,24 +5,25 @@
 # Licensed under the GNU General Public License, version 2.
 # See the file http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
 
-from pisi.actionsapi import autotools
+import os
+from pisi.actionsapi import cmaketools
 from pisi.actionsapi import pisitools
 from pisi.actionsapi import shelltools
 from pisi.actionsapi import get
 
-WorkDir = 'synergy-plus-1.3.4'
+WorkDir = 'synergy-1.4.2-Source'
 
 def setup():
-    autotools.autoreconf('-fi')
-    autotools.configure()
+    cmaketools.configure()
 
 def build():
-    autotools.make()
+    cmaketools.make()
 
 def install():
-    autotools.install()
+    pisitools.insinto('/usr/bin', 'synergyc')
+    pisitools.insinto('/usr/bin', 'synergys')
 
-    pisitools.insinto('/etc','examples/synergy.conf')
-    shelltools.chmod('%s/etc/synergy.conf' % get.installDIR(), 0644)
+    shelltools.chmod('%s/conf/synergy.conf' % get.curDIR(), 0644)
+    pisitools.insinto('/etc','conf/synergy.conf')
 
-    pisitools.dodoc('ChangeLog','COPYING','NEWS','README')
+    pisitools.dodoc('ChangeLog', 'COPYING', 'README')
