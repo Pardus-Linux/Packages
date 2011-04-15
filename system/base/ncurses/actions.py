@@ -11,25 +11,6 @@ from pisi.actionsapi import shelltools
 from pisi.actionsapi import get
 
 WorkDir = "ncurses-%s" % get.srcVERSION().split("_", 1)[0]
-multilib = (get.ARCH() == "x86_64")
-
-configparams = "--without-debug \
-               --without-profile \
-               --disable-rpath \
-               --enable-const \
-               --enable-largefile \
-               --enable-widec \
-               --with-terminfo-dirs='/etc/terminfo:/usr/share/terminfo' \
-               --disable-termcap \
-               --enable-hard-tabs \
-               --enable-xmc-glitch \
-               --enable-colorfgbg \
-               --with-shared \
-               --with-rcs-ids \
-               --with-chtype='long' \
-               --with-mmask-t='long' \
-               --without-ada \
-               --enable-symlinks"
 
 
 def linknonwide(targetDir):
@@ -40,40 +21,60 @@ def linknonwide(targetDir):
         pisitools.dosym(source, "%s/%s" % (targetDir, destination))
 
 def setup():
-    autotools.configure(configparams)
+    configparams = "--without-debug \
+                   --without-profile \
+                   --disable-rpath \
+                   --enable-const \
+                   --enable-largefile \
+                   --enable-widec \
+                   --with-terminfo-dirs='/etc/terminfo:/usr/share/terminfo' \
+                   --disable-termcap \
+                   --enable-hard-tabs \
+                   --enable-xmc-glitch \
+                   --enable-colorfgbg \
+                   --with-shared \
+                   --with-rcs-ids \
+                   --with-chtype='long' \
+                   --with-mmask-t='long' \
+                   --without-ada \
+                   --enable-symlinks"
 
-    if multilib:
+    if get.buildTYPE() == "emul32":
         shelltools.export("CFLAGS", "%s -m32" % get.CFLAGS())
-        shelltools.makedirs("build32")
-        shelltools.cd("build32")
-        shelltools.system("../configure %s --without-gpm" % configparams)
+        shelltools.export("CXXFLAGS", "%s -m32" % get.CXXFLAGS())
+        shelltools.export("LDFLAGS", "%s -m32" % get.LDFLAGS())
+        configparams += " --prefix=/emul32 \
+                          --libdir=/usr/lib32 \
+                          --libexecdir=/emul32/lib \
+                          --bindir=/emul32/bin \
+                          --sbindir=/emul32/sbin \
+                          --mandir=/emul32/usr/share/man \
+                          --without-gpm"
+
+    autotools.configure(configparams)
 
 def build():
     autotools.make()
 
-    if multilib:
-        shelltools.export("CFLAGS", "%s -m32" % get.CFLAGS())
-        shelltools.cd("build32")
-        autotools.make()
-
 def install():
     autotools.rawInstall("DESTDIR=%s" % get.installDIR())
 
+    if get.buildTYPE() == "emul32":
+        libbasedir = "lib32"
+    else:
+        libbasedir = "lib"
+
     # Handle static libs in /usr/%libdir/static
-    pisitools.dodir("/usr/lib/static")
-    for i in shelltools.ls("%s/usr/lib/*.a" % get.installDIR()):
-        pisitools.domove("/usr/lib/%s" % shelltools.baseName(i), "/usr/lib/static/")
+    pisitools.dodir("/usr/%s/static" % libbasedir)
+    for i in shelltools.ls("%s/usr/%s/*.a" % (get.installDIR(), libbasedir)):
+        pisitools.domove("/usr/%s/%s" % (libbasedir, shelltools.baseName(i)), "/usr/%s/static/" % libbasedir)
 
-    linknonwide("/usr/lib/static")
-    linknonwide("/usr/lib")
+    linknonwide("/usr/%s/static" % libbasedir)
+    linknonwide("/usr/%s" % libbasedir)
 
-    if multilib:
-        pisitools.dodir("/usr/lib32/static")
-        for i in shelltools.ls("build32/lib/*.a"):
-            pisitools.insinto("/usr/lib32/static/", "build32/lib/%s" % shelltools.baseName(i))
-
-        linknonwide("/usr/lib32/static")
-
+    if get.buildTYPE() == "emul32":
+        pisitools.removeDir("/emul32")
+        return
 
     # We need the basic terminfo files in /etc
     terminfo = ["ansi", "console", "dumb", "linux", "rxvt", "screen", "sun", \
