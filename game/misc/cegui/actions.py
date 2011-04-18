@@ -12,20 +12,24 @@ WorkDir = "CEGUI-%s" % get.srcVERSION()
 
 def setup():
     pisitools.touch("NEWS")
+    pisitools.touch("README")
+    pisitools.touch("AUTHORS")
+    pisitools.touch("ChangeLog")
     autotools.autoreconf("-vfi")
     autotools.configure("--enable-xerces-c \
                          --enable-libxml \
                          --enable-expat \
                          --enable-tinyxml \
                          --enable-opengl-renderer \
-                         --enable-tga \
-                         --disable-samples \
                          --enable-toluacegui \
+                         --enable-freeimage \
+                         --enable-silly \
+                         --enable-lua-module \
                          --with-x \
                          --with-gtk2 \
-                         --enable-freeimage \
+                         --with-default-xml-parser=TinyXMLParser \
+                         --with-default-image-codec=STBImageCodec \
                          --disable-devil \
-                         --enable-lua-module \
                          --disable-samples")
 
 def build():
@@ -34,5 +38,4 @@ def build():
 def install():
     autotools.rawInstall("DESTDIR=%s" % get.installDIR())
 
-    pisitools.dohtml("ReadMe.html")
-    pisitools.dodoc("AUTHORS", "ChangeLog", "COPYING", "TinyXML-License", "README", "TODO")
+    pisitools.dodoc("doc/COPYING", "doc/GLEW-LICENSE", "doc/PCRE-LICENSE", "doc/TinyXML-License", "doc/stringencoders-license", "doc/README")
