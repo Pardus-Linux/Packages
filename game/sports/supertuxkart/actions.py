@@ -29,6 +29,7 @@ def setup():
     if shelltools.isDirectory(enetsrc):
         shelltools.unlinkDir(enetsrc)
 
+    shelltools.sym(".", "m4")
     autotools.autoreconf("-vfi")
     autotools.configure()
 
@@ -40,5 +41,5 @@ def install():
 
     # pisitools.dobin("src/supertuxkart")
 
-    pisitools.dodoc("AUTHORS", "ChangeLog", "NEWS", "README", "COPYING", "TODO")
+    pisitools.dodoc("AUTHORS", "ChangeLog", "README", "COPYING", "TODO")
 
