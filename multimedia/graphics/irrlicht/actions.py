@@ -10,12 +10,22 @@ from pisi.actionsapi import pisitools
 from pisi.actionsapi import shelltools
 from pisi.actionsapi import get
 
+WorkDir = "trunk"
 
 includedir = "/usr/include/irrlicht"
 librarydir = "/usr/lib"
 mainsrcdir = "source/Irrlicht"
+
 srcversion = get.srcVERSION()
-abiversion = srcversion.rsplit(".", 1)[0]
+snapshotbuild = False
+
+if "_pre" in srcversion:
+    snapshotbuild = True
+    abiversion = srcversion.rsplit("_pre", 1)[0].rsplit(".", 1)[0]
+    srcversionname = "%s-SVN" % srcversion.rsplit("_pre", 1)[0]
+else:
+    abiversion = srcversion.rsplit(".", 1)[0]
+    srcversionname = abiversion
 
 
 def setup():
@@ -36,8 +46,15 @@ def install():
     autotools.rawInstall("-C %s INSTALL_DIR=%s/%s" % (mainsrcdir, get.installDIR(), librarydir))
 
     for i in ["libIrrlicht",  "libIrrXML"]:
-        pisitools.dosym( "%s.so.%s" % (i, srcversion), "/usr/lib/%s.so.%s" % (i, abiversion))
+        pisitools.dosym( "%s.so.%s" % (i, srcversionname), "/usr/lib/%s.so.%s" % (i, abiversion))
 
     pisitools.dodoc("doc/*.txt", "*.txt")
-    pisitools.dohtml("doc/html/*")
+
+    if snapshotbuild:
+        # snapshots need some touch for doc generation
+        shelltools.cd("scripts/doc/irrlicht/")
+        shelltools.system("./makedocumentation.sh")
+        pisitools.dohtml("../../../doctemp/html/*")
+    else:
+        pisitools.dohtml("doc/html/*")
 
