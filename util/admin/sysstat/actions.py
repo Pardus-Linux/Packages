@@ -8,7 +8,7 @@ from pisi.actionsapi import pisitools
 from pisi.actionsapi import get
 
 def setup():
-    autotools.autoreconf("-v")
+    autotools.autoreconf("-vfi")
     autotools.configure()
 
 def build():
@@ -17,4 +17,4 @@ def build():
 def install():
     autotools.rawInstall("DESTDIR=%s" % get.installDIR())
 
-    pisitools.insinto("/etc/sysstat", "sysstat.crond")
+    pisitools.insinto("/etc/sysstat", "cron/sysstat.crond")
