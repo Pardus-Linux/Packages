@@ -1,7 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright 2006-2009 TUBITAK/UEKAE
 # Licensed under the GNU General Public License, version 2.
 # See the file http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
 
@@ -12,7 +11,15 @@ from pisi.actionsapi import get
 
 import os
 
-WorkDir = "tremulous-%s-src" % get.srcVERSION()
+# Source tarball is created by hand
+# To get the source tarball:
+# svn export svn://svn.icculus.org/tremulous/tags/RELEASE_GPP1/ tremulous-1.2.beta1
+# rm -rf tremulous-1.2.beta1/src/tools/lcc/
+# tar -czf tremulous-1.2.0_beta1.tar.gz tremulous-1.2.beta1
+
+
+#WorkDir = "tremulous-%s-src" % get.srcVERSION()
+WorkDir = "tremulous-1.2.beta1"
 datadir = "/usr/share/tremulous"
 
 arch = "x86_64" if get.ARCH() == "x86_64" else "x86"
@@ -20,10 +27,14 @@ builddir = "build/release-linux-%s" % arch
 archparam = "ARCH=x86_64" if get.ARCH() == "x86_64" else ""
 
 def setup():
+    for i in ["SDL12", "AL", "libcurl", "libspeex", "libs"]:
+        if shelltools.isDirectory("src/%s" % i):
+            shelltools.unlinkDir("src/%s" % i)
+
     pisitools.dosed("misc/server.cfg", "set sv_hostname.*", 'set sv_hostname "Tremulous Server on Pardus"')
 
 def build():
-    autotools.make("BUILD_CLIENT=1 \
+    autotools.make('BUILD_CLIENT=1 \
                     BUILD_CLIENT_SMP=1 \
                     BUILD_SERVER=1 \
                     BUILD_GAME_SO=0 \
@@ -33,8 +44,11 @@ def build():
                     USE_CODEC_VORBIS=1 \
                     USE_OPENAL=1 \
                     USE_LOCAL_HEADERS=0 \
+                    USE_INTERNAL_SPEEX=0 \
+                    USE_INTERNAL_ZLIB=0 \
+                    GENERATE_DEPENDENCIES=0 \
                     %s \
-                    OPTIMIZE=" % (get.CC(), datadir, archparam))
+                    OPTIMIZE="%s -fno-strict-aliasing -ffast-math"' % (get.CC(), datadir, archparam, get.CFLAGS()))
 
 def install():
     pisitools.insinto("/usr/share/pixmaps", "misc/tremulous.xpm")
