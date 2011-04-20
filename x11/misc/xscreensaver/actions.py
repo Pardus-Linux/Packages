@@ -28,7 +28,7 @@ def setup():
                          --with-gtk \
                          --without-motif \
                          --with-gl \
-                         --without-gle \
+                         --with-gle \
                          --without-pixbuf \
                          --with-xpm \
                          --with-jpeg \
