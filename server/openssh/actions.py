@@ -30,18 +30,17 @@ def setup():
                          --libexecdir=/usr/libexec/openssh \
                          --datadir=/usr/share/openssh \
                          --disable-strip \
-                         --with-tcp-wrappers \
-                         --with-authorized-keys-command \
                          --with-pam \
-                         --with-privsep-path=/var/empty \
-                         --with-privsep-user=sshd \
+                         --with-skey \
+                         --with-libedit \
+                         --with-kerberos5 \
+                         --with-tcp-wrappers \
                          --with-md5-passwords \
                          --with-ipaddr-display \
+                         --with-privsep-user=sshd \
+                         --with-privsep-path=/var/empty \
                          --without-zlib-version-check \
-                         --without-ssl-engine \
-                         --without-kerberos5 \
-                         --without-libedit \
-                         --without-skey")
+                         --without-ssl-engine")
 
 def build():
     autotools.make()
