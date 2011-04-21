@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright 2009-2010 TUBITAK/UEKAE
+# Copyright 2009-2011 TUBITAK/UEKAE
 # Licensed under the GNU General Public License, version 2.
 # See the file http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
 
@@ -17,6 +17,7 @@ def setup():
     autotools.autoreconf("-fis")
 
     # The end-start colors seems to be used by the two-step plugin
+    # Disable nouveau drm renderer as it causes hangs when starting X server
     autotools.configure("--enable-tracing \
                          --with-logo=%s \
                          --with-release-file=/etc/pardus-release \
@@ -27,6 +28,7 @@ def setup():
                          --with-boot-tty=/dev/tty7 \
                          --with-shutdown-tty=/dev/tty1 \
                          --with-log-viewer \
+                         --disable-libdrm_nouveau \
                          --disable-tests \
                          --disable-static \
                          --disable-gdm-transition \
