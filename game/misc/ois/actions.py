@@ -8,7 +8,7 @@ from pisi.actionsapi import shelltools
 from pisi.actionsapi import autotools
 from pisi.actionsapi import pisitools
 
-WorkDir = "ois"
+WorkDir = "ois-v1-3"
 
 def setup():
     shelltools.system("sh bootstrap")
