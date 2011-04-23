@@ -15,7 +15,7 @@ def build():
     autotools.make()
 
 def install():
-    autotools.rawInstall("DESTDIR=%s" % get.installDIR())
+    autotools.rawInstall("DESTDIR=%s SPOOLDIR=%s/var/spool/fax" % (get.installDIR(), get.installDIR()))
 
     pisitools.domo("po/tr.po", "tr", "efax-gtk.mo")
     pisitools.dodoc("AUTHORS", "ChangeLog", "COPYING", "NEWS", "README")
