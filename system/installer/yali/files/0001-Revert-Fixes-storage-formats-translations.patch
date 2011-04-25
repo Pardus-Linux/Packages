@@ -1,0 +1,77 @@
+From 524ee32f9004d51a0ac72fd8624a51927e25bddb Mon Sep 17 00:00:00 2001
+From: Mete Alpaslan <mete@pardus.org.tr>
+Date: Thu, 3 Mar 2011 13:46:42 +0200
+Subject: [PATCH] Revert "Fixes storage formats translations"
+
+Fixes RAID Array  menu on Manual Partitioning screen.
+---
+ yali/storage/formats/disklabel.py      |    4 +---
+ yali/storage/formats/dmraidmember.py   |    2 +-
+ yali/storage/formats/physicalvolume.py |    2 +-
+ yali/storage/formats/raidmember.py     |    2 +-
+ 4 files changed, 4 insertions(+), 6 deletions(-)
+
+diff --git a/yali/storage/formats/disklabel.py b/yali/storage/formats/disklabel.py
+index ff53c13..58e7478 100644
+--- a/yali/storage/formats/disklabel.py
++++ b/yali/storage/formats/disklabel.py
+@@ -1,8 +1,6 @@
+ #!/usr/bin/python
+ # -*- coding: utf-8 -*-
+ 
+-import gettext
+-_ = gettext.translation('yali', fallback=True).ugettext
+ 
+ import os
+ import copy
+@@ -26,7 +24,7 @@ class DiskLabelCommitError(DiskLabelError):
+ class DiskLabel(Format):
+     """ Disklabel """
+     _type = "disklabel"
+-    _name = _("partition table")
++    _name = "partition table"
+     _formattable = True                # can be formatted
+     _supported = False                 # is supported
+ 
+diff --git a/yali/storage/formats/dmraidmember.py b/yali/storage/formats/dmraidmember.py
+index 2e416fe..ed2faaf 100644
+--- a/yali/storage/formats/dmraidmember.py
++++ b/yali/storage/formats/dmraidmember.py
+@@ -17,7 +17,7 @@ class DMRaidMemberError(yali.Error):
+ class DMRaidMember(Format):
+     """ A dmraid member disk. """
+     _type = "dmraidmember"
+-    _name = _("dm-raid member device")
++    _name = "dm-raid member device"
+     # XXX This looks like trouble.
+     #
+     #     Maybe a better approach is a RaidMember format with subclass
+diff --git a/yali/storage/formats/physicalvolume.py b/yali/storage/formats/physicalvolume.py
+index ab67247..6de9c94 100644
+--- a/yali/storage/formats/physicalvolume.py
++++ b/yali/storage/formats/physicalvolume.py
+@@ -19,7 +19,7 @@ class PhysicalVolumeError(yali.Error):
+ class PhysicalVolume(Format):
+     """ An LVM physical volume. """
+     _type = "lvmpv"
+-    _name = _("physical volume (LVM)")
++    _name = "physical volume (LVM)"
+     _udevTypes = ["LVM2_member"]
+     partedFlag = PARTITION_LVM
+     _formattable = True                 # can be formatted
+diff --git a/yali/storage/formats/raidmember.py b/yali/storage/formats/raidmember.py
+index 415f888..a464751 100644
+--- a/yali/storage/formats/raidmember.py
++++ b/yali/storage/formats/raidmember.py
+@@ -19,7 +19,7 @@ class RaidMemberError(yali.Error):
+ class RaidMember(Format):
+     """ An raid member disk. """
+     _type = "mdmember"
+-    _name = _("software RAID")
++    _name = "software RAID"
+     _udevTypes = ["linux_raid_member"]
+     partedFlag = PARTITION_RAID
+     _formattable = True                 # can be formatted
+-- 
+1.7.3.4
+

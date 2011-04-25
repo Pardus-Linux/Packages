@@ -1,0 +1,59 @@
+From 95e8b634cfba9808e8207a90d598899abf524701 Mon Sep 17 00:00:00 2001
+From: mete <mete@26e1f6f6-46e4-0310-a0b7-a8a415fd4c45>
+Date: Thu, 3 Mar 2011 07:23:26 +0000
+Subject: [PATCH] Disable collection flag if parsing collection.xml failed
+
+If parsing collection.xml failed, skip collection screen and turn off
+collection flag.
+
+git-svn-id: https://svn.pardus.org.tr/uludag/trunk/yali@36348 26e1f6f6-46e4-0310-a0b7-a8a415fd4c45
+---
+ yali/gui/ScrCollection.py |   22 +++++++++++-----------
+ 1 files changed, 11 insertions(+), 11 deletions(-)
+
+diff --git a/yali/gui/ScrCollection.py b/yali/gui/ScrCollection.py
+index 1afbbf9..9712a06 100644
+--- a/yali/gui/ScrCollection.py
++++ b/yali/gui/ScrCollection.py
+@@ -32,16 +32,19 @@ class Widget(Ui_CollectionsWidget, QWidget, ScreenWidget):
+     def __init__(self):
+         QWidget.__init__(self)
+         self.setupUi(self)
+-        self.collections = None
+-        self.current_item = None
+-        self.last_item = None
+-        self.collectionList.itemClicked.connect(self.openItem)
+-        self.collectionList.currentItemChanged.connect(self.itemChanged)
+-        self.fillCollections()
++        self.collections = yali.pisiiface.getCollection()
++        if len(self.collections) == 0:
++            ctx.flags.collection = False
++            ctx.logger.debug("There is no collection so disable collection support.")
++        else:
++            self.fillCollections()
++            self.current_item = None
++            self.last_item = None
++            self.collectionList.itemClicked.connect(self.openItem)
++            self.collectionList.currentItemChanged.connect(self.itemChanged)
+ 
+     def fillCollections(self):
+         self.collectionList.clear()
+-        self.collections = yali.pisiiface.getCollection()
+         selected = None
+         for index, collection in enumerate(self.collections):
+             self.addItem(collection)
+@@ -55,10 +58,7 @@ class Widget(Ui_CollectionsWidget, QWidget, ScreenWidget):
+         self.collectionList.setCurrentRow(selected)
+ 
+     def shown(self):
+-        if len(self.collections) == 0:
+-            ctx.mainScreen.enableBack()
+-            return
+-        elif len(self.collections) == 1:
++        if len(self.collections) == 1:
+             ctx.logger.debug("There is only one collection so skip screen.")
+             ctx.mainScreen.slotNext()
+             return
+-- 
+1.7.3.4
+
