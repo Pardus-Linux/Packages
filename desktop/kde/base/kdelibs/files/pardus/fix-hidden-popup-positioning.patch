@@ -44,3 +44,26 @@ index 9469428..c6fedb1 100644
      QPoint pos;
      QTransform sceneTransform = item->sceneTransform();
  
+commit 36a8e02457e554db188d0d83e8ad24cfc9a0dc86
+Author: Nicolas Lécureuil <neoclust.kde@free.fr>
+Date:   Fri Apr 22 10:50:09 2011 +0200
+
+    Fix crash
+    CCBUG:234564
+
+diff --git a/plasma/corona.cpp b/plasma/corona.cpp
+index c6fedb1..7df6680 100644
+--- a/plasma/corona.cpp
++++ b/plasma/corona.cpp
+@@ -784,6 +784,11 @@ QPoint Corona::popupPosition(const QGraphicsItem *item, const QSize &s, Qt::Alig
+         }
+     }
+ 
++
++    if (!v) {
++      return QPoint(0, 0);
++    }
++
+     //if the applet is rotated the popup position has to be un-transformed
+     if (sceneTransform.isRotating()) {
+         qreal angle = acos(sceneTransform.m11());
