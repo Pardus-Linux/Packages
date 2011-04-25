@@ -7,6 +7,7 @@
 
 from pisi.actionsapi import autotools
 from pisi.actionsapi import pisitools
+from pisi.actionsapi import shelltools
 from pisi.actionsapi import get
 
 def setup():
@@ -16,10 +17,9 @@ def setup():
                             -libdir /usr/lib/ocaml \
                             -mandir /usr/share/man \
                             --with-pthread \
-                            --tklibs")
+                            --tklibs \
+                            --with-lookup-order-hack=INET ")
 
-    pisitools.dosed("config/Makefile", "\(BYTECCCOMPOPTS=.*\)", "\1 %s" % (get.CFLAGS()))
-    pisitools.dosed("config/Makefile", "\(NATIVECCCOMPOPTS=.*\)", "\1 %s" % (get.CFLAGS()))
 
 def build():
     autotools.make("-j1 world")
@@ -33,3 +33,9 @@ def install():
                           % { "install": get.installDIR()})
 
     pisitools.dodoc("Changes", "LICENSE", "README", "Upgrading")
+
+    autotools.rawInstall("-C emacs \
+                        BINDIR=%(install)s/usr/bin \
+                        EMACSDIR=%(install)s/usr/share/emacs/site-lisp"
+                        % { "install": get.installDIR()})
+
