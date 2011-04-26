@@ -1,23 +1,13 @@
-diff -urN doc.orig/auto-opts.tpl doc/auto-opts.tpl
---- doc.orig/auto-opts.tpl	2010-07-10 20:08:57.000000000 +0200
-+++ doc/auto-opts.tpl	2010-09-11 05:22:09.000000000 +0200
-@@ -106,7 +106,7 @@
- 	_EOF_
- (
-   ${AGexe} -L${top_srcdir}/autoopts checkopt.def
--  opts=\"-o check -DTEST_CHECK_OPTS ${CFLAGS} ${INCLUDES}\"
-+  opts=\"-o check -DTEST_CHECK_OPTS ${CFLAGS} ${LDFLAGS} ${INCLUDES}\"
-   ${CC} -include ${top_builddir}/config.h ${opts} checkopt.c ${LIBS}
- ) > checkopt.err 2>&1
- 
-diff -urN doc.orig/mk-agen-texi-in doc/mk-agen-texi-in
---- doc.orig/mk-agen-texi-in	2010-09-08 02:35:48.000000000 +0200
-+++ doc/mk-agen-texi-in	2010-09-11 05:24:42.000000000 +0200
-@@ -90,8 +90,9 @@
+Index: doc/mk-agen-texi-in
+===================================================================
+--- doc/mk-agen-texi-in.orig	2011-02-03 18:07:54.000000000 +0100
++++ doc/mk-agen-texi-in	2011-03-09 14:35:50.638982611 +0100
+@@ -98,9 +98,9 @@ setup_exports()
    srcdir=`cd @srcdir@ ; pwd`
    PATH=${top_builddir}/columns:${PATH}
    timer=`expr @AG_TIMEOUT@ '*' 5`
--  d=`find ${top_builddir}/autoopts -type f -name libopts.a`
+-  d=`find ${top_builddir}/autoopts -type f -name libopts.a -print`
+-  test -f "$d" || die "Cannot locate libopts.a"
 -  LIBS="$d ${LIBS}"
 +  d=`find ${top_builddir}/autoopts -type f -name libopts.a -o -name libopts.so | head -n 1`
 +  LIBS="-L`dirname \"$d\"` -lopts ${LIBS}"
@@ -25,16 +15,7 @@ diff -urN doc.orig/mk-agen-texi-in doc/mk-agen-texi-in
  
    eval `egrep '^AG_[A-Z_]*' ${top_srcdir}/VERSION`
  
-@@ -100,7 +101,7 @@
-   GDexe=@GDexe@
-   CLexe=@CLexe@
- 
--  LIBS=${LIBS}\ `find ${top_builddir}/autoopts -name libopts.a -print`
-+  LIBS="${LIBS} `find ${top_builddir}/autoopts -name libopts.a -print`"
-   OPTIONS_DEF=${AGsrc}/opts.def
-   DIRECTIVESRC=${AGsrc}/defDirect.c
-   GETDEF_SRC=`
-@@ -211,7 +212,7 @@
+@@ -222,7 +222,7 @@ setup_exports
  sanity_check
  run_getdefs
  
@@ -43,3 +24,16 @@ diff -urN doc.orig/mk-agen-texi-in doc/mk-agen-texi-in
  exec 3> ${tmp_dir}/ag.ini
  cat >&3 <<- _EOF_
  	timeout     ${timer}
+Index: autoopts/Makefile.am
+===================================================================
+--- autoopts/Makefile.am.orig	2011-03-08 01:35:12.000000000 +0100
++++ autoopts/Makefile.am	2011-03-09 14:50:16.858878038 +0100
+@@ -120,7 +120,7 @@ INST_SH                   = autoopts-con
+ 
+ man_MANS                  = $(INST_MANS)
+ m4data_DATA               = autoopts.m4
+-nobase_data_DATA          = $(INST_PKGCFG)
++pkgconfig_DATA          = $(INST_PKGCFG)
+ lib_LTLIBRARIES           = $(INST_LIBS)
+ nobase_include_HEADERS    = $(INST_HDRS)
+ bin_SCRIPTS               = $(INST_SH)
