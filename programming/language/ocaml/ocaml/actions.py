@@ -25,6 +25,7 @@ def build():
     autotools.make("-j1 world")
     autotools.make("-j1 opt")
     autotools.make("-j1 opt.opt")
+    autotools.make("-C emacs ocamltags")
 
 def install():
     autotools.rawInstall("BINDIR=%(install)s/usr/bin \
@@ -39,3 +40,6 @@ def install():
                         EMACSDIR=%(install)s/usr/share/emacs/site-lisp"
                         % { "install": get.installDIR()})
 
+    # Remove rpaths from stublibs .so files
+    shelltools.system("chrpath --delete %s/usr/lib/ocaml/stublibs/*.so" 
+                    % get.installDIR())
