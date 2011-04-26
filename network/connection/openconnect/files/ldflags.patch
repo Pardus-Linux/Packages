@@ -1,0 +1,22 @@
+Index: openconnect-3.02/Makefile
+===================================================================
+--- openconnect-3.02.orig/Makefile
++++ openconnect-3.02/Makefile
+@@ -10,6 +10,8 @@ else
+ OPT_FLAGS := -O2 -g -Wall
+ endif
+ 
++OPT_LDFLAGS := $(LDFLAGS)
++
+ # Allow people to override OpenSSL and build it statically, if they need
+ # a special build for the DTLS support. $(OPENSSL) points to the build 
+ # dir; there's no need to install it anywhere (we link it statically).
+@@ -68,7 +70,7 @@ version.c: $(patsubst %.o,%.c,$(VERSION_
+ 	@./version.sh
+ 
+ openconnect: $(OPENCONNECT_OBJS) $(CONNECTION_OBJS) libopenconnect.a
+-	$(CC) -o $@ $^ $(LDFLAGS)
++	$(CC) $(OPT_LDFLAGS) $^ $(LDFLAGS) -o $@
+ 
+ %.o: %.c
+ 	$(CC) -c -o $@ $(CFLAGS) $(CFLAGS_$@) $< -MD -MF .$@.dep
