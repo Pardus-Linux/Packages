@@ -16,6 +16,7 @@ def setup():
                          --enable-pthread \
                          --enable-doc \
                          --enable-ipv6 \
+                         --disable-rpath \
                          --with-sitedir=/usr/lib/ruby/site_ruby")
 
 def build():
@@ -24,8 +25,5 @@ def build():
 def install():
     autotools.rawInstall("DESTDIR=%s" % get.installDIR())
     autotools.rawInstall("DESTDIR=%s install-doc" % get.installDIR())
-
-    # Emacs files
-    pisitools.insinto("/usr/share/emacs/site-lisp", "misc/*.el")
 
     pisitools.dodoc("COPYING*", "ChangeLog", "README*", "ToDo")
