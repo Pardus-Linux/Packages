@@ -1,0 +1,610 @@
+From: Nigel Stewart <nigels@sourceforge.net>
+Date: Sat, 19 Feb 2011 05:02:26 +0000 (-0600)
+Subject: Update the GLEW build to build both vanilla and MX GLEW libraries.  MX libraries... 
+X-Git-Url: http://glew.git.sourceforge.net/git/gitweb.cgi?p=glew%2Fglew;a=commitdiff_plain;h=18455eb40fe2d71f5f78cce0bf44eb302c224016
+
+Update the GLEW build to build both vanilla and MX GLEW libraries.  MX libraries now have mx suffix. Targets for building and installing are changed accordingly.  Logic for glewmx.pc
+---
+
+diff --git a/Makefile b/Makefile
+index 2499b8d..ebba21a 100644
+--- a/Makefile
++++ b/Makefile
+@@ -72,6 +72,9 @@
+ LIB.LDFLAGS = $(LDFLAGS.EXTRA) $(LDFLAGS.GL)
+ LIB.LIBS = $(GL_LDFLAGS)
+ 
++LIB.OBJS.MX  = $(LIB.SRCS:.c=.mx.o)
++LIB.SOBJS.MX = $(LIB.SRCS:.c=.mx.$(SHARED_OBJ_EXT))
++
+ GLEWINFO.BIN = glewinfo$(BIN.SUFFIX)
+ GLEWINFO.BIN.SRCS = src/glewinfo.c
+ GLEWINFO.BIN.OBJS = $(GLEWINFO.BIN.SRCS:.c=.o)
+@@ -80,14 +84,18 @@ VISUALINFO.BIN.SRCS = src/visualinfo.c
+ VISUALINFO.BIN.OBJS = $(VISUALINFO.BIN.SRCS:.c=.o)
+ BIN.LIBS = -Llib $(LDFLAGS.DYNAMIC) -l$(NAME) $(LDFLAGS.EXTRA) $(LDFLAGS.GL)
+ 
+-all debug: lib bin lib/$(LIB.SHARED) lib/$(LIB.STATIC) bin/$(GLEWINFO.BIN) bin/$(VISUALINFO.BIN) glew.pc
++all debug: glew.lib glew.lib.mx glew.bin
++
++%.o: %.c
++	$(CC) -c $(CFLAGS) -o $@ $<
++
++# GLEW libraries
++
++glew.lib: lib lib/$(LIB.SHARED) lib/$(LIB.STATIC) glew.pc
+ 
+ lib:
+ 	mkdir lib
+ 
+-bin:
+-	mkdir bin
+-
+ lib/$(LIB.STATIC): $(LIB.OBJS)
+ 	$(AR) cr $@ $^
+ 
+@@ -96,36 +106,78 @@
+ 	$(LN) $(LIB.SHARED) lib/$(LIB.DEVLNK)
+ endif
+ 
+-bin/$(GLEWINFO.BIN): $(GLEWINFO.BIN.OBJS) lib/$(LIB.SHARED)
+-	$(CC) $(CFLAGS) -o $@ $(GLEWINFO.BIN.OBJS) $(BIN.LIBS)
+-
+-bin/$(VISUALINFO.BIN): $(VISUALINFO.BIN.OBJS) lib/$(LIB.SHARED)
+-	$(CC) $(CFLAGS) -o $@ $(VISUALINFO.BIN.OBJS) $(BIN.LIBS)
+-
+-%.o: %.c
+-	$(CC) -c $(CFLAGS) -o $@ $<
++glew.pc: glew.pc.in
++	sed \
++		-e "s|@prefix@|$(GLEW_DEST)|g" \
++		-e "s|@libdir@|$(LIBDIR)|g" \
++		-e "s|@exec_prefix@|$(BINDIR)|g" \
++		-e "s|@includedir@|$(INCDIR)|g" \
++		-e "s|@version@|$(GLEW_VERSION)|g" \
++		-e "s|@cflags@||g" \
++		-e "s|@libname@|GLEW|g" \
++		< $< > $@
+ 
+ src/glew.o: src/glew.c include/GL/glew.h include/GL/wglew.h include/GL/glxew.h
+-	$(CC) $(CFLAGS) $(CFLAGS.SO) -o $@ -c $<
++	$(CC) -DGLEW_NO_GLU $(CFLAGS) $(CFLAGS.SO) -o $@ -c $<
+ 
+ src/glew.pic_o: src/glew.c include/GL/glew.h include/GL/wglew.h include/GL/glxew.h
+-	$(CC) $(CFLAGS) $(PICFLAG) $(CFLAGS.SO) -o $@ -c $<
++	$(CC) -DGLEW_NO_GLU $(CFLAGS) $(PICFLAG) $(CFLAGS.SO) -o $@ -c $<
+ 
+-glew.pc: glew.pc.in
++# GLEW MX libraries
++
++glew.lib.mx:  lib lib/$(LIB.SHARED.MX) lib/$(LIB.STATIC.MX) glewmx.pc
++
++lib/$(LIB.STATIC.MX): $(LIB.OBJS.MX)
++	$(AR) cr $@ $^
++
++lib/$(LIB.SHARED.MX): $(LIB.SOBJS.MX)
++	$(LD) $(LDFLAGS.SO) -o $@ $^ $(LIB.LDFLAGS) $(LIB.LIBS)
++ifeq ($(filter-out mingw% cygwin,$(SYSTEM)),)
++else
++	$(LN) $(LIB.SHARED.MX) lib/$(LIB.SONAME.MX)
++	$(LN) $(LIB.SHARED.MX) lib/$(LIB.DEVLNK.MX)
++endif
++
++glewmx.pc: glew.pc.in
+ 	sed \
+ 		-e "s|@prefix@|$(GLEW_DEST)|g" \
+ 		-e "s|@libdir@|$(LIBDIR)|g" \
+ 		-e "s|@exec_prefix@|$(BINDIR)|g" \
+ 		-e "s|@includedir@|$(INCDIR)|g" \
+ 		-e "s|@version@|$(GLEW_VERSION)|g" \
++		-e "s|@cflags@|-DGLEW_MX|g" \
++		-e "s|@libname@|GLEWmx|g" \
+ 		< $< > $@
+ 
+-install: all
+-# directories
+-	$(INSTALL) -d -m 0755 $(BINDIR)
+-	$(INSTALL) -d -m 0755 $(INCDIR)
++src/glew.mx.o: src/glew.c include/GL/glew.h include/GL/wglew.h include/GL/glxew.h
++	$(CC) -DGLEW_NO_GLU -DGLEW_MX $(CFLAGS) $(CFLAGS.SO) -o $@ -c $<
++
++src/glew.mx.pic_o: src/glew.c include/GL/glew.h include/GL/wglew.h include/GL/glxew.h
++	$(CC) -DGLEW_NO_GLU -DGLEW_MX $(CFLAGS) $(PICFLAG) $(CFLAGS.SO) -o $@ -c $<
++
++# GLEW utilities
++
++bin:
++	mkdir bin
++
++glew.bin:     glew.lib bin bin/$(GLEWINFO.BIN) bin/$(VISUALINFO.BIN) 
++
++bin/$(GLEWINFO.BIN): $(GLEWINFO.BIN.OBJS) lib/$(LIB.SHARED)
++	$(CC) $(CFLAGS) -o $@ $(GLEWINFO.BIN.OBJS) $(BIN.LIBS)
++
++bin/$(VISUALINFO.BIN): $(VISUALINFO.BIN.OBJS) lib/$(LIB.SHARED)
++	$(CC) $(CFLAGS) -o $@ $(VISUALINFO.BIN.OBJS) $(BIN.LIBS)
++
++# Install targets
++
++install.all: install install.mx install.bin
++
++install:     install.include install.lib install.pkgconfig
++
++install.mx:  install.include install.lib.mx install.pkgconfig.mx
++
++install.lib: glew.lib
+ 	$(INSTALL) -d -m 0755 $(LIBDIR)
+-	$(INSTALL) -d -m 0755 $(LIBDIR)/pkgconfig
+ # runtime
+ ifeq ($(filter-out mingw% cygwin,$(SYSTEM)),)
+ 	$(STRIP) -x lib/$(LIB.SHARED)
+@@ -136,10 +188,6 @@
+ 	$(LN) $(LIB.SHARED) $(LIBDIR)/$(LIB.SONAME)
+ endif
+ # development files
+-	$(INSTALL) -m 0644 include/GL/wglew.h $(INCDIR)/
+-	$(INSTALL) -m 0644 include/GL/glew.h $(INCDIR)/
+-	$(INSTALL) -m 0644 include/GL/glxew.h $(INCDIR)/
+-	$(INSTALL) -m 0644 glew.pc $(LIBDIR)/pkgconfig/
+ ifeq ($(filter-out mingw% cygwin,$(SYSTEM)),)
+ 	$(INSTALL) -m 0644 lib/$(LIB.DEVLNK) $(LIBDIR)/
+ else
+@@ -147,30 +195,69 @@
+ 	$(INSTALL) -m 0644 lib/$(LIB.STATIC) $(LIBDIR)/
+ 	$(LN) $(LIB.SHARED) $(LIBDIR)/$(LIB.DEVLNK)
+ endif
+-# utilities
++
++install.lib.mx: glew.lib.mx
++	$(INSTALL) -d -m 0755 $(LIBDIR)
++# runtime
++ifeq ($(filter-out mingw% cygwin,$(SYSTEM)),)
++	$(STRIP) -x lib/$(LIB.SHARED.MX)
++	$(INSTALL) -m 0644 lib/$(LIB.SHARED.MX) $(BINDIR)/
++else
++	$(STRIP) -x lib/$(LIB.SHARED.MX)
++	$(INSTALL) -m 0755 lib/$(LIB.SHARED.MX) $(LIBDIR)/
++	$(LN) $(LIB.SHARED.MX) $(LIBDIR)/$(LIB.SONAME.MX)
++endif
++# development files
++ifeq ($(filter-out mingw% cygwin,$(SYSTEM)),)
++	$(INSTALL) -m 0644 lib/$(LIB.DEVLNK.MX) $(LIBDIR)/
++else
++	$(STRIP) -x lib/$(LIB.STATIC.MX)
++	$(INSTALL) -m 0644 lib/$(LIB.STATIC.MX) $(LIBDIR)/
++	$(LN) $(LIB.SHARED.MX) $(LIBDIR)/$(LIB.DEVLNK.MX)
++endif
++
++install.bin: glew.bin
++	$(INSTALL) -d -m 0755 $(BINDIR)
+ 	$(INSTALL) -m 0755 bin/$(GLEWINFO.BIN) bin/$(VISUALINFO.BIN) $(BINDIR)/
+ 
++install.include:
++	$(INSTALL) -d -m 0755 $(INCDIR)
++	$(INSTALL) -m 0644 include/GL/wglew.h $(INCDIR)/
++	$(INSTALL) -m 0644 include/GL/glew.h $(INCDIR)/
++	$(INSTALL) -m 0644 include/GL/glxew.h $(INCDIR)/
++
++install.pkgconfig: glew.pc
++	$(INSTALL) -d -m 0755 $(LIBDIR)
++	$(INSTALL) -d -m 0755 $(LIBDIR)/pkgconfig
++	$(INSTALL) -m 0644 glew.pc $(LIBDIR)/pkgconfig/
++
++install.pkgconfig.mx: glewmx.pc
++	$(INSTALL) -d -m 0755 $(LIBDIR)
++	$(INSTALL) -d -m 0755 $(LIBDIR)/pkgconfig
++	$(INSTALL) -m 0644 glewmx.pc $(LIBDIR)/pkgconfig/
++
+ uninstall:
+ 	$(RM) $(INCDIR)/wglew.h
+ 	$(RM) $(INCDIR)/glew.h
+ 	$(RM) $(INCDIR)/glxew.h
+-	$(RM) $(LIBDIR)/$(LIB.DEVLNK)
++	$(RM) $(LIBDIR)/$(LIB.DEVLNK) $(LIBDIR)/$(LIB.DEVLNK.MX)
+ ifeq ($(filter-out mingw% cygwin,$(SYSTEM)),)
+-	$(RM) $(BINDIR)/$(LIB.SHARED)
++	$(RM) $(BINDIR)/$(LIB.SHARED) $(BINDIR)/$(LIB.SHARED.MX)
+ else
+-	$(RM) $(LIBDIR)/$(LIB.SONAME)
+-	$(RM) $(LIBDIR)/$(LIB.SHARED)
+-	$(RM) $(LIBDIR)/$(LIB.STATIC)
++	$(RM) $(LIBDIR)/$(LIB.SONAME) $(LIBDIR)/$(LIB.SONAME.MX)
++	$(RM) $(LIBDIR)/$(LIB.SHARED) $(LIBDIR)/$(LIB.SHARED.MX)
++	$(RM) $(LIBDIR)/$(LIB.STATIC) $(LIBDIR)/$(LIB.STATIC.MX)
+ endif
+ 	$(RM) $(BINDIR)/$(GLEWINFO.BIN) $(BINDIR)/$(VISUALINFO.BIN)
+ 
+ clean:
+-	$(RM) $(LIB.OBJS)
+-	$(RM) $(LIB.SOBJS)
++	$(RM) $(LIB.OBJS) $(LIB.OBJS.MX)
++	$(RM) $(LIB.SOBJS) $(LIB.SOBJS.MX)
+ 	$(RM) lib/$(LIB.STATIC) lib/$(LIB.SHARED) lib/$(LIB.DEVLNK) lib/$(LIB.SONAME) $(LIB.STATIC)
++	$(RM) lib/$(LIB.STATIC.MX) lib/$(LIB.SHARED.MX) lib/$(LIB.DEVLNK.MX) lib/$(LIB.SONAME.MX) $(LIB.STATIC.MX)
+ 	$(RM) $(GLEWINFO.BIN.OBJS) bin/$(GLEWINFO.BIN) $(VISUALINFO.BIN.OBJS) bin/$(VISUALINFO.BIN)
+-	$(RM) glew.pc
++	$(RM) glew.pc glewmx.pc
+ # Compiler droppings
+ 	$(RM) so_locations
+	$(RM) -r lib/ bin/
+ 
+@@ -177,18 +264,7 @@
+ 	find . -name \*~ | xargs $(RM)
+ 	find . -name .\*.sw\? | xargs $(RM)
+ 
+-tardist:
+-	$(RM) -r $(TARDIR)
+-	mkdir $(TARDIR)
+-	cp -a . $(TARDIR)
+-	find $(TARDIR) -name CVS -o -name .cvsignore | xargs $(RM) -r
+-	find $(TARDIR) -name .svn | xargs $(RM) -r
+-	find $(TARDIR) -name "*.patch" | xargs $(RM) -r
+-	$(MAKE) -C $(TARDIR) distclean
+-	$(MAKE) -C $(TARDIR)
+-	$(MAKE) -C $(TARDIR) distclean
+-	$(RM) -r $(TARDIR)/auto/registry
+-	env GZIP=-9 tar -C `dirname $(TARDIR)` -cvzf $(TARBALL) `basename $(TARDIR)`
++# Distributions
+ 
+ dist-win32:
+ 	$(RM) -r $(TARDIR)
+@@ -227,7 +304,9 @@
+ 	cp -a Makefile $(TARDIR)
+ 	cp -a glew.pc.in $(TARDIR)
+ 	find $(TARDIR) -name '*.o' | xargs $(RM) -r
++	find $(TARDIR) -name '*.mx.o' | xargs $(RM) -r
+ 	find $(TARDIR) -name '*.pic_o' | xargs $(RM) -r
++	find $(TARDIR) -name '*.mx.pic_o' | xargs $(RM) -r
+ 	find $(TARDIR) -name '*~' | xargs $(RM) -r
+ 	find $(TARDIR) -name CVS -o -name .cvsignore | xargs $(RM) -r
+ 	find $(TARDIR) -name .svn | xargs $(RM) -r
+diff --git a/config/Makefile.cygming b/config/Makefile.cygming
+index d1d6062..df25279 100644
+--- a/config/Makefile.cygming
++++ b/config/Makefile.cygming
+@@ -6,9 +6,6 @@ INCDIR = /usr/include/mingw/GL
+ CC = gcc -mno-cygwin
+ # use gcc for linking, with ld it does not work
+ LD = gcc -mno-cygwin
+-ifneq (undefined, $(origin GLEW_MX))
+-CFLAGS.EXTRA = -DGLEW_MX
+-endif
+ CFLAGS.SO = -DGLEW_BUILD
+ LDFLAGS.SO = -shared -Wl,-soname,$(LIB.SONAME) -Wl,--out-implib,lib/$(LIB.DEVLNK)
+ LDFLAGS.GL = -lglu32 -lopengl32 -lgdi32 -luser32 -lkernel32
+@@ -16,7 +13,11 @@ LDFLAGS.EXTRA = -L$(LIBDIR)
+ WARN = -Wall -W
+ POPT = -O2
+ BIN.SUFFIX = .exe
+-LIB.SONAME = lib$(NAME).dll
+-LIB.DEVLNK = lib$(NAME).dll.a    # for mingw this is the dll import lib
+-LIB.SHARED = $(NAME).dll
+-LIB.STATIC = lib$(NAME).a     # the static lib will be broken (see CFLAGS.SO)
++LIB.SONAME    = lib$(NAME).dll
++LIB.DEVLNK    = lib$(NAME).dll.a   # for mingw this is the dll import lib
++LIB.SHARED    = $(NAME).dll
++LIB.STATIC    = lib$(NAME).a       # the static lib will be broken (see CFLAGS.SO)
++LIB.SONAME.MX = lib$(NAME)mx.dll
++LIB.DEVLNK.MX = lib$(NAME)mx.dll.a # for mingw this is the dll import lib
++LIB.SHARED.MX = $(NAME)mx.dll
++LIB.STATIC.MX = lib$(NAME)mx.a     # the static lib will be broken (see CFLAGS.SO)
+diff --git a/config/Makefile.cygwin b/config/Makefile.cygwin
+index 9fbab8b..1af6c68 100644
+--- a/config/Makefile.cygwin
++++ b/config/Makefile.cygwin
+@@ -3,9 +3,6 @@ GLEW_DEST ?= /usr/X11R6
+ CC = cc
+ # use gcc for linking, with ld it does not work
+ LD = cc
+-ifneq (undefined, $(origin GLEW_MX))
+-CFLAGS.EXTRA = -DGLEW_MX
+-endif
+ LDFLAGS.SO = -shared -Wl,--out-implib,lib/$(LIB.DEVLNK)
+ LDFLAGS.EXTRA = -L/usr/X11R6/lib
+ LIBDIR = $(GLEW_DEST)/lib
+diff --git a/config/Makefile.darwin b/config/Makefile.darwin
+index a80acac..69a474f 100644
+--- a/config/Makefile.darwin
++++ b/config/Makefile.darwin
+@@ -2,9 +2,6 @@ NAME = $(GLEW_NAME)
+ CC = cc
+ LD = cc
+ CFLAGS.EXTRA = -no-cpp-precomp -dynamic -fno-common
+-ifneq (undefined, $(origin GLEW_MX))
+-CFLAGS.EXTRA += -DGLEW_MX
+-endif
+ PICFLAG = -fPIC
+ LDFLAGS.SO = -dynamiclib -install_name $(GLEW_DEST)/lib/$(LIB.SHARED)
+ LDFLAGS.EXTRA =
+@@ -19,8 +16,12 @@ LDFLAGS.DYNAMIC =
+ WARN = -Wall -W
+ POPT = -O2
+ BIN.SUFFIX =
+-LIB.SONAME = lib$(NAME).$(SO_MAJOR).dylib
+-LIB.DEVLNK = lib$(NAME).dylib
+-LIB.SHARED = lib$(NAME).$(SO_VERSION).dylib
+-LIB.STATIC = lib$(NAME).a
++LIB.SONAME    = lib$(NAME).$(SO_MAJOR).dylib
++LIB.DEVLNK    = lib$(NAME).dylib
++LIB.SHARED    = lib$(NAME).$(SO_VERSION).dylib
++LIB.STATIC    = lib$(NAME).a
++LIB.SONAME.MX = lib$(NAME)mx.$(SO_MAJOR).dylib
++LIB.DEVLNK.MX = lib$(NAME)mx.dylib
++LIB.SHARED.MX = lib$(NAME)mx.$(SO_VERSION).dylib
++LIB.STATIC.MX = lib$(NAME)mx.a
+ SHARED_OBJ_EXT = pic_o
+diff --git a/config/Makefile.freebsd b/config/Makefile.freebsd
+index 3bbc545..fe0c324 100644
+--- a/config/Makefile.freebsd
++++ b/config/Makefile.freebsd
+@@ -1,9 +1,6 @@
+ NAME = $(GLEW_NAME)
+ CC = cc
+ LD = ld
+-ifneq (undefined, $(origin GLEW_MX))
+-CFLAGS.EXTRA = -DGLEW_MX
+-endif
+ LDFLAGS.SO = -shared -soname $(LIB.SONAME)
+ LDFLAGS.EXTRA = -L/usr/X11R6/lib
+ LDFLAGS.GL = -lXmu -lXi -lGLU -lGL -lXext -lX11
+@@ -14,7 +11,11 @@ NAME = GLEW
+ WARN = -Wall -W
+ POPT = -O2
+ BIN.SUFFIX =
+-LIB.SONAME = lib$(NAME).so.$(SO_MAJOR)
+-LIB.DEVLNK = lib$(NAME).so
+-LIB.SHARED = lib$(NAME).so.$(SO_VERSION)
+-LIB.STATIC = lib$(NAME).a
++LIB.SONAME    = lib$(NAME).so.$(SO_MAJOR)
++LIB.DEVLNK    = lib$(NAME).so
++LIB.SHARED    = lib$(NAME).so.$(SO_VERSION)
++LIB.STATIC    = lib$(NAME).a
++LIB.SONAME.MX = lib$(NAME)mx.so.$(SO_MAJOR)
++LIB.DEVLNK.MX = lib$(NAME)mx.so
++LIB.SHARED.MX = lib$(NAME)mx.so.$(SO_VERSION)
++LIB.STATIC.MX = lib$(NAME)mx.a
+diff --git a/config/Makefile.gnu b/config/Makefile.gnu
+index 69846ab..ac96c1d 100644
+--- a/config/Makefile.gnu
++++ b/config/Makefile.gnu
+@@ -1,9 +1,6 @@
+ NAME = $(GLEW_NAME)
+ CC = cc
+ LD = cc
+-ifneq (undefined, $(origin GLEW_MX))
+-CFLAGS.EXTRA = -DGLEW_MX
+-endif
+ PICFLAG = -fPIC
+ LDFLAGS.SO = -shared -Wl,-soname=$(LIB.SONAME)
+ LDFLAGS.EXTRA = -L/usr/X11R6/lib
+@@ -14,8 +11,12 @@ NAME = GLEW
+ WARN = -Wall -W
+ POPT = -O2
+ BIN.SUFFIX =
+-LIB.SONAME = lib$(NAME).so.$(SO_MAJOR)
+-LIB.DEVLNK = lib$(NAME).so
+-LIB.SHARED = lib$(NAME).so.$(SO_VERSION)
+-LIB.STATIC = lib$(NAME).a
++LIB.SONAME    = lib$(NAME).so.$(SO_MAJOR)
++LIB.DEVLNK    = lib$(NAME).so
++LIB.SHARED    = lib$(NAME).so.$(SO_VERSION)
++LIB.STATIC    = lib$(NAME).a
++LIB.SONAME.MX = lib$(NAME)mx.so.$(SO_MAJOR)
++LIB.DEVLNK.MX = lib$(NAME)mx.so
++LIB.SHARED.MX = lib$(NAME)mx.so.$(SO_VERSION)
++LIB.STATIC.MX = lib$(NAME)mx.a
+ SHARED_OBJ_EXT = pic_o
+diff --git a/config/Makefile.irix b/config/Makefile.irix
+index c618224..0125caf 100644
+--- a/config/Makefile.irix
++++ b/config/Makefile.irix
+@@ -4,9 +4,6 @@ LD = ld
+ ABI = -64# -n32
+ CC += $(ABI)
+ LD += $(ABI)
+-ifneq (undefined, $(origin GLEW_MX))
+-CFLAGS.EXTRA = -DGLEW_MX
+-endif
+ LDFLAGS.SO = -shared -soname $(LIB.SONAME)
+ LDFLAGS.EXTRA =
+ LDFLAGS.GL = -lGLU -lGL -lXext -lX11
+@@ -14,7 +11,11 @@ NAME = GLEW
+ WARN = -fullwarn -woff 1110,1498
+ POPT = -O2 -OPT:Olimit=0
+ BIN.SUFFIX =
+-LIB.SONAME = lib$(NAME).so.$(SO_MAJOR)
+-LIB.DEVLNK = lib$(NAME).so
+-LIB.SHARED = lib$(NAME).so.$(SO_VERSION)
+-LIB.STATIC = lib$(NAME).a
++LIB.SONAME    = lib$(NAME).so.$(SO_MAJOR)
++LIB.DEVLNK    = lib$(NAME).so
++LIB.SHARED    = lib$(NAME).so.$(SO_VERSION)
++LIB.STATIC    = lib$(NAME).a
++LIB.SONAME.MX = lib$(NAME)mx.so.$(SO_MAJOR)
++LIB.DEVLNK.MX = lib$(NAME)mx.so
++LIB.SHARED.MX = lib$(NAME)mx.so.$(SO_VERSION)
++LIB.STATIC.MX = lib$(NAME)mx.a
+diff --git a/config/Makefile.kfreebsd b/config/Makefile.kfreebsd
+index ace80ff..e816776 100644
+--- a/config/Makefile.kfreebsd
++++ b/config/Makefile.kfreebsd
+@@ -1,9 +1,6 @@
+ NAME = $(GLEW_NAME)
+ CC = cc
+ LD = cc
+-ifneq (undefined, $(origin GLEW_MX))
+-CFLAGS.EXTRA = -DGLEW_MX
+-endif
+ PICFLAG = -fPIC
+ LDFLAGS.SO = -shared -Wl,-soname $(LIB.SONAME)
+ LDFLAGS.EXTRA = -L/usr/X11R6/lib
+@@ -14,8 +11,12 @@ NAME = GLEW
+ WARN = -Wall -W
+ POPT = -O2
+ BIN.SUFFIX =
+-LIB.SONAME = lib$(NAME).so.$(SO_MAJOR)
+-LIB.DEVLNK = lib$(NAME).so
+-LIB.SHARED = lib$(NAME).so.$(SO_VERSION)
+-LIB.STATIC = lib$(NAME).a
++LIB.SONAME    = lib$(NAME).so.$(SO_MAJOR)
++LIB.DEVLNK    = lib$(NAME).so
++LIB.SHARED    = lib$(NAME).so.$(SO_VERSION)
++LIB.STATIC    = lib$(NAME).a
++LIB.SONAME.MX = lib$(NAME)mx.so.$(SO_MAJOR)
++LIB.DEVLNK.MX = lib$(NAME)mx.so
++LIB.SHARED.MX = lib$(NAME)mx.so.$(SO_VERSION)
++LIB.STATIC.MX = lib$(NAME)mx.a
+ SHARED_OBJ_EXT = pic_o
+diff --git a/config/Makefile.linux b/config/Makefile.linux
+index fd8a2d1..b33c350 100644
+--- a/config/Makefile.linux
++++ b/config/Makefile.linux
+@@ -1,9 +1,6 @@
+ NAME = $(GLEW_NAME)
+ CC = cc
+ LD = cc
+-ifneq (undefined, $(origin GLEW_MX))
+-CFLAGS.EXTRA = -DGLEW_MX
+-endif
+ PICFLAG = -fPIC
+ LDFLAGS.SO = -shared -Wl,-soname=$(LIB.SONAME)
+ M_ARCH ?= $(shell uname -m)
+@@ -25,4 +22,8 @@ LIB.SONAME = lib$(NAME).so.$(SO_MAJOR)
+ LIB.DEVLNK = lib$(NAME).so
+ LIB.SHARED = lib$(NAME).so.$(SO_VERSION)
+ LIB.STATIC = lib$(NAME).a
++LIB.SONAME.MX = lib$(NAME)mx.so.$(SO_MAJOR)
++LIB.DEVLNK.MX = lib$(NAME)mx.so
++LIB.SHARED.MX = lib$(NAME)mx.so.$(SO_VERSION)
++LIB.STATIC.MX = lib$(NAME)mx.a
+ SHARED_OBJ_EXT = pic_o
+diff --git a/config/Makefile.linux-mingw32 b/config/Makefile.linux-mingw32
+index 85ad647..6fcec42 100644
+--- a/config/Makefile.linux-mingw32
++++ b/config/Makefile.linux-mingw32
+@@ -7,16 +7,17 @@
+ NAME = glew32
+ CC = i586-mingw32msvc-gcc
+ LD = i586-mingw32msvc-ld
+-ifneq (undefined, $(origin GLEW_MX))
+-CFLAGS.EXTRA = -DGLEW_MX
+-endif
+ CFLAGS.SO = -DGLEW_BUILD
+ LDFLAGS.SO = -shared -soname $(LIB.SONAME) --out-implib lib/$(LIB.DEVLNK)
+ LDFLAGS.GL = -lglu32 -lopengl32 -lgdi32 -luser32 -lkernel32
+ WARN = -Wall -W
+ POPT = -O2
+ BIN.SUFFIX = .exe
+-LIB.SONAME = lib$(NAME).dll
+-LIB.DEVLNK = lib$(NAME).dll.a    # for mingw this is the dll import lib
+-LIB.SHARED = $(NAME).dll
+-LIB.STATIC = lib$(NAME).a     # the static lib will be broken (see CFLAGS.SO)
++LIB.SONAME    = lib$(NAME).dll
++LIB.DEVLNK    = lib$(NAME).dll.a    # for mingw this is the dll import lib
++LIB.SHARED    = $(NAME).dll
++LIB.STATIC    = lib$(NAME).a        # the static lib will be broken (see CFLAGS.SO)
++LIB.SONAME.MX = lib$(NAME)mx.dll
++LIB.DEVLNK.MX = lib$(NAME)mx.dll.a  # for mingw this is the dll import lib
++LIB.SHARED.MX = $(NAME)mx.dll
++LIB.STATIC.MX = lib$(NAME)mx.a      # the static lib will be broken (see CFLAGS.SO)
+diff --git a/config/Makefile.linux-mingw64 b/config/Makefile.linux-mingw64
+index 31c7821..028b1d0 100644
+--- a/config/Makefile.linux-mingw64
++++ b/config/Makefile.linux-mingw64
+@@ -7,16 +7,17 @@
+ NAME = glew32
+ CC = amd64-mingw32msvc-gcc
+ LD = amd64-mingw32msvc-ld
+-ifneq (undefined, $(origin GLEW_MX))
+-CFLAGS.EXTRA = -DGLEW_MX
+-endif
+ CFLAGS.SO = -DGLEW_BUILD
+ LDFLAGS.SO = -shared -soname $(LIB.SONAME) --out-implib lib/$(LIB.DEVLNK)
+ LDFLAGS.GL = -lglu32 -lopengl32 -lgdi32 -luser32 -lkernel32
+ WARN = -Wall -W
+ POPT = -O2
+ BIN.SUFFIX = .exe
+-LIB.SONAME = lib$(NAME).dll
+-LIB.DEVLNK = lib$(NAME).dll.a    # for mingw this is the dll import lib
+-LIB.SHARED = $(NAME).dll
+-LIB.STATIC = lib$(NAME).a     # the static lib will be broken (see CFLAGS.SO)
++LIB.SONAME    = lib$(NAME).dll
++LIB.DEVLNK    = lib$(NAME).dll.a    # for mingw this is the dll import lib
++LIB.SHARED    = $(NAME).dll
++LIB.STATIC    = lib$(NAME).a        # the static lib will be broken (see CFLAGS.SO)
++LIB.SONAME.MX = lib$(NAME)mx.dll
++LIB.DEVLNK.MX = lib$(NAME)mx.dll.a  # for mingw this is the dll import lib
++LIB.SHARED.MX = $(NAME)mx.dll
++LIB.STATIC.MX = lib$(NAME)mx.a      # the static lib will be broken (see CFLAGS.SO)
+diff --git a/config/Makefile.mingw b/config/Makefile.mingw
+index 6b98a44..6c06019 100644
+--- a/config/Makefile.mingw
++++ b/config/Makefile.mingw
+@@ -2,9 +2,6 @@ NAME = glew32
+ CC = gcc
+ # use gcc for linking, with ld it does not work
+ LD = gcc
+-ifneq (undefined, $(origin GLEW_MX))
+-CFLAGS.EXTRA = -DGLEW_MX
+-endif
+ CFLAGS.SO = -DGLEW_BUILD
+ #LDFLAGS.SO = -shared -soname $(LIB.SONAME) --out-implib lib/$(LIB.DEVLNK)
+ LDFLAGS.SO = -shared -Wl,-soname,$(LIB.SONAME) -Wl,--out-implib,lib/$(LIB.DEVLNK)
+@@ -13,7 +10,11 @@ LDFLAGS.EXTRA = -L/mingw/lib
+ WARN = -Wall -W
+ POPT = -O2
+ BIN.SUFFIX = .exe
+-LIB.SONAME = lib$(NAME).dll
+-LIB.DEVLNK = lib$(NAME).dll.a    # for mingw this is the dll import lib
+-LIB.SHARED = $(NAME).dll
+-LIB.STATIC = lib$(NAME).a     # the static lib will be broken (see CFLAGS.SO)
++LIB.SONAME    = lib$(NAME).dll
++LIB.DEVLNK    = lib$(NAME).dll.a   # for mingw this is the dll import lib
++LIB.SHARED    = $(NAME).dll
++LIB.STATIC    = lib$(NAME).a       # the static lib will be broken (see CFLAGS.SO)
++LIB.SONAME.MX = lib$(NAME)mx.dll
++LIB.DEVLNK.MX = lib$(NAME)mx.dll.a # for mingw this is the dll import lib
++LIB.SHARED.MX = $(NAME)mx.dll
++LIB.STATIC.MX = lib$(NAME)mx.a     # the static lib will be broken (see CFLAGS.SO)
+diff --git a/config/Makefile.solaris b/config/Makefile.solaris
+index d7dfa9c..b5dfebb 100644
+--- a/config/Makefile.solaris
++++ b/config/Makefile.solaris
+@@ -2,16 +2,17 @@ NAME = $(GLEW_NAME)
+ CC = cc
+ LD = ld
+ CFLAGS.EXTRA = -I/usr/openwin/include
+-ifneq (undefined, $(origin GLEW_MX))
+-CFLAGS.EXTRA += -DGLEW_MX
+-endif
+ LDFLAGS.SO = -G
+ LDFLAGS.EXTRA = -L/usr/openwin/lib
+ LDFLAGS.GL = -lXmu -lXi -lGLU -lGL -lXext -lX11
+ NAME = GLEW
+ BIN.SUFFIX =
+ POPT = -xO2
+-LIB.SONAME = lib$(NAME).so.$(SO_MAJOR)
+-LIB.DEVLNK = lib$(NAME).so
+-LIB.SHARED = lib$(NAME).so.$(SO_VERSION)
+-LIB.STATIC = lib$(NAME).a
++LIB.SONAME    = lib$(NAME).so.$(SO_MAJOR)
++LIB.DEVLNK    = lib$(NAME).so
++LIB.SHARED    = lib$(NAME).so.$(SO_VERSION)
++LIB.STATIC    = lib$(NAME).a
++LIB.SONAME.MX = lib$(NAME)mx.so.$(SO_MAJOR)
++LIB.DEVLNK.MX = lib$(NAME)mx.so
++LIB.SHARED.MX = lib$(NAME)mx.so.$(SO_VERSION)
++LIB.STATIC.MX = lib$(NAME)mx.a
+diff --git a/glew.pc.in b/glew.pc.in
+index 4979fb0..10e946f 100644
+--- a/glew.pc.in
++++ b/glew.pc.in
+@@ -6,5 +6,5 @@ includedir=@includedir@
+ Name: glew
+ Description: The OpenGL Extension Wrangler library
+ Version: @version@
+-Cflags: -I${includedir}
+-Libs: -L${libdir} -lGLEW
++Cflags: -I${includedir} @cflags@
++Libs: -L${libdir} -l@libname@
+

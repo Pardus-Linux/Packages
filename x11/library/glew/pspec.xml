@@ -16,7 +16,7 @@
         <IsA>library</IsA>
         <Summary>OpenGL Extension Wrangler Library</Summary>
         <Description>OpenGL Extension Wrangler Library (GLEW) is a cross-platform C/C++ extension loading library. GLEW provides efficient run-time mechanisms for determining which OpenGL extensions are supported on the target platform. OpenGL core and extension functionality is exposed in a single header file.</Description>
-        <Archive sha1sum="b6f28142b77a99e719b113b6859ae120f131cc91" type="targz">mirrors://sourceforge/glew/1.5.5/glew-1.5.5.tgz</Archive>
+        <Archive sha1sum="450946935faa20ac4950cb42ff025be2c1f7c22e" type="targz">mirrors://sourceforge/glew/1.5.5/glew-1.5.8.tgz</Archive>
         <BuildDependencies>
             <Dependency>freeglut-devel</Dependency>
             <Dependency>mesa-devel</Dependency>
@@ -25,8 +25,11 @@
             <Dependency>libXmu-devel</Dependency>
         </BuildDependencies>
         <Patches>
-            <Patch level="1">glew-1.5.2-add-needed.patch</Patch>
-            <Patch level="1">glew-1.5.2-makefile.patch</Patch>
+            <!--Dont change order of patch, otherwise "add_bin_target" cannot be applied-->
+            <Patch level="1">glew-1.5.8-makefile.patch</Patch>
+            <Patch level="1">glew-1.5.8-glewmx.patch</Patch>
+            <Patch level="1">glew-1.5.8-soname.patch</Patch>
+            <Patch level="1">add_bin_target.patch</Patch>
         </Patches>
     </Source>
 
@@ -55,10 +58,42 @@
         <Files>
             <Path fileType="header">/usr/include/GL</Path>
             <Path fileType="data">/usr/lib/pkgconfig</Path>
+            <Path fileType="data">/usr/lib32/pkgconfig</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>glew-32bit</Name>
+        <PartOf>emul32</PartOf>
+        <Summary>32-bit shared libraries for glew</Summary>
+        <BuildType>emul32</BuildType>
+        <BuildDependencies>
+            <Dependency>mesa-32bit</Dependency>
+            <Dependency>libXi-32bit</Dependency>
+            <Dependency>libX11-32bit</Dependency>
+        </BuildDependencies>
+        <RuntimeDependencies>
+            <Dependency release="current">glew</Dependency>
+            <Dependency>mesa-32bit</Dependency>
+            <Dependency>libXi-32bit</Dependency>
+        </RuntimeDependencies>
+
+        <Files>
+            <Path fileType="library">/usr/lib32</Path>
         </Files>
     </Package>
 
     <History>
+        <Update release="10">
+            <Date>2011-04-26</Date>
+            <Version>1.5.8</Version>
+            <Comment>
+                * Update to 1.5.8 release
+                * Split and create emul32 package
+            </Comment>
+            <Name>Fatih Arslan</Name>
+            <Email>farslan@pardus.org.tr</Email>
+        </Update>
         <Update release="9">
             <Date>2010-10-12</Date>
             <Version>1.5.5</Version>

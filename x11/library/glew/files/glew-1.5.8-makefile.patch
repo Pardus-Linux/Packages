@@ -1,0 +1,63 @@
+diff -up glew-1.5.5/config/Makefile.linux.make glew-1.5.5/config/Makefile.linux
+--- glew-1.5.5/config/Makefile.linux.make	2010-07-13 12:36:44.000000000 -0400
++++ glew-1.5.5/config/Makefile.linux	2010-08-25 16:24:05.000000000 -0400
+@@ -7,14 +7,8 @@ endif
+ PICFLAG = -fPIC
+ LDFLAGS.SO = -shared -Wl,-soname=$(LIB.SONAME)
+ M_ARCH ?= $(shell uname -m)
+-ifeq (x86_64,${M_ARCH})
+-LDFLAGS.EXTRA = -L/usr/X11R6/lib64
+-LIBDIR = $(GLEW_DEST)/lib64
+-else
+-LDFLAGS.EXTRA = -L/usr/X11R6/lib
+-LIBDIR = $(GLEW_DEST)/lib
+-endif
+-LDFLAGS.GL = -lXmu -lXi -lGLU -lGL -lXext -lX11
++LIBDIR = $(GLEW_DEST)$(libdir)
++LDFLAGS.GL = -lGL -lX11 -lGLU
+ LDFLAGS.STATIC = -Wl,-Bstatic
+ LDFLAGS.DYNAMIC = -Wl,-Bdynamic
+ NAME = GLEW
+diff -up glew-1.5.5/Makefile.make glew-1.5.5/Makefile
+--- glew-1.5.5/Makefile.make	2010-07-13 12:36:45.000000000 -0400
++++ glew-1.5.5/Makefile	2010-08-25 16:25:27.000000000 -0400
+@@ -41,9 +41,9 @@ $(error "Platform '$(SYSTEM)' not suppor
+ endif
+ 
+ GLEW_DEST ?= /usr
+-BINDIR ?= $(GLEW_DEST)/bin
+-LIBDIR ?= $(GLEW_DEST)/lib
+-INCDIR ?= $(GLEW_DEST)/include/GL
++BINDIR ?= $(GLEW_DEST)$(bindir)
++LIBDIR ?= $(GLEW_DEST)$(libdir)
++INCDIR ?= $(GLEW_DEST)$(includedir)/GL
+ SHARED_OBJ_EXT ?= o
+ TARDIR = ../glew-$(GLEW_VERSION)
+ TARBALL = ../glew-$(GLEW_VERSION).tar.gz
+@@ -55,7 +55,7 @@ DIST_SRC_TGZ = glew-$(GLEW_VERSION).tgz
+ 
+ AR = ar
+ INSTALL = install
+-STRIP = strip
++STRIP = true
+ RM = rm -f
+ LN = ln -sf
+ ifeq ($(MAKECMDGOALS), debug)
+@@ -132,7 +132,7 @@ ifeq ($(patsubst mingw%,mingw,$(SYSTEM))
+ 	$(INSTALL) -m 0644 lib/$(LIB.SHARED) $(BINDIR)/
+ else
+ 	$(STRIP) -x lib/$(LIB.SHARED)
+-	$(INSTALL) -m 0644 lib/$(LIB.SHARED) $(LIBDIR)/
++	$(INSTALL) -m 0755 lib/$(LIB.SHARED) $(LIBDIR)/
+ 	$(LN) $(LIB.SHARED) $(LIBDIR)/$(LIB.SONAME)
+ endif
+ # development files
+@@ -148,7 +148,7 @@ else
+ 	$(LN) $(LIB.SHARED) $(LIBDIR)/$(LIB.DEVLNK)
+ endif
+ # utilities
+-	$(INSTALL) -s -m 0755 bin/$(GLEWINFO.BIN) bin/$(VISUALINFO.BIN) $(BINDIR)/
++	$(INSTALL) -m 0755 bin/$(GLEWINFO.BIN) bin/$(VISUALINFO.BIN) $(BINDIR)/
+ 
+ uninstall:
+ 	$(RM) $(INCDIR)/wglew.h
