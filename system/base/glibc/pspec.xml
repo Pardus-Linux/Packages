@@ -65,7 +65,6 @@
             <!-- Gentoo patches -->
             <Patch>gentoo/0085_all_glibc-disable-ldconfig.patch</Patch>
             <Patch level="1">gentoo/1160_all_glibc-2.8-nscd-one-fork.patch</Patch>
-            <Patch>gentoo/5021_all_2.9-fnmatch.patch</Patch>
             <Patch level="1">gentoo/0030_all_glibc-respect-env-CPPFLAGS.patch</Patch>
             <Patch level="1">gentoo/0044_all_glibc-2.10-resolv-nameserver-fallback.patch</Patch>
             <Patch level="1">gentoo/0055_all_glibc-2.12-static-shared-getpagesize.patch</Patch>
@@ -85,6 +84,10 @@
             <Patch level="1">glibc-2.12.1-never-expand-ORIGIN-in-privileged-programs.patch</Patch>
             <!-- CVE-2010-3856 -->
             <Patch level="1">glibc-2.12.1-CVE-2010-3856.diff</Patch>
+            <!-- CVE-2011-1095 -->
+            <Patch level="1">CVE-2011-1095.patch</Patch>
+            <!-- Fix alloca usage and check size of pattern in wide character representation in fnmatch, fixes CVE-2011-1071 -->
+            <Patch level="1">fix_use_of_alloca_in_fnmatch.patch</Patch>
 
             <!-- Pardus spesific patches -->
             <!-- Fix paths in 64bit -->
@@ -95,6 +98,11 @@
 
             <!-- systemd patches -->
             <Patch level="1">systemd_listen_fd_in_nscd.patch</Patch>
+
+            <!-- Fall back to singlebyte matching in fnmatch if multibyte matching fails -->
+            <!-- FIXME: forwardport of 5021_all_2.9-fnmatch.patch, seems it is not needed anymore
+            <Patch level="1">fnmatch_singlebyte.patch</Patch>
+            -->
         </Patches>
     </Source>
 
@@ -1694,6 +1702,16 @@
     </Package>
 
     <History>
+        <Update release="63" type="security">
+            <Date>2011-04-21</Date>
+            <Version>2.12_20100706</Version>
+            <Comment>
+                Properly quote output of locale, fixes CVE-2011-1095, fixes #pb 17815 17816 17817 17818
+                Fix fnmatch stack corruption, use malloc instead of alloca, fixes CVE-2011-1071, fixes #pb 17680 17681 17682 17683
+            </Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
         <Update release="62">
             <Date>2010-12-24</Date>
             <Version>2.12_20100706</Version>
