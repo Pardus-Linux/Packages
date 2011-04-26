@@ -1,7 +1,8 @@
-diff -up kdebase-workspace-4.4.92/kdm/backend/dm.c.kdm_plymouth kdebase-workspace-4.4.92/kdm/backend/dm.c
---- kdebase-workspace-4.4.92/kdm/backend/dm.c.kdm_plymouth	2010-07-06 01:54:30.000000000 -0500
-+++ kdebase-workspace-4.4.92/kdm/backend/dm.c	2010-07-07 13:55:48.425171749 -0500
-@@ -1329,6 +1329,81 @@ getBusyVTs(void)
+Index: kdebase-workspace-4.6.2/kdm/backend/dm.c
+===================================================================
+--- kdebase-workspace-4.6.2.orig/kdm/backend/dm.c
++++ kdebase-workspace-4.6.2/kdm/backend/dm.c
+@@ -1326,6 +1326,70 @@ getBusyVTs(void)
      return activeVTs;
  }
  
@@ -69,34 +70,13 @@ diff -up kdebase-workspace-4.4.92/kdm/backend/dm.c.kdm_plymouth kdebase-workspac
 +        return WIFEXITED (status) && WEXITSTATUS (status) == 0;
 +}
 +
-+static int
-+triggered_to_force_display_on_active_vt (void)
-+{
-+   int should_force_display_on_active_vt;
-+   should_force_display_on_active_vt=open("/var/spool/gdm/force-display-on-active-vt", O_RDONLY);
-+   if ( should_force_display_on_active_vt >= 0 )
-+       close(should_force_display_on_active_vt);
-+   unlink("/var/spool/gdm/force-display-on-active-vt");
-+   return should_force_display_on_active_vt;
-+}
-+
  static void
  allocateVT(struct display *d)
  {
-@@ -1338,6 +1413,43 @@ allocateVT(struct display *d)
+@@ -1335,6 +1399,33 @@ allocateVT(struct display *d)
      if ((d->displayType & d_location) == dLocal &&
          d->status == notRunning && !d->serverVT && d->reqSrvVT >= 0)
      {
-+        /* check for pymouth using old/deprecated method first */
-+        if ( triggered_to_force_display_on_active_vt() >= 0 ) {
-+            int vt;
-+            vt = get_active_vt();
-+            if (vt > 0) {
-+                d->serverVT = vt;
-+                return;
-+            }
-+        }
-+
 +        /* check for plymouth using newer methods */
 +        d->plymouth_is_running = plymouth_is_running ();
 +        if (d->plymouth_is_running) {
@@ -127,10 +107,11 @@ diff -up kdebase-workspace-4.4.92/kdm/backend/dm.c.kdm_plymouth kdebase-workspac
          if (d->reqSrvVT && d->reqSrvVT < 16) {
              d->serverVT = d->reqSrvVT;
          } else {
-diff -up kdebase-workspace-4.4.92/kdm/backend/dm.h.kdm_plymouth kdebase-workspace-4.4.92/kdm/backend/dm.h
---- kdebase-workspace-4.4.92/kdm/backend/dm.h.kdm_plymouth	2010-07-06 01:54:30.000000000 -0500
-+++ kdebase-workspace-4.4.92/kdm/backend/dm.h	2010-07-07 13:48:11.874921158 -0500
-@@ -292,6 +292,8 @@ struct display {
+Index: kdebase-workspace-4.6.2/kdm/backend/dm.h
+===================================================================
+--- kdebase-workspace-4.6.2.orig/kdm/backend/dm.h
++++ kdebase-workspace-4.6.2/kdm/backend/dm.h
+@@ -304,6 +304,8 @@ struct display {
      int authNum;                /* number of authorizations */
      char *authFile;             /* file to store authorization in */
      char *greeterAuthFile;      /* file to store authorization for greeter in */
@@ -139,7 +120,7 @@ diff -up kdebase-workspace-4.4.92/kdm/backend/dm.h.kdm_plymouth kdebase-workspac
  };
  
  #define d_location   1
-@@ -404,6 +406,8 @@ int anyDisplaysLeft(void);
+@@ -416,6 +418,8 @@ int anyDisplaysLeft(void);
  void forEachDisplay(void (*f)(struct display *));
  #ifdef HAVE_VTS
  void forEachDisplayRev(void (*f)(struct display *));
@@ -148,9 +129,10 @@ diff -up kdebase-workspace-4.4.92/kdm/backend/dm.h.kdm_plymouth kdebase-workspac
  #endif
  void removeDisplay(struct display *old);
  struct display
-diff -up kdebase-workspace-4.4.92/kdm/backend/server.c.kdm_plymouth kdebase-workspace-4.4.92/kdm/backend/server.c
---- kdebase-workspace-4.4.92/kdm/backend/server.c.kdm_plymouth	2010-07-06 01:54:30.000000000 -0500
-+++ kdebase-workspace-4.4.92/kdm/backend/server.c	2010-07-07 13:56:46.960921366 -0500
+Index: kdebase-workspace-4.6.2/kdm/backend/server.c
+===================================================================
+--- kdebase-workspace-4.6.2.orig/kdm/backend/server.c
++++ kdebase-workspace-4.6.2/kdm/backend/server.c
 @@ -137,6 +137,11 @@ startServerSuccess()
      struct display *d = startingServer;
      d->serverStatus = ignore;
