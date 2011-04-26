@@ -19,15 +19,11 @@ def build():
 
 def install():
     if get.buildTYPE() == "emul32":
-#        autotools.rawInstall("GLEW_DEST=%s/usr/ \
-#                              INCDIR=%s/emul32 \
-#                              BINDIR=%s/emul32 \
-#                              LIBDIR=%s//usr/lib32" % (get.installDIR() , get.installDIR(), get.installDIR(), get.installDIR()))
-
         autotools.rawInstall("GLEW_DEST=%s/usr/ \
                               INCDIR=%s/emul32 \
                               BINDIR=%s/emul32 \
-                              LIBDIR=%s//usr/lib32" % (get.installDIR() * 4))
+                              LIBDIR=%s//usr/lib32" % (get.installDIR() , get.installDIR(), get.installDIR(), get.installDIR()))
+
         # headers are included in glew package, these are duplicates
         pisitools.removeDir("/emul32")
         pisitools.remove("/usr/lib32/libGLEW.a")
