@@ -20,6 +20,7 @@ def setup():
     autotools.configure("--disable-static \
                          --with-jdk=/opt/sun-jdk/ \
                          --enable-javahl \
+                         --with-kwallet \
                          --with-neon=/usr \
                          --with-apr=/usr \
                          --with-apr-util=/usr \
