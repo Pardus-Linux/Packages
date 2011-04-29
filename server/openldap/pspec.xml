@@ -21,6 +21,8 @@
             <Patch>slapd.conf.patch</Patch>
             <Patch>pie.patch</Patch>
             <Patch level="1">CVE-2011-1081.patch</Patch>
+            <Patch level="1">openldap-cve-ppolicy-forward-updates.patch</Patch>
+            <Patch level="1">openldap-cve-ndb-bind-rootdn.patch</Patch>
         </Patches>
     </Source>
 
@@ -33,11 +35,16 @@
             <Dependency>cyrus-sasl</Dependency>
             <Dependency>mit-kerberos</Dependency>
         </RuntimeDependencies>
+        <Conflicts>
+            <Package releaseTo="30">openldap-server</Package>
+        </Conflicts>
         <Files>
+            <Path fileType="config">/etc/openldap/ldap.conf*</Path>
+            <Path fileType="header">/usr/include</Path>
             <Path fileType="executable">/usr/bin</Path>
             <Path fileType="library">/usr/lib</Path>
             <Path fileType="man">/usr/share/man/man1</Path>
-            <Path fileType="header">/usr/include</Path>
+            <Path fileType="man">/usr/share/man/man5/ldap.conf.5</Path>
         </Files>
     </Package>
 
@@ -51,14 +58,15 @@
             <Dependency versionFrom="2.3.39">openldap-client</Dependency>
         </RuntimeDependencies>
         <Files>
+            <Path fileType="config">/etc/conf.d</Path>
+            <Path fileType="config">/etc/openldap</Path>
             <Path fileType="executable">/usr/sbin</Path>
             <Path fileType="library">/usr/libexec</Path>
-            <Path fileType="config">/etc</Path>
-            <Path fileType="data">/var</Path>
-            <Path fileType="doc">/usr/share/doc</Path>
             <Path fileType="man">/usr/share/man/man3</Path>
             <Path fileType="man">/usr/share/man/man5</Path>
             <Path fileType="man">/usr/share/man/man8</Path>
+            <Path fileType="doc">/usr/share/doc</Path>
+            <Path fileType="data">/var</Path>
         </Files>
         <AdditionalFiles>
             <AdditionalFile owner="root" permission="0644" target="/etc/conf.d/slapd">slapd.conf</AdditionalFile>
@@ -71,6 +79,17 @@
     </Package>
 
     <History>
+        <Update release="31">
+            <Date>2011-04-29</Date>
+            <Version>2.4.23</Version>
+            <Comment>
+                * Fix forwarded bind failure messages cause success vuln. CVE-2011-1024, (pb#17904)
+                * Fix rootpw not verified via slapd.conf when using the NDB backend vuln. CVE-2011-1025, (pb#17908).
+            </Comment>
+            <Type package="openldap-server">security</Type>
+            <Name>H. İbrahim Güngör</Name>
+            <Email>ibrahim@pardus.org.tr</Email>
+        </Update>
         <Update release="30" type="security">
             <Date>2011-03-29</Date>
             <Version>2.4.23</Version>
