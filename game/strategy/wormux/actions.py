@@ -10,7 +10,7 @@ from pisi.actionsapi import pisitools
 from pisi.actionsapi import get
 
 def setup():
-    autotools.configure('--with-datadir-name="/usr/share/wormux" \
+    autotools.configure('--with-datadir-name="/usr/share/warmux" \
                          --with-localedir-name="/usr/share/locale" \
                          --enable-fribidi \
                          --enable-nls')
