@@ -11,6 +11,9 @@ from pisi.actionsapi import pisitools
 from pisi.actionsapi import shelltools
 from pisi.actionsapi import perlmodules
 
+# Needed to workaround sandbox violation of kde4-config used to build  KWallet plugin
+shelltools.export("HOME", get.workDIR())
+
 def setup():
     # Respect the user LDFLAGS
     shelltools.system("./autogen.sh")
