@@ -15,7 +15,7 @@ shelltools.export("HOME", get.workDIR())
 def setup():
     autotools.autoreconf("-fi")
     autotools.configure("--enable-gc=system \
-                         --with-latex=/usr/share/texmf/tex/latex")
+                         --with-latex=/usr/share/texmf-dist/tex/latex")
 
 def build():
     autotools.make()
