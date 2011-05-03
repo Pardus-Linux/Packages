@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright 2009 TUBITAK/UEKAE
+# Copyright 2009-2011 TUBITAK/UEKAE
 # Licensed under the GNU General Public License, version 2.
 # See the file http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
 
@@ -21,8 +21,8 @@ def setup():
     # disable libpng because it's only used for tests
     autotools.configure("--disable-libpng \
                          --disable-dependency-tracking \
-                         --without-cpuflags \
                          --disable-cpu-clip \
+                         --with-cpuflags=none \
                          --without-doxygen")
 
 def build():
