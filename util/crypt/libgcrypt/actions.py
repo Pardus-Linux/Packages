@@ -7,10 +7,22 @@
 
 from pisi.actionsapi import autotools
 from pisi.actionsapi import pisitools
+from pisi.actionsapi import get
+from pisi.actionsapi import shelltools
 
 def setup():
-    autotools.configure("--disable-static \
-                         --enable-noexecstack")
+    options = "--disable-static \
+               --enable-noexecstack"
+
+    if get.buildTYPE() == "emul32":
+        options += " --prefix=/emul32 \
+                     --libdir=/usr/lib32"
+        shelltools.export("CFLAGS", "%s -m32" % get.CFLAGS())
+
+        # Use 32-bit assembler, another option is to use --disable-asm option
+        pisitools.dosed("mpi/config.links", "path=\"amd64\"", "path=\"i586 i386\"")
+
+    autotools.configure(options)
 
 def build():
     autotools.make()
@@ -19,7 +31,11 @@ def check():
     autotools.make("check")
 
 def install():
-    autotools.install()
+    autotools.rawInstall("DESTDIR=%s" % get.installDIR())
+
+    if get.buildTYPE() == "emul32":
+        pisitools.removeDir("/emul32")
+        return
 
     pisitools.dodir("/etc/gcrypt")
 
