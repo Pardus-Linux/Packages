@@ -62,7 +62,8 @@ def install():
     pisitools.dodir("/usr/share/X11/pci")
     pisitools.dodir("/usr/share/X11/xorg.conf.d")
 
-    # Move libvnc.so for dynamic switching
+    # Move libvnc.so and Xnvc for dynamic switching
+    # We need that because other Vnc solutions have built-in xorg code (i.e TigerVnc)
     pisitools.domove("/usr/lib/xorg/modules/extensions/libvnc.so", "/usr/lib/xorg")
     pisitools.domove("/usr/bin/Xvnc", "/usr/bin/xorg/Xvnc")
 
