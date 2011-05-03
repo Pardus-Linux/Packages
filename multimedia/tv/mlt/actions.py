@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright 2006-2009 TUBITAK/UEKAE
+# Copyright 2006-2011 TUBITAK/UEKAE
 # Licensed under the GNU General Public License, version 2.
 # See the file http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
 
@@ -18,6 +18,7 @@ def setup():
                          --enable-shared-pp \
                          --enable-pp \
                          --enable-motion-est \
+                         --avformat-vdpau \
                          --avformat-swscale")
 
     # Enable bindings
