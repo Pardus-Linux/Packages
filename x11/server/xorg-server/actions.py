@@ -64,6 +64,7 @@ def install():
 
     # Move libvnc.so for dynamic switching
     pisitools.domove("/usr/lib/xorg/modules/extensions/libvnc.so", "/usr/lib/xorg")
+    pisitools.domove("/usr/bin/Xvnc", "/usr/bin/xorg/Xvnc")
 
     # Remove empty dir
     pisitools.removeDir("/var/log")
