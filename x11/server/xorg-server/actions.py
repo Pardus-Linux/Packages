@@ -62,6 +62,9 @@ def install():
     pisitools.dodir("/usr/share/X11/pci")
     pisitools.dodir("/usr/share/X11/xorg.conf.d")
 
+    # Move libvnc.so for dynamic switching
+    pisitools.domove("/usr/lib/xorg/modules/extensions/libvnc.so", "/usr/lib/xorg")
+
     # Remove empty dir
     pisitools.removeDir("/var/log")
 
