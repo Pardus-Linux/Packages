@@ -11,16 +11,21 @@ from pisi.actionsapi import shelltools
 from pisi.actionsapi import get
 
 def setup():
-    shelltools.system("./config \
-                       --prefix=/usr \
-                       --libdir=lib \
-                       --openssldir=/etc/pki/tls \
-                       --enginesdir=/usr/lib/openssl/engines \
-                       zlib enable-camellia enable-seed enable-tlsext enable-rfc3779 \
-                       enable-cms enable-md2 threads shared -Wa,--noexecstack")
+    options = " --prefix=/usr \
+                --libdir=lib \
+                --openssldir=/etc/pki/tls \
+                --enginesdir=/usr/lib/openssl/engines \
+                zlib enable-camellia enable-seed enable-tlsext enable-rfc3779 \
+                enable-cms enable-md2 threads shared -Wa,--noexecstack"
 
-    pisitools.dosed("Makefile", "^(SHARED_LDFLAGS=).*", "\\1 ${LDFLAGS}")
-    pisitools.dosed("Makefile", "^(CFLAG=.*)", "\\1 ${CFLAGS}")
+    if get.buildTYPE() == "emul32":
+        options += " --prefix=/emul32 --libdir=lib32"
+        shelltools.export("CC", "%s -m32" % get.CC())
+        shelltools.system("./Configure linux-elf %s" % options)
+    else:
+        shelltools.system("./config %s" % options)
+        pisitools.dosed("Makefile", "^(SHARED_LDFLAGS=).*", "\\1 ${LDFLAGS}")
+        pisitools.dosed("Makefile", "^(CFLAG=.*)", "\\1 ${CFLAGS}")
 
 def build():
     autotools.make("depend")
@@ -40,6 +45,18 @@ def check():
 def install():
     autotools.rawInstall("INSTALL_PREFIX=%s MANDIR=/usr/share/man" % get.installDIR())
 
+    # Rename conflicting manpages
+    pisitools.rename("/usr/share/man/man1/passwd.1", "ssl-passwd.1")
+    pisitools.rename("/usr/share/man/man3/rand.3", "ssl-rand.3")
+    pisitools.rename("/usr/share/man/man3/err.3", "ssl-err.3")
+
+    if get.buildTYPE() == "emul32":
+        from distutils.dir_util import copy_tree
+        copy_tree("%s/emul32/lib32/" % get.installDIR(), "%s/usr/lib32" % get.installDIR())
+        pisitools.removeDir("/emul32")
+        pisitools.removeDir("/usr/lib32/*.a")
+        return
+
     # Move engines to /usr/lib/openssl/engines
     pisitools.dodir("/usr/lib/openssl")
     pisitools.domove("/usr/lib/engines", "/usr/lib/openssl")
@@ -48,10 +65,6 @@ def install():
     pisitools.dobin("tools/c_rehash")
     pisitools.dosym("/etc/pki/tls/certs/ca-bundle.crt","/etc/pki/tls/cert.pem")
 
-    # Rename conflicting manpages
-    pisitools.rename("/usr/share/man/man1/passwd.1", "ssl-passwd.1")
-    pisitools.rename("/usr/share/man/man3/rand.3", "ssl-rand.3")
-    pisitools.rename("/usr/share/man/man3/err.3", "ssl-err.3")
 
     # Create CA dirs
     for cadir in ["CA", "CA/private", "CA/certs", "CA/crl", "CA/newcerts"]:
