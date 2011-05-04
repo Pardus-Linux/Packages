@@ -17,6 +17,7 @@ def setup():
 
 def install():
     autotools.rawInstall("DESTDIR=%s" % get.installDIR())
+    autotools.rawInstall("-C Documentation DESTDIR=%s  GNUSTEP_MAKEFILES=%s/usr/share/GNUstep/Makefiles" % (get.installDIR(), get.installDIR()))
 
     shelltools.makedirs("%s/etc/profile.d" % get.installDIR())
     shelltools.copy("GNUstep.sh", "%s/etc/profile.d/GNUstep.sh" % get.installDIR())
