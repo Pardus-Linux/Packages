@@ -5,14 +5,14 @@
         <Name>ipython</Name>
         <Homepage>http://ipython.scipy.org/</Homepage>
         <Packager>
-            <Name>Ozan Çağlayan</Name>
-            <Email>ozan@pardus.org.tr</Email>
+            <Name>Serdar Dalgıç</Name>
+            <Email>serdar@pardus.org.tr</Email>
         </Packager>
         <License>BSD</License>
         <IsA>app:console</IsA>
         <Summary>An enhanced interactive Python shell</Summary>
         <Description>ipython provides a replacement for the interactive Python interpreter with extra functionality.</Description>
-        <Archive sha1sum="175bbacf74d94336e3fe06e390e04ad2bfff6fd4" type="targz">http://ipython.scipy.org/dist/0.10/ipython-0.10.tar.gz</Archive>
+        <Archive sha1sum="d45b97b0f458fd517cb2bfa9ebb3c671c46a21c0" type="targz">http://ipython.scipy.org/dist/0.10.2/ipython-0.10.2.tar.gz</Archive>
         <BuildDependencies>
             <!-- For syntax highlighting -->
             <Dependency>python-Pygments</Dependency>
@@ -25,6 +25,9 @@
             <!-- Parallel computing -->
             <Dependency>python-Twisted</Dependency>
             <Dependency>python-foolscap</Dependency>
+
+            <!-- Python-sphinx for creating documentation -->
+            <Dependency>python-sphinx</Dependency>
         </BuildDependencies>
         <Patches>
             <Patch level="1">clearscreen.patch</Patch>
@@ -38,8 +41,9 @@
             <!-- Warn human friendly when wxPython is not available -->
             <Patch level="1">debian/06_ipythonwx_importerror.patch</Patch>
 
-            <!-- Fix the longstanding IndentationError when print is used -->
-            <Patch level="1">debian/07_print_indentationerror.patch</Patch>
+            <!-- pycolor: Wrong filename given -> print error See https://bugzilla.redhat.com/show_bug.cgi?id=628742
+            will be fixed in 0.11 -->
+            <Patch level="1">ipython-0.10-pycolor-wrong-filename.patch</Patch>
         </Patches>
     </Source>
 
@@ -58,7 +62,7 @@
         <Files>
             <Path fileType="executable">/usr/bin</Path>
             <Path fileType="library">/usr/lib</Path>
-            <Path fileType="doc">/usr/share/doc</Path>
+            <Path fileType="doc">/usr/share/doc/README</Path>
             <Path fileType="man">/usr/share/man</Path>
         </Files>
     </Package>
@@ -67,7 +71,7 @@
         <Name>ipython-gui</Name>
         <Summary>wxPython based graphical user interface for ipython</Summary>
         <RuntimeDependencies>
-            <Dependency>ipython</Dependency>
+            <Dependency release="current">ipython</Dependency>
             <Dependency>wxPython</Dependency>
         </RuntimeDependencies>
         <Conflicts>
@@ -84,7 +88,7 @@
         <PartOf>editor.emacs</PartOf>
         <Summary>ipython integration for emacs</Summary>
         <RuntimeDependencies>
-            <Dependency>ipython</Dependency>
+            <Dependency release="current">ipython</Dependency>
             <Dependency>emacs-python</Dependency>
         </RuntimeDependencies>
         <Files>
@@ -96,7 +100,25 @@
         </AdditionalFiles>
     </Package>
 
+    <Package>
+        <Name>ipython-docs</Name>
+        <Summary>Documentation files for ipython</Summary>
+        <RuntimeDependencies>
+            <Dependency release="current">ipython</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="doc">/usr/share/doc</Path>
+        </Files>
+    </Package>
+
     <History>
+        <Update release="17">
+            <Date>2011-04-09</Date>
+            <Version>0.10.2</Version>
+            <Comment>Version bump with a lot of fixes and enhancements, see docs/source/changes.txt for details, split docs package and complete Turkish translation of package Summaries, package takeover.</Comment>
+            <Name>Serdar Dalgıç</Name>
+            <Email>serdar@pardus.org.tr</Email>
+        </Update>
         <Update release="16">
             <Date>2010-10-13</Date>
             <Version>0.10</Version>

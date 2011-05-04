@@ -15,8 +15,6 @@ def build():
 def install():
     pythonmodules.install()
 
-    pisitools.removeDir("/usr/share/doc/ipython")
-
     pisitools.dodir("/usr/share/emacs/site-lisp")
     pisitools.insinto("/usr/share/emacs/site-lisp", "docs/emacs/ipython.el")
 
