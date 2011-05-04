@@ -13,7 +13,7 @@
         <IsA>app:console</IsA>
         <Summary>Console MP3 player</Summary>
         <Description>mpg123 is a fast and free console MP3 player. It does not require high system resources, it can even run in a 100MHz computer.</Description>
-        <Archive sha1sum="476cb47a9b6570684b5af536beedf2026522e5f8" type="tarbz2">mirrors://sourceforge/mpg123/mpg123-1.12.5.tar.bz2</Archive>
+        <Archive sha1sum="899af289bfcbbb13cbe66d5d0541c25cecf5400d" type="tarbz2">mirrors://sourceforge/mpg123/mpg123-1.13.3.tar.bz2</Archive>
         <BuildDependencies>
             <Dependency>alsa-lib-devel</Dependency>
         </BuildDependencies>
@@ -41,10 +41,42 @@
         <Files>
             <Path fileType="header">/usr/include</Path>
             <Path fileType="library">/usr/lib/pkgconfig</Path>
+            <Path fileType="library">/usr/lib32/pkgconfig</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>mpg123-32bit</Name>
+        <PartOf>emul32</PartOf>
+        <Summary>32-bit shared libraries for mpg123</Summary>
+        <BuildType>emul32</BuildType>
+        <BuildDependencies>
+            <Dependency>alsa-lib-32bit</Dependency>
+        </BuildDependencies>
+        <RuntimeDependencies>
+            <Dependency release="current">mpg123</Dependency>
+            <Dependency>alsa-lib-32bit</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="library">/usr/lib32</Path>
         </Files>
     </Package>
 
     <History>
+        <Update release="28">
+            <Date>2011-05-04</Date>
+            <Version>1.13.3</Version>
+            <Comment>
+                * New version 1.13.3, new functions and bug fixes
+                * Add emul32 component
+                * Fix an endless loop on bad headers, bug 3267863.
+                * Prevent compiler warnings about unused variables with gcc 4.6 
+                * Fix return value handling of getaddrinfo(), bug 3288333.
+                * Make decwin size computation work for OPT_ARM and sizeof(long) != 4 (bug 3288360)
+            </Comment>
+            <Name>Fatih Arslan</Name>
+            <Email>farslan@pardus.org.tr</Email>
+        </Update>
         <Update release="27">
             <Date>2010-10-24</Date>
             <Version>1.12.5</Version>
