@@ -29,6 +29,7 @@ def setup():
                          --with-libpaper \
                          --with-jbig2dec \
                          --with-jasper \
+                         --with-system-libtiff \
                          --with-omni \
                          --with-x \
                          --with-fontpath=/usr/share/fonts:/usr/share/fonts/default/ghostscript:/usr/share/cups/fonts:/usr/share/fonts/TTF:/usr/share/fonts/Type1:/usr/share/poppler/cMap/*")
