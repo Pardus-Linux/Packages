@@ -20,6 +20,7 @@ def setup():
                --enable-guile \
                --with-lzo \
                --with-zlib \
+               --with-libgcrypt \
                --with-included-libcfg"
 
     if get.buildTYPE() == "emul32":
