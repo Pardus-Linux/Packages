@@ -20,35 +20,48 @@ def setup():
     autotools.aclocal("-I config-scripts")
     autotools.autoconf("-I config-scripts")
 
-    autotools.configure('--with-cups-user=lp \
-                         --with-cups-group=lp \
-                         --with-system-groups=lpadmin \
-                         --with-docdir=/usr/share/cups/html \
-                         --with-dbusdir=/etc/dbus-1 \
-                         --with-pdftops=pdftops \
-                         --with-optim="%s -fstack-protector-all -DLDAP_DEPRECATED=1" \
-                         --with-php=/usr/bin/php-cgi \
-                         --without-java \
-                         --enable-slp \
-                         --enable-acl \
-                         --enable-libpaper \
-                         --enable-debug \
-                         --enable-avahi \
-                         --enable-gssapi \
-                         --enable-dbus \
-                         --enable-pam \
-                         --enable-png \
-                         --enable-jpeg \
-                         --enable-tiff \
-                         --enable-relro \
-                         --enable-dnssd \
-                         --enable-browsing \
-                         --enable-ldap \
-                         --enable-threads \
-                         --enable-gnutls \
-                         --disable-launchd \
-                         --without-rcdir' % get.CFLAGS())
+    options = '--with-cups-user=lp \
+               --with-cups-group=lp \
+               --with-system-groups=lpadmin \
+               --with-docdir=/usr/share/cups/html \
+               --with-dbusdir=/etc/dbus-1 \
+               --with-pdftops=pdftops \
+               --with-optim="%s -fstack-protector-all -DLDAP_DEPRECATED=1" \
+               --with-php=/usr/bin/php-cgi \
+               --without-java \
+               --enable-slp \
+               --enable-acl \
+               --enable-libpaper \
+               --enable-debug \
+               --enable-avahi \
+               --enable-gssapi \
+               --enable-dbus \
+               --enable-pam \
+               --enable-png \
+               --enable-jpeg \
+               --enable-tiff \
+               --enable-relro \
+               --enable-dnssd \
+               --enable-browsing \
+               --enable-ldap \
+               --enable-threads \
+               --enable-gnutls \
+               --disable-launchd \
+               --without-rcdir' % get.CFLAGS()
 
+    if get.buildTYPE() == "emul32":
+        shelltools.export("CC", "%s -m32" % get.CC())
+        shelltools.export("CXX", "%s -m32" % get.CXX())
+
+        options += ' --disable-avahi \
+                     --disable-gssapi \
+                     --without-php \
+                     --with-optim="%s" \
+                     --bindir=/usr/bin32 \
+                     --sbindir=/usr/sbin32 \
+                     --libdir=/usr/lib32' % get.CFLAGS()
+
+    autotools.configure(options)
 
 def build():
     autotools.make()
@@ -57,7 +70,15 @@ def check():
     autotools.make("check")
 
 def install():
-    autotools.rawInstall("BUILDROOT=%s" % get.installDIR())
+    if get.buildTYPE() == "emul32":
+        # SERVERBIN is hardcoded to /usr/lib/cups, thus it overwrites 64 bit libraries
+        autotools.rawInstall("BUILDROOT=%s SERVERBIN=%s/usr/serverbin32 install-libs" % (get.installDIR(), get.installDIR()))
+        pisitools.removeDir("/usr/bin32")
+        pisitools.removeDir("/usr/sbin32")
+        pisitools.removeDir("/usr/serverbin32")
+        return
+    else: 
+        autotools.rawInstall("BUILDROOT=%s" % get.installDIR())
 
     pisitools.dodir("/usr/share/cups/profiles")
 
