@@ -5,25 +5,52 @@
 
 from pisi.actionsapi import autotools
 from pisi.actionsapi import pisitools
+from pisi.actionsapi import shelltools
 from pisi.actionsapi import get
 
+wine64 = get.ARCH() == "x86_64"
 
 def setup():
-    args = "--enable-win64" if get.ARCH() == "x86_64" else ""
-
     autotools.autoreconf("-vif")
 
+    if wine64:
+        shelltools.makedirs("build-wow64")
+        shelltools.sym("../configure", "build-wow64/configure")
+
+    shelltools.makedirs("build")
+    shelltools.sym("../configure", "build/configure")
+
+    shelltools.cd("build")
+    args = "--enable-win64" if wine64 else ""
     autotools.configure("--without-capi \
                          --with-curses \
                          --without-esd \
                          --with-opengl \
                          --with-pulse \
+                         --with-x \
                          %s" % args)
 
 def build():
-    autotools.make()
+    autotools.make("-C build")
+
+    if wine64:
+        shelltools.cd("build-wow64")
+        autotools.configure("--without-capi \
+                             --with-curses \
+                             --without-esd \
+                             --with-opengl \
+                             --with-pulse \
+                             --with-x \
+                             --libdir=/usr/lib32 \
+                             --with-wine64=../build")
+
+        autotools.make()
+
 
 def install():
-    autotools.install("UPDATE_DESKTOP_DATABASE=/bin/true")
+    autotools.install("-C build UPDATE_DESKTOP_DATABASE=/bin/true")
+
+    if wine64:
+        autotools.install("-C build-wow64 UPDATE_DESKTOP_DATABASE=/bin/true libdir=%s/usr/lib32 dlldir=%s/usr/lib32/wine" % (get.installDIR(), get.installDIR()))
 
     pisitools.dodoc("ANNOUNCE", "AUTHORS", "COPYING.LIB", "LICENSE*", "README", "documentation/README.*")
