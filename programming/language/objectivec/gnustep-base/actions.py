@@ -7,9 +7,11 @@
 
 from pisi.actionsapi import autotools
 from pisi.actionsapi import pisitools
+from pisi.actionsapi import shelltools
 from pisi.actionsapi import get
 
 def setup():
+    autotools.autoreconf("-vfi")
     autotools.configure("--disable-libffi \
                         --enable-ffcall \
                         --enable-gnutls \
@@ -17,10 +19,17 @@ def setup():
                         --enable-zeroconf \
                         --with-default-config=/etc/GNUstep/GNUstep.conf")
 
+
+
+                       # --with-ffi-include='/usr/lib/libffi-3.0.9/include' \
 def build():
     autotools.make()
 
+    shelltools.export("LD_LIBRARY_PATH", "%s/%s/Source/obj:${LD_LIBRARY_PATH}" % (get.workDIR(), get.srcDIR()))
+    autotools.make("-C Documentation")
+
 def install():
     autotools.rawInstall("DESTDIR=%s" % get.installDIR())
+    autotools.rawInstall("-C Documentation")
 
     pisitools.dodoc("COPYING", "NEWS")
