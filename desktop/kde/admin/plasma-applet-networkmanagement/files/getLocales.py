@@ -34,3 +34,6 @@ for lang in locales:
     maincmake.write("add_subdirectory(%s)\n" % lang)
 
 maincmake.close()
+
+os.system("tar --lzma -cf networkmanagement-locales.tar.lzma %s/" % podirname)
+shutil.rmtree(podirname)
