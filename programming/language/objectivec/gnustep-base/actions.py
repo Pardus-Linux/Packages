@@ -12,16 +12,12 @@ from pisi.actionsapi import get
 
 def setup():
     autotools.autoreconf("-vfi")
-    autotools.configure("--disable-libffi \
-                        --enable-ffcall \
+    autotools.configure("--enable-ffcall \
                         --enable-gnutls \
                         --enable-tls \
                         --enable-zeroconf \
                         --with-default-config=/etc/GNUstep/GNUstep.conf")
 
-
-
-                       # --with-ffi-include='/usr/lib/libffi-3.0.9/include' \
 def build():
     autotools.make()
 
