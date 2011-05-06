@@ -22,51 +22,74 @@ def setup():
     shelltools.export("CFLAGS","%s  -D_REENTRANT -D_GNU_SOURCE -fPIC" % get.CFLAGS())
     shelltools.export("CPPFLAGS","%s -D_REENTRANT -D_GNU_SOURCE -fPIC"  % get.CFLAGS())
 
-    autotools.configure("--prefix=/usr \
-                         --enable-bdb \
-                         --enable-ldbm-api=berkeley \
-                         --enable-hdb=mod \
-                         --enable-slapd \
-                         --enable-slurpd \
-                         --enable-ldbm \
-                         --enable-passwd=mod \
-                         --enable-phonetic=mod \
-                         --enable-dnssrv=mod \
-                         --enable-ldap \
-                         --enable-wrappers \
-                         --enable-meta=mod \
-                         --enable-monitor=mod \
-                         --enable-null=mod \
-                         --enable-shell=mod \
-                         --enable-rewrite \
-                         --enable-rlookups \
-                         --enable-aci \
-                         --enable-modules \
-                         --enable-cleartext \
-                         --enable-lmpasswd \
-                         --enable-spasswd \
-                         --enable-slapi \
-                         --enable-dyngroup \
-                         --enable-proxycache \
-                         --enable-perl \
-                         --enable-syslog \
-                         --enable-dynamic \
-                         --enable-local \
-                         --enable-proctitle \
-                         --enable-overlays=mod \
-                         --with-tls \
-                         --with-pic \
-                         --with-cyrus-sasl \
-                         --enable-crypt \
-                         --with-ssl=openssl \
-                         --enable-ipv6 \
-                         --localstatedir=/var/lib")
+    options = "--prefix=/usr \
+               --enable-bdb \
+               --enable-ldbm-api=berkeley \
+               --enable-hdb=mod \
+               --enable-slapd \
+               --enable-slurpd \
+               --enable-ldbm \
+               --enable-passwd=mod \
+               --enable-phonetic=mod \
+               --enable-dnssrv=mod \
+               --enable-ldap \
+               --enable-wrappers \
+               --enable-meta=mod \
+               --enable-monitor=mod \
+               --enable-null=mod \
+               --enable-shell=mod \
+               --enable-rewrite \
+               --enable-rlookups \
+               --enable-aci \
+               --enable-modules \
+               --enable-cleartext \
+               --enable-lmpasswd \
+               --enable-spasswd \
+               --enable-slapi \
+               --enable-dyngroup \
+               --enable-proxycache \
+               --enable-perl \
+               --enable-syslog \
+               --enable-dynamic \
+               --enable-local \
+               --enable-proctitle \
+               --enable-overlays=mod \
+               --with-tls \
+               --with-pic \
+               --with-cyrus-sasl \
+               --enable-crypt \
+               --with-ssl=openssl \
+               --enable-ipv6 \
+               --localstatedir=/var/lib"
+
+    if get.buildTYPE() == "emul32":
+        options += " --prefix=/emul32 \
+                     --libdir=/usr/lib32 \
+                     --libexecdir=/emul32/libexec \
+                     --disable-bdb \
+                     --disable-hdb \
+                     --disable-wrappers \
+                     --disable-spasswd \
+                     --disable-perl \
+                     --without-cyrus-sasl"
+
+        shelltools.export("CC", "%s -m32" % get.CC())
+        shelltools.export("CXX", "%s -m32" % get.CXX())
+
+    autotools.configure(options)
 
 def build():
     autotools.make("-j1")
 
 def install():
-    autotools.rawInstall("DESTDIR=%s" % get.installDIR())
+    if get.buildTYPE() == "emul32":
+        autotools.rawInstall("DESTDIR=%s" % get.installDIR())
+        pisitools.remove("/usr/lib32/*.a")
+        pisitools.removeDir("/emul32")
+        return
+    else:
+        autotools.rawInstall("DESTDIR=%s" % get.installDIR())
+
 
     # No static libs
     pisitools.remove("/usr/lib/*.a")
