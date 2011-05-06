@@ -16,23 +16,36 @@ def setup():
     autotools.autoreconf("-vfi")
     #shelltools.system("./autogen.sh --disable-gtk-doc --disable-docbook")
 
-    autotools.configure('--with-package-name="GStreamer package for Pardus" \
-                         --with-package-origin="http://www.pardus.org.tr/eng" \
-                         --enable-nls \
-                         --disable-dependency-tracking \
-                         --disable-examples \
-                         --disable-tests \
-                         --disable-failing-tests \
-                         --disable-static \
-                         --disable-rpath \
-                         --disable-valgrind \
-                         --disable-gtk-doc')
+    options = '--with-package-name="GStreamer package for Pardus" \
+               --with-package-origin="http://www.pardus.org.tr/eng" \
+               --enable-nls \
+               --disable-dependency-tracking \
+               --disable-examples \
+               --disable-tests \
+               --disable-failing-tests \
+               --disable-static \
+               --disable-rpath \
+               --disable-valgrind \
+               --disable-gtk-doc'
+
+    if get.buildTYPE() == "emul32":
+        options += " --bindir=/usr/bin32 \
+                     --libexecdir=/usr/libexec32 \
+                     --libdir=/usr/lib32"
+
+        shelltools.export("CFLAGS", "%s -m32" % get.CFLAGS())
+
+    autotools.configure(options)
 
 def build():
     autotools.make()
 
 def install():
     autotools.rawInstall("DESTDIR=%s" % get.installDIR())
+
+    if get.buildTYPE() == "emul32":
+        pisitools.removeDir("/usr/bin32")
+        pisitools.removeDir("/usr/libexec32")
 
     pisitools.removeDir("/usr/share/gtk-doc")
 
