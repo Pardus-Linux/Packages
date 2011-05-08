@@ -14,8 +14,7 @@ shelltools.export("HOME", get.workDIR())
 def setup():
     shelltools.export("AUTOPOINT", "true")
     autotools.autoreconf("-vfi")
-    autotools.configure("--with-python \
-                         --disable-static")
+    autotools.configure()
 
 def build():
     autotools.make()
