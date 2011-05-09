@@ -10,8 +10,7 @@ from pisi.actionsapi import pisitools
 from pisi.actionsapi import get
 
 def setup():
-    autotools.autoreconf("-fi")
-
+    autotools.autoreconf("-vfi")
     autotools.configure("--with-apr=/usr \
                          --includedir=/usr/include/apr-1 \
                          --with-ldap \
