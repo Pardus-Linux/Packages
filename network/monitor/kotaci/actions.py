@@ -11,8 +11,6 @@ from pisi.actionsapi import qt4
 def setup():
     qt4.configure()
 
-    pisitools.dosed("data/kotaci.desktop", "ok", "kotaci")
-
 def build():
     qt4.make()
 
@@ -20,7 +18,6 @@ def install():
     pisitools.dobin("bin/kotaci")
     pisitools.insinto("/usr/share/applications", "data/kotaci.desktop")
 
-    pisitools.insinto("/usr/share/pixmaps", "data/icons/ok.png")
-    pisitools.rename("/usr/share/pixmaps/ok.png", "kotaci.png")
+    pisitools.insinto("/usr/share/pixmaps", "data/icons/kotaci.png")
 
     pisitools.dodoc("AUTHORS", "COPYING", "README", "TODO")
