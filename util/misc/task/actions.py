@@ -11,8 +11,7 @@ from pisi.actionsapi import get
 
 def setup():
     autotools.autoreconf("-vfi")
-    autotools.configure("--with-lua \
-                         --with-curses")
+    autotools.configure("--with-lua")
 
 def build():
     autotools.make()
