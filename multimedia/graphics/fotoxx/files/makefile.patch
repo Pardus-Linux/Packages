@@ -1,0 +1,22 @@
+Index: fotoxx-11.02/Makefile
+===================================================================
+--- fotoxx-11.02.orig/Makefile
++++ fotoxx-11.02/Makefile
+@@ -10,7 +10,7 @@ LDFLAGS ?= -O3 -g -Wall -rdynamic
+ PREFIX ?= /usr/local
+ 
+ CFLAGS = $(CXXFLAGS) -c `pkg-config --cflags gtk+-2.0`
+-LFLAGS = $(LDFLAGS) `pkg-config --libs gtk+-2.0 gthread-2.0`
++LIBS = $(LDFLAGS) `pkg-config --libs gtk+-2.0 gthread-2.0` -ltiff
+ 
+ BINDIR = $(PREFIX)/bin
+ DATADIR = $(PREFIX)/share/$(PROGRAM)
+@@ -20,7 +20,7 @@ ICONDIR = $(DATADIR)/icons
+ DESKTOP = $(DATADIR)/kornelix-$(PROGRAM).desktop
+ 
+ $(PROGRAM): $(PROGRAM).o zfuncs.o
+-	$(CXX) $(LFLAGS) -ltiff -o $(PROGRAM) $(PROGRAM).o zfuncs.o
++	$(CXX) -o $(PROGRAM) $(PROGRAM).o zfuncs.o $(LIBS) 
+ 	@ ./dependencies.sh
+ 
+ $(PROGRAM).o: $(SOURCE)
