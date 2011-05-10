@@ -24,7 +24,7 @@ def setup():
                          --without-sqlite2")
 
 def build():
-    autotools.make()
+    autotools.make("-j1")
 
 def check():
     autotools.make("-j1 test")
