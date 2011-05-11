@@ -11,7 +11,7 @@ from pisi.actionsapi import get
 
 WorkDir = get.ARCH()
 NoStrip = "/"
-Name = "6u24"
+Name = "6u25"
 Arch = "amd64" if get.ARCH() == "x86_64" else "i586"
 
 def setup():
@@ -27,7 +27,11 @@ def install():
     # http://java.sun.com/javase/6/webnotes/install/jre/manual-plugin-install-linux.html
     pisitools.dosym("/opt/sun-jre/lib/%s/libnpjp2.so" % Arch.replace("i586", "i386"), "/usr/lib/browser-plugins/javaplugin.so")
 
-    for doc in ["COPYRIGHT", "LICENSE", "README.html", "README_ja.html", "README_zh_CN.html", "THIRDPARTYLICENSEREADME.txt"]:
+    for doc in ["COPYRIGHT", "LICENSE", "README.html", "THIRDPARTYLICENSEREADME.txt"]:
         file = "%s/opt/sun-jdk/%s" % (get.installDIR(), doc)
         pisitools.dodoc(file)
         shelltools.unlink(file)
+
+    # Bug #18115
+    if Arch == "amd64":
+        pisitools.remove("/opt/sun-jdk/man/ja_JP.eucJP/man1/javaws.1")
