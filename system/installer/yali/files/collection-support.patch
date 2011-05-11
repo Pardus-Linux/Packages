@@ -1,0 +1,54 @@
+Index: yali-2.4.1_pre20110302/yali-bin
+===================================================================
+--- yali-2.4.1_pre20110302.orig/yali-bin
++++ yali-2.4.1_pre20110302/yali-bin
+@@ -163,9 +163,9 @@ def load_options(argv=None):
+     parser.add_option("--baseonly", dest="baseonly",
+                       action="store_true",
+                       help="install base system packages")
+-    parser.add_option("--disable-collection", dest="collection",
+-                      action="store_false", default=True,
+-                      help="install collection type package"
++    parser.add_option("--enable-collection", dest="collection",
++                      action="store_false", default=False,
++                      help="install collection base "
+                            "installation if collections exist")
+     parser.add_option("--system", dest="install_type", default=0,
+                       action="store_const", const= 1,
+Index: yali-2.4.1_pre20110302/yali/flags.py
+===================================================================
+--- yali-2.4.1_pre20110302.orig/yali/flags.py
++++ yali-2.4.1_pre20110302/yali/flags.py
+@@ -51,8 +51,8 @@ class Flags:
+         if options.has_key("nolvm"):
+             self.__dict__['flags']['partitioning_lvm'] = False
+ 
+-        if options.has_key("nocollection"):
+-            self.__dict__['flags']['collection'] = False
++        if options.has_key("collection"):
++            self.__dict__['flags']['collection'] = True
+ 
+         for key in [_key for _key in options.keys() \
+                     if _key not in ("live", "system", "firstboot", "oem", "firstboot", "rescue", "theme")]:
+@@ -63,7 +63,7 @@ class Flags:
+         self.__dict__['flags']['debug'] = False
+         self.__dict__['flags']['install_type'] = 0
+         self.__dict__['flags']['partitioning_lvm'] = True
+-        self.__dict__['flags']['collection'] = True
++        self.__dict__['flags']['collection'] = False
+         self.__dict__['flags']['baseonly'] = False
+         self.__dict__['flags']['kahya'] = False
+         self.__dict__['flags']['kahyaFile'] = ""
+Index: yali-2.4.1_pre20110302/yali/gui/ScrSummary.py
+===================================================================
+--- yali-2.4.1_pre20110302.orig/yali/gui/ScrSummary.py
++++ yali-2.4.1_pre20110302/yali/gui/ScrSummary.py
+@@ -170,7 +170,7 @@ class Widget(QWidget, ScreenWidget):
+ 
+             content.append(end)
+ 
+-        if ctx.flags.collection:
++        if ctx.flags.collection and ctx.installData.autoCollection:
+             content.append(subject % _("Package Installation Settings"))
+             content.append(item % _("Collection <b>%s</b> selected") %
+                            ctx.installData.autoCollection.title)
