@@ -25,6 +25,7 @@ def setup():
                           -DWITH_demos=true \
                           -DWITH_GMPXX=ON \
                           -DWITH_CGAL_Qt3=OFF \
+                          -Wno-dev \
                           -DWITH_LEDA=OFF \
                           -DWITH_TAUCS=OFF", installPrefix="/usr",sourceDir="..")
 
@@ -32,12 +33,9 @@ def build():
     shelltools.cd("build")
     cmaketools.make()
 
-    # remove obsolote demos/examples that wont compile with new boost or qt
-    obsolotes = ["demo/Periodic_3_triangulation_3", "demo/Polyhedron", "examples/BGL_arrangement_2",\
-                 "examples/Ridges_3", "examples/BGL_polyhedron_3", "examples/Arrangement_on_surface_2",
-                 "examples/Envelope_3", "examples/Surface_mesh_simplification", "examples/Jet_fitting_3",
-                 "examples/Modular_arithmetic", "examples/Polynomial", "demo/Mesh_3", "examples/Mesh_3",
-                 "demo/Periodic_Lloyd_3", "demo/Bounding_volumes"]
+    # these wont compile with our boost
+    obsolotes = ["demo/Mesh_3", "demo/Polyhedron", "examples/Mesh_3", "examples/Polyhedron"]
+
     try:
         for i in obsolotes:
             shelltools.unlinkDir("%s" % i)
