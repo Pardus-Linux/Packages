@@ -13,7 +13,6 @@ from pisi.actionsapi import get
 WorkDir="PokerTH-%s-src" % get.srcVERSION()
 
 def setup():
-    pisitools.dosed("*.pro", "-no_dead_strip_inits_and_terms", "")
     pisitools.dosed("pokerth.desktop", "Categories=Qt;Game;CardGame;", "Categories=Game;CardGame;")
     shelltools.system("qmake pokerth.pro")
 
