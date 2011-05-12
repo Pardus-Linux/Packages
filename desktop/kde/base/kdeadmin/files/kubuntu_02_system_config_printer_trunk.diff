@@ -1,0 +1,1769 @@
+diff -urN kdeadmin-4.6.0/system-config-printer-kde/authconn.py kdeadmin/system-config-printer-kde/authconn.py
+--- kdeadmin-4.6.0/system-config-printer-kde/authconn.py	1970-01-01 01:00:00.000000000 +0100
++++ kdeadmin/system-config-printer-kde/authconn.py	2011-02-23 16:22:52.300290533 +0000
+@@ -0,0 +1,504 @@
++#!/usr/bin/env python
++
++## Copyright (C) 2007, 2008, 2009, 2010 Red Hat, Inc.
++## Author: Tim Waugh <twaugh@redhat.com>
++
++## This program is free software; you can redistribute it and/or modify
++## it under the terms of the GNU General Public License as published by
++## the Free Software Foundation; either version 2 of the License, or
++## (at your option) any later version.
++
++## This program is distributed in the hope that it will be useful,
++## but WITHOUT ANY WARRANTY; without even the implied warranty of
++## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++## GNU General Public License for more details.
++
++## You should have received a copy of the GNU General Public License
++## along with this program; if not, write to the Free Software
++## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++
++# FIXME non UI bits work, dialogues needs porting from GTK to KDE
++
++import threading
++import cups
++#import cupspk not implemented, disabled in _connect()
++import gobject
++#import gtk
++import os
++#from errordialogs import *
++from debug import *
++from gettext import gettext as _
++N_ = lambda x: x
++
++"""
++class AuthDialog(gtk.Dialog):
++    AUTH_FIELD={'username': N_("Username:"),
++                'password': N_("Password:"),
++                'domain': N_("Domain:")}
++
++    def __init__ (self, title=None, parent=None,
++                  flags=gtk.DIALOG_MODAL | gtk.DIALOG_NO_SEPARATOR,
++                  buttons=(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
++                           gtk.STOCK_OK, gtk.RESPONSE_OK),
++                  auth_info_required=['username', 'password'],
++                  allow_remember=False):
++        if title == None:
++            title = _("Authentication")
++        gtk.Dialog.__init__ (self, title, parent, flags, buttons)
++        self.auth_info_required = auth_info_required
++        self.set_default_response (gtk.RESPONSE_OK)
++        self.set_border_width (6)
++        self.set_resizable (False)
++        hbox = gtk.HBox (False, 12)
++        hbox.set_border_width (6)
++        image = gtk.Image ()
++        image.set_from_stock (gtk.STOCK_DIALOG_AUTHENTICATION,
++                              gtk.ICON_SIZE_DIALOG)
++        image.set_alignment (0.0, 0.0)
++        hbox.pack_start (image, False, False, 0)
++        vbox = gtk.VBox (False, 12)
++        self.prompt_label = gtk.Label ()
++        vbox.pack_start (self.prompt_label, False, False, 0)
++
++        num_fields = len (auth_info_required)
++        table = gtk.Table (num_fields, 2)
++        table.set_row_spacings (6)
++        table.set_col_spacings (6)
++
++        self.field_entry = []
++        for i in range (num_fields):
++            field = auth_info_required[i]
++            label = gtk.Label (_(self.AUTH_FIELD.get (field, field)))
++            label.set_alignment (0, 0.5)
++            table.attach (label, 0, 1, i, i + 1)
++            entry = gtk.Entry ()
++            entry.set_visibility (field != 'password')
++            table.attach (entry, 1, 2, i, i + 1, 0, 0)
++            self.field_entry.append (entry)
++
++        self.field_entry[num_fields - 1].set_activates_default (True)
++        vbox.pack_start (table, False, False, 0)
++        hbox.pack_start (vbox, False, False, 0)
++        self.vbox.pack_start (hbox)
++
++        if allow_remember:
++            cb = gtk.CheckButton (_("Remember password"))
++            cb.set_active (False)
++            vbox.pack_start (cb)
++            self.remember_checkbox = cb
++
++        self.vbox.show_all ()
++
++    def set_prompt (self, prompt):
++        self.prompt_label.set_markup ('<span weight="bold" size="larger">' +
++                                      prompt + '</span>')
++        self.prompt_label.set_use_markup (True)
++        self.prompt_label.set_alignment (0, 0)
++        self.prompt_label.set_line_wrap (True)
++
++    def set_auth_info (self, auth_info):
++        for i in range (len (self.field_entry)):
++            self.field_entry[i].set_text (auth_info[i])
++
++    def get_auth_info (self):
++        return map (lambda x: x.get_text (), self.field_entry)
++
++    def get_remember_password (self):
++        try:
++            return self.remember_checkbox.get_active ()
++        except AttributeError:
++            return False
++
++    def field_grab_focus (self, field):
++        i = self.auth_info_required.index (field)
++        self.field_entry[i].grab_focus ()
++"""
++###
++### An auth-info cache.
++###
++class _AuthInfoCache:
++    def __init__ (self):
++        self.creds = dict() # by (host,port)
++
++    def cache_auth_info (self, data, host=None, port=None):
++        if port == None:
++            port = 631
++
++        self.creds[(host,port)] = data
++
++    def lookup_auth_info (self, host=None, port=None):
++        if port == None:
++            port = 631
++
++        try:
++            return self.creds[(host,port)]
++        except KeyError:
++            return None
++
++global_authinfocache = _AuthInfoCache ()
++
++class Connection:
++    def __init__ (self, parent=None, try_as_root=True, lock=False,
++                  host=None, port=None, encryption=None):
++        if host != None:
++            cups.setServer (host)
++        if port != None:
++            cups.setPort (port)
++        if encryption != None:
++            cups.setEncryption (encryption)
++
++        self._use_password = ''
++        self._parent = parent
++        self._try_as_root = try_as_root
++        self._use_user = cups.getUser ()
++        self._server = cups.getServer ()
++        self._port = cups.getPort()
++        self._encryption = cups.getEncryption ()
++        self._prompt_allowed = True
++        self._operation_stack = []
++        self._lock = lock
++        self._gui_event = threading.Event ()
++
++        creds = global_authinfocache.lookup_auth_info (host=host, port=port)
++        if creds != None:
++            if (creds[0] != 'root' or try_as_root):
++                (self._use_user, self._use_password) = creds
++            del creds
++
++        self._connect ()
++
++    def _begin_operation (self, operation):
++        debugprint ("%s: Operation += %s" % (self, repr (operation)))
++        self._operation_stack.append (operation)
++
++    def _end_operation (self):
++        debugprint ("%s: Operation ended" % self)
++        self._operation_stack.pop ()
++
++    def _get_prompt_allowed (self, ):
++        return self._prompt_allowed
++
++    def _set_prompt_allowed (self, allowed):
++        self._prompt_allowed = allowed
++
++    def _set_lock (self, whether):
++        self._lock = whether
++
++    def _connect (self, allow_pk=False):
++        cups.setUser (self._use_user)
++
++        self._use_pk = (allow_pk and
++                        (self._server[0] == '/' or self._server == 'localhost')
++                        and os.getuid () != 0)
++        if self._use_pk:
++            create_object = cupspk.Connection
++        else:
++            create_object = cups.Connection
++
++        self._connection = create_object (host=self._server,
++                                            port=self._port,
++                                            encryption=self._encryption)
++
++        if self._use_pk:
++            self._connection.set_parent(self._parent)
++
++        self._user = self._use_user
++        debugprint ("Connected as user %s" % self._user)
++        methodtype_lambda = type (self._connection.getPrinters)
++        methodtype_real = type (self._connection.addPrinter)
++        for fname in dir (self._connection):
++            if fname[0] == '_':
++                continue
++            fn = getattr (self._connection, fname)
++            if not type (fn) in [methodtype_lambda, methodtype_real]:
++                continue
++            setattr (self, fname, self._make_binding (fname, fn))
++
++    def _make_binding (self, fname, fn):
++        return lambda *args, **kwds: self._authloop (fname, fn, *args, **kwds)
++
++    def _authloop (self, fname, fn, *args, **kwds):
++        self._passes = 0
++        c = self._connection
++        retry = False
++        while True:
++            try:
++                if self._perform_authentication () == 0:
++                    break
++
++                if c != self._connection:
++                    # We have reconnected.
++                    fn = getattr (self._connection, fname)
++                    c = self._connection
++
++                cups.setUser (self._use_user)
++
++                result = fn.__call__ (*args, **kwds)
++
++                if fname == 'adminGetServerSettings':
++                    # Special case for a rubbish bit of API.
++                    if result == {}:
++                        # Authentication failed, but we aren't told that.
++                        raise cups.IPPError (cups.IPP_NOT_AUTHORIZED, '')
++                break
++            except cups.IPPError, (e, m):
++                if self._use_pk and m == 'pkcancel':
++                    raise cups.IPPError (0, _("Operation canceled"))
++                if not self._cancel and (e == cups.IPP_NOT_AUTHORIZED or
++                                         e == cups.IPP_FORBIDDEN):
++                    self._failed (e == cups.IPP_FORBIDDEN)
++                elif not self._cancel and e == cups.IPP_SERVICE_UNAVAILABLE:
++                    if self._lock:
++                        self._gui_event.clear ()
++                        gobject.timeout_add (1, self._ask_retry_server_error, m)
++                        self._gui_event.wait ()
++                    else:
++                        self._ask_retry_server_error (m)
++
++                    if self._retry_response == gtk.RESPONSE_OK:
++                        debugprint ("retrying operation...")
++                        retry = True
++                        self._passes -= 1
++                        self._has_failed = True
++                    else:
++                        self._cancel = True
++                        raise
++                else:
++                    if self._cancel and not self._cannot_auth:
++                        raise cups.IPPError (0, _("Operation canceled"))
++
++                    raise
++            except cups.HTTPError, (s,):
++                if not self._cancel:
++                    self._failed (s == cups.HTTP_FORBIDDEN)
++                else:
++                    raise
++
++        return result
++
++    def _ask_retry_server_error (self, message):
++        if self._lock:
++            gtk.gdk.threads_enter ()
++
++        try:
++            msg = _("CUPS server error (%s)") % self._operation_stack[0]
++        except IndexError:
++            msg = _("CUPS server error")
++
++        d = gtk.MessageDialog (self._parent,
++                               gtk.DIALOG_MODAL |
++                               gtk.DIALOG_DESTROY_WITH_PARENT,
++                               gtk.MESSAGE_ERROR,
++                               gtk.BUTTONS_NONE,
++                               msg)
++                               
++        d.format_secondary_text (_("There was an error during the "
++                                   "CUPS operation: '%s'." % message))
++        d.add_buttons (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
++                       _("Retry"), gtk.RESPONSE_OK)
++        d.set_default_response (gtk.RESPONSE_OK)
++        if self._lock:
++            d.connect ("response", self._on_retry_server_error_response)
++            gtk.gdk.threads_leave ()
++        else:
++            self._retry_response = d.run ()
++            d.destroy ()
++
++    def _on_retry_server_error_response (self, dialog, response):
++        self._retry_response = response
++        dialog.destroy ()
++        self._gui_event.set ()
++
++    def _failed (self, forbidden=False):
++        self._has_failed = True
++        self._forbidden = forbidden
++
++    def _password_callback (self, prompt):
++        debugprint ("Got password callback")
++        if self._cancel or self._auth_called:
++            return ''
++
++        self._auth_called = True
++        self._prompt = prompt
++        return self._use_password
++
++    def _perform_authentication (self):
++        self._passes += 1
++
++        debugprint ("Authentication pass: %d" % self._passes)
++        if self._passes == 1:
++            # Haven't yet tried the operation.  Set the password
++            # callback and return > 0 so we try it for the first time.
++            self._has_failed = False
++            self._forbidden = False
++            self._auth_called = False
++            self._cancel = False
++            self._cannot_auth = False
++            self._dialog_shown = False
++            cups.setPasswordCB (self._password_callback)
++            debugprint ("Authentication: password callback set")
++            return 1
++
++        debugprint ("Forbidden: %s" % self._forbidden)
++        if not self._has_failed:
++            # Tried the operation and it worked.  Return 0 to signal to
++            # break out of the loop.
++            debugprint ("Authentication: Operation successful")
++            return 0
++
++        # Reset failure flag.
++        self._has_failed = False
++
++        if self._passes >= 2:
++            # Tried the operation without a password and it failed.
++            if (self._try_as_root and
++                self._user != 'root' and
++                (self._server[0] == '/' or self._forbidden)):
++                # This is a UNIX domain socket connection so we should
++                # not have needed a password (or it is not a UDS but
++                # we got an HTTP_FORBIDDEN response), and so the
++                # operation must not be something that the current
++                # user is authorised to do.  They need to try as root,
++                # and supply the password.  However, to get the right
++                # prompt, we need to try as root but with no password
++                # first.
++                debugprint ("Authentication: Try as root")
++                self._use_user = 'root'
++                self._auth_called = False
++                try:
++                    self._connect (allow_pk=False)
++                except RuntimeError:
++                    raise cups.IPPError (cups.IPP_SERVICE_UNAVAILABLE,
++                                         'server-error-service-unavailable')
++
++                return 1
++
++        if not self._prompt_allowed:
++            debugprint ("Authentication: prompting not allowed")
++            self._cancel = True
++            return 1
++
++        if not self._auth_called:
++            # We aren't even getting a chance to supply credentials.
++            debugprint ("Authentication: giving up")
++            self._cancel = True
++            self._cannot_auth = True
++            return 1
++
++        # Reset the flag indicating whether we were given an auth callback.
++        self._auth_called = False
++
++        # If we're previously prompted, explain why we're prompting again.
++        if self._dialog_shown:
++            if self._lock:
++                self._gui_event.clear ()
++                gobject.timeout_add (1, self._show_not_authorized_dialog)
++                self._gui_event.wait ()
++            else:
++                self._show_not_authorized_dialog ()
++
++        if self._lock:
++            self._gui_event.clear ()
++            gobject.timeout_add (1, self._perform_authentication_with_dialog)
++            self._gui_event.wait ()
++        else:
++            self._perform_authentication_with_dialog ()
++
++        if self._cancel:
++            debugprint ("cancelled")
++            return -1
++
++        cups.setUser (self._use_user)
++        debugprint ("Authentication: Reconnect")
++        try:
++            self._connect (allow_pk=False)
++        except RuntimeError:
++            raise cups.IPPError (cups.IPP_SERVICE_UNAVAILABLE,
++                                 'server-error-service-unavailable')
++
++        return 1
++
++    def _show_not_authorized_dialog (self):
++        if self._lock:
++            gtk.gdk.threads_enter ()
++        d = gtk.MessageDialog (self._parent,
++                               gtk.DIALOG_MODAL |
++                               gtk.DIALOG_DESTROY_WITH_PARENT,
++                               gtk.MESSAGE_ERROR,
++                               gtk.BUTTONS_CLOSE)
++        d.set_title (_("Not authorized"))
++        d.set_markup ('<span weight="bold" size="larger">' +
++                      _("Not authorized") + '</span>\n\n' +
++                      _("The password may be incorrect."))
++        if self._lock:
++            d.connect ("response", self._on_not_authorized_dialog_response)
++            d.show_all ()
++            d.show_now ()
++            gtk.gdk.threads_leave ()
++        else:
++            d.run ()
++            d.destroy ()
++
++    def _on_not_authorized_dialog_response (self, dialog, response):
++        self._gui_event.set ()
++        dialog.destroy ()
++
++    def _perform_authentication_with_dialog (self):
++        if self._lock:
++            gtk.gdk.threads_enter ()
++
++        # Prompt.
++        if len (self._operation_stack) > 0:
++            try:
++                title = _("Authentication (%s)") % self._operation_stack[0]
++            except IndexError:
++                title = _("Authentication")
++
++            debugprint("FIXME KDE AuthDialog not yet implemented")
++            d = AuthDialog (title=title,
++                            parent=self._parent)
++        else:
++            debugprint("FIXME KDE AuthDialog not yet implemented")
++            d = AuthDialog (parent=self._parent)
++
++        d.set_prompt (self._prompt)
++        d.set_auth_info ([self._use_user, ''])
++        d.field_grab_focus ('password')
++        d.set_keep_above (True)
++        d.show_all ()
++        d.show_now ()
++        self._dialog_shown = True
++        if self._lock:
++            d.connect ("response", self._on_authentication_response)
++            gtk.gdk.threads_leave ()
++        else:
++            response = d.run ()
++            self._on_authentication_response (d, response)
++
++    def _on_authentication_response (self, dialog, response):
++        (self._use_user,
++         self._use_password) = dialog.get_auth_info ()
++        global_authinfocache.cache_auth_info ((self._use_user,
++                                               self._use_password),
++                                              host=self._server,
++                                              port=self._port)
++        dialog.destroy ()
++
++        if (response == gtk.RESPONSE_CANCEL or
++            response == gtk.RESPONSE_DELETE_EVENT):
++            self._cancel = True
++
++        if self._lock:
++            self._gui_event.set ()
++
++if __name__ == '__main__':
++    # Test it out.
++    gtk.gdk.threads_init ()
++    from timedops import TimedOperation
++    set_debugging (True)
++    c = TimedOperation (Connection, args=(None,)).run ()
++    debugprint ("Connected")
++    c._set_lock (True)
++    print TimedOperation (c.getFile,
++                          args=('/admin/conf/cupsd.conf',
++                                '/dev/stdout')).run ()
+diff -urN kdeadmin-4.6.0/system-config-printer-kde/CMakeLists.txt kdeadmin/system-config-printer-kde/CMakeLists.txt
+--- kdeadmin-4.6.0/system-config-printer-kde/CMakeLists.txt	2011-01-19 22:09:10.000000000 +0000
++++ kdeadmin/system-config-printer-kde/CMakeLists.txt	2011-02-23 16:22:52.270290533 +0000
+@@ -22,7 +22,7 @@
+ 
+ macro_optional_find_package(SystemConfigPrinter)
+ IF(NOT SYSTEMCONFIGPRINTER_FOUND)
+-    macro_log_feature(SYSTEMCONFIGPRINTER_FOUND "system-config-printer" "system-config-printer was not found.  Some of its modules (cupshelpers modules, config.py, smburi.py and debug.py) are required by system-config-printer-kde." "http://cyberelk.net/tim/software/system-config-printer/" FALSE)
++    macro_log_feature(SYSTEMCONFIGPRINTER_FOUND "system-config-printer" "system-config-printer was not found.  Some of its modules (cupshelpers modules, config.py, smburi.py, debug.py and ppdippstr.py) are required by system-config-printer-kde." "http://cyberelk.net/tim/software/system-config-printer/" FALSE)
+ ENDIF(NOT SYSTEMCONFIGPRINTER_FOUND)
+ 
+ IF(PYQT4_FOUND AND PYKDE4_FOUND AND PYCUPS_FOUND AND SYSTEMCONFIGPRINTER_FOUND)
+@@ -31,11 +31,13 @@
+ 
+ IF(INSTALL_SYSTEM_CONFIG_PRINTER)
+     install( FILES
++        authconn.py
+         new-printer.ui
+         system-config-printer.ui
+         system-config-printer-kde.py
+         options.py
+         optionwidgets.py
++        pysmb.py
+         ipp-browse-dialog.ui
+         smb-browse-dialog.ui
+         DESTINATION ${DATA_INSTALL_DIR}/system-config-printer-kde )
+diff -urN kdeadmin-4.6.0/system-config-printer-kde/options.py kdeadmin/system-config-printer-kde/options.py
+--- kdeadmin-4.6.0/system-config-printer-kde/options.py	2011-01-19 22:09:10.000000000 +0000
++++ kdeadmin/system-config-printer-kde/options.py	2011-02-23 16:22:52.300290533 +0000
+@@ -30,6 +30,8 @@
+ 
+ from PyQt4.QtCore import *
+ from PyQt4.QtGui import *
++from PyKDE4.kdeui import *
++import ppdippstr
+ 
+ """
+ These classes are used in the Job Options tab of the printer config dialogue
+@@ -126,41 +128,50 @@
+         """Set the original value of the option and the supported choices.
+         The special value None for original_value resets the option to the
+         system default."""
++        self.widget.blockSignals(True)
+         if (supported != None and
+             self.use_supported):
+-            if (type(self.widget) == QComboBox and
++            if (isinstance(self.widget, QComboBox) and
+                 self.ipp_type == str):
+                 self.widget.clear()
+-                if type(supported) == list:
+-                    for each in supported:
+-                        self.widget.addItem(unicode(each))
+-                else:
+-                    self.widget.addItem(self.combobox_dict[supported])
+-            elif (type(self.widget) == QComboBox and
++                translations = ppdippstr.job_options.get (self.name)
++                if translations:
++                    self.combobox_map = []
++                    self.combobox_dict = dict()
++                    i = 0
++
++                for each in supported:
++                    if translations:
++                        self.combobox_map.append (each)
++                        text = translations.get (each)
++                        self.combobox_dict[each] = text
++                        i += 1
++                    else:
++                        text = each
++
++                    self.widget.addItem(unicode(each))
++            elif (isinstance(self.widget, QComboBox) and
+                   self.ipp_type == int and
+                   self.combobox_map != None):
+                 self.widget.clear()
+-                if type(supported) == list:
+-                    for each in supported:
+-                        self.widget.addItem(unicode(each))
+-                else:
+-                    self.widget.addItem(supported)
++                for each in supported:
++                    self.widget.addItem(unicode(self.combobox_dict[each]))
++
+         if original_value != None:
+             self.original_value = self.ipp_type (original_value)
+             self.set_widget_value (self.original_value)
+-            if original_value != self.get_widget_value():
+-                self.button.setEnabled(True)
++            self.button.setEnabled (True)
+         else:
+             self.original_value = None
+             self.set_widget_value (self.system_default)
+-            self.button.setEnabled(False)
++            self.button.setEnabled (False)
+         self.state = self.STATE_UNCHANGED
++        self.widget.blockSignals(False)
+ 
+     def set_widget_value(self, ipp_value):
+-        t = type(self.widget)
+-        if t == QSpinBox:
++        if isinstance(self.widget, QSpinBox):
+             return self.widget.setValue(ipp_value)
+-        elif t == QComboBox:
++        elif isinstance(self.widget, QComboBox):
+             if self.ipp_type == str and self.combobox_map == None:
+                 index = self.widget.findText(ipp_value)
+                 if index != -1:
+@@ -172,14 +183,13 @@
+                 else:
+                     index = ipp_value
+                 return self.widget.setCurrentIndex(index)
+-        elif t == QCheckBox:
++        elif isinstance(self.widget, QCheckBox):
+             return self.widget.setChecked(ipp_value)
+         else:
+             return NotImplemented
+ 
+     def get_widget_value(self):
+-        t = type(self.widget)
+-        if t == QSpinBox:
++        if isinstance(self.widget, QSpinBox):
+             # Ideally we would use self.widget.get_value() here, but
+             # it doesn't work if the value has been typed in and then
+             # the Apply button immediately clicked.  To handle this,
+@@ -191,13 +201,13 @@
+             except ValueError:
+                 # Can't convert result of get_text() to ipp_type.
+                 return self.ipp_type (self.widget.value ())
+-        elif t == QComboBox:
++        elif isinstance(self.widget, QComboBox):
+             if self.combobox_map:
+                 return self.combobox_map[self.widget.currentIndex()]
+             if self.ipp_type == str:
+                 return self.widget.currentText()
+             return self.ipp_type (unicode(self.widget.currentText()))
+-        elif t == QCheckBox:
++        elif isinstance(self.widget, QCheckBox):
+             return self.ipp_type (self.widget.isChecked())
+ 
+         return NotImplemented
+@@ -398,7 +408,7 @@
+         Option.__init__(self, name, value, supported, on_change)
+ 
+         self.selector = QLineEdit()
+-        self.selector.setText(value)
++        self.selector.setText(unicode(value))
+         self.selector.connect(self.selector, SIGNAL("textChanged(QString)"), self.changed)
+ 
+     def get_current_value(self):
+diff -urN kdeadmin-4.6.0/system-config-printer-kde/pysmb.py kdeadmin/system-config-printer-kde/pysmb.py
+--- kdeadmin-4.6.0/system-config-printer-kde/pysmb.py	1970-01-01 01:00:00.000000000 +0100
++++ kdeadmin/system-config-printer-kde/pysmb.py	2011-02-23 16:22:52.300290533 +0000
+@@ -0,0 +1,200 @@
++#!/usr/bin/python
++
++## system-config-printer
++## CUPS backend
++ 
++## Copyright (C) 2002, 2003, 2006, 2007, 2008, 2010 Red Hat, Inc.
++## Authors:
++##  Tim Waugh <twaugh@redhat.com>
++ 
++## This program is free software; you can redistribute it and/or modify
++## it under the terms of the GNU General Public License as published by
++## the Free Software Foundation; either version 2 of the License, or
++## (at your option) any later version.
++ 
++## This program is distributed in the hope that it will be useful,
++## but WITHOUT ANY WARRANTY; without even the implied warranty of
++## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++## GNU General Public License for more details.
++ 
++## You should have received a copy of the GNU General Public License
++## along with this program; if not, write to the Free Software
++## Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++
++import errno
++from gettext import gettext as _
++# import gobject
++# import gtk TODO port to KDE
++import os
++import pwd
++import smbc
++from debug import *
++
++class _None(RuntimeError):
++    pass
++
++try:
++    NoEntryError = smbc.NoEntryError
++    PermissionError = smbc.PermissionError
++    ExistsError = smbc.ExistsError
++    NotEmptyError = smbc.NotEmptyError
++    TimedOutError = smbc.TimedOutError
++    NoSpaceError = smbc.NoSpaceError
++except AttributeError:
++    NoEntryError = PermissionError = ExistsError = _None
++    NotEmptyError = TimedOutError = NoSpaceError = _None
++
++class AuthContext:
++    def __init__ (self, parent=None, workgroup='', user='', passwd=''):
++        self.passes = 0
++        self.has_failed = False
++        self.auth_called = False
++        self.tried_guest = False
++        self.cancel = False
++        self.use_user = user
++        self.use_password = passwd
++        self.use_workgroup = workgroup
++        self.dialog_shown = False
++        self.parent = parent
++
++    def perform_authentication (self):
++        self.passes += 1
++        if self.passes == 1:
++            return 1
++
++        if not self.has_failed:
++            return 0
++
++        debugprint ("pysmb: authentication pass: %d" % self.passes)
++        if not self.auth_called:
++            debugprint ("pysmb: auth callback not called?!")
++            self.cancel = True
++            return 0
++
++        self.has_failed = False
++        if self.auth_called and not self.tried_guest:
++            self.use_user = 'guest'
++            self.use_password = ''
++            self.tried_guest = True
++            debugprint ("pysmb: try auth as guest")
++            return 1
++
++        self.auth_called = False
++
++        if self.dialog_shown:
++            d = gtk.MessageDialog (self.parent,
++                                   gtk.DIALOG_MODAL |
++                                   gtk.DIALOG_DESTROY_WITH_PARENT,
++                                   gtk.MESSAGE_ERROR,
++                                   gtk.BUTTONS_CLOSE)
++            d.set_title (_("Not authorized"))
++            d.set_markup ('<span weight="bold" size="larger">' +
++                          _("Not authorized") + '</span>\n\n' +
++                          _("The password may be incorrect."))
++            d.run ()
++            d.destroy ()
++
++        # After that, prompt
++        d = gtk.Dialog (_("Authentication"), self.parent,
++                        gtk.DIALOG_MODAL | gtk.DIALOG_NO_SEPARATOR,
++                        (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
++                         gtk.STOCK_OK, gtk.RESPONSE_OK))
++        d.set_default_response (gtk.RESPONSE_OK)
++        d.set_border_width (6)
++        d.set_resizable (False)
++        hbox = gtk.HBox (False, 12)
++        hbox.set_border_width (6)
++        image = gtk.Image ()
++        image.set_from_stock (gtk.STOCK_DIALOG_AUTHENTICATION,
++                              gtk.ICON_SIZE_DIALOG)
++        hbox.pack_start (image, False, False, 0)
++        vbox = gtk.VBox (False, 12)
++        label = gtk.Label ('<span weight="bold" size="larger">' +
++                           _("You must log in to access %s.") % self.for_server +
++                           '</span>')
++        label.set_use_markup (True)
++        label.set_alignment (0, 0)
++        label.set_line_wrap (True)
++        vbox.pack_start (label, False, False, 0)
++
++        table = gtk.Table (3, 2)
++        table.set_row_spacings (6)
++        table.set_col_spacings (6)
++        table.attach (gtk.Label (_("Username:")), 0, 1, 0, 1, 0, 0)
++        username_entry = gtk.Entry ()
++        table.attach (username_entry, 1, 2, 0, 1, 0, 0)
++        table.attach (gtk.Label (_("Domain:")), 0, 1, 1, 2, 0, 0)
++        domain_entry = gtk.Entry ()
++        table.attach (domain_entry, 1, 2, 1, 2, 0, 0)
++        table.attach (gtk.Label (_("Password:")), 0, 1, 2, 3, 0, 0)
++        password_entry = gtk.Entry ()
++        password_entry.set_activates_default (True)
++        password_entry.set_visibility (False)
++        table.attach (password_entry, 1, 2, 2, 3, 0, 0)
++        vbox.pack_start (table, False, False, 0)
++        hbox.pack_start (vbox, False, False, 0)
++        d.vbox.pack_start (hbox)
++        self.dialog_shown = True
++        d.show_all ()
++        d.show_now ()
++
++        if self.use_user == 'guest':
++            self.use_user = pwd.getpwuid (os.getuid ())[0]
++            debugprint ("pysmb: try as %s" % self.use_user)
++        username_entry.set_text (self.use_user)
++        domain_entry.set_text (self.use_workgroup)
++
++        d.set_keep_above (True)
++        gtk.gdk.pointer_grab (d.window, True)
++        gtk.gdk.keyboard_grab (d.window, True)
++        response = d.run ()
++        gtk.gdk.keyboard_ungrab ()
++        gtk.gdk.pointer_ungrab ()
++
++        if response == gtk.RESPONSE_CANCEL:
++            self.cancel = True
++            d.destroy ()
++            return -1
++
++        self.use_user = username_entry.get_text ()
++        self.use_password = password_entry.get_text ()
++        self.use_workgroup = domain_entry.get_text ()
++        d.destroy ()
++        return 1
++
++    def initial_authentication (self):
++        try:
++            context = smbc.Context ()
++            self.use_workgroup = context.workgroup
++        except:
++            pass
++
++    def failed (self, exc=None):
++        self.has_failed = True
++        debugprint ("pysmb: operation failed: %s" % repr (exc))
++
++        if exc:
++            if (self.cancel or
++                (type (exc) in [NoEntryError, ExistsError, NotEmptyError,
++                                TimedOutError, NoSpaceError]) or
++                (type (exc) == RuntimeError and
++                 not (exc.args[0] in [errno.EACCES, errno.EPERM]))):
++                    raise exc
++
++    def callback (self, server, share, workgroup, user, password):
++        debugprint ("pysmb: got password callback")
++        self.auth_called = True
++        self.for_server = server
++        self.for_share = share
++        if self.passes == 1:
++            self.initial_authentication ()
++
++        if self.use_user:
++            if self.use_workgroup:
++                workgroup = self.use_workgroup
++
++            return (workgroup, self.use_user, self.use_password)
++
++        user = ''
++        password = ''
++        return (workgroup, user, password)
+diff -urN kdeadmin-4.6.0/system-config-printer-kde/README kdeadmin/system-config-printer-kde/README
+--- kdeadmin-4.6.0/system-config-printer-kde/README	2011-01-19 22:09:10.000000000 +0000
++++ kdeadmin/system-config-printer-kde/README	2011-02-23 16:22:52.300290533 +0000
+@@ -2,7 +2,7 @@
+ 
+ It currently misses quite a few features compared to the Gnome version but should be usable.
+ 
+-It needs some files from the Gnome version config.py, cupshelpers.py, ppds.py, smburi.py, debug.py 
++It needs some files from the Gnome version config.py, cupshelpers.py, ppds.py, smburi.py, debug.py, ppdippstr
+ (in Ubuntu we package these into system-config-printer-common)
+ 
+ Gnome version homepage:
+diff -urN kdeadmin-4.6.0/system-config-printer-kde/system-config-printer-kde.py kdeadmin/system-config-printer-kde/system-config-printer-kde.py
+--- kdeadmin-4.6.0/system-config-printer-kde/system-config-printer-kde.py	2011-02-23 16:20:55.000000000 +0000
++++ kdeadmin/system-config-printer-kde/system-config-printer-kde.py	2011-02-23 16:22:52.270290533 +0000
+@@ -31,7 +31,7 @@
+ MIN_REFRESH_INTERVAL = 1 # seconds
+ import locale
+ 
+-import sys, os, time, traceback, re, tempfile, httplib, thread
++import sys, os, time, traceback, re, tempfile, httplib, thread, string
+ 
+ #load modules from system-config-printer-common (debug, smburi), change path here if you have it installed elsewhere
+ SYSTEM_CONFIG_PRINTER_DIR = "/usr/share/system-config-printer"
+@@ -65,12 +65,19 @@
+ import cups
+ cups.require ("1.9.27")
+ 
++try:
++    import pysmb
++    PYSMB_AVAILABLE=True
++except:
++    PYSMB_AVAILABLE=False
++
+ # These come from system-config-printer
+ import config
+ import cupshelpers, options
+ from optionwidgets import OptionWidget
+ from smburi import SMBURI
+ from debug import *
++import authconn
+ 
+ import dbus
+ import dbus.mainloop.qt
+@@ -154,10 +161,17 @@
+ 
+         self.servers = set((self.connect_server,))
+ 
+-        try:
+-            self.cups = cups.Connection()
+-        except RuntimeError:
+-            self.cups = None
++        host = None #FIXME should be loaded from somewhere
++        encryption = None #FIXME should be loaded from somewhere
++        if not host:
++            host = cups.getServer()
++        if not encryption:
++            encryption = cups.getEncryption ()
++
++        c = authconn.Connection (parent=self.ui,
++                                 host=host,
++                                 encryption=encryption)
++        self.cups = c
+ 
+         # New Printer Dialog
+         self.newPrinterGUI = np = NewPrinterGUI(self)
+@@ -185,7 +199,7 @@
+ 
+         self.ui.connect(self.ui.entPDescription, SIGNAL("textEdited(const QString&)"), self.on_printer_changed)
+         self.ui.connect(self.ui.entPLocation, SIGNAL("textEdited(const QString&)"), self.on_printer_changed)
+-        self.ui.connect(self.ui.chkPMakeDefault, SIGNAL("stateChanged(int)"), self.chkPMakeDefault_stateChanged)
++        self.ui.connect(self.ui.chkPMakeDefault, SIGNAL("stateChanged(int)"), self.on_default_printer_changed)
+         self.ui.connect(self.ui.btnDelete, SIGNAL("clicked()"), self.btnDelete_clicked)
+         self.ui.connect(self.ui.entPDevice, SIGNAL("textEdited(const QString&)"), self.on_printer_changed)
+         self.ui.connect(self.ui.chkPEnabled, SIGNAL("stateChanged(int)"),self.on_printer_changed)
+@@ -371,6 +385,8 @@
+         self.ui.newPrinterSpecialLabel.hide()
+         self.ui.entPName.hide()
+         self.ui.lblPName.hide()
++        self.ui.btnNewPrinterNetwork.setText(i18n("New Printer"))
++        self.ui.newPrinterNetworkLabel.setText(i18n("Add a new printer"))
+ 
+         #catch the currentItemChanged signal. This should stop the
+         # 'Do you want to save settings' pop-up at startup
+@@ -649,6 +665,24 @@
+     #TODO
+     # Connect to Server
+ 
++
++    def default_printer_state_changed(self):
++        """returns true if default printer tickbox now in a different state than current setting"""
++        default = self.cups.getDefault()
++        if self.printer.name == default and not self.ui.chkPMakeDefault.isChecked() or self.printer.name != default and self.ui.chkPMakeDefault.isChecked():
++            return True
++        else:
++            return False
++
++    def on_default_printer_changed(self, text):
++        """default printer tickbox has been ticked"""
++        widget = self.sender()        
++        if self.default_printer_state_changed():
++            self.changed.add(widget)
++        else:
++            self.changed.discard(widget)
++        self.setDataButtonState()
++
+     def on_printer_changed(self, text):
+         widget = self.sender()
+         if not widget:  #method called as a method not a slot
+@@ -696,20 +730,52 @@
+ 
+     # set buttons sensitivity
+     def setDataButtonState(self):
+-        try: # Might not be a printer selected
+-            possible = (self.ppd and
+-                        not bool (self.changed) and
+-                        self.printer.enabled and
+-                        not self.printer.rejecting)
+-
+-            self.btnPrintTestPage.setEnabled(possible)
+-
+-            commands = (self.printer.type & cups.CUPS_PRINTER_COMMANDS) != 0
+-            self.btnSelfTest.setEnabled(commands and possible)
+-            self.btnCleanHeads.setEnabled(commands and possible)
++        try:
++            printable = (self.ppd != None and
++                         not bool (self.changed) and
++                         self.printer.enabled and
++                         not self.printer.rejecting)
++
++            self.ui.btnPrintTestPage.setEnabled (printable)
++            adjustable = not (self.printer.discovered or bool (self.changed))
++            for button in [self.ui.btnChangePPD]:
++                           #self.ui.btnSelectDevice]:
++                button.setEnabled (adjustable)
++
++            selftest = False
++            cleanheads = False
++            if (self.printer.type & cups.CUPS_PRINTER_COMMANDS) != 0:
++                attrs = self.printer.other_attributes
++                formats = attrs.get('document-format-supported', [])
++                try:
++                    # Is the command format supported?
++                    formats.index ('application/vnd.cups-command')
++
++                    # Yes...
++                    commands = attrs.get('printer-commands', [])
++                    for command in commands:
++                        if command == "PrintSelfTestPage":
++                            selftest = True
++                            if cleanheads:
++                                break
++
++                        elif command == "Clean":
++                            cleanheads = True
++                            if selftest:
++                                break
++                except ValueError:
++                    # Command format not supported.
++                    pass
++
++            for cond, button in [(selftest, self.ui.btnSelfTest),
++                                 (cleanheads, self.ui.btnCleanHeads)]:
++                if cond:
++                    button.show ()
++                else:
++                    button.hide ()
+         except:
+             debugprint ("exception in setDataButtonState")
+-            pass
++            nonfatalException()
+ 
+         installablebold = False
+         optionsbold = False
+@@ -752,23 +818,30 @@
+         #self.ui.btnPrinterPropertiesApply.setEnabled(len (self.changed) > 0)
+         #self.ui.btnRevert.setEnabled(len (self.changed) > 0)
+ 
+-    def save_printer(self, printer, saveall=False):
++    def save_printer(self, printer, saveall=False, parent=None):
++        if parent == None:
++            parent = self.ui
+         class_deleted = False
+         name = printer.name
+ 
++        if printer.is_class:
++            self.cups._begin_operation (_("modifying class %s") % name)
++        else:
++            self.cups._begin_operation (_("modifying printer %s") % name)
++
+         try:
+-            if not printer.is_class and self.ppd: 
++            if not printer.is_class and self.ppd:
+                 self.getPrinterSettings()
+                 if self.ppd.nondefaultsMarked() or saveall:
+-                    self.passwd_retry = False # use cached Passwd 
+                     self.cups.addPrinter(name, ppd=self.ppd)
+ 
+             if printer.is_class:
+                 # update member list
+-                new_members = self.getCurrentClassMembers(self.ui.tvClassMembers)
++                new_members = self.getCurrentClassMembers(self.ui.tvClassMembers) #FIXME newprinter in gnome UI
+                 if not new_members:
+                     result = KMessageBox.warningContinueCancel(self.ui, i18n("Class now has no members. Proceed anyway?"), i18n("Class Empty"))
+                     if result == KMessageBox.Continue:
++                        self.cups._end_operation ()
+                         return True
+                     class_deleted = True
+ 
+@@ -776,45 +849,41 @@
+                 old_members = printer.class_members[:]
+ 
+                 for member in new_members:
+-                    member = unicode(member)
+                     if member in old_members:
+                         old_members.remove(member)
+                     else:
+                         self.cups.addPrinterToClass(member, name)
+                 for member in old_members:
+-                    self.cups.deletePrinterFromClass(member, name)    
++                    self.cups.deletePrinterFromClass(member, name)
+ 
+             location = unicode(self.ui.entPLocation.text())
+             info = unicode(self.ui.entPDescription.text())
+             device_uri = unicode(self.ui.entPDevice.text())
+-            if device_uri.find (ellipsis) != -1:
+-                # The URI is sanitized and not editable.
+-                device_uri = printer.device_uri
+ 
+             enabled = self.ui.chkPEnabled.isChecked()
+             accepting = self.ui.chkPAccepting.isChecked()
+             shared = self.ui.chkPShared.isChecked()
+ 
+             if info!=printer.info or saveall:
+-                self.passwd_retry = False # use cached Passwd 
+                 self.cups.setPrinterInfo(name, info)
+             if location!=printer.location or saveall:
+-                self.passwd_retry = False # use cached Passwd 
+                 self.cups.setPrinterLocation(name, location)
+             if (not printer.is_class and
+                 (device_uri!=printer.device_uri or saveall)):
+-                self.passwd_retry = False # use cached Passwd 
+                 self.cups.setPrinterDevice(name, device_uri)
+ 
+             if enabled != printer.enabled or saveall:
+-                self.passwd_retry = False # use cached Passwd 
+                 self.printer.setEnabled(enabled)
+             if accepting == printer.rejecting or saveall:
+-                self.passwd_retry = False # use cached Passwd 
+                 self.printer.setAccepting(accepting)
+             if shared != printer.is_shared or saveall:
+-                self.passwd_retry = False # use cached Passwd 
+                 self.printer.setShared(shared)
++            """
++            def get_combo_value (cmb):
++                model = cmb.get_model ()
++                iter = cmb.get_active_iter ()
++                return model.get_value (iter, 1)
++            """
+ 
+             job_sheet_start = unicode(self.ui.cmbPStartBanner.currentText())
+             job_sheet_end = unicode(self.ui.cmbPEndBanner.currentText())
+@@ -824,23 +893,18 @@
+ 
+             if (job_sheet_start != printer.job_sheet_start or
+                 job_sheet_end != printer.job_sheet_end) or saveall:
+-                self.passwd_retry = False # use cached Passwd
+                 printer.setJobSheets(job_sheet_start, job_sheet_end)
+             #FIXME Not implemented in current UI
+             #if error_policy != printer.error_policy or saveall:
+-                #self.passwd_retry = False # use cached Passwd
+-                #printer.setErrorPolicy(error_policy)
++            #   printer.setErrorPolicy(error_policy)
+             #if op_policy != printer.op_policy or saveall:
+-                #self.passwd_retry = False # use cached Passwd
+-                #printer.setOperationPolicy(op_policy)
++            #   printer.setOperationPolicy(op_policy)
+ 
+-            #Access Control
+             default_allow = self.ui.rbtnPAllow.isChecked()
+             except_users = self.getPUsers()
+ 
+             if (default_allow != printer.default_allow or
+                 except_users != printer.except_users) or saveall:
+-                self.passwd_retry = False # use cached Passwd
+                 printer.setAccess(default_allow, except_users)
+ 
+             for option in printer.attributes:
+@@ -848,36 +912,44 @@
+                     printer.unsetOption(option)
+             for option in self.server_side_options.itervalues():
+                 if (option.is_changed() or
+-                    saveall and
+-                    option.get_current_value () != option.system_default):
+-                    printer.setOption(unicode(option.name), unicode(option.get_current_value()) )
++                    (saveall and
++                     option.get_current_value () != option.get_default())):
++                    printer.setOption(option.name, option.get_current_value())
++
++            if self.default_printer_state_changed():
++                if self.ui.chkPMakeDefault.isChecked():
++                    printer.setAsDefault ()
+ 
+         except cups.IPPError, (e, s):
+-            self.show_IPP_Error(e, s)
++            debugprint("except in save_printer")
++            show_IPP_Error(e, s, parent)
++            self.cups._end_operation ()
+             return True
++        self.cups._end_operation ()
+         self.changed = set() # of options
+-        
+-        if not self.__dict__.has_key ("server_settings"):
++
++        if not self.cups._use_pk and not self.__dict__.has_key ("server_settings"):
+             # We can authenticate with the server correctly at this point,
+             # but we have never fetched the server settings to see whether
+             # the server is publishing shared printers.  Fetch the settings
+             # now so that we can update the "not published" label if necessary.
++            self.cups._begin_operation (_("fetching server settings"))
+             try:
+                 self.server_settings = self.cups.adminGetServerSettings()
+             except:
+                 nonfatalException()
+ 
+-        if class_deleted:
+-            self.populateList ()
+-        else:
++            self.cups._end_operation ()
++
++        if not class_deleted:
+             # Update our copy of the printer's settings.
+             try:
+-                printers = cupshelpers.getPrinters (self.cups)
+-                this_printer = { name: printers[name] }
+-                self.printers.update (this_printer)
+-            except cups.IPPError, (e, s):
+-                show_IPP_Error(e, s, self.PrinterPropertiesDialog)
++                self.printer.getAttributes ()
++                self.updatePrinterProperties ()
++            except cups.IPPError:
++                pass
+ 
++        #self._monitor.update () FIXME
+         return False
+ 
+     def getPrinterSettings(self):
+@@ -1070,6 +1142,7 @@
+             #catch the stateChanged signal to prevent a signal loop
+             self.ui.chkPMakeDefault.blockSignals(True) 
+             self.ui.chkPMakeDefault.setChecked(True) #set checked
++            self.ui.chkPMakeDefault.setEnabled(False) #can't unset being the default
+             #unblock the signal
+             self.ui.chkPMakeDefault.blockSignals(False)
+             self.ui.chkPMakeDefault.setText(i18n("This is the default printer"))
+@@ -1077,12 +1150,13 @@
+             #catch the stateChanged signal to prevent a signal loop
+             self.ui.chkPMakeDefault.blockSignals(True)
+             self.ui.chkPMakeDefault.setChecked(False) #set unchecked
++            self.ui.chkPMakeDefault.setEnabled(True)
+             #unblock the signal
+             self.ui.chkPMakeDefault.blockSignals(False)
+             if default is not None:
+-                self.ui.chkPMakeDefault.setText(i18n('Make Default. (The current default is %1)', default))
++                self.ui.chkPMakeDefault.setText(i18n('Make default. (The current default is %1.)', default))
+             else:
+-                self.ui.chkPMakeDefault.setText(i18n('Make Default. (There is no current default)'))
++                self.ui.chkPMakeDefault.setText(i18n('Make default. (There is no current default.)'))
+ 
+         #self.setTestButton (printer)
+ 
+@@ -1203,7 +1277,7 @@
+         if tab_nr != -1:
+             self.ui.ntbkPrinter.removeTab(tab_nr)
+         policiesTabNo = self.ui.ntbkPrinter.indexOf(self.policiesTabWidget)
+-        self.ui.ntbkPrinter.insertTab(policiesTabNo+1, self.optionsTabWidget, i18n("Options"))
++        self.ui.ntbkPrinter.insertTab(policiesTabNo+1, self.optionsTabWidget, i18n("Printer Options"))
+ 
+         """
+         # clean Installable Options Tab
+@@ -1545,7 +1619,7 @@
+             while it: #iterate over the tree
+                 try:
+                     item = it.next()
+-                    name = item.text(0)
++                    name = unicode(item.text(0))
+                     result.append(name)
+                 except StopIteration:
+                     break
+@@ -1856,7 +1930,8 @@
+         if exception == cups.IPP_NOT_AUTHORIZED:
+             KMessageBox.error(self, i18n('The password may be incorrect.'), i18n('Not authorized'))
+         else:
+-            KMessageBox.error(self, i18n("There was an error during the CUPS " "operation: '%1'.", message),
++            debugprint("show_IPP_Error() exception: " + str(exception))
++            KMessageBox.error(self, i18n("There was an error during the CUPS operation: '%1'.", str(message)),
+                                     i18n('CUPS server error'))
+ 
+     def show_HTTP_Error(self, status):
+@@ -1938,9 +2013,9 @@
+             debugprint ("no changes yet: full printer properties update")
+ 
+             # State
+-            self.ui.chkPEnabled.setEnabled(printer.enabled)
+-            self.ui.chkPAccepting.setEnabled(not printer.rejecting)
+-            self.ui.chkPShared.setEnabled(printer.is_shared)
++            self.ui.chkPEnabled.setChecked(printer.enabled)
++            self.ui.chkPAccepting.setChecked(not printer.rejecting)
++            self.ui.chkPShared.setChecked(printer.is_shared)
+ 
+             # Job sheets
+             self.fillComboBox(self.ui.cmbPStartBanner,
+@@ -2030,8 +2105,8 @@
+         "ipp" : 3,
+         "http" : 3,
+         "lpd" : 4,
+-        "scsi" : 5,
+-        "serial" : 6,
++        # "scsi" : 5, #not implemented yet, defaults to URL page
++        #"serial" : 6,
+         "smb" : 7,
+         }
+ 
+@@ -2068,7 +2143,9 @@
+         self.connect(self.entNPTDevice, SIGNAL("textEdited(const QString&)"), self.on_entNPTDevice_changed)
+ #        self.connect(self.entNPTIPPHostname, SIGNAL("textEdited(const QString&)"), self.on_entNPTIPPHostname_changed)
+ #        self.connect(self.entNPTIPPQueuename, SIGNAL("textEdited(const QString&)"), self.on_entNPTIPPQueuename_changed)
+-        self.connect(self.entSMBURI, SIGNAL("textEdited(const QString&)"), self.on_entSMBURI_changed)
++        self.connect(self.entSMBURI, SIGNAL("textChanged(const QString&)"), self.on_entSMBURI_changed)
++        self.rbtnSMBAuthPrompt.setChecked(True)
++        self.connect(self.btnSMBBrowse, SIGNAL("clicked()"), self.on_btnSMBBrowse_clicked)
+         self.rbtnSMBAuthPrompt.setChecked(True)
+         self.on_rbtnSMBAuthSet_toggled(False)
+         self.connect(self.rbtnSMBAuthSet, SIGNAL("toggled(bool)"), self.on_rbtnSMBAuthSet_toggled)
+@@ -2104,30 +2181,23 @@
+         cell = gtk.CellRendererText()
+         combobox.pack_start (cell, True)
+         combobox.add_attribute(cell, 'text', 0)
++        """
+ 
+         # SMB browser
+-        self.smb_store = gtk.TreeStore (str, # host or share
+-                                        str, # comment
+-                                        gobject.TYPE_PYOBJECT, # domain dict
+-                                        gobject.TYPE_PYOBJECT) # host dict
+-        self.tvSMBBrowser.set_model (self.smb_store)
+-        self.smb_store.set_sort_column_id (0, gtk.SORT_ASCENDING)
+-
+-        # SMB list columns
+-        col = gtk.TreeViewColumn (_("Share"), gtk.CellRendererText (),
+-                                  text=0)
+-        col.set_resizable (True)
+-        col.set_sort_column_id (0)
+-        self.tvSMBBrowser.append_column (col)
+-
+-        col = gtk.TreeViewColumn (_("Comment"), gtk.CellRendererText (),
+-                                  text=1)
+-        self.tvSMBBrowser.append_column (col)
+-        slct = self.tvSMBBrowser.get_selection ()
+-        slct.set_select_function (self.smb_select_function)
+-
+-        self.SMBBrowseDialog.set_transient_for(self.NewPrinterWindow)
+-
++        self.SMBBrowseDialog = KDialog(self)
++        self.tvSMBBrowser = QTreeWidget(self.SMBBrowseDialog)
++        self.SMBBrowseDialog.setMainWidget(self.tvSMBBrowser)
++        self.SMBBrowseDialog.setButtons(KDialog.ButtonCode(KDialog.Ok | KDialog.User1 | KDialog.Cancel))
++        self.SMBBrowseDialog.setButtonText(KDialog.User1, i18n("Refresh"))
++        self.SMBBrowseDialog.setButtonIcon(KDialog.User1, KIcon("view-refresh"))
++        self.SMBBrowseDialog.setCaption(i18n("SMB Browser"))
++        self.tvSMBBrowser.setHeaderLabels([i18n("Share"), i18n("Comment")])
++        self.connect(self.tvSMBBrowser, SIGNAL("itemExpanded(QTreeWidgetItem *)"), self.on_tvSMBBrowser_row_expanded)
++        self.connect(self.tvSMBBrowser, SIGNAL("itemSelectionChanged()"), self.on_tvSMBBrowser_cursor_changed)
++        self.connect(self.SMBBrowseDialog, SIGNAL("okClicked()"), self.on_btnSMBBrowseOk_clicked)
++        self.connect(self.SMBBrowseDialog, SIGNAL("user1Clicked()"), self.on_btnSMBBrowseRefresh_clicked)
++        self.smb_store = {}
++        """
+         # IPP browser
+         self.ipp_store = gtk.TreeStore (str, # queue
+                                         str, # location
+@@ -2167,8 +2237,7 @@
+         """
+ 
+         #FIXME hide bits which are not yet implemented
+-        self.btnSMBBrowse.hide()
+-        self.btnSMBVerify.hide()
++        #self.btnSMBVerify.hide()
+         self.btnNPTLpdProbe.hide()
+ 
+     def option_changed(self, option):
+@@ -3064,13 +3133,211 @@
+         self.tvNPDevices.setCurrentRow(0)
+         self.on_tvNPDevices_cursor_changed()
+ 
++    def entry_changed(self, entry, allowed_chars):
++        "Remove all chars from entry's text that are not in allowed_chars."
++        try:
++            allowed_chars = unicode (allowed_chars, locale.getpreferredencoding())
++        except UnicodeDecodeError:
++            allowed_chars = unicode (allowed_chars)
++        origtext = unicode (entry.text())
++        new_text = origtext
++        for char in origtext:
++            if char not in allowed_chars:
++                new_text = new_text.replace(char, "")
++                debugprint ("removed disallowed character %s" % char)
++        if origtext!=new_text:
++            entry.setText(new_text)
++
+     def on_entNPTDevice_changed(self, entry):
+         self.setNPButtons()
+ 
+-    #TODO
++
+     ## SMB browsing
++
++    def browse_smb_hosts(self):
++        """Initialise the SMB tree store."""
++        self.tvSMBBrowser.clear()
++        self.busy(self.SMBBrowseDialog)
++        self.tvSMBBrowser.addTopLevelItem(QTreeWidgetItem([i18n("Scanning...")]))
++        store = self.smb_store = {}
++        KApplication.processEvents()
++
++        debug = 0
++        if get_debugging ():
++            debug = 10
++        smbc_auth = pysmb.AuthContext (self.SMBBrowseDialog)
++        ctx = pysmb.smbc.Context (debug=debug,
++                                  auth_fn=smbc_auth.callback)
++        entries = None
++        try:
++            while smbc_auth.perform_authentication () > 0:
++                try:
++                    entries = ctx.opendir ("smb://").getdents ()
++                except Exception, e:
++                    smbc_auth.failed (e)
++        except RuntimeError, (e, s):
++            if e != errno.ENOENT:
++                debugprint ("Runtime error: %s" % repr ((e, s)))
++        except:
++            nonfatalException ()
++
++        self.tvSMBBrowser.clear()
++        if entries:
++            for entry in entries:
++                if entry.smbc_type in [pysmb.smbc.WORKGROUP,
++                                       pysmb.smbc.SERVER]:
++                    item = QTreeWidgetItem([self.smbbrowser_cell_share(entry), self.smbbrowser_cell_comment(entry)])
++                    self.tvSMBBrowser.addTopLevelItem(item)
++                    item.setChildIndicatorPolicy(QTreeWidgetItem.ShowIndicator)
++                    store[item] = entry
++
++        """TODO
++        specified_uri = SMBURI (uri=self.entSMBURI.get_text ())
++        (group, host, share, user, password) = specified_uri.separate ()
++        if len (host) > 0:
++            # The user has specified a server before clicking Browse.
++            # Append the server as a top-level entry.
++            class FakeEntry:
++                pass
++            toplevel = FakeEntry ()
++            toplevel.smbc_type = pysmb.smbc.SERVER
++            toplevel.name = host
++            toplevel.comment = ''
++            iter = store.append (None, [toplevel])
++            i = store.append (iter)
++
++            # Now expand it.
++            path = store.get_path (iter)
++            self.tvSMBBrowser.expand_row (path, 0)
++
++        """
++        self.ready(self.SMBBrowseDialog)
++
++        if len(store) == 0:
++            self.SMBBrowseDialog.hide ()
++            KMessageBox.error(self, 
++                              i18n("There were no SMB print shares found.  "
++                                "Please check that the Samba service is running and "
++                                "marked as trusted in your firewall "
++                                "configuration."), i18n("No SMB Print Shares"))
++
++    def smb_select_function (self, path):
++        """Don't allow this path to be selected unless it is a leaf."""
++        iter = self.smb_store.get_iter (path)
++        return not self.smb_store.iter_has_child (iter)
++
++    def smbbrowser_cell_share (self, entry):
++        share = ''
++        if entry != None:
++            share = entry.name
++        return share
++
++    def smbbrowser_cell_comment (self, entry):
++        comment = ''
++        if entry != None:
++            comment = entry.comment
++        return comment
++
++    def on_tvSMBBrowser_row_expanded (self, item):
++        """Handler for expanding a row in the SMB tree view."""
++        entry = self.smb_store[item]
++        if entry == None:
++            return
++
++        if entry.smbc_type == pysmb.smbc.WORKGROUP:
++            # Workgroup
++            # Be careful though: if there is a server with the
++            # same name as the workgroup we will get a list of its
++            # shares, not the workgroup's servers.
++            try:
++                if self.expanding_row:
++                    return
++            except:
++                self.expanding_row = 1
++
++            self.busy (self.SMBBrowseDialog)
++            uri = "smb://%s/" % entry.name
++            debug = 0
++            if get_debugging ():
++                debug = 10
++            smbc_auth = pysmb.AuthContext (self.SMBBrowseDialog)
++            ctx = pysmb.smbc.Context (debug=debug,
++                                      auth_fn=smbc_auth.callback)
++            entries = []
++            try:
++                while smbc_auth.perform_authentication () > 0:
++                    try:
++                        entries = ctx.opendir (uri).getdents ()
++                    except Exception, e:
++                        smbc_auth.failed (e)
++            except RuntimeError, (e, s):
++                if e != errno.ENOENT:
++                    debugprint ("Runtime error: %s" % repr ((e, s)))
++            except:
++                nonfatalException()
++
++            item.takeChildren()
++
++            for entry in entries:
++                if entry.smbc_type in [pysmb.smbc.SERVER,
++                                       pysmb.smbc.PRINTER_SHARE]:
++                    pass
++                    #i = model.append (iter, [entry])
++                if entry.smbc_type == pysmb.smbc.SERVER:
++                    newItem = QTreeWidgetItem([self.smbbrowser_cell_share(entry), self.smbbrowser_cell_comment(entry)])
++                    item.addChild(newItem)
++                    newItem.setChildIndicatorPolicy(QTreeWidgetItem.ShowIndicator)
++                    self.smb_store[newItem] = entry
++
++            del self.expanding_row
++            self.ready (self.SMBBrowseDialog)
++
++        elif entry.smbc_type == pysmb.smbc.SERVER:
++            # Server
++            try:
++                if self.expanding_row:
++                    return
++            except:
++                self.expanding_row = 1
++
++            self.busy (self.SMBBrowseDialog)
++            uri = "smb://%s/" % entry.name
++            debug = 0
++            if get_debugging ():
++                debug = 10
++            smbc_auth = pysmb.AuthContext (self.SMBBrowseDialog)
++            ctx = pysmb.smbc.Context (debug=debug,
++                                      auth_fn=smbc_auth.callback)
++            shares = []
++            try:
++                while smbc_auth.perform_authentication () > 0:
++                    try:
++                        shares = ctx.opendir (uri).getdents ()
++                    except Exception, e:
++                        smbc_auth.failed (e)
++            except RuntimeError, (e, s):
++                if e != errno.EACCES and e != errno.EPERM:
++                    debugprint ("Runtime error: %s" % repr ((e, s)))
++            except:
++                nonfatalException()
++
++            item.takeChildren()
++
++            for share in shares:
++                if share.smbc_type == pysmb.smbc.PRINTER_SHARE:
++                    newItem = QTreeWidgetItem([self.smbbrowser_cell_share(share), self.smbbrowser_cell_comment(share)])
++                    item.addChild(newItem)
++                    self.smb_store[newItem] = share
++                    debugprint (repr (share))
++
++            del self.expanding_row
++            self.ready (self.SMBBrowseDialog)
++
+     def on_entSMBURI_changed (self, text):
+-        uri = unicode(text)
++        ent = self.sender()
++        allowed_chars = string.letters+string.digits+'_-./:@'
++        self.entry_changed(ent, allowed_chars)
++        uri = unicode(ent.text())
+         (group, host, share, user, password) = SMBURI (uri=uri).separate ()
+         if user:
+             self.entSMBUsername.setText(user)
+@@ -3078,20 +3345,140 @@
+             self.entSMBPassword.setText(password)
+         if user or password:
+             uri = SMBURI (group=group, host=host, share=share).get_uri ()
+-            self.entSMBURI.setText(uri)
++            ent.setText(uri)
+             self.rbtnSMBAuthSet.setChecked(True)
+-        elif unicode(self.entSMBUsername.text()) == '':
++        elif self.entSMBUsername.text() == '':
+             self.rbtnSMBAuthPrompt.setChecked(True)
+ 
+         self.btnSMBVerify.setEnabled(bool(uri))
++        self.setNPButtons ()
+ 
+-    def on_rbtnSMBAuthSet_toggled(self, ticked):
+-        self.tblSMBAuth.setEnabled(ticked)
++    def on_tvSMBBrowser_cursor_changed(self):
++        store = self.smb_store
++        item = self.tvSMBBrowser.currentItem()
++        entry = store[item]
++        self.SMBBrowseDialog.enableButton(KDialog.Ok, entry and entry.smbc_type == pysmb.smbc.PRINTER_SHARE)
++
++    def on_btnSMBBrowse_clicked(self):
++        self.SMBBrowseDialog.enableButton(KDialog.Ok, False)
++
++        """ Firewall check is Fedora specific
++        try:
++            # Note: we do the browsing from *this* machine, regardless
++            # of which CUPS server we are connected to.
++            f = firewall.Firewall ()
++            allowed = f.check_samba_client_allowed ()
++        except:
++            allowed = False
++
++        if not allowed:
++            show_info_dialog (_("Review Firewall"),
++                              _("You may need to adjust the firewall "
++                                "to allow network printer discovery on this "
++                                "computer.") + '\n\n' +
++                              TEXT_start_firewall_tool,
++                              parent=self.NewPrinterWindow)
++        """
++        self.SMBBrowseDialog.show()
++        self.browse_smb_hosts()
++
++    def on_btnSMBBrowseOk_clicked(self):
++        store = self.smb_store
++        item = self.tvSMBBrowser.currentItem()
++        is_share = False
++        if item:
++            entry = store[item]
++            if entry:
++                is_share = entry.smbc_type == pysmb.smbc.PRINTER_SHARE
++
++        if not entry or not is_share:
++            self.SMBBrowseDialog.hide()
++            return
++
++        share = item.text(0)
++        host = item.parent().text(0)
++        if item.parent().parent():
++            group = item.parent().parent().text(0)
++        else:
++            group = ''
++        uri = SMBURI (group=unicode(group),
++                      host=unicode(host),
++                      share=unicode(share)).get_uri ()
++
++        self.entSMBUsername.setText('')
++        self.entSMBPassword.setText('')
++        self.entSMBURI.setText(uri)
++
++        self.SMBBrowseDialog.hide()
++
++    def on_btnSMBBrowseRefresh_clicked(self):
++        self.browse_smb_hosts()
++
++    def on_rbtnSMBAuthSet_toggled(self, active):
++        self.tblSMBAuth.setEnabled(active)
++
++    def on_btnSMBVerify_clicked(self):
++        uri = unicode(self.entSMBURI.text())
++        (group, host, share, u, p) = SMBURI (uri=uri).separate ()
++        user = ''
++        passwd = ''
++        reason = None
++        auth_set = self.rbtnSMBAuthSet.isChecked()
++        if auth_set:
++            user = unicode(self.entSMBUsername.text())
++            passwd = unicode(self.entSMBPassword.text())
++
++        accessible = False
++        canceled = False
++        self.busy ()
++        try:
++            debug = 0
++            if get_debugging ():
++                debug = 10
++
++            if auth_set:
++                # No prompting.
++                def do_auth (svr, shr, wg, un, pw):
++                    return (group, user, passwd)
++                ctx = pysmb.smbc.Context (debug=debug, auth_fn=do_auth)
++                f = ctx.open ("smb://%s/%s" % (host, share),
++                              os.O_RDWR, 0777)
++                accessible = True
++            else:
++                # May need to prompt.
++                smbc_auth = pysmb.AuthContext (self,
++                                               workgroup=group,
++                                               user=user,
++                                               passwd=passwd)
++                ctx = pysmb.smbc.Context (debug=debug,
++                                          auth_fn=smbc_auth.callback)
++                while smbc_auth.perform_authentication () > 0:
++                    try:
++                        f = ctx.open ("smb://%s/%s" % (host, share),
++                                      os.O_RDWR, 0777)
++                        accessible = True
++                    except Exception, e:
++                        smbc_auth.failed (e)
++
++                if not accessible:
++                    canceled = True
++        except RuntimeError, (e, s):
++            debugprint ("Error accessing share: %s" % repr ((e, s)))
++            reason = s
++        except:
++            nonfatalException()
++        self.ready ()
++
++        if accessible:
++            KMessageBox.information (self, i18n("This print share is accessible."),
++                                    i18n("Print Share Verified"))
++            return
+ 
+-    def on_entNPTIPPHostname_textChanged(self):
+-        valid = len (self.entNPTIPPHostname.text ()) > 0
+-        self.btnIPPFindQueue.setEnabled(valid)
+-        self.update_IPP_URI_label ()
++        if not canceled:
++            text = i18n("This print share is not accessible.")
++            if reason:
++                text = reason
++            KMessageBox.error (self, text, i18n("Inaccessible"))
+ 
+     ### IPP Browsing
+     def update_IPP_URI_label(self):
+diff -urN kdeadmin-4.6.0/system-config-printer-kde/system-config-printer.ui kdeadmin/system-config-printer-kde/system-config-printer.ui
+--- kdeadmin-4.6.0/system-config-printer-kde/system-config-printer.ui	2011-01-19 22:09:10.000000000 +0000
++++ kdeadmin/system-config-printer-kde/system-config-printer.ui	2011-02-23 16:22:52.300290533 +0000
+@@ -527,21 +527,21 @@
+                <item>
+                 <widget class="QCheckBox" name="chkPEnabled">
+                  <property name="text">
+-                  <string>enable</string>
++                  <string>Enable</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QCheckBox" name="chkPAccepting">
+                  <property name="text">
+-                  <string>accepting</string>
++                  <string>Accepting</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QCheckBox" name="chkPShared">
+                  <property name="text">
+-                  <string>sharing</string>
++                  <string>Sharing</string>
+                  </property>
+                 </widget>
+                </item>
+@@ -861,7 +861,7 @@
+            </widget>
+            <widget class="QWidget" name="tab_2">
+             <attribute name="title">
+-             <string>Options</string>
++             <string>Printer Options</string>
+             </attribute>
+             <layout class="QVBoxLayout" name="verticalLayout_3">
+              <item>
+@@ -878,7 +878,7 @@
+                   <x>0</x>
+                   <y>0</y>
+                   <width>532</width>
+-                  <height>426</height>
++                  <height>427</height>
+                  </rect>
+                 </property>
+                 <layout class="QGridLayout" name="gridLayout_5">
+@@ -912,7 +912,7 @@
+                  <rect>
+                   <x>0</x>
+                   <y>0</y>
+-                  <width>514</width>
++                  <width>515</width>
+                   <height>1026</height>
+                  </rect>
+                 </property>
