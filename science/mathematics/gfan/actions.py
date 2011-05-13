@@ -9,9 +9,7 @@ from pisi.actionsapi import autotools
 from pisi.actionsapi import pisitools
 from pisi.actionsapi import get
 
-print "----"
 WorkDir = "gfan0.4plus"
-print "WorkDir:%s" % WorkDir
 
 def build():
     autotools.make()
