@@ -12,8 +12,8 @@ from pisi.actionsapi import get
 
 def setup():
     shelltools.export("CXXFLAGS", '%s -DEXPDATADIR=\\\"/usr/share/abuse\\\"' % get.CXXFLAGS())
-    pisitools.dosed("src/sdlport/setup.cpp", "/var/games/abuse", "/usr/share/abuse")
-    autotools.configure("--datadir=/usr/share/abuse")
+    #pisitools.dosed("src/sdlport/setup.cpp", "/var/games/abuse", "/usr/share/abuse")
+    autotools.configure("--datadir=/usr/share/abuse --with-x")
 
 def build():
     autotools.make("-j1")
