@@ -1,7 +1,7 @@
-Index: kdebase-workspace-4.5.5/solid/networkmanager-0.7/manager.cpp
+Index: kdebase-workspace-4.6.2/solid/networkmanager-0.7/manager.cpp
 ===================================================================
---- kdebase-workspace-4.5.5.orig/solid/networkmanager-0.7/manager.cpp
-+++ kdebase-workspace-4.5.5/solid/networkmanager-0.7/manager.cpp
+--- kdebase-workspace-4.6.2.orig/solid/networkmanager-0.7/manager.cpp
++++ kdebase-workspace-4.6.2/solid/networkmanager-0.7/manager.cpp
 @@ -22,6 +22,8 @@ along with this program.  If not, see <h
  
  #include <KDebug>
@@ -11,11 +11,14 @@ Index: kdebase-workspace-4.5.5/solid/networkmanager-0.7/manager.cpp
  
  #include "dbus/nm-deviceinterface.h"
  #include "networkmanagerdefinitions.h"
-@@ -184,7 +186,21 @@ void NMNetworkManager::activateConnectio
+@@ -184,7 +186,24 @@ void NMNetworkManager::activateConnectio
  void NMNetworkManager::deactivateConnection( const QString & activeConnectionPath )
  {
      Q_D(NMNetworkManager);
 -    d->iface.DeactivateConnection(QDBusObjectPath(activeConnectionPath));
++
++    if (activeConnectionPath.isEmpty())
++        return;
 +
 +    QDBusInterface activeDeviceIface(NMNetworkManager::DBUS_SERVICE, activeConnectionPath, QLatin1String("org.freedesktop.NetworkManager.Connection.Active"), QDBusConnection::systemBus());
 +
