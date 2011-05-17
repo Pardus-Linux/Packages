@@ -20,5 +20,4 @@ def install():
     pisitools.insinto("/usr/share/doc/%s/examples"% get.srcTAG(), "doc/*.example")
     pisitools.insinto("/usr/share/doc/%s/examples"% get.srcTAG(), "scripts/msmtpqueue/*")
 
-    pisitools.dohtml("doc/msmtp.html")
-    pisitools.dodoc("AUTHORS", "ChangeLog", "NEWS", "README", "THANKS", "doc/msmtp.pdf", "doc/Mutt+msmtp.txt")
+    pisitools.dodoc("AUTHORS", "ChangeLog", "NEWS", "README", "THANKS", "doc/Mutt+msmtp.txt")
