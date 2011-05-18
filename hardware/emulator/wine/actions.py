@@ -5,52 +5,35 @@
 
 from pisi.actionsapi import autotools
 from pisi.actionsapi import pisitools
-from pisi.actionsapi import shelltools
 from pisi.actionsapi import get
-
-wine64 = get.ARCH() == "x86_64"
+from pisi.actionsapi import shelltools
 
 def setup():
     autotools.autoreconf("-vif")
 
-    if wine64:
-        shelltools.makedirs("build-wow64")
-        shelltools.sym("../configure", "build-wow64/configure")
+    options = "--without-capi \
+               --without-esd \
+               --with-opengl \
+               --with-x \
+               --with-pulse"
 
-    shelltools.makedirs("build")
-    shelltools.sym("../configure", "build/configure")
+    if get.buildTYPE() == "wine32":
+        options += " --libdir=/usr/lib32"
 
-    shelltools.cd("build")
-    args = "--enable-win64" if wine64 else ""
-    autotools.configure("--without-capi \
-                         --with-curses \
-                         --without-esd \
-                         --with-opengl \
-                         --with-pulse \
-                         --with-x \
-                         %s" % args)
+        shelltools.export("CC", "%s -m32" % get.CC())
+        shelltools.export("LDFLAGS", "%s -m32" % get.LDFLAGS())
+        shelltools.export("PKG_CONFIG_PATH", "/usr/lib32/pkgconfig")
+
+    autotools.configure(options)
 
 def build():
-    autotools.make("-C build")
-
-    if wine64:
-        shelltools.cd("build-wow64")
-        autotools.configure("--without-capi \
-                             --with-curses \
-                             --without-esd \
-                             --with-opengl \
-                             --with-pulse \
-                             --with-x \
-                             --libdir=/usr/lib32 \
-                             --with-wine64=../build")
-
-        autotools.make()
-
+    autotools.make()
 
 def install():
-    autotools.install("-C build UPDATE_DESKTOP_DATABASE=/bin/true")
+    if get.buildTYPE() == "emul32":
+        autotools.rawInstall("libdir=%s/usr/lib32 dlldir=%s/usr/lib32/wine" % (get.installDIR(), get.installDIR()))
+        return
 
-    if wine64:
-        autotools.install("-C build-wow64 UPDATE_DESKTOP_DATABASE=/bin/true libdir=%s/usr/lib32 dlldir=%s/usr/lib32/wine" % (get.installDIR(), get.installDIR()))
+    autotools.install("UPDATE_DESKTOP_DATABASE=/bin/true")
 
     pisitools.dodoc("ANNOUNCE", "AUTHORS", "COPYING.LIB", "LICENSE*", "README", "documentation/README.*")
