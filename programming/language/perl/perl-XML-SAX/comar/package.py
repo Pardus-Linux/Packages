@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 import os
-import shutil
 
 perlVersion = "5.12.2"
 vendor_lib_path = "/usr/lib/perl5/vendor_perl/%s" % perlVersion
