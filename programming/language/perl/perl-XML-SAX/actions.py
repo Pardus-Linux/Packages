@@ -7,6 +7,7 @@
 
 from pisi.actionsapi import perlmodules
 from pisi.actionsapi import pisitools
+from pisi.actionsapi import shelltools
 from pisi.actionsapi import get
 
 WorkDir = "%s-%s" % (get.srcNAME()[5:], get.srcVERSION())
@@ -22,3 +23,5 @@ def check():
 
 def install():
     perlmodules.install()
+
+    shelltools.touch("%s/usr/lib/perl5/vendor_perl/5.12.2/XML/SAX/ParserDetails.ini" % get.installDIR())
