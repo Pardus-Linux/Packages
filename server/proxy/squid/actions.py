@@ -66,8 +66,6 @@ def install():
     pisitools.dodir("/var/cache/squid")
     pisitools.dodir("/var/log/squid")
 
-    pisitools.removeDir("/usr/include")
-
     pisitools.dosym("/usr/share/squid/errors/en", "/etc/squid/errors")
 
     pisitools.doman("helpers/basic_auth/LDAP/*.8")
