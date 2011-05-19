@@ -34,5 +34,9 @@ def install():
     pisitools.insinto("/usr/include/nspr/obsolete","dist/include/nspr/obsolete/*.h",sym=False)
     pisitools.insinto("/usr/include/nspr/private","dist/include/nspr/private/*.h",sym=False)
 
+    # Fix permissions of headers, they're 0640 by default
+    shelltools.chmod("%s/usr/include/nspr/*.h" % get.installDIR(), 0644)
+    shelltools.chmod("%s/usr/include/nspr/*/*.h" % get.installDIR(), 0644)
+
     pisitools.insinto("/usr/bin","config/nspr-config",sym=False)
     pisitools.insinto("/usr/lib/pkgconfig","config/nspr.pc",sym=False)
