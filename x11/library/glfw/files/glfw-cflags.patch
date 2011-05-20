@@ -1,0 +1,92 @@
+diff -Naur glfw.orig/compile.sh glfw/compile.sh
+--- glfw.orig/compile.sh	2007-07-01 12:46:46.000000000 +0300
++++ glfw/compile.sh	2008-01-22 23:08:22.000000000 +0200
+@@ -63,10 +63,8 @@
+   CC=cc
+ fi
+ 
+-CFLAGS=
+-LFLAGS=
+-LDFLAGS=
+-INCS=
++CFLAGS+=
++LDFLAGS+=
+ LIBS="-lGL -lX11"
+ 
+ 
+@@ -107,40 +105,6 @@
+ ##########################################################################
+ echo "Checking for X11 libraries location... " 1>&6
+ 
+-# X11R6 in /usr/X11/lib ?
+-if [ -r "/usr/X11/lib" ]; then
+-  LFLAGS="$LFLAGS -L/usr/X11/lib"
+-  INCS="-I/usr/X11/include"
+-  echo " X11 libraries location: /usr/X11/lib" 1>&6
+-# X11R/ in /usr/X11R7/lib ?
+-elif [ -r "/usr/X11R7/lib" ]; then
+-  LFLAGS="$LFLAGS -L/usr/X11R7/lib"
+-  INCS="-I/usr/X11R7/include"
+-  echo " X11 libraries location: /usr/X11R7/lib" 1>&6
+-# X11R6 in /usr/X11R6/lib ?
+-elif [ -r "/usr/X11R6/lib" ]; then
+-  LFLAGS="$LFLAGS -L/usr/X11R6/lib"
+-  INCS="-I/usr/X11R6/include"
+-  echo " X11 libraries location: /usr/X11R6/lib" 1>&6
+-# X11R5 in /usr/X11R5/lib ?
+-elif [ -r "/usr/X11R5/lib" ]; then
+-  LFLAGS="$LFLAGS -L/usr/X11R5/lib"
+-  INCS="-I/usr/X11R5/include"
+-  echo " X11 libraries location: /usr/X11R5/lib" 1>&6
+-# X11R6 in /opt/X11R6/lib (e.g. QNX)?
+-elif [ -r "/opt/X11R6/lib" ]; then
+-  LFLAGS="$LFLAGS -L/opt/X11R6/lib"
+-  INCS="-I/opt/X11R6/include"
+-  echo " X11 libraries location: /opt/X11R6/lib" 1>&6
+-# X11R6 in /usr/X/lib ?
+-elif [ -r "/usr/X/lib" ]; then
+-  LFLAGS="$LFLAGS -L/usr/X/lib"
+-  INCS="-I/usr/X/include"
+-  echo " X11 libraries location: /usr/X/lib" 1>&6
+-else
+-  # TODO: Detect and report X11R7 in /usr/lib
+-  echo " X11 libraries location: Unknown (assuming linker will find them)" 1>&6
+-fi
+ echo " " 1>&6
+ CFLAGS="$CFLAGS $INCS"
+ 
+@@ -165,9 +129,6 @@
+ rm -f conftest*
+ 
+ echo " Using GNU C: ""$use_gcc" 1>&6
+-if [ "x$use_gcc" = xyes ]; then
+-  CC=gcc
+-fi
+ echo " " 1>&6
+ 
+ 
+@@ -534,16 +495,16 @@
+ # Post fixups
+ ##########################################################################
+ if [ "x$use_gcc" = xyes ]; then
+-  CFLAGS_SPEED="-c -I. -I.. $CFLAGS -O3 -ffast-math -Wall"
+-  CFLAGS="-c -I. -I.. $CFLAGS -Os -Wall"
+-  CFLAGS_LINK="$INCS -O3 -ffast-math -Wall"
+-else
+-  CFLAGS_SPEED="-c -I. -I.. $CFLAGS -O"
+-  CFLAGS="-c -I. -I.. $CFLAGS -O"
+-  CFLAGS_LINK="$INCS -O"
++  CFLAGS_SPEED="-c -I. -I.. $CFLAGS -ffast-math -Wall"
++  CFLAGS="-c -I. -I.. $CFLAGS -Wall"
++  CFLAGS_LINK="$INCS -ffast-math -Wall"
++else
++  CFLAGS_SPEED="-c -I. -I.. $CFLAGS"
++  CFLAGS="-c -I. -I.. $CFLAGS"
++  CFLAGS_LINK="$INCS"
+ fi
+ CFLAGS_LINK="-I../include $CFLAGS_LINK"
+-LFLAGS_LINK="../lib/x11/libglfw.a $LFLAGS -lGLU $LIBS -lm"
++LFLAGS_LINK="-L../lib/x11 $LFLAGS -lglfw -lGLU $LIBS -lm"
+ 
+ 
+ ##########################################################################
