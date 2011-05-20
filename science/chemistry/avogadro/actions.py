@@ -9,9 +9,6 @@ from pisi.actionsapi import pisitools
 from pisi.actionsapi import get
 
 def setup():
-    # Add python2.7 to bad, hard-coded version list
-    pisitools.dosed("cmake/modules/FindPythonLibs.cmake", "_CURRENT_VERSION 2.6", "_CURRENT_VERSION 2.7 2.6")
-
     cmaketools.configure("-DENABLE_THREADGL=FALSE \
                             -DENABLE_RPATH=OFF \
                             -DENABLE_UPDATE_CHECKER=OFF \
