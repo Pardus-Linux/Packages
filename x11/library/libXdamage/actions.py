@@ -10,9 +10,7 @@ from pisi.actionsapi import get
 from pisi.actionsapi import shelltools
 
 def setup():
-    options = "--disable-static \
-               --disable-specs \
-               --without-xmlto"
+    options = "--disable-static"
 
     if get.buildTYPE() == "emul32":
         options += " --libdir=/usr/lib32"
