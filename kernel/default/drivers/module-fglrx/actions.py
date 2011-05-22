@@ -61,11 +61,19 @@ def install():
     pisitools.domove("/usr/lib/modules", "/usr/lib/fglrx")
     pisitools.insinto("/usr/lib/fglrx/modules", "%s/usr/X11R6/lib*/modules/*" % XDir)
 
-    pisitools.domove("/usr/lib/libGL.so.1.2", "/usr/lib/fglrx")
+    # libGl library name changed to fglrx-libGl since 1.15
+    # alternatives should be adapted for libGL, maybe we dont need it at all with this change
+    pisitools.dosym("/usr/lib/fglrx/fglrx-libGL.so.1.2", "/usr/lib/libGL.so.1.2")
+    pisitools.dosym("/usr/lib/fglrx/fglrx-libGL.so.1.2", "/usr/lib/fglrx/libGL.so.1.2")
+
     pisitools.domove("/usr/lib/fglrx/modules/dri", "/usr/lib/xorg/modules/")
+    pisitools.domove("/usr/lib/fglrx/modules/extensions", "/usr/lib/xorg/modules/")
 
     # Necessary symlinks
     pisitools.dosym("/usr/lib/xorg/modules/dri/fglrx_dri.so", "/usr/lib/dri/fglrx_dri.so")
+
+    # We should use alternatives for that, Xorg has his own libglx library, like libGL
+    # pisitools.dosym("/usr/lib/xorg/modules/extensions/fglrx/fglrx_libglx.so", "/usr/lib/xorg/modules/extensions/libglx.so")
 
     pisitools.dosym("libatiuki.so.1.0", "/usr/lib/libatiuki.so.1")
     pisitools.dosym("libatiuki.so.1", "/usr/lib/libatiuki.so")
