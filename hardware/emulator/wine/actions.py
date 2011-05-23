@@ -17,7 +17,7 @@ def setup():
                --with-x \
                --with-pulse"
 
-    if get.buildTYPE() == "wine32":
+    if get.buildTYPE() == "emul32":
         options += " --libdir=/usr/lib32"
 
         shelltools.export("CC", "%s -m32" % get.CC())
@@ -34,6 +34,8 @@ def install():
         autotools.rawInstall("libdir=%s/usr/lib32 dlldir=%s/usr/lib32/wine" % (get.installDIR(), get.installDIR()))
         return
 
-    autotools.install("UPDATE_DESKTOP_DATABASE=/bin/true")
+    #autotools.rawInstall("DESTDIR=%s prefix=%s/usr libdir=%s/usr/lib dlldir=%s/usr/lib/wine datadir=%s/usr/share UPDATE_DESKTOP_DATABASE=/bin/true" % (get.installDIR(), get.installDIR(), get.installDIR(), get.installDIR(), get.installDIR()))
+    #autotools.rawInstall("DESTDIR=%s UPDATE_DESKTOP_DATABASE=/bin/true" % (get.installDIR()))
+    autotools.rawInstall("DESTDIR=/ libdir=%s/usr/lib dlldir=%s/usr/lib/wine UPDATE_DESKTOP_DATABASE=/bin/true" % (get.installDIR(), get.installDIR()))
 
     pisitools.dodoc("ANNOUNCE", "AUTHORS", "COPYING.LIB", "LICENSE*", "README", "documentation/README.*")
