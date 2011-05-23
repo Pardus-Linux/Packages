@@ -14,14 +14,20 @@
         <IsA>library</IsA>
         <Summary>Sane scanner drivers for EPSON Perfection and Stylus scanners</Summary>
         <Description>iscan contains the Avasys provided epkowa sane backend which supports a lot of EPSON scanners.</Description>
-        <Archive sha1sum="0b568192166ee32a6cc338e65a06365273720998" type="targz">http://linux.avasys.jp/drivers/iscan/2.26.1/iscan_2.26.1-3.tar.gz</Archive>
+        <Archive sha1sum="b4bbf6d80e8d62fb7b0f3187ca8198552734d44e" type="targz">http://linux.avasys.jp/drivers/iscan/2.26.3/iscan_2.26.3-1.tar.gz</Archive>
+        <Archive sha1sum="c80092aad629f0aab14f0e82f0ce0f0940f6f488" target="iscan-2.26.3" type="targz">http://linux.avasys.jp/drivers/iscan-data/1.8.1/iscan-data_1.8.1-1.tar.gz</Archive>
         <BuildDependencies>
+            <Dependency>gtk2-devel</Dependency>
+            <Dependency>tiff-devel</Dependency>
+            <Dependency>jpeg-devel</Dependency>
             <Dependency>sane-backends-devel</Dependency>
         </BuildDependencies>
         <Patches>
             <Patch level="1">iscan-2.11.0-gcc43.patch</Patch>
             <Patch level="1">iscan-fix-link.patch</Patch>
-            <Patch level="1">disable_nonfree.patch</Patch>
+            <Patch level="1">iscan-2.21.0-fix-g++-test.patch</Patch>
+            <Patch level="1">iscan-2.25.0-drop-ltdl.patch</Patch>
+            <Patch level="1">iscan-data.patch</Patch>
             <Patch level="1">tr.patch</Patch>
         </Patches>
     </Source>
@@ -29,23 +35,40 @@
     <Package>
         <Name>iscan</Name>
         <RuntimeDependencies>
+            <Dependency>gtk2</Dependency>
             <Dependency>sane-backends</Dependency>
             <!--<Dependency>iscan-firmware</Dependency>-->
         </RuntimeDependencies>
         <Files>
-            <Path fileType="man">/usr/share/man</Path>
-            <Path fileType="doc">/usr/share/doc</Path>
-            <Path fileType="data">/usr/share/iscan</Path>
             <Path fileType="config">/etc/sane.d</Path>
-            <Path fileType="data">/lib/udev/rules.d</Path>
+            <Path fileType="data">/usr/share/iscan</Path>
+            <Path fileType="data">/var/lib/iscan</Path>
+            <Path fileType="data">/usr/share/iscan-data</Path>
             <Path fileType="library">/usr/lib</Path>
             <Path fileType="library">/usr/lib/sane</Path>
             <Path fileType="localedata">/usr/share/locale</Path>
             <Path fileType="executable">/usr/sbin</Path>
+            <Path fileType="executable">/usr/bin</Path>
+            <Path fileType="man">/usr/share/man</Path>
+            <Path fileType="doc">/usr/share/doc</Path>
         </Files>
+        <Provides>
+            <COMAR script="package.py">System.Package</COMAR>
+        </Provides>
     </Package>
 
     <History>
+        <Update release="5">
+            <Date>2011-05-23</Date>
+            <Version>2.26.3</Version>
+            <Comment>
+                - Version bump,
+                - Generate udev rules during postInstall,
+                - Enable frontend.
+            </Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
         <Update release="4">
             <Date>2011-02-09</Date>
             <Version>2.26.1</Version>
