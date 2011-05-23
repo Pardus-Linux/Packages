@@ -78,4 +78,8 @@ def install():
     pisitools.insinto("/usr/share/doc/%s" % get.srcNAME(), "contrib")
     pisitools.insinto("/usr/share/doc/%s" % get.srcNAME(), "tools/xslt")
     pisitools.insinto("/var/www/localhost/htdocs", "tools/xslt/*")
+
+    # Create virtual repository root
+    pisitools.dodir("/var/svn")
+
     pisitools.dodoc("COPYING", "README")
