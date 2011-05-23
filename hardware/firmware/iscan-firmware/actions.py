@@ -23,7 +23,3 @@ def install():
     pisitools.insinto("/usr/share/iscan-data/device", "usr/share/iscan-data/device/*")
 
     pisitools.insinto("/usr/share/doc/%s" % get.srcNAME(), "usr/share/doc/*")
-
-    # Dodoc one of the plugins doc files, it's all same.
-    for d in shelltools.ls("iscan-plugin-gt-f520/usr/share/doc/iscan-plugin-gt-f520-1.0.0"):
-        pisitools.dodoc("iscan-plugin-gt-f520/usr/share/doc/iscan-plugin-gt-f520-1.0.0/%s" % d)
