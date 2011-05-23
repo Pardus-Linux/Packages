@@ -8,8 +8,6 @@ from pisi.actionsapi import pisitools
 from pisi.actionsapi import kde4
 from pisi.actionsapi import get
 
-WorkDir = "gpodder-%s-6a566ef" % get.srcNAME()
-
 def setup():
     kde4.configure("-DMYGPO_BUILD_TESTS=OFF")
 
