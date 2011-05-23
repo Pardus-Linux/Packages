@@ -12,7 +12,7 @@ from pisi.actionsapi import get
 def setup():
     shelltools.export("CFLAGS","%s -fstack-protector-all" % get.CFLAGS())
 
-    autotools.autoreconf("-fi")
+    autotools.autoreconf("-vfi")
     autotools.configure("--enable-ipv6 \
                          --enable-lua \
                          --with-libsmi \
