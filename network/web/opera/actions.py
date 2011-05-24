@@ -11,7 +11,7 @@ from pisi.actionsapi import get
 
 arch = "i386" if get.ARCH() == "i686" else "x86_64"
 
-WorkDir = "%s-%s-2092.%s.linux" % (get.srcNAME(), get.srcVERSION(), arch)
+WorkDir = "%s-%s-2109.%s.linux" % (get.srcNAME(), get.srcVERSION(), arch)
 
 def install():
     shelltools.system("./install --prefix /usr --force --repackage %s/usr" % get.installDIR())
