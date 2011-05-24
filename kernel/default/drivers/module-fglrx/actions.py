@@ -107,7 +107,6 @@ def install():
     exec_file_suffixes = (".sh", ".so", ".so.1.2")
     exec_dir_suffixes = ("/bin", "/sbin", "/lib")
 
-
     import os
     for root, dirs, files in os.walk(get.installDIR()):
         for name in files:
