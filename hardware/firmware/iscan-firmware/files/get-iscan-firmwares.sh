@@ -1,6 +1,5 @@
 #!/bin/bash
 
-FWS="Epson_Stylus_CX4400 GT-1500 GT-F670 GT-F700 GT-F720 GT-S80 GT-S600 GT-X750 GT-X770 GT-X820 Perfection_V30 Perfection_V330 iscan-network-nt"
 URL="http://linux.avasys.jp/drivers/iscan-plugins/"
 
 if [ ! -d iscan-firmware ]; then
@@ -15,5 +14,17 @@ done
 
 for fwtargz in $(ls *.tar.gz); do
     tar xvf $fwtargz
+done
+
+cat /dev/null > fwlist
+
+for f in $(ls *i386*tar.gz); do
+    echo $f >> fwlist
+    libs=$(tar tvf $f | grep 'lib/.*\/lib[-a-zA-Z0-9]*\.so\.[0-9]\.[0-9]\.[0-9]' | gawk '{print $6}')
+    for lib in $libs; do
+        echo "library is: $lib" >> fwlist
+        echo "firmware is: `strings $lib | grep 'esfw.*bin'`" >> fwlist
+    done
+    echo >> fwlist
 done
 
