@@ -62,9 +62,7 @@ def install():
     pisitools.insinto("/usr/lib/fglrx/modules", "%s/usr/X11R6/lib*/modules/*" % XDir)
 
     # libGl library name changed to fglrx-libGl since 1.15
-    # alternatives should be adapted for libGL, maybe we dont need it at all with this change
-    pisitools.dosym("/usr/lib/fglrx/fglrx-libGL.so.1.2", "/usr/lib/fglrx/libGL.so.1.2")
-    pisitools.dosym("/usr/lib/fglrx/fglrx-libGL.so.1.2", "/usr/lib/fglrx-libGL.so.1.2")
+    pisitools.domove("/usr/lib/fglrx/fglrx-libGL.so.1.2", "/usr/lib/fglrx", "libGL.so.1.2")
 
     pisitools.domove("/usr/lib/fglrx/modules/dri", "/usr/lib/xorg/modules/")
     pisitools.domove("/usr/lib/fglrx/modules/extensions/fglrx/fglrx-libglx.so", "/usr/lib/fglrx/modules/extensions", "libglx.so")
