@@ -17,9 +17,7 @@ def setup():
                             -libdir /usr/lib/ocaml \
                             -mandir /usr/share/man \
                             --with-pthread \
-                            --tklibs \
-                            --with-lookup-order-hack=INET ")
-
+                            --tklibs ")
 
 def build():
     autotools.make("-j1 world")
@@ -35,10 +33,13 @@ def install():
 
     pisitools.dodoc("Changes", "LICENSE", "README", "Upgrading")
 
+    pisitools.insinto("/usr/share/doc/ocaml/otherlibs/labltk","otherlibs/labltk/examples_*")
+
     autotools.rawInstall("-C emacs \
                         BINDIR=%(install)s/usr/bin \
                         EMACSDIR=%(install)s/usr/share/emacs/site-lisp"
                         % { "install": get.installDIR()})
+
 
     # Remove rpaths from stublibs .so files
     shelltools.system("chrpath --delete %s/usr/lib/ocaml/stublibs/*.so" 
