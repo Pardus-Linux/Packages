@@ -11,41 +11,56 @@
         <License>BSD</License>
         <IsA>app:console</IsA>
         <Summary>Network monitoring tools including ping and ping6</Summary>
-        <Description>Iputils contains network monitoring tools including ping and ping6.</Description>
-        <Archive sha1sum="eb787a65341d7bced3458766f7094b08f02b712f" type="tarbz2">http://www.skbuff.net/iputils/iputils-s20100418.tar.bz2</Archive>
+        <Description>iputils contains network monitoring tools including ping and ping6.</Description>
+        <Archive sha1sum="a08cc5423a7bf940205f2353fe3d129cd39ff242" type="tarbz2">http://www.skbuff.net/iputils/iputils-s20101006.tar.bz2</Archive>
+        <AdditionalFiles>
+            <!-- Taken from linux-2.6.git/Documentation/networking and applied fedora's iputils-ifenslave.patch on top of it -->
+            <AdditionalFile target="ifenslave.c">ifenslave/ifenslave.c</AdditionalFile>
+        </AdditionalFiles>
         <BuildDependencies>
             <Dependency>openssl-devel</Dependency>
             <Dependency>libidn-devel</Dependency>
-            <!-- needed for generating man pages, see below -->
-            <!--
+            <!-- needed for generating man pages, see below
             <Dependency>docbook-utils</Dependency>
             -->
         </BuildDependencies>
         <Patches>
             <Patch level="1">021109-uclibc-no-ether_ntohost.patch</Patch>
-            <Patch>iputils-20100418-openssl.patch</Patch>
-            <Patch>iputils-20100418-so_mark.patch</Patch>
-            <Patch>iputils-20100418-makefile.patch</Patch>
-            <Patch>iputils-20100418-proper-libs.patch</Patch>
             <Patch level="1">iputils-20100418-printf-size.patch</Patch>
-            <Patch level="1">iputils-20100418-aliasing.patch</Patch>
             <Patch>iputils-20071127-kernel-ifaddr.patch</Patch>
-            <Patch level="1">iputils-20070202-idn.patch</Patch>
-            <Patch level="1">iputils-20100418-ping-CVE-2010-2529.patch</Patch>
 
+            <!-- Fedora patches -->
+            <Patch level="1">fedora/iputils-20020927-rh.patch</Patch>
+            <Patch level="1">fedora/iputils-20020124-countermeasures.patch</Patch>
+            <Patch level="1">fedora/iputils-20020927-addrcache.patch</Patch>
+            <Patch level="1">fedora/iputils-20020927-ping-subint.patch</Patch>
+            <Patch level="1">fedora/iputils-ping_cleanup.patch</Patch>
+            <Patch level="1">fedora/iputils-20070202-idn.patch</Patch>
+            <Patch level="1">fedora/iputils-20070202-traffic_class.patch</Patch>
+            <Patch level="1">fedora/iputils-20070202-ia64_align.patch</Patch>
+            <Patch level="1">fedora/iputils-20071127-warnings.patch</Patch>
+            <Patch level="1">fedora/iputils-20071127-corr_type.patch</Patch>
+            <Patch level="1">fedora/iputils-20071127-infiniband.patch</Patch>
+            <Patch level="1">fedora/iputils-20100418-convtoint.patch</Patch>
+            <Patch level="1">fedora/iputils-20100418-flowlabel.patch</Patch>
+
+            <!-- We don't have capability setting support in PiSi, disable this
+            <Patch level="1">fedora/iputils-20101006-drop_caps.patch</Patch>
+            -->
+
+            <Patch level="1">fedora/iputils-20101006-unused.patch</Patch>
+            <Patch level="1">fedora/iputils-20101006-man.patch</Patch>
 
             <Patch>docs.patch</Patch>
-            <Patch level="1">iputils-20020124-countermeasures.patch</Patch>
-            <Patch level="1">iputils-20020927-addrcache.patch</Patch>
-            <Patch level="1">iputils-20020927-ping-subint.patch</Patch>
-            <Patch level="1">iputils-20070202-ia64_align.patch</Patch>
-            <Patch level="1">iputils-20070202-traffic_class.patch</Patch>
-            <Patch level="1">iputils-20071127-warnings.patch</Patch>
         </Patches>
     </Source>
 
     <Package>
         <Name>iputils</Name>
+        <RuntimeDependencies>
+            <Dependency>libidn</Dependency>
+            <Dependency>openssl</Dependency>
+        </RuntimeDependencies>
         <Conflicts>
             <Package releaseTo="5">traceroute</Package>
         </Conflicts>
@@ -54,6 +69,8 @@
             <Path fileType="executable">/usr/bin</Path>
             <Path fileType="executable">/usr/sbin</Path>
             <Path fileType="executable">/sbin</Path>
+            <Path fileType="data">/lib/systemd/system</Path>
+            <Path fileType="config">/etc/conf.d/rdisc</Path>
             <Path fileType="doc">/usr/share/doc</Path>
             <Path fileType="man">/usr/share/man</Path>
         </Files>
@@ -61,16 +78,34 @@
             <!-- pregenerated man pages, update if necessary. -->
             <AdditionalFile owner="root" permission="0644" target="/usr/share/man/man8/arping.8">man/arping.8</AdditionalFile>
             <AdditionalFile owner="root" permission="0644" target="/usr/share/man/man8/clockdiff.8">man/clockdiff.8</AdditionalFile>
-            <AdditionalFile owner="root" permission="0644" target="/usr/share/man/man8/pg3.8">man/pg3.8</AdditionalFile>
             <AdditionalFile owner="root" permission="0644" target="/usr/share/man/man8/ping.8">man/ping.8</AdditionalFile>
             <AdditionalFile owner="root" permission="0644" target="/usr/share/man/man8/rarpd.8">man/rarpd.8</AdditionalFile>
             <AdditionalFile owner="root" permission="0644" target="/usr/share/man/man8/rdisc.8">man/rdisc.8</AdditionalFile>
             <AdditionalFile owner="root" permission="0644" target="/usr/share/man/man8/tracepath.8">man/tracepath.8</AdditionalFile>
             <AdditionalFile owner="root" permission="0644" target="/usr/share/man/man8/traceroute6.8">man/traceroute6.8</AdditionalFile>
+            <AdditionalFile owner="root" permission="0644" target="/usr/share/man/man8/ifenslave.8">ifenslave/ifenslave.8</AdditionalFile>
+            <AdditionalFile owner="root" permission="0644" target="/usr/share/doc/iputils/README.bonding">ifenslave/README.bonding</AdditionalFile>
+
+            <!-- Add systemd files for rdisc daemon -->
+            <AdditionalFile owner="root" permission="0644" target="/etc/conf.d/rdisc">fedora/rdisc.sysconfig</AdditionalFile>
+            <AdditionalFile owner="root" permission="0644" target="/lib/systemd/system/rdisc.service">fedora/rdisc.service</AdditionalFile>
         </AdditionalFiles>
     </Package>
 
     <History>
+        <Update release="11">
+            <Date>2011-05-24</Date>
+            <Version>20101006</Version>
+            <Comment>
+                - Version bump,
+                - Add systemd files,
+                - Fix arping's broadcast address parsing from sysfs (Kudos to İbrahim),
+                - Update man pages,
+                - Add ifenslave command for ethernet bonding.
+            </Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
         <Update release="10">
             <Date>2010-10-11</Date>
             <Version>20100418</Version>

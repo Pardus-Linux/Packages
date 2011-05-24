@@ -3,12 +3,12 @@
 .\" <http://shell.ipoline.com/~elmert/comp/docbook2X/> 
 .\" Please send any bug reports, improvements, comments, patches, 
 .\" etc. to Steve Cheng <steve@ggi-project.org>.
-.TH "PING" "8" "06 Şubat 2008" "iputils-071127" "System Manager's Manual: iputils"
+.TH "PING" "8" "24 Mayıs 2011" "iputils-101006" "System Manager's Manual: iputils"
 .SH NAME
 ping, ping6 \- send ICMP ECHO_REQUEST to network hosts
 .SH SYNOPSIS
 
-\fBping\fR [ \fB-LRUbdfnqrvVaAB\fR]  [ \fB-c \fIcount\fB\fR]  [ \fB-i \fIinterval\fB\fR]  [ \fB-l \fIpreload\fB\fR]  [ \fB-p \fIpattern\fB\fR]  [ \fB-s \fIpacketsize\fB\fR]  [ \fB-t \fIttl\fB\fR]  [ \fB-w \fIdeadline\fB\fR]  [ \fB-F \fIflowlabel\fB\fR]  [ \fB-I \fIinterface\fB\fR]  [ \fB-M \fIhint\fB\fR]  [ \fB-Q \fItos\fB\fR]  [ \fB-S \fIsndbuf\fB\fR]  [ \fB-T \fItimestamp option\fB\fR]  [ \fB-W \fItimeout\fB\fR]  [ \fB\fIhop\fB\fR\fI ...\fR]  \fB\fIdestination\fB\fR
+\fBping\fR [ \fB-LRUbdfnqrvVaAB\fR]  [ \fB-c \fIcount\fB\fR]  [ \fB-m \fImark\fB\fR]  [ \fB-i \fIinterval\fB\fR]  [ \fB-l \fIpreload\fB\fR]  [ \fB-p \fIpattern\fB\fR]  [ \fB-s \fIpacketsize\fB\fR]  [ \fB-t \fIttl\fB\fR]  [ \fB-w \fIdeadline\fB\fR]  [ \fB-F \fIflowlabel\fB\fR]  [ \fB-I \fIinterface\fB\fR]  [ \fB-M \fIhint\fB\fR]  [ \fB-N \fInioption\fB\fR]  [ \fB-Q \fItos\fB\fR]  [ \fB-S \fIsndbuf\fB\fR]  [ \fB-T \fItimestamp option\fB\fR]  [ \fB-W \fItimeout\fB\fR]  [ \fB\fIhop\fB\fR\fI ...\fR]  \fB\fIdestination\fB\fR
 
 .SH "DESCRIPTION"
 .PP
@@ -17,6 +17,8 @@ datagram to elicit an ICMP ECHO_RESPONSE from a host or gateway.
 ECHO_REQUEST datagrams (``pings'') have an IP and ICMP
 header, followed by a struct timeval and then an arbitrary
 number of ``pad'' bytes used to fill out the packet.
+.PP
+\fBping6\fR can also send Node Information Queries (RFC4620).
 .SH "OPTIONS"
 .TP
 \fB-a\fR
@@ -24,8 +26,8 @@ Audible ping.
 .TP
 \fB-A\fR
 Adaptive ping. Interpacket interval adapts to round-trip time, so that
-effectively not more than one (or more, if preload is set) unanswered probes
-present in the network. Minimal interval is 200msec for not super-user.
+effectively not more than one (or more, if preload is set) unanswered probe
+is present in the network. Minimal interval is 200msec for not super-user.
 On networks with low rtt this mode is essentially equivalent to flood mode.  
 .TP
 \fB-b\fR
@@ -34,6 +36,11 @@ Allow pinging a broadcast address.
 \fB-B\fR
 Do not allow \fBping\fR to change source address of probes.
 The address is bound to one selected when \fBping\fR starts.
+.TP
+\fB-m \fImark\fB\fR
+use \fImark\fR to tag the packets going out. This is useful
+for variety of reasons within the kernel such as using policy
+routing to select specific outbound processing.
 .TP
 \fB-c \fIcount\fB\fR
 Stop after sending \fIcount\fR ECHO_REQUEST
@@ -79,6 +86,71 @@ Only the super-user may select preload more than 3.
 Suppress loopback of multicast packets.  This flag only applies if the ping
 destination is a multicast address.
 .TP
+\fB-N \fInioption\fB\fR
+Send ICMPv6 Node Information Queries (RFC4620), instead of Echo Request.
+.RS
+.TP
+\fBname\fR
+Queries for Node Names.
+.RE
+.RS
+.TP
+\fBipv6\fR
+Queries for IPv6 Addresses. There are several IPv6 specific flags.
+.RS
+.TP
+\fBipv6-global\fR
+Request IPv6 global-scope addresses.
+.RE
+.RS
+.TP
+\fBipv6-sitelocal\fR
+Request IPv6 site-local addresses.
+.RE
+.RS
+.TP
+\fBipv6-linklocal\fR
+Request IPv6 link-local addresses.
+.RE
+.RS
+.TP
+\fBipv6-all\fR
+Request IPv6 addresses on other interfaces.
+.RE
+.RE
+.RS
+.TP
+\fBipv4\fR
+Queries for IPv4 Addresses.  There is one IPv4 specific flag.
+.RS
+.TP
+\fBipv4-all\fR
+Request IPv4 addresses on other interfaces.
+.RE
+.RE
+.RS
+.TP
+\fBsubject-ipv6=\fIipv6addr\fB\fR
+IPv6 subject address.
+.RE
+.RS
+.TP
+\fBsubject-ipv4=\fIipv4addr\fB\fR
+IPv4 subject address.
+.RE
+.RS
+.TP
+\fBsubject-name=\fInodename\fB\fR
+Subject name.  If it contains more than one dot,
+fully-qualified domain name is assumed.
+.RE
+.RS
+.TP
+\fBsubject-fqdn=\fInodename\fB\fR
+Subject name.  Fully-qualified domain name is
+always assumed.
+.RE
+.TP
 \fB-n\fR
 Numeric output only.
 No attempt will be made to lookup symbolic names for host addresses.
@@ -88,6 +160,10 @@ You may specify up to 16 ``pad'' bytes to fill out the packet you send.
 This is useful for diagnosing data-dependent problems in a network.
 For example, \fB-p ff\fR will cause the sent packet
 to be filled with all ones.
+.TP
+\fB-D\fR
+Print timestamp (unix time + microseconds as in gettimeofday) before
+each line.
 .TP
 \fB-Q \fItos\fB\fR
 Set Quality of Service -related bits in ICMP datagrams.  
@@ -181,7 +257,7 @@ probes are answered or for some error notification from network.
 .TP
 \fB-W \fItimeout\fB\fR
 Time to wait for a response, in seconds. The option affects only timeout
-in absense of any responses, otherwise \fBping\fR waits for two RTTs.
+in absence of any responses, otherwise \fBping\fR waits for two RTTs.
 .PP
 When using \fBping\fR for fault isolation, it should first be run
 on the local host, to verify that the local network interface is up
@@ -280,7 +356,7 @@ with
 or
 \fBftp\fR(1).
 .PP
-In normal operation ping prints the ttl value from the packet it receives.
+In normal operation ping prints the TTL value from the packet it receives.
 When a remote system receives a ping packet, it can do one of three things
 with the TTL field in its response:
 .TP 0.2i
