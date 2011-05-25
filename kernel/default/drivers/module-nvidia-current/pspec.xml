@@ -11,8 +11,8 @@
         <License>NVIDIA</License>
         <Summary>NVIDIA drivers for GeForce 6xxx and newer GPUs</Summary>
         <Description>NVIDIA graphics drivers provide optimized 2D/3D performance.</Description>
-        <Archive sha1sum="2fc9fa57337cb796592d5d66149e33522475d2d9" type="binary">ftp://download.nvidia.com/XFree86/Linux-x86/270.41.03/NVIDIA-Linux-x86-270.41.03.run</Archive>
-        <Archive sha1sum="d329706f83a2d38fd4913b94e9696e8e6aedf9db" type="binary">ftp://download.nvidia.com/XFree86/Linux-x86_64/270.41.03/NVIDIA-Linux-x86_64-270.41.03.run</Archive>
+        <Archive sha1sum="5b5eb7b2650059b17537ed4b9d646a6dbd46d6a8" type="binary">ftp://download.nvidia.com/XFree86/Linux-x86/270.41.19/NVIDIA-Linux-x86-270.41.19.run</Archive>
+        <Archive sha1sum="ad325e32e51d0f286f084c9b06298ec3aa2864d5" type="binary">ftp://download.nvidia.com/XFree86/Linux-x86_64/270.41.19/NVIDIA-Linux-x86_64-270.41.19.run</Archive>
         <BuildDependencies>
             <Dependency version="2.6.37.6">kernel-module-headers</Dependency>
         </BuildDependencies>
@@ -76,6 +76,32 @@
     </Package>
 
     <History>
+        <Update release="49">
+            <Date>2011-05-24</Date>
+            <Version>270.41.19</Version>
+            <Comment>
+                * New pre-release
+                * Fixed a bug in the VDPAU presentation queue that could cause 1 second hangs when transitioning from blit-based display to overlay- based display.
+                  This would most commonly happen when disabling a compositing manager.
+                * Fixed a bug that could cause crashes when capturing SDI video.
+                * Fixed a corner-case in which the OpenGL driver could leak resources in applications utilizing fork().
+                * Addressed a Linux kernel interface compatibility problem that could lead to ioremap() errors and, potentially, functional and/or stability problems.
+                * Fixed a bug that caused SLI initialization to fail on some Intel based systems.
+                * Fixed a bug that caused SLI initialization to fail when using recent Linux kernels, such as 2.6.38.
+                * Fixed a bug that caused some GPUs to stop responding when the X Server was started. All GPUs are susceptible, but the failure was primarily seen on GF104 and GF106 boards.
+                * Added support for the following GPUs:
+                    * Tesla M2090
+                    * Tesla M2075
+                    * Tesla C2075
+                    * Quadro 7000
+            </Comment>
+            <Requires>
+                <Action package="module-nvidia-current-userspace">reverseDependencyUpdate</Action>
+                <Action package="module-nvidia-current">systemRestart</Action>
+            </Requires>
+            <Name>Fatih Arslan</Name>
+            <Email>farslan@pardus.org.tr</Email>
+        </Update>
         <Update release="48">
             <Date>2011-04-12</Date>
             <Version>270.41.03</Version>
