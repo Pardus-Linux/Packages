@@ -30,7 +30,7 @@ def setup():
                             --enable-shared" % get.HOST())
 
 def build():
-    autotools.make() #use parallel build patch to turn parallel build on
+    autotools.make("-j1") #use parallel build patch to turn parallel build on
 
 def install():
     autotools.install()
