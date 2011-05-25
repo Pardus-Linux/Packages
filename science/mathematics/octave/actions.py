@@ -10,6 +10,8 @@ from pisi.actionsapi import pisitools
 from pisi.actionsapi import shelltools
 from pisi.actionsapi import get
 
+shelltools.export("LC_ALL", "C")
+
 def setup():
 
     autotools.autoreconf("-fi")
@@ -23,8 +25,9 @@ def setup():
                             --with-f77=gfortran \
                             --with-lapack \
                             --with-blas \
+                            --with-glpk \
+                            --with-opengl \
                             --enable-shared" % get.HOST())
-
 
 def build():
     autotools.make() #use parallel build patch to turn parallel build on

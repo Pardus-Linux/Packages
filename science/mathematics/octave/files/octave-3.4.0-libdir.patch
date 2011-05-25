@@ -1,0 +1,72 @@
+--- octave-3.4.0/configure.libdir	2011-02-08 03:03:31.000000000 -0700
++++ octave-3.4.0/configure	2011-03-18 10:35:25.014978076 -0600
+@@ -6680,7 +6680,7 @@
+ { $as_echo "$as_me:${as_lineno-$LINENO}: result: defining octetcdir to be $octetcdir" >&5
+ $as_echo "defining octetcdir to be $octetcdir" >&6; }
+ 
+-: ${octlibdir='$(libdir)/octave-$(version)'}
++: ${octlibdir='$(libdir)/octave/$(version)'}
+ { $as_echo "$as_me:${as_lineno-$LINENO}: result: defining octlibdir to be $octlibdir" >&5
+ $as_echo "defining octlibdir to be $octlibdir" >&6; }
+ 
+@@ -6700,19 +6700,19 @@
+ { $as_echo "$as_me:${as_lineno-$LINENO}: result: defining localverarchlibdir to be $localverarchlibdir" >&5
+ $as_echo "defining localverarchlibdir to be $localverarchlibdir" >&6; }
+ 
+-: ${octfiledir='$(libexecdir)/octave/$(version)/oct/$(canonical_host_type)'}
++: ${octfiledir='$(libdir)/octave/$(version)/oct'}
+ { $as_echo "$as_me:${as_lineno-$LINENO}: result: defining octfiledir to be $octfiledir" >&5
+ $as_echo "defining octfiledir to be $octfiledir" >&6; }
+ 
+-: ${localoctfiledir='$(libexecdir)/octave/site/oct/$(canonical_host_type)'}
++: ${localoctfiledir='$(libdir)/octave/site/oct'}
+ { $as_echo "$as_me:${as_lineno-$LINENO}: result: defining localoctfiledir to be $localoctfiledir" >&5
+ $as_echo "defining localoctfiledir to be $localoctfiledir" >&6; }
+ 
+-: ${localapioctfiledir='$(libexecdir)/octave/site/oct/$(api_version)/$(canonical_host_type)'}
++: ${localapioctfiledir='$(libdir)/octave/site/oct/$(api_version)'}
+ { $as_echo "$as_me:${as_lineno-$LINENO}: result: defining localapioctfiledir to be $localapioctfiledir" >&5
+ $as_echo "defining localapioctfiledir to be $localapioctfiledir" >&6; }
+ 
+-: ${localveroctfiledir='$(libexecdir)/octave/$(version)/site/oct/$(canonical_host_type)'}
++: ${localveroctfiledir='$(libdir)/octave/$(version)/site/oct'}
+ { $as_echo "$as_me:${as_lineno-$LINENO}: result: defining localveroctfiledir to be $localveroctfiledir" >&5
+ $as_echo "defining localveroctfiledir to be $localveroctfiledir" >&6; }
+ 
+--- octave-3.4.0/scripts/pkg/pkg.m.libdir	2011-03-18 09:34:11.258406127 -0600
++++ octave-3.4.0/scripts/pkg/pkg.m	2011-03-18 10:56:58.763177238 -0600
+@@ -248,7 +248,7 @@
+   if (prefix == -1)
+     if (global_install)
+       prefix = fullfile (OCTAVE_HOME (), "share", "octave", "packages");
+-      archprefix = fullfile (octave_config_info ("libexecdir"),
++      archprefix = fullfile (octave_config_info ("libdir"),
+                              "octave", "packages");
+     else
+       prefix = fullfile ("~", "octave");
+@@ -293,7 +293,7 @@
+         global_install = true;
+         if (! user_prefix)
+           prefix = fullfile (OCTAVE_HOME (), "share", "octave", "packages");
+-          archprefix = fullfile (octave_config_info ("libexecdir"),
++          archprefix = fullfile (octave_config_info ("libdir"),
+                                  "octave", "packages");
+         endif
+       case available_actions
+@@ -2211,14 +2211,13 @@
+ endfunction
+ 
+ function arch = getarch ()
+-  persistent _arch = cstrcat (octave_config_info("canonical_host_type"), ...
+-                             "-", octave_config_info("api_version"));
++  persistent _arch = octave_config_info("api_version");
+   arch = _arch;
+ endfunction
+ 
+ function archprefix = getarchprefix (desc, global_install)
+   if ((nargin == 2 && global_install) || (nargin < 2 && issuperuser ()))
+-    archprefix = fullfile (octave_config_info ("libexecdir"), "octave",
++    archprefix = fullfile (octave_config_info ("libdir"), "octave",
+                            "packages", cstrcat(desc.name, "-", desc.version));
+   else
+     archprefix = desc.dir;
