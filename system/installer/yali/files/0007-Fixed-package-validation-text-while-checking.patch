@@ -1,0 +1,58 @@
+From ff91d48759a0de0411adf07d69207b1f0f9f89eb Mon Sep 17 00:00:00 2001
+From: mete <mete@26e1f6f6-46e4-0310-a0b7-a8a415fd4c45>
+Date: Wed, 25 May 2011 23:31:55 +0000
+Subject: [PATCH 07/10] Fixed package validation text while checking
+
+BUG:FIXED:16848
+
+git-svn-id: https://svn.pardus.org.tr/uludag/trunk/yali@36990 26e1f6f6-46e4-0310-a0b7-a8a415fd4c45
+---
+ yali/gui/ScrCheckCD.py       |    4 +++-
+ yali/gui/Ui/checkcdwidget.ui |    2 +-
+ 2 files changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/yali/gui/ScrCheckCD.py b/yali/gui/ScrCheckCD.py
+index a6f6a10..162d557 100644
+--- a/yali/gui/ScrCheckCD.py
++++ b/yali/gui/ScrCheckCD.py
+@@ -79,6 +79,8 @@ class Widget(QWidget, ScreenWidget):
+ 
+         self.ui.progressBar.setMaximum(len(pkg_names))
+ 
++        self.ui.checkLabel.setText(_("Package validation is in progress. "
++                                     "Please wait until it is completed."))
+         cur = 0
+         flag = 0
+         for pkg_name in pkg_names:
+@@ -109,7 +111,6 @@ class Widget(QWidget, ScreenWidget):
+                 else:
+                     yali.util.reboot()
+ 
+-
+         if not self.check_media_stop and flag == 0:
+             ctx.interface.informationWindow.update(_('<font color="#FFF"><b>Validation succeeded. You can proceed with the installation.</b></font>'))
+             self.ui.validationSucceedBox.show()
+@@ -123,6 +124,7 @@ class Widget(QWidget, ScreenWidget):
+         ctx.mainScreen.enableNext()
+         ctx.mainScreen.enableBack()
+ 
++        self.ui.checkLabel.setText(_("Package validation is finished."))
+         ctx.interface.informationWindow.hide()
+ 
+ 
+diff --git a/yali/gui/Ui/checkcdwidget.ui b/yali/gui/Ui/checkcdwidget.ui
+index 0c548e9..a861286 100644
+--- a/yali/gui/Ui/checkcdwidget.ui
++++ b/yali/gui/Ui/checkcdwidget.ui
+@@ -138,7 +138,7 @@
+          </spacer>
+         </item>
+         <item>
+-         <widget class="QLabel" name="textLabel2">
++         <widget class="QLabel" name="checkLabel">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+-- 
+1.7.5
+
