@@ -6,19 +6,10 @@
 # See the file http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
 
 from pisi.actionsapi import autotools
-from pisi.actionsapi import pisitools
 from pisi.actionsapi import get
 
-params = {"datadir": get.dataDIR(), \
-          "docdir": get.docDIR(), \
-          "srctag": get.srcNAME(), \
-          "installdir": get.installDIR()}
-
 def build():
-    autotools.make('DATADIR=/%(datadir)s/blobwars/ DOCDIR=/%(docdir)s/%(srctag)s/' % params)
+    autotools.make("RELEASE=1")
 
 def install():
-    autotools.rawInstall('DESTDIR=%(installdir)s \
-                          BINDIR=%(installdir)s/usr/bin/ \
-                          DATADIR=%(installdir)s/%(datadir)s/blobwars/ \
-                          DOCDIR=%(installdir)s/%(docdir)s/%(srctag)s/' % params)
+    autotools.rawInstall("DESTDIR=%s" % get.installDIR())
