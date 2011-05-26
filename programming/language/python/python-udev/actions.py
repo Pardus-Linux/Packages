@@ -16,4 +16,4 @@ def install():
     pythonmodules.install()
     pisitools.remove("/usr/lib/%s/site-packages/pyudev/pyside.py" % get.curPYTHON())
 
-    pisitools.dodoc("COPYING", "PKG-INFO", "README.rst")
+    pisitools.dodoc("CHANGES.rst", "COPYING", "PKG-INFO", "README.rst")
