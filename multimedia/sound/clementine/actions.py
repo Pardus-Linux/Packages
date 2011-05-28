@@ -35,7 +35,7 @@ def setup():
                           -DENABLE_SCRIPTING_PYTHON=OFF \
                           -DENABLE_SCRIPTING_ARCHIVES=OFF \
                           -DENABLE_REMOTE=OFF \
-                          -DBUNDLE_PROJECTM_PRESETS=ON", sourceDir=".")
+                          -DBUNDLE_PROJECTM_PRESETS=OFF", sourceDir=".")
 
 def build():
     cmaketools.make()
