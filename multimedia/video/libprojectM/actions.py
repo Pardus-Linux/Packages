@@ -21,4 +21,6 @@ def install():
 
     pisitools.dosym("libprojectM.so.2.0.1", "/usr/lib/libprojectM.so.2")
 
+    pisitools.remove("/usr/share/projectM/presets/Geiss & Sperl - Feedback (projectM idle HDR mix).prjm")
+
     pisitools.dodoc("ChangeLog")
