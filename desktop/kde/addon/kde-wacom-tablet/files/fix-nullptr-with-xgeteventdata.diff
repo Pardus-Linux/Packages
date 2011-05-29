@@ -1,0 +1,36 @@
+commit 694f4dd4bf7b1591934b1cbe1db2acc00df66088
+Author: Jörg Ehrichs <Joerg.Ehrichs@gmx.de>
+Date:   Sun May 29 10:19:26 2011 +0200
+
+    Fixed nullpointer issue with XGetEventData
+    
+    I've replaced the check for the return value because it returns false also if the cookie event data has been claimed already.
+    Now I always get the event data and check if the data is NULL or not.
+    
+    Should avoid crashes and again detect the connected tablet correctly
+
+diff --git a/src/kded/xdeviceeventnotifier.cpp b/src/kded/xdeviceeventnotifier.cpp
+index a5a928a..ed33934 100644
+--- a/src/kded/xdeviceeventnotifier.cpp
++++ b/src/kded/xdeviceeventnotifier.cpp
+@@ -63,7 +63,9 @@ bool XDeviceEventNotifier::x11Event(XEvent * event)
+ 
+     if (cookie->type == GenericEvent && cookie->evtype == XI_HierarchyChanged)
+     {
+-        //if(XGetEventData(QX11Info::display(), cookie))
++        XGetEventData(QX11Info::display(), cookie);
++
++        if(cookie->data)
+         {
+             XIHierarchyEvent * hev = (XIHierarchyEvent *)cookie->data;
+             XIHierarchyInfo *info = (XIHierarchyInfo *)hev->info;
+@@ -85,6 +87,9 @@ bool XDeviceEventNotifier::x11Event(XEvent * event)
+ 
+             XFreeEventData(QX11Info::display(), cookie);
+         }
++        else {
++            kDebug() << "Error couldn't retrieve XGetEventData";
++        }
+     }
+     else {
+       
