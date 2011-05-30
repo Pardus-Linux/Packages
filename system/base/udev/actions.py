@@ -25,7 +25,9 @@ def setup():
         shelltools.export("CFLAGS", "%s -m32" % get.CFLAGS())
         options += " --prefix=/emul32 \
                      --libdir=/usr/lib32 \
-                     --libexecdir=/emul32/lib \
+                     --libexecdir=/emul32/lib/udev \
+                     --with-systemdsystemunitdir=/emul32/lib/systemd/system \
+                     --datadir=/emul32/share \
                      --bindir=/emul32/bin \
                      --sbindir=/emul32/sbin \
                      --disable-extras"
