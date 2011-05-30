@@ -8,8 +8,6 @@
 from pisi.actionsapi import pisitools
 from pisi.actionsapi import pythonmodules
 
-WorkDir="GeoIP-Python-1.2.4"
-
 def build():
     pythonmodules.compile()
 
