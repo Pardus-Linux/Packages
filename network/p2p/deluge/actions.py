@@ -15,3 +15,9 @@ def install():
     pythonmodules.install()
 
     pisitools.dodoc('ChangeLog', 'LICENSE', 'README')
+
+    # Remove unused hidden files
+    pisitools.remove("/usr/lib/python2.7/site-packages/deluge/ui/web/js/deluge-all/.order")
+    pisitools.remove("/usr/lib/python2.7/site-packages/deluge/ui/web/js/deluge-all/add/.order")
+    pisitools.remove("/usr/lib/python2.7/site-packages/deluge/ui/web/js/deluge-all/data/.order")
+
