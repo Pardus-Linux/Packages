@@ -340,7 +340,8 @@ parse_cmdline() {
     for x in `cat /proc/cmdline`; do
         case "${x}" in
             [0123456Ss])
-                LEVEL=${x}
+                # Normalize 'S' to 's'
+                LEVEL=`echo ${x}|tr A-Z a-z`
             ;;
             mudur=*)
                 for m in `echo ${x}|cut -f2 -d=|sed 's/,/ /g'`; do
@@ -391,6 +392,9 @@ parse_cmdline() {
             splash)
                 SPLASH=1
             ;;
+            single)
+                LEVEL="s"
+            ;;
             quiet)
                 QUIET=1
             ;;
@@ -419,16 +423,10 @@ info "Starting init on initramfs"
 mount -n -t proc proc /proc
 mount -n -t sysfs sysfs /sys
 
-# Minimize printk log
-test "x$QUIET" = "x1" && echo "1" > /proc/sys/kernel/printk
-
 # Prepare /dev (Needs kernel >= 2.6.32)
 mount -t devtmpfs devtmpfs /dev
 mkdir -m 0755 /dev/pts
 mount -t devpts -o gid=5,mode=620 devpts /dev/pts
-
-# Initialize plymouth daemon if found
-test -x /sbin/plymouthd && /sbin/plymouthd --attach-to-session
 
 # First parse config file, then cmdline to allow overwriting internal config
 if [ -f "$INITRAMFSCONF" ]
@@ -439,6 +437,15 @@ fi
 
 # Parse command line parameters
 parse_cmdline
+
+# Minimize printk log
+test "x$QUIET" = "x1" && echo "1" > /proc/sys/kernel/printk
+
+# Initialize plymouth daemon if found and splash is true
+# Don't even launch plymouthd if we're in single-user mode
+if [ "$LEVEL" != "s" -a "$SPLASH" = "1" -a -x /sbin/plymouthd ]; then
+    /sbin/plymouthd --attach-to-session
+fi
 
 # Handle initramfs= parameter
 if [ "${INITRAMFS}" == "shellnoprobe" ]
@@ -544,3 +551,4 @@ mount --move /sys /newroot/sys
 info "Switching to the real root"
 test -x /bin/plymouth && /bin/plymouth update-root-fs --new-root-dir=/newroot
 exec /bin/switch_root -c /dev/console /newroot ${INIT} ${LEVEL}
+
