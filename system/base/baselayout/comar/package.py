@@ -73,11 +73,7 @@ def migrateUsers():
         # setUser(uid, realname, homedir, shell, passwd, groups)
         hav("setUser", user, "", "", "", "", group)
 
-
-### COMAR methods
-
-
-#big ugly zemberek-openoffice hack
+# Big ugly zemberek-openoffice hack
 def zemberek_hack():
     import re
 
@@ -90,6 +86,10 @@ def zemberek_hack():
         postContent = re.sub("raise Exception", "print", postContent)
         postFile = open(f, 'w')
         postFile.write(postContent)
+
+
+### COMAR methods
+
 
 def postInstall(fromVersion, fromRelease, toVersion, toRelease):
     # We don't want to overwrite an existing file during upgrade
@@ -106,12 +106,6 @@ def postInstall(fromVersion, fromRelease, toVersion, toRelease):
         # Release 143 starts using /etc/ld.so.conf.d. Copy ld.so.conf
         # for "include" statement.
         shutil.copy("/usr/share/baselayout/ld.so.conf", "/etc")
-
-    # First delete/add polkit group/user, because we use polkit-python in addgroup/delete methods of COMAR
-    # deleteGroup("polkit")
-    # hav("addGroup", 103, "polkit")
-    # deleteUser("polkit")
-    # hav("addUser", 103, "polkit", "PolicyKit", "/dev/null", "/bin/false", "", ["polkit"], [], [])
 
     ##################################
     # Merge new system groups
@@ -285,8 +279,10 @@ def postInstall(fromVersion, fromRelease, toVersion, toRelease):
     # We should only install empty files if these files don't already exist.
     if not os.path.exists("/var/log/lastlog"):
         os.system("/bin/touch /var/log/lastlog")
+
     if not os.path.exists("/var/run/utmp"):
         os.system("/usr/bin/install -m 0664 -g utmp /dev/null /var/run/utmp")
+
     if not os.path.exists("/var/log/wtmp"):
         os.system("/usr/bin/install -m 0664 -g utmp /dev/null /var/log/wtmp")
 
@@ -307,4 +303,5 @@ def postInstall(fromVersion, fromRelease, toVersion, toRelease):
     if not os.access("/etc/resolv.default.conf", os.R_OK):
         os.system("cp /etc/resolv.conf /etc/resolv.default.conf")
 
+    # Apply zemberek hack
     zemberek_hack()

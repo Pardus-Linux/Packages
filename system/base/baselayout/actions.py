@@ -14,32 +14,21 @@ def build():
     autotools.make('-C src CC="%s" LD="%s %s" CFLAGS="%s"' % (get.CC(), get.CC(), get.LDFLAGS(), get.CFLAGS()))
 
 def install():
-    pisitools.insinto("/", "root/*")
-
     def chmod(path, mode):
         shelltools.chmod("%s%s" % (get.installDIR(), path), mode)
 
-    shelltools.echo("%s/etc/pardus-release" % get.installDIR(), "Pardus 2011.1 Beta")
-
-    # Install baselayout documentation
-    pisitools.doman("man/*.*")
+    # Install everything
+    pisitools.insinto("/", "root/*")
 
     # Install baselayout utilities
     shelltools.cd("src/")
     autotools.rawInstall('DESTDIR="%s"' % get.installDIR())
 
-    # NOTE: We should not need this these days
-    #chmod("/mnt/floppy", 0700)
-
-    # FIXME: Check these if we switch to systemd
+    # Adjust permissions
     chmod("/tmp", 01777)
-    chmod("/var/lock", 0755)
     chmod("/var/tmp", 01777)
+    chmod("/var/lock", 0755)
     chmod("/usr/share/baselayout/shadow", 0600)
-
-    # FHS compatibility symlinks stuff
-    pisitools.dosym("/var/tmp", "/usr/tmp")
-    pisitools.dosym("share/man", "/usr/local/man")
 
     if get.ARCH() == "x86_64":
         # Directories for 32bit libraries
