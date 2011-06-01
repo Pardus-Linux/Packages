@@ -1,3 +1,4 @@
+
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
@@ -9,10 +10,10 @@ from pisi.actionsapi import pisitools
 from pisi.actionsapi import get
 
 def install():
-    autotools.rawInstall("DESTDIR=%s/usr/share/sgml/docbook/xsl-stylesheets"
+    autotools.rawInstall("DESTDIR=%s/usr/share/xml/docbook/xsl-stylesheets"
                          % get.installDIR())
 
     # Don't ship the extensions
-    pisitools.remove("/usr/share/sgml/docbook/xsl-stylesheets/extensions/*")
+    pisitools.remove("/usr/share/xml/docbook/xsl-stylesheets/extensions/*")
 
     pisitools.dodoc("AUTHORS", "BUGS", "COPYING", "NEWS", "README", "RELEASE-NOTES.txt", "TODO", "VERSION")
