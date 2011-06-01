@@ -13,7 +13,7 @@ from pisi.actionsapi import get
 WorkDir = "metamail-2.7"
 
 def setup():
-    autotools.autoreconf ("-fi")
+    autotools.autoreconf ("-vfi")
     shelltools.chmod("configure")
 
     autotools.configure()
@@ -28,6 +28,6 @@ def install():
 
     pisitools.dodoc("COPYING", "CREDITS", "README")
 
-    shelltools.unlink("man/mmencode.1")
+    shelltools.unlink("man/mailcap.?")
     pisitools.doman("man/*", "debian/mimencode.1", "debian/mimeit.1")
 
