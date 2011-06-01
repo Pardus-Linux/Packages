@@ -1,0 +1,108 @@
+--- less-443/main.c.orig	2011-04-20 12:00:59.624710415 +0200
++++ less-443/main.c	2011-04-20 12:02:47.273436639 +0200
+@@ -55,6 +55,7 @@ static char consoleTitle[256];
+ #endif
+ 
+ extern int	less_is_more;
++public int	line_count;
+ extern int	missing_cap;
+ extern int	know_dumb;
+ extern int	quit_if_one_screen;
+--- less-406/main.c.Foption	2007-06-17 18:56:04.000000000 +0200
++++ less-406/main.c	2008-01-11 10:18:46.000000000 +0100
+@@ -280,6 +281,16 @@ main(argc, argv)
+ 	{
+ 		if (edit_first())  /* Edit first valid file in cmd line */
+ 			quit(QUIT_ERROR);
++		/*
++		 * In case that we have only one file and -F, have to get a line
++		 * count fot init(). If the line count is less then a height of a term,
++		 * the content of the file is printed out and then less quits. Otherwise
++		 * -F can not be used
++		 */
++		if (nifile() == 1 && quit_if_one_screen)
++			line_count = get_line_count();
++		else if (nifile() > 1) /* In case more than one file, -F can not be used */
++			quit_if_one_screen = FALSE;
+ 	}
+ 
+ 	init();
+--- less-406/screen.c.Foption	2007-06-17 18:56:04.000000000 +0200
++++ less-406/screen.c	2008-01-11 10:20:00.000000000 +0100
+@@ -204,6 +204,7 @@ public int missing_cap = 0;	/* Some capa
+ 
+ static int attrmode = AT_NORMAL;
+ extern int binattr;
++extern int line_count;
+ 
+ #if !MSDOS_COMPILER
+ static char *cheaper();
+@@ -233,6 +234,7 @@ extern int wscroll;
+ extern int screen_trashed;
+ extern int tty;
+ extern int top_scroll;
++extern int quit_if_one_screen;
+ extern int oldbot;
+ #if HILITE_SEARCH
+ extern int hilite_search;
+@@ -1534,7 +1536,9 @@ win32_deinit_term()
+ init()
+ {
+ #if !MSDOS_COMPILER
+-	if (!no_init)
++	if (quit_if_one_screen && line_count >= sc_height)
++		quit_if_one_screen = FALSE;
++	if (!no_init && !quit_if_one_screen) 
+ 		tputs(sc_init, sc_height, putchr);
+ 	if (!no_keypad)
+ 		tputs(sc_s_keypad, sc_height, putchr);
+@@ -1573,8 +1577,9 @@ deinit()
+ #if !MSDOS_COMPILER
+ 	if (!no_keypad)
+ 		tputs(sc_e_keypad, sc_height, putchr);
+-	if (!no_init)
+-		tputs(sc_deinit, sc_height, putchr);
++	if (!no_init && !quit_if_one_screen) 
++		tputs(sc_deinit, sc_height, putchr);	
++	
+ #else
+ 	/* Restore system colors. */
+ 	SETCOLORS(sy_fg_color, sy_bg_color);
+--- less-406/funcs.h.Foption	2007-03-24 07:27:54.000000000 +0100
++++ less-406/funcs.h	2008-01-11 09:36:16.000000000 +0100
+@@ -126,6 +126,7 @@
+ 	public void forward ();
+ 	public void backward ();
+ 	public int get_back_scroll ();
++	public int get_line_count ();
+ 	public void del_ifile ();
+ 	public IFILE next_ifile ();
+ 	public IFILE prev_ifile ();
+--- less-406/forwback.c.Foption	2007-06-17 18:56:04.000000000 +0200
++++ less-406/forwback.c	2008-01-11 09:37:15.000000000 +0100
+@@ -410,3 +410,24 @@ get_back_scroll()
+ 		return (sc_height - 2);
+ 	return (10000); /* infinity */
+ }
++	
++/*
++ * Get line count of file
++ */
++	public int
++get_line_count()
++{
++	int nlines = 0;
++	POSITION pos;
++	
++	pos = position(TOP);
++	
++	while (pos != NULL_POSITION && nlines <= sc_height)
++	{
++		pos = forw_line(pos);
++		nlines++;
++	}
++	
++	return nlines;
++}
++
+

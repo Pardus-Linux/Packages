@@ -12,10 +12,25 @@
         <IsA>app:console</IsA>
         <Summary>Excellent text file viewer</Summary>
         <Description>The less utility is a text file browser that resembles more, but has more capabilities. Less allows you to move backwards in the file as well as forwards. Since less doesn't have to read the entire input file before it starts, less starts up more quickly than text editors (for example, vi).</Description>
-        <Archive sha1sum="f78998a1a79a7e1962c901dd41bdc3d1c2005471" type="targz">http://www.greenwoodsoftware.com/less/less-436.tar.gz</Archive>
+        <Archive sha1sum="72cf3d3c77990e04ad04ea63b377b893c8a7a2cd" type="targz">http://www.greenwoodsoftware.com/less/less-443.tar.gz</Archive>
         <BuildDependencies>
             <Dependency versionFrom="5.2">ncurses</Dependency>
         </BuildDependencies>
+        <Patches>
+            <Patch level="1">less-394-time.patch</Patch>
+            <!-- Define HAVE_FSYNC if fsync() on a tty works. -->
+            <Patch level="1">less-418-fsync.patch</Patch>
+            <!-- enable the script returning zero if the output was
+            valid and non-zero otherwise, so less could detect even
+            a valid empty output (for example while uncompressing
+            gzipped empty file) This is not enabled by default, if you
+            want to enable it, put another vertical bar (|) straight
+            after the first one in the LESSOPEN environment variable, eg.
+            LESSOPEN="||lesspipe.sh %s".
+            -->
+            <Patch level="1">less-436-empty-lessopen-pipe.patch</Patch>
+            <Patch level="1">less-443-Foption.patch</Patch>
+        </Patches>
     </Source>
 
     <Package>
@@ -38,6 +53,17 @@
     </Package>
 
     <History>
+        <Update release="10">
+            <Date>2011-05-31</Date>
+            <Version>443</Version>
+            <Comment>* Version bump to version 443.
+                * Foption patch made applicable against 443
+                * Add a patch (less-436-empty-lessopen-pipe.patch) to enable the script returning zero if the output was valid and non-zero otherwise, so less could detect even a valid empty output (for example while uncompressing gzipped empty file).
+                * Define HAVE_FSYNC if fsync() on a tty works.
+            </Comment>
+            <Name>Serdar Dalgıç</Name>
+            <Email>serdar@pardus.org.tr</Email>
+        </Update>
         <Update release="9">
             <Date>2010-10-11</Date>
             <Version>436</Version>

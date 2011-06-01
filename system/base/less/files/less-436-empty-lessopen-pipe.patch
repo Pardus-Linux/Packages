@@ -1,0 +1,87 @@
+diff -rup less-436-orig/filename.c less-436/filename.c
+--- less-436-orig/filename.c	2009-07-06 22:52:23.000000000 +0200
++++ less-436/filename.c	2011-02-09 16:36:59.508940154 +0100
+@@ -843,6 +843,16 @@ open_altfile(filename, pf, pfd)
+ #else
+ 		lessopen++;
+ 		returnfd = 1;
++
++		if (*lessopen == '|') {
++			/*
++			 * If there is another vertical bar |, after
++			 * the first one, it indicates a "pipe preprocessor"
++			 * with correct exit status.
++			 */
++			lessopen++;
++			returnfd = 2;
++		}
+ #endif
+ 	}
+ 	if (*lessopen == '-') {
+@@ -879,17 +888,32 @@ open_altfile(filename, pf, pfd)
+ 		 */
+ 		f = fileno(fd);
+ 		SET_BINARY(f);
++		*pfd = (void *) fd;
++		*pf = f;
+ 		if (read(f, &c, 1) != 1)
+ 		{
+ 			/*
+-			 * Pipe is empty.  This means there is no alt file.
++			 * Error or pipe is empty. Close it and eventually
++			 * check exit status of the pipe process.
+ 			 */
+-			pclose(fd);
++			if (pclose(fd) == 0 && returnfd == 2) {
++				/*
++				 * Exit status was zero, so the EOF was correct
++				 * empty output. Let the program open /dev/null
++				 * instead, as the pipe is already closed.
++				 * Set force_open to omit bad_file() check
++				 * failure, as it is special 'c' pseudo-device.
++				 */
++				*pf = 0;
++				*pfd = NULL;
++				force_open = 1;
++				return (save("/dev/null"));
++			}
++			*pf = 0;
++			*pfd = NULL;
+ 			return (NULL);
+ 		}
+ 		ch_ungetchar(c);
+-		*pfd = (void *) fd;
+-		*pf = f;
+ 		return (save("-"));
+ 	}
+ #endif
+diff -rup less-436-orig/less.nro less-436/less.nro
+--- less-436-orig/less.nro	2011-02-09 16:00:12.520936431 +0100
++++ less-436/less.nro	2011-02-09 16:30:33.161235986 +0100
+@@ -1147,11 +1147,26 @@ lesspipe.sh:
+ .br
+ 		;;
+ .br
++	*)	exit 1
++.br
++		;;
++.br
+ 	esac
+ .br
++	exit $?
++.br
+ .PP
+ To use this script, put it where it can be executed and set
+ LESSOPEN="|lesspipe.sh %s".
++.PP
++The script should return zero if the output was valid and non-zero
++otherwise, so less could detect even a valid empty output
++(for example while uncompressing gzipped empty file).
++For backward-compatibility, this is not required by default. To turn
++this functionality there should be another vertical bar (|) straight
++after the first one in the LESSOPEN environment variable, eg.
++LESSOPEN="||lesspipe.sh %s".
++.PP
+ When an input pipe is used, a LESSCLOSE postprocessor can be used,
+ but it is usually not necessary since there is no replacement file
+ to clean up.
