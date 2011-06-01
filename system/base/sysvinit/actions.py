@@ -21,6 +21,3 @@ def install():
 
     pisitools.remove("/bin/pidof")
     pisitools.dosym("killall5", "/sbin/pidof")
-
-    # FIXME: Fixed in trunk/pisi
-    #autotools.rawInstall("-C src ROOT='%s' STRIP=/bin/true" % get.installDIR())
