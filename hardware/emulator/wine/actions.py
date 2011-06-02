@@ -10,29 +10,20 @@ from pisi.actionsapi import get
 
 def setup():
     autotools.autoreconf("-vif")
+    options = "--without-capi \
+               --with-curses \
+               --without-esd \
+               --with-opengl \
+               --with-pulse \
+               --with-x"
 
     if get.buildTYPE() == "emul32":
-        autotools.configure("--without-capi \
-                             --with-curses \
-                             --without-esd \
-                             --with-opengl \
-                             --with-pulse \
-                             --with-x \
-                             --libdir=/usr/lib32 \
-                             --with-wine64=%s/work/%s" % (get.pkgDIR(), get.srcDIR()))
-    else:
-        args = ""
-        if get.ARCH() == "x86_64":
-            args = " --enable-win64"
+        options += "--libdir=/usr/lib32 \
+                    --with-wine64=%s/work/%s" % (get.pkgDIR(), get.srcDIR())
+    elif get.ARCH() == "x86_64":
+        options += " --enable-win64"
 
-        autotools.configure("--without-capi \
-                             --with-curses \
-                             --without-esd \
-                             --with-opengl \
-                             --with-pulse \
-                             --with-x \
-                             %s" % args)
-
+    autotools.configure(options)
 
 def build():
     autotools.make()
