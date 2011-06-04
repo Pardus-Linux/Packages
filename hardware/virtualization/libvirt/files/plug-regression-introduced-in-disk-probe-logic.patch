@@ -1,0 +1,35 @@
+From b598ac555c8fe67ffc39ac8ef25fe7e6b28ae3f2 Mon Sep 17 00:00:00 2001
+From: Eric Blake <eblake@redhat.com>
+Date: Thu, 26 May 2011 08:18:46 -0600
+Subject: [PATCH] security: plug regression introduced in disk probe logic
+
+Regression introduced in commit d6623003 (v0.8.8) - using the
+wrong sizeof operand meant that security manager private data
+was overlaying the allowDiskFormatProbing member of struct
+_virSecurityManager.  This reopens disk probing, which was
+supposed to be prevented by the solution to CVE-2010-2238.
+
+* src/security/security_manager.c
+(virSecurityManagerGetPrivateData): Use correct offset.
+---
+ src/security/security_manager.c |    4 +++-
+ 1 files changed, 3 insertions(+), 1 deletions(-)
+
+diff --git a/src/security/security_manager.c b/src/security/security_manager.c
+index 0246dd8..6f0becd 100644
+--- a/src/security/security_manager.c
++++ b/src/security/security_manager.c
+@@ -107,7 +107,9 @@ virSecurityManagerPtr virSecurityManagerNew(const char *name,
+ 
+ void *virSecurityManagerGetPrivateData(virSecurityManagerPtr mgr)
+ {
+-    return ((char*)mgr) + sizeof(mgr);
++    /* This accesses the memory just beyond mgr, which was allocated
++     * via VIR_ALLOC_VAR earlier.  */
++    return mgr + 1;
+ }
+ 
+ 
+-- 
+1.7.3.4
+
