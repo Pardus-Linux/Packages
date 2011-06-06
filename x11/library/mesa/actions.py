@@ -15,6 +15,7 @@ def setup():
 
     autotools.autoreconf("-vif")
 
+    # gallium-lvm is enabled by default by commit a86fc719d6402eb482657707741890e69e81700f
     options ="--enable-pic \
               --disable-xcb \
               --enable-glx-tls \
