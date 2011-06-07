@@ -9,7 +9,7 @@ from pisi.actionsapi import autotools
 from pisi.actionsapi import get
 
 def setup():
-    autotools.configure("--mandir=/usr/share/man")
+    autotools.configure()
 
 def build():
     autotools.make()
