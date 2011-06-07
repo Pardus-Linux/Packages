@@ -27,9 +27,9 @@ def build():
 def install():
     autotools.rawInstall("DESTDIR=%s" % get.installDIR())
 
-    pisitools.insinto("/usr/share/icons/hicolor/22x22/mimetypes", "desktopfiles/hi22-djvu.png", "image-vnd.djvu.png")
-    pisitools.insinto("/usr/share/icons/hicolor/32x32/mimetypes", "desktopfiles/hi32-djvu.png", "image-vnd.djvu.png")
-    pisitools.insinto("/usr/share/icons/hicolor/48x48/mimetypes", "desktopfiles/hi48-djvu.png", "image-vnd.djvu.png")
     pisitools.insinto("/usr/share/mime/packages", "desktopfiles/djvulibre-mime.xml")
+
+    for size in ["22", "32", "48", "64"]:
+        pisitools.insinto("/usr/share/icons/hicolor/%sx%s/mimetypes" %(size, size), "desktopfiles/hi%s-djvu.png" % size, "image-vnd.djvu.png")
 
     pisitools.dodoc("README", "TODO", "NEWS")
