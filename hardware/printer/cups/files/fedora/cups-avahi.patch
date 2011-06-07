@@ -1139,7 +1139,7 @@ diff -up cups-1.4.6/cups/http-support.c.avahi cups-1.4.6/cups/http-support.c
 diff -up cups-1.4.6/scheduler/avahi.c.avahi cups-1.4.6/scheduler/avahi.c
 --- cups-1.4.6/scheduler/avahi.c.avahi	2011-01-25 13:26:16.640115190 +0000
 +++ cups-1.4.6/scheduler/avahi.c	2011-01-25 13:26:16.640115190 +0000
-@@ -0,0 +1,443 @@
+@@ -0,0 +1,445 @@
 +/*
 + * "$Id$"
 + *
@@ -1342,8 +1342,10 @@ diff -up cups-1.4.6/scheduler/avahi.c.avahi cups-1.4.6/scheduler/avahi.c
 +  watched_fd = cupsArrayFind (cups_poll->watched_fds, &key);
 +  if (watched_fd == NULL) {
 +    watched_fd = malloc(sizeof(cupsd_watched_fd_t));
-+    if (watched_fd == NULL)
++    if (watched_fd == NULL) {
++      free (watch);
 +      return (NULL);
++    }
 +
 +    watched_fd->fd = fd;
 +    watched_fd->occurred = 0;
@@ -1927,7 +1929,7 @@ diff -up cups-1.4.6/scheduler/dirsvc.c.avahi cups-1.4.6/scheduler/dirsvc.c
 +					   "_http._tcp", /* type */
 +					   NULL, /* domain */
 +					   NULL, /* host */
-+					   htons(DNSSDPort), /* port */
++					   DNSSDPort, /* port */
 +					   "path=/", NULL);
 +      if (ret == 0)
 +	ret = avahi_entry_group_commit (AvahiWebIFGroup);
@@ -2422,7 +2424,7 @@ diff -up cups-1.4.6/scheduler/dirsvc.c.avahi cups-1.4.6/scheduler/dirsvc.c
 +						AVAHI_IF_UNSPEC,
 +						AVAHI_PROTO_UNSPEC,
 +						0, name, regtype, NULL, NULL,
-+						htons(DNSSDPort),
++						DNSSDPort,
 +						ipp_txt);
 +    if (ret < 0)
 +      goto add_failed;
@@ -2441,7 +2443,7 @@ diff -up cups-1.4.6/scheduler/dirsvc.c.avahi cups-1.4.6/scheduler/dirsvc.c
 +						  AVAHI_PROTO_UNSPEC,
 +						  0, name,
 +						  "_printer._tcp", NULL, NULL,
-+						  htons(515),
++						  515,
 +						  printer_txt);
 +      if (ret < 0)
 +	goto add_failed;
@@ -2795,7 +2797,7 @@ diff -up cups-1.4.6/scheduler/dirsvc.c.avahi cups-1.4.6/scheduler/dirsvc.c
 +  AvahiStringList *strlst = NULL;
 +  char **elements;
 +  size_t len;
-+  int i;
++  int i = 0;
 +
 +  elements = malloc ((1 + count) * sizeof (char *));
 +  if (!elements)

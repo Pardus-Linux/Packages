@@ -1,0 +1,48 @@
+diff -up cups-1.4.6/doc/help/ref-cupsd-conf.html.in.str3535 cups-1.4.6/doc/help/ref-cupsd-conf.html.in
+--- cups-1.4.6/doc/help/ref-cupsd-conf.html.in.str3535	2010-07-14 04:43:27.000000000 +0200
++++ cups-1.4.6/doc/help/ref-cupsd-conf.html.in	2011-06-03 13:53:04.711110536 +0200
+@@ -2646,7 +2646,7 @@ appear inside a <A HREF="#Location"><COD
+ <H3>Examples</H3>
+ 
+ <PRE CLASS="command">
+-RIPCache 8m
++RIPCache 128m
+ RIPCache 1g
+ RIPCache 2048k
+ </PRE>
+@@ -2657,8 +2657,9 @@ RIPCache 2048k
+ memory cache used by Raster Image Processor ("RIP") filters such
+ as <CODE>imagetoraster</CODE> and <CODE>pstoraster</CODE>. The
+ size can be suffixed with a "k" for kilobytes, "m" for megabytes,
+-or "g" for gigabytes. The default cache size is "8m", or 8
+-megabytes.</P>
++or "g" for gigabytes. The default cache size is "128m", or 128
++megabytes (compare <A HREF="http://www.cups.org/str.php?L3535">
++<CODE>CUPS STR 3535</CODE></A>).</P>
+ 
+ 
+ <H2 CLASS="title"><SPAN CLASS="info">CUPS 1.1.16</SPAN><A NAME="RootCertDuration">RootCertDuration</A></H2>
+diff -up cups-1.4.6/scheduler/conf.c.str3535 cups-1.4.6/scheduler/conf.c
+--- cups-1.4.6/scheduler/conf.c.str3535	2011-06-03 13:53:04.552112524 +0200
++++ cups-1.4.6/scheduler/conf.c	2011-06-03 13:53:04.712110524 +0200
+@@ -543,7 +543,7 @@ cupsdReadConfiguration(void)
+ 
+   cupsdClearString(&DefaultPaperSize);
+ 
+-  cupsdSetString(&RIPCache, "8m");
++  cupsdSetString(&RIPCache, "128m");
+ 
+   cupsdSetString(&TempDir, NULL);
+ 
+diff -up cups-1.4.6/scheduler/cupsfilter.c.str3535 cups-1.4.6/scheduler/cupsfilter.c
+--- cups-1.4.6/scheduler/cupsfilter.c.str3535	2010-03-31 00:07:33.000000000 +0200
++++ cups-1.4.6/scheduler/cupsfilter.c	2011-06-03 13:53:04.713110512 +0200
+@@ -1218,7 +1218,7 @@ read_cupsd_conf(const char *filename)	/*
+   else
+     set_string(&FontPath, CUPS_FONTPATH);
+ 
+-  set_string(&RIPCache, "8m");
++  set_string(&RIPCache, "128m");
+ 
+   if ((temp = getenv("CUPS_SERVERBIN")) != NULL)
+     set_string(&ServerBin, temp);
