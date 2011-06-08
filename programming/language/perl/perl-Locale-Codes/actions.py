@@ -27,5 +27,5 @@ def install():
         pisitools.remove("/usr/share/man/man3/Locale::%s.3pm" % locale)
         pisitools.remove("/usr/lib/perl5/vendor_perl/%s/Locale/%s.pm" % (get.curPERL(), locale))
 
-    pisitools.dodoc("README")
+    pisitools.dodoc("README", "ChangeLog")
 
