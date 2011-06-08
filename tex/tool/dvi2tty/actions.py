@@ -7,14 +7,12 @@
 
 from pisi.actionsapi import autotools
 from pisi.actionsapi import pisitools
+from pisi.actionsapi import get
 
 def build():
     autotools.make()
 
 def install():
-    pisitools.dobin("dvi2tty")
-    pisitools.dobin("disdvi")
+    autotools.rawInstall("DESTDIR=%s" % get.installDIR())
 
-    pisitools.doman("dvi2tty.1", "disdvi.1")
-
-    pisitools.dodoc("COPYING", "README")
+    pisitools.dodoc("COPYING", "README", "Changelog")
