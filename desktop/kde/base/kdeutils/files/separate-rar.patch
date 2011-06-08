@@ -1,70 +1,70 @@
-Index: kdeutils-4.6.3/ark/CMakeLists.txt
-===================================================================
---- kdeutils-4.6.3.orig/ark/CMakeLists.txt
-+++ kdeutils-4.6.3/ark/CMakeLists.txt
-@@ -1,5 +1,10 @@
- project(ark)
- 
-+## Compiler flags
-+if(CMAKE_COMPILER_IS_GNUCXX)
-+    set(CMAKE_CXX_FLAGS "-fexceptions")        ## Enable exceptions
-+endif()
-+
- configure_file(config.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/config.h)
- 
- add_subdirectory(part)
 Index: kdeutils-4.6.3/ark/kerfuffle/archivebase.cpp
 ===================================================================
 --- kdeutils-4.6.3.orig/ark/kerfuffle/archivebase.cpp
 +++ kdeutils-4.6.3/ark/kerfuffle/archivebase.cpp
-@@ -26,6 +26,7 @@
- 
- #include "archivebase.h"
- #include "queries.h"
-+#include "cliinterface.h"
- 
- #include <QDateTime>
- #include <QDir>
-@@ -35,6 +36,10 @@
+@@ -35,6 +35,9 @@
  #include <QStringList>
  
  #include <KDebug>
 +#include <KMessageBox>
 +#include <KProcess>
 +#include <KLocale>
-+#include <exception>
  
  namespace Kerfuffle
  {
-@@ -94,6 +99,31 @@ DeleteJob* ArchiveBase::deleteFiles(cons
+@@ -81,11 +84,33 @@ ListJob* ArchiveBase::list()
+     return job;
+ }
+ 
++void ArchiveBase::installRarIfNeeded()
++{
++    if( m_iface->filename().endsWith(".rar") ) {
++        QFile rar( "/usr/bin/rar" );
++        if( !rar.exists() ) {
++            int ans = KMessageBox::questionYesNo(NULL, i18n("Compression in rar format requires closed sourced proprietary software to be installed. We recommend against this. Do you want to continue anyway?"));
++            if( ans == KMessageBox::Yes ) {
++                KProcess pmInstall;
++                pmInstall << "/usr/bin/pm-install" << "--hide-summary" << "kdeutils-plugin-rar";
++                pmInstall.setOutputChannelMode(KProcess::SeparateChannels);
++                int failed = pmInstall.execute();
++                if(failed)
++                    KMessageBox::error(NULL, i18n("Packages could not be installed."));
++            } else {
++                exit(0);
++            }
++        }
++    }
++}
++
+ DeleteJob* ArchiveBase::deleteFiles(const QList<QVariant> & files)
+ {
+     if (m_iface->isReadOnly()) {
+         return 0;
+     }
++    installRarIfNeeded();
++
+     DeleteJob *newJob = new DeleteJob(files, static_cast<ReadWriteArchiveInterface*>(m_iface), this);
+ 
+     return newJob;
+@@ -94,6 +119,9 @@ DeleteJob* ArchiveBase::deleteFiles(cons
  AddJob* ArchiveBase::addFiles(const QStringList & files, const CompressionOptions& options)
  {
      Q_ASSERT(!m_iface->isReadOnly());
 +
-+    // Following try-catch block checks if rar is being used for compression
-+    // and if it is not installed in the system, prompts the user to install
-+    // the necessary package.
-+    try {
-+        ParameterList p = dynamic_cast<CliInterface*>(m_iface)->parameterList();
-+
-+        if(p.value(AddProgram).toString().compare("rar") == 0) { //check if rar is requested
-+        QFile rar( "/usr/bin/rar" );
-+            if( !rar.exists() ) {
-+                int ans = KMessageBox::questionYesNo(NULL, i18n("Compression in rar format requires closed sourced proprietary software to be installed. We recommend against this. Do you want to continue anyway?"));
-+                if( ans == KMessageBox::Yes ) {
-+                    KProcess pmInstall;
-+                    pmInstall << "/usr/bin/pm-install" << "--hide-summary" << "kdeutils-plugin-rar";
-+                    pmInstall.setOutputChannelMode(KProcess::SeparateChannels);
-+                    int failed = pmInstall.execute();
-+                    if(failed)
-+                        KMessageBox::error(NULL, i18n("An internal error occurred"));
-+                } else {
-+                    exit(0);
-+                }
-+            }
-+        }
-+    } catch (std::exception& e) {}
++    installRarIfNeeded();
 +
      AddJob *newJob = new AddJob(files, options, static_cast<ReadWriteArchiveInterface*>(m_iface), this);
      connect(newJob, SIGNAL(result(KJob*)),
              this, SLOT(onAddFinished(KJob*)));
+Index: kdeutils-4.6.3/ark/kerfuffle/archivebase.h
+===================================================================
+--- kdeutils-4.6.3.orig/ark/kerfuffle/archivebase.h
++++ kdeutils-4.6.3/ark/kerfuffle/archivebase.h
+@@ -67,6 +67,7 @@ private slots:
+     void onAddFinished(KJob*);
+ 
+ private:
++    void installRarIfNeeded();
+     void listIfNotListed();
+     ReadOnlyArchiveInterface *m_iface;
+     bool m_hasBeenListed;
