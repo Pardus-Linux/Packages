@@ -13,15 +13,9 @@ def setup():
     for i in ["libprojectm", "qxt", "qtiocompressor", "libechonest"]:
         shelltools.unlinkDir("3rdparty/%s" % (i))
 
-    # Upstream supports only gstreamer engine, other engines are unstable and lacking features.
-    # QTSINGLEAPPLICATION is builtin since we need to patch Qt just for this package and  Gökçen has given OK
-    # for using builtin qtsingleapplication.
-    cmaketools.configure("-DHAVE_LIBNOTIFY=ON \
-                          -DENGINE_GSTREAMER_ENABLED=ON \
-                          -DENGINE_QT_PHONON_ENABLED=OFF \
-                          -DENGINE_LIBVLC_ENABLED=OFF \
-                          -DENGINE_LIBXINE_ENABLED=OFF \
-                          -DUSE_SYSTEM_QXT=ON \
+    # QTSINGLEAPPLICATION is builtin since we need to patch Qt just for this package and Gökçen has given OK
+    # for using built-in qtsingleapplication.
+    cmaketools.configure("-DUSE_SYSTEM_QXT=ON \
                           -DUSE_SYSTEM_QTSINGLEAPPLICATION=OFF \
                           -DUSE_SYSTEM_GMOCK=ON \
                           -DSTATIC_SQLITE=OFF \
@@ -32,8 +26,8 @@ def setup():
                           -DENABLE_LIBMTP=ON \
                           -DENABLE_GIO=ON \
                           -DENABLE_VISUALISATIONS=ON \
-                          -DENABLE_SCRIPTING_PYTHON=OFF \
-                          -DENABLE_SCRIPTING_ARCHIVES=OFF \
+                          -DENABLE_SCRIPTING_PYTHON=ON \
+                          -DENABLE_SCRIPTING_ARCHIVES=ON \
                           -DENABLE_REMOTE=OFF \
                           -DBUNDLE_PROJECTM_PRESETS=OFF", sourceDir=".")
 
