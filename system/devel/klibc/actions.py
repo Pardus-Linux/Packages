@@ -33,8 +33,10 @@ def fixperms(d):
             shelltools.chmod(os.path.join(root, name), 0644)
 
 def setup():
-    # we include headers for a while
-    shelltools.sym("/lib/modules/%s/build" % KDIR, "linux")
+    # we must include headers, but kernel headers chango too fast, maybe we should
+    # go back to adding them as a patch
+    # shelltools.sym("/lib/modules/%s/build" % KDIR, "linux")
+    shelltools.copytree("/lib/modules/%s/build" % KDIR, "linux")
 
     # set the build directory
     shelltools.echo("MCONFIG", "KRNLOBJ = /lib/modules/%s/build" % KDIR)
