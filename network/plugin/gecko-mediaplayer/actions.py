@@ -10,7 +10,9 @@ from pisi.actionsapi import shelltools
 from pisi.actionsapi import get
 
 # for snapshots only
-# WorkDir = "gecko-mediaplayer"
+if "_" in get.srcVERSION():
+    WorkDir = "gecko-mediaplayer"
+
 plugindir = "/usr/lib/browser-plugins"
 
 def setup():
