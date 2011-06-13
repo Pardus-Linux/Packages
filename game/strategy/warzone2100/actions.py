@@ -11,6 +11,7 @@ from pisi.actionsapi import shelltools
 from pisi.actionsapi import get
 
 shelltools.export("HOME", get.workDIR())
+mandir = "/usr/share/man"
 
 def setup():
     autotools.configure('--with-icondir=/usr/share/pixmaps \
@@ -24,3 +25,7 @@ def build():
 
 def install():
     autotools.rawInstall("DESTDIR=%s" % get.installDIR())
+
+    if shelltools.isDirectory("%s/%s" % (get.installDIR(), mandir)):
+        pisitools.removeDir(mandir)
+
