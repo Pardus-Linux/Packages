@@ -10,7 +10,8 @@ from pisi.actionsapi import shelltools
 from pisi.actionsapi import get
 
 # for snapshots only
-# WorkDir = "gnome-mplayer"
+if "_" in get.srcVERSION():
+    WorkDir = "gnome-mplayer"
 
 def setup():
     autotools.autoreconf("-vfi")
