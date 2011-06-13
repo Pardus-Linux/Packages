@@ -12,8 +12,6 @@ from pisi.actionsapi import get
 NoStrip = ["/usr/sbin/bitlbee"]
 
 def setup():
-    pisitools.dosed("configure", "mozilla-nss", "nss")
-
     autotools.configure("--ssl=gnutls \
                          --otr=1 \
                          --jabber=1 \
