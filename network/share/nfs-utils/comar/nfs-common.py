@@ -23,7 +23,7 @@ STATD_PIDFILE = "/var/run/rpc.statd.pid"
 IDMAPD_PIDFILE = "/var/run/rpc.idmapd.pid"
 GSSD_PIDFILE = "/var/run/rpc.gssd.pid"
 
-# Parse the fstab file and determine whether we need gssd or not by searching
+# Parse the fstab file and determine whether we need gssd or not, by searching
 # mount option sec=krb* in nfs mount entries.
 # If none, nfs conf.d file decides if it's needed.
 def need_gssd():
