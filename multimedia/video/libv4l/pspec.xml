@@ -16,7 +16,7 @@
         <!--
         <Archive sha1sum="6fc2c490fb14a109e25745cf2df226bbddda8b0c" type="targz">http://people.fedoraproject.org/~jwrdegoede/libv4l-0.6.4.tar.gz</Archive>
         -->
-        <Archive sha1sum="3038abd92670b66ec89a6deacdd338d1529525b4" type="tarbz2">http://linuxtv.org/downloads/v4l-utils/v4l-utils-0.8.3.tar.bz2</Archive>
+        <Archive sha1sum="4af47832cbe222b562e476f1fc1aea0d9ad98408" type="tarbz2">http://linuxtv.org/downloads/v4l-utils/v4l-utils-0.8.4.tar.bz2</Archive>
             <!--
         <Patches>
             <Patch level="1">bug11603.patch</Patch>
@@ -28,12 +28,14 @@
         -->
         <BuildDependencies>
             <Dependency>qt-devel</Dependency>
+            <Dependency>jpeg-devel</Dependency>
         </BuildDependencies>
     </Source>
 
     <Package>
         <Name>libv4l</Name>
         <Files>
+            <Path fileType="config">/lib/udev/rules.d</Path>
             <Path fileType="library">/usr/lib</Path>
             <Path fileType="doc">/usr/share/doc</Path>
         </Files>
@@ -44,12 +46,15 @@
         <RuntimeDependencies>
             <Dependency>libv4l</Dependency>
             <Dependency>qt</Dependency>
+            <Dependency>jpeg</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="config">/etc</Path>
             <Path fileType="executable">/usr/bin</Path>
             <Path fileType="executable">/usr/sbin</Path>
             <Path fileType="man">/usr/share/man</Path>
+            <Path fileType="data">/usr/share/applications</Path>
+            <Path fileType="data">/usr/share/icons</Path>
         </Files>
     </Package>
 
@@ -63,6 +68,7 @@
             <Path fileType="header">/usr/include</Path>
             <Path fileType="data">/usr/lib/pkgconfig</Path>
             <Path fileType="data">/usr/lib32/pkgconfig</Path>
+            <Path fileType="doc">/usr/share/doc/libv4l/contrib</Path>
         </Files>
     </Package>
 
@@ -73,6 +79,7 @@
         <BuildType>emul32</BuildType>
         <RuntimeDependencies>
             <Dependency release="current">libv4l</Dependency>
+            <Dependency>jpeg-32bit</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="library">/usr/lib32</Path>
@@ -80,6 +87,20 @@
     </Package>
 
     <History>
+        <Update release="33">
+            <Date>2011-06-13</Date>
+            <Version>0.8.4</Version>
+            <Comment>
+                Version bump
+                new parser for tcpdump / wireshark made usbmon dumps
+                Upadte upside/down list
+                Add support for M420, Y10B, JPGL pixelformat
+                Modified (rewrote) jpeg decompression code to use libjpeg[-turbo]
+                Many for fixes / enhancements
+            </Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
         <Update release="32">
             <Date>2011-03-01</Date>
             <Version>0.8.3</Version>
