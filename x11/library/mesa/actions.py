@@ -8,7 +8,7 @@ from pisi.actionsapi import pisitools
 from pisi.actionsapi import shelltools
 from pisi.actionsapi import get
 
-WorkDir = "Mesa-%s" % get.srcVERSION().replace("_", "-")
+#WorkDir = "Mesa-%s" % get.srcVERSION().replace("_", "-")
 
 def setup():
     shelltools.export("CFLAGS", "%s -DNDEBUG" % get.CFLAGS())
