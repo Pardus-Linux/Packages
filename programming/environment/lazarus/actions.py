@@ -28,6 +28,7 @@ def install():
     pisitools.insinto("/usr/lib", ".", "lazarus")
 
     pisitools.dosym("../lib/lazarus/lazarus", "/usr/bin/lazarus")
+    pisitools.dosym("../lib/lazarus/lazbuild", "/usr/bin/lazbuild")
     pisitools.dosym("../../lib/lazarus/images/ide_icon48x48.png", "/usr/share/pixmaps/lazarus.png")
 
     pisitools.dodoc("*.txt")
