@@ -11,6 +11,8 @@ from pisi.actionsapi import shelltools
 from pisi.actionsapi import get
 
 def setup():
+    shelltools.export("CFLAGS", get.CFLAGS().replace("-fomit-frame-pointer", ""))
+    shelltools.export("LDFLAGS", get.LDFLAGS())
 
     autotools.rawConfigure("-prefix /usr \
                             -bindir /usr/bin \
