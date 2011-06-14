@@ -126,7 +126,6 @@ Index: kdebase-workspace-4.6.3/kcontrol/randr/krandrmodule.cpp
  #include <QTextStream>
 +#include <QSizePolicy>
 +#include <QBrush>
-+#include <QFile>
  #include "legacyrandrscreen.h"
  #include "randrdisplay.h"
  #include "randrconfig.h"
@@ -146,6 +145,7 @@ Index: kdebase-workspace-4.6.3/kcontrol/randr/krandrmodule.cpp
 +#include <KIcon>
 +#include <KProcess>
 +#include <KMessageBox>
++#include <KStandardDirs>
 +#include <KColorScheme>
 +#include <kdesktopfileactions.h>
  #include <config-randr.h>
@@ -167,7 +167,7 @@ Index: kdebase-workspace-4.6.3/kcontrol/randr/krandrmodule.cpp
  		    new QLabel(i18n("Your X server does not support resizing and "
  		                    "rotating the display. Please update to version 4.3 "
  						"or greater. You need the X Resize, Rotate, and Reflect "
-@@ -59,6 +80,104 @@ KRandRModule::KRandRModule(QWidget *pare
+@@ -59,6 +80,108 @@ KRandRModule::KRandRModule(QWidget *pare
  	topLayout->setMargin(0);
  	topLayout->setSpacing(KDialog::spacingHint());
  
@@ -218,16 +218,20 @@ Index: kdebase-workspace-4.6.3/kcontrol/randr/krandrmodule.cpp
 +    bool ati = false;
 +
 +    // The user might remove these applications. Check for them too
-+    bool nvidia_file = QFile::exists("/usr/share/applications/nvidia-settings.desktop");
-+    bool ati_file = QFile::exists("/usr/share/applications/amdccclesu.desktop");
++    // bool nvidia_file = QFile::exists("/usr/share/applications/nvidia-settings.desktop");
++    // bool ati_file = QFile::exists("/usr/share/applications/amdccclesu.desktop");
 +
-+    if (vendorText.startsWith("NVIDIA") && nvidia_file){
++    // The user might remove these applications. Check for them too
++    bool nvidia_file = KStandardDirs::findExe("nvidia-settings").isNull();
++    bool ati_file = KStandardDirs::findExe("amdcccle").isNull();
++
++    if (vendorText.startsWith("NVIDIA") && !nvidia_file){
 +        nvidia = true;
 +        startButton->setText("Start Nvidia Settings");
 +        startButton->setIcon(KIcon("nvidia-settings"));
 +        showStartButton = true;
 +    }
-+    else if (vendorText.startsWith("ATI") && ati_file){
++    else if (vendorText.startsWith("ATI") && !ati_file){
 +        ati = true;
 +        startButton->setText("Start Ati Control Center");
 +        startButton->setIcon(KIcon("amdcccle"));
@@ -272,7 +276,7 @@ Index: kdebase-workspace-4.6.3/kcontrol/randr/krandrmodule.cpp
  #ifdef HAS_RANDR_1_2
  	if (RandR::has_1_2)
  	{
-@@ -74,18 +193,18 @@ KRandRModule::KRandRModule(QWidget *pare
+@@ -74,18 +197,18 @@ KRandRModule::KRandRModule(QWidget *pare
  		topLayout->addWidget(m_legacyConfig);
  	}
  
@@ -293,7 +297,7 @@ Index: kdebase-workspace-4.6.3/kcontrol/randr/krandrmodule.cpp
          if (!m_display->isValid()) {
                  return;
          }
-@@ -99,11 +218,10 @@ void KRandRModule::defaults()
+@@ -99,11 +222,10 @@ void KRandRModule::defaults()
  
  void KRandRModule::load()
  {
@@ -308,7 +312,7 @@ Index: kdebase-workspace-4.6.3/kcontrol/randr/krandrmodule.cpp
  #ifdef HAS_RANDR_1_2
  	if (RandR::has_1_2)
  		m_config->load();
-@@ -141,5 +259,19 @@ void KRandRModule::apply()
+@@ -141,5 +263,19 @@ void KRandRModule::apply()
  		m_legacyConfig->apply();
  }
  
