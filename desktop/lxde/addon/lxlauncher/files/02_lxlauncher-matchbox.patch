@@ -1,0 +1,16 @@
+Author: Enrico Zini <enrico@debian.org>
+Description: Do not segfault if a window manager returns no data for current desktop.
+--- a/src/working-area.c
++++ b/src/working-area.c
+@@ -94,7 +94,10 @@
+ 	if(!data)
+ 		return FALSE;
+ 
+-	current = *(guint32 *)data;
++	if (len == 0)
++		current = 0;
++	else
++		current = *(guint32 *)data;
+ 	XFree(data);
+ 
+ 	/* find the _NET_WORKAREA atom */

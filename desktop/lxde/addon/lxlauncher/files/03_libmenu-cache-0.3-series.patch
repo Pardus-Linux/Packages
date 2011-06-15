@@ -1,0 +1,50 @@
+Author: Andrew Lee (李健秋) <ajqlee@debian.org>
+Description: Make it works with libmenu-cache 0.3 series
+--- a/src/lxlauncher.c
++++ b/src/lxlauncher.c
+@@ -676,6 +676,28 @@
+     }
+ }
+ 
++static void on_menu_cache_reload(MenuCache* mc, gpointer user_data)
++{
++    GMainLoop* mainloop = (GMainLoop*)user_data;
++    g_main_loop_quit(mainloop);
++}
++
++MenuCache* _menu_cache_lookup_sync( const char* menu_name )
++{
++    MenuCache* mc = menu_cache_lookup(menu_name);
++    /* ensure that the menu cache is loaded */
++    if(! menu_cache_get_root_dir(mc)) /* if it's not yet loaded */
++    {
++        GMainLoop* mainloop = g_main_loop_new(NULL, FALSE);
++        gpointer notify_id = menu_cache_add_reload_notify(mc, on_menu_cache_reload, mainloop);
++        g_main_loop_run(mainloop);
++        g_main_loop_unref(mainloop);
++        menu_cache_remove_reload_notify(mc, notify_id);
++    }
++    return mc;
++}
++
++
+ int main(int argc, char** argv)
+ {
+     int i;
+@@ -756,9 +778,14 @@
+     gtk_container_add( (GtkContainer*)main_window, notebook );
+ 
+     g_setenv("XDG_MENU_PREFIX", "lxlauncher-", TRUE);
+-    menu_tree = menu_cache_lookup( "applications.menu" );
++    menu_tree = _menu_cache_lookup_sync( "applications.menu" );
++    if(!menu_tree)
++    {
++        g_print("Unable to load application menu\n");
++        return 1;
++    }
++    root_dir = menu_cache_item_ref(menu_cache_get_root_dir( menu_tree ));
+     reload_notify_id = menu_cache_add_reload_notify( menu_tree, on_menu_tree_changed, NULL );
+-    root_dir = menu_cache_ref(menu_cache_get_root_dir( menu_tree ));
+ 
+     create_notebook_pages();
+ 
