@@ -1,0 +1,19 @@
+--- a/src/lxinput.c
++++ b/src/lxinput.c
+@@ -138,9 +138,13 @@
+ 
+ static void load_settings()
+ {
+-    /* load settings form LXDE config files */
+-	file = g_build_filename( g_get_user_config_dir(), "lxde/config", NULL );
+-	gboolean ret = g_key_file_load_from_file( kf, file, 0, NULL );
++    gboolean ret;
++    const char* session_name = g_getenv("DESKTOP_SESSION");
++	/* load settings from current session config files */
++    if(!session_name)
++        session_name = "LXDE";
++	file = g_build_filename( g_get_user_config_dir(), "lxsession", session_name, "desktop.conf", NULL );
++	ret = g_key_file_load_from_file( kf, file, 0, NULL );
+ 
+     if( ret )
+     {
