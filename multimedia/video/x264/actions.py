@@ -1,7 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright 2005-2009 TUBITAK/UEKAE
 # Licensed under the GNU General Public License, version 2.
 # See the file http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
 
@@ -10,10 +9,10 @@ from pisi.actionsapi import pisitools
 from pisi.actionsapi import shelltools
 from pisi.actionsapi import get
 
-WorkDir="x264-snapshot-%s-2245" % get.srcVERSION().split("_")[1]
+WorkDir="x264-snapshot-%s-2245-stable" % get.srcVERSION().split("_")[1]
 verMAJOR = "0"
 verMINOR = "0"
-
+staticlibfile = "/usr/lib/libx264.a"
 
 def getMinorVersion():
     f = file("x264.h").read()
@@ -48,4 +47,6 @@ def install():
     #pisitools.dosym("libx264.so.%s.%s" % (verMAJOR, verMINOR), "/usr/lib/libx264.so.%s" % verMAJOR)
 
     # No static libs
-    pisitools.remove("/usr/lib/libx264.a")
+    if shelltools.isFile("%s/%s" % (get.installDIR(), staticlibfile)):
+        pisitools.remove(staticlibfile)
+
