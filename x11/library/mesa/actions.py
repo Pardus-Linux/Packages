@@ -68,8 +68,8 @@ def install():
     pisitools.rename("/usr/lib/xorg/modules/dri/swrastg_dri.so", "swrast_dri.so")
 
     # Don't install unused headers
-    for header in ("[a-fh-wyz]*.h", "glf*.h"):
-    #for header in ("[a-fh-wyz]*.h", "glf*.h", "*glut*.h"):
+    #for header in ("[a-fh-wyz]*.h", "glf*.h"):
+    for header in ("[a-fh-wyz]*.h", "glf*.h", "*glut*.h"):
         pisitools.remove("/usr/include/GL/%s" % header)
 
     # Moving libGL for dynamic switching
