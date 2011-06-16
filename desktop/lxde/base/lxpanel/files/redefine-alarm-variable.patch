@@ -1,0 +1,38 @@
+#http://dep.debian.net/deps/dep3/
+Description: A patch to rename alarm variable already defined in include header.
+
+Origin: Ubuntu
+Forwarded: https://sourceforge.net/tracker/?func=detail&aid=3007605&group_id=180858&atid=894871
+Author: Julien Lavergne <gilir@ubuntu.com>
+Last-Update: 2010-05-26
+
+--- lxpanel-0.5.5.orig/src/plugins/batt/batt.c
++++ lxpanel-0.5.5/src/plugins/batt/batt.c
+@@ -95,15 +95,15 @@ typedef struct {
+ typedef struct {
+     char *command;
+     sem_t *lock;
+-} alarm;
++} alarmStruct;
+ 
+ static void destructor(Plugin *p);
+ static void update_display(lx_battery *lx_b, gboolean repaint);
+ 
+-/* alarmProcess takes the address of a dynamically allocated alarm struct (which
++/* alarmProcess takes the address of a dynamically allocated alarmStruct struct (which
+    it must free). It ensures that alarm commands do not run concurrently. */
+ static void * alarmProcess(void *arg) {
+-    alarm *a = (alarm *) arg;
++    alarmStruct *a = (alarmStruct *) arg;
+ 
+     sem_wait(a->lock);
+     system(a->command);
+@@ -157,7 +157,7 @@ void update_display(lx_battery *lx_b, gb
+ 	/* Run the alarm command if it isn't already running */
+ 	if (alarmCanRun) {
+ 	    
+-	    alarm *a = (alarm *) malloc(sizeof(alarm));
++	    alarmStruct *a = (alarmStruct *) malloc(sizeof(alarmStruct));
+ 	    a->command = lx_b->alarmCommand;
+ 	    a->lock = &(lx_b->alarmProcessLock);
+ 	    
