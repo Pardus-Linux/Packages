@@ -10,7 +10,7 @@ from pisi.actionsapi import pisitools
 from pisi.actionsapi import get
 
 def setup():
-    autotools.configure("--disable-ldap \
+    autotools.configure("--enable-ldap \
                          --disable-static")
 
 def build():
