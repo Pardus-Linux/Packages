@@ -1,0 +1,35 @@
+diff -ur avidemux_2.5.4.orig/plugins/ADM_videoEncoder/ADM_vidEnc_x264/qt4/x264ConfigDialog.cpp avidemux_2.5.4/plugins/ADM_videoEncoder/ADM_vidEnc_x264/qt4/x264ConfigDialog.cpp
+--- avidemux_2.5.4.orig/plugins/ADM_videoEncoder/ADM_vidEnc_x264/qt4/x264ConfigDialog.cpp	2011-03-12 12:04:53.100131791 +0200
++++ avidemux_2.5.4/plugins/ADM_videoEncoder/ADM_vidEnc_x264/qt4/x264ConfigDialog.cpp	2011-03-12 12:02:58.063666919 +0200
+@@ -94,6 +94,13 @@
+ 	connect(ui.dct8x8CheckBox, SIGNAL(toggled(bool)), this, SLOT(dct8x8CheckBox_toggled(bool)));
+ 	connect(ui.p8x8CheckBox, SIGNAL(toggled(bool)), this, SLOT(p8x8CheckBox_toggled(bool)));
+ 
++#if X264_BUILD < 110
++	ui.weightedPPredictComboBox->clear();
++	ui.weightedPPredictComboBox->addItem(tr("Disabled"));
++	ui.weightedPPredictComboBox->addItem(tr("Blind Offset"));
++	ui.weightedPPredictComboBox->addItem(tr("Smart Analysis"));
++#endif
++
+ 	// Frame tab
+ 	connect(ui.loopFilterCheckBox, SIGNAL(toggled(bool)), this, SLOT(loopFilterCheckBox_toggled(bool)));
+ 
+diff -ur avidemux_2.5.4.orig/plugins/ADM_videoEncoder/ADM_vidEnc_x264/qt4/x264ConfigDialog.ui avidemux_2.5.4/plugins/ADM_videoEncoder/ADM_vidEnc_x264/qt4/x264ConfigDialog.ui
+--- avidemux_2.5.4.orig/plugins/ADM_videoEncoder/ADM_vidEnc_x264/qt4/x264ConfigDialog.ui	2011-03-12 12:04:53.100131791 +0200
++++ avidemux_2.5.4/plugins/ADM_videoEncoder/ADM_vidEnc_x264/qt4/x264ConfigDialog.ui	2011-03-12 12:02:58.063666919 +0200
+@@ -1131,12 +1131,12 @@
+                 </item>
+                 <item>
+                  <property name="text">
+-                  <string>Blind Offset</string>
++                  <string>Weighted References</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+-                  <string>Smart Analysis</string>
++                  <string>Weighted References + Duplicates</string>
+                  </property>
+                 </item>
+                </widget>
