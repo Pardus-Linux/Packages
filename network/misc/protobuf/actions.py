@@ -27,7 +27,7 @@ def install():
     pythonmodules.install()
     shelltools.cd("..")
 
-    pisitools.insinto("/usr/share/vim/vim72/syntax/", "editors/proto.vim")
+    pisitools.insinto("/usr/share/vim/vimfiles/syntax/", "editors/proto.vim")
     pisitools.insinto("/usr/share/emacs/site-lisp/", "editors/protobuf-mode.el")
 
     pisitools.dodoc("CHANGES.txt", "CONTRIBUTORS.txt", "COPYING.txt", "README.txt")
