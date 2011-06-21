@@ -5,7 +5,6 @@
 # Licensed under the GNU General Public License, version 2.
 # See the file http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
 
-import os
 from pisi.actionsapi import cmaketools
 from pisi.actionsapi import pisitools
 from pisi.actionsapi import shelltools
@@ -20,8 +19,8 @@ def build():
     cmaketools.make()
 
 def install():
-    pisitools.insinto('/usr/bin', 'synergyc')
-    pisitools.insinto('/usr/bin', 'synergys')
+    pisitools.dobin('synergyc')
+    pisitools.dobin('synergys')
 
     shelltools.chmod('%s/conf/synergy.conf' % get.curDIR(), 0644)
     pisitools.insinto('/etc','conf/synergy.conf')
