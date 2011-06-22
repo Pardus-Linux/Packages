@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright 2010 TUBITAK/UEKAE
+# Copyright 2011 TUBITAK/BILGEM
 # Licensed under the GNU General Public License, version 2.
 # See the file http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
 
@@ -17,12 +17,6 @@ shelltools.export("HOME", get.workDIR())
 ARCH = "x64" if get.ARCH() == "x86_64" else "ia32"
 
 def setup():
-    # Remove included libvpx libraries expcept the header itself. The header is including
-    # system wide headers. The inclduded libraries causes compile problems.
-    shelltools.system("find third_party/libvpx/ -type f \
-                        \! -iname '*.gyp*' \
-                        \! -path 'third_party/libvpx/libvpx.h' -delete")
-
     #TODO use_system_ssl is disabled -->  https://bugzilla.mozilla.org/show_bug.cgi?id=547312
     #TODO use_system_hunspell has build problems, upstream changes needed
     #TODO use_system_sqlite has build problems, upstream changes needed
@@ -47,7 +41,6 @@ def setup():
                         -Duse_system_vpx=1 \
                         -Duse_system_xdg_utils=1 \
                         -Duse_system_yasm=1 \
-                        -Duse_system_icu=1 \
                         -Duse_system_ssl=0 \
                         -Ddisable_sse2=1 \
                         -Dtarget_arch=%s" % ARCH)
