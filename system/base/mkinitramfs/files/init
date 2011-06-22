@@ -21,6 +21,7 @@ RAID=0
 LVM=0
 COPYTORAM=0
 SPLASH=0
+WIPEMEM=0
 
 HOTPLUG="/sbin/hotplug"
 
@@ -31,6 +32,7 @@ ROOT_FLAGS=""
 ROOT_DEVICE=""
 ROOT_TARGET=""
 RESUME_DEVICE=""
+WIPEMEM_OPTS="-llv"
 
 ###########################
 # Miscellaneous functions #
@@ -235,6 +237,11 @@ mount_nfs() {
         ln -s "${FS_LOCATION}/${x}" "${x}"
     done
 
+    if [ -e "${FS_LOCATION}/lib32" ]
+    then
+        ln -s "${FS_LOCATION}/lib32" "lib32"
+    fi
+
     # We need this for x86_64
     ln -s "${FS_LOCATION}/lib" "lib64"
 
@@ -266,6 +273,11 @@ mount_cdroot() {
     for x in ${ROOT_LINKS}; do
         ln -s "${FS_LOCATION}/${x}" "${x}"
     done
+
+    if [ -e "${FS_LOCATION}/lib32" ]
+    then
+        ln -s "${FS_LOCATION}/lib32" "lib32"
+    fi
 
     # We need this for x86_64
     ln -s "${FS_LOCATION}/lib" "lib64"
@@ -325,6 +337,13 @@ parse_config() {
             ;;
             copytoram)
                 COPYTORAM=1
+            ;;
+            wipemem)
+                WIPEMEM=1
+            ;;
+            wipememopts=*)
+                WIPEMEM=1
+                WIPEMEM_OPTS=$(echo $inputline|cut -f2- -d=)
             ;;
             splash)
                 SPLASH=1
@@ -388,6 +407,13 @@ parse_cmdline() {
             ;;
             copytoram)
                 COPYTORAM=1
+            ;;
+            wipemem)
+                WIPEMEM=1
+            ;;
+            wipememopts=*)
+                WIPEMEM=1
+                WIPEMEM_OPTS=$(echo $x|cut -f2- -d=)
             ;;
             splash)
                 SPLASH=1
@@ -455,6 +481,13 @@ elif [ "${INITRAMFS}" == "shell" ]
 then
     probe_devices --with-kms
     fall2sh "Starting up a shell"
+fi
+
+if [ "${WIPEMEM}" = "1" ]
+then
+    info "Wiping out memory, system will be shutdown after completion"
+    sdmem ${WIPEMEM_OPTS}
+    poweroff -f
 fi
 
 # Probe devices
