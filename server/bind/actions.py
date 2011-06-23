@@ -1,16 +1,17 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
+# Copyright 2007-2010 TUBITAK/UEKAE
 # Licensed under the GNU General Public License, version 2.
 # See the file http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
 
-from pisi.actionsapi import shelltools
 from pisi.actionsapi import autotools
-from pisi.actionsapi import pisitools
 from pisi.actionsapi import libtools
+from pisi.actionsapi import pisitools
+from pisi.actionsapi import shelltools
 from pisi.actionsapi import get
 
-WorkDir = "%s-%s" % (get.srcNAME(), get.srcVERSION().replace("_", "-").upper())
+WorkDir="%s-%s" % (get.srcNAME(), get.srcVERSION().replace("_", "-").upper())
 
 BINDDIR="/var/named"
 CHROOT="%s/chroot" % BINDDIR
@@ -72,8 +73,8 @@ def install():
                       ("%s/sec" % BINDDIR, "/etc/bind/sec")]:
         pisitools.dosym(src, dest)
 
-    pisitools.dohtml("doc/arm/*")
-
+    # Documentation
     pisitools.dodoc("CHANGES", "COPYRIGHT", "FAQ", "README")
     pisitools.dodoc("doc/misc/*", "doc/draft/*", "doc/rfc/*", "contrib/named-bootconf/named-bootconf.sh", "contrib/nanny/nanny.pl")
+    pisitools.dohtml("doc/arm/*")
     pisitools.remove("/usr/share/doc/%s/Makefile*" % get.srcNAME())

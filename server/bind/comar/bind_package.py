@@ -5,7 +5,14 @@ import os
 UID = "named"
 GID = "named"
 
-directories = ("/var/named", "/var/run/named")
+directories = ("/var/named", \
+               "/var/named/data", \
+               "/var/named/dynamic", \
+               "/var/named/pri", \
+               "/var/named/sec", \
+               "/var/named/slaves", \
+               "/var/named/named.ca", \
+               "/var/run/named")
 
 def postInstall(fromVersion, fromRelease, toVersion, toRelease):
     if not os.path.exists("/etc/bind/rndc.key"):
