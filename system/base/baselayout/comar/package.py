@@ -210,7 +210,7 @@ def postInstall(fromVersion, fromRelease, toVersion, toRelease):
                 (22,  "sshd", "Privilege-separated SSH", "/var/empty/sshd", "/sbin/nologin", "", ["sshd"], [], []),
                 (30,  "squid", "Squid", "/var/cache/squid", "/bin/false", "", ["squid"], [], []),
                 (32,  "rpc", "Rpcbind daemon", "/var/lib/rpcbind", "/sbin/nologin", "", ["rpc"], [], []),
-                (40,  "named", "Bind", "/var/bind", "/bin/false", "", ["named"], [], []),
+                (40,  "named", "Bind", "/var/named", "/bin/false", "", ["named"], [], []),
                 (60,  "mysql", "MySQL", "/var/lib/mysql", "/bin/false", "", ["mysql"], [], []),
                 (70,  "postgres", "PostgreSQL", "/var/lib/postgresql", "/bin/false", "", ["postgres"], [], []),
                 (80,  "apache", "Apache", "/dev/null", "/bin/false", "", ["apache", "svn"], [], []),
