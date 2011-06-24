@@ -89,6 +89,6 @@ def install():
     # HAL is no longer supported by default
     pisitools.removeDir("/etc/dbus-1")
 
-    pisitools.dodoc("README", "LICENSE", "GPL", "LGPL", "todo", "ChangeLog")
+    pisitools.dodoc("README", "LICENSE", "GPL", "LGPL")
     pisitools.dohtml("doxygen/html/*")
 
