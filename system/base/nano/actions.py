@@ -6,9 +6,10 @@ from pisi.actionsapi import pisitools
 from pisi.actionsapi import get
 
 def setup():
-    autotools.configure("--enable-color \
-                         --enable-nanorc \
+    autotools.autoreconf("-fvi")
+    autotools.configure("--disable-rpath \
                          --enable-utf8 \
+                         --enable-altrcname \
                          --disable-speller")
 
 def build():
@@ -17,8 +18,7 @@ def build():
 def install():
     autotools.rawInstall("DESTDIR=%s" % get.installDIR())
 
-    # a usable nano configuration is added to package/
-    # pisitools.insinto("/etc/", "doc/nanorc.sample", "nanorc")
+    pisitools.insinto("/etc/", "doc/nanorc.sample", "nanorc")
     pisitools.dosym("/usr/bin/nano", "/bin/nano")
 
     pisitools.dohtml("doc/*.html")

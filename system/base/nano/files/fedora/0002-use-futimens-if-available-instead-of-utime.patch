@@ -1,4 +1,4 @@
-From e014ef2cf988a232a702292c82cd577719d08d8c Mon Sep 17 00:00:00 2001
+From 23510b930ea31f7de8005e2f0ff6cab7062b4e26 Mon Sep 17 00:00:00 2001
 From: Kamil Dudka <kdudka@redhat.com>
 Date: Thu, 19 Aug 2010 15:23:06 +0200
 Subject: [PATCH 2/2] use futimens() if available, instead of utime()
@@ -7,11 +7,11 @@ Subject: [PATCH 2/2] use futimens() if available, instead of utime()
  config.h.in  |    3 +++
  configure    |    2 +-
  configure.ac |    2 +-
- src/files.c  |   46 +++++++++++++++++++++++++++++++++++-----------
- 4 files changed, 40 insertions(+), 13 deletions(-)
+ src/files.c  |   48 +++++++++++++++++++++++++++++++++++-------------
+ 4 files changed, 40 insertions(+), 15 deletions(-)
 
 diff --git a/config.h.in b/config.h.in
-index 8fbe824..fb0e65d 100644
+index 52e13f1..cb17b29 100644
 --- a/config.h.in
 +++ b/config.h.in
 @@ -64,6 +64,9 @@
@@ -25,7 +25,7 @@ index 8fbe824..fb0e65d 100644
  #undef HAVE_GETDELIM
  
 diff --git a/configure b/configure
-index 238dbf9..f1ef55b 100755
+index 02733c7..1805e53 100755
 --- a/configure
 +++ b/configure
 @@ -7484,7 +7484,7 @@ fi
@@ -38,7 +38,7 @@ index 238dbf9..f1ef55b 100755
    as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
  ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
 diff --git a/configure.ac b/configure.ac
-index 6388c03..255ec5d 100644
+index 66f8ee3..f4975d3 100644
 --- a/configure.ac
 +++ b/configure.ac
 @@ -415,7 +415,7 @@ fi])
@@ -51,10 +51,10 @@ index 6388c03..255ec5d 100644
  if test x$enable_utf8 != xno; then
      AC_CHECK_FUNCS(iswalnum iswblank iswpunct iswspace nl_langinfo mblen mbstowcs mbtowc wctomb wcwidth)
 diff --git a/src/files.c b/src/files.c
-index 656a684..889c4a8 100644
+index 99cc1b8..9a1bdcc 100644
 --- a/src/files.c
 +++ b/src/files.c
-@@ -1434,6 +1434,29 @@ int copy_file(FILE *inn, FILE *out)
+@@ -1455,6 +1455,29 @@ int copy_file(FILE *inn, FILE *out)
      return retval;
  }
  
@@ -84,7 +84,7 @@ index 656a684..889c4a8 100644
  /* Write a file out to disk.  If f_open isn't NULL, we assume that it is
   * a stream associated with the file, and we don't try to open it
   * ourselves.  If tmp is TRUE, we set the umask to disallow anyone else
-@@ -1666,6 +1689,18 @@ bool write_file(const char *name, FILE *f_open, bool tmp, append_type
+@@ -1694,6 +1717,18 @@ bool write_file(const char *name, FILE *f_open, bool tmp, append_type
  	fprintf(stderr, "Backing up %s to %s\n", realname, backupname);
  #endif
  
@@ -103,12 +103,14 @@ index 656a684..889c4a8 100644
  	/* Copy the file. */
  	copy_status = copy_file(f, backup_file);
  
-@@ -1676,17 +1711,6 @@ bool write_file(const char *name, FILE *f_open, bool tmp, append_type
+@@ -1704,19 +1739,6 @@ bool write_file(const char *name, FILE *f_open, bool tmp, append_type
  	    goto cleanup_and_exit;
  	}
  
 -	/* And set its metadata. */
 -	if (utime(backupname, &filetime) == -1 && !ISSET(INSECURE_BACKUP)) {
+-	    if (prompt_failed_backupwrite(backupname))
+-		goto skip_backup;
 -	    statusbar(_("Error writing backup file %s: %s"), backupname,
 -			strerror(errno));
 -	    /* If we can't write to the backup, DONT go on, since
@@ -122,5 +124,5 @@ index 656a684..889c4a8 100644
      }
  
 -- 
-1.7.3.2
+1.7.4
 
