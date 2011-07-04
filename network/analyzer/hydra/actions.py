@@ -1,7 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright 2010 TUBITAK/UEKAE
 # Licensed under the GNU General Public License, version 2.
 # See the file http://www.gnu.org/copyleft/gpl.txt.
 
@@ -24,8 +23,8 @@ def setup():
     pisitools.dosed("Makefile.am", "-O2", get.CFLAGS())
     autotools.configure("--disable-xhydra")
 
-    for i in moduleconfig:
-        pisitools.dosed("Makefile", "^%s=.*" % i, "%s=%s" % (i, moduleconfig[i]))
+#    for i in moduleconfig:
+#        pisitools.dosed("Makefile", "^%s=.*" % i, "%s=%s" % (i, moduleconfig[i]))
 
 def build():
     autotools.make()
@@ -34,4 +33,4 @@ def install():
     for i in ["hydra", "pw-inspector"]:
         pisitools.dobin(i)
 
-    pisitools.dodoc("CHANGES", "LICENSE*", "README*", "TODO")
+    pisitools.dodoc("CHANGES", "LICENSE*", "README*")
