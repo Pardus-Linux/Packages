@@ -8,18 +8,21 @@
 # Licensed under the GNU General Public License, version 2
 #
 
+HOME_DIR=$HOME/.eclipse/org.eclipse.platform_3.7.0_1473617060
+REPO_DIR=p2/org.eclipse.equinox.p2.engine/profileRegistry/PlatformProfile.profile/.data/.settings
+
 if [ -f $HOME/.eclipserc ] ; then
-	. $HOME/.eclipserc
+    . $HOME/.eclipserc
 fi
 
 if [ -z "${ECLIPSE_HOME}" ] ; then
-	ECLIPSE_HOME=/opt/eclipse
-	ECLIPSE_BIN=${ECLIPSE_HOME}/eclipse
+    ECLIPSE_HOME=/opt/eclipse
+    ECLIPSE_BIN=${ECLIPSE_HOME}/eclipse
 fi
 
 if [ ! -x ${ECLIPSE_BIN} ] ; then
-	echo "Failed to find executable '${ECLIPSE_BIN}'" > /dev/stderr
-	exit -1
+    echo "Failed to find executable '${ECLIPSE_BIN}'" > /dev/stderr
+    exit -1
 fi
 
 # Remove the exporting of this env. because it prevents eclipse starting up gracefully
@@ -27,4 +30,13 @@ fi
 # Fix upstream  buttons not being clickable bug reportes as  #290395, #291257
 # export GDK_NATIVE_WINDOWS=true
 
-${ECLIPSE_BIN} $@
+#------------------Bug 16052------------------
+# Creating user specific files under home dir without starting Eclipse
+if [ ! -d $HOME_DIR ]; then
+    ${ECLIPSE_BIN} -initialize
+    # Replacing repo files with those including information for the default update sites
+    \cp ${ECLIPSE_HOME}/${REPO_DIR}/* $HOME_DIR/${REPO_DIR}
+fi
+#---------------------------------------------
+
+${ECLIPSE_BIN} $@ &
