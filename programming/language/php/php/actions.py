@@ -80,7 +80,9 @@ def setup():
                       --with-pic \
                       --with-gnu-ld \
                       --with-system-tzdata=/usr/share/zoneinfo \
-                      --with-mcrypt=/usr/bin/mcrypt"
+                      --with-mcrypt=/usr/bin/mcrypt \
+                      --with-imap=shared \
+                      --with-imap-ssl"
 
     # Enable FastCGI, needs Apache disabled
     shelltools.cd("fcgi")
@@ -137,3 +139,7 @@ def install():
 
     # Operations for php-zip package
     pisitools.dosym("/etc/php/ext/10-php-zip.ini", "/etc/php/cli/ext/10-php-zip.ini")
+
+    # Operations for php-imap package
+    pisitools.dosym("/etc/php/ext/11-php-imap.ini", "/etc/php/cli/ext/11-php-imap.ini")
+    pisitools.dosym("/etc/php/ext/11-php-imap.ini", "/etc/php/apache2/ext/11-php-imap.ini")
