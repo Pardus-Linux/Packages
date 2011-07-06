@@ -1,0 +1,15 @@
+# Upstream (http://lxde.git.sourceforge.net/git/gitweb.cgi?p=lxde/lxde-common;a=commit;h=847a8e73e658bb9ced5eb7b12242b0064224f49e
+--- a/startlxde.in
++++ b/startlxde.in
+@@ -20,6 +20,11 @@
+     cp @prefix@/share/lxde/openbox/rc.xml "$OPENBOX_CONF_DIR/lxde-rc.xml"
+ fi
+ 
++# Launch DBus if needed
++if which dbus-launch >/dev/null && test -z "$DBUS_SESSION_BUS_ADDRESS"; then
++       eval "$(dbus-launch --sh-syntax --exit-with-session)"
++fi
++
+ # Clean up after GDM (GDM sets the number of desktops to one)
+ xprop -root -remove _NET_NUMBER_OF_DESKTOPS -remove _NET_DESKTOP_NAMES -remove _NET_CURRENT_DESKTOP 2> /dev/null
+ 

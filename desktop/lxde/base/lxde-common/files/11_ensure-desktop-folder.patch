@@ -1,0 +1,18 @@
+#Upstream: http://lxde.git.sourceforge.net/git/gitweb.cgi?p=lxde/lxde-common;a=commit;h=28309e598478254fa9c918782cf089aea6358abb
+--- a/startlxde.in
++++ b/startlxde.in
+@@ -25,6 +25,14 @@
+        eval "$(dbus-launch --sh-syntax --exit-with-session)"
+ fi
+ 
++# Ensure the existance of the 'Desktop' folder
++if [ -e "$XDG_CONFIG_HOME/user-dirs.dirs" ]; then
++       . "$XDG_CONFIG_HOME/user-dirs.dirs"
++else
++       XDG_DESKTOP_DIR="$HOME/Desktop"
++fi
++mkdir -p "$XDG_DESKTOP_DIR"
++
+ # Clean up after GDM (GDM sets the number of desktops to one)
+ xprop -root -remove _NET_NUMBER_OF_DESKTOPS -remove _NET_DESKTOP_NAMES -remove _NET_CURRENT_DESKTOP 2> /dev/null
+ 
