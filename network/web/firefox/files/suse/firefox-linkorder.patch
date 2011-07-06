@@ -1,0 +1,30 @@
+From: Wolfgang Rosenauer
+Subject: Build fails with --as-needed
+References:
+
+diff --git a/browser/components/build/Makefile.in b/browser/components/build/Makefile.in
+--- a/browser/components/build/Makefile.in
++++ b/browser/components/build/Makefile.in
+@@ -61,19 +61,21 @@ LOCAL_INCLUDES += -I$(srcdir)/../migrati
+ SHARED_LIBRARY_LIBS += ../migration/src/$(LIB_PREFIX)migration_s.$(LIB_SUFFIX)
+ EXTRA_DSO_LDOPTS += $(LIBXUL_DIST)/lib/$(LIB_PREFIX)mozreg_s.$(LIB_SUFFIX)
+ endif
+ 
+ # This has to come after the above chunk, because mozreg_s has dependencies on
+ # stuff in MOZ_COMPONENT_LIBS.
+ EXTRA_DSO_LDOPTS += \
+ 	$(LIBXUL_DIST)/lib/$(LIB_PREFIX)xpcomglue_s.$(LIB_SUFFIX) \
+-	$(MOZ_COMPONENT_LIBS) \
+ 	$(NULL)
+ 
++# if built with --as-needed the NSPR libs need to be linked after mozreg_s
++EXTRA_DSO_LDOPTS += $(MOZ_COMPONENT_LIBS)
++
+ # Mac: Need to link with CoreFoundation for Mac Migrators (PList reading code)
+ # GTK2: Need to link with glib for GNOME shell service
+ ifneq (,$(filter cocoa gtk2,$(MOZ_WIDGET_TOOLKIT)))
+ EXTRA_DSO_LDOPTS += \
+   $(TK_LIBS) \
+   $(NULL)
+ endif
+ 

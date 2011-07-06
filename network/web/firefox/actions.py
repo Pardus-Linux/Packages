@@ -26,7 +26,7 @@ def setup():
     shelltools.cd("objdir")
 
     #this dummy configure is needed to build locales.
-    #shelltools.system("../configure --prefix=/usr --libdir=/usr/lib --disable-strip --disable-install-strip")
+    shelltools.system("../configure --prefix=/usr --libdir=/usr/lib --disable-strip --disable-install-strip")
 
     #now we have Makefiles needed to build locales (like toolkit/Makefile)
     #since we need debug symbols in dbginfo packages, we shouldn't strip binaries
