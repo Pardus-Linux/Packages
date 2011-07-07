@@ -48,6 +48,9 @@ def install():
     for locale in locales:
         pisitools.copytree("dist/xpi-stage/locale-%s" % locale, "%s/usr/lib/MozillaFirefox/extensions/langpack-%s@firefox.mozilla.org" % (get.installDIR(), locale))
 
+    shelltools.touch("%s%s/dictionaries/tr-TR.aff" % (get.installDIR(), "/usr/lib/MozillaFirefox"))
+    shelltools.touch("%s%s/dictionaries/tr-TR.dic" % (get.installDIR(), "/usr/lib/MozillaFirefox"))
+
     # Remove these
     #pisitools.remove("/usr/lib/MozillaFirefox/defaults/profile/mimeTypes.rdf")
     #pisitools.remove("/usr/lib/MozillaFirefox/defaults/profile/bookmarks.html")
