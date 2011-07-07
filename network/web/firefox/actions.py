@@ -10,9 +10,10 @@ from pisi.actionsapi import pisitools
 from pisi.actionsapi import shelltools
 from pisi.actionsapi import get
 
+import os
+
 WorkDir = "mozilla"
 
-#locales = ["be", "ca", "de", "es-AR", "es-ES", "fr", "hu", "it", "nl", "pl", "pt-BR", "ru", "sv-SE", "tr"]
 locales = ["be", "ca", "de", "es-AR", "es-ES", "fr", "hu", "it", "nl", "pl", "ru", "sv-SE", "tr"]
 
 def setup():
@@ -25,12 +26,7 @@ def setup():
     shelltools.makedirs("objdir")
     shelltools.cd("objdir")
 
-    #this dummy configure is needed to build locales.
     shelltools.system("../configure --prefix=/usr --libdir=/usr/lib --disable-strip --disable-install-strip")
-
-    #now we have Makefiles needed to build locales (like toolkit/Makefile)
-    #since we need debug symbols in dbginfo packages, we shouldn't strip binaries
-    shelltools.system("../configure --prefix=/usr --libdir=/usr/lib --with-libxul-sdk=/usr/lib/xulrunner-devel-2.0 --enable-chrome-format=jar --disable-strip --disable-install-strip")
 
 def build():
     shelltools.cd("objdir")
@@ -43,11 +39,10 @@ def build():
 def install():
     shelltools.cd("objdir")
     autotools.rawInstall("DESTDIR=%s" % get.installDIR())
-    #pisitools.domove("/usr/lib/%s-%s" % (get.srcNAME(), get.srcVERSION()), "/usr/lib", "MozillaFirefox")
-    olddir = shelltools.ls("%s/usr/lib/firefox*" % get.installDIR())[0].replace(get.installDIR(), "")
-    pisitools.domove(olddir, "/usr/lib", "MozillaFirefox")
+    realdir = shelltools.ls("%s/usr/lib/firefox*" % get.installDIR())[0].replace(get.installDIR(), "")
+    pisitools.dosym(os.path.basename(realdir), "/usr/lib/MozillaFirefox")
 
-    pisitools.remove("/usr/bin/firefox")
+    pisitools.remove("/usr/bin/firefox") # Additional file will replace that
 
     #install locales
     for locale in locales:
@@ -55,7 +50,7 @@ def install():
 
     # Remove these
     #pisitools.remove("/usr/lib/MozillaFirefox/defaults/profile/mimeTypes.rdf")
-    pisitools.remove("/usr/lib/MozillaFirefox/defaults/profile/bookmarks.html")
+    #pisitools.remove("/usr/lib/MozillaFirefox/defaults/profile/bookmarks.html")
     #pisitools.remove("/usr/lib/MozillaFirefox/.autoreg")
 
     shelltools.cd("..")

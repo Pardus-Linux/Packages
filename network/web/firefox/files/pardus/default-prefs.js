@@ -28,6 +28,7 @@ pref("general.useragent.vendorSub", "2011");
 pref("middlemouse.contentLoadURL", false);
 pref("spellchecker.dictionary", "tr-TR");
 pref("startup.homepage_override_url", "resource:/browserconfig.properties");
+pref("intl.locale.matchOS", true);
 
 pref("font.default.null", "sans-serif");
 pref("font.default.tr", "sans-serif");

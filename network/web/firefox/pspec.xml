@@ -20,7 +20,6 @@
             <AdditionalFile target="browser/app/profile/kde.js" permission="0644">suse/kde.js</AdditionalFile>
         </AdditionalFiles>
         <BuildDependencies>
-            <Dependency versionFrom="2.0.1">xulrunner-devel</Dependency>
             <Dependency>nspr-devel</Dependency>
             <Dependency>fontconfig-devel</Dependency>
             <Dependency versionFrom="2.18.5">gtk2-devel</Dependency>
@@ -62,13 +61,13 @@
             <Patch level="1">pardus/autoconf-213-hack.diff</Patch>
 
             <Patch level="1">pardus/workaround-dbus-glib-build-error.diff</Patch>
+            <Patch>pardus/zemberek-firefox4.patch</Patch>
         </Patches>
     </Source>
 
     <Package>
         <Name>firefox</Name>
         <RuntimeDependencies>
-            <Dependency versionFrom="2.0.1">xulrunner</Dependency>
             <Dependency>nspr</Dependency>
             <Dependency>fontconfig</Dependency>
             <Dependency versionFrom="2.18.5">gtk2</Dependency>
@@ -84,6 +83,7 @@
             <Path fileType="config">/etc/</Path>
             <Path fileType="executable">/usr/bin</Path>
             <Path fileType="executable">/usr/lib/MozillaFirefox</Path>
+            <Path fileType="executable">/usr/lib/firefox-?.?</Path>
             <Path fileType="executable">/usr/libexec</Path>
             <Path fileType="data">/usr/lib/pkgconfig</Path>
             <Path fileType="data">/usr/share/applications</Path>
@@ -134,6 +134,19 @@
         <Provides>
             <COMAR script='package.py'>System.Package</COMAR>
         </Provides>
+    </Package>
+
+    <Package>
+        <Name>firefox-devel</Name>
+        <Summary>Development files for Firefox</Summary>
+        <RuntimeDependencies>
+            <Dependency releaseFrom="current">firefox</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="header">/usr/include</Path>
+            <Path fileType="data">/usr/share/idl</Path>
+            <Path fileType="executable">/usr/lib/firefox-devel*</Path>
+        </Files>
     </Package>
 
     <History>
