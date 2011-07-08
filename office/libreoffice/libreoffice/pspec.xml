@@ -13,7 +13,7 @@
         <IsA>app:gui</IsA>
         <Summary>LibreOffice office suite</Summary>
         <Description>LibreOffice is an open source, multi-platform office productivity suite. It includes key desktop applications such as a word processor, a spreadsheet application, a presentation creator-viewer, a formula editor and a drawing program, with a user interface and feature set similar to other office suites. Sophisticated and flexible, LibreOffice also works transparently with a variety of file formats, including those of Microsoft Office.</Description>
-        <Archive sha1sum="57299eb8ef76afc56ee93761594db081915a0a53" type="tarlzma">http://cekirdek.pardus.org.tr/~gokcen/files/oo/libreoffice-build-3.3.2.2.tar.lzma</Archive>
+        <Archive sha1sum="9695bde361c24b249a030b9c8f8fcb94c4243c88" type="tarbz2">http://cekirdek.pardus.org.tr/~gokcen/files/oo/libreoffice-bootstrap-3.4.1.3.tar.bz2</Archive>
         <AdditionalFiles>
             <AdditionalFile target="src/openabout_pardus.png" permission="0644">splashes/openabout_pardus.png</AdditionalFile>
             <AdditionalFile target="src/openintro_pardus.png" permission="0644">splashes/openintro_pardus.png</AdditionalFile>
@@ -85,27 +85,9 @@
             <Dependency>raptor-devel</Dependency>
         </BuildDependencies>
         <Patches>
-            <Patch>disable-clipart.patch</Patch>
-            <Patch>pardus-xdg-email-mailer.diff</Patch>
-            <Patch level="1">pardus2009-conf.diff</Patch>
-            <Patch>fix-kde4-includedir.diff</Patch>
-
-            <!-- Update wrong auto corrections for Turkish bug#5812
-            <Patch>updated-turkish-autocorrections.diff</Patch>
-            <Patch>pardus-use-small-galaxy-icons.diff</Patch>
-            -->
-
-            <!-- Upstream patch for xulrunner-1.9.1 -->
-            <Patch>xulrunner-1.9.1.diff</Patch>
-
-            <Patch>fix-jpeg-lib64-dir.diff</Patch>
-
-            <Patch>fix-mono-jit-not-found.diff</Patch>
-
-            <!-- http://www.mail-archive.com/libreoffice@lists.freedesktop.org/msg00112.html -->
-            <Patch>fix-undefined-reference-in-sw-module.diff</Patch>
-
-            <Patch>fix-db-check-for-pardus.diff</Patch>
+            <Patch level="1">pardus-default-ExternalMailer.diff</Patch>
+            <Patch level="1">fix-kde4-includedir.diff</Patch>
+            <Patch level="1">fix-db-check-for-pardus.diff</Patch>
         </Patches>
     </Source>
 
@@ -171,8 +153,8 @@
             <Path fileType="config">/etc</Path>
             <Path fileType="executable">/opt/LibreOffice/bin</Path>
             <Path fileType="data">/opt/LibreOffice/share</Path>
-            <Path fileType="library">/opt/LibreOffice/lib/ooo-*</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/gallery</Path>
+            <Path fileType="library">/opt/LibreOffice/lib</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/gallery</Path>
             <Path fileType="man">/opt/LibreOffice/man</Path>
             <Path fileType="man">/opt/LibreOffice/share/man</Path>
             <Path fileType="executable">/opt/LibreOffice/sbin</Path>
@@ -206,7 +188,7 @@
     <Package>
         <Name>libreoffice-clipart</Name>
         <RuntimeDependencies>
-            <Dependency versionFrom="3.3.2.2">libreoffice</Dependency>
+            <Dependency versionFrom="3.4.1.3">libreoffice</Dependency>
             <Dependency releaseFrom="2">openclipart</Dependency>
         </RuntimeDependencies>
         <Replaces>
@@ -214,7 +196,7 @@
         </Replaces>
         <Files>
             <!-- Galleries with number >= 70 are generated from openclipart images -->
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/gallery/sg[7-9][0-9].???</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/gallery/sg[7-9][0-9].???</Path>
         </Files>
     </Package>
 
@@ -223,7 +205,7 @@
         <Summary>KDE support for LibreOffice</Summary>
         <Description>libreoffice-kde provides context menu options for "Create New" entry of Dolphin.</Description>
         <RuntimeDependencies>
-            <Dependency versionFrom="3.3.2.2">libreoffice</Dependency>
+            <Dependency versionFrom="3.4.1.3">libreoffice</Dependency>
             <Dependency>kdelibs</Dependency>
         </RuntimeDependencies>
         <Conflicts>
@@ -237,7 +219,7 @@
         <Files>
             <Path fileType="data">/usr/share/templates</Path>
             <!-- Add kde plugins to that package -->
-            <Path fileType="library">/opt/LibreOffice/lib/ooo-*/basis?.?/program/*kde*</Path>
+            <Path fileType="library">/opt/LibreOffice/lib/libreoffice/basis?.?/program/*kde*</Path>
             <Path fileType="data">/usr/share/mimelnk</Path>
         </Files>
         <AdditionalFiles>
@@ -270,7 +252,7 @@
         <Summary>Python support for LibreOffice</Summary>
         <Description>libreoffice-python is Python binding for the LibreOffice UNO component model. Allows scripts both external to LibreOffice and within the internal LibreOffice scripting module to be written in python.</Description>
         <RuntimeDependencies>
-            <Dependency versionFrom="3.3.2.2">libreoffice</Dependency>
+            <Dependency versionFrom="3.4.1.3">libreoffice</Dependency>
         </RuntimeDependencies>
         <Replaces>
             <Package>openoffice3-python</Package>
@@ -278,15 +260,15 @@
         </Replaces>
         <Files>
             <Path fileType="library">/usr/lib/python*/site-packages</Path>
-            <Path fileType="library">/opt/LibreOffice/lib/ooo-*/basis?.?/program/libpyuno.so</Path>
-            <Path fileType="library">/opt/LibreOffice/lib/ooo-*/basis?.?/program/officehelper.py</Path>
-            <Path fileType="library">/opt/LibreOffice/lib/ooo-*/basis?.?/program/pythonloader.py</Path>
-            <Path fileType="library">/opt/LibreOffice/lib/ooo-*/basis?.?/program/pythonloader.unorc</Path>
-            <Path fileType="library">/opt/LibreOffice/lib/ooo-*/basis?.?/program/pythonloader.uno.so</Path>
-            <Path fileType="library">/opt/LibreOffice/lib/ooo-*/basis?.?/program/pyuno.so</Path>
-            <Path fileType="library">/opt/LibreOffice/lib/ooo-*/basis?.?/program/pythonscript.py</Path>
-            <Path fileType="library">/opt/LibreOffice/lib/ooo-*/basis?.?/share/Scripts/python</Path>
-            <Path fileType="library">/opt/LibreOffice/lib/ooo-*/basis?.?/share/registry/modules/org/openoffice/Office/Scripting/Scripting-python.xcu</Path>
+            <Path fileType="library">/opt/LibreOffice/lib/libreoffice/basis?.?/program/libpyuno.so</Path>
+            <Path fileType="library">/opt/LibreOffice/lib/libreoffice/basis?.?/program/officehelper.py</Path>
+            <Path fileType="library">/opt/LibreOffice/lib/libreoffice/basis?.?/program/pythonloader.py</Path>
+            <Path fileType="library">/opt/LibreOffice/lib/libreoffice/basis?.?/program/pythonloader.unorc</Path>
+            <Path fileType="library">/opt/LibreOffice/lib/libreoffice/basis?.?/program/pythonloader.uno.so</Path>
+            <Path fileType="library">/opt/LibreOffice/lib/libreoffice/basis?.?/program/pyuno.so</Path>
+            <Path fileType="library">/opt/LibreOffice/lib/libreoffice/basis?.?/program/pythonscript.py</Path>
+            <Path fileType="library">/opt/LibreOffice/lib/libreoffice/basis?.?/share/Scripts/python</Path>
+            <Path fileType="library">/opt/LibreOffice/lib/libreoffice/basis?.?/share/registry/modules/org/openoffice/Office/Scripting/Scripting-python.xcu</Path>
         </Files>
     </Package>
 
@@ -295,7 +277,7 @@
         <IsA>locale:en</IsA>
         <Summary>English LibreOffice help files</Summary>
         <RuntimeDependencies>
-            <Dependency versionFrom="3.3.2.2">libreoffice</Dependency>
+            <Dependency versionFrom="3.4.1.3">libreoffice</Dependency>
         </RuntimeDependencies>
         <Replaces>
             <Package>openoffice3-help-en</Package>
@@ -303,7 +285,7 @@
             <Package>openoffice-help</Package>
         </Replaces>
         <Files>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/help/en</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/help/en</Path>
         </Files>
     </Package>
 
@@ -312,7 +294,7 @@
         <IsA>locale:de</IsA>
         <Summary>German LibreOffice help files</Summary>
         <RuntimeDependencies>
-            <Dependency versionFrom="3.3.2.2">libreoffice</Dependency>
+            <Dependency versionFrom="3.4.1.3">libreoffice</Dependency>
         </RuntimeDependencies>
         <Replaces>
             <Package>openoffice3-help-de</Package>
@@ -320,7 +302,7 @@
             <Package>openoffice-help</Package>
         </Replaces>
         <Files>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/help/de</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/help/de</Path>
         </Files>
     </Package>
 
@@ -329,7 +311,7 @@
         <IsA>locale:es</IsA>
         <Summary>Spanish LibreOffice help files</Summary>
         <RuntimeDependencies>
-            <Dependency versionFrom="3.3.2.2">libreoffice</Dependency>
+            <Dependency versionFrom="3.4.1.3">libreoffice</Dependency>
         </RuntimeDependencies>
         <Replaces>
             <Package>openoffice3-help-es</Package>
@@ -337,7 +319,7 @@
             <Package>openoffice-help</Package>
         </Replaces>
         <Files>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/help/es</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/help/es</Path>
         </Files>
     </Package>
 
@@ -346,7 +328,7 @@
         <IsA>locale:fr</IsA>
         <Summary>French LibreOffice help files</Summary>
         <RuntimeDependencies>
-            <Dependency versionFrom="3.3.2.2">libreoffice</Dependency>
+            <Dependency versionFrom="3.4.1.3">libreoffice</Dependency>
         </RuntimeDependencies>
         <Replaces>
             <Package>openoffice3-help-fr</Package>
@@ -354,7 +336,7 @@
             <Package>openoffice-help</Package>
         </Replaces>
         <Files>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/help/fr</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/help/fr</Path>
         </Files>
     </Package>
 
@@ -363,7 +345,7 @@
         <IsA>locale:it</IsA>
         <Summary>Italian LibreOffice help files</Summary>
         <RuntimeDependencies>
-            <Dependency versionFrom="3.3.2.2">libreoffice</Dependency>
+            <Dependency versionFrom="3.4.1.3">libreoffice</Dependency>
         </RuntimeDependencies>
         <Replaces>
             <Package>openoffice3-help-it</Package>
@@ -371,7 +353,7 @@
             <Package>openoffice-help</Package>
         </Replaces>
         <Files>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/help/it</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/help/it</Path>
         </Files>
     </Package>
 
@@ -380,13 +362,13 @@
         <IsA>locale:hu</IsA>
         <Summary>Hungarian LibreOffice help files</Summary>
         <RuntimeDependencies>
-            <Dependency versionFrom="3.3.2.2">libreoffice</Dependency>
+            <Dependency versionFrom="3.4.1.3">libreoffice</Dependency>
         </RuntimeDependencies>
         <Replaces>
             <Package>openoffice-help-hu</Package>
         </Replaces>
         <Files>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/help/hu</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/help/hu</Path>
         </Files>
     </Package>
 
@@ -395,7 +377,7 @@
         <IsA>locale:nl</IsA>
         <Summary>Dutch LibreOffice help files</Summary>
         <RuntimeDependencies>
-            <Dependency versionFrom="3.3.2.2">libreoffice</Dependency>
+            <Dependency versionFrom="3.4.1.3">libreoffice</Dependency>
         </RuntimeDependencies>
         <Replaces>
             <Package>openoffice3-help-nl</Package>
@@ -403,7 +385,7 @@
             <Package>openoffice-help</Package>
         </Replaces>
         <Files>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/help/nl</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/help/nl</Path>
         </Files>
     </Package>
 
@@ -412,7 +394,7 @@
         <IsA>locale:pt_BR</IsA>
         <Summary>Brazilian Portuguese LibreOffice help files</Summary>
         <RuntimeDependencies>
-            <Dependency versionFrom="3.3.2.2">libreoffice</Dependency>
+            <Dependency versionFrom="3.4.1.3">libreoffice</Dependency>
         </RuntimeDependencies>
         <Replaces>
             <Package>openoffice3-help-pt-BR</Package>
@@ -422,7 +404,7 @@
             <Package>openoffice-help</Package>
         </Replaces>
         <Files>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/help/pt-BR</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/help/pt-BR</Path>
         </Files>
     </Package>
 
@@ -431,10 +413,10 @@
         <IsA>locale:ru</IsA>
         <Summary>Russion LibreOffice help files</Summary>
         <RuntimeDependencies>
-            <Dependency versionFrom="3.3.2.2">libreoffice</Dependency>
+            <Dependency versionFrom="3.4.1.3">libreoffice</Dependency>
         </RuntimeDependencies>
         <Files>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/help/ru</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/help/ru</Path>
         </Files>
     </Package>
 
@@ -443,7 +425,7 @@
         <IsA>locale:sv</IsA>
         <Summary>Swedish LibreOffice help files</Summary>
         <RuntimeDependencies>
-            <Dependency versionFrom="3.3.2.2">libreoffice</Dependency>
+            <Dependency versionFrom="3.4.1.3">libreoffice</Dependency>
         </RuntimeDependencies>
         <Replaces>
             <Package>openoffice3-help-sv</Package>
@@ -451,7 +433,7 @@
             <Package>openoffice-help</Package>
         </Replaces>
         <Files>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/help/sv</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/help/sv</Path>
         </Files>
     </Package>
 
@@ -460,7 +442,7 @@
         <IsA>locale:tr</IsA>
         <Summary>Turkish LibreOffice help files</Summary>
         <RuntimeDependencies>
-            <Dependency versionFrom="3.3.2.2">libreoffice</Dependency>
+            <Dependency versionFrom="3.4.1.3">libreoffice</Dependency>
         </RuntimeDependencies>
         <Replaces>
             <Package>openoffice3-help-tr</Package>
@@ -468,7 +450,7 @@
             <Package>openoffice-help</Package>
         </Replaces>
         <Files>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/help/tr</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/help/tr</Path>
         </Files>
     </Package>
 
@@ -477,7 +459,7 @@
         <Summary>PDF Importer for LibreOffice Draw</Summary>
         <Description>libreoffice-extension-pdfimpor imports PDF into drawing documents to preserve layout and enable basic editing of PDF documents.</Description>
         <RuntimeDependencies>
-            <Dependency versionFrom="3.3.2.2">libreoffice</Dependency>
+            <Dependency versionFrom="3.4.1.3">libreoffice</Dependency>
         </RuntimeDependencies>
         <Conflicts>
             <Package release="84">openoffice</Package>
@@ -487,7 +469,7 @@
             <Package>openoffice-extension-pdfimport</Package>
         </Replaces>
         <Files>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/share/extensions/pdfimport</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/share/extensions/pdfimport</Path>
         </Files>
     </Package>
 
@@ -496,7 +478,7 @@
         <Summary>Presenter Screen for LibreOffice Impress</Summary>
         <Description>libreoffice-extension-presenter-screen provides information on a second screen, that typically is not visible to the audience when delivering a presentation. e.g. slide notes.</Description>
         <RuntimeDependencies>
-            <Dependency versionFrom="3.3.2.2">libreoffice</Dependency>
+            <Dependency versionFrom="3.4.1.3">libreoffice</Dependency>
         </RuntimeDependencies>
         <Conflicts>
             <Package release="84">openoffice</Package>
@@ -506,7 +488,7 @@
             <Package>openoffice-extension-presenter-screen</Package>
         </Replaces>
         <Files>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/share/extensions/presenter-screen</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/share/extensions/presenter-screen</Path>
         </Files>
     </Package>
 
@@ -515,7 +497,7 @@
         <Summary>Shrink the file size of LibreOffice presentations</Summary>
         <Description>libreoffice-extension-presentation-minimizer is used to reduce the file size of the current presentation. Images will be compressed, and data that is no longer needed will be removed.</Description>
         <RuntimeDependencies>
-            <Dependency versionFrom="3.3.2.2">libreoffice</Dependency>
+            <Dependency versionFrom="3.4.1.3">libreoffice</Dependency>
         </RuntimeDependencies>
         <Conflicts>
             <Package release="84">openoffice</Package>
@@ -525,7 +507,7 @@
             <Package>openoffice-extension-presentation-minimizer</Package>
         </Replaces>
         <Files>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/share/extensions/presentation-minimizer</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/share/extensions/presentation-minimizer</Path>
         </Files>
     </Package>
 
@@ -534,7 +516,7 @@
         <Summary>Create database reports</Summary>
         <Description>libreoffice-extension-report-builder creates database reports from LibreOffice Base. The report builder can define group and page headers as well as group, page footers and calculation fields to accomplish complex database reports.</Description>
         <RuntimeDependencies>
-            <Dependency versionFrom="3.3.2.2">libreoffice</Dependency>
+            <Dependency versionFrom="3.4.1.3">libreoffice</Dependency>
         </RuntimeDependencies>
         <Conflicts>
             <Package release="84">openoffice</Package>
@@ -544,7 +526,7 @@
             <Package>openoffice-extension-report-builder</Package>
         </Replaces>
         <Files>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/share/extensions/report-builder</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/share/extensions/report-builder</Path>
         </Files>
     </Package>
 
@@ -553,7 +535,7 @@
         <Summary>Create Wiki articles on MediaWiki servers</Summary>
         <Description>libreoffice-extension-wiki-publisher enables you to create Wiki articles on MediaWiki servers without having to know the syntax of the MediaWiki markup language. Publish your new and existing documents transparently with LibreOffice Writer to a wiki page.</Description>
         <RuntimeDependencies>
-            <Dependency versionFrom="3.3.2.2">libreoffice</Dependency>
+            <Dependency versionFrom="3.4.1.3">libreoffice</Dependency>
         </RuntimeDependencies>
         <Conflicts>
             <Package release="84">openoffice</Package>
@@ -563,7 +545,7 @@
             <Package>openoffice-extension-wiki-publisher</Package>
         </Replaces>
         <Files>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/share/extensions/wiki-publisher</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/share/extensions/wiki-publisher</Path>
         </Files>
     </Package>
 
@@ -572,7 +554,7 @@
         <IsA>locale:de</IsA>
         <Summary>German language files for LibreOffice</Summary>
         <RuntimeDependencies>
-            <Dependency versionFrom="3.3.2.2">libreoffice</Dependency>
+            <Dependency versionFrom="3.4.1.3">libreoffice</Dependency>
             <Dependency>hunspell-dict-de</Dependency>
         </RuntimeDependencies>
         <Replaces>
@@ -580,25 +562,27 @@
             <Package>openoffice-langpack-de</Package>
         </Replaces>
         <Files>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/presets/config/*_de.*</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/program/resource/*de.res</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/autocorr/acor_de-*.dat</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/autotext/de</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/basic/Depot/*_de.xba</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/config/soffice.cfg/modules/*/accelerator/de</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/layout/de</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/registry/modules/org/openoffice/Setup/Langpack-de.xcu</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/registry/res/de</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/samples/de</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/template/de/lyt-aqua.otp</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/template/de/lyt-brown.otp</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/template/wizard/letter/de</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/wordbook/de</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/program/resource/ooode.res</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/licenses/LICENSE_de*</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/readmes/README_de*</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/share/readme/LICENSE_de*</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/share/readme/README_de*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/presets/config/*_de.*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/program/resource/*de.res</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/autocorr/acor_de-*.dat</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/autotext/de</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/basic/Depot/*_de.xba</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/config/soffice.cfg/modules/*/accelerator/de</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/layout/de</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/registry/modules/org/openoffice/Setup/Langpack-de.xcu</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/registry/res/de</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/registry/res/*_de.*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/registry/Langpack-de.xcd</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/samples/de</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/template/de/lyt-aqua.otp</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/template/de/lyt-brown.otp</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/template/wizard/letter/de</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/wordbook/de</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/program/resource/ooode.res</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/licenses/LICENSE_de*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/readmes/README_de*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/share/readme/LICENSE_de*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/share/readme/README_de*</Path>
         </Files>
     </Package>
 
@@ -611,7 +595,7 @@
             <Package>openoffice-langpack-de-extras</Package>
         </Replaces>
         <Files>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/template/de</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/template/de</Path>
         </Files>
     </Package>
 
@@ -620,7 +604,7 @@
         <IsA>locale:es</IsA>
         <Summary>Spanish language files for LibreOffice</Summary>
         <RuntimeDependencies>
-            <Dependency versionFrom="3.3.2.2">libreoffice</Dependency>
+            <Dependency versionFrom="3.4.1.3">libreoffice</Dependency>
             <Dependency>hunspell-dict-es</Dependency>
         </RuntimeDependencies>
         <Replaces>
@@ -628,24 +612,26 @@
             <Package>openoffice-langpack-es</Package>
         </Replaces>
         <Files>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/presets/config/*_es.*</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/program/resource/*es.res</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/autocorr/acor_es-*.dat</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/autotext/es</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/basic/Depot/*_es.xba</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/config/soffice.cfg/modules/*/accelerator/es</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/layout/es</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/registry/modules/org/openoffice/Setup/Langpack-es.xcu</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/registry/res/es</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/samples/es</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/template/es</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/template/wizard/letter/es</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/wordbook/es</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/program/resource/*es.res</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/licenses/LICENSE_es*</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/readmes/README_es*</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/share/readme/LICENSE_es*</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/share/readme/README_es*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/presets/config/*_es.*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/program/resource/*es.res</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/autocorr/acor_es-*.dat</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/autotext/es</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/basic/Depot/*_es.xba</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/config/soffice.cfg/modules/*/accelerator/es</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/layout/es</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/registry/modules/org/openoffice/Setup/Langpack-es.xcu</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/registry/res/es</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/registry/res/*_es.*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/registry/Langpack-es.xcd</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/samples/es</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/template/es</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/template/wizard/letter/es</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/wordbook/es</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/program/resource/*es.res</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/licenses/LICENSE_es*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/readmes/README_es*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/share/readme/LICENSE_es*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/share/readme/README_es*</Path>
         </Files>
     </Package>
 
@@ -654,7 +640,7 @@
         <IsA>locale:fr</IsA>
         <Summary>French language files for LibreOffice</Summary>
         <RuntimeDependencies>
-            <Dependency versionFrom="3.3.2.2">libreoffice</Dependency>
+            <Dependency versionFrom="3.4.1.3">libreoffice</Dependency>
             <Dependency>hunspell-dict-fr</Dependency>
         </RuntimeDependencies>
         <Replaces>
@@ -662,24 +648,26 @@
             <Package>openoffice-langpack-fr</Package>
         </Replaces>
         <Files>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/presets/config/*_fr.*</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/program/resource/*fr.res</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/autocorr/acor_fr-*.dat</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/autotext/fr</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/basic/Depot/*_fr.xba</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/config/soffice.cfg/modules/*/accelerator/fr</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/layout/fr</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/registry/modules/org/openoffice/Setup/Langpack-fr.xcu</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/registry/res/fr</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/samples/fr</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/template/fr</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/template/wizard/letter/fr</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/wordbook/fr</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/program/resource/*fr.res</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/licenses/LICENSE_fr*</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/readmes/README_fr*</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/share/readme/LICENSE_fr*</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/share/readme/README_fr*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/presets/config/*_fr.*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/program/resource/*fr.res</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/autocorr/acor_fr-*.dat</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/autotext/fr</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/basic/Depot/*_fr.xba</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/config/soffice.cfg/modules/*/accelerator/fr</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/layout/fr</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/registry/modules/org/openoffice/Setup/Langpack-fr.xcu</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/registry/res/fr</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/registry/res/*_fr.*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/registry/Langpack-fr.xcd</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/samples/fr</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/template/fr</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/template/wizard/letter/fr</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/wordbook/fr</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/program/resource/*fr.res</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/licenses/LICENSE_fr*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/readmes/README_fr*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/share/readme/LICENSE_fr*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/share/readme/README_fr*</Path>
         </Files>
     </Package>
 
@@ -688,29 +676,31 @@
         <IsA>locale:hu</IsA>
         <Summary>Hungarian language files for LibreOffice</Summary>
         <RuntimeDependencies>
-            <Dependency versionFrom="3.3.2.2">libreoffice</Dependency>
+            <Dependency versionFrom="3.4.1.3">libreoffice</Dependency>
             <!--<Dependency>hunspell-dict-hu</Dependency>-->
         </RuntimeDependencies>
         <Replaces>
             <Package>openoffice-langpack-hu</Package>
         </Replaces>
         <Files>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/presets/config/*_hu.*</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/program/resource/*hu.res</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/autocorr/acor_hu-*.dat</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/autotext/hu</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/layout/hu</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/registry/modules/org/openoffice/Setup/Langpack-hu.xcu</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/registry/res/hu</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/samples/hu</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/template/hu</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/template/wizard/letter/hu</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/wordbook/hu</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/licenses/LICENSE_hu*</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/program/resource/*hu.res</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/readmes/README_hu*</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/share/readme/LICENSE_hu*</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/share/readme/README_hu*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/presets/config/*_hu.*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/program/resource/*hu.res</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/autocorr/acor_hu-*.dat</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/autotext/hu</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/layout/hu</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/registry/modules/org/openoffice/Setup/Langpack-hu.xcu</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/registry/res/hu</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/registry/res/*_hu.*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/registry/Langpack-hu.xcd</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/samples/hu</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/template/hu</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/template/wizard/letter/hu</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/wordbook/hu</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/licenses/LICENSE_hu*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/program/resource/*hu.res</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/readmes/README_hu*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/share/readme/LICENSE_hu*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/share/readme/README_hu*</Path>
         </Files>
     </Package>
 
@@ -719,7 +709,7 @@
         <IsA>locale:it</IsA>
         <Summary>Italian language files for LibreOffice</Summary>
         <RuntimeDependencies>
-            <Dependency versionFrom="3.3.2.2">libreoffice</Dependency>
+            <Dependency versionFrom="3.4.1.3">libreoffice</Dependency>
             <Dependency>hunspell-dict-it</Dependency>
         </RuntimeDependencies>
         <Replaces>
@@ -727,24 +717,26 @@
             <Package>openoffice-langpack-it</Package>
         </Replaces>
         <Files>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/presets/config/*_it.*</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/program/resource/*it.res</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/autocorr/acor_it-*.dat</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/autotext/it</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/basic/Depot/*_it.xba</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/config/soffice.cfg/modules/*/accelerator/it</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/layout/it</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/registry/modules/org/openoffice/Setup/Langpack-it.xcu</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/registry/res/it</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/samples/it</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/template/it</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/template/wizard/letter/it</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/wordbook/it</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/program/resource/*it.res</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/licenses/LICENSE_it*</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/readmes/README_it*</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/share/readme/LICENSE_it*</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/share/readme/README_it*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/presets/config/*_it.*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/program/resource/*it.res</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/autocorr/acor_it-*.dat</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/autotext/it</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/basic/Depot/*_it.xba</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/config/soffice.cfg/modules/*/accelerator/it</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/layout/it</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/registry/modules/org/openoffice/Setup/Langpack-it.xcu</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/registry/res/it</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/registry/res/*_it.*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/registry/Langpack-it.xcd</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/samples/it</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/template/it</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/template/wizard/letter/it</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/wordbook/it</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/program/resource/*it.res</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/licenses/LICENSE_it*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/readmes/README_it*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/share/readme/LICENSE_it*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/share/readme/README_it*</Path>
         </Files>
     </Package>
 
@@ -753,7 +745,7 @@
         <IsA>locale:nl</IsA>
         <Summary>Dutch language files for LibreOffice</Summary>
         <RuntimeDependencies>
-            <Dependency versionFrom="3.3.2.2">libreoffice</Dependency>
+            <Dependency versionFrom="3.4.1.3">libreoffice</Dependency>
             <Dependency>hunspell-dict-nl</Dependency>
         </RuntimeDependencies>
         <Replaces>
@@ -761,24 +753,26 @@
             <Package>openoffice-langpack-nl</Package>
         </Replaces>
         <Files>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/presets/config/*_nl.*</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/program/resource/*nl.res</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/autocorr/acor_nl-*.dat</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/autotext/nl</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/basic/Depot/*_nl.xba</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/config/soffice.cfg/modules/*/accelerator/nl</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/layout/nl</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/registry/modules/org/openoffice/Setup/Langpack-nl.xcu</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/registry/res/nl</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/samples/nl</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/template/nl</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/template/wizard/letter/nl</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/wordbook/nl</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/program/resource/*nl.res</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/licenses/LICENSE_nl*</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/readmes/README_nl*</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/share/readme/LICENSE_nl*</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/share/readme/README_nl*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/presets/config/*_nl.*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/program/resource/*nl.res</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/autocorr/acor_nl-*.dat</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/autotext/nl</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/basic/Depot/*_nl.xba</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/config/soffice.cfg/modules/*/accelerator/nl</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/layout/nl</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/registry/modules/org/openoffice/Setup/Langpack-nl.xcu</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/registry/res/nl</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/registry/res/*_nl.*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/registry/Langpack-nl.xcd</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/samples/nl</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/template/nl</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/template/wizard/letter/nl</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/wordbook/nl</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/program/resource/*nl.res</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/licenses/LICENSE_nl*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/readmes/README_nl*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/share/readme/LICENSE_nl*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/share/readme/README_nl*</Path>
         </Files>
     </Package>
 
@@ -787,7 +781,7 @@
         <IsA>locale:pt_BR</IsA>
         <Summary>Brazilian Portuguese language files for LibreOffice</Summary>
         <RuntimeDependencies>
-            <Dependency versionFrom="3.3.2.2">libreoffice</Dependency>
+            <Dependency versionFrom="3.4.1.3">libreoffice</Dependency>
             <Dependency>hunspell-dict-pt</Dependency>
         </RuntimeDependencies>
         <Replaces>
@@ -797,24 +791,26 @@
             <Package>libreoffice-langpack-pt-BR</Package>
         </Replaces>
         <Files>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/presets/config/*_pt-BR.*</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/program/resource/*pt-BR.res</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/autocorr/acor_pt-*.dat</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/autotext/pt-BR</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/basic/Depot/*_pt.xba</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/config/soffice.cfg/modules/*/accelerator/pt*</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/layout/pt-BR</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/registry/modules/org/openoffice/Setup/Langpack-pt-BR.xcu</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/registry/res/pt-BR</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/samples/pt-BR</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/template/pt-BR</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/template/wizard/letter/pt-BR</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/wordbook/pt-BR</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/program/resource/*pt-BR.res</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/licenses/LICENSE_pt-BR*</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/readmes/README_pt-BR*</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/share/readme/LICENSE_pt-BR*</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/share/readme/README_pt-BR*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/presets/config/*_pt-BR.*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/program/resource/*pt-BR.res</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/autocorr/acor_pt-*.dat</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/autotext/pt-BR</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/basic/Depot/*_pt.xba</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/config/soffice.cfg/modules/*/accelerator/pt*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/layout/pt-BR</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/registry/res/*_pt-BR.*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/registry/modules/org/openoffice/Setup/Langpack-pt-BR.xcu</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/registry/res/pt-BR</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/registry/Langpack-pt-BR.xcd</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/samples/pt-BR</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/template/pt-BR</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/template/wizard/letter/pt-BR</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/wordbook/pt-BR</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/program/resource/*pt-BR.res</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/licenses/LICENSE_pt-BR*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/readmes/README_pt-BR*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/share/readme/LICENSE_pt-BR*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/share/readme/README_pt-BR*</Path>
         </Files>
     </Package>
 
@@ -823,28 +819,30 @@
         <IsA>locale:ru</IsA>
         <Summary>Russian language files for LibreOffice</Summary>
         <RuntimeDependencies>
-            <Dependency versionFrom="3.3.2.2">libreoffice</Dependency>
+            <Dependency versionFrom="3.4.1.3">libreoffice</Dependency>
             <Dependency>hunspell-dict-ru</Dependency>
         </RuntimeDependencies>
         <Files>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/presets/config/*_ru.*</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/program/resource/*ru.res</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/autocorr/acor_ru-*.dat</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/autotext/ru</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/basic/Depot/*_ru.xba</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/config/soffice.cfg/modules/*/accelerator/ru</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/layout/ru</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/registry/modules/org/openoffice/Setup/Langpack-ru.xcu</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/registry/res/ru</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/samples/ru</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/template/ru</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/template/wizard/letter/ru</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/wordbook/ru</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/program/resource/*ru.res</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/licenses/LICENSE_ru*</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/readmes/README_ru*</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/share/readme/LICENSE_ru*</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/share/readme/README_ru*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/presets/config/*_ru.*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/program/resource/*ru.res</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/autocorr/acor_ru-*.dat</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/autotext/ru</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/basic/Depot/*_ru.xba</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/config/soffice.cfg/modules/*/accelerator/ru</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/layout/ru</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/registry/modules/org/openoffice/Setup/Langpack-ru.xcu</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/registry/res/ru</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/registry/res/*_ru.*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/registry/Langpack-ru.xcd</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/samples/ru</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/template/ru</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/template/wizard/letter/ru</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/wordbook/ru</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/program/resource/*ru.res</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/licenses/LICENSE_ru*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/readmes/README_ru*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/share/readme/LICENSE_ru*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/share/readme/README_ru*</Path>
         </Files>
     </Package>
 
@@ -853,7 +851,7 @@
         <IsA>locale:sv</IsA>
         <Summary>Swedish language files for LibreOffice</Summary>
         <RuntimeDependencies>
-            <Dependency versionFrom="3.3.2.2">libreoffice</Dependency>
+            <Dependency versionFrom="3.4.1.3">libreoffice</Dependency>
             <Dependency>hunspell-dict-sv</Dependency>
         </RuntimeDependencies>
         <Replaces>
@@ -861,24 +859,26 @@
             <Package>openoffice-langpack-sv</Package>
         </Replaces>
         <Files>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/presets/config/*_sv.*</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/program/resource/*sv.res</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/autocorr/acor_sv-*.dat</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/autotext/sv</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/basic/Depot/*_sv.xba</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/config/soffice.cfg/modules/*/accelerator/sv</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/layout/sv</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/registry/modules/org/openoffice/Setup/Langpack-sv.xcu</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/registry/res/sv</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/samples/sv</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/template/sv</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/template/wizard/letter/sv</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/wordbook/sv</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/program/resource/*sv.res</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/licenses/LICENSE_sv*</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/readmes/README_sv*</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/share/readme/LICENSE_sv*</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/share/readme/README_sv*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/presets/config/*_sv.*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/program/resource/*sv.res</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/autocorr/acor_sv-*.dat</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/autotext/sv</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/basic/Depot/*_sv.xba</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/config/soffice.cfg/modules/*/accelerator/sv</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/layout/sv</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/registry/modules/org/openoffice/Setup/Langpack-sv.xcu</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/registry/res/sv</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/registry/res/*_sv.*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/registry/Langpack-sv.xcd</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/samples/sv</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/template/sv</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/template/wizard/letter/sv</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/wordbook/sv</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/program/resource/*sv.res</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/licenses/LICENSE_sv*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/readmes/README_sv*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/share/readme/LICENSE_sv*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/share/readme/README_sv*</Path>
         </Files>
     </Package>
 
@@ -887,35 +887,46 @@
         <IsA>locale:tr</IsA>
         <Summary>Turkish language files for LibreOffice</Summary>
         <RuntimeDependencies>
-            <Dependency versionFrom="3.3.2.2">libreoffice</Dependency>
+            <Dependency versionFrom="3.4.1.3">libreoffice</Dependency>
         </RuntimeDependencies>
         <Replaces>
             <Package>openoffice3-langpack-tr</Package>
             <Package>openoffice-langpack-tr</Package>
         </Replaces>
         <Files>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/presets/config/*_tr.*</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/program/resource/*tr.res</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/autocorr/acor_tr-*.dat</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/autotext/tr</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/basic/Depot/*_tr.xba</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/config/soffice.cfg/modules/*/accelerator/tr</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/layout/tr</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/registry/modules/org/openoffice/Setup/Langpack-tr.xcu</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/registry/res/tr</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/samples/tr</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/template/tr</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/template/wizard/letter/tr</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/basis?.?/share/wordbook/tr</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/program/resource/*tr.res</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/licenses/LICENSE_tr*</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/readmes/README_tr*</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/share/readme/LICENSE_tr*</Path>
-            <Path fileType="data">/opt/LibreOffice/lib/ooo-*/share/readme/README_tr*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/presets/config/*_tr.*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/program/resource/*tr.res</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/autocorr/acor_tr-*.dat</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/autotext/tr</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/basic/Depot/*_tr.xba</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/config/soffice.cfg/modules/*/accelerator/tr</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/layout/tr</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/registry/modules/org/openoffice/Setup/Langpack-tr.xcu</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/registry/res/tr</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/registry/res/*_tr.*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/registry/Langpack-tr.xcd</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/samples/tr</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/template/tr</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/template/wizard/letter/tr</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/basis?.?/share/wordbook/tr</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/program/resource/*tr.res</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/licenses/LICENSE_tr*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/readmes/README_tr*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/share/readme/LICENSE_tr*</Path>
+            <Path fileType="data">/opt/LibreOffice/lib/libreoffice/share/readme/README_tr*</Path>
         </Files>
     </Package>
 
     <History>
+        <!--
+        <Update release="15">
+            <Date>2011-07-07</Date>
+            <Version>3.4.1.3</Version>
+            <Comment>Version bump to 3.4.1.3 (https://www.libreoffice.org/download/3-4-new-features-and-fixes/ for details)</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+        -->
         <Update release="14">
             <Date>2011-03-22</Date>
             <Version>3.3.2.2</Version>

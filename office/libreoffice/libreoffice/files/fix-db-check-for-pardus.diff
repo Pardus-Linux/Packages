@@ -1,26 +1,13 @@
-diff -Naur patches-orig//dev300/apply patches/dev300/apply
---- patches-orig//dev300/apply	2011-01-13 21:05:13.140000089 +0000
-+++ patches/dev300/apply	2011-01-13 20:55:36.736000147 +0000
-@@ -1620,6 +1620,7 @@
- pardus-xdg-email-senddoc.diff
- fix-kde4-includedir.diff
- fix-jpeg-lib64-dir.diff
-+fix-db-check-for-pardus.diff
- 
- [ UnUsedButNotYetRemovedFromGit ]
- # diffs kept for reference as there might soon be a need to resurrect
-diff -Naur patches-orig//dev300/fix-db-check-for-pardus.diff patches/dev300/fix-db-check-for-pardus.diff
---- patches-orig//dev300/fix-db-check-for-pardus.diff	1970-01-01 00:00:00.000000000 +0000
-+++ patches/dev300/fix-db-check-for-pardus.diff	2011-01-13 21:04:43.283000091 +0000
-@@ -0,0 +1,11 @@
-+--- configure.in.old	2011-01-13 21:00:52.143000155 +0000
-++++ configure.in	2011-01-13 21:04:00.440000150 +0000
-+@@ -4411,7 +4411,7 @@
-+     DB_LIB=
-+     for dbver in '' -5.1 5.1 -5.0 5.0 -5 5 -4.8 4.8 -4.7 4.7 -4 4; do
-+         AC_CHECK_LIB(db$dbver, dbopen, [ DB_LIB="db$dbver"; DB_CPPLIB="db_cxx$dbver"; break; ] ,
-+-            AC_CHECK_LIB(db$dbver, __db185_open, [ DB_LIB="db$dbver"; DB_CPPLIB="db_cxx$dbver"; break; ]
-++            AC_CHECK_LIB(db$dbver, __db_open_4008, [ DB_LIB="db$dbver"; DB_CPPLIB="db_cxx$dbver"; break; ]
-+             )
-+         )
-+     done
+Index: libreoffice-bootstrap-3.4.1.3/configure.in
+===================================================================
+--- libreoffice-bootstrap-3.4.1.3.orig/configure.in
++++ libreoffice-bootstrap-3.4.1.3/configure.in
+@@ -4276,7 +4276,7 @@ int main(int argc, char **argv) {
+     DB_LIB=
+     for dbver in '' -5.1 5.1 -5.0 5.0 -5 5 -4.8 4.8 -4.7 4.7 -4 4; do
+         AC_CHECK_LIB(db$dbver, dbopen, [ DB_LIB="db$dbver"; DB_CPPLIB="db_cxx$dbver"; break; ] ,
+-            AC_CHECK_LIB(db$dbver, __db185_open, [ DB_LIB="db$dbver"; DB_CPPLIB="db_cxx$dbver"; break; ]
++            AC_CHECK_LIB(db$dbver, __db_open_4008, [ DB_LIB="db$dbver"; DB_CPPLIB="db_cxx$dbver"; break; ]
+             )
+         )
+     done
