@@ -62,8 +62,11 @@ def setup():
                        --enable-ext-watch-window \
                        --enable-ext-wiki-publisher \
                        --enable-gtk \
+                       --enable-gio \
                        --enable-kde4 \
+                       --enable-lockdown \
                        --enable-opengl \
+                       --enable-symbols \
                        --enable-vba \
                        --with-about-bitmaps=\"src/openabout_pardus.png\" \
                        --with-ant-home=/usr/share/ant \
