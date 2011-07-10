@@ -1,8 +1,8 @@
 Index: ucbhelper/source/client/content.cxx
 ===================================================================
---- ucbhelper/source/client/content.cxx	(revision 270567)
-+++ ucbhelper/source/client/content.cxx	(working copy)
-@@ -39,6 +39,7 @@
+--- ucbhelper/source/client/content.cxx.orig
++++ ucbhelper/source/client/content.cxx
+@@ -40,6 +40,7 @@
  #include <cppuhelper/weak.hxx>
  
  #include <cppuhelper/implbase1.hxx>
@@ -10,7 +10,7 @@ Index: ucbhelper/source/client/content.cxx
  #include <com/sun/star/ucb/ContentCreationError.hpp>
  #include <com/sun/star/ucb/XCommandEnvironment.hpp>
  #include <com/sun/star/ucb/XCommandInfo.hpp>
-@@ -48,6 +49,8 @@
+@@ -49,6 +50,8 @@
  #include <com/sun/star/ucb/ContentAction.hpp>
  #include <com/sun/star/ucb/OpenCommandArgument2.hpp>
  #include <com/sun/star/ucb/InsertCommandArgument.hpp>
@@ -19,7 +19,7 @@ Index: ucbhelper/source/client/content.cxx
  #include <com/sun/star/ucb/GlobalTransferCommandArgument.hpp>
  #include <com/sun/star/ucb/NameClash.hpp>
  #include <com/sun/star/ucb/OpenMode.hpp>
-@@ -65,6 +68,8 @@
+@@ -66,6 +69,8 @@
  #include <com/sun/star/sdbc/XRow.hpp>
  #include <com/sun/star/lang/IllegalArgumentException.hpp>
  #include <com/sun/star/beans/UnknownPropertyException.hpp>
@@ -28,7 +28,7 @@ Index: ucbhelper/source/client/content.cxx
  #include <ucbhelper/macros.hxx>
  #include <ucbhelper/content.hxx>
  #include <ucbhelper/contentbroker.hxx>
-@@ -72,6 +77,10 @@
+@@ -73,6 +78,10 @@
  #include <ucbhelper/activedatastreamer.hxx>
  #include <ucbhelper/interactionrequest.hxx>
  #include <ucbhelper/cancelcommandexecution.hxx>
@@ -39,7 +39,7 @@ Index: ucbhelper/source/client/content.cxx
  
  using namespace com::sun::star::container;
  using namespace com::sun::star::beans;
-@@ -375,6 +384,54 @@
+@@ -376,6 +385,54 @@ static Reference< XContent > getContent(
      return Reference< XContent >();
  }
  
@@ -94,7 +94,7 @@ Index: ucbhelper/source/client/content.cxx
  //=========================================================================
  //=========================================================================
  //
-@@ -1186,7 +1243,10 @@
+@@ -1187,7 +1244,10 @@ Reference< XInputStream > Content::openS
      throw( CommandAbortedException, RuntimeException, Exception )
  {
      if ( !isDocument() )
@@ -105,7 +105,7 @@ Index: ucbhelper/source/client/content.cxx
  
      Reference< XActiveDataSink > xSink = new ActiveDataSink;
  
-@@ -1211,7 +1271,10 @@
+@@ -1212,7 +1272,10 @@ Reference< XInputStream > Content::openS
      throw( CommandAbortedException, RuntimeException, Exception )
  {
      if ( !isDocument() )
@@ -116,7 +116,7 @@ Index: ucbhelper/source/client/content.cxx
  
      Reference< XActiveDataSink > xSink = new ActiveDataSink;
  
-@@ -1236,7 +1299,10 @@
+@@ -1237,7 +1300,10 @@ Reference< XStream > Content::openWritea
      throw( CommandAbortedException, RuntimeException, Exception )
  {
      if ( !isDocument() )
@@ -127,7 +127,7 @@ Index: ucbhelper/source/client/content.cxx
  
      Reference< XActiveDataStreamer > xStreamer = new ActiveDataStreamer;
  
-@@ -1261,7 +1327,10 @@
+@@ -1262,7 +1328,10 @@ Reference< XStream > Content::openWritea
      throw( CommandAbortedException, RuntimeException, Exception )
  {
      if ( !isDocument() )
@@ -138,7 +138,7 @@ Index: ucbhelper/source/client/content.cxx
  
      Reference< XActiveDataStreamer > xStreamer = new ActiveDataStreamer;
  
-@@ -1286,7 +1355,10 @@
+@@ -1287,7 +1356,10 @@ sal_Bool Content::openStream( const Refe
      throw( CommandAbortedException, RuntimeException, Exception )
  {
      if ( !isDocument() )
@@ -149,7 +149,7 @@ Index: ucbhelper/source/client/content.cxx
  
      OpenCommandArgument2 aArg;
      aArg.Mode       = OpenMode::DOCUMENT;
-@@ -1309,7 +1381,10 @@
+@@ -1310,7 +1382,10 @@ sal_Bool Content::openStream( const Refe
      throw( CommandAbortedException, RuntimeException, Exception )
  {
      if ( !isDocument() )
@@ -160,15 +160,15 @@ Index: ucbhelper/source/client/content.cxx
  
      OpenCommandArgument2 aArg;
      aArg.Mode       = OpenMode::DOCUMENT;
-Index: comphelper/source/misc/mediadescriptor.cxx
+Index: comphelper/source/misc/stillreadwriteinteraction.cxx
 ===================================================================
---- comphelper/source/misc/stillreadwriteinteraction.cxx	2010-07-06 15:32:02.000000000 +0100
-+++ comphelper/source/misc/stillreadwriteinteraction.cxx	2010-07-06 15:32:31.000000000 +0100
-@@ -103,6 +103,7 @@
- 			bAbort = (
- 				(exIO.Code == css::ucb::IOErrorCode_ACCESS_DENIED     )
- 				|| (exIO.Code == css::ucb::IOErrorCode_LOCKING_VIOLATION )
-+				|| (exIO.Code == css::ucb::IOErrorCode_NO_FILE )
- 				|| (exIO.Code == css::ucb::IOErrorCode_NOT_EXISTING )
+--- comphelper/source/misc/stillreadwriteinteraction.cxx.orig
++++ comphelper/source/misc/stillreadwriteinteraction.cxx
+@@ -98,6 +98,7 @@ ucbhelper::InterceptedInteraction::EInte
+             bAbort = (
+                 (exIO.Code == css::ucb::IOErrorCode_ACCESS_DENIED     )
+                 || (exIO.Code == css::ucb::IOErrorCode_LOCKING_VIOLATION )
++                || (exIO.Code == css::ucb::IOErrorCode_NO_FILE )
+                 || (exIO.Code == css::ucb::IOErrorCode_NOT_EXISTING )
  #ifdef MACOSX
- 				// this is a workaround for MAC, on this platform if the file is locked
+                 // this is a workaround for MAC, on this platform if the file is locked
