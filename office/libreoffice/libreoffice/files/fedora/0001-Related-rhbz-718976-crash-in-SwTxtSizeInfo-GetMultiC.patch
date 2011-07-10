@@ -1,0 +1,37 @@
+From 04a5edc0b8a6399e0e692b4164dc72851fffcab9 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Caol=C3=A1n=20McNamara?= <caolanm@redhat.com>
+Date: Tue, 5 Jul 2011 12:41:43 +0100
+Subject: [PATCH] Related: rhbz#718976 crash in SwTxtSizeInfo::GetMultiCreator
+
+---
+ sw/source/core/text/pormulti.cxx |    7 +++++--
+ 1 files changed, 5 insertions(+), 2 deletions(-)
+
+diff --git a/sw/source/core/text/pormulti.cxx b/sw/source/core/text/pormulti.cxx
+index 1a31cf4..336a57d 100644
+--- a/sw/source/core/text/pormulti.cxx
++++ b/sw/source/core/text/pormulti.cxx
+@@ -947,15 +947,18 @@ SwMultiCreator* SwTxtSizeInfo::GetMultiCreator( xub_StrLen &rPos,
+     else
+         pRotItem = NULL;
+     const SvxTwoLinesItem* p2Lines = NULL;
++    const SwTxtNode *pLclTxtNode = pFrm->GetTxtNode();
++    if( !pLclTxtNode )
++        return NULL;
+     const SfxPoolItem* pItem;
+-    if( SFX_ITEM_SET == pFrm->GetTxtNode()->GetSwAttrSet().
++    if( SFX_ITEM_SET == pLclTxtNode->GetSwAttrSet().
+         GetItemState( RES_CHRATR_TWO_LINES, sal_True, &pItem ) &&
+         ((SvxTwoLinesItem*)pItem)->GetValue() )
+         p2Lines = (SvxTwoLinesItem*)pItem;
+     else
+         pItem = NULL;
+ 
+-    const SwpHints *pHints = pFrm->GetTxtNode()->GetpSwpHints();
++    const SwpHints *pHints = pLclTxtNode->GetpSwpHints();
+     if( !pHints && !p2Lines && !pRotate )
+         return NULL;
+     const SwTxtAttr *pRuby = NULL;
+-- 
+1.7.5.4
+

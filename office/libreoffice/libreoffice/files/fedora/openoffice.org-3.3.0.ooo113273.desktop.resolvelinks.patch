@@ -1,0 +1,55 @@
+diff -ru desktop.orig/source/deployment/misc/dp_misc.cxx desktop/source/deployment/misc/dp_misc.cxx
+--- desktop.orig/source/deployment/misc/dp_misc.cxx	2010-07-20 08:31:24.000000000 +0100
++++ desktop/source/deployment/misc/dp_misc.cxx	2010-07-20 09:12:23.000000000 +0100
+@@ -143,6 +143,23 @@
+     return pipe.is();
+ }
+ 
++//get modification time
++static bool getModifyTimeTargetFile(const OUString &rFileURL, TimeValue &rTime)
++{
++    ::osl::DirectoryItem item;
++    if (::osl::DirectoryItem::get(rFileURL, item) != ::osl::File::E_None)
++        return false;
++
++    ::osl::FileStatus stat(FileStatusMask_ModifyTime|FileStatusMask_Type|FileStatusMask_LinkTargetURL);
++    if (item.getFileStatus(stat) != ::osl::File::E_None)
++        return false;
++
++    if( stat.getFileType() == ::osl::FileStatus::Link )
++        return getModifyTimeTargetFile(stat.getLinkTargetURL(), rTime);
++
++    rTime = stat.getModifyTime();
++    return true;
++}
+ 
+ //Returns true if the Folder was more recently modified then
+ //the lastsynchronized file. That is the repository needs to
+@@ -181,15 +198,12 @@
+     
+     //compare the modification time of the extension folder and the last
+     //modified file
+-    ::osl::FileStatus statFolder(FileStatusMask_ModifyTime);
+-    ::osl::FileStatus statFile(FileStatusMask_ModifyTime);
+-    if (itemExtFolder.getFileStatus(statFolder) == ::osl::File::E_None)
++    TimeValue timeFolder;
++    if (getModifyTimeTargetFile(folderURL, timeFolder))
+     {
+-        if (itemFile.getFileStatus(statFile) == ::osl::File::E_None)
++        TimeValue timeFile;
++        if (getModifyTimeTargetFile(fileURL, timeFile))
+         {
+-            TimeValue timeFolder = statFolder.getModifyTime();
+-            TimeValue timeFile = statFile.getModifyTime();
+-
+             if (timeFile.Seconds < timeFolder.Seconds)
+                 bNeedsSync = true;
+         }
+@@ -204,6 +218,7 @@
+         OSL_ASSERT(0);
+         bNeedsSync = true;
+     }
++
+     return bNeedsSync;    
+ }
+ 

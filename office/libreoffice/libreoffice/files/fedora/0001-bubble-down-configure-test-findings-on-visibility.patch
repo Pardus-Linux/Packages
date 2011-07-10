@@ -1,0 +1,61 @@
+From e33537190f7a57ddcfe1382d330fa5d28581f16b Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Caol=C3=A1n=20McNamara?= <caolanm@redhat.com>
+Date: Mon, 18 Apr 2011 09:01:37 +0100
+Subject: [PATCH] bubble down configure test findings on visibility
+
+---
+ solenv/gbuild/platform/unxgcc.mk |   22 ++++++++++++++++++----
+ 1 files changed, 18 insertions(+), 4 deletions(-)
+
+diff --git a/solenv/gbuild/platform/unxgcc.mk b/solenv/gbuild/platform/unxgcc.mk
+index 11a0205..b58e4ba 100755
+--- a/solenv/gbuild/platform/unxgcc.mk
++++ b/solenv/gbuild/platform/unxgcc.mk
+@@ -59,7 +59,6 @@ endif
+ 
+ gb_COMPILERDEFS := \
+ 	-D$(COM) \
+-	-DHAVE_GCC_VISIBILITY_FEATURE \
+ 	-DCPPU_ENV=gcc3 \
+ 	-DGXX_INCLUDE_PATH=$(GXX_INCLUDE_PATH) \
+ 
+@@ -71,7 +70,6 @@ gb_CFLAGS := \
+ 	-fPIC \
+ 	-fmessage-length=0 \
+ 	-fno-common \
+-	-fvisibility=hidden \
+ 	-pipe \
+ 
+ gb_CXXFLAGS := \
+@@ -85,10 +83,26 @@ gb_CXXFLAGS := \
+ 	-fPIC \
+ 	-fmessage-length=0 \
+ 	-fno-common \
+-	-fvisibility-inlines-hidden \
+-	-fvisibility=hidden \
+ 	-pipe \
+ 
++ifeq ($(HAVE_GCC_VISIBILITY_FEATURE),TRUE)
++gb_COMPILERDEFS += \
++        -DHAVE_GCC_VISIBILITY_FEATURE \
++
++gb_CFLAGS += \
++        -fvisibility=hidden
++
++gb_CXXFLAGS += \
++	-fvisibility=hidden \
++
++ifneq ($(HAVE_GCC_VISIBILITY_BROKEN),TRUE)
++gb_CXXFLAGS += \
++        -fvisibility-inlines-hidden \
++
++endif
++
++endif
++
+ gb_CCVER := $(shell $(gb_CC) -dumpversion | $(gb_AWK) -F. -- '{ print $$1*10000+$$2*100+$$3 }')
+ gb_StrictAliasingUnsafe := $(shell expr $(gb_CCVER) \< 40600)
+ 
+-- 
+1.7.4.2
+

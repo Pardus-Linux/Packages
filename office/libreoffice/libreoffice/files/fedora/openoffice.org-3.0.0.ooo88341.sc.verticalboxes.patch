@@ -1,0 +1,134 @@
+Index: source/ui/inc/output.hxx
+===================================================================
+RCS file: /cvs/sc/sc/source/ui/inc/output.hxx,v
+retrieving revision 1.19
+diff -u -r1.19 output.hxx
+--- openoffice.org.orig/sc/source/ui/inc/output.hxx	26 Jun 2007 11:50:45 -0000	1.19
++++ openoffice.org/sc/source/ui/inc/output.hxx	16 Apr 2008 12:05:59 -0000
+@@ -303,6 +303,8 @@
+     void	DrawExtraShadow(sal_Bool bLeft, sal_Bool bTop, sal_Bool bRight, sal_Bool bBottom);
+     void	DrawFrame();
+ 
++    bool    UseNormalClip(SCROW nCellY, const SfxItemSet* pCondSet);
++
+                     // with logic MapMode set!
+     void	DrawEdit(sal_Bool bPixelToLogic);
+ 
+Index: source/ui/view/output2.cxx
+===================================================================
+RCS file: /cvs/sc/sc/source/ui/view/output2.cxx,v
+retrieving revision 1.54.216.1
+diff -u -r1.54.216.1 output2.cxx
+--- openoffice.org.orig/sc/source/ui/view/output2.cxx	18 Jan 2008 12:02:36 -0000	1.54.216.1
++++ openoffice.org/sc/source/ui/view/output2.cxx	16 Apr 2008 12:19:34 -0000
+@@ -2819,13 +2819,7 @@
+                 (ScMergeAttr*)&rParam.mpPattern->GetItem(ATTR_MERGE);
+         bool bMerged = pMerge->GetColMerge() > 1 || pMerge->GetRowMerge() > 1;
+ 
+-        //	Don't clip for text height when printing rows with optimal height,
+-        //	except when font size is from conditional formatting.
+-        //!	Allow clipping when vertically merged?
+-        if ( eType != OUTTYPE_PRINTER ||
+-            ( pDoc->GetRowFlags( rParam.mnCellY, nTab ) & CR_MANUALSIZE ) ||
+-            ( rParam.mpCondSet && SFX_ITEM_SET ==
+-                rParam.mpCondSet->GetItemState(ATTR_FONT_HEIGHT, true) ) )
++        if (UseNormalClip(rParam.mnCellY, rParam.mpCondSet))
+             bClip = true;
+         else
+             bSimClip = true;
+@@ -2861,6 +2855,19 @@
+     }
+ 
+     Rectangle aLogicClip;
++    if (
++         ((nAttrRotate == 9000) || (nAttrRotate == 27000)) &&
++         (!(rParam.meOrient==SVX_ORIENTATION_STANDARD &&
++            !rParam.mbAsianVertical)) &&
++         (!(bClip || bSimClip))
++       )
++    {
++        if (UseNormalClip(rParam.mnCellY, rParam.mpCondSet))
++            bClip = true;
++        else
++            bSimClip = true;
++    }
++
+     if (bClip || bSimClip)
+     {
+         // Clip marks are already handled in GetOutputArea
+@@ -3357,13 +3364,8 @@
+                 (ScMergeAttr*)&rParam.mpPattern->GetItem(ATTR_MERGE);
+         bool bMerged = pMerge->GetColMerge() > 1 || pMerge->GetRowMerge() > 1;
+ 
+-        //	Don't clip for text height when printing rows with optimal height,
+-        //	except when font size is from conditional formatting.
+-        //!	Allow clipping when vertically merged?
+-        if ( eType != OUTTYPE_PRINTER ||
+-            ( pDoc->GetRowFlags( rParam.mnCellY, nTab ) & CR_MANUALSIZE ) ||
+-            ( rParam.mpCondSet && SFX_ITEM_SET ==
+-                rParam.mpCondSet->GetItemState(ATTR_FONT_HEIGHT, true) ) )
++
++        if (UseNormalClip(rParam.mnCellY, rParam.mpCondSet))
+             bClip = true;
+         else
+             bSimClip = true;
+@@ -3740,13 +3742,7 @@
+                 (ScMergeAttr*)&rParam.mpPattern->GetItem(ATTR_MERGE);
+         bool bMerged = pMerge->GetColMerge() > 1 || pMerge->GetRowMerge() > 1;
+ 
+-        //	Don't clip for text height when printing rows with optimal height,
+-        //	except when font size is from conditional formatting.
+-        //!	Allow clipping when vertically merged?
+-        if ( eType != OUTTYPE_PRINTER ||
+-            ( pDoc->GetRowFlags( rParam.mnCellY, nTab ) & CR_MANUALSIZE ) ||
+-            ( rParam.mpCondSet && SFX_ITEM_SET ==
+-                rParam.mpCondSet->GetItemState(ATTR_FONT_HEIGHT, true) ) )
++        if (UseNormalClip(rParam.mnCellY, rParam.mpCondSet))
+             bClip = true;
+         else
+             bSimClip = true;
+@@ -3880,6 +3876,20 @@
+     DrawEditStandard(rParam);
+ }
+ 
++bool ScOutputData::UseNormalClip(SCROW nCellY, const SfxItemSet* pCondSet)
++{
++    bool bNormalClip = false;
++       //      Don't clip for text height when printing rows with optimal height,
++       //      except when font size is from conditional formatting.
++       //!     Allow clipping when vertically merged?
++       if ( eType != OUTTYPE_PRINTER ||
++               ( pDoc->GetRowFlags( nCellY, nTab ) & CR_MANUALSIZE ) ||
++               ( pCondSet && SFX_ITEM_SET ==
++                       pCondSet->GetItemState(ATTR_FONT_HEIGHT, sal_True) ) )
++               bNormalClip = true;
++    return bNormalClip;
++}
++
+ void ScOutputData::DrawEdit(sal_Bool bPixelToLogic)
+ {
+     ScFieldEditEngine* pEngine = NULL;
+@@ -4622,11 +4632,21 @@
+                                     else
+                                     {
+                                         //	bei gedrehtem Text ist Standard zentriert
++                                        long nDiff = 0;
+                                         if (eHorJust==SVX_HOR_JUSTIFY_RIGHT)
+-                                            aLogicStart.X() += nAvailWidth - nEngineWidth;
++                                            nDiff = nAvailWidth - nEngineWidth;
+                                         else if (eHorJust==SVX_HOR_JUSTIFY_CENTER ||
+                                                  eHorJust==SVX_HOR_JUSTIFY_STANDARD)
+-                                            aLogicStart.X() += (nAvailWidth - nEngineWidth) / 2;
++                                            nDiff = (nAvailWidth - nEngineWidth) / 2;
++
++                                        if (nEngineWidth > nAvailWidth)
++                                        {
++                                            if (nAttrRotate == 9000)
++                                               nDiff = 0;
++                                            else if (nAttrRotate == 27000)
++                                               nDiff = nAvailWidth - nEngineWidth;
++                                        }
++                                        aLogicStart.X() += nDiff;
+                                     }
+                                 }
+ 

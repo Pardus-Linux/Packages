@@ -1,0 +1,42 @@
+From 6b8151cf40be1257db1c5165c5015490390cab6f Mon Sep 17 00:00:00 2001
+From: David Tardon <dtardon@redhat.com>
+Date: Tue, 10 May 2011 09:55:55 +0200
+Subject: [PATCH] rhbz#702635 set correct page number when exporting selected
+ pages
+
+---
+ filter/source/pdf/pdfexport.cxx |    4 +++-
+ 1 files changed, 3 insertions(+), 1 deletions(-)
+
+diff --git a/filter/source/pdf/pdfexport.cxx b/filter/source/pdf/pdfexport.cxx
+index bffd26c..5de0cbc 100644
+--- a/filter/source/pdf/pdfexport.cxx
++++ b/filter/source/pdf/pdfexport.cxx
+@@ -193,6 +193,7 @@ sal_Bool PDFExport::ExportSelection( vcl::PDFWriter& rPDFWriter, Reference< com:
+             if ( nPageCount )
+             {
+                 sal_Int32 nSel = aMultiSelection.FirstSelected();
++                sal_Int32 nCurrentPage(0);
+                 while ( nSel != sal_Int32(SFX_ENDOFSELECTION) )
+                 {
+                     Sequence< PropertyValue >   aRenderer( rRenderable->getRenderer( nSel - 1, rSelection, rRenderOptions ) );
+@@ -204,7 +205,7 @@ sal_Bool PDFExport::ExportSelection( vcl::PDFWriter& rPDFWriter, Reference< com:
+                             aRenderer[ nProperty].Value >>= aPageSize;
+                     }
+ 
+-                    pPDFExtOutDevData->SetCurrentPageNumber( nSel - 1 );
++                    pPDFExtOutDevData->SetCurrentPageNumber( nCurrentPage );
+ 
+                     GDIMetaFile	                aMtf;
+                     const MapMode               aMapMode( MAP_100TH_MM );
+@@ -242,6 +243,7 @@ sal_Bool PDFExport::ExportSelection( vcl::PDFWriter& rPDFWriter, Reference< com:
+                         *pFirstPage <<= sal_False;
+ 
+                     ++mnProgressValue;
++                    ++nCurrentPage;
+                 }
+             }
+             else
+-- 
+1.7.5.1
+

@@ -1,0 +1,196 @@
+diff -ru vcl.orig/unx/source/fontmanager/fontconfig.cxx vcl/unx/source/fontmanager/fontconfig.cxx
+--- vcl.orig/unx/source/fontmanager/fontconfig.cxx	2009-10-08 13:25:00.000000000 +0100
++++ vcl/unx/source/fontmanager/fontconfig.cxx	2009-10-08 13:51:51.000000000 +0100
+@@ -92,6 +92,9 @@
+ 
+ #include "sal/alloca.h"
+ 
++#include <i18nutil/unicode.hxx>  //unicode::getUnicodeScriptType
++#include <com/sun/star/i18n/ScriptType.hdl> //ScriptType
++
+ #include <utility>
+ #include <algorithm>
+ 
+@@ -1108,6 +1111,138 @@
+     }
+ }
+ 
++static const char* pick_sample_language(const sal_uInt32 cCode)
++{
++    using namespace ::com::sun::star::i18n;
++
++    static ScriptTypeList aScripts[] =
++    {
++        { UnicodeScript_kBasicLatin, UnicodeScript_kBasicLatin, UnicodeScript_kBasicLatin },
++        { UnicodeScript_kLatin1Supplement, UnicodeScript_kLatin1Supplement, UnicodeScript_kLatin1Supplement },
++        { UnicodeScript_kLatinExtendedA, UnicodeScript_kLatinExtendedA, UnicodeScript_kLatinExtendedA },
++        { UnicodeScript_kLatinExtendedB, UnicodeScript_kLatinExtendedB, UnicodeScript_kLatinExtendedB },
++        { UnicodeScript_kGreek, UnicodeScript_kGreek, UnicodeScript_kGreek },
++        { UnicodeScript_kCyrillic, UnicodeScript_kCyrillic, UnicodeScript_kCyrillic },
++        { UnicodeScript_kArmenian, UnicodeScript_kArmenian, UnicodeScript_kArmenian },
++        { UnicodeScript_kHebrew, UnicodeScript_kHebrew, UnicodeScript_kHebrew },
++        { UnicodeScript_kArabic, UnicodeScript_kArabic, UnicodeScript_kArabic },
++        { UnicodeScript_kSyriac, UnicodeScript_kSyriac, UnicodeScript_kSyriac },
++        { UnicodeScript_kThaana, UnicodeScript_kThaana, UnicodeScript_kThaana },
++        { UnicodeScript_kDevanagari, UnicodeScript_kDevanagari, UnicodeScript_kDevanagari },
++        { UnicodeScript_kBengali, UnicodeScript_kBengali, UnicodeScript_kBengali },
++        { UnicodeScript_kGurmukhi, UnicodeScript_kGurmukhi, UnicodeScript_kGurmukhi },
++        { UnicodeScript_kGujarati, UnicodeScript_kGujarati, UnicodeScript_kGujarati },
++        { UnicodeScript_kOriya, UnicodeScript_kOriya, UnicodeScript_kOriya },
++        { UnicodeScript_kTamil, UnicodeScript_kTamil, UnicodeScript_kTamil },
++        { UnicodeScript_kTelugu, UnicodeScript_kTelugu, UnicodeScript_kTelugu },
++        { UnicodeScript_kKannada, UnicodeScript_kKannada, UnicodeScript_kKannada },
++        { UnicodeScript_kMalayalam, UnicodeScript_kMalayalam, UnicodeScript_kMalayalam },
++        { UnicodeScript_kSinhala, UnicodeScript_kSinhala, UnicodeScript_kSinhala },
++        { UnicodeScript_kThai, UnicodeScript_kThai, UnicodeScript_kThai },
++        { UnicodeScript_kLao, UnicodeScript_kLao, UnicodeScript_kLao },
++        { UnicodeScript_kTibetan, UnicodeScript_kTibetan, UnicodeScript_kTibetan },
++        { UnicodeScript_kMyanmar, UnicodeScript_kMyanmar, UnicodeScript_kMyanmar },
++        { UnicodeScript_kGeorgian, UnicodeScript_kGeorgian, UnicodeScript_kGeorgian },
++        { UnicodeScript_kHangulJamo, UnicodeScript_kHangulJamo, UnicodeScript_kHangulJamo },
++        { UnicodeScript_kEthiopic, UnicodeScript_kEthiopic, UnicodeScript_kEthiopic },
++        { UnicodeScript_kCherokee, UnicodeScript_kCherokee, UnicodeScript_kCherokee },
++        { UnicodeScript_kUnifiedCanadianAboriginalSyllabics, 
++            UnicodeScript_kUnifiedCanadianAboriginalSyllabics, 
++            UnicodeScript_kUnifiedCanadianAboriginalSyllabics },
++        { UnicodeScript_kKhmer, UnicodeScript_kKhmer, UnicodeScript_kKhmer },
++        { UnicodeScript_kMongolian, UnicodeScript_kMongolian, UnicodeScript_kMongolian },
++        { UnicodeScript_kLatinExtendedAdditional, UnicodeScript_kLatinExtendedAdditional,
++          UnicodeScript_kLatinExtendedAdditional },
++        { UnicodeScript_kGreekExtended, UnicodeScript_kGreekExtended, UnicodeScript_kGreekExtended },
++        { UnicodeScript_kHiragana, UnicodeScript_kHiragana, UnicodeScript_kHiragana },
++        { UnicodeScript_kKatakana, UnicodeScript_kKatakana, UnicodeScript_kKatakana },
++        { UnicodeScript_kHangulCompatibilityJamo, UnicodeScript_kHangulCompatibilityJamo, 
++          UnicodeScript_kHangulCompatibilityJamo },
++        { UnicodeScript_kHangulSyllable, UnicodeScript_kHangulSyllable,
++          UnicodeScript_kHangulSyllable },
++        { UnicodeScript_kArabicPresentationB, UnicodeScript_kArabicPresentationB,
++          UnicodeScript_kArabicPresentationB },
++        { UnicodeScript_kScriptCount, UnicodeScript_kScriptCount, UnicodeScript_kScriptCount }
++    };
++
++    switch (unicode::getUnicodeScriptType(cCode, aScripts, UnicodeScript_kScriptCount))
++    {
++        case UnicodeScript_kBasicLatin:
++        case UnicodeScript_kLatin1Supplement:
++        case UnicodeScript_kLatinExtendedA:
++        case UnicodeScript_kLatinExtendedB:
++        case UnicodeScript_kLatinExtendedAdditional:
++            return "en";
++        case UnicodeScript_kGreek:
++        case UnicodeScript_kGreekExtended:
++            return "el";
++        case UnicodeScript_kCyrillic:
++            return "ru";
++        case UnicodeScript_kArmenian:
++            return "hy";
++        case UnicodeScript_kHebrew:
++            return "he";
++        case UnicodeScript_kArabic:
++        case UnicodeScript_kArabicPresentationB:
++            return "ar";
++        case UnicodeScript_kSyriac:
++            return "syr";
++        case UnicodeScript_kThaana:
++            return "dv";
++        case UnicodeScript_kDevanagari:
++            return "hi";
++        case UnicodeScript_kBengali:
++            return "bn";
++        case UnicodeScript_kGurmukhi:
++            return "pa";
++        case UnicodeScript_kGujarati:
++            return "gu";
++        case UnicodeScript_kOriya:
++            return "or";
++        case UnicodeScript_kTamil:
++            return "ta";
++        case UnicodeScript_kTelugu:
++            return "te";
++        case UnicodeScript_kKannada:
++            return "ka";
++        case UnicodeScript_kMalayalam:
++            return "ml";
++        case UnicodeScript_kSinhala:
++            return "si";
++        case UnicodeScript_kThai:
++            return "th";
++        case UnicodeScript_kLao:
++            return "lo";
++        case UnicodeScript_kTibetan:
++            return "bo";
++        case UnicodeScript_kMyanmar:
++            return "my";
++        case UnicodeScript_kGeorgian:
++            return "ka";
++        case UnicodeScript_kHangulJamo:
++        case UnicodeScript_kHangulCompatibilityJamo:
++        case UnicodeScript_kHangulSyllable:
++            return "ko";
++        case UnicodeScript_kEthiopic:
++            return "am";
++        case UnicodeScript_kCherokee:
++            return "chr";
++        case UnicodeScript_kUnifiedCanadianAboriginalSyllabics:
++            return "ui";
++        case UnicodeScript_kKhmer:
++            return "km";
++        case UnicodeScript_kMongolian:
++            return "mn";
++        case UnicodeScript_kHiragana:
++        case UnicodeScript_kKatakana:
++            return "ja";
++        default:
++            break;
++    }
++
++    return NULL;
++}
++
+ rtl::OUString PrintFontManager::Substitute(const rtl::OUString& rFontName,
+     rtl::OUString& rMissingCodes, const rtl::OString &rLangAttrib,
+     italic::type &rItalic, weight::type &rWeight,
+@@ -1128,14 +1263,13 @@
+     const FcChar8* pTargetNameUtf8 = (FcChar8*)aTargetName.getStr();
+     rWrapper.FcPatternAddString( pPattern, FC_FAMILY, pTargetNameUtf8 );
+ 
++    const FcChar8* pLangAttribUtf8 = NULL;
+     if( rLangAttrib.getLength() )
+     {
+-        const FcChar8* pLangAttribUtf8;
+         if (rLangAttrib.equalsIgnoreAsciiCase(OString(RTL_CONSTASCII_STRINGPARAM("pa-in"))))
+             pLangAttribUtf8 = (FcChar8*)"pa";
+         else
+             pLangAttribUtf8 = (FcChar8*)rLangAttrib.getStr();
+-        rWrapper.FcPatternAddString( pPattern, FC_LANG, pLangAttribUtf8 );
+     }
+ 
+     // Add required Unicode characters, if any
+@@ -1147,11 +1281,16 @@
+            // also handle unicode surrogates
+            const sal_uInt32 nCode = rMissingCodes.iterateCodePoints( &nStrIndex );
+            rWrapper.FcCharSetAddChar( unicodes, nCode );
++           if (!pLangAttribUtf8)
++               pLangAttribUtf8 = (const FcChar8*)pick_sample_language(nCode);
+        }
+        rWrapper.FcPatternAddCharSet( pPattern, FC_CHARSET, unicodes);
+        rWrapper.FcCharSetDestroy( unicodes );
+     }
+ 
++    if( pLangAttribUtf8 )
++        rWrapper.FcPatternAddString( pPattern, FC_LANG, pLangAttribUtf8 );
++
+     addtopattern(rWrapper, pPattern, rItalic, rWeight, rWidth, rPitch);
+ 
+     // query fontconfig for a substitute
+diff -ru vcl.orig/util/makefile.mk vcl/util/makefile.mk
+--- vcl.orig/util/makefile.mk	2009-10-08 13:25:00.000000000 +0100
++++ vcl/util/makefile.mk	2009-10-08 13:25:09.000000000 +0100
+@@ -298,6 +298,7 @@
+ # libs for generic plugin
+ SHL2STDLIBS=\
+ 			$(VCLLIB)\
++            $(I18NUTILLIB)     \
+             $(I18NPAPERLIB)     \
+             $(I18NISOLANGLIB)     \
+             $(TOOLSLIB)         \

@@ -1,0 +1,127 @@
+From 5613954b275de8de9e6852738a7bfd215252d134 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Caol=C3=A1n=20McNamara?= <caolanm@redhat.com>
+Date: Tue, 7 Jun 2011 17:03:52 +0100
+Subject: [PATCH] Related: rhbz#652604 better survive exceptions thrown during
+ autorecover
+
+---
+ framework/inc/services/autorecovery.hxx    |   20 ++++++++++++++
+ framework/source/services/autorecovery.cxx |   40 +++++++++++++++++++++------
+ 2 files changed, 51 insertions(+), 9 deletions(-)
+
+diff --git a/framework/inc/services/autorecovery.hxx b/framework/inc/services/autorecovery.hxx
+index 636ad98..6c4207e 100644
+--- a/framework/inc/services/autorecovery.hxx
++++ b/framework/inc/services/autorecovery.hxx
+@@ -861,6 +861,26 @@ class AutoRecovery  : public  css::lang::XTypeProvider
+                                                                             const ::rtl::OUString&             sEventType,
+                                                                                   AutoRecovery::TDocumentInfo* pInfo     );
+ 
++
++        class ListenerInformer
++        {
++        private:
++            AutoRecovery &m_rRecovery;
++            sal_Int32 m_eJob;
++            bool m_bStopped;
++        public:
++            ListenerInformer(AutoRecovery &rRecovery, sal_Int32 eJob)
++                : m_rRecovery(rRecovery), m_eJob(eJob), m_bStopped(false)
++            {
++            }
++            void start();
++            void stop();
++            ~ListenerInformer()
++            {
++                stop();
++            }
++        };
++
+         //---------------------------------------
+ 
+         // TODO document me
+diff --git a/framework/source/services/autorecovery.cxx b/framework/source/services/autorecovery.cxx
+index efe2f17..ec60d13 100644
+--- a/framework/source/services/autorecovery.cxx
++++ b/framework/source/services/autorecovery.cxx
+@@ -576,6 +576,21 @@ void SAL_CALL AutoRecovery::dispatch(const css::util::URL&
+         implts_dispatch(aParams);
+ }
+ 
++void AutoRecovery::ListenerInformer::start()
++{
++    m_rRecovery.implts_informListener(m_eJob,
++        AutoRecovery::implst_createFeatureStateEvent(m_eJob, OPERATION_START, NULL));
++}
++
++void AutoRecovery::ListenerInformer::stop()
++{
++    if (m_bStopped)
++        return;
++    m_rRecovery.implts_informListener(m_eJob,
++        AutoRecovery::implst_createFeatureStateEvent(m_eJob, OPERATION_STOP, NULL));
++    m_bStopped = true;
++}
++
+ //-----------------------------------------------
+ void AutoRecovery::implts_dispatch(const DispatchParams& aParams)
+ {
+@@ -599,8 +614,8 @@ void AutoRecovery::implts_dispatch(const DispatchParams& aParams)
+     implts_stopTimer();
+     implts_stopListening();
+ 
+-    implts_informListener(eJob,
+-        AutoRecovery::implst_createFeatureStateEvent(eJob, OPERATION_START, NULL));
++    ListenerInformer aListenerInformer(*this, eJob);
++    aListenerInformer.start();
+ 
+     try
+     {
+@@ -676,13 +691,14 @@ void AutoRecovery::implts_dispatch(const DispatchParams& aParams)
+             )
+             implts_cleanUpWorkingEntry(aParams);
+     }
+-    catch(const css::uno::RuntimeException& exRun)
+-        { throw exRun; }
++    catch(const css::uno::RuntimeException&)
++    {
++        throw;
++    }
+     catch(const css::uno::Exception&)
+         {} // TODO better error handling
+ 
+-    implts_informListener(eJob,
+-        AutoRecovery::implst_createFeatureStateEvent(eJob, OPERATION_STOP, NULL));
++    aListenerInformer.stop();
+ 
+     // SAFE -> ----------------------------------
+     aWriteLock.lock();
+@@ -1304,8 +1320,8 @@ void AutoRecovery::implts_flushConfigItem(const AutoRecovery::TDocumentInfo& rIn
+                 xModify->insertByName(sID, css::uno::makeAny(xSet));
+         }
+     }
+-    catch(const css::uno::RuntimeException& exRun)
+-        { throw exRun; }
++    catch(const css::uno::RuntimeException&)
++        { throw; }
+     catch(const css::uno::Exception&)
+         {} // ??? can it happen that a full disc let these set of operations fail too ???
+ 
+@@ -1627,7 +1643,13 @@ IMPL_LINK(AutoRecovery, implts_asyncDispatch, void*, EMPTYARG)
+     aWriteLock.unlock();
+     // <- SAFE
+ 
+-    implts_dispatch(aParams);
++    try
++    {
++        implts_dispatch(aParams);
++    }
++    catch (...)
++    {
++    }
+     return 0;
+ }
+ 
+-- 
+1.7.5.2
+

@@ -1,0 +1,26 @@
+From 5cc73f49400f9719ffd5382e64931de6eb8f130c Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Caol=C3=A1n=20McNamara?= <caolanm@redhat.com>
+Date: Sun, 17 Apr 2011 22:57:40 +0100
+Subject: [PATCH] Resolves: rhbz#695509 crash in RefreshDocumentLB
+
+---
+ sd/source/ui/dlg/navigatr.cxx |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletions(-)
+
+diff --git a/sd/source/ui/dlg/navigatr.cxx b/sd/source/ui/dlg/navigatr.cxx
+index 09426b8..edee709 100644
+--- a/sd/source/ui/dlg/navigatr.cxx
++++ b/sd/source/ui/dlg/navigatr.cxx
+@@ -713,7 +713,8 @@ void SdNavigatorWin::RefreshDocumentLB( const String* pDocName )
+                 NavDocInfo* pInfo = new NavDocInfo();
+                 pInfo->mpDocShell = pDocShell;
+ 
+-                aStr = pDocShell->GetMedium()->GetName();
++                SfxMedium *pMedium = pDocShell->GetMedium();
++                aStr = pMedium ? pMedium->GetName() : String();
+                 if( aStr.Len() )
+                     pInfo->SetName();
+                 else
+-- 
+1.7.4.2
+

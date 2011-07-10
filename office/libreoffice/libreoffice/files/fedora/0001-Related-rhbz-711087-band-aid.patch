@@ -1,0 +1,26 @@
+From fe44d66adbab17b804a27d91148490b23fce75da Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Caol=C3=A1n=20McNamara?= <caolanm@redhat.com>
+Date: Fri, 17 Jun 2011 16:14:12 +0100
+Subject: [PATCH] Related: rhbz#711087 band-aid
+
+---
+ sc/source/ui/undo/undoblk.cxx |    3 +++
+ 1 files changed, 3 insertions(+), 0 deletions(-)
+
+diff --git a/sc/source/ui/undo/undoblk.cxx b/sc/source/ui/undo/undoblk.cxx
+index 8439801..d535c9c 100644
+--- a/sc/source/ui/undo/undoblk.cxx
++++ b/sc/source/ui/undo/undoblk.cxx
+@@ -2084,6 +2084,9 @@ void ScUndoRemoveMerge::Undo()
+     for (set<SCTAB>::const_iterator itr = maOption.maTabs.begin(), itrEnd = maOption.maTabs.end();
+           itr != itrEnd; ++itr)
+     {
++        OSL_ENSURE(pUndoDoc, "NULL pUndoDoc!");
++        if (!pUndoDoc)
++            continue;
+         // There is no need to extend merge area because it's already been extended.
+         ScRange aRange = maOption.getSingleRange(*itr);
+         pDoc->DeleteAreaTab(aRange, IDF_ATTRIB);
+-- 
+1.7.5.4
+

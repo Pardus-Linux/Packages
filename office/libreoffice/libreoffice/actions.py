@@ -35,10 +35,7 @@ def setup():
                        --with-lang="de en-US es fr hu it nl pt-BR ru sv tr" \
                        --disable-gnome-vfs \
                        --disable-kde \
-                       --disable-mono \
                        --disable-odk \
-                       --disable-post-install-scripts \
-                       --disable-qadevooo \
                        --disable-rpath \
                        --enable-binfilter \
                        --enable-cairo \
@@ -68,20 +65,14 @@ def setup():
                        --enable-opengl \
                        --enable-symbols \
                        --enable-vba \
-                       --with-about-bitmaps=\"src/openabout_pardus.png\" \
+                       --with-about-bitmap=\"src/openabout_pardus.png\" \
                        --with-ant-home=/usr/share/ant \
-                       --with-binsuffix=no \
-                       --with-dict=ALL \
-                       --with-drink="Burdur shish" \
                        --with-extension-integration \
                        --with-external-dict-dir=/usr/share/hunspell \
-                       --with-gcc-speedup=ccache \
                        --with-hsqldb-jar=/usr/share/java/hsqldb.jar \
-                       --with-intro-bitmaps=\"src/openintro_pardus.png\" \
+                       --with-intro-bitmap=\"src/openintro_pardus.png\" \
                        --with-jdk-home=/opt/sun-jdk \
-                       --with-openclipart=/usr/share/clipart/openclipart \
                        --with-openldap \
-                       --with-system-agg \
                        --with-system-boost \
                        --with-system-cairo \
                        --with-system-cppunit \
@@ -91,17 +82,18 @@ def setup():
                        --with-system-expat \
                        --with-system-hsqldb \
                        --with-system-hunspell \
+                       --with-system-headers \
                        --with-system-icu \
                        --with-system-jpeg \
                        --with-system-libwpd \
+                       --with-system-libs \
                        --with-system-libwpg \
                        --with-system-libwps \
                        --with-system-libxslt \
                        --with-system-lpsolve \
-                       --with-system-mdbtools \
                        --with-system-mozilla \
                        --with-system-neon \
-                       --with-system-odbc-headers \
+                       --with-system-odbc \
                        --with-system-openssl \
                        --with-system-poppler \
                        --with-system-python \
@@ -116,8 +108,6 @@ def setup():
                        --without-git \
                        --without-fonts \
                        --without-myspell-dicts \
-                       --without-nas \
-                       --without-writer2latex \
                        --with-num-cpus=%s' % (AppDir, AppDir, getJobCount()))
 
 def build():

@@ -1,0 +1,32 @@
+From fc23cec13e5e17fb6d0f2d650b8889041af2da68 Mon Sep 17 00:00:00 2001
+From: David Tardon <dtardon@redhat.com>
+Date: Sat, 18 Jun 2011 16:54:43 +0200
+Subject: [PATCH] rhbz#667082 do not crash importing section containing just
+ an empty paragraph
+
+---
+ writerfilter/source/dmapper/DomainMapper_Impl.cxx |    8 +-------
+ 1 files changed, 1 insertions(+), 7 deletions(-)
+
+diff --git a/writerfilter/source/dmapper/DomainMapper_Impl.cxx b/writerfilter/source/dmapper/DomainMapper_Impl.cxx
+index 759f8e7..9944c8c 100644
+--- a/writerfilter/source/dmapper/DomainMapper_Impl.cxx
++++ b/writerfilter/source/dmapper/DomainMapper_Impl.cxx
+@@ -937,13 +937,7 @@ void DomainMapper_Impl::finishParagraph( PropertyMapPtr pPropertyMap )
+                 uno::Reference< text::XTextRange > xParaEnd( xCur, uno::UNO_QUERY );
+                 CheckParaRedline( xParaEnd );
+ 
+-                // Remove the last empty section paragraph if needed
+-                if ( m_bIsLastParaInSection && !m_bParaChanged )
+-                {
+-                    RemoveLastParagraph( );
+-                    m_bIsLastParaInSection = false;
+-                }
+-
++                m_bIsLastParaInSection = false;
+                 m_bParaChanged = false;
+             }
+             if( !bKeepLastParagraphProperties )
+-- 
+1.7.5.2
+

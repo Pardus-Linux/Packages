@@ -1,0 +1,36 @@
+From d14700853b39685e5171b5aa99142106cd658aad Mon Sep 17 00:00:00 2001
+From: David Tardon <dtardon@redhat.com>
+Date: Tue, 24 May 2011 06:30:46 +0200
+Subject: [PATCH] handle NULL display gracefully
+
+---
+ desktop/unx/source/splashx.c |    6 +++++-
+ 1 files changed, 5 insertions(+), 1 deletions(-)
+
+diff --git a/desktop/unx/source/splashx.c b/desktop/unx/source/splashx.c
+index a8a87b0..dc88343 100755
+--- a/desktop/unx/source/splashx.c
++++ b/desktop/unx/source/splashx.c
+@@ -574,6 +574,9 @@ static void process_events()
+ // Draw the progress
+ void splash_draw_progress( int progress )
+ {
++    if (!display)
++        return;
++
+     // sanity
+     if ( progress < 0 )
+         progress = 0;
+@@ -604,7 +607,8 @@ void splash_draw_progress( int progress )
+ // Close the window & cleanup
+ void splash_close_window()
+ {
+-    XCloseDisplay( display );
++    if (display)
++        XCloseDisplay( display );
+ #ifdef USE_LIBPNG
+     png_destroy_read_struct( &png_ptr, &info_ptr, NULL );
+ #else
+-- 
+1.7.5.1
+

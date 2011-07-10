@@ -1,0 +1,54 @@
+From 6f42aa185adc436d976da04b8b193dfe25d61f7a Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Caol=C3=A1n=20McNamara?= <caolanm@redhat.com>
+Date: Fri, 17 Jun 2011 13:38:27 +0100
+Subject: [PATCH] Related: rhbz#702833 addEventListener without
+ removeEventListener
+
+---
+ .../source/deployment/gui/dp_gui_extlistbox.cxx    |   12 +++++++++++-
+ 1 files changed, 11 insertions(+), 1 deletions(-)
+
+diff --git a/desktop/source/deployment/gui/dp_gui_extlistbox.cxx b/desktop/source/deployment/gui/dp_gui_extlistbox.cxx
+index 8cdf0a6..3d0d426 100644
+--- a/desktop/source/deployment/gui/dp_gui_extlistbox.cxx
++++ b/desktop/source/deployment/gui/dp_gui_extlistbox.cxx
+@@ -970,18 +970,20 @@ long ExtensionBox_Impl::addEntry( const uno::Reference< deployment::XPackage > &
+     if ( ! pEntry->m_sTitle.Len() )
+         return 0;
+ 
+-    xPackage->addEventListener( uno::Reference< lang::XEventListener > ( m_xRemoveListener, uno::UNO_QUERY ) );
++    bool bNewEntryInserted = false;
+ 
+     ::osl::ClearableMutexGuard guard(m_entriesMutex);
+     if ( m_vEntries.empty() )
+     {
+         m_vEntries.push_back( pEntry );
++        bNewEntryInserted = true;
+     }
+     else
+     {
+         if ( !FindEntryPos( pEntry, 0, m_vEntries.size()-1, nPos ) )
+         {
+             m_vEntries.insert( m_vEntries.begin()+nPos, pEntry );
++            bNewEntryInserted = true;
+         }
+         else if ( !m_bInCheckMode )
+         {
+@@ -989,6 +991,14 @@ long ExtensionBox_Impl::addEntry( const uno::Reference< deployment::XPackage > &
+         }
+     }
+ 
++    //Related: rhbz#702833 Only add a Listener if we're adding a new entry, to
++    //keep in sync with removeEventListener logic
++    if (bNewEntryInserted)
++    {
++        pEntry->m_xPackage->addEventListener(uno::Reference< lang::XEventListener > ( m_xRemoveListener, uno::UNO_QUERY ) );
++    }
++
++
+     pEntry->m_bHasOptions = m_pManager->supportsOptions( xPackage );
+     pEntry->m_bUser       = xPackage->getRepositoryName().equals( USER_PACKAGE_MANAGER );
+     pEntry->m_bShared     = xPackage->getRepositoryName().equals( SHARED_PACKAGE_MANAGER );
+-- 
+1.7.5.4
+

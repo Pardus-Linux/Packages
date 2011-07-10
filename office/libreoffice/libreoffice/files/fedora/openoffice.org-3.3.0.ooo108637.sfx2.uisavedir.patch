@@ -1,0 +1,41 @@
+diff -r 3c24aa9a7810 sfx2/source/doc/guisaveas.cxx
+--- a/sfx2/source/doc/guisaveas.cxx	Sat Jan 23 16:31:03 2010 +0000
++++ b/sfx2/source/doc/guisaveas.cxx	Sun Jan 24 17:16:37 2010 +0000
+@@ -231,7 +231,7 @@
+ 								sal_Bool bSetStandardName,
+ 								::rtl::OUString& aSuggestedName,
+                                 sal_Bool bPreselectPassword,
+-								const ::rtl::OUString& aSuggestedDir,
++								::rtl::OUString& aSuggestedDir,
+ 								sal_Int16 nDialog,
+ 								const ::rtl::OUString& rStandardDir,
+ 								const ::com::sun::star::uno::Sequence< ::rtl::OUString >& rBlackList
+@@ -731,7 +731,7 @@
+ 											sal_Bool bSetStandardName,
+ 											::rtl::OUString& aSuggestedName,
+                                             sal_Bool bPreselectPassword,
+-											const ::rtl::OUString& aSuggestedDir,
++											::rtl::OUString& aSuggestedDir,
+ 											sal_Int16 nDialog,
+ 											const ::rtl::OUString& rStandardDir,
+ 											const ::com::sun::star::uno::Sequence< ::rtl::OUString >& rBlackList)
+@@ -927,6 +927,7 @@
+ 	INetURLObject aURL( pFileDlg->GetPath() );
+ 	// the path should be provided outside since it might be used for further calls to the dialog
+ 	aSuggestedName = aURL.GetName( INetURLObject::DECODE_WITH_CHARSET );
++       aSuggestedDir = pFileDlg->GetDisplayDirectory();
+ 
+ 	// old filter options should be cleared in case different filter is used
+ 
+@@ -1412,10 +1413,8 @@
+         sal_Bool bExit = sal_False;
+         while ( !bExit )
+         {
++            // in case the dialog is opened a second time the folder should be the same as previously navigated to by the user, not what was handed over by initial parameters
+             bUseFilterOptions = aModelData.OutputFileDialog( nStoreMode, aFilterProps, bSetStandardName, aSuggestedName, bPreselectPassword, aSuggestedDir, nDialog, sStandardDir, aBlackList );
+-
+-			// in case the dialog is opend a second time the folder should be the same as before, not what was handed over by parameters
+-			aSuggestedDir = ::rtl::OUString();
+             if ( nStoreMode == SAVEAS_REQUESTED )
+             {
+                 // in case of saving check filter for possible alien warning

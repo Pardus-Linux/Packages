@@ -1,0 +1,174 @@
+Index: ucbhelper/source/client/content.cxx
+===================================================================
+--- ucbhelper/source/client/content.cxx	(revision 270567)
++++ ucbhelper/source/client/content.cxx	(working copy)
+@@ -39,6 +39,7 @@
+ #include <cppuhelper/weak.hxx>
+ 
+ #include <cppuhelper/implbase1.hxx>
++#include <com/sun/star/beans/PropertyValue.hpp>
+ #include <com/sun/star/ucb/ContentCreationError.hpp>
+ #include <com/sun/star/ucb/XCommandEnvironment.hpp>
+ #include <com/sun/star/ucb/XCommandInfo.hpp>
+@@ -48,6 +49,8 @@
+ #include <com/sun/star/ucb/ContentAction.hpp>
+ #include <com/sun/star/ucb/OpenCommandArgument2.hpp>
+ #include <com/sun/star/ucb/InsertCommandArgument.hpp>
++#include <com/sun/star/ucb/IOErrorCode.hpp>
++#include <com/sun/star/ucb/InteractiveAugmentedIOException.hpp>
+ #include <com/sun/star/ucb/GlobalTransferCommandArgument.hpp>
+ #include <com/sun/star/ucb/NameClash.hpp>
+ #include <com/sun/star/ucb/OpenMode.hpp>
+@@ -65,6 +68,8 @@
+ #include <com/sun/star/sdbc/XRow.hpp>
+ #include <com/sun/star/lang/IllegalArgumentException.hpp>
+ #include <com/sun/star/beans/UnknownPropertyException.hpp>
++#include <com/sun/star/task/XInteractionRequest.hpp>
++
+ #include <ucbhelper/macros.hxx>
+ #include <ucbhelper/content.hxx>
+ #include <ucbhelper/contentbroker.hxx>
+@@ -72,6 +77,10 @@
+ #include <ucbhelper/activedatastreamer.hxx>
+ #include <ucbhelper/interactionrequest.hxx>
+ #include <ucbhelper/cancelcommandexecution.hxx>
++#include <ucbhelper/fileidentifierconverter.hxx>
++#include <ucbhelper/simpleinteractionrequest.hxx>
++
++#include <memory>
+ 
+ using namespace com::sun::star::container;
+ using namespace com::sun::star::beans;
+@@ -375,6 +384,54 @@
+     return Reference< XContent >();
+ }
+ 
++namespace
++{
++
++void
++lcl_displayMessage(
++        const Reference<XCommandEnvironment>& rEnvironment,
++        const rtl::OUString& rUri)
++{
++    // Create exception
++    const Reference<XContentProviderManager> xCPM(
++            getContentBroker(true)->getContentProviderManagerInterface());
++    const PropertyValue aUriProperty(
++            rtl::OUString::createFromAscii("Uri"),
++            -1,
++            makeAny(getSystemPathFromFileURL(xCPM, rUri)),
++            PropertyState_DIRECT_VALUE)
++        ;
++    Sequence<Any> lArguments(1);
++    lArguments[0] <<= aUriProperty;
++    const InteractiveAugmentedIOException xError(
++            rtl::OUString(),
++            0,
++            InteractionClassification_ERROR,
++            IOErrorCode_NO_FILE,
++            lArguments)
++        ;
++
++    // Create interaction request
++    std::auto_ptr<ucbhelper::SimpleInteractionRequest> aRequest(
++            new ucbhelper::SimpleInteractionRequest(makeAny(xError), CONTINUATION_APPROVE));
++    {
++        Reference<XInteractionContinuation> xContinuation(
++                new ::ucbhelper::InteractionApprove(aRequest.get()));
++        Sequence<Reference<XInteractionContinuation> > lContinuations(1);
++        lContinuations[0].set(xContinuation);
++        aRequest->setContinuations(lContinuations);
++    }
++
++    Reference<XInteractionHandler> xInteraction(rEnvironment->getInteractionHandler());
++    if (xInteraction.is())
++    {
++        Reference<XInteractionRequest> xRequest(aRequest.release());
++        xInteraction->handle(xRequest);
++    }
++}
++    
++}
++
+ //=========================================================================
+ //=========================================================================
+ //
+@@ -1186,7 +1243,10 @@
+     throw( CommandAbortedException, RuntimeException, Exception )
+ {
+     if ( !isDocument() )
++    {
++        lcl_displayMessage(m_xImpl->getEnvironment(), getURL());
+         return Reference< XInputStream >();
++    }
+ 
+     Reference< XActiveDataSink > xSink = new ActiveDataSink;
+ 
+@@ -1211,7 +1271,10 @@
+     throw( CommandAbortedException, RuntimeException, Exception )
+ {
+     if ( !isDocument() )
++    {
++        lcl_displayMessage(m_xImpl->getEnvironment(), getURL());
+         return Reference< XInputStream >();
++    }
+ 
+     Reference< XActiveDataSink > xSink = new ActiveDataSink;
+ 
+@@ -1236,7 +1299,10 @@
+     throw( CommandAbortedException, RuntimeException, Exception )
+ {
+     if ( !isDocument() )
++    {
++        lcl_displayMessage(m_xImpl->getEnvironment(), getURL());
+         return Reference< XStream >();
++    }
+ 
+     Reference< XActiveDataStreamer > xStreamer = new ActiveDataStreamer;
+ 
+@@ -1261,7 +1327,10 @@
+     throw( CommandAbortedException, RuntimeException, Exception )
+ {
+     if ( !isDocument() )
++    {
++        lcl_displayMessage(m_xImpl->getEnvironment(), getURL());
+         return Reference< XStream >();
++    }
+ 
+     Reference< XActiveDataStreamer > xStreamer = new ActiveDataStreamer;
+ 
+@@ -1286,7 +1355,10 @@
+     throw( CommandAbortedException, RuntimeException, Exception )
+ {
+     if ( !isDocument() )
++    {
++        lcl_displayMessage(m_xImpl->getEnvironment(), getURL());
+         return sal_False;
++    }
+ 
+     OpenCommandArgument2 aArg;
+     aArg.Mode       = OpenMode::DOCUMENT;
+@@ -1309,7 +1381,10 @@
+     throw( CommandAbortedException, RuntimeException, Exception )
+ {
+     if ( !isDocument() )
++    {
++        lcl_displayMessage(m_xImpl->getEnvironment(), getURL());
+         return sal_False;
++    }
+ 
+     OpenCommandArgument2 aArg;
+     aArg.Mode       = OpenMode::DOCUMENT;
+Index: comphelper/source/misc/mediadescriptor.cxx
+===================================================================
+--- comphelper/source/misc/stillreadwriteinteraction.cxx	2010-07-06 15:32:02.000000000 +0100
++++ comphelper/source/misc/stillreadwriteinteraction.cxx	2010-07-06 15:32:31.000000000 +0100
+@@ -103,6 +103,7 @@
+ 			bAbort = (
+ 				(exIO.Code == css::ucb::IOErrorCode_ACCESS_DENIED     )
+ 				|| (exIO.Code == css::ucb::IOErrorCode_LOCKING_VIOLATION )
++				|| (exIO.Code == css::ucb::IOErrorCode_NO_FILE )
+ 				|| (exIO.Code == css::ucb::IOErrorCode_NOT_EXISTING )
+ #ifdef MACOSX
+ 				// this is a workaround for MAC, on this platform if the file is locked
