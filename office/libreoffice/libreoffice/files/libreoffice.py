@@ -21,7 +21,7 @@ elif programName == "loweb":
     program = os.path.join(lo_program_path, "swriter")
     params.insert(0, "--web")
 
-elif programName == "libreoffice"
+elif programName == "libreoffice":
     program = os.path.join(lo_program_path, "soffice")
 
 else:
