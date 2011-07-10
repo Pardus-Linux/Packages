@@ -24,6 +24,11 @@ def getJobCount():
     return max(int(get.makeJOBS().strip().replace("-j", "")) - 1, 1)
 
 def setup():
+
+    # Remove previous Linux build scripts if any
+    for f in glob.glob("Linux*Set.sh"):
+        shelltools.unlink(f)
+
     autotools.autoconf("-f")
 
     #TODO: packaging internal stuff like altlinuxhyph, mythes etc. and removing all --without-system-* would be a good job
