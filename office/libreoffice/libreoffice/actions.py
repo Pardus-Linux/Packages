@@ -109,8 +109,8 @@ def install():
     autotools.rawInstall("DESTDIR=%s" % get.installDIR())
 
     #dosym main executables
-    for bin in map(os.path.basename, shelltools.ls("%s/%s/bin/*" % (get.installDIR(), AppDir))):
-        pisitools.dosym("%s/bin/%s" % (AppDir, bin), "/usr/bin/%s" % bin)
+    for bin in "lobase", "localc", "lodraw", "loimpress", "lomath", "loweb", "lowriter", "soffice", "unopkg":
+        pisitools.dosym("libreoffice", "/usr/bin/%s" % bin)
 
     # Icons
     for icon in glob.glob("sysui/desktop/icons/hicolor/48x48/apps/*.png"):
