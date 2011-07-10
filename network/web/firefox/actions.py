@@ -52,10 +52,8 @@ def install():
     shelltools.touch("%s%s/dictionaries/tr-TR.aff" % (get.installDIR(), "/usr/lib/MozillaFirefox"))
     shelltools.touch("%s%s/dictionaries/tr-TR.dic" % (get.installDIR(), "/usr/lib/MozillaFirefox"))
 
-    # Remove these
-    #pisitools.remove("/usr/lib/MozillaFirefox/defaults/profile/mimeTypes.rdf")
-    #pisitools.remove("/usr/lib/MozillaFirefox/defaults/profile/bookmarks.html")
-    #pisitools.remove("/usr/lib/MozillaFirefox/.autoreg")
+    # Create profile dir, we'll copy bookmarks.html in post-install script
+    pisitools.dodir("/usr/lib/MozillaFirefox/defaults/profile")
 
     shelltools.cd("..")
 
