@@ -26,6 +26,8 @@ def getJobCount():
 def setup():
     autotools.autoconf("-f")
 
+    #TODO: packaging internal stuff like altlinuxhyph, mythes etc. and removing all --without-system-* would be a good job
+
     #libdir is needed to set exec_prefix stuff of patches/dev300/system-python-ure-bootstrap.diff
     #enable-cairo to make HW Acceleration enabled
     shelltools.system('./configure \
@@ -34,6 +36,7 @@ def setup():
                        --sysconfdir=/etc \
                        --with-lang="de en-US es fr hu it nl pt-BR ru sv tr" \
                        --disable-gnome-vfs \
+                       --disable-graphite \
                        --disable-kde \
                        --disable-odk \
                        --disable-rpath \
@@ -73,39 +76,21 @@ def setup():
                        --with-intro-bitmap=\"src/openintro_pardus.png\" \
                        --with-jdk-home=/opt/sun-jdk \
                        --with-openldap \
-                       --with-system-boost \
-                       --with-system-cairo \
-                       --with-system-cppunit \
-                       --with-system-curl \
-                       --with-system-db \
-                       --with-system-dicts \
-                       --with-system-expat \
-                       --with-system-hsqldb \
-                       --with-system-hunspell \
                        --with-system-headers \
-                       --with-system-icu \
-                       --with-system-jpeg \
-                       --with-system-libwpd \
                        --with-system-libs \
-                       --with-system-libwpg \
-                       --with-system-libwps \
-                       --with-system-libxslt \
-                       --with-system-lpsolve \
                        --with-system-mozilla \
-                       --with-system-neon \
                        --with-system-odbc \
-                       --with-system-openssl \
-                       --with-system-poppler \
-                       --with-system-python \
-                       --with-system-redland \
                        --with-system-sane-header \
                        --with-system-servlet-api \
-                       --with-system-stdlibs \
-                       --with-system-vigra \
                        --with-system-xrender-headers \
-                       --with-system-zlib \
                        --with-vendor=\"Pardus\" \
                        --without-git \
+                       --without-system-altlinuxhyph \
+                       --without-system-beanshell \
+                       --without-system-lucene \
+                       --without-system-mdds \
+                       --without-system-mythes \
+                       --without-system-saxon \
                        --without-fonts \
                        --without-myspell-dicts \
                        --with-num-cpus=%s' % (AppDir, AppDir, getJobCount()))
