@@ -130,7 +130,7 @@ def install():
     pisitools.dodoc("ChangeLog","COPYING*")
 
     #install our own sofficerc file
-    #pisitools.insinto("%s/lib/libreoffice/program" % AppDir, "sofficerc.pardus", "sofficerc")
+    pisitools.insinto("%s/lib/libreoffice/program" % AppDir, "sofficerc.pardus", "sofficerc")
 
     # Remove installation junk
     pisitools.remove("/gid*")
