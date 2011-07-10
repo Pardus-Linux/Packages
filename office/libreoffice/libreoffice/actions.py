@@ -109,7 +109,7 @@ def install():
     autotools.rawInstall("DESTDIR=%s" % get.installDIR())
 
     #dosym main executables
-    for bin in "lobase", "localc", "lodraw", "loimpress", "lomath", "loweb", "lowriter", "soffice", "unopkg":
+    for bin in ("lobase", "localc", "lodraw", "loimpress", "lomath", "loweb", "lowriter", "soffice", "unopkg"):
         pisitools.dosym("libreoffice", "/usr/bin/%s" % bin)
 
     # Icons
