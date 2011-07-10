@@ -24,5 +24,8 @@ elif programName == "loweb":
 else:
     raise Exception("Not a recognized program name!")
 
-process = Popen([program].extend(params))
-os.waitpid(process.pid,0)
+args = [program]
+args.extend(params)
+process = Popen(args)
+process.wait()
+sys.exit(process.returncode)
