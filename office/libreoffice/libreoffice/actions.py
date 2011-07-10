@@ -28,7 +28,7 @@ def setup():
 
     #TODO: packaging internal stuff like altlinuxhyph, mythes etc. and removing all --without-system-* would be a good job
 
-    #libdir is needed to set exec_prefix stuff of patches/dev300/system-python-ure-bootstrap.diff
+    #libdir is needed to set exec_prefix
     #enable-cairo to make HW Acceleration enabled
     shelltools.system('./configure \
                        --prefix=%s \
@@ -68,12 +68,12 @@ def setup():
                        --enable-opengl \
                        --enable-symbols \
                        --enable-vba \
-                       --with-about-bitmap=\"src/openabout_pardus.png\" \
+                       --with-about-bitmap=\"%s/src/openabout_pardus.png\" \
                        --with-ant-home=/usr/share/ant \
                        --with-extension-integration \
                        --with-external-dict-dir=/usr/share/hunspell \
                        --with-hsqldb-jar=/usr/share/java/hsqldb.jar \
-                       --with-intro-bitmap=\"src/openintro_pardus.png\" \
+                       --with-intro-bitmap=\"%s/src/openintro_pardus.png\" \
                        --with-jdk-home=/opt/sun-jdk \
                        --with-openldap \
                        --with-system-headers \
@@ -93,7 +93,7 @@ def setup():
                        --without-system-saxon \
                        --without-fonts \
                        --without-myspell-dicts \
-                       --with-num-cpus=%s' % (AppDir, AppDir, getJobCount()))
+                       --with-num-cpus=%s' % (AppDir, AppDir, os.path.join(get.workDIR(),WorkDir), os.path.join(get.workDIR(),WorkDir), getJobCount()))
 
 def build():
     oldLocale = locale.setlocale(locale.LC_ALL)
