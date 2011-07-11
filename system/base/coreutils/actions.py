@@ -1,7 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright 2005-2010 TUBITAK/UEKAE
 # Licensed under the GNU General Public License, version 2.
 # See the file http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
 
@@ -9,6 +8,14 @@ from pisi.actionsapi import autotools
 from pisi.actionsapi import pisitools
 from pisi.actionsapi import shelltools
 from pisi.actionsapi import get
+
+
+movetobin = ["arch", "basename", "cat", "chgrp", "chmod", "chown", "cp", "cut", "date", "dd", "df",
+             "dir", "echo", "env", "false", "link", "ln", "ls", "mkdir", "mknod", "mktemp", "mv",
+             "nice", "pwd", "readlink", "rm", "rmdir", "sleep", "sort", "stty", "sync", "touch",
+             "true", "uname", "unlink", "vdir"]
+
+symtousrbin = ["env", "cut", "readlink"]
 
 def setup():
     shelltools.export("gl_cv_func_printf_directive_n", "yes")
@@ -43,11 +50,11 @@ def install():
     pisitools.insinto("/etc", "src/dircolors.hin", "DIR_COLORS")
 
     # move critical files into /bin
-    for file in ["cat","chgrp","chmod","chown","cp","date","dd","df",
-                 "dir","echo","false","ln","ls","mkdir","mknod","mv",
-                 "pwd","readlink","rm","rmdir","sleep","stty","sync",
-                 "touch","true","uname","vdir"]:
-        pisitools.domove("/usr/bin/%s" % file, "/bin/")
+    for f in movetobin:
+        pisitools.domove("/usr/bin/%s" % f, "/bin/")
+
+    for f in symtousrbin:
+        pisitools.dosym("../../bin/%s" % f, "/usr/bin/%s" % f)
 
     pisitools.dodoc("AUTHORS", "ChangeLog*", "NEWS", "README*", "THANKS", "TODO")
 
