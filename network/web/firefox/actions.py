@@ -40,7 +40,7 @@ def install():
     shelltools.cd("objdir")
     autotools.rawInstall("DESTDIR=%s" % get.installDIR())
     realdir = shelltools.ls("%s/usr/lib/firefox-?.?" % get.installDIR())[0].replace(get.installDIR(), "")
-    pisitools.dosym(os.path.basename(realdir), "/usr/lib/MozillaFirefox")
+    pisitools.rename(realdir, "/usr/lib/MozillaFirefox")
 
     pisitools.remove("/usr/bin/firefox") # Additional file will replace that
 
