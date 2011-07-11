@@ -10,7 +10,7 @@ from pisi.actionsapi import pisitools
 from pisi.actionsapi import get
 
 def setup():
-    repo_uri = "http://packages.pardus.org.tr/pardus/2011/devel/%s/pisi-index.xml.xz" % get.ARCH()
+    repo_uri = "http://packages.pardus.org.tr/pardus/2011.1/devel/%s/pisi-index.xml.xz" % get.ARCH()
 
     pisitools.dosed("yali/constants.py", "@REPO_URI@", repo_uri)
     pisitools.dosed("conf/yali.conf", "@INSTALL_TYPE@", "system")
