@@ -21,6 +21,7 @@ def setup():
                          --enable-R-profiling \
                          --enable-R-shlib \
                          --enable-shared \
+                         --disable-openmp \
                          --with-blas=-lblas \
                          --with-lapack \
                          --without-tcltk \
