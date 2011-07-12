@@ -1,0 +1,39 @@
+diff -up gyachi-1.2.10/client/trayicon.h.gtkfix gyachi-1.2.10/client/trayicon.h
+--- gyachi-1.2.10/client/trayicon.h.gtkfix	2011-05-17 10:58:19.905672512 -0400
++++ gyachi-1.2.10/client/trayicon.h	2011-05-17 10:58:34.098768393 -0400
+@@ -33,6 +33,8 @@
+ #define TRAY_ICON_IDLE 3
+ #define TRAY_ICON_BUSY 4
+ 
++#include <gtk/gtk.h>
++
+ extern void trayicon_create (void);
+ extern void trayicon_destroy (void);
+ extern void trayicon_mail_alert();
+diff -up gyachi-1.2.10/lib/theme_support.h.gtkfix gyachi-1.2.10/lib/theme_support.h
+--- gyachi-1.2.10/lib/theme_support.h.gtkfix	2011-05-17 10:57:48.533458808 -0400
++++ gyachi-1.2.10/lib/theme_support.h	2011-05-17 10:57:56.719514804 -0400
+@@ -23,6 +23,8 @@
+ #ifndef _THEME_SUPPORT_H
+ #define _THEME_SUPPORT_H
+ 
++#include <gtk/gtk.h>
++
+ #define GYACHI_BOLD			"gyachi-bold"
+ #define GYACHI_BUDDY_AWAY		"gyachi-buddy_away"
+ #define GYACHI_BUDDY_IDLE		"gyachi-buddy_idle"
+diff -up gyachi-1.2.10/plugins/libnotify/gyachi-libnotify.c.gtkfix gyachi-1.2.10/plugins/libnotify/gyachi-libnotify.c
+--- gyachi-1.2.10/plugins/libnotify/gyachi-libnotify.c.gtkfix	2011-05-17 10:59:44.870239117 -0400
++++ gyachi-1.2.10/plugins/libnotify/gyachi-libnotify.c	2011-05-17 11:02:04.139130210 -0400
+@@ -72,7 +72,11 @@ void gyachi_libnotify(char *mytitle, cha
+ 	win = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+         gtk_widget_realize(win);
+ 
++#if NOTIFY_CHECK_VERSION (0, 7, 0)
++	my_popup=notify_notification_new(mytitle, mymsg, NULL);
++#else
+ 	my_popup=notify_notification_new_with_status_icon(mytitle, mymsg, NULL, popup_attach_systray?systray_get_status_icon():NULL);
++#endif
+ 	if (stock_id) {
+ 		icon_pixbuf = gtk_widget_render_icon(win, stock_id, (strcmp(stock_id, GYACHI_MAIL) == 0) ? GYACHI_ICON_SIZE_MAIL: GTK_ICON_SIZE_LARGE_TOOLBAR, "gvwindow");
+ 		if (icon_pixbuf) {
