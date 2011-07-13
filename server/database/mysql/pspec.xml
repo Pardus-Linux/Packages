@@ -9,10 +9,9 @@
             <Email>ibrahim@pardus.org.tr</Email>
         </Packager>
         <License>GPLv2</License>
-        <IsA>service</IsA>
         <Summary>A fast, multi-threaded, multi-user SQL database server</Summary>
         <Description>MySQL is a multithreaded, multi-user, robust SQL Database Management System (DBMS).</Description>
-        <Archive sha1sum="5ed4a3c12662b0329df870f4dcebea6903e94265" type="targz">http://mysql.mirror.iweb.ca/Downloads/MySQL-5.1/mysql-5.1.52.tar.gz</Archive>
+        <Archive sha1sum="cfd70bee07ad99576eecde01785b7b2a74ec87ab" type="targz">http://mysql.mirror.iweb.ca/Downloads/MySQL-5.1/mysql-5.1.58.tar.gz</Archive>
         <BuildDependencies>
             <Dependency>ed</Dependency>
         </BuildDependencies>
@@ -25,20 +24,21 @@
             <Patch level="1">mysql-stack.patch</Patch>
             -->
             <Patch level="1">mysql-stack-guard.patch</Patch>
-            <Patch level="1">mysql-plugin-bug.patch</Patch>
             <Patch level="1">mysql-setschedparam.patch</Patch>
             <Patch level="1">mysql-no-docs.patch</Patch>
             <Patch level="1">mysql-strmov.patch</Patch>
             <Patch level="1">mysql-cve-2008-7247.patch</Patch>
             <Patch level="1">mysql-expired-certs.patch</Patch>
             <Patch level="1">mysql-missing-string-code.patch</Patch>
-            <Patch level="1">mysql-lowercase-bug.patch</Patch>
             <Patch level="1">mysql-chain-certs.patch</Patch>
         </Patches>
     </Source>
 
     <Package>
         <Name>mysql-lib</Name>
+        <IsA>app:console</IsA>
+        <IsA>library</IsA>
+        <Summary>The shared libraries required for MySQL clients</Summary>
         <Files>
             <Path fileType="executable">/usr/bin/mysql_config</Path>
             <Path fileType="header">/usr/include</Path>
@@ -73,6 +73,8 @@
 
     <Package>
         <Name>mysql-client</Name>
+        <IsA>app:console</IsA>
+        <Summary>MySQL client programs</Summary>
         <RuntimeDependencies>
             <Dependency versionFrom="5.1.52">mysql-lib</Dependency>
         </RuntimeDependencies>
@@ -83,6 +85,8 @@
 
     <Package>
         <Name>mysql-server</Name>
+        <IsA>service</IsA>
+        <Summary>The MySQL server and related files</Summary>
         <RuntimeDependencies>
             <Dependency versionFrom="5.1.52">mysql-lib</Dependency>
             <Dependency versionFrom="5.1.52">mysql-client</Dependency>
@@ -129,12 +133,26 @@
 
     <Package>
         <Name>mysql-man-pages</Name>
+        <IsA>data</IsA>
+        <Summary>Man pages for MySQL server and client</Summary>
         <Files>
             <Path fileType="man">/usr/share/man</Path>
         </Files>
     </Package>
 
     <History>
+        <Update release="57">
+            <Date>2011-07-13</Date>
+            <Version>5.1.58</Version>
+            <Comment>
+                * Version bump and remove the patches accepted by upstream,
+                * Add seperate IsA and Summary tags for each package,
+                * Remove redundant check in service script,
+                * Force remove the pidfile after stopService call.
+            </Comment>
+            <Name>H. İbrahim Güngör</Name>
+            <Email>ibrahim@pardus.org.tr</Email>
+        </Update>
         <Update release="56">
             <Date>2010-12-07</Date>
             <Version>5.1.52</Version>
