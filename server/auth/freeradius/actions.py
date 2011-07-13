@@ -9,7 +9,6 @@ from pisi.actionsapi import autotools
 from pisi.actionsapi import pisitools
 from pisi.actionsapi import shelltools
 from pisi.actionsapi import get
-import os
 
 WorkDir = "freeradius-server-%s" % get.srcVERSION()
 
@@ -18,11 +17,7 @@ def setup():
     shelltools.export("LDFLAGS", "%s -pie" % get.LDFLAGS())
 
     autotools.configure('--libdir=/usr/lib/freeradius \
-                         --with-system-libtool \
-                         --disable-ltdl-install \
-                         --with-gnu-ld \
-                         --with-threads \
-                         --with-threads-pool \
+                         --with-modules="rlm_wimax" \
                          --with-rlm-sql_postgresql-include-dir=/usr/include/pgsql \
                          --with-rlm-sql_postgresql-lib-dir=/usr/lib \
                          --with-rlm-sql_mysql-include-dir=/usr/include/mysql \
@@ -31,6 +26,10 @@ def setup():
                          --with-rlm-dbm-lib-dir=/usr/lib \
                          --with-rlm-krb5-include-dir=/usr/include/krb5 \
                          --with-modules="rlm_wimax" \
+                         --with-rlm_eap_tls \
+                         --with-rlm_eap_ttls \
+                         --with-rlm_eap_peap \
+                         --with-rlm_eap_otp \
                          --without-rlm_eap_ikev2 \
                          --without-rlm_sql_iodbc \
                          --without-rlm_sql_firebird \
@@ -38,12 +37,13 @@ def setup():
                          --without-rlm_sql_oracle \
                          --without-rlm_eap_tnc \
                          --without-rlm_opendirectory \
-                         --with-openssl-includes=/usr/include/openssl \
                          --enable-strict-dependencies \
+                         --with-threads \
+                         --with-threads-pool \
                          --with-edir \
                          --with-udp-fromto \
-                         --disable-static \
-                         --with-pic')
+                         --with-pic \
+                         --disable-static')
 
 def build():
     autotools.make("-j1")
@@ -58,8 +58,9 @@ def install():
     shelltools.touch("%s/var/log/radius/radutmp" % get.installDIR())
     shelltools.touch("%s/var/log/radius/radius.log" % get.installDIR())
 
-    # remove useless init script
+    # remove useless files
     pisitools.remove("/usr/sbin/rc.radiusd")
+    pisitools.remove("/usr/include/ltdl.h")
 
     pisitools.remove("/etc/raddb/experimental.conf")
     pisitools.removeDir("/etc/raddb/sql/mssql")
