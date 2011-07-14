@@ -1,22 +1,26 @@
 # -*- coding: utf-8 -*-
+
+from comar.service import *
+
 serviceType = "server"
 serviceDesc = _({"en": "Cyrus-SASL Daemon",
                  "tr": "Cyrus-SASL Servisi"})
 serviceConf = "saslauthd"
 
-from comar.service import *
+SOCKETDIR = "/var/run/saslauthd"
+PIDFILE = "/var/run/saslauthd/saslauthd.pid"
 
 @synchronized
 def start():
     startService(command="/usr/sbin/saslauthd",
-                 args=config.get("SASLAUTHD_OPTS", ""),
-                 pidfile="/var/lib/sasl2/saslauthd.pid",
+                 args="-m %s %s" % (SOCKETDIR, config.get("SASLAUTHD_OPTS", "")),
+                 pidfile=PIDFILE,
                  donotify=True)
 
 @synchronized
 def stop():
-    stopService(pidfile="/var/lib/sasl2/saslauthd.pid",
+    stopService(pidfile=PIDFILE,
                 donotify=True)
 
 def status():
-    return isServiceRunning("/var/lib/sasl2/saslauthd.pid")
+    return isServiceRunning(PIDFILE)

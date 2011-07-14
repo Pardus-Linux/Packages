@@ -9,44 +9,35 @@
             <Email>ibrahim@pardus.org.tr</Email>
         </Packager>
         <License>as-is</License>
+        <IsA>library</IsA>
         <IsA>service</IsA>
         <Summary>The Cyrus SASL (Simple Authentication and Security Layer)</Summary>
         <Description>cyrus-sasl is the Simple Authentication and Security Layer, a method for adding authentication support to connection-based protocols. To use SASL, a protocol includes a command for identifying and authenticating a user to a server and for optionally negotiating protection of subsequent protocol interactions.</Description>
-        <Archive sha1sum="d23454ab12054714ab97d229c86cb934ce63fbb1" type="targz">ftp://ftp.andrew.cmu.edu/pub/cyrus-mail/cyrus-sasl-2.1.22.tar.gz</Archive>
+        <Archive sha1sum="5df33a6788d6cd8329b109eff777c6cfae1a21bd" type="targz">ftp://ftp.andrew.cmu.edu/pub/cyrus-mail/cyrus-sasl-2.1.23.tar.gz</Archive>
         <Patches>
             <Patch>pardus.patch</Patch>
-
-            <!-- Remove rpath -->
             <Patch level="1">cyrus-sasl-2.1.18-no_rpath.patch</Patch>
-            <!-- Support for crypted passwords -->
-            <Patch level="1">cyrus-sasl-2.1.19-checkpw.c.patch</Patch>
-            <!-- Fix path in man page -->
             <Patch level="1">cyrus-sasl-2.1.20-saslauthd.conf-path.patch</Patch>
-            <Patch level="1">cyrus-sasl-2.1.21-keytab.patch</Patch>
-            <!-- Prefer types in inttypes.h to our own -->
+            <Patch level="1">cyrus-sasl-2.1.23-man.patch</Patch>
             <Patch level="1">cyrus-sasl-2.1.21-sizes.patch</Patch>
-            <!-- Support for LDAP_OPT_TIMEOUT -->
-            <Patch level="1">cyrus-sasl-2.1.22-ldap-timeout.patch</Patch>
-            <!-- Always use current db4 when linking -->
-            <Patch level="1">cyrus-sasl-2.1.22-current-db.patch</Patch>
-            <!-- Fix hangs with rimap plugin -->
-            <Patch level="1">cyrus-sasl-2.1.22-rimap.patch</Patch>
-            <!-- Allow building with automake 1.10 -->
-            <Patch level="1">cyrus-sasl-2.1.22-automake-1.10.patch</Patch>
-            <!-- Fix most critical build warnings -->
-            <Patch level="1">cyrus-sasl-2.1.22-warnings.patch</Patch>
-            <!-- Fix typo in man page -->
             <Patch level="1">cyrus-sasl-2.1.22-typo.patch</Patch>
-            <!-- Upstream CVS patch -->
             <Patch level="2">cyrus-sasl-2.1.22-digest-commas.patch</Patch>
+            <Patch level="1">cyrus-sasl-2.1.22-automake-1.10.patch</Patch>
+            <Patch level="1">cyrus-sasl-2.1.21-keytab.patch</Patch>
+            <Patch level="1">cyrus-sasl-2.1.22-rimap.patch</Patch>
+            <Patch level="1">cyrus-sasl-2.1.22-kerberos4.patch</Patch>
+            <Patch level="1">cyrus-sasl-2.1.22-warnings.patch</Patch>
+            <Patch level="1">cyrus-sasl-2.1.22-current-db.patch</Patch>
+            <Patch level="1">cyrus-sasl-2.1.22-ldap-timeout.patch</Patch>
             <Patch level="1">cyrus-sasl-2.1.22-bad-elif.patch</Patch>
             <Patch level="1">cyrus-sasl-2.1.23-ac-quote.patch</Patch>
             <Patch level="1">cyrus-sasl-2.1.23-race.patch</Patch>
-            <!-- Let it compile with -as-needed -->
+            <Patch level="1">cyrus-sasl-2.1.23-pam_rhosts.patch</Patch>
+            <Patch level="1">cyrus-sasl-2.1.23-ntlm.patch</Patch>
+            <Patch level="1">cyrus-sasl-2.1.23-rimap2.patch</Patch>
             <Patch level="1">cyrus-sasl-2.1.22-as-needed.patch</Patch>
-            <Patch level="1">cyrus-sasl-2.1.22-kerberos4.patch</Patch>
             <Patch level="1">fix-linkage.patch</Patch>
-            <Patch>cyrus-sasl-2.1.22-CVE-2009-0688.patch</Patch>
+            <Patch level="1">cyrus-sasl-2.1.19-checkpw.c.patch</Patch>
         </Patches>
     </Source>
 
@@ -56,13 +47,13 @@
             <Path fileType="config">/etc</Path>
             <Path fileType="executable">/usr/sbin</Path>
             <Path fileType="library">/usr/lib</Path>
-            <Path fileType="library">/var/lib</Path>
             <Path fileType="data">/usr/share/cyrus-sasl-2</Path>
+            <Path fileType="data">/var/run</Path>
             <Path fileType="man">/usr/share/man</Path>
             <Path fileType="doc">/usr/share/doc</Path>
         </Files>
         <AdditionalFiles>
-            <AdditionalFile target="/etc/conf.d/saslauthd" permission="0644" owner="root">saslauthd.conf</AdditionalFile>
+            <AdditionalFile target="/etc/conf.d/saslauthd" permission="0644" owner="root">saslauthd.confd</AdditionalFile>
             <AdditionalFile target="/etc/pam.d/saslauthd" permission="0644" owner="root">saslauthd.pam</AdditionalFile>
         </AdditionalFiles>
         <Provides>
@@ -85,6 +76,16 @@
     </Package>
 
     <History>
+        <Update release="16">
+            <Date>2011-07-14</Date>
+            <Version>2.1.23</Version>
+            <Comment>
+                * Version bump and tidy up the patches,
+                * Change the socket directory from /var/lib to /var/run.
+            </Comment>
+            <Name>H. İbrahim Güngör</Name>
+            <Email>ibrahim@pardus.org.tr</Email>
+        </Update>
         <Update release="15">
             <Date>2010-10-13</Date>
             <Version>2.1.22</Version>

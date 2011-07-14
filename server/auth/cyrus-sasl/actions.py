@@ -16,7 +16,7 @@ def setup():
             shelltools.unlink("config/%s" % p)
 
     cleanup()
-    autotools.autoreconf("-vi --no-recursive -I config -I cmulocal")
+    autotools.autoreconf("-vfi --no-recursive -I config -I cmulocal")
     shelltools.cd("saslauthd")
     cleanup()
     autotools.autoreconf("-vi --no-recursive -I config -I ../cmulocal -I ../config")
@@ -24,7 +24,7 @@ def setup():
 
     shelltools.export("CFLAGS", "%s -fPIC" % get.CFLAGS())
 
-    autotools.configure("--with-saslauthd=/var/lib/sasl2 \
+    autotools.configure("--with-saslauthd=/var/run/saslauthd \
                          --with-pwcheck=/var/lib/sasl2 \
                          --with-configdir=/etc/sasl2 \
                          --with-plugindir=/usr/lib/sasl2 \
@@ -49,13 +49,14 @@ def setup():
 
 def build():
     autotools.make("-j1")
-    shelltools.cd("saslauthd")
-    autotools.make("testsaslauthd")
+    autotools.make("-C saslauthd testsaslauthd")
 
 def install():
     autotools.rawInstall("DESTDIR=%s" % get.installDIR())
+    autotools.rawInstall("DESTDIR=%s -C plugins" % get.installDIR())
+
     pisitools.dodir("/etc/sasl2")
-    pisitools.dodir("/var/lib/sasl2")
+    pisitools.dodir("/var/run/saslauthd")
 
     for doc in ["AUTHORS", "COPYING", "ChangeLog", "LDAP_SASLAUTHD", "NEWS", "README"]:
         pisitools.newdoc("saslauthd/%s" % doc, "saslauthd/%s" % doc)
