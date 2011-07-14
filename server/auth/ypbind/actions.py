@@ -10,7 +10,7 @@ from pisi.actionsapi import autotools
 from pisi.actionsapi import pisitools
 from pisi.actionsapi import get
 
-WorkDir = "ypbind-mt-"+"%s" % get.srcVERSION()
+WorkDir = "ypbind-mt-%s" % get.srcVERSION()
 
 def setup():
     autotools.configure("--enable-dbus-nm")

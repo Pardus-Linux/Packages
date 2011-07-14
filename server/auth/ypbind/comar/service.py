@@ -30,8 +30,10 @@ def stop():
     stopService(pidfile=PIDFILE,
                 donotify=True)
 
-    # if  we used brute force (like kill -9) we don't want those around
-    run("/bin/rm -rf /var/yp/binding/")
+    try:
+        os.unlink("/var/yp/binding")
+    except OSError:
+        pass
 
 def status():
     return isServiceRunning(PIDFILE)
