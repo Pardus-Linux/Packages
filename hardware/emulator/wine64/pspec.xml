@@ -1,0 +1,1016 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>wine64</Name>
+        <Homepage>http://www.winehq.org/</Homepage>
+        <Packager>
+            <Name>Fatih Arslan</Name>
+            <Email>farslan@pardus.org.tr</Email>
+        </Packager>
+        <ExcludeArch>i686</ExcludeArch>
+        <License>LGPLv2.1</License>
+        <IsA>app:console</IsA>
+        <Summary>An emulator which lets you run Microsoft Windows applications</Summary>
+        <Description>Wine allows running Windows 3.*, Windows 95/98 and Windows NT programs on a i386 (or compatible) machine running X11. It is still alpha level code; don't expect everything to work.</Description>
+        <Archive sha1sum="cc0dfc2255d1bc19e1975e5e2f680740d9c2825a" type="tarbz2">mirrors://sourceforge/wine/wine-1.3.24.tar.bz2</Archive>
+        <BuildDependencies>
+            <Dependency>alsa-lib-devel</Dependency>
+            <Dependency>gst-plugins-base-devel</Dependency>
+            <Dependency>gstreamer-devel</Dependency>
+            <Dependency>lcms-devel</Dependency>
+            <Dependency>libXext-devel</Dependency>
+            <Dependency>libgphoto2-devel</Dependency>
+            <Dependency>mesa-devel</Dependency>
+            <Dependency>mpg123-devel</Dependency>
+            <Dependency>openal-devel</Dependency>
+            <Dependency>openldap-client</Dependency>
+            <Dependency>pulseaudio-libs-devel</Dependency>
+
+            <!-- Libraries used with dlopen() -->
+            <Dependency>cups-devel</Dependency>
+            <Dependency>gnutls-devel</Dependency>
+            <Dependency>libXcursor-devel</Dependency>
+            <Dependency>libXi-devel</Dependency>
+            <Dependency>libXrandr-devel</Dependency>
+            <Dependency>libXxf86vm-devel</Dependency>
+            <Dependency>sane-backends-devel</Dependency>
+            <Dependency>unixODBC-devel</Dependency>
+
+            <!-- configure script also checks for these librarires -->
+            <Dependency>dbus-devel</Dependency>
+            <Dependency>fontconfig-devel</Dependency>
+            <Dependency>freetype-devel</Dependency>
+            <Dependency>gsm-devel</Dependency>
+            <Dependency>hal-devel</Dependency>
+            <Dependency>jpeg-devel</Dependency>
+            <Dependency>libXcomposite-devel</Dependency>
+            <Dependency>libXinerama-devel</Dependency>
+            <Dependency>libxslt-devel</Dependency>
+            <Dependency>tiff-devel</Dependency>
+
+            <!-- Audio servers are not necessary for runtime -->
+            <Dependency>jack-audio-connection-kit-devel</Dependency>
+
+            <!-- fontforge is needed to build fonts -->
+            <Dependency>fontforge</Dependency>
+        </BuildDependencies>
+        <Patches>
+            <Patch level="1">find-ncurses.patch</Patch>
+
+            <!-- Use XDG_DOCUMENTS_DIR for "My Documents" -->
+            <Patch level="1">documents-path.patch</Patch>
+
+            <!-- WinePulse patches from http://art.ified.ca/?page_id=40 -->
+            <Patch level="1">winepulse/winepulse-0.39.patch</Patch>
+            <Patch level="1">winepulse/winepulse-winecfg-1.3.11.patch</Patch>
+            <Patch level="1">winepulse/winepulse-configure.ac-1.3.20.patch</Patch>
+            <!-- Prefer alsa over pulse since winepulse has some problems -->
+            <Patch level="1">winepulse/prefer-alsa-over-pulse.patch</Patch>
+
+            <Patch level="1">desktop-file-translation.patch</Patch>
+            <Patch level="1">multilib.patch</Patch>
+            <Patch level="1">fix_rm.patch</Patch>
+        </Patches>
+    </Source>
+
+    <Package>
+        <Name>wine</Name>
+        <IsA>app:gui</IsA>
+        <RuntimeDependencies>
+            <Dependency version="current">wine-32bit</Dependency>
+            <Dependency>alsa-lib</Dependency>
+            <Dependency>gst-plugins-base</Dependency>
+            <Dependency>gstreamer</Dependency>
+            <Dependency>lcms</Dependency>
+            <Dependency>libSM</Dependency> <!-- unused? -->
+            <Dependency>libXext</Dependency>
+            <Dependency>libgphoto2</Dependency>
+            <Dependency>mesa</Dependency>
+            <Dependency>mpg123</Dependency>
+            <Dependency>openal</Dependency>
+            <Dependency>openldap-client</Dependency>
+            <Dependency>pulseaudio-libs</Dependency>
+
+            <!-- Libraries used with dlopen() -->
+            <Dependency>cups</Dependency>
+            <Dependency>gnutls</Dependency>
+            <Dependency>libXcursor</Dependency>
+            <Dependency>libXi</Dependency>
+            <Dependency>libXrandr</Dependency>
+            <Dependency>libXxf86vm</Dependency>
+            <Dependency>sane-backends</Dependency>
+            <Dependency>unixODBC</Dependency>
+
+            <!-- required by winetricks -->
+            <Dependency>cabextract</Dependency>
+        </RuntimeDependencies>
+        <Conflicts>
+            <Package releaseTo="93">wine</Package>
+        </Conflicts>
+        <Files>
+            <Path fileType="data">/etc/xdg</Path>
+            <Path fileType="executable">/usr/bin</Path>
+            <Path fileType="library">/usr/lib</Path>
+            <Path fileType="data">/usr/share/applications</Path>
+            <Path fileType="data">/usr/share/desktop-directories</Path>
+            <Path fileType="data">/usr/share/wine</Path>
+            <Path fileType="localedata">/usr/share/locale</Path>
+            <Path fileType="doc">/usr/share/doc</Path>
+            <Path fileType="man">/usr/share/man</Path>
+        </Files>
+        <AdditionalFiles>
+            <!-- winetricks script from http://kegel.com/wine/winetricks -->
+            <AdditionalFile target="/usr/bin/winetricks" permission="0755">winetricks</AdditionalFile>
+
+            <AdditionalFile target="/etc/xdg/menus/applications-merged/wine.menu" permission="0644">menu/wine.menu</AdditionalFile>
+            <AdditionalFile target="/usr/share/desktop-directories/Wine.directory" permission="0644">menu/Wine.directory</AdditionalFile>
+
+            <AdditionalFile target="/usr/share/applications/wine/taskmgr.desktop" permission="0644">menu/taskmgr.desktop</AdditionalFile>
+            <AdditionalFile target="/usr/share/applications/wine/uninstaller.desktop" permission="0644">menu/uninstaller.desktop</AdditionalFile>
+            <AdditionalFile target="/usr/share/applications/wine/winecfg.desktop" permission="0644">menu/winecfg.desktop</AdditionalFile>
+            <AdditionalFile target="/usr/share/applications/wine/winefile.desktop" permission="0644">menu/winefile.desktop</AdditionalFile>
+        </AdditionalFiles>
+    </Package>
+
+    <Package>
+        <Name>wine-devel</Name>
+        <Summary>Wine development environment</Summary>
+        <RuntimeDependencies>
+            <Dependency version="current">wine</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="executable">/usr/bin/function_grep.pl</Path>
+            <Path fileType="executable">/usr/bin/widl</Path>
+            <Path fileType="executable">/usr/bin/winebuild</Path>
+            <Path fileType="executable">/usr/bin/winecpp</Path>
+            <Path fileType="executable">/usr/bin/wineg++</Path>
+            <Path fileType="executable">/usr/bin/winegcc</Path>
+            <Path fileType="executable">/usr/bin/winemaker</Path>
+            <Path fileType="executable">/usr/bin/wmc</Path>
+            <Path fileType="executable">/usr/bin/wrc</Path>
+            <Path fileType="header">/usr/include/wine</Path>
+            <Path fileType="data">/usr/share/aclocal</Path>
+            <Path fileType="man">/usr/share/man/man1/widl.1</Path>
+            <Path fileType="man">/usr/share/man/man1/winebuild.1</Path>
+            <Path fileType="man">/usr/share/man/man1/winecpp.1</Path>
+            <Path fileType="man">/usr/share/man/man1/wineg++.1</Path>
+            <Path fileType="man">/usr/share/man/man1/winegcc.1</Path>
+            <Path fileType="man">/usr/share/man/man1/winemaker.1</Path>
+            <Path fileType="man">/usr/share/man/man1/wmc.1</Path>
+            <Path fileType="man">/usr/share/man/man1/wrc.1</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>wine-32bit</Name>
+        <PartOf>emul32</PartOf>
+        <Summary>32-bit shared libraries for wine</Summary>
+        <BuildType>emul32</BuildType>
+        <BuildDependencies>
+            <Dependency>libXcursor-32bit</Dependency>
+            <Dependency>libXrandr-32bit</Dependency>
+            <Dependency>libXdamage-32bit</Dependency>
+            <Dependency>libXxf86vm-32bit</Dependency>
+            <Dependency>libXxf86dga-32bit</Dependency>
+            <Dependency>mesa-32bit</Dependency>
+            <Dependency>fontconfig-32bit</Dependency>
+            <Dependency>ncurses-32bit</Dependency>
+            <Dependency>alsa-lib-32bit</Dependency>
+            <Dependency>pulseaudio-libs-32bit</Dependency>
+        </BuildDependencies>
+        <RuntimeDependencies>
+            <Dependency release="current">wine</Dependency>
+            <Dependency>mesa-32bit</Dependency>
+            <Dependency>lcms-32bit</Dependency>
+            <Dependency>libSM-32bit</Dependency>
+            <Dependency>mpg123-32bit</Dependency>
+            <Dependency>openal-32bit</Dependency>
+            <Dependency>libXext-32bit</Dependency>
+            <Dependency>ncurses-32bit</Dependency>
+            <Dependency>alsa-lib-32bit</Dependency>
+            <Dependency>libXrandr-32bit</Dependency>
+            <Dependency>gstreamer-32bit</Dependency>
+            <Dependency>fontconfig-32bit</Dependency>
+            <Dependency>libXcursor-32bit</Dependency>
+            <Dependency>libXdamage-32bit</Dependency>
+            <Dependency>libXxf86vm-32bit</Dependency>
+            <Dependency>libXxf86dga-32bit</Dependency>
+            <Dependency>cups-32bit</Dependency>
+            <Dependency>gnutls-32bit</Dependency>
+            <Dependency>libXi-32bit</Dependency>
+            <Dependency>jpeg-32bit</Dependency>
+            <Dependency>tiff-32bit</Dependency>
+            <Dependency>libpng-32bit</Dependency>
+            <Dependency>libxml2-32bit</Dependency>
+            <Dependency>gsm-32bit</Dependency>
+            <Dependency>openssl-32bit</Dependency>
+            <Dependency>pulseaudio-libs-32bit</Dependency>
+            <!--need lib32 part, not avaible now-->
+            <!--<Dependency>libgphoto2</Dependency>-->
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="library">/usr/lib32/libwine.so*</Path>
+            <Path fileType="library">/usr/lib32/wine</Path>
+        </Files>
+    </Package>
+
+    <History>
+        <Update release="94">
+            <Date>2011-07-13</Date>
+            <Version>1.3.24</Version>
+            <Comment>
+                * Various DirectInput improvements.
+                * Support for line breaking in Uniscribe.
+                * More UI elements in builtin Shell Explorer.
+                * Some more D3DX9 functions.
+                * Improved support for shell known folders.
+                * Various bug fixes.
+            </Comment>
+            <Name>Fatih Arslan</Name>
+            <Email>farslan@pardus.org.tr</Email>
+        </Update>
+        <Update release="93">
+            <Date>2011-07-06</Date>
+            <Version>1.3.23</Version>
+            <Comment>
+                * Support for stubless COM proxies on x86-64.
+                * Builtin dxdiag now outputs real information.
+                * Monochrome bitmap format in the DIB engine.
+                * Beginnings of a true shell Explorer builtin.
+                * A number of new D3DX9 functions.
+                * More support for Indic text shaping.
+                * Various bug fixes.
+            </Comment>
+            <Name>Fatih Arslan</Name>
+            <Email>farslan@pardus.org.tr</Email>
+        </Update>
+        <Update release="92">
+            <Date>2011-06-01</Date>
+            <Version>1.3.21</Version>
+            <Comment>
+                * New development release
+                * Change build options to make a single configure and build for each buildTYPE()
+            </Comment>
+            <Name>Fatih Arslan</Name>
+            <Email>farslan@pardus.org.tr</Email>
+        </Update>
+        <Update release="91">
+            <Date>2011-05-17</Date>
+            <Version>1.3.20</Version>
+            <Comment>
+                * New development release
+                * Add Wow64 support to wine
+            </Comment>
+            <Name>Fatih Arslan</Name>
+            <Email>farslan@pardus.org.tr</Email>
+        </Update>
+        <Update release="90">
+            <Date>2011-02-13</Date>
+            <Version>1.3.13</Version>
+            <Comment>New development release</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="89">
+            <Date>2011-01-12</Date>
+            <Version>1.3.11</Version>
+            <Comment>New development release</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="88">
+            <Date>2010-07-18</Date>
+            <Version>1.2</Version>
+            <Comment>New stable release</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="87">
+            <Date>2010-07-02</Date>
+            <Version>1.2_rc6</Version>
+            <Comment>Latest development release</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="86">
+            <Date>2010-06-26</Date>
+            <Version>1.2_rc5</Version>
+            <Comment>
+                - Bump to the latest development release
+                - Drop unneeded dependencies
+            </Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="85">
+            <Date>2010-06-20</Date>
+            <Version>1.2_rc4</Version>
+            <Comment>Latest development release</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="84">
+            <Date>2010-05-28</Date>
+            <Version>1.2_rc2</Version>
+            <Comment>Latest development release</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="83">
+            <Date>2010-05-12</Date>
+            <Version>1.1.44</Version>
+            <Comment>Latest development release</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="82">
+            <Date>2010-04-16</Date>
+            <Version>1.1.43</Version>
+            <Comment>Latest development release</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="81">
+            <Date>2010-03-19</Date>
+            <Version>1.1.41</Version>
+            <Comment>Latest development release</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="80">
+            <Date>2010-03-03</Date>
+            <Version>1.1.39</Version>
+            <Comment>Latest development release</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="79">
+            <Date>2010-02-11</Date>
+            <Version>1.1.38</Version>
+            <Comment>Latest development release</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="78">
+            <Date>2009-11-16</Date>
+            <Version>1.1.33</Version>
+            <Comment>
+                New development release. Changes:
+                - Gecko now installed at wineprefix creation time.
+                - Better support for certificates in crypt32.
+                - Improved sound support in mciwave.
+                - Some more Direct3D 10 functions.
+                - Many cleanups for issues spotted by Valgrind.
+                - Various bug fixes.
+            </Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="77">
+            <Date>2009-10-23</Date>
+            <Version>1.1.32</Version>
+            <Comment>
+                New development release. Changes:
+                - Many crypto fixes.
+                - Several common controls improvements.
+                - Various HTML support improvements.
+                - More DIB optimizations.
+                - Various bug fixes.
+            </Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="76">
+            <Date>2009-10-12</Date>
+            <Version>1.1.31</Version>
+            <Comment>
+                New development release. Changes:
+                - Vastly improved monthcal control.
+                - Performance improvements for DIB sections.
+                - Several sound driver fixes.
+                - Beginning of ActiveX support in JScript.
+                - More Direct3D 10 work.
+                - More 16-bit dlls split off to separate modules.
+                - Support for attachments in MAPI.
+                - Various bug fixes.
+            </Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="75">
+            <Date>2009-09-26</Date>
+            <Version>1.1.30</Version>
+            <Comment>
+                New development release. Changes:
+                - Support for OpenAL.
+                - Many improvements in HTML and JavaScript support.
+                - Many common controls fixes and improvements.
+                - More Direct3D 10 work.
+                - Better MAPI support.
+                - Various bug fixes.
+            </Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="74">
+            <Date>2009-09-03</Date>
+            <Version>1.1.29</Version>
+            <Comment>
+                New development release. Changes:
+                - Improved Gecko integration by using Wine's network layers.
+                - Use of external libmpg123 for mp3 decoding.
+                - Support for JPEG and PNG formats in WindowsCodecs.
+                - Many regression test fixes for Win64 and Windows 7.
+                - Various bug fixes.
+            </Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="73">
+            <Date>2009-08-22</Date>
+            <Version>1.1.28</Version>
+            <Comment>
+                New development release. Changes:
+                - Support for IRDA protocol.
+                - Faster initial wineprefix creation.
+                - Axis remapping with evdev joysticks.
+                - More image formats in WindowsCodecs.
+                - Various bug fixes.
+            </Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="72">
+            <Date>2009-08-08</Date>
+            <Version>1.1.27</Version>
+            <Comment>
+                New development release. Changes:
+                - New version of the Gecko engine.
+                - New GSM 06.10 codec support.
+                - Improved support for the disk volume APIs.
+                - Support for XShm pixmaps for better performance.
+                - Various bug fixes.
+            </Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="71">
+            <Date>2009-07-17</Date>
+            <Version>1.1.26</Version>
+            <Comment>
+                New development release. Changes:
+                - Still more translation updates.
+                - Faster bitmap stretching using XRender.
+                - Proxy support in WinHTTP.
+                - Many more JScript functions.
+                - Various bug fixes.
+            </Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="70">
+            <Date>2009-07-05</Date>
+            <Version>1.1.25</Version>
+            <Comment>
+                New development release. Changes:
+                - A ton of translation updates.
+                - Support for various Unicode file encodings in Notepad.
+                - Improved memory management, especially for OpenGL.
+                - Desktop menus now cleaned up automatically.
+                - Beginnings of a windowscodecs DLL implementation.
+                - Various bug fixes.
+            </Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="69">
+            <Date>2009-06-19</Date>
+            <Version>1.1.24</Version>
+            <Comment>
+                New development release. Changes:
+                - Support for freedesktop file associations.
+                - Support for exception handling on 64-bit.
+                - Improved ARB shaders.
+                - Fixes for the FBO mode.
+                - Many listview improvements.
+                - Various bug fixes.
+            </Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="68">
+            <Date>2009-06-09</Date>
+            <Version>1.1.23</Version>
+            <Comment>
+                - Drop userdirs.patch as wine supports xdg-user-dirs
+                - Add patch to use XDG_DOCUMENTS_DIR for "My Documents" folder
+                - Prefix menu items with "Wine"
+            </Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="67">
+            <Date>2009-06-09</Date>
+            <Version>1.1.23</Version>
+            <Comment>
+                - Prefer alsa over pulse plugin
+                - Disable Esound
+                - Add pulseaudio dependency
+            </Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="66">
+            <Date>2009-06-07</Date>
+            <Version>1.1.23</Version>
+            <Comment>
+                - Bump to latest development release
+                - Arrange Wine menu for new xdg support
+                - Remove our menu creation scripts
+            </Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="65">
+            <Date>2008-11-07</Date>
+            <Version>1.1.8</Version>
+            <Comment>
+                Bump to latest development release. Changes:
+
+                * Substantial parts of inetcomm implemented (for Outlook).
+                * Still better crypt32 support.
+                * Memory management improvements.
+                * Theming support for buttons.
+                * Various bug fixes.
+            </Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="64">
+            <Date>2008-10-24</Date>
+            <Version>1.1.7</Version>
+            <Comment>
+                Bump to latest development release. Changes:
+
+                * Improved device management for DOS drives.
+                * Many Richedit fixes.
+                * Various installer fixes, particularly for IE 7.
+                * First steps of Direct3D 10 implementation.
+                * Various bug fixes.
+            </Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="63">
+            <Date>2008-10-23</Date>
+            <Version>1.1.6_20081023</Version>
+            <Comment>
+                Bump to latest development snapshot. Changes:
+
+                * Beginnings of schannel implementation using GnuTLS.
+                * Many fixes from various code analysis tools.
+                * Support for X11 desktop work area.
+                * Fixes for Richedit tables.
+                * More complete JavaScript support.
+                * Various bug fixes.
+            </Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="62">
+            <Date>2008-09-20</Date>
+            <Version>1.1.5</Version>
+            <Comment>Version bump</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="61">
+            <Date>2008-09-08</Date>
+            <Version>1.1.4</Version>
+            <Comment>Version bump</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="60">
+            <Date>2008-07-12</Date>
+            <Version>1.0</Version>
+            <Comment>Add pulseaudio patch, update winetricks, fix deps</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="59">
+            <Date>2008-06-17</Date>
+            <Version>1.0</Version>
+            <Comment>Version bump.</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="58">
+            <Date>2008-06-13</Date>
+            <Version>1.0_rc5</Version>
+            <Comment>Version bump.</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="57">
+            <Date>2008-06-07</Date>
+            <Version>1.0_rc4</Version>
+            <Comment>Version bump.</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="56">
+            <Date>2008-05-31</Date>
+            <Version>1.0_rc3</Version>
+            <Comment>Version bump.</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="55">
+            <Date>2008-05-24</Date>
+            <Version>1.0_rc2</Version>
+            <Comment>Version bump.</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="54">
+            <Date>2008-05-09</Date>
+            <Version>1.0_rc1</Version>
+            <Comment>Version bump.</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="53">
+            <Date>2008-05-02</Date>
+            <Version>0.9.61</Version>
+            <Comment>Version bump.</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="52">
+            <Date>2008-04-26</Date>
+            <Version>0.9.60</Version>
+            <Comment>Version bump.</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="51">
+            <Date>2008-03-22</Date>
+            <Version>0.9.58</Version>
+            <Comment>Version bump.</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="50">
+            <Date>2008-03-07</Date>
+            <Version>0.9.57</Version>
+            <Comment>Version bump.</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="49">
+            <Date>2008-02-23</Date>
+            <Version>0.9.56</Version>
+            <Comment>Added winetricks script.</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="48">
+            <Date>2008-02-23</Date>
+            <Version>0.9.56</Version>
+            <Comment>Version bump.</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="47">
+            <Date>2008-02-08</Date>
+            <Version>0.9.55</Version>
+            <Comment>Version bump.</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="46">
+            <Date>2008-01-26</Date>
+            <Version>0.9.54</Version>
+            <Comment>Version bump.</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="45">
+            <Date>2007-12-28</Date>
+            <Version>0.9.52</Version>
+            <Comment>Version bump.</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="44">
+            <Date>2007-12-01</Date>
+            <Version>0.9.50</Version>
+            <Comment>Version bump.</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="43">
+            <Date>2007-11-10</Date>
+            <Version>0.9.49</Version>
+            <Comment>Version bump.</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="42">
+            <Date>2007-10-28</Date>
+            <Version>0.9.48</Version>
+            <Comment>Version bump.</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="41">
+            <Date>2007-10-14</Date>
+            <Version>0.9.47</Version>
+            <Comment>Version bump.</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih@pardus.org.tr</Email>
+        </Update>
+        <Update release="40">
+            <Date>2007-09-30</Date>
+            <Version>0.9.46</Version>
+            <Comment>Version bump.</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih.asici@gmail.com</Email>
+        </Update>
+        <Update release="39">
+            <Date>2007-09-16</Date>
+            <Version>0.9.45</Version>
+            <Comment>Version bump.</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih.asici@gmail.com</Email>
+        </Update>
+        <Update release="38">
+            <Date>2007-09-02</Date>
+            <Version>0.9.44</Version>
+            <Comment>Create menu items correctly</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih.asici@gmail.com</Email>
+        </Update>
+        <Update release="37">
+            <Date>2007-08-25</Date>
+            <Version>0.9.44</Version>
+            <Comment>Do not create symbolics links under home directory</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih.asici@gmail.com</Email>
+        </Update>
+        <Update release="36">
+            <Date>2007-08-24</Date>
+            <Version>0.9.44</Version>
+            <Comment>Version bump.</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih.asici@gmail.com</Email>
+        </Update>
+        <Update release="35">
+            <Date>2007-08-11</Date>
+            <Version>0.9.43</Version>
+            <Comment>Version bump.</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="34">
+            <Date>2007-07-29</Date>
+            <Version>0.9.42</Version>
+            <Comment>Version bump.</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="33">
+            <Date>2007-06-30</Date>
+            <Version>0.9.40</Version>
+            <Comment>Version bump.</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih.asici@gmail.com</Email>
+        </Update>
+        <Update release="32">
+            <Date>2007-06-15</Date>
+            <Version>0.9.39</Version>
+            <Comment>Version bump.</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih.asici@gmail.com</Email>
+        </Update>
+        <Update release="31">
+            <Date>2007-06-02</Date>
+            <Version>0.9.38</Version>
+            <Comment>Version bump.</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih.asici@gmail.com</Email>
+        </Update>
+        <Update release="30">
+            <Date>2007-04-28</Date>
+            <Version>0.9.36</Version>
+            <Comment>Version bump.</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih.asici@gmail.com</Email>
+        </Update>
+        <Update release="29">
+            <Date>2007-04-01</Date>
+            <Version>0.9.34</Version>
+            <Comment>Version bump and dependency fixes.</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih.asici@gmail.com</Email>
+        </Update>
+        <Update release="28">
+            <Date>2007-03-17</Date>
+            <Version>0.9.33</Version>
+            <Comment>Version bump.</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih.asici@gmail.com</Email>
+        </Update>
+        <Update release="27">
+            <Date>2007-03-03</Date>
+            <Version>0.9.32</Version>
+            <Comment>Version bump.</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih.asici@gmail.com</Email>
+        </Update>
+        <Update release="26">
+            <Date>2007-01-11</Date>
+            <Version>0.9.29</Version>
+            <Comment>Version bump.</Comment>
+            <Name>İsmail Dönmez</Name>
+            <Email>ismail@pardus.org.tr</Email>
+        </Update>
+        <Update release="25">
+            <Date>2006-11-24</Date>
+            <Version>0.9.26</Version>
+            <Comment>Version bump.</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih.asici@gmail.com</Email>
+        </Update>
+        <Update release="24">
+            <Date>2006-11-10</Date>
+            <Version>0.9.25</Version>
+            <Comment>Version bump, move wine menu from top to utilities menu and redesign it.</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih.asici@gmail.com</Email>
+        </Update>
+        <Update release="23">
+            <Date>2006-10-29</Date>
+            <Version>0.9.24</Version>
+            <Comment>Version bump and dependency fixes.</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih.asici@gmail.com</Email>
+        </Update>
+        <Update release="22">
+            <Date>2006-10-13</Date>
+            <Version>0.9.23</Version>
+            <Comment>Version bump.</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih.asici@gmail.com</Email>
+        </Update>
+        <Update release="21">
+            <Date>2006-10-01</Date>
+            <Version>0.9.22</Version>
+            <Comment>Disable Bdirect again.</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih.asici@gmail.com</Email>
+        </Update>
+        <Update release="20">
+            <Date>2006-10-01</Date>
+            <Version>0.9.22</Version>
+            <Comment>Version bump. Do not use ALSA as default driver since it is broken.</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih.asici@gmail.com</Email>
+        </Update>
+        <Update release="19">
+            <Date>2006-08-27</Date>
+            <Version>0.9.20</Version>
+            <Comment>Use ALSA by default.</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih.asici@gmail.com</Email>
+        </Update>
+        <Update release="18">
+            <Date>2006-08-25</Date>
+            <Version>0.9.20</Version>
+            <Comment>Version bump and do not use wine wrapper.</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih.asici@gmail.com</Email>
+        </Update>
+        <Update release="17">
+            <Date>2006-08-16</Date>
+            <Version>0.9.19</Version>
+            <Comment>Version bump and use empty LDFLAGS due to the problem with Bdirect.</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih.asici@gmail.com</Email>
+        </Update>
+        <Update release="16">
+            <Date>2006-07-17</Date>
+            <Version>0.9.17</Version>
+            <Comment>Dependency fixes.</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih.asici@gmail.com</Email>
+        </Update>
+        <Update release="15">
+            <Date>2006-07-11</Date>
+            <Version>0.9.17</Version>
+            <Comment>Version bump.</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih.asici@gmail.com</Email>
+        </Update>
+        <Update release="14">
+            <Date>2006-04-01</Date>
+            <Version>0.9.11</Version>
+            <Comment>Version bump.</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih.asici@gmail.com</Email>
+        </Update>
+        <Update release="13">
+            <Date>2006-03-03</Date>
+            <Version>0.9.9</Version>
+            <Comment>Use Bitstream Vera fonts, move Wine menu to Programs.</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih.asici@gmail.com</Email>
+        </Update>
+        <Update release="12">
+            <Date>2006-03-02</Date>
+            <Version>0.9.9</Version>
+            <Comment>Version bump.</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih.asici@gmail.com</Email>
+        </Update>
+        <Update release="11">
+            <Date>2006-02-15</Date>
+            <Version>0.9.8</Version>
+            <Comment>Version bump.</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih.asici@gmail.com</Email>
+        </Update>
+        <Update release="10">
+            <Date>2006-02-05</Date>
+            <Version>0.9.7</Version>
+            <Comment>Version bump.</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih.asici@gmail.com</Email>
+        </Update>
+        <Update release="9" type="security">
+            <Date>2006-01-23</Date>
+            <Version>0.9.6</Version>
+            <Comment>Version bump, Turkish translations, new menu items and fix WMF vulnerability</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih.asici@gmail.com</Email>
+        </Update>
+        <Update release="8">
+            <Date>2006-01-05</Date>
+            <Version>0.9.5</Version>
+            <Comment>Version bump.</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih.asici@gmail.com</Email>
+        </Update>
+        <Update release="7">
+            <Date>2005-12-22</Date>
+            <Version>0.9.3</Version>
+            <Comment>Added Turkish F keyboard layout.</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih.asici@gmail.com</Email>
+        </Update>
+        <Update release="6">
+            <Date>2005-12-21</Date>
+            <Version>0.9.3</Version>
+            <Comment>Fixed Turkish keyboard problem, now checks for all lnk files.</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih.asici@gmail.com</Email>
+        </Update>
+        <Update release="5">
+            <Date>2005-12-12</Date>
+            <Version>0.9.3</Version>
+            <Comment>Version bump.</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih.asici@gmail.com</Email>
+        </Update>
+        <Update release="4">
+            <Date>2005-11-27</Date>
+            <Version>0.9.2</Version>
+            <Comment>Version bump, change 3.4 to 3.5 in KDE paths, use tr_TR.UTF-8 again.</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih.asici@gmail.com</Email>
+        </Update>
+        <Update release="3">
+            <Date>2005-10-30</Date>
+            <Version>0.9</Version>
+            <Comment>Fixed some Turkish keyboard problems.</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih.asici@gmail.com</Email>
+        </Update>
+        <Update release="2">
+            <Date>2005-10-25</Date>
+            <Version>0.9</Version>
+            <Comment>Update to version 0.9.</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih.asici@gmail.com</Email>
+        </Update>
+        <Update release="1">
+            <Date>2005-10-15</Date>
+            <Version>20050930</Version>
+            <Comment>First release.</Comment>
+            <Name>Fatih Aşıcı</Name>
+            <Email>fatih.asici@gmail.com</Email>
+        </Update>
+    </History>
+</PISI>
