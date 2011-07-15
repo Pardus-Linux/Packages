@@ -1,0 +1,91 @@
+From 58bc611b12570d9547e1fbebb092c39ebeede547 Mon Sep 17 00:00:00 2001
+From: Mehmet Emre Atasever <memre@pardus.org.tr>
+Date: Fri, 8 Jul 2011 13:50:40 +0300
+Subject: [PATCH 2/2] fix documentations
+
+use /etc/<package-name>/ directory instead of directly /etc sysconfdir.
+
+this commit is diff of these sed commands:
+sed -i 's|/usr/local/etc/avrdude.conf|/etc/avrdude/avrdude.conf|g' \
+       doc/avrdude.texi avrdude.1
+sed -i 's|/etc/avrdude.conf|/etc/avrdude/avrdude.conf|g' \
+       doc/avrdude.texi avrdude.1
+---
+ avrdude.1        |    4 ++--
+ doc/avrdude.texi |   10 +++++-----
+ 2 files changed, 7 insertions(+), 7 deletions(-)
+
+diff --git a/avrdude.1 b/avrdude.1
+index 406b540..74562ef 100644
+--- a/avrdude.1
++++ b/avrdude.1
+@@ -343,7 +343,7 @@ knows about.  If you have a programmer or part that
+ does not know about, you can add it to the config file (be sure and
+ submit a patch back to the author so that it can be incorporated for
+ the next version).  See the config file, located at
+-.Pa ${PREFIX}/etc/avrdude.conf ,
++.Pa ${PREFIX}/etc/avrdude/avrdude.conf ,
+ which contains a description of the format.
+ .It Fl D
+ Disable auto erase for flash.  When the
+@@ -964,7 +964,7 @@ parameters unavailable.
+ .It Pa /dev/ppi0
+ default device to be used for communication with the programming
+ hardware
+-.It Pa ${PREFIX}/etc/avrdude.conf
++.It Pa ${PREFIX}/etc/avrdude/avrdude.conf
+ programmer and parts configuration file
+ .It Pa ${HOME}/.avrduderc
+ programmer and parts configuration file (per-user overrides)
+diff --git a/doc/avrdude.texi b/doc/avrdude.texi
+index d6f2fba..949b947 100644
+--- a/doc/avrdude.texi
++++ b/doc/avrdude.texi
+@@ -574,7 +574,7 @@ If you have a programmer or part that AVRDUDE does not know about, you
+ can add it to the config file (be sure and submit a patch back to the
+ author so that it can be incorporated for the next version).  If not
+ specified, AVRDUDE reads the configuration file from
+-/usr/local/etc/avrdude.conf (FreeBSD and Linux). See Appendix A for
++/etc/avrdude/avrdude.conf (FreeBSD and Linux). See Appendix A for
+ the method of searching for the configuration file for Windows.
+ 
+ @item -D
+@@ -1410,7 +1410,7 @@ programmer work with AVRDUDE.
+ 
+ AVRDUDE first looks for a system wide configuration file in a platform
+ dependent location.  On Unix, this is usually
+-@code{/usr/local/etc/avrdude.conf}, while on Windows it is usally in the
++@code{/etc/avrdude/avrdude.conf}, while on Windows it is usally in the
+ same location as the executable file.  The name of this file can be
+ changed using the @option{-C} command line option.  After the system wide
+ configuration file is parsed, AVRDUDE looks for a per-user configuration
+@@ -1858,7 +1858,7 @@ to system. The above example is specific to RedHat.
+ @noindent
+ When AVRDUDE is build using the default @option{--prefix} configure
+ option, the default configuration file for a Unix system is located at
+-@code{/usr/local/etc/avrdude.conf}.  This can be overridden by using the
++@code{/etc/avrdude/avrdude.conf}.  This can be overridden by using the
+ @option{-C} command line option.  Additionally, the user's home directory
+ is searched for a file named @code{.avrduderc}, and if found, is used to
+ augment the system default configuration file.
+@@ -1876,7 +1876,7 @@ augment the system default configuration file.
+ 
+ @noindent
+ When AVRDUDE is installed using the FreeBSD ports system, the system
+-configuration file is always @code{/usr/local/etc/avrdude.conf}.
++configuration file is always @code{/etc/avrdude/avrdude.conf}.
+ 
+ @c
+ @c Node
+@@ -1886,7 +1886,7 @@ configuration file is always @code{/usr/local/etc/avrdude.conf}.
+ 
+ @noindent
+ When AVRDUDE is installed using from an rpm package, the system
+-configuration file will be always be @code{/etc/avrdude.conf}.
++configuration file will be always be @code{/etc/avrdude/avrdude.conf}.
+ 
+ @c
+ @c Node
+-- 
+1.7.3.4
+
