@@ -21,6 +21,10 @@ def setup():
     #
     # More info can be obtained here: http://wiki.winehq.org/Wine64
 
+    ## NOTE: This is 32bit only, but the actions.py still contains 64bit parts
+    ##       It's not necessary. I just don't want to break the maintainability of
+    ##       two seperate wine builds.
+
     autotools.autoreconf("-vif")
     options = "--without-capi \
                --with-curses \
