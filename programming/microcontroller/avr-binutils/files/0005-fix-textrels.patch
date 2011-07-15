@@ -1,0 +1,66 @@
+From f1715440e040ecce4d4ff8a3d0e20d4af7b07a06 Mon Sep 17 00:00:00 2001
+From: Mehmet Emre Atasever <memre@pardus.org.tr>
+Date: Fri, 8 Jul 2011 10:23:24 +0300
+Subject: [PATCH 05/13] fix textrels
+
+textrels are bad for forcing copy-on-write (this affects everyone),
+and for security/runtime code generation, this affects security ppl.
+But in either case, it doesn't matter who needs textrels, it's
+the very fact that they're needed at all.
+---
+ bfd/elflink.c               |    6 ++----
+ ld/ldmain.c                 |    1 +
+ ld/testsuite/lib/ld-lib.exp |    4 ++++
+ 3 files changed, 7 insertions(+), 4 deletions(-)
+
+diff --git a/bfd/elflink.c b/bfd/elflink.c
+index aa1d60f..f48437d 100644
+--- a/bfd/elflink.c
++++ b/bfd/elflink.c
+@@ -11308,14 +11308,12 @@ bfd_elf_final_link (bfd *abfd, struct bfd_link_info *info)
+ 	goto error_return;
+ 
+       /* Check for DT_TEXTREL (late, in case the backend removes it).  */
+-      if (info->warn_shared_textrel && info->shared)
++      o = bfd_get_section_by_name (dynobj, ".dynamic");
++      if (info->warn_shared_textrel && o != NULL)
+ 	{
+ 	  bfd_byte *dyncon, *dynconend;
+ 
+ 	  /* Fix up .dynamic entries.  */
+-	  o = bfd_get_section_by_name (dynobj, ".dynamic");
+-	  BFD_ASSERT (o != NULL);
+-
+ 	  dyncon = o->contents;
+ 	  dynconend = o->contents + o->size;
+ 	  for (; dyncon < dynconend; dyncon += bed->s->sizeof_dyn)
+diff --git a/ld/ldmain.c b/ld/ldmain.c
+index 3ebd61d..eb1d1d8 100644
+--- a/ld/ldmain.c
++++ b/ld/ldmain.c
+@@ -295,6 +295,7 @@ main (int argc, char **argv)
+   emulation = get_emulation (argc, argv);
+   ldemul_choose_mode (emulation);
+   default_target = ldemul_choose_target (argc, argv);
++  link_info.warn_shared_textrel = TRUE;
+   config.maxpagesize = bfd_emul_get_maxpagesize (default_target);
+   config.commonpagesize = bfd_emul_get_commonpagesize (default_target);
+   lang_init (FALSE);
+diff --git a/ld/testsuite/lib/ld-lib.exp b/ld/testsuite/lib/ld-lib.exp
+index 56d0684..2be3d40 100644
+--- a/ld/testsuite/lib/ld-lib.exp
++++ b/ld/testsuite/lib/ld-lib.exp
+@@ -210,6 +210,10 @@ proc default_ld_simple_link { ld target objects } {
+     # We want to ignore TEXTREL warnings since we force enable them by default
+     regsub -all "^lt-ld-new: warning: creating a DT_TEXTREL in object\." $exec_output "\\1" exec_output
+ 
++    # Gentoo tweak:
++    # We want to ignore TEXTREL warnings since we force enable them by default
++    regsub -all "^lt-ld-new: warning: creating a DT_TEXTREL in object\." $exec_output "\\1" exec_output
++
+     if [string match "" $exec_output] then {
+ 	return 1
+     } else {
+-- 
+1.7.3.4
+

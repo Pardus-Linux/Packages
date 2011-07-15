@@ -1,0 +1,103 @@
+From f1e3248beff38d316f05edafaf506723c9fc2018 Mon Sep 17 00:00:00 2001
+From: Mehmet Emre Atasever <memre@pardus.org.tr>
+Date: Fri, 8 Jul 2011 10:48:36 +0300
+Subject: [PATCH 12/13] Fix the issue by clearing LD_LIBRARY_PATH for BUILD tools
+
+This patch is needed in situations where build system is running same version of
+binutils that is intended to be built  cross-native ( build != host = target)
+ and has shared libraries enabled. binutils/binutils
+Makefile has some tools which are built to run on build system. Toplevel makefile
+for binutils passes HOST_EXPORTS to sub-makefiles which also include RPATH_ENVVARS
+containing LD_LIBRARY_PATH which is modified so that it also includes host libraries
+like opcodes and libbfd which are just built for the host system.
+
+Now the problem is that same LD_LIBRARY_PATH value gets set in environment even
+for the tools that are being built for build system using CC_FOR_BUILD and the tools
+like as,ld it invokes from build machine get the LD_LIBRARY_PATH set to search
+the newly build host libraries like opcodes and bfd and if host is like a big endian
+system say (mips-linux) the build system linker and assembler do not run because
+ld.so tries to load these shared libraries instead of the ones from /usr/lib for
+the build tools.
+
+This patch fixes the issue by clearing LD_LIBRARY_PATH for BUILD tools
+
+This patch would be needed on other versions of binutils. I just cared about 2.20
+May be upstream is also interested in such a patch.
+---
+ binutils/Makefile.am |   12 ++++++------
+ binutils/Makefile.in |   12 ++++++------
+ 2 files changed, 12 insertions(+), 12 deletions(-)
+
+diff --git a/binutils/Makefile.am b/binutils/Makefile.am
+index 76fc50a..6a631c9 100644
+--- a/binutils/Makefile.am
++++ b/binutils/Makefile.am
+@@ -268,24 +268,24 @@ sysroff.h: sysinfo$(EXEEXT_FOR_BUILD) sysroff.info
+ 	./sysinfo$(EXEEXT_FOR_BUILD) -d <$(srcdir)/sysroff.info >sysroff.h
+ 
+ sysinfo$(EXEEXT_FOR_BUILD): sysinfo.@OBJEXT@ syslex.@OBJEXT@
+-	$(CC_FOR_BUILD) $(CFLAGS_FOR_BUILD) $(LDFLAGS_FOR_BUILD) -o $@ sysinfo.@OBJEXT@ syslex.@OBJEXT@
++	LD_LIBRARY_PATH= $(CC_FOR_BUILD) $(CFLAGS_FOR_BUILD) $(LDFLAGS_FOR_BUILD) -o $@ sysinfo.@OBJEXT@ syslex.@OBJEXT@
+ 
+ syslex.@OBJEXT@: syslex.c sysinfo.h config.h
+ 	if [ -r syslex.c ]; then \
+-	  $(CC_FOR_BUILD) -c -I. $(AM_CFLAGS) $(CFLAGS_FOR_BUILD) $(NO_WERROR) syslex.c ; \
++	 LD_LIBRARY_PATH=  $(CC_FOR_BUILD) -c -I. $(AM_CFLAGS) $(CFLAGS_FOR_BUILD) $(NO_WERROR) syslex.c ; \
+ 	else \
+-	  $(CC_FOR_BUILD) -c -I. -I$(srcdir) $(AM_CFLAGS) $(CFLAGS_FOR_BUILD) $(NO_WERROR) $(srcdir)/syslex.c ;\
++	 LD_LIBRARY_PATH=  $(CC_FOR_BUILD) -c -I. -I$(srcdir) $(AM_CFLAGS) $(CFLAGS_FOR_BUILD) $(NO_WERROR) $(srcdir)/syslex.c ;\
+ 	fi
+ 
+ sysinfo.@OBJEXT@: sysinfo.c
+ 	if [ -r sysinfo.c ]; then \
+-	  $(CC_FOR_BUILD) -c -I. $(AM_CFLAGS) $(CFLAGS_FOR_BUILD) $(NO_WERROR) sysinfo.c ; \
++	 LD_LIBRARY_PATH=  $(CC_FOR_BUILD) -c -I. $(AM_CFLAGS) $(CFLAGS_FOR_BUILD) $(NO_WERROR) sysinfo.c ; \
+ 	else \
+-	  $(CC_FOR_BUILD) -c -I. $(AM_CFLAGS) $(CFLAGS_FOR_BUILD) $(NO_WERROR) $(srcdir)/sysinfo.c ; \
++	 LD_LIBRARY_PATH=  $(CC_FOR_BUILD) -c -I. $(AM_CFLAGS) $(CFLAGS_FOR_BUILD) $(NO_WERROR) $(srcdir)/sysinfo.c ; \
+ 	fi
+ 
+ bin2c$(EXEEXT_FOR_BUILD): bin2c.c
+-	$(CC_FOR_BUILD) -o $@ $(AM_CPPFLAGS) $(AM_CFLAGS) $(CFLAGS_FOR_BUILD) $(LDFLAGS_FOR_BUILD) $(srcdir)/bin2c.c
++	LD_LIBRARY_PATH= $(CC_FOR_BUILD) -o $@ $(AM_CPPFLAGS) $(AM_CFLAGS) $(CFLAGS_FOR_BUILD) $(LDFLAGS_FOR_BUILD) $(srcdir)/bin2c.c
+ 
+ embedspu: embedspu.sh Makefile
+ 	sed "/^program_transform_name=/cprogram_transform_name=$(program_transform_name)" < $< > $@
+diff --git a/binutils/Makefile.in b/binutils/Makefile.in
+index 1f119d8..3bd5290 100644
+--- a/binutils/Makefile.in
++++ b/binutils/Makefile.in
+@@ -1282,24 +1282,24 @@ sysroff.h: sysinfo$(EXEEXT_FOR_BUILD) sysroff.info
+ 	./sysinfo$(EXEEXT_FOR_BUILD) -d <$(srcdir)/sysroff.info >sysroff.h
+ 
+ sysinfo$(EXEEXT_FOR_BUILD): sysinfo.@OBJEXT@ syslex.@OBJEXT@
+-	$(CC_FOR_BUILD) $(CFLAGS_FOR_BUILD) $(LDFLAGS_FOR_BUILD) -o $@ sysinfo.@OBJEXT@ syslex.@OBJEXT@
++	LD_LIBRARY_PATH= $(CC_FOR_BUILD) $(CFLAGS_FOR_BUILD) $(LDFLAGS_FOR_BUILD) -o $@ sysinfo.@OBJEXT@ syslex.@OBJEXT@
+ 
+ syslex.@OBJEXT@: syslex.c sysinfo.h config.h
+ 	if [ -r syslex.c ]; then \
+-	  $(CC_FOR_BUILD) -c -I. $(AM_CFLAGS) $(CFLAGS_FOR_BUILD) $(NO_WERROR) syslex.c ; \
++	 LD_LIBRARY_PATH=  $(CC_FOR_BUILD) -c -I. $(AM_CFLAGS) $(CFLAGS_FOR_BUILD) $(NO_WERROR) syslex.c ; \
+ 	else \
+-	  $(CC_FOR_BUILD) -c -I. -I$(srcdir) $(AM_CFLAGS) $(CFLAGS_FOR_BUILD) $(NO_WERROR) $(srcdir)/syslex.c ;\
++	 LD_LIBRARY_PATH=  $(CC_FOR_BUILD) -c -I. -I$(srcdir) $(AM_CFLAGS) $(CFLAGS_FOR_BUILD) $(NO_WERROR) $(srcdir)/syslex.c ;\
+ 	fi
+ 
+ sysinfo.@OBJEXT@: sysinfo.c
+ 	if [ -r sysinfo.c ]; then \
+-	  $(CC_FOR_BUILD) -c -I. $(AM_CFLAGS) $(CFLAGS_FOR_BUILD) $(NO_WERROR) sysinfo.c ; \
++	 LD_LIBRARY_PATH=  $(CC_FOR_BUILD) -c -I. $(AM_CFLAGS) $(CFLAGS_FOR_BUILD) $(NO_WERROR) sysinfo.c ; \
+ 	else \
+-	  $(CC_FOR_BUILD) -c -I. $(AM_CFLAGS) $(CFLAGS_FOR_BUILD) $(NO_WERROR) $(srcdir)/sysinfo.c ; \
++	 LD_LIBRARY_PATH=  $(CC_FOR_BUILD) -c -I. $(AM_CFLAGS) $(CFLAGS_FOR_BUILD) $(NO_WERROR) $(srcdir)/sysinfo.c ; \
+ 	fi
+ 
+ bin2c$(EXEEXT_FOR_BUILD): bin2c.c
+-	$(CC_FOR_BUILD) -o $@ $(AM_CPPFLAGS) $(AM_CFLAGS) $(CFLAGS_FOR_BUILD) $(LDFLAGS_FOR_BUILD) $(srcdir)/bin2c.c
++	LD_LIBRARY_PATH= $(CC_FOR_BUILD) -o $@ $(AM_CPPFLAGS) $(AM_CFLAGS) $(CFLAGS_FOR_BUILD) $(LDFLAGS_FOR_BUILD) $(srcdir)/bin2c.c
+ 
+ embedspu: embedspu.sh Makefile
+ 	sed "/^program_transform_name=/cprogram_transform_name=$(program_transform_name)" < $< > $@
+-- 
+1.7.3.4
+

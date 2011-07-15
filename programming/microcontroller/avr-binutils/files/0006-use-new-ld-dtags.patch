@@ -1,0 +1,38 @@
+From 4a9950e481b6190ee0e3f66725f6d58b4b862c74 Mon Sep 17 00:00:00 2001
+From: Mehmet Emre Atasever <memre@pardus.org.tr>
+Date: Fri, 8 Jul 2011 10:26:12 +0300
+Subject: [PATCH 06/13] use new-ld-dtags
+
+---
+ ld/ld.texinfo |    2 +-
+ ld/ldmain.c   |    1 +
+ 2 files changed, 2 insertions(+), 1 deletions(-)
+
+diff --git a/ld/ld.texinfo b/ld/ld.texinfo
+index 0b58396..f23522e 100644
+--- a/ld/ld.texinfo
++++ b/ld/ld.texinfo
+@@ -2077,7 +2077,7 @@ This linker can create the new dynamic tags in ELF. But the older ELF
+ systems may not understand them. If you specify
+ @option{--enable-new-dtags}, the dynamic tags will be created as needed.
+ If you specify @option{--disable-new-dtags}, no new dynamic tags will be
+-created. By default, the new dynamic tags are not created. Note that
++created. By default, the new dynamic tags are created. Note that
+ those options are only available for ELF systems.
+ 
+ @kindex --hash-size=@var{number}
+diff --git a/ld/ldmain.c b/ld/ldmain.c
+index eb1d1d8..6581610 100644
+--- a/ld/ldmain.c
++++ b/ld/ldmain.c
+@@ -275,6 +275,7 @@ main (int argc, char **argv)
+ 
+   link_info.allow_undefined_version = TRUE;
+   link_info.keep_memory = TRUE;
++  link_info.new_dtags = TRUE;
+   link_info.combreloc = TRUE;
+   link_info.strip_discarded = TRUE;
+   link_info.warn_shared_textrel = TRUE;
+-- 
+1.7.3.4
+

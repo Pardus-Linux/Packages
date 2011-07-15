@@ -1,0 +1,54 @@
+From 1217ed2b2b4846cd5e526045c36ab1fbba4afb04 Mon Sep 17 00:00:00 2001
+From: Mehmet Emre Atasever <memre@pardus.org.tr>
+Date: Fri, 8 Jul 2011 10:02:04 +0300
+Subject: [PATCH 01/13] ignore TEXTREL warnings
+
+ignore TEXTREL warnings since we force enable them by default
+---
+ bfd/elflink.c               |    2 +-
+ ld/ldmain.c                 |    1 +
+ ld/testsuite/lib/ld-lib.exp |    3 +++
+ 3 files changed, 5 insertions(+), 1 deletions(-)
+
+diff --git a/bfd/elflink.c b/bfd/elflink.c
+index a9af84b..787206a 100644
+--- a/bfd/elflink.c
++++ b/bfd/elflink.c
+@@ -11309,7 +11309,7 @@ bfd_elf_final_link (bfd *abfd, struct bfd_link_info *info)
+ 	      if (dyn.d_tag == DT_TEXTREL)
+ 		{
+ 		 info->callbacks->einfo
+-		    (_("%P: warning: creating a DT_TEXTREL in a shared object.\n"));
++		    (_("%P: warning: creating a DT_TEXTREL in object.\n"));
+ 		  break;
+ 		}
+ 	    }
+diff --git a/ld/ldmain.c b/ld/ldmain.c
+index 3e5caf4..3ebd61d 100644
+--- a/ld/ldmain.c
++++ b/ld/ldmain.c
+@@ -277,6 +277,7 @@ main (int argc, char **argv)
+   link_info.keep_memory = TRUE;
+   link_info.combreloc = TRUE;
+   link_info.strip_discarded = TRUE;
++  link_info.warn_shared_textrel = TRUE;
+   link_info.emit_hash = TRUE;
+   link_info.callbacks = &link_callbacks;
+   link_info.input_bfds_tail = &link_info.input_bfds;
+diff --git a/ld/testsuite/lib/ld-lib.exp b/ld/testsuite/lib/ld-lib.exp
+index 2d241ce..56d0684 100644
+--- a/ld/testsuite/lib/ld-lib.exp
++++ b/ld/testsuite/lib/ld-lib.exp
+@@ -207,6 +207,9 @@ proc default_ld_simple_link { ld target objects } {
+     # symbol, since the default linker script might use ENTRY.
+     regsub -all "(^|\n)(\[^\n\]*: warning: cannot find entry symbol\[^\n\]*\n?)" $exec_output "\\1" exec_output
+ 
++    # We want to ignore TEXTREL warnings since we force enable them by default
++    regsub -all "^lt-ld-new: warning: creating a DT_TEXTREL in object\." $exec_output "\\1" exec_output
++
+     if [string match "" $exec_output] then {
+ 	return 1
+     } else {
+-- 
+1.7.3.4
+

@@ -1,0 +1,30 @@
+From 8e07c3276c07b98cd4879edcf6ab92b93a027160 Mon Sep 17 00:00:00 2001
+From: Mehmet Emre Atasever <memre@pardus.org.tr>
+Date: Fri, 8 Jul 2011 10:40:11 +0300
+Subject: [PATCH 11/13] better file error
+
+---
+ bfd/opncls.c |    7 +++++++
+ 1 files changed, 7 insertions(+), 0 deletions(-)
+
+diff --git a/bfd/opncls.c b/bfd/opncls.c
+index 4043200..b6be395 100644
+--- a/bfd/opncls.c
++++ b/bfd/opncls.c
+@@ -197,6 +197,13 @@ bfd_fopen (const char *filename, const char *target, const char *mode, int fd)
+ {
+   bfd *nbfd;
+   const bfd_target *target_vec;
++  struct stat s;
++
++  if (stat (filename, &s) == 0)
++    if (S_ISDIR(s.st_mode)) {
++      bfd_set_error (bfd_error_file_not_recognized);
++      return NULL;
++    }
+ 
+   nbfd = _bfd_new_bfd ();
+   if (nbfd == NULL)
+-- 
+1.7.3.4
+

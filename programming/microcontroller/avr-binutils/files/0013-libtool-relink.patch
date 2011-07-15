@@ -1,0 +1,47 @@
+From 5fec9364d48e5ca6ac645fb90ac02bf84eed6668 Mon Sep 17 00:00:00 2001
+From: Mehmet Emre Atasever <memre@pardus.org.tr>
+Date: Fri, 8 Jul 2011 11:04:19 +0300
+Subject: [PATCH 13/13] libtool relink
+
+---
+ ltmain.sh |   13 +++++++++++++
+ 1 files changed, 13 insertions(+), 0 deletions(-)
+
+diff --git a/ltmain.sh b/ltmain.sh
+index a03433f..968eea5 100644
+--- a/ltmain.sh
++++ b/ltmain.sh
+@@ -5977,6 +5977,7 @@ func_mode_link ()
+ 
+ 	  if test "$linkmode" = prog || test "$mode" = relink; then
+ 	    add_shlibpath=
++	    add_prefix_dir=
+ 	    add_dir=
+ 	    add=
+ 	    # Finalize command for both is simple: just hardcode it.
+@@ -6013,10 +6014,22 @@ func_mode_link ()
+ 	      add="-l$name"
+ 	    fi
+ 
++	    if test -n "$inst_prefix_dir"; then
++	      case "$libdir" in
++	      [\\/]*)
++		add_prefix_dir="-L$inst_prefix_dir$libdir"
++		;;
++	      esac
++	    fi
++
++	    # add_prefix_dir must be appended instead, otherwise it can
++	    # possibly be overrided by any hardcoded -L/... path in deplibs
+ 	    if test "$linkmode" = prog; then
++	      test -n "$add_prefix_dir" && finalize_deplibs="$finalize_deplibs $add_prefix_dir"
+ 	      test -n "$add_dir" && finalize_deplibs="$add_dir $finalize_deplibs"
+ 	      test -n "$add" && finalize_deplibs="$add $finalize_deplibs"
+ 	    else
++	      test -n "$add_prefix_dir" && deplibs="$deplibs $add_prefix_dir"
+ 	      test -n "$add_dir" && deplibs="$add_dir $deplibs"
+ 	      test -n "$add" && deplibs="$add $deplibs"
+ 	    fi
+-- 
+1.7.3.4
+

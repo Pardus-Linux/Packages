@@ -1,0 +1,90 @@
+From 45bedb4e2e968eefcb822affda9f765ab2183727 Mon Sep 17 00:00:00 2001
+From: Mehmet Emre Atasever <memre@pardus.org.tr>
+Date: Fri, 8 Jul 2011 10:27:57 +0300
+Subject: [PATCH 07/13] use relro
+
+---
+ ld/ldmain.c                             |    1 +
+ ld/lexsup.c                             |    3 +++
+ ld/testsuite/config/default.exp         |    6 +++---
+ ld/testsuite/ld-bootstrap/bootstrap.exp |    7 ++++++-
+ 4 files changed, 13 insertions(+), 4 deletions(-)
+
+diff --git a/ld/ldmain.c b/ld/ldmain.c
+index 6581610..0ee0649 100644
+--- a/ld/ldmain.c
++++ b/ld/ldmain.c
+@@ -277,6 +277,7 @@ main (int argc, char **argv)
+   link_info.keep_memory = TRUE;
+   link_info.new_dtags = TRUE;
+   link_info.combreloc = TRUE;
++  link_info.relro = TRUE;
+   link_info.strip_discarded = TRUE;
+   link_info.warn_shared_textrel = TRUE;
+   link_info.emit_hash = TRUE;
+diff --git a/ld/lexsup.c b/ld/lexsup.c
+index e1cdd85..c6ab751 100644
+--- a/ld/lexsup.c
++++ b/ld/lexsup.c
+@@ -724,6 +724,9 @@ parse_args (unsigned argc, char **argv)
+ 	}
+     }
+ 
++  optarg = "relro";
++  ldemul_handle_option ('z');
++
+   last_optind = -1;
+   while (1)
+     {
+diff --git a/ld/testsuite/config/default.exp b/ld/testsuite/config/default.exp
+index 26a7a0c..1f7622a 100644
+--- a/ld/testsuite/config/default.exp
++++ b/ld/testsuite/config/default.exp
+@@ -23,7 +23,7 @@
+ #
+ 
+ if ![info exists ld] then {
+-    set ld [findfile $base_dir/ld-new $base_dir/ld-new [transform ld]]
++    set ld "[findfile $base_dir/ld-new $base_dir/ld-new [transform ld]] -znorelro"
+ }
+ 
+ if ![info exists as] then {
+@@ -68,7 +68,7 @@ if {![file isdirectory tmpdir/ld]} then {
+     catch "exec mkdir tmpdir/ld" status
+     catch "exec ln -s ../../ld-new tmpdir/ld/ld" status
+ }
+-set gcc_ld_flag "-B[pwd]/tmpdir/ld/"
++set gcc_ld_flag "-B[pwd]/tmpdir/ld/ -Wl,-z,norelro"
+ 
+ # load the linker path
+ if {[file exists tmpdir/libpath.exp]} {
+@@ -278,7 +278,7 @@ if ![info exists READELFFLAGS] then {
+ }
+ 
+ if ![info exists LD] then {
+-    set LD [findfile $base_dir/ld-new ./ld-new [transform ld]]
++    set LD "[findfile $base_dir/ld-new ./ld-new [transform ld]] -znorelro"
+ }
+ 
+ if ![info exists LDFLAGS] then {
+diff --git a/ld/testsuite/ld-bootstrap/bootstrap.exp b/ld/testsuite/ld-bootstrap/bootstrap.exp
+index d0563de..6993371 100644
+--- a/ld/testsuite/ld-bootstrap/bootstrap.exp
++++ b/ld/testsuite/ld-bootstrap/bootstrap.exp
+@@ -71,7 +71,12 @@ foreach flags {"" "strip" "--static" "--traditional-format"
+ 
+     # This test can only be run if we have the ld build directory,
+     # since we need the object files.
+-    if {$ld != "$objdir/ld-new"} {
++    set ldexe $ld
++    set ldparm [string first " " $ld]
++    if { $ldparm > 0 } then {
++	set ldexe [string range $ld 0 $ldparm]
++    }
++    if {$ldexe != "$objdir/ld-new"} {
+ 	untested $testname
+ 	continue
+     }
+-- 
+1.7.3.4
+
