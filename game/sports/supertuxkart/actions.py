@@ -13,7 +13,7 @@ from pisi.actionsapi import get
 import os
 
 #WorkDir = "supertuxkart-%sa" % get.srcVERSION()
-WorkDir = "supertuxkart-%sb" % get.srcVERSION()
+#WorkDir = "supertuxkart-%sb" % get.srcVERSION()
 enetsrc = "src/enet"
 
 def removegames(dest):
