@@ -9,7 +9,7 @@ from pisi.actionsapi import pisitools
 from pisi.actionsapi import get
 
 def setup():
-    cmaketools.configure()
+    cmaketools.configure("-DENABLE_LAPACK=ON")
 
 def build():
     cmaketools.make()
