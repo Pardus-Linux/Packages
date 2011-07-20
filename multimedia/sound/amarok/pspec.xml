@@ -13,7 +13,7 @@
         <IsA>app:gui</IsA>
         <Summary>Amarok audio player</Summary>
         <Description>Amarok is a feature-rich audio player for the KDE desktop.</Description>
-        <Archive sha1sum="1b1180e7799ff1314ee5a6409a612ede37ce8394" type="tarbz2">mirrors://kde/stable/amarok/2.4.1/src/amarok-2.4.1.tar.bz2</Archive>
+        <Archive sha1sum="04b2b84d016cf9caf04d168fb416dafd3de7c6d7" type="tarbz2">mirrors://kde/unstable/amarok/2.4.1.90/src/amarok-2.4.1.90.tar.bz2</Archive>
         <BuildDependencies>
             <Dependency>kdebase-runtime</Dependency>
             <Dependency>kdelibs-devel</Dependency>
@@ -33,10 +33,12 @@
             <Dependency>qca2-devel</Dependency>
             <Dependency>automoc4</Dependency>
             <Dependency>gdk-pixbuf-devel</Dependency>
-            <Dependency>ffmpeg-devel</Dependency>
+            <Dependency versionFrom="0.6">ffmpeg-devel</Dependency>
             <Dependency>libofa-devel</Dependency>
             <Dependency>libqjson-devel</Dependency>
             <Dependency>libmygpo-qt-devel</Dependency>
+            <Dependency>libifp-devel</Dependency>
+            <Dependency>libnjb-devel</Dependency>
         </BuildDependencies>
         <Patches>
             <Patch>fix-append-play-service-actions.diff</Patch>
@@ -67,11 +69,12 @@
             <Dependency>qt</Dependency>
             <Dependency>qt-webkit</Dependency>
             <Dependency>strigi-libs</Dependency>
-            <Dependency>taglib</Dependency>
-            <Dependency>ffmpeg</Dependency>
+            <Dependency versionFrom="0.6">ffmpeg</Dependency>
             <Dependency>libofa</Dependency>
             <Dependency>libqjson</Dependency>
             <Dependency>libmygpo-qt</Dependency>
+            <Dependency>libifp</Dependency>
+            <Dependency>libnjb</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="executable">/usr/bin</Path>
@@ -90,6 +93,53 @@
         </AdditionalFiles>
     </Package>
     <History>
+        <Update release="51">
+            <Date>2011-07-20</Date>
+            <Version>2.4.1.90</Version>
+            <Comment>- Add libifp dependency for iRiver s flash-based portable audio players.
+                - Add libnjb dependency for Creative Nomad JukeBox and Dell DJ digital audio players.
+                - Add strict dep to ffmpeg versionFrom=0.6
+                -Version bump to 2.4.2 beta 1:
+                FEATURES:
+                * Made Amarok compile with the Clang LLVM frontend.
+                * Enable drag and drop on collections to copy/move within Local Music and directly from the playlist. (BR 223400)
+                * Added KNotify scripting interface. (BR 260750)
+                * Make podcast episodes download filename configurable. Patch by Sandeep Raghuraman. (BR 155075)
+                * Automatic scrolling in lyrics applet (Thanks to Jan Gerrit Marker)
+                * Option to scrobble composer as artist to Last.fm (Thanks to Nicholas Wilson)
+                * Option to hide the OSD if another window is taking the full screen
+                CHANGES:
+                * Again write back ratings only if option is selected.
+                * Moved the queue-editor action to the main menu under playlist to save space. Queue editor now has a shortcut: Meta+U.
+                * Removed the redo action from the playlist toolbar to make it less wide.
+                * Made some playlist toolbar actions collapse into a menu button for use on small screens.
+                * Removed the statusbar. Moved progress info and messages to the Media Sources dock.
+                * Removed the preview button and checkbox from the organize collection dialog.
+                * General user interface cleanup (addition of browser widget backgrounds, etc.)
+                * Removed the add button in the context toolbar. Applet explorer is opened on config.
+                * Easier to understand Dynamic playlists
+                * Made Amarok depend ffmpeg-0.6 or newer.
+                * Use KImageCache if possible (kdelibs 4.5.0 and later), which should reduce the number of cache-related crashes.
+                BUGFIXES:
+                * Don't let the album applet freeze Amarok for ages on track change. (BR260810, BR277021)
+                * Fixed cover fetching from Google Images. (BR 275265)
+                * Fixed a crash in the equalizer dialog when selecting "Off".
+                * Fix finalization of track copy process to media device collections. (BR238912) Patch by Tommaso Falchi Delitala.
+                * Fixed crash on MusicBrainz search. (BR 274956)
+                * Avoid crash in ContextView when accessing Plasma::Applet::view(). (BR 258741)
+                * Fixed playlist tooltip getting too tall for multiline comments. (BR 256038)
+                * Made equalizer keywords (dB,kHz,...) translatable. (BR 263572)
+                * Made equalizer preset names translatable. (BR 263596)
+                * Fixed runtime error reporting of scripts. (BR 207409)
+                * Fixed "Happy" moodbar theme. (BR 264432)
+                * Fixed crash for invalid scripts trying to be stopped by the manager. (BR 268917)
+                * Fixed collection menu items ordering. (BR 207007)
+                * Fixed top level podcast location setting. (BR 263736)
+                * Fixed double-clicking in collection using left-handed mouse setting. (BR 272360)
+            </Comment>
+            <Name>Serdar Dalgıç</Name>
+            <Email>serdar@pardus.org.tr</Email>
+        </Update>
         <Update release="50">
             <Date>2011-05-09</Date>
             <Version>2.4.1</Version>
