@@ -7,6 +7,9 @@ from pisi.actionsapi import pythonmodules
 from pisi.actionsapi import pisitools
 from pisi.actionsapi import get
 
+def build():
+    pythonmodules.compile()
+
 def install():
     # Install into /usr/lib/pardus so we can protect ourself from python updates
     pythonmodules.install("--install-lib=/usr/lib/pardus")
