@@ -8,11 +8,12 @@ from pisi.actionsapi import get
 from pisi.actionsapi import pisitools
 from pisi.actionsapi import shelltools
 
-WorkDir="tcl%s/unix" % get.srcVERSION()
+WorkDir="tcl%s" % get.srcVERSION()
 
 def setup():
-    autotools.autoreconf("-fi")
+    shelltools.cd("unix")
 
+    autotools.autoreconf("-fi")
     autotools.configure("--with-encoding=utf-8 \
                          --enable-threads \
                          --enable-man-compression=gzip \
@@ -20,9 +21,11 @@ def setup():
                          --enable-64bit")
 
 def build():
+    shelltools.cd("unix")
     autotools.make()
 
 def install():
+    shelltools.cd("unix")
     autotools.rawInstall("DESTDIR=%s" % get.installDIR())
 
     # Collect private headers, 3rd party apps like Tile depends on this
