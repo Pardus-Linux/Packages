@@ -29,23 +29,27 @@ def setup():
                          --with-configdir=/etc/sasl2 \
                          --with-plugindir=/usr/lib/sasl2 \
                          --with-dbpath=/etc/sasl2/sasldb2 \
+                         --with-pam \
+                         --with-ldap \
+                         --with-openssl \
+                         --with-dblib=gdbm \
+                         --with-gss_impl=mit \
+                         --with-devrandom=/dev/urandom \
+                         --without-pgsql \
+                         --without-mysql \
+                         --enable-anon \
+                         --enable-cram \
+                         --enable-digest \
+                         --enable-gssapi \
+                         --enable-ldapdb \
                          --enable-login \
                          --enable-ntlm \
-                         --enable-auth-sasldb \
+                         --enable-plain \
                          --disable-krb4 \
                          --disable-otp \
-                         --disable-static \
-                         --with-openssl \
-                         --with-pam \
-                         --disable-gssapi \
-                         --without-mysql \
-                         --disable-mysql \
-                         --without-pgsql \
-                         --disable-postgres \
                          --disable-java \
                          --disable-sql \
-                         --with-devrandom=/dev/urandom \
-                         --with-dblib=gdbm")
+                         --disable-static")
 
 def build():
     autotools.make("-j1")
