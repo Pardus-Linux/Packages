@@ -14,7 +14,6 @@ def setup():
 
     autotools.autoreconf("-vfi")
     autotools.configure("--enable-ipv6 \
-                         --enable-lua \
                          --with-libsmi \
                          --with-gnu-ld \
                          --with-pic \
