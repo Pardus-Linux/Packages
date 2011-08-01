@@ -4,6 +4,7 @@
 # Licensed under the GNU General Public License, version 2.
 # See the file http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
 
+from pisi.actionsapi import cmaketools
 from pisi.actionsapi import shelltools
 from pisi.actionsapi import autotools
 from pisi.actionsapi import pisitools
@@ -19,14 +20,24 @@ def setup():
     else:
         pisitools.dosed("make.inc", "-O2", "%s -fPIC -funroll-all-loops" % get.CFLAGS())
 
+    shelltools.makedirs("build")
+    shelltools.cd("build")
+    options = "-DBUILD_SHARED_LIBS=ON \
+               -DBUILD_TESTING=OFF"
+
+    if get.buildTYPE() == "static":
+        options = "-DBUILD_SHARED_LIBS=OFF \
+                   -DBUILD_TESTING=OFF"
+
+    cmaketools.configure(options, sourceDir="..")
+
 def build():
-    autotools.make("-j1")
+    shelltools.cd("build")
+    cmaketools.make()
 
 def install():
-    pisitools.insinto("/usr/lib","SRC/liblapack.*")
-    pisitools.insinto("/usr/lib","BLAS/SRC/libblas.*")
+    shelltools.cd("build")
+    cmaketools.rawInstall("DESTDIR=%s" % get.installDIR())
 
-    pisitools.insinto("/usr/lib","lapack_LINUX.a","liblapack.a")
-    pisitools.insinto("/usr/lib","blas_LINUX.a","libblas.a")
-
+    shelltools.cd("../")
     pisitools.dodoc("LICENSE", "README")

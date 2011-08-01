@@ -12,10 +12,11 @@
         <IsA>library</IsA>
         <Summary>Linear Algebra PACKage</Summary>
         <Description>LAPACK is a standard library for numerical linear algebra.  LAPACK provides routines for solving systems of simultaneous linear equations, least-squares solutions of linear systems of equations, eigenvalue problems, and singular value problems.</Description>
-        <Archive sha1sum="c75223fdef3258c461370af5d2b889d580d7f38a" type="targz">http://www.netlib.org/lapack/lapack-3.2.1.tgz</Archive>
+        <Archive sha1sum="3ce437e05f0e9a3c8148ec41922f6efeef0ebdac" type="targz">http://www.netlib.org/lapack/lapack-3.3.1.tgz</Archive>
         <Patches>
             <Patch level="1">lapack-sharedlib.patch</Patch>
             <Patch level="1">lapack-parallel-make.patch</Patch>
+            <Patch level="1">lapack-3.3.1-cmake-sover.patch</Patch>
         </Patches>
     </Source>
 
@@ -34,18 +35,20 @@
     <Package>
         <Name>blas-devel</Name>
         <Summary>Development files for blas</Summary>
+        <BuildType>static</BuildType>
         <RuntimeDependencies>
             <Dependency release="current">blas</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="library">/usr/lib/libblas.a</Path>
+            <Path fileType="library">/usr/lib/pkgconfig/blas.pc</Path>
         </Files>
     </Package>
 
     <Package>
         <Name>lapack</Name>
         <RuntimeDependencies>
-            <Dependency version="3.2.1">blas</Dependency>
+            <Dependency version="current">blas</Dependency>
             <Dependency>libgfortran</Dependency>
         </RuntimeDependencies>
         <Files>
@@ -56,16 +59,31 @@
 
     <Package>
         <Name>lapack-devel</Name>
-        <Summary>Development files for lapack.</Summary>
+        <Summary>Development files for lapack</Summary>
+        <BuildType>static</BuildType>
         <RuntimeDependencies>
             <Dependency release="current">lapack</Dependency>
+            <Dependency release="current">blas-devel</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="library">/usr/lib/liblapack.a</Path>
+            <Path fileType="library">/usr/lib/pkgconfig/lapack.pc</Path>
+            <Path fileType="library">/usr/lib/cmake</Path>
         </Files>
     </Package>
 
     <History>
+        <Update release="9">
+            <Date>2011-08-01</Date>
+            <Version>3.3.1</Version>
+            <Comment>
+                * Version bump to bugfix release
+                * Use BuildType for multiple compilation process
+                * Switch from autotools to cmake
+            </Comment>
+            <Name>Metin Akdere</Name>
+            <Email>metin@pardus.org.tr</Email>
+        </Update>
         <Update release="8">
             <Date>2010-10-13</Date>
             <Version>3.2.1</Version>
