@@ -28,7 +28,7 @@ def setup():
                          --with-build=/lib/modules/%s/build \
                          --with-isapnp=yes \
                          --with-sequencer=yes \
-                         --with-card-options=all,hda-prealloc-size=4096 \
+                         --with-card-options=all,hda-input-beep-mode=0,hda-prealloc-size=4096 \
                          --disable-verbose-printk \
                          --enable-dynamic-minors \
                          --with-cards=all" % (KDIR, KDIR))
