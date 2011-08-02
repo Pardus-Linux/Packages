@@ -10,8 +10,7 @@ from pisi.actionsapi import pisitools
 from pisi.actionsapi import scons
 from pisi.actionsapi import get
 
-WorkDir = "%s-%s" % (get.srcNAME(), get.srcVERSION().replace("_", "~"))
-
+WorkDir = "mixxx-%s~release-1.9.x~bzr2720" % get.srcVERSION()
 
 def build():
     shelltools.export("LINKFLAGS", get.LDFLAGS())
@@ -19,14 +18,8 @@ def build():
                 install_root=%s/usr \
                 qtdir=%s \
                 djconsole=1 \
-                portmidi=0 \
-                optimize=1 \
-                script=1 \
                 shoutcast=1 \
-                tonal=1 \
-                m4a=1 \
-                ladspa=1 \
-                ipod=1" % (get.installDIR(), get.qtDIR()))
+                optimize=1" % (get.installDIR(), get.qtDIR()))
 
 def install():
     shelltools.export("LINKFLAGS", get.LDFLAGS())
@@ -34,13 +27,7 @@ def install():
                    install_root=%s/usr \
                    qtdir=%s \
                    djconsole=1 \
-                   portmidi=0 \
-                   optimize=1 \
-                   script=1 \
                    shoutcast=1 \
-                   tonal=1 \
-                   m4a=1 \
-                   ladspa=1 \
-                   ipod=1" % (get.installDIR(), get.qtDIR()))
+                   optimize=1" % (get.installDIR(), get.qtDIR()))
 
     pisitools.dodoc("README*", "COPYING", "Mixxx-Manual.pdf")
