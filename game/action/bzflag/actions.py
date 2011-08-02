@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright 2006-2009 TUBITAK/UEKAE
+# Copyright 2006-20011 TUBITAK/UEKAE
 # Licensed under the GNU General Public License, version 2.
 # See the file http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
 
@@ -26,4 +26,4 @@ def build():
 def install():
     autotools.install()
 
-    pisitools.dodoc("README","ChangeLog", "RELNOTES", "BUGS")
+    pisitools.dodoc("AUTHORS", "BUGS", "README","ChangeLog", "DEVINFO")
