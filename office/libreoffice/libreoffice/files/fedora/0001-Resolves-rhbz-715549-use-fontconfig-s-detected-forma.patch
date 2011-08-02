@@ -1,0 +1,213 @@
+From 4d974b37e75d1c46b9ddbf86bc6f2756014c7c46 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Caol=C3=A1n=20McNamara?= <caolanm@redhat.com>
+Date: Tue, 19 Jul 2011 13:39:34 +0100
+Subject: [PATCH] Resolves: rhbz#715549 use fontconfig's detected format when
+ available
+
+---
+ vcl/inc/vcl/fontmanager.hxx                 |    2 +-
+ vcl/unx/generic/fontmanager/fontconfig.cxx  |   12 +++-
+ vcl/unx/generic/fontmanager/fontmanager.cxx |   81 +++++++++++++++++----------
+ 3 files changed, 62 insertions(+), 33 deletions(-)
+
+diff --git a/vcl/inc/vcl/fontmanager.hxx b/vcl/inc/vcl/fontmanager.hxx
+index 410ecf1..816adbe 100644
+--- a/vcl/inc/vcl/fontmanager.hxx
++++ b/vcl/inc/vcl/fontmanager.hxx
+@@ -333,7 +333,7 @@ class VCL_PLUGIN_PUBLIC PrintFontManager
+ 
+     void getFontAttributesFromXLFD( PrintFont* pFont, const std::list< rtl::OString >& rXLFDs ) const;
+ 
+-    bool analyzeFontFile( int nDirID, const rtl::OString& rFileName, const std::list< rtl::OString >& rXLFDs, std::list< PrintFont* >& rNewFonts ) const;
++    bool analyzeFontFile( int nDirID, const rtl::OString& rFileName, const std::list< rtl::OString >& rXLFDs, std::list< PrintFont* >& rNewFonts, const char *pFormat=NULL ) const;
+     rtl::OUString convertTrueTypeName( void* pNameRecord ) const; // actually a NameRecord* formt font subsetting code
+     void analyzeTrueTypeFamilyName( void* pTTFont, std::list< rtl::OUString >& rnames ) const; // actually a TrueTypeFont* from font subsetting code
+     bool analyzeTrueTypeFile( PrintFont* pFont ) const;
+diff --git a/vcl/unx/source/fontmanager/fontconfig.cxx b/vcl/unx/source/fontmanager/fontconfig.cxx
+index e4b2f00..5e97bec 100644
+--- a/vcl/unx/source/fontmanager/fontconfig.cxx
++++ b/vcl/unx/source/fontmanager/fontconfig.cxx
+@@ -68,6 +68,9 @@
+     #ifndef FC_EMBOLDEN
+         #define FC_EMBOLDEN "embolden"
+     #endif
++    #ifndef FC_FONTFORMAT
++        #define FC_FONTFORMAT "fontformat"
++    #endif
+ #else
+     typedef void FcConfig;
+     typedef void FcObjectSet;
+@@ -842,6 +845,7 @@
+             FcChar8* file = NULL;
+             FcChar8* family = NULL;
+             FcChar8* style = NULL;
++            FcChar8* format = NULL;
+             int slant = 0;
+             int weight = 0;
+             int spacing = 0;
+@@ -856,6 +860,7 @@
+             FcResult eSpacRes	      = rWrapper.FcPatternGetInteger( pFSet->fonts[i], FC_SPACING, 0, &spacing );
+             FcResult eOutRes	      = rWrapper.FcPatternGetBool( pFSet->fonts[i], FC_OUTLINE, 0, &outline );
+             FcResult eIndexRes        = rWrapper.FcPatternGetInteger( pFSet->fonts[i], FC_INDEX, 0, &nCollectionEntry );
++            FcResult eFormatRes       = rWrapper.FcPatternGetString(pFSet->fonts[i], FC_FONTFORMAT, 0, &format);
+             
+             if( eFileRes != FcResultMatch || eFamilyRes != FcResultMatch || eOutRes != FcResultMatch )
+                 continue;
+@@ -863,13 +868,14 @@
+ #if (OSL_DEBUG_LEVEL > 2)
+             fprintf( stderr, "found font \"%s\" in file %s\n"
+                      "   weight = %d, slant = %d, style = \"%s\"\n"
+-                     "   spacing = %d, outline = %d\n"
++                     "   spacing = %d, outline = %d, format %s\n"
+                      , family, file
+                      , eWeightRes == FcResultMatch ? weight : -1
+                      , eSpacRes == FcResultMatch ? slant : -1
+                      , eStyleRes == FcResultMatch ? (const char*) style : "<nil>"
+                      , eSpacRes == FcResultMatch ? spacing : -1
+                      , eOutRes == FcResultMatch ? outline : -1
++                     , eFormatRes == FcResultMatch ? (const char*)format : "<unknown>"
+                      );
+ #endif
+ 
+@@ -904,7 +910,9 @@
+                 // not known, analyze font file to get attributes
+                 // not described by fontconfig (e.g. alias names, PSName)
+                 std::list< OString > aDummy;
+-                analyzeFontFile( nDirID, aBase, aDummy, aFonts );
++                if (eFormatRes != FcResultMatch)
++                    format = NULL;
++                analyzeFontFile( nDirID, aBase, aDummy, aFonts, (const char*)format );
+ #if OSL_DEBUG_LEVEL > 1
+                 if( aFonts.empty() )
+                     fprintf( stderr, "Warning: file \"%s\" is unusable to psprint\n", aOrgPath.getStr() );
+diff --git a/vcl/unx/source/fontmanager/fontmanager.cxx b/vcl/unx/source/fontmanager/fontmanager.cxx
+index 2dceb35..27a2629 100644
+--- a/vcl/unx/source/fontmanager/fontmanager.cxx
++++ b/vcl/unx/source/fontmanager/fontmanager.cxx
+@@ -1281,9 +1281,12 @@ int PrintFontManager::addFontFile( const ::rtl::OString& rFileName, int /*nFaceN
+     return nFontId;
+ }
+ 
+-// -------------------------------------------------------------------------
++enum fontFormat
++{
++    UNKNOWN, TRUETYPE, CFF, TYPE1, AFM
++};
+ 
+-bool PrintFontManager::analyzeFontFile( int nDirID, const OString& rFontFile, const ::std::list<OString>& rXLFDs, ::std::list< PrintFontManager::PrintFont* >& rNewFonts ) const
++bool PrintFontManager::analyzeFontFile( int nDirID, const OString& rFontFile, const ::std::list<OString>& rXLFDs, ::std::list< PrintFontManager::PrintFont* >& rNewFonts, const char *pFormat ) const
+ {
+     rNewFonts.clear();
+ 
+@@ -1297,8 +1300,32 @@ bool PrintFontManager::analyzeFontFile( int nDirID, const OString& rFontFile, co
+     if( access( aFullPath.getStr(), R_OK ) )
+         return false;
+ 
+-    ByteString aExt( rFontFile.copy( rFontFile.lastIndexOf( '.' )+1 ) );
+-    if( aExt.EqualsIgnoreCaseAscii( "pfb" ) || aExt.EqualsIgnoreCaseAscii( "pfa" ) )
++    fontFormat eFormat = UNKNOWN;
++    if (pFormat)
++    {
++        if (!strcmp(pFormat, "TrueType"))
++            eFormat = TRUETYPE;
++        else if (!strcmp(pFormat, "CFF"))
++            eFormat = CFF;
++        else if (!strcmp(pFormat, "Type 1"))
++            eFormat = TYPE1;
++    }
++    if (eFormat == UNKNOWN)
++    {
++        ByteString aExt( rFontFile.copy( rFontFile.lastIndexOf( '.' )+1 ) );
++        if( aExt.EqualsIgnoreCaseAscii( "pfb" ) || aExt.EqualsIgnoreCaseAscii( "pfa" ) )
++            eFormat = TYPE1;
++        else if( aExt.EqualsIgnoreCaseAscii( "afm" ) )
++            eFormat = AFM;
++        else if( aExt.EqualsIgnoreCaseAscii( "ttf" )
++             ||  aExt.EqualsIgnoreCaseAscii( "ttc" )
++             ||  aExt.EqualsIgnoreCaseAscii( "tte" ) ) // #i33947# for Gaiji support
++            eFormat = TRUETYPE;
++        else if( aExt.EqualsIgnoreCaseAscii( "otf" ) ) // check for TTF- and PS-OpenType too
++            eFormat = CFF;
++    }
++
++    if (eFormat == TYPE1)
+     {
+         // check for corresponding afm metric
+         // first look for an adjacent file
+@@ -1352,7 +1379,7 @@ bool PrintFontManager::analyzeFontFile( int nDirID, const OString& rFontFile, co
+             }
+         }
+     }
+-    else if( aExt.EqualsIgnoreCaseAscii( "afm" ) )
++    else if (eFormat == AFM)
+     {
+         ByteString aFilePath( aDir );
+         aFilePath.Append( '/' );
+@@ -1365,34 +1392,14 @@ bool PrintFontManager::analyzeFontFile( int nDirID, const OString& rFontFile, co
+         else
+             delete pFont;
+     }
+-    else if( aExt.EqualsIgnoreCaseAscii( "ttf" )
+-         ||  aExt.EqualsIgnoreCaseAscii( "tte" )   // #i33947# for Gaiji support
+-         ||  aExt.EqualsIgnoreCaseAscii( "otf" ) ) // check for TTF- and PS-OpenType too
+-    {
+-        TrueTypeFontFile* pFont     = new TrueTypeFontFile();
+-        pFont->m_nDirectory         = nDirID;
+-        pFont->m_aFontFile          = rFontFile;
+-        pFont->m_nCollectionEntry   = -1;
+-
+-        if( rXLFDs.size() )
+-            getFontAttributesFromXLFD( pFont, rXLFDs );
+-        // need to read the font anyway to get aliases inside the font file
+-        if( ! analyzeTrueTypeFile( pFont ) )
+-        {
+-            delete pFont;
+-            pFont = NULL;
+-        }
+-        else
+-            rNewFonts.push_back( pFont );
+-    }
+-    else if( aExt.EqualsIgnoreCaseAscii( "ttc" ) )
++    else if (eFormat == TRUETYPE || eFormat == CFF)
+     {
+         // get number of ttc entries
+         int nLength = CountTTCFonts( aFullPath.getStr() );
+         if( nLength )
+         {
+ #if OSL_DEBUG_LEVEL > 1
+-            fprintf( stderr, "%s contains %d fonts\n", aFullPath.getStr(), nLength );
++            fprintf( stderr, "ttc: %s contains %d fonts\n", aFullPath.getStr(), nLength );
+ #endif
+             for( int i = 0; i < nLength; i++ )
+             {
+@@ -1411,10 +1418,24 @@ bool PrintFontManager::analyzeFontFile( int nDirID, const OString& rFontFile, co
+                     rNewFonts.push_back( pFont );
+             }
+         }
+-#if OSL_DEBUG_LEVEL > 1
+         else
+-            fprintf( stderr, "CountTTCFonts( \"%s/%s\" ) failed\n", getDirectory(nDirID).getStr(), rFontFile.getStr() );
+-#endif
++        {
++            TrueTypeFontFile* pFont     = new TrueTypeFontFile();
++            pFont->m_nDirectory         = nDirID;
++            pFont->m_aFontFile          = rFontFile;
++            pFont->m_nCollectionEntry   = -1;
++
++            if( rXLFDs.size() )
++                getFontAttributesFromXLFD( pFont, rXLFDs );
++            // need to read the font anyway to get aliases inside the font file
++            if( ! analyzeTrueTypeFile( pFont ) )
++            {
++                delete pFont;
++                pFont = NULL;
++            }
++            else
++                rNewFonts.push_back( pFont );
++        }
+     }
+     return ! rNewFonts.empty();
+ }
+-- 
+1.7.6
+
