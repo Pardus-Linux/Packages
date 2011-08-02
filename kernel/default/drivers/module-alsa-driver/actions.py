@@ -28,14 +28,14 @@ def setup():
                          --with-build=/lib/modules/%s/build \
                          --with-isapnp=yes \
                          --with-sequencer=yes \
-                         --with-card-options=all \
+                         --with-card-options=all,hda-prealloc-size=4096 \
                          --disable-verbose-printk \
                          --enable-dynamic-minors \
                          --with-cards=all" % (KDIR, KDIR))
 
     # Needed for V4L stuff
-    shelltools.sym("%s/alsa-driver/include/config.h" % get.workDIR(), "%s/alsa-driver/sound/include/config.h" % get.workDIR())
-    shelltools.sym("%s/alsa-driver/include/config1.h" % get.workDIR(), "%s/alsa-driver/sound/include/config1.h" % get.workDIR())
+    shelltools.sym("../../include/config.h", "sound/include/config.h")
+    shelltools.sym("../../include/config1.h", "sound/include/config1.h")
 
     # Configure hda-emu
     """
@@ -49,23 +49,27 @@ def build():
     #autotools.make("-C hda-emu")
 
     # Build v4l drivers
-    #shelltools.copy("Module.symvers", "v4l/")
-    #autotools.make("-C /lib/modules/%s/build M=%s/v4l V=1 modules" % (KDIR, get.curDIR()))
+    shelltools.copy("Module.symvers", "v4l/")
+    autotools.make("-C /lib/modules/%s/build M=%s/v4l V=1 modules" % (KDIR, get.curDIR()))
 
 def install():
     autotools.rawInstall("DESTDIR=%s" % get.installDIR(), "install-modules")
 
     #autotools.rawInstall("DESTDIR=%s -C hda-emu" % get.installDIR())
 
-    # FIXME: Install v4l drivers
-    #for d in ["saa7134", "cx88", "cx231xx", "em28xx"]:
-    #    pisitools.insinto("/lib/modules/%s/kernel/sound/drivers" % KDIR, "v4l/%s/*.ko" % d)
+    # Install v4l drivers
+    for d in ["saa7134", "cx88", "cx231xx", "em28xx"]:
+        pisitools.insinto("/lib/modules/%s/kernel/sound/drivers" % KDIR, "v4l/%s/*.ko" % d)
 
     # Copy symvers file for external module building like saa7134-alsa, cx2388-alsa, etc.
-    #pisitools.insinto("/lib/modules/%s/kernel/sound" % KDIR, "Module.symvers", "Module.symvers.alsa")
+    pisitools.insinto("/lib/modules/%s/kernel/sound" % KDIR, "Module.symvers", "Module.symvers.alsa")
 
     # Install headers
     pisitools.insinto("/usr/include/sound/", "alsa-kernel/include/*.h")
+
+    # Clean V4L headers
+    pisitools.remove("/usr/include/sound/config.h")
+    pisitools.remove("/usr/include/sound/config1.h")
 
     # Install alsa-info
     pisitools.insinto("/usr/bin", "utils/alsa-info.sh", "alsa-info")
