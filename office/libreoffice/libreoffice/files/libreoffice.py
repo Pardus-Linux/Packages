@@ -18,7 +18,7 @@ elif os.path.isfile(os.path.join(lo_program_path, "s" + programName[2:])):
     program = os.path.join(lo_program_path, "s" + programName[2:])
 
 elif programName == "loweb":
-    program = os.path.join(lo_program_path, "swriter")
+    program = os.path.join(lo_program_path, "soffice")
     params.insert(0, "--web")
 
 elif programName == "libreoffice":
