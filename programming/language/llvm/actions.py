@@ -16,34 +16,57 @@ def setup():
 
     pic_option = "enable" if get.ARCH() == "x86_64" else "disable"
 
-    autotools.configure("--libdir=%s \
-                         --datadir=/usr/share/llvm \
-                         --enable-optimized \
-                         --disable-assertions \
-                         --disable-expensive-checks \
-                         --enable-debug-runtime \
-                         --enable-debug-symbols \
-                         --enable-jit \
-                         --disable-doxygen \
-                         --enable-threads \
-                         --%s-pic \
-                         --enable-shared \
-                         --enable-targets=host \
-                         --enable-bindings=all \
-                         --enable-libffi \
-                         --enable-llvmc-dynamic \
-                         --enable-llvmc-dynamic-plugins \
-                         " % (libdir, pic_option))
+    options = "--libdir=%s \
+               --datadir=/usr/share/llvm \
+               --enable-optimized \
+               --disable-assertions \
+               --disable-expensive-checks \
+               --enable-debug-runtime \
+               --enable-debug-symbols \
+               --enable-jit \
+               --disable-doxygen \
+               --enable-threads \
+               --%s-pic \
+               --enable-shared \
+               --enable-targets=host \
+               --enable-bindings=all \
+               --enable-libffi \
+               --enable-llvmc-dynamic \
+               --enable-llvmc-dynamic-plugins \
+               " % (libdir, pic_option)
+
+    if get.buildTYPE() == "emul32":
+        options += " --prefix=/emul32 \
+                     --libdir=/usr/lib32"
+
+        #shelltools.export("CFLAGS", "%s -m32" % get.CFLAGS())
+        shelltools.export("CC", "%s -m32" % get.CC())
+        shelltools.export("CXX", "%s -m32" % get.CXX())
+
+    autotools.configure(options)
+
 
 def build():
     autotools.make()
 
 def install():
-    autotools.rawInstall("DESTDIR=%s \
-                          PROJ_etcdir=/etc/llvm \
-                          PROJ_libdir=%s \
-                          PROJ_docsdir=/%s/llvm"
-                          % (get.installDIR(), libdir, get.docDIR()))
+    if get.buildTYPE() == "emul32":
+        autotools.rawInstall("DESTDIR=%s \
+                              PROJ_etcdir=/etc/llvm \
+                              PROJ_libdir=/usr/lib32/llvm \
+                              PROJ_docsdir=/%s/llvm"
+                              % (get.installDIR(), get.docDIR()))
+
+        pisitools.removeDir("/emul32")
+        return
+
+    else:
+        autotools.rawInstall("DESTDIR=%s \
+                              PROJ_etcdir=/etc/llvm \
+                              PROJ_libdir=%s \
+                              PROJ_docsdir=/%s/llvm"
+                              % (get.installDIR(), libdir, get.docDIR()))
+
 
     # Remove executable bit from static libs
     shelltools.chmod("%s/usr/lib/*/*.a" % get.installDIR(), 0644)
