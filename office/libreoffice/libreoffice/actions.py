@@ -19,6 +19,8 @@ WorkDir = "%s-bootstrap-%s" % (get.srcNAME(), get.srcVERSION())
 AppDir = "/opt/LibreOffice"
 NoStrip = ["%s/lib/libreoffice/basis-link/share" % AppDir, "%s/lib/libreoffice/share" % AppDir]
 
+shelltools.export("HOME", get.workDIR())
+
 def getJobCount():
     # If jobs field in pisi.conf is greater than 1, use 'this value - 1' as number of cpus. There is also a max-jobs configure opt. but it's buggy now
     return max(int(get.makeJOBS().strip().replace("-j", "")) - 1, 1)
