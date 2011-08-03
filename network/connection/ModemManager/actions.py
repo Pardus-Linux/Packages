@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright 2009-2010 TUBITAK/UEKAE
+# Copyright 2009-2011 TUBITAK/UEKAE
 # Licensed under the GNU General Public License, version 2.
 # See the file http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
 
@@ -11,9 +11,11 @@ from pisi.actionsapi import autotools
 from pisi.actionsapi import get
 
 def setup():
-    shelltools.system("./autogen.sh")
+    #shelltools.system("./autogen.sh")
     autotools.configure("--disable-static \
-                         --enable-more-warnings=no \
+                         --enable-more-warnings=yes \
+                         --with-udev-base-dir=/lib/udev \
+                         --with-tests=yes \
                          --with-polkit=no")
 
 def build():
