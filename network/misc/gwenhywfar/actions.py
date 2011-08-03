@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright 2010 TUBITAK/UEKAE
+# Copyright 2010-2011 TUBITAK/UEKAE
 # Licensed under the GNU General Public License, version 2.
 # See the file http://www.gnu.org/copyleft/gpl.txt.
 
@@ -14,7 +14,7 @@ def setup():
 
     autotools.autoreconf("-fi")
     autotools.configure("--disable-static \
-                         --with-guis=qt4")
+                         --with-guis=\"qt4 gtk2\"")
 
 def build():
     autotools.make()
