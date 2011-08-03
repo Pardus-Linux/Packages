@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright 2009-2010 TUBITAK/UEKAE
+# Copyright 2009-2011 TUBITAK/UEKAE
 # Licensed under the GNU General Public License, version 2.
 # See the file http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
 
@@ -10,7 +10,7 @@ from pisi.actionsapi import autotools
 from pisi.actionsapi import pisitools
 from pisi.actionsapi import get
 
-SNAPSHOT="20101222"
+SNAPSHOT="20110714"
 
 def build():
     autotools.make("CC='%s' CFLAGS='%s'" % (get.CC(), get.CFLAGS()))
@@ -18,5 +18,7 @@ def build():
 def install():
     autotools.rawInstall("DESTDIR='%s'" % get.installDIR())
     autotools.rawInstall("-C usb-modeswitch-data-%s DESTDIR='%s'" % (SNAPSHOT, get.installDIR()))
+
+    pisitools.removeDir("/etc/usb_modeswitch.d")
 
     pisitools.dodoc("README*", "COPYING")
