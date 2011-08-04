@@ -60,6 +60,9 @@ def install():
     pisitools.insinto("/usr/lib/chromium-browser", "locales")
     pisitools.insinto("/usr/lib/chromium-browser", "resources")
 
+    # Nacl plugin
+    pisitools.insinto("/usr/lib/chromium-browser", "libppGoogleNaClPluginChrome.so")
+
     pisitools.newman("chrome.1", "chromium-browser.1")
 
     # Chromium looks for these in its folder
