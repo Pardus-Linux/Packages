@@ -1,7 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright 2007-2010 TUBITAK/UEKAE
 # Licensed under the GNU General Public License, version 2.
 # See the file http://www.gnu.org/copyleft/gpl.txt.
 
@@ -9,7 +8,7 @@ from pisi.actionsapi import autotools
 from pisi.actionsapi import pisitools
 from pisi.actionsapi import get
 
-WorkDir = "liquidwar6-0.0.9beta"
+WorkDir = "liquidwar6-0.0.10beta"
 #WorkDir = "liquidwar6-%ssnapshot" % get.srcVERSION().split("_", 1)[1]
 
 def setup():
