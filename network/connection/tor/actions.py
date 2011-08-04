@@ -19,7 +19,7 @@ def build():
 def install():
     autotools.rawInstall("DESTDIR=%s" % get.installDIR())
     pisitools.dodoc("AUTHORS", "ChangeLog", "README", "doc/*.txt",
-                    "doc/spec/*.txt", "doc/design-paper/tor-design.pdf")
+                    "doc/design-paper/tor-design.pdf")
     # delete script that uses obsolete tsocks prg.
     # use usewithtor/torsocks which comes with torsocks
     # package instead
