@@ -8,7 +8,7 @@ from pisi.actionsapi import autotools
 from pisi.actionsapi import pisitools
 from pisi.actionsapi import get
 
-WorkDir ='elc-%s' % get.srcVERSION()
+WorkDir ='elc'
 
 datadir = "/usr/share/eternal-lands"
 
@@ -21,9 +21,6 @@ def build():
 def install():
     pisitools.dobin("el.x86.linux.bin")
     pisitools.rename("/usr/bin/el.x86.linux.bin", "eternal-lands")
-
-    # These files conflicts with the ones found in eternal-lands-date package
-    #pisitools.insinto(datadir, "*.xml")
 
     pisitools.insinto(datadir, "*.ini")
 
