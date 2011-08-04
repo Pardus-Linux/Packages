@@ -517,8 +517,16 @@ class _802_11_Wireless_Security:
         for attr, value in self.__dict__.items():
             if value not in ["false", "none", "0"] and  attr != "name":
                 attr = attr.replace("_", "-")
-                #Exceptionally use value.lower() to escape mandatory key-mgmt=none assignment for WEP key management
-                cfg.set(self.name, attr, value.lower())
+
+                # key-mgmt=none is a mandatory assignment for WEP based
+                # configurations. As we set all class members' default value
+                # to 'none', and then filter to set config file with non-none
+                # values, key-mgmt is set to 'None' intentionally to pass that
+                # filtering, and its value is set later on by lowercasing to
+                # hack around this situation.
+                if attr == "key-mgmt":
+                    value = value.lower()
+                cfg.set(self.name, attr, value)
 
 
 class Migrator:
