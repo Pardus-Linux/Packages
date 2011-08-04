@@ -1,7 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright 2005-2010 TUBITAK/UEKAE
 # Licensed under the GNU General Public License, version 2.
 # See the file http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
 
@@ -23,36 +22,55 @@ def setup():
     shelltools.system("./autogen.sh")
 
     libtools.libtoolize("--force --copy")
-    autotools.configure("--enable-events \
-                         --enable-cpuinfo \
-                         --enable-cdrom \
-                         --enable-threads \
-                         --enable-timers \
-                         --enable-file \
-                         --enable-alsa \
-                         --enable-oss \
-                         --enable-nasm \
-                         --enable-video-aalib \
-                         --enable-video-caca \
-                         --enable-video-directfb \
-                         --enable-video-fbcon \
-                         --enable-video-dummy \
-                         --enable-video-opengl \
-                         --enable-video-x11 \
-                         --enable-video-x11-xv \
-                         --enable-video-x11-xinerama \
-                         --enable-video-x11-xrandr \
-                         --with-x \
-                         --disable-rpath \
-                         --disable-arts \
-                         --disable-dga \
-                         --disable-esd \
-                         --disable-nas \
-                         --disable-video-dga \
-                         --disable-video-ggi \
-                         --disable-video-svga \
-                         --disable-video-x11-xme \
-                         --disable-static")
+
+    options = "--enable-events \
+               --enable-cpuinfo \
+               --enable-cdrom \
+               --enable-threads \
+               --enable-timers \
+               --enable-file \
+               --enable-alsa \
+               --enable-oss \
+               --enable-nasm \
+               --enable-video-aalib \
+               --enable-video-caca \
+               --enable-video-directfb \
+               --enable-video-fbcon \
+               --enable-video-dummy \
+               --enable-video-opengl \
+               --enable-video-x11 \
+               --enable-video-x11-xv \
+               --enable-video-x11-xinerama \
+               --enable-video-x11-xrandr \
+               --with-x \
+               --disable-rpath \
+               --disable-arts \
+               --disable-dga \
+               --disable-esd \
+               --disable-nas \
+               --disable-video-dga \
+               --disable-video-ggi \
+               --disable-video-svga \
+               --disable-video-x11-xme \
+               --disable-static"
+
+    if get.buildTYPE() == "emul32":
+        options += " --prefix=/emul32 \
+                     --libdir=/usr/lib32 \
+                     --bindir=/emul32/bin \
+                     --mandir=/emul32/man \
+                     --disable-video-aalib \
+                     --disable-video-caca \
+                     --disable-video-directfb"
+
+        shelltools.export("PKG_CONFIG_PATH", "/usr/lib32/pkgconfig")
+        shelltools.export("CC", "%s -fPIC -O3 -m32" % get.CC())
+        shelltools.export("CXX", "%s -fPIC -O3 -m32" % get.CC())
+        shelltools.export("CFLAGS", "%s -fPIC -O3 -m32" % get.CFLAGS())
+        shelltools.export("CXXFLAGS", "%s -fPIC -O3 -m32" % get.CXXFLAGS())
+        shelltools.export("LDFLAGS", "%s -fPIC -O3 -m32" % get.LDFLAGS())
+
+    autotools.configure(options)
 
 def build():
     autotools.make()
@@ -66,3 +84,5 @@ def install():
 
     pisitools.dodoc("BUGS", "CREDITS", "README", "README-SDL.txt", "README.CVS", "TODO", "WhatsNew")
 
+    if get.buildTYPE() == "emul32":
+        pisitools.removeDir("/emul32")

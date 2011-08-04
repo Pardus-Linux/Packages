@@ -35,6 +35,10 @@
 
             <Patch level="1">libsdl-1.2.14-click.patch</Patch>
 
+            <Patch level="1">SDL-1.2.14-linux_2.6_joystick.patch</Patch>
+            <Patch level="1">SDL-1.2.14-SDL_BlitCopyOverlap_memcpy.patch</Patch>
+            <Patch level="1">SDL-1.2.14-audiodriver.patch</Patch>
+
             <!-- Are we using XIM ?
             <Patch level="1">x11_keysym_fix.patch</Patch>
             -->
@@ -43,6 +47,7 @@
 
     <Package>
         <Name>libsdl-docs</Name>
+        <Summary>libsdl reference documents</Summary>
         <RuntimeDependencies>
             <Dependency>libsdl</Dependency>
         </RuntimeDependencies>
@@ -79,12 +84,56 @@
             <Path fileType="executable">/usr/bin</Path>
             <Path fileType="header">/usr/include</Path>
             <Path fileType="data">/usr/lib/pkgconfig</Path>
+            <Path fileType="data">/usr/lib32/pkgconfig</Path>
             <Path fileType="library">/usr/lib/libSDLmain.a</Path>
             <Path fileType="data">/usr/share/aclocal</Path>
         </Files>
     </Package>
 
+    <Package>
+        <Name>libsdl-32bit</Name>
+        <PartOf>emul32</PartOf>
+        <Summary>32-bit shared libraries for libsdl</Summary>
+        <BuildType>emul32</BuildType>
+        <BuildDependencies>
+            <Dependency>libXt-32bit</Dependency>
+            <Dependency>libXext-32bit</Dependency>
+            <Dependency>libXrandr-32bit</Dependency>
+            <Dependency>alsa-lib-32bit</Dependency>
+            <Dependency>pulseaudio-libs-32bit</Dependency>
+            <Dependency>mesa-32bit</Dependency>
+            <Dependency>audiofile-32bit</Dependency>
+        </BuildDependencies>
+        <RuntimeDependencies>
+            <Dependency release="current">libsdl</Dependency>
+            <Dependency>libXt-32bit</Dependency>
+            <Dependency>libXext-32bit</Dependency>
+            <Dependency>libXrandr-32bit</Dependency>
+            <Dependency>alsa-lib-32bit</Dependency>
+            <Dependency>pulseaudio-libs-32bit</Dependency>
+            <Dependency>mesa-32bit</Dependency>
+            <Dependency>audiofile-32bit</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="library">/usr/lib32</Path>
+        </Files>
+    </Package>
+
     <History>
+        <Update release="22">
+            <Date>2011-08-03</Date>
+            <Version>1.2.14</Version>
+            <Comment>Fix a segfault in BlitCopyOverlap</Comment>
+            <Name>Onur Küçük</Name>
+            <Email>onur@pardus.org.tr</Email>
+        </Update>
+        <Update release="21">
+            <Date>2011-08-01</Date>
+            <Version>1.2.14</Version>
+            <Comment>Add lib32 package for libsdl, fixes pb#18835</Comment>
+            <Name>Anıl Özbek</Name>
+            <Email>ozbekanil@gmail.com</Email>
+        </Update>
         <Update release="20">
             <Date>2010-10-12</Date>
             <Version>1.2.14</Version>
