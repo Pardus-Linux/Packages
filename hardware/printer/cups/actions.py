@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright 2005-2010 TUBITAK/UEKAE
+# Copyright 2005-2011 TUBITAK/UEKAE
 # Licensed under the GNU General Public License, version 2.
 # See the file http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
 
@@ -56,15 +56,14 @@ def setup():
         options += ' --disable-avahi \
                      --disable-gssapi \
                      --without-php \
-                     --with-optim="%s" \
                      --bindir=/usr/bin32 \
                      --sbindir=/usr/sbin32 \
-                     --libdir=/usr/lib32' % get.CFLAGS()
+                     --libdir=/usr/lib32'
 
     autotools.configure(options)
 
 def build():
-    autotools.make()
+    autotools.make("V=1")
 
 def check():
     autotools.make("check")
@@ -77,7 +76,7 @@ def install():
         pisitools.removeDir("/usr/sbin32")
         pisitools.removeDir("/usr/serverbin32")
         return
-    else: 
+    else:
         autotools.rawInstall("BUILDROOT=%s" % get.installDIR())
 
     pisitools.dodir("/usr/share/cups/profiles")

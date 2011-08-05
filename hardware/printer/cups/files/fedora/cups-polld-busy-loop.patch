@@ -1,0 +1,12 @@
+diff -up cups-1.4.7/cups/request.c.polld-busy-loop cups-1.4.7/cups/request.c
+--- cups-1.4.7/cups/request.c.polld-busy-loop	2011-03-04 19:28:38.000000000 +0000
++++ cups-1.4.7/cups/request.c	2011-07-13 10:21:25.397211968 +0100
+@@ -395,7 +395,7 @@ cupsGetResponse(http_t     *http,	/* I -
+   {
+     status = httpUpdate(http);
+   }
+-  while (http->state == HTTP_POST_RECV);
++  while (status != HTTP_ERROR && http->state == HTTP_POST_RECV);
+ 
+   DEBUG_printf(("2cupsGetResponse: status=%d", status));
+ 

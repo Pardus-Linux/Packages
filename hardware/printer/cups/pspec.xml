@@ -12,8 +12,8 @@
         <IsA>service</IsA>
         <Summary>Common Unix Printing System</Summary>
         <Description>cups provides a portable printing layer for *nix-based operating systems.</Description>
-        <Archive sha1sum="42fb1ca00ee7291561564d3072716eb2045f05d1" type="tarbz2">ftp://ftp.easysw.com/pub/cups/1.4.6/cups-1.4.6-source.tar.bz2</Archive>
-        <Archive sha1sum="062beea95c6f8dda0a5e7eed51604e22806ffad3" type="tar" target="cups-1.4.6">http://cekirdek.pardus.org.tr/~ibrahim/dist/cups-tr.tar</Archive>
+        <Archive sha1sum="9167f556e78e0bc075f1eb2f695d79cc1f334007" type="tarbz2">ftp://ftp.easysw.com/pub/cups/1.4.8/cups-1.4.8-source.tar.bz2</Archive>
+        <Archive sha1sum="062beea95c6f8dda0a5e7eed51604e22806ffad3" type="tar" target="cups-1.4.8">http://cekirdek.pardus.org.tr/~ibrahim/dist/cups-tr.tar</Archive>
         <BuildDependencies>
             <Dependency>cyrus-sasl-devel</Dependency>
             <Dependency>openldap-client</Dependency>
@@ -119,18 +119,27 @@
             <!-- Adjust texttops output to be in natural orientation -->
             <Patch level="1">fedora/cups-texttops-rotate-page.patch</Patch>
 
+            <!-- Till's patch to fix USB-Parallel adapter cable problem -->
+            <Patch level="1">fedora/cups-usb-parallel.patch</Patch>
+
+            <!-- Increase default RIP cache to 128MB -->
+            <Patch level="1">fedora/cups-str3535.patch</Patch>
+
+            <!-- Avoid busy loop in cups-polld -->
+            <Patch level="1">fedora/cups-polld-busy-loop.patch</Patch>
+
             <!-- Accept "Host: ::1" (bzrh: #497393) -->
             <Patch level="1">fedora/cups-localhost-ipv6.patch</Patch>
 
-            <Patch level="1">fedora/cups-autotype-crash.patch</Patch>
             <Patch level="1">fedora/cups-str3754.patch</Patch>
             <Patch level="1">fedora/cups-usb-buffer-size.patch</Patch>
 
             <!-- Avahi support in the dnssd backend. -->
-            <Patch level="1">fedora/cups-avahi.patch</Patch>
-
-            <!-- Increase default RIP cache to 128MB -->
-            <Patch level="1">fedora/cups-str3535.patch</Patch>
+            <Patch level="1">fedora/cups-avahi-1-config.patch</Patch>
+            <Patch level="1">fedora/cups-avahi-2-backend.patch</Patch>
+            <Patch level="1">fedora/cups-avahi-3-timeouts.patch</Patch>
+            <Patch level="1">fedora/cups-avahi-4-poll.patch</Patch>
+            <Patch level="1">fedora/cups-avahi-5-services.patch</Patch>
 
 
             <!-- Ubuntu patches -->
@@ -157,11 +166,6 @@
             <!-- Change 200 to 99999 to keep failed print job logging unlimited -->
             <Patch level="1">ubuntu/log-debug-history-nearly-unlimited.patch</Patch>
 
-            <!-- Do not use host names for broadcasting print queues and managing print queues
-                 broadcasted from other servers by default. Many networks do not have valid host
-                 name for all machines -->
-            <Patch level="1">ubuntu/do-not-broadcast-with-hostnames.patch</Patch>
-
             <!-- Don't write timestamps in conf files to keep them unchanged between releases -->
             <Patch level="1">ubuntu/no-conffile-timestamp.patch</Patch>
 
@@ -177,8 +181,8 @@
             <!-- Don't locale dependently manage case conversions (#17066) -->
             <Patch level="1">pardus/fix-case-conversion-in-web-interface.patch</Patch>
 
-            <!-- Fix validity of the desktop file -->
-            <Patch level="1">pardus/desktop.patch</Patch>
+            <!-- Don't install desktop file (pb#18840) -->
+            <Patch level="1">pardus/dont-install-desktopfile.patch</Patch>
         </Patches>
     </Source>
 
@@ -303,6 +307,13 @@
     </Package>
 
     <History>
+        <Update release="89">
+            <Date>2011-08-02</Date>
+            <Version>1.4.8</Version>
+            <Comment>Version bump</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
         <Update release="88">
             <Date>2011-06-07</Date>
             <Version>1.4.6</Version>
