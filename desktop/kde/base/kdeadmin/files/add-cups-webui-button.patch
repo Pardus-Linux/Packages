@@ -1,0 +1,122 @@
+Index: kdeadmin-4.6.5/system-config-printer-kde/system-config-printer-kde.py
+===================================================================
+--- kdeadmin-4.6.5.orig/system-config-printer-kde/system-config-printer-kde.py
++++ kdeadmin-4.6.5/system-config-printer-kde/system-config-printer-kde.py
+@@ -175,9 +175,11 @@ class GUI(QWidget):
+ 
+         # New Printer Dialog
+         self.newPrinterGUI = np = NewPrinterGUI(self)
+-        
++
+         self.setConnected()
+ 
++        self.ui.cupsWebInterfaceButton.clicked.connect(lambda : QDesktopServices.openUrl(QUrl("http://localhost:631")))
++
+         self.ui.connect(self.ui.mainlist, SIGNAL("itemSelectionChanged()"), self.on_tvMainList_cursor_changed)
+         self.ui.connect(self.ui.mainlist, SIGNAL("currentItemChanged (QTreeWidgetItem*, QTreeWidgetItem*)"), self.on_tvMainList_changed)
+         self.ui.connect(self.ui.chkServerBrowse, SIGNAL("stateChanged(int)"), self.on_server_widget_changed)
+Index: kdeadmin-4.6.5/system-config-printer-kde/system-config-printer.ui
+===================================================================
+--- kdeadmin-4.6.5.orig/system-config-printer-kde/system-config-printer.ui
++++ kdeadmin-4.6.5/system-config-printer-kde/system-config-printer.ui
+@@ -16,22 +16,33 @@
+   </property>
+   <layout class="QGridLayout" name="gridLayout_4">
+    <item row="0" column="0">
+-    <widget class="QTreeWidget" name="mainlist">
+-     <property name="sizePolicy">
+-      <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
+-       <horstretch>0</horstretch>
+-       <verstretch>0</verstretch>
+-      </sizepolicy>
+-     </property>
+-     <property name="rootIsDecorated">
+-      <bool>true</bool>
+-     </property>
+-     <column>
+-      <property name="text">
+-       <string/>
+-      </property>
+-     </column>
+-    </widget>
++    <layout class="QVBoxLayout" name="verticalLayout_7">
++     <item>
++      <widget class="QTreeWidget" name="mainlist">
++       <property name="sizePolicy">
++        <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
++         <horstretch>0</horstretch>
++         <verstretch>0</verstretch>
++        </sizepolicy>
++       </property>
++       <property name="rootIsDecorated">
++        <bool>true</bool>
++       </property>
++       <column>
++        <property name="text">
++         <string/>
++        </property>
++       </column>
++      </widget>
++     </item>
++     <item>
++      <widget class="QPushButton" name="cupsWebInterfaceButton">
++       <property name="text">
++        <string>Open CUPS Web Interface</string>
++       </property>
++      </widget>
++     </item>
++    </layout>
+    </item>
+    <item row="0" column="1">
+     <widget class="QStackedWidget" name="ntbkMain">
+@@ -877,7 +888,7 @@ print to.</string>
+                  <rect>
+                   <x>0</x>
+                   <y>0</y>
+-                  <width>532</width>
++                  <width>530</width>
+                   <height>427</height>
+                  </rect>
+                 </property>
+@@ -912,7 +923,7 @@ print to.</string>
+                  <rect>
+                   <x>0</x>
+                   <y>0</y>
+-                  <width>515</width>
++                  <width>513</width>
+                   <height>1026</height>
+                  </rect>
+                 </property>
+@@ -1769,24 +1780,24 @@ if they are not already set by the appli
+  </widget>
+  <customwidgets>
+   <customwidget>
+-   <class>KComboBox</class>
+-   <extends>QComboBox</extends>
+-   <header>kcombobox.h</header>
+-  </customwidget>
+-  <customwidget>
+    <class>KIntSpinBox</class>
+    <extends>QSpinBox</extends>
+    <header>knuminput.h</header>
+   </customwidget>
+   <customwidget>
++   <class>KPushButton</class>
++   <extends>QPushButton</extends>
++   <header>kpushbutton.h</header>
++  </customwidget>
++  <customwidget>
+    <class>KLineEdit</class>
+    <extends>QLineEdit</extends>
+    <header>klineedit.h</header>
+   </customwidget>
+   <customwidget>
+-   <class>KPushButton</class>
+-   <extends>QPushButton</extends>
+-   <header>kpushbutton.h</header>
++   <class>KComboBox</class>
++   <extends>QComboBox</extends>
++   <header>kcombobox.h</header>
+   </customwidget>
+  </customwidgets>
+  <resources/>
