@@ -10,7 +10,7 @@ from pisi.actionsapi import get
 from pisi.actionsapi import kde4
 from pisi.actionsapi import pisitools
 
-WorkDir = "kshutdown-%s" % get.srcVERSION().replace('_','')
+WorkDir = "kshutdown-%s" % get.srcVERSION().replace('_','').rstrip("1")
 shelltools.export("HOME", "%s" % get.workDIR())
 
 def setup():
