@@ -12,7 +12,7 @@
         <IsA>app:console</IsA>
         <Summary>Portable command-line driven interactive data and function plotting utility</Summary>
         <Description>Gnuplot is a protable command-line driven interactive data and function plotting utility. It supports many types of plots in either 2D and 3D. It can draw using lines, points, boxes, contours, vector fields, surfaces, and various associated text. It also supports various specialized plot types.</Description>
-        <Archive sha1sum="35666be22e877ade5e272199d3d81555c141cef5" type="targz">mirrors://sourceforge/gnuplot/gnuplot-4.4.2.tar.gz</Archive>
+        <Archive sha1sum="a4d315b9288739e3cbaa04d8ddda7861b4009bd4" type="targz">mirrors://sourceforge/gnuplot/gnuplot-4.4.3.tar.gz</Archive>
         <BuildDependencies>
             <Dependency>gd-devel</Dependency>
             <Dependency>texlive-bin-devel</Dependency>
@@ -21,11 +21,14 @@
             <Dependency>pango-devel</Dependency>
             <Dependency versionFrom="2.8">gtk2-devel</Dependency>
             <Dependency>wxGTK-devel</Dependency>
+            <Dependency>wxBase-devel</Dependency>
             <Dependency versionFrom="21.2">emacs</Dependency>
+            <Dependency>texlive-latexextra</Dependency>
         </BuildDependencies>
         <Patches>
             <Patch>disable-texi-generation.patch</Patch>
             <Patch level="1">gnuplot-4.2.0-fonts.patch</Patch>
+            <Patch level="1">gnuplot-4.2.4-fix-format-errors.patch</Patch>
         </Patches>
     </Source>
 
@@ -39,6 +42,8 @@
             <Dependency>gd</Dependency>
             <Dependency>texlive-core</Dependency>
             <Dependency>wxGTK</Dependency>
+            <Dependency>wxBase</Dependency>
+            <Dependency>texlive-latexextra</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="executable">/usr/bin</Path>
@@ -76,6 +81,28 @@
     </Package>
 
     <History>
+        <Update release="20">
+            <Date>2011-08-08</Date>
+            <Version>4.4.3</Version>
+            <Comment>- Add missing texlive-latexextra build dep
+                - Add a patch to fix format errors
+                - Version bump to recommended bugfix release:
+                * NEW set key maxcolumns N maxrows M
+                * NEW value(varname) returns the value of the named variable
+                * NEW encoding cp1251 - 8-bit Cyrillic
+                * NEW Implement pan and zoom via mouse wheel.
+                * CHANGE backport emf terminal driver from version 4.5
+                * FIX better estimation of latex string lengths
+                * FIX colorbar representation of discrete color palettes is pixel accurate
+                * FIX NaN initialization and tests working on more (all?) platforms
+                * FIX configuration script tests for readline+ncurses
+                * FIX prevent out-of-range boxes from creating degenerate ghosts on the border
+                * FIX missing alpha channel flag for pdfcairo terminal
+                * FIX font initialization in windows terminal
+            </Comment>
+            <Name>Serdar Dalgıç</Name>
+            <Email>serdar@pardus.org.tr</Email>
+        </Update>
         <Update release="19">
             <Date>2011-03-18</Date>
             <Version>4.4.2</Version>
