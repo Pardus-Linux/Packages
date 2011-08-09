@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright 2005-2010 TUBITAK/UEKAE
+# Copyright 2005-2011 TUBITAK/UEKAE
 # Licensed under the GNU General Public License, version 2.
 # See the file http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
 
@@ -15,13 +15,13 @@ def setup():
     autotools.configure("--without-webkit \
                          --disable-gtk-doc \
                          --disable-altivec \
+                         --disable-alsatest \
                          --enable-gimp-remote \
                          --enable-python \
                          --enable-mmx \
                          --enable-sse \
                          --enable-mp \
                          --with-linux-input \
-                         --with-gnomevfs \
                          --with-poppler \
                          --with-libjpeg \
                          --with-libexif \

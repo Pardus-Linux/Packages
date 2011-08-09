@@ -11,7 +11,7 @@
         <License>GPLv2</License>
         <Summary>GNU Image Manipulation Program</Summary>
         <Description>GIMP is a mature image editor with many advanced features and plugin support.</Description>
-        <Archive sha1sum="2f9d596e727bdbf304fa78257c1731d9faf3934c" type="tarbz2">ftp://ftp.gimp.org/pub/gimp/v2.6/gimp-2.6.11.tar.bz2</Archive>
+        <Archive sha1sum="4690420961d110f99448c32fe61aae7d4869a863" type="tarbz2">ftp://ftp.gimp.org/pub/gimp/v2.7/gimp-2.7.2.tar.bz2</Archive>
         <AdditionalFiles>
             <AdditionalFile target="po/tr.po">po_gimp20-tr.po</AdditionalFile>
             <AdditionalFile target="po-libgimp/tr.po">po-libgimp_gimp20-libgimp-tr.po</AdditionalFile>
@@ -19,12 +19,8 @@
             <AdditionalFile target="po-script-fu/tr.po">po-script-fu_gimp20-script-fu-tr.po</AdditionalFile>
         </AdditionalFiles>
         <BuildDependencies>
-            <Dependency>python-gtk-devel</Dependency>
             <Dependency>xdg-utils</Dependency>
             <Dependency>hal-devel</Dependency>
-            <Dependency>gtk2-devel</Dependency>
-            <Dependency>gegl-devel</Dependency>
-            <Dependency>babl-devel</Dependency>
             <Dependency>jpeg-devel</Dependency>
             <Dependency>tiff-devel</Dependency>
             <Dependency>lcms-devel</Dependency>
@@ -32,6 +28,7 @@
             <Dependency>cairo-devel</Dependency>
             <Dependency>aalib-devel</Dependency>
             <Dependency>libwmf-devel</Dependency>
+            <Dependency>jasper-devel</Dependency>
             <Dependency>libmng-devel</Dependency>
             <Dependency>libXpm-devel</Dependency>
             <Dependency>libXmu-devel</Dependency>
@@ -41,22 +38,16 @@
             <Dependency>freetype-devel</Dependency>
             <Dependency>alsa-lib-devel</Dependency>
             <Dependency>libXfixes-devel</Dependency>
+            <Dependency>libXcursor-devel</Dependency>
             <Dependency>fontconfig-devel</Dependency>
             <Dependency>gdk-pixbuf-devel</Dependency>
-            <!-- For dependency fixes -->
+            <Dependency>python-gtk-devel</Dependency>
+            <Dependency versionFrom="0.1.6">gegl-devel</Dependency>
+            <Dependency versionFrom="0.1.4">babl-devel</Dependency>
+            <Dependency versionFrom="2.24.5">gtk2-devel</Dependency>
             <Dependency releaseFrom="14">webkit-gtk-devel</Dependency>
             <Dependency versionFrom="0.16.3">poppler-glib-devel</Dependency>
         </BuildDependencies>
-        <Patches>
-            <!-- Fedora patches -->
-            <Patch level="1">gimp-2.6.2-xdg-open.patch</Patch>
-            <Patch level="1">gimp-2.6.7-jpeg-units.patch</Patch>
-            <Patch level="1">gimp-2.6.6-minimize-dialogs.patch</Patch>
-
-            <!-- Stack-based buffer overflow by processing certain plug-in config. (CVE-2010-{4540, 4541, 4542, 4543}) -->
-            <Patch level="1">48ec15890e1751dede061f6d1f469b6508c13439.patch</Patch>
-            <Patch level="1">7fb0300e1cfdb98a3bde54dbc73a0f3eda375162.patch</Patch>
-        </Patches>
     </Source>
 
     <Package>
@@ -81,18 +72,16 @@
         <Name>gimp</Name>
         <IsA>app:gui</IsA>
         <RuntimeDependencies>
-            <Dependency>gegl</Dependency>
-            <Dependency>babl</Dependency>
             <Dependency>jpeg</Dependency>
             <Dependency>tiff</Dependency>
             <Dependency>lcms</Dependency>
             <Dependency>pango</Dependency>
             <Dependency>aalib</Dependency>
-            <Dependency>python-gtk</Dependency>
             <Dependency>libwmf</Dependency>
             <Dependency>libXpm</Dependency>
             <Dependency>libmng</Dependency>
             <Dependency>libXmu</Dependency>
+            <Dependency>jasper</Dependency>
             <Dependency>libXext</Dependency>
             <Dependency>librsvg</Dependency>
             <Dependency>libexif</Dependency>
@@ -101,10 +90,14 @@
             <Dependency>alsa-lib</Dependency>
             <Dependency>libXfixes</Dependency>
             <Dependency>xdg-utils</Dependency>
+            <Dependency>libXcursor</Dependency>
             <Dependency>gdk-pixbuf</Dependency>
             <Dependency>fontconfig</Dependency>
             <Dependency>webkit-gtk</Dependency>
-            <Dependency versionFrom="2.18.5">gtk2</Dependency>
+            <Dependency>python-gtk</Dependency>
+            <Dependency versionFrom="0.1.6">gegl</Dependency>
+            <Dependency versionFrom="0.1.4">babl</Dependency>
+            <Dependency versionFrom="2.24.5">gtk2</Dependency>
             <Dependency versionFrom="1.8.8">cairo</Dependency>
             <Dependency versionFrom="0.16.3">poppler-glib</Dependency>
         </RuntimeDependencies>
@@ -122,7 +115,6 @@
         </Files>
         <AdditionalFiles>
             <AdditionalFile target="/usr/share/gimp/2.0/images/gimp-splash.png">gimp-splash.png</AdditionalFile>
-            <AdditionalFile owner="root" permission="0644" target="/usr/share/applications/gimp.desktop">gimp.desktop</AdditionalFile>
         </AdditionalFiles>
     </Package>
 
@@ -132,7 +124,7 @@
         <PartOf>multimedia.graphics.gimp.l10n</PartOf>
         <Summary>Gimp translation files for Turkish</Summary>
         <RuntimeDependencies>
-            <Dependency>gimp</Dependency>
+            <Dependency release="current">gimp</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="localedata">/usr/share/locale/tr</Path>
@@ -145,7 +137,7 @@
         <PartOf>multimedia.graphics.gimp.l10n</PartOf>
         <Summary>Gimp translation files for Asturian</Summary>
         <RuntimeDependencies>
-            <Dependency>gimp</Dependency>
+            <Dependency release="current">gimp</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="localedata">/usr/share/locale/ast</Path>
@@ -158,7 +150,7 @@
         <PartOf>multimedia.graphics.gimp.l10n</PartOf>
         <Summary>Gimp translation files for Burmese</Summary>
         <RuntimeDependencies>
-            <Dependency>gimp</Dependency>
+            <Dependency release="current">gimp</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="localedata">/usr/share/locale/my</Path>
@@ -171,7 +163,7 @@
         <PartOf>multimedia.graphics.gimp.l10n</PartOf>
         <Summary>Gimp translation files for Low Saxon</Summary>
         <RuntimeDependencies>
-            <Dependency>gimp</Dependency>
+            <Dependency release="current">gimp</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="localedata">/usr/share/locale/nds</Path>
@@ -184,7 +176,7 @@
         <PartOf>multimedia.graphics.gimp.l10n</PartOf>
         <Summary>Gimp translation files for Greek</Summary>
         <RuntimeDependencies>
-            <Dependency>gimp</Dependency>
+            <Dependency release="current">gimp</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="localedata">/usr/share/locale/el</Path>
@@ -197,7 +189,7 @@
         <PartOf>multimedia.graphics.gimp.l10n</PartOf>
         <Summary>Gimp translation files for Gujarati</Summary>
         <RuntimeDependencies>
-            <Dependency>gimp</Dependency>
+            <Dependency release="current">gimp</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="localedata">/usr/share/locale/gu</Path>
@@ -210,7 +202,7 @@
         <PartOf>multimedia.graphics.gimp.l10n</PartOf>
         <Summary>Gimp translation files for Belarusian</Summary>
         <RuntimeDependencies>
-            <Dependency>gimp</Dependency>
+            <Dependency release="current">gimp</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="localedata">/usr/share/locale/be</Path>
@@ -223,7 +215,7 @@
         <PartOf>multimedia.graphics.gimp.l10n</PartOf>
         <Summary>Gimp translation files for Vietnamese</Summary>
         <RuntimeDependencies>
-            <Dependency>gimp</Dependency>
+            <Dependency release="current">gimp</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="localedata">/usr/share/locale/vi</Path>
@@ -236,7 +228,7 @@
         <PartOf>multimedia.graphics.gimp.l10n</PartOf>
         <Summary>Gimp translation files for Catalan</Summary>
         <RuntimeDependencies>
-            <Dependency>gimp</Dependency>
+            <Dependency release="current">gimp</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="localedata">/usr/share/locale/ca</Path>
@@ -249,7 +241,7 @@
         <PartOf>multimedia.graphics.gimp.l10n</PartOf>
         <Summary>Gimp translation files for Esperanto</Summary>
         <RuntimeDependencies>
-            <Dependency>gimp</Dependency>
+            <Dependency release="current">gimp</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="localedata">/usr/share/locale/eo</Path>
@@ -262,7 +254,7 @@
         <PartOf>multimedia.graphics.gimp.l10n</PartOf>
         <Summary>Gimp translation files for Czech</Summary>
         <RuntimeDependencies>
-            <Dependency>gimp</Dependency>
+            <Dependency release="current">gimp</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="localedata">/usr/share/locale/cs</Path>
@@ -275,7 +267,7 @@
         <PartOf>multimedia.graphics.gimp.l10n</PartOf>
         <Summary>Gimp translation files for Catalan (Valencia)</Summary>
         <RuntimeDependencies>
-            <Dependency>gimp</Dependency>
+            <Dependency release="current">gimp</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="localedata">/usr/share/locale/ca@valencia</Path>
@@ -288,7 +280,7 @@
         <PartOf>multimedia.graphics.gimp.l10n</PartOf>
         <Summary>Gimp translation files for Arabic</Summary>
         <RuntimeDependencies>
-            <Dependency>gimp</Dependency>
+            <Dependency release="current">gimp</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="localedata">/usr/share/locale/ar</Path>
@@ -301,7 +293,7 @@
         <PartOf>multimedia.graphics.gimp.l10n</PartOf>
         <Summary>Gimp translation files for Khmer</Summary>
         <RuntimeDependencies>
-            <Dependency>gimp</Dependency>
+            <Dependency release="current">gimp</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="localedata">/usr/share/locale/km</Path>
@@ -314,7 +306,7 @@
         <PartOf>multimedia.graphics.gimp.l10n</PartOf>
         <Summary>Gimp translation files for Irish Gaelic</Summary>
         <RuntimeDependencies>
-            <Dependency>gimp</Dependency>
+            <Dependency release="current">gimp</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="localedata">/usr/share/locale/ga</Path>
@@ -327,7 +319,7 @@
         <PartOf>multimedia.graphics.gimp.l10n</PartOf>
         <Summary>Gimp translation files for Finnish</Summary>
         <RuntimeDependencies>
-            <Dependency>gimp</Dependency>
+            <Dependency release="current">gimp</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="localedata">/usr/share/locale/fi</Path>
@@ -340,7 +332,7 @@
         <PartOf>multimedia.graphics.gimp.l10n</PartOf>
         <Summary>Gimp translation files for Basque</Summary>
         <RuntimeDependencies>
-            <Dependency>gimp</Dependency>
+            <Dependency release="current">gimp</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="localedata">/usr/share/locale/eu</Path>
@@ -353,7 +345,7 @@
         <PartOf>multimedia.graphics.gimp.l10n</PartOf>
         <Summary>Gimp translation files for Estonian</Summary>
         <RuntimeDependencies>
-            <Dependency>gimp</Dependency>
+            <Dependency release="current">gimp</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="localedata">/usr/share/locale/et</Path>
@@ -366,7 +358,7 @@
         <PartOf>multimedia.graphics.gimp.l10n</PartOf>
         <Summary>Gimp translation files for Xhosa</Summary>
         <RuntimeDependencies>
-            <Dependency>gimp</Dependency>
+            <Dependency release="current">gimp</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="localedata">/usr/share/locale/xh</Path>
@@ -379,7 +371,7 @@
         <PartOf>multimedia.graphics.gimp.l10n</PartOf>
         <Summary>Gimp translation files for Galician</Summary>
         <RuntimeDependencies>
-            <Dependency>gimp</Dependency>
+            <Dependency release="current">gimp</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="localedata">/usr/share/locale/gl</Path>
@@ -392,7 +384,7 @@
         <PartOf>multimedia.graphics.gimp.l10n</PartOf>
         <Summary>Gimp translation files for Indonesian</Summary>
         <RuntimeDependencies>
-            <Dependency>gimp</Dependency>
+            <Dependency release="current">gimp</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="localedata">/usr/share/locale/id</Path>
@@ -405,7 +397,7 @@
         <PartOf>multimedia.graphics.gimp.l10n</PartOf>
         <Summary>Gimp translation files for Spanish</Summary>
         <RuntimeDependencies>
-            <Dependency>gimp</Dependency>
+            <Dependency release="current">gimp</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="localedata">/usr/share/locale/es</Path>
@@ -418,7 +410,7 @@
         <PartOf>multimedia.graphics.gimp.l10n</PartOf>
         <Summary>Gimp translation files for Russian</Summary>
         <RuntimeDependencies>
-            <Dependency>gimp</Dependency>
+            <Dependency release="current">gimp</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="localedata">/usr/share/locale/ru</Path>
@@ -431,7 +423,7 @@
         <PartOf>multimedia.graphics.gimp.l10n</PartOf>
         <Summary>Gimp translation files for Kinyarwanda</Summary>
         <RuntimeDependencies>
-            <Dependency>gimp</Dependency>
+            <Dependency release="current">gimp</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="localedata">/usr/share/locale/rw</Path>
@@ -444,7 +436,7 @@
         <PartOf>multimedia.graphics.gimp.l10n</PartOf>
         <Summary>Gimp translation files for Dutch</Summary>
         <RuntimeDependencies>
-            <Dependency>gimp</Dependency>
+            <Dependency release="current">gimp</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="localedata">/usr/share/locale/nl</Path>
@@ -457,7 +449,7 @@
         <PartOf>multimedia.graphics.gimp.l10n</PartOf>
         <Summary>Gimp translation files for Norwegian Nynorsk</Summary>
         <RuntimeDependencies>
-            <Dependency>gimp</Dependency>
+            <Dependency release="current">gimp</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="localedata">/usr/share/locale/nn</Path>
@@ -470,7 +462,7 @@
         <PartOf>multimedia.graphics.gimp.l10n</PartOf>
         <Summary>Gimp translation files for Norwegian Bookmal</Summary>
         <RuntimeDependencies>
-            <Dependency>gimp</Dependency>
+            <Dependency release="current">gimp</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="localedata">/usr/share/locale/nb</Path>
@@ -483,7 +475,7 @@
         <PartOf>multimedia.graphics.gimp.l10n</PartOf>
         <Summary>Gimp translation files for Nepali</Summary>
         <RuntimeDependencies>
-            <Dependency>gimp</Dependency>
+            <Dependency release="current">gimp</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="localedata">/usr/share/locale/ne</Path>
@@ -496,7 +488,7 @@
         <PartOf>multimedia.graphics.gimp.l10n</PartOf>
         <Summary>Gimp translation files for Lithuanian</Summary>
         <RuntimeDependencies>
-            <Dependency>gimp</Dependency>
+            <Dependency release="current">gimp</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="localedata">/usr/share/locale/lt</Path>
@@ -509,7 +501,7 @@
         <PartOf>multimedia.graphics.gimp.l10n</PartOf>
         <Summary>Gimp translation files for Punjabi</Summary>
         <RuntimeDependencies>
-            <Dependency>gimp</Dependency>
+            <Dependency release="current">gimp</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="localedata">/usr/share/locale/pa</Path>
@@ -522,7 +514,7 @@
         <PartOf>multimedia.graphics.gimp.l10n</PartOf>
         <Summary>Gimp translation files for Romanian</Summary>
         <RuntimeDependencies>
-            <Dependency>gimp</Dependency>
+            <Dependency release="current">gimp</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="localedata">/usr/share/locale/ro</Path>
@@ -535,7 +527,7 @@
         <PartOf>multimedia.graphics.gimp.l10n</PartOf>
         <Summary>Gimp translation files for British English</Summary>
         <RuntimeDependencies>
-            <Dependency>gimp</Dependency>
+            <Dependency release="current">gimp</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="localedata">/usr/share/locale/en_GB</Path>
@@ -548,7 +540,7 @@
         <PartOf>multimedia.graphics.gimp.l10n</PartOf>
         <Summary>Gimp translation files for Yi</Summary>
         <RuntimeDependencies>
-            <Dependency>gimp</Dependency>
+            <Dependency release="current">gimp</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="localedata">/usr/share/locale/yi</Path>
@@ -561,7 +553,7 @@
         <PartOf>multimedia.graphics.gimp.l10n</PartOf>
         <Summary>Gimp translation files for Catalan (en)</Summary>
         <RuntimeDependencies>
-            <Dependency>gimp</Dependency>
+            <Dependency release="current">gimp</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="localedata">/usr/share/locale/en_CA</Path>
@@ -574,7 +566,7 @@
         <PartOf>multimedia.graphics.gimp.l10n</PartOf>
         <Summary>Gimp translation files for French</Summary>
         <RuntimeDependencies>
-            <Dependency>gimp</Dependency>
+            <Dependency release="current">gimp</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="localedata">/usr/share/locale/fr</Path>
@@ -587,7 +579,7 @@
         <PartOf>multimedia.graphics.gimp.l10n</PartOf>
         <Summary>Gimp translation files for Bulgarian</Summary>
         <RuntimeDependencies>
-            <Dependency>gimp</Dependency>
+            <Dependency release="current">gimp</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="localedata">/usr/share/locale/bg</Path>
@@ -600,7 +592,7 @@
         <PartOf>multimedia.graphics.gimp.l10n</PartOf>
         <Summary>Gimp translation files for Malay</Summary>
         <RuntimeDependencies>
-            <Dependency>gimp</Dependency>
+            <Dependency release="current">gimp</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="localedata">/usr/share/locale/ms</Path>
@@ -613,7 +605,7 @@
         <PartOf>multimedia.graphics.gimp.l10n</PartOf>
         <Summary>Gimp translation files for Brazilian Portuguese</Summary>
         <RuntimeDependencies>
-            <Dependency>gimp</Dependency>
+            <Dependency release="current">gimp</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="localedata">/usr/share/locale/pt_BR</Path>
@@ -626,7 +618,7 @@
         <PartOf>multimedia.graphics.gimp.l10n</PartOf>
         <Summary>Gimp translation files for Croatian (Hrvatski)</Summary>
         <RuntimeDependencies>
-            <Dependency>gimp</Dependency>
+            <Dependency release="current">gimp</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="localedata">/usr/share/locale/hr</Path>
@@ -639,7 +631,7 @@
         <PartOf>multimedia.graphics.gimp.l10n</PartOf>
         <Summary>Gimp translation files for Chinese Traditional</Summary>
         <RuntimeDependencies>
-            <Dependency>gimp</Dependency>
+            <Dependency release="current">gimp</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="localedata">/usr/share/locale/zh_TW</Path>
@@ -652,7 +644,7 @@
         <PartOf>multimedia.graphics.gimp.l10n</PartOf>
         <Summary>Gimp translation files for Korean</Summary>
         <RuntimeDependencies>
-            <Dependency>gimp</Dependency>
+            <Dependency release="current">gimp</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="localedata">/usr/share/locale/ko</Path>
@@ -665,7 +657,7 @@
         <PartOf>multimedia.graphics.gimp.l10n</PartOf>
         <Summary>Gimp translation files for Italian</Summary>
         <RuntimeDependencies>
-            <Dependency>gimp</Dependency>
+            <Dependency release="current">gimp</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="localedata">/usr/share/locale/it</Path>
@@ -678,7 +670,7 @@
         <PartOf>multimedia.graphics.gimp.l10n</PartOf>
         <Summary>Gimp translation files for Farsi (Persian)</Summary>
         <RuntimeDependencies>
-            <Dependency>gimp</Dependency>
+            <Dependency release="current">gimp</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="localedata">/usr/share/locale/fa</Path>
@@ -691,7 +683,7 @@
         <PartOf>multimedia.graphics.gimp.l10n</PartOf>
         <Summary>Gimp translation files for Dzongkha</Summary>
         <RuntimeDependencies>
-            <Dependency>gimp</Dependency>
+            <Dependency release="current">gimp</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="localedata">/usr/share/locale/dz</Path>
@@ -704,7 +696,7 @@
         <PartOf>multimedia.graphics.gimp.l10n</PartOf>
         <Summary>Gimp translation files for Serbian Latin</Summary>
         <RuntimeDependencies>
-            <Dependency>gimp</Dependency>
+            <Dependency release="current">gimp</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="localedata">/usr/share/locale/sr@latin</Path>
@@ -717,7 +709,7 @@
         <PartOf>multimedia.graphics.gimp.l10n</PartOf>
         <Summary>Gimp translation files for Danish</Summary>
         <RuntimeDependencies>
-            <Dependency>gimp</Dependency>
+            <Dependency release="current">gimp</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="localedata">/usr/share/locale/da</Path>
@@ -730,7 +722,7 @@
         <PartOf>multimedia.graphics.gimp.l10n</PartOf>
         <Summary>Gimp translation files for Japanese</Summary>
         <RuntimeDependencies>
-            <Dependency>gimp</Dependency>
+            <Dependency release="current">gimp</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="localedata">/usr/share/locale/ja</Path>
@@ -743,7 +735,7 @@
         <PartOf>multimedia.graphics.gimp.l10n</PartOf>
         <Summary>Gimp translation files for Hebrew</Summary>
         <RuntimeDependencies>
-            <Dependency>gimp</Dependency>
+            <Dependency release="current">gimp</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="localedata">/usr/share/locale/he</Path>
@@ -756,7 +748,7 @@
         <PartOf>multimedia.graphics.gimp.l10n</PartOf>
         <Summary>Gimp translation files for Portuguese</Summary>
         <RuntimeDependencies>
-            <Dependency>gimp</Dependency>
+            <Dependency release="current">gimp</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="localedata">/usr/share/locale/pt</Path>
@@ -769,7 +761,7 @@
         <PartOf>multimedia.graphics.gimp.l10n</PartOf>
         <Summary>Gimp translation files for Chinese Simplified</Summary>
         <RuntimeDependencies>
-            <Dependency>gimp</Dependency>
+            <Dependency release="current">gimp</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="localedata">/usr/share/locale/zh_CN</Path>
@@ -782,7 +774,7 @@
         <PartOf>multimedia.graphics.gimp.l10n</PartOf>
         <Summary>Gimp translation files for Serbian</Summary>
         <RuntimeDependencies>
-            <Dependency>gimp</Dependency>
+            <Dependency release="current">gimp</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="localedata">/usr/share/locale/sr</Path>
@@ -795,7 +787,7 @@
         <PartOf>multimedia.graphics.gimp.l10n</PartOf>
         <Summary>Gimp translation files for Occitan</Summary>
         <RuntimeDependencies>
-            <Dependency>gimp</Dependency>
+            <Dependency release="current">gimp</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="localedata">/usr/share/locale/oc</Path>
@@ -808,7 +800,7 @@
         <PartOf>multimedia.graphics.gimp.l10n</PartOf>
         <Summary>Gimp translation files for Swedish</Summary>
         <RuntimeDependencies>
-            <Dependency>gimp</Dependency>
+            <Dependency release="current">gimp</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="localedata">/usr/share/locale/sv</Path>
@@ -821,7 +813,7 @@
         <PartOf>multimedia.graphics.gimp.l10n</PartOf>
         <Summary>Gimp translation files for Macedonian</Summary>
         <RuntimeDependencies>
-            <Dependency>gimp</Dependency>
+            <Dependency release="current">gimp</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="localedata">/usr/share/locale/mk</Path>
@@ -834,7 +826,7 @@
         <PartOf>multimedia.graphics.gimp.l10n</PartOf>
         <Summary>Gimp translation files for Slovak</Summary>
         <RuntimeDependencies>
-            <Dependency>gimp</Dependency>
+            <Dependency release="current">gimp</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="localedata">/usr/share/locale/sk</Path>
@@ -847,7 +839,7 @@
         <PartOf>multimedia.graphics.gimp.l10n</PartOf>
         <Summary>Gimp translation files for German</Summary>
         <RuntimeDependencies>
-            <Dependency>gimp</Dependency>
+            <Dependency release="current">gimp</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="localedata">/usr/share/locale/de</Path>
@@ -860,7 +852,7 @@
         <PartOf>multimedia.graphics.gimp.l10n</PartOf>
         <Summary>Gimp translation files for Polish</Summary>
         <RuntimeDependencies>
-            <Dependency>gimp</Dependency>
+            <Dependency release="current">gimp</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="localedata">/usr/share/locale/pl</Path>
@@ -873,7 +865,7 @@
         <PartOf>multimedia.graphics.gimp.l10n</PartOf>
         <Summary>Gimp translation files for Ukrainian</Summary>
         <RuntimeDependencies>
-            <Dependency>gimp</Dependency>
+            <Dependency release="current">gimp</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="localedata">/usr/share/locale/uk</Path>
@@ -886,7 +878,7 @@
         <PartOf>multimedia.graphics.gimp.l10n</PartOf>
         <Summary>Gimp translation files for Slovenian</Summary>
         <RuntimeDependencies>
-            <Dependency>gimp</Dependency>
+            <Dependency release="current">gimp</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="localedata">/usr/share/locale/sl</Path>
@@ -899,7 +891,7 @@
         <PartOf>multimedia.graphics.gimp.l10n</PartOf>
         <Summary>Gimp translation files for Hungarian</Summary>
         <RuntimeDependencies>
-            <Dependency>gimp</Dependency>
+            <Dependency release="current">gimp</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="localedata">/usr/share/locale/hu</Path>
@@ -912,7 +904,7 @@
         <PartOf>multimedia.graphics.gimp.l10n</PartOf>
         <Summary>Gimp translation files for Tatarish</Summary>
         <RuntimeDependencies>
-            <Dependency>gimp</Dependency>
+            <Dependency release="current">gimp</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="localedata">/usr/share/locale/tt</Path>
@@ -925,7 +917,7 @@
         <PartOf>multimedia.graphics.gimp.l10n</PartOf>
         <Summary>Gimp translation files for Azerbaijani</Summary>
         <RuntimeDependencies>
-            <Dependency>gimp</Dependency>
+            <Dependency release="current">gimp</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="localedata">/usr/share/locale/az</Path>
@@ -938,7 +930,7 @@
         <PartOf>multimedia.graphics.gimp.l10n</PartOf>
         <Summary>Gimp translation files for Amharic</Summary>
         <RuntimeDependencies>
-            <Dependency>gimp</Dependency>
+            <Dependency release="current">gimp</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="localedata">/usr/share/locale/am</Path>
@@ -951,7 +943,7 @@
         <PartOf>multimedia.graphics.gimp.l10n</PartOf>
         <Summary>Gimp translation files for Icelandic</Summary>
         <RuntimeDependencies>
-            <Dependency>gimp</Dependency>
+            <Dependency release="current">gimp</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="localedata">/usr/share/locale/is</Path>
@@ -964,7 +956,7 @@
         <PartOf>multimedia.graphics.gimp.l10n</PartOf>
         <Summary>Gimp translation files for Latvia</Summary>
         <RuntimeDependencies>
-            <Dependency>gimp</Dependency>
+            <Dependency release="current">gimp</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="localedata">/usr/share/locale/lv</Path>
@@ -977,7 +969,7 @@
         <PartOf>multimedia.graphics.gimp.l10n</PartOf>
         <Summary>Gimp translation files for Thai</Summary>
         <RuntimeDependencies>
-            <Dependency>gimp</Dependency>
+            <Dependency release="current">gimp</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="localedata">/usr/share/locale/th</Path>
@@ -990,7 +982,7 @@
         <PartOf>multimedia.graphics.gimp.l10n</PartOf>
         <Summary>Gimp translation files for Georgian</Summary>
         <RuntimeDependencies>
-            <Dependency>gimp</Dependency>
+            <Dependency release="current">gimp</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="localedata">/usr/share/locale/ka</Path>
@@ -1003,7 +995,7 @@
         <PartOf>multimedia.graphics.gimp.l10n</PartOf>
         <Summary>Gimp translation files for Hindi</Summary>
         <RuntimeDependencies>
-            <Dependency>gimp</Dependency>
+            <Dependency release="current">gimp</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="localedata">/usr/share/locale/hi</Path>
@@ -1016,7 +1008,7 @@
         <PartOf>multimedia.graphics.gimp.l10n</PartOf>
         <Summary>Gimp translation files for Chinese Hong Kong</Summary>
         <RuntimeDependencies>
-            <Dependency>gimp</Dependency>
+            <Dependency release="current">gimp</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="localedata">/usr/share/locale/zh_HK</Path>
@@ -1029,7 +1021,7 @@
         <PartOf>multimedia.graphics.gimp.l10n</PartOf>
         <Summary>Gimp translation files for Malayalam</Summary>
         <RuntimeDependencies>
-            <Dependency>gimp</Dependency>
+            <Dependency release="current">gimp</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="localedata">/usr/share/locale/ml</Path>
@@ -1042,23 +1034,10 @@
         <PartOf>multimedia.graphics.gimp.l10n</PartOf>
         <Summary>Gimp translation files for Tamil</Summary>
         <RuntimeDependencies>
-            <Dependency>gimp</Dependency>
+            <Dependency release="current">gimp</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="localedata">/usr/share/locale/ta</Path>
-        </Files>
-    </Package>
-
-    <Package>
-        <Name>gimp-i18n-mr</Name>
-        <IsA>locale:mr</IsA>
-        <PartOf>multimedia.graphics.gimp.l10n</PartOf>
-        <Summary>Gimp translation files for Marathi</Summary>
-        <RuntimeDependencies>
-            <Dependency>gimp</Dependency>
-        </RuntimeDependencies>
-        <Files>
-            <Path fileType="localedata">/usr/share/locale/mr</Path>
         </Files>
     </Package>
 
@@ -1068,7 +1047,7 @@
         <PartOf>multimedia.graphics.gimp.l10n</PartOf>
         <Summary>Gimp translation files for Kannada</Summary>
         <RuntimeDependencies>
-            <Dependency>gimp</Dependency>
+            <Dependency release="current">gimp</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="localedata">/usr/share/locale/kn</Path>
@@ -1081,7 +1060,7 @@
         <PartOf>multimedia.graphics.gimp.l10n</PartOf>
         <Summary>Gimp translation files for Sinhala</Summary>
         <RuntimeDependencies>
-            <Dependency>gimp</Dependency>
+            <Dependency release="current">gimp</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="localedata">/usr/share/locale/si</Path>
@@ -1089,19 +1068,45 @@
     </Package>
 
     <Package>
-        <Name>gimp-i18n-or</Name>
-        <IsA>locale:or</IsA>
+        <Name>gimp-i18n-kk</Name>
+        <IsA>locale:kk</IsA>
         <PartOf>multimedia.graphics.gimp.l10n</PartOf>
-        <Summary>Gimp translation files for Oriya</Summary>
+        <Summary>Gimp translation files for Kazakh</Summary>
         <RuntimeDependencies>
-            <Dependency>gimp</Dependency>
+            <Dependency release="current">gimp</Dependency>
         </RuntimeDependencies>
         <Files>
-            <Path fileType="localedata">/usr/share/locale/or</Path>
+            <Path fileType="localedata">/usr/share/locale/kk</Path>
         </Files>
     </Package>
 
+    <Package>
+        <Name>gimp-i18n-br</Name>
+        <IsA>locale:br</IsA>
+        <PartOf>multimedia.graphics.gimp.l10n</PartOf>
+        <Summary>Gimp translation files for Breton</Summary>
+        <RuntimeDependencies>
+            <Dependency release="current">gimp</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="localedata">/usr/share/locale/br</Path>
+        </Files>
+    </Package>
+
+
+
     <History>
+        <Update release="58">
+            <Date>2011-08-08</Date>
+            <Version>2.7.2</Version>
+            <Comment>
+                - Version bump to 2.7.2 (pb#17525),
+                - Add missing summary translations (pb#18582),
+                - single window mode support (pb#8891).
+            </Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
         <Update release="57">
             <Date>2011-03-22</Date>
             <Version>2.6.11</Version>
