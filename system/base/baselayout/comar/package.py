@@ -255,6 +255,7 @@ def postInstall(fromVersion, fromRelease, toVersion, toRelease):
                 (166, "nginx", "nginx user", "/etc/nginx", "/sbin/nologin", "", ["nginx"], [], []),
                 (167, "ntop", "ntop user", "/var/lib/ntop", "/sbin/nologin", "", ["ntop"], [], []),
                 (168, "smolt", "smolt user", "/dev/null", "/bin/false", "", [], [], []),
+                (169, "svxlink", "Svxlink Daemon", "/", "/sbin/nologin", "", ["daemon", "audio", "dialout"], [], []),
                 (200, "pnp", "PnP", "/dev/null", "/bin/false", "", ["pnp"], [], []),
                 (250, "mpd", "Music Player Daemon", "/var/lib/mpd", "/bin/false", "", ["audio", "pulse", "pulse-access", "pulse-rt"], [], []),
                 (252, "vdr", "VDR User", "/var/vdr", "/bin/false", "", ["audio", "video", "cdrom", "dialout"], [], []),
