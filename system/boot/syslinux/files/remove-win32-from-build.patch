@@ -1,33 +1,29 @@
-diff -Nur syslinux-3.86-old/Makefile syslinux-3.86/Makefile
---- syslinux-3.86-old/Makefile	2010-05-19 19:02:15.717356631 +0300
-+++ syslinux-3.86/Makefile	2010-05-19 19:03:46.411234126 +0300
-@@ -43,7 +43,7 @@
- 	mbr/mbr_c.bin mbr/altmbr_c.bin mbr/gptmbr_c.bin \
- 	mbr/mbr_f.bin mbr/altmbr_f.bin mbr/gptmbr_f.bin \
+diff -Nur syslinux-4.04-old/Makefile syslinux-4.04/Makefile > myown-4.04-remove-win32-from-build.patch
+--- syslinux-4.04-old/Makefile	2011-04-18 23:24:17.000000000 +0200
++++ syslinux-4.04/Makefile	2011-08-08 12:41:53.000000000 +0200
+@@ -42,7 +42,6 @@
+ 	mbr/*.bin \
  	core/pxelinux.0 core/isolinux.bin core/isolinux-debug.bin \
--	gpxe/gpxelinux.0 dos/syslinux.com win32/syslinux.exe \
-+	gpxe/gpxelinux.0 dos/syslinux.com \
+ 	gpxe/gpxelinux.0 dos/syslinux.com \
+-	win32/syslinux.exe win64/syslinux64.exe \
  	dosutil/*.com dosutil/*.sys \
  	$(MODULES)
  
-@@ -54,7 +54,7 @@
+@@ -53,7 +52,7 @@
  # files that depend only on the B phase, but may have to be regenerated
  # for "make installer".
- BSUBDIRS = codepage core memdisk modules com32 mbr memdump gpxe sample \
--	   libinstaller dos win32 dosutil
-+	   libinstaller dos dosutil
+ BSUBDIRS = codepage com32 lzo core memdisk modules mbr memdump gpxe sample \
+-	   diag libinstaller dos win32 win64 dosutil
++	   diag libinstaller dos dosutil
  ITARGET  =
  IOBJECTS = $(ITARGET) \
  	utils/gethostip utils/isohybrid utils/mkdiskimage \
-@@ -68,9 +68,9 @@
- # Things to install in /usr/lib/syslinux
- INSTALL_AUX   =	core/pxelinux.0 gpxe/gpxelinux.0 core/isolinux.bin \
- 		core/isolinux-debug.bin \
--		dos/syslinux.com win32/syslinux.exe \
-+		dos/syslinux.com \
+@@ -69,7 +68,7 @@
+ 		core/isolinux.bin core/isolinux-debug.bin \
+ 		dos/syslinux.com \
  		mbr/*.bin $(MODULES)
--INSTALL_AUX_OPT = win32/syslinux.exe
+-INSTALL_AUX_OPT = win32/syslinux.exe win64/syslinux64.exe
 +INSTALL_AUX_OPT =
+ INSTALL_DIAG  =	diag/mbr/handoff.bin \
+ 		diag/geodsp/geodsp1s.img.xz diag/geodsp/geodspms.img.xz
  
- # These directories manage their own installables
- INSTALLSUBDIRS = com32 utils dosutil
