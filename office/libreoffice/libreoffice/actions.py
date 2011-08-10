@@ -35,6 +35,7 @@ def setup():
 
     #libdir is needed to set exec_prefix
     #enable-cairo to make HW Acceleration enabled
+    #disable kde4 until the horizontal scrollbar issue is fixed and kde4 implementation of lo is stable
     shelltools.system('./configure \
                        --prefix=%s \
                        --libdir=%s/lib \
@@ -68,7 +69,7 @@ def setup():
                        --enable-ext-wiki-publisher \
                        --enable-gtk \
                        --enable-gio \
-                       --enable-kde4 \
+                       --disable-kde4 \
                        --enable-lockdown \
                        --enable-opengl \
                        --enable-symbols \
