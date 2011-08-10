@@ -64,11 +64,9 @@ def setup():
                      --disable-video-directfb"
 
         shelltools.export("PKG_CONFIG_PATH", "/usr/lib32/pkgconfig")
-        shelltools.export("CC", "%s -fPIC -O3 -m32" % get.CC())
-        shelltools.export("CXX", "%s -fPIC -O3 -m32" % get.CC())
         shelltools.export("CFLAGS", "%s -fPIC -O3 -m32" % get.CFLAGS())
         shelltools.export("CXXFLAGS", "%s -fPIC -O3 -m32" % get.CXXFLAGS())
-        shelltools.export("LDFLAGS", "%s -fPIC -O3 -m32" % get.LDFLAGS())
+        shelltools.export("LDFLAGS", "%s -m32" % get.LDFLAGS())
 
     autotools.configure(options)
 
