@@ -187,6 +187,7 @@ def postInstall(fromVersion, fromRelease, toVersion, toRelease):
                 (207, "wireshark"),
                 (209, "vdr"),
                 (210, "ecryptfs"),
+                (211, "slocate"),
             )
 
     for gid, groupName in groups:
