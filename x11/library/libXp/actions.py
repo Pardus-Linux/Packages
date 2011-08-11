@@ -26,6 +26,7 @@ def install():
     autotools.rawInstall("DESTDIR=%s" % get.installDIR())
 
     if get.buildTYPE() == "emul32":
+        pisitools.rename("/usr/lib32/libXp.so", "libdeprecatedXp.so")
         return
 
     # This library is deprecated. Make its usage hard.
