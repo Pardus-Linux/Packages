@@ -21,6 +21,7 @@ def setup():
     pisitools.dosed("lib/Xm/Makefile.am", " -lXp ", " -ldeprecatedXp ")
 
     shelltools.export("LANG", "C") # guess why this is here...
+    shelltools.export("LC_ALL", "C") # guess why this is here...
     shelltools.export("CFLAGS", "%s -fno-strict-aliasing" % get.CFLAGS())
     shelltools.export("CXXFLAGS", "%s -fno-strict-aliasing" % get.CXXFLAGS())
     shelltools.export("AT_M4DIR", ".")
@@ -29,12 +30,28 @@ def setup():
         shelltools.touch(f)
 
     autotools.autoreconf("-vfi")
-    autotools.configure("--with-x \
-                         --disable-static \
-                         --enable-utf8 \
-                         --enable-xft \
-                         --enable-jpeg \
-                         --enable-png")
+
+
+    options = "--with-x \
+              --disable-static \
+              --enable-utf8 \
+              --enable-xft \
+              --enable-jpeg \
+              --enable-png"
+
+    if get.buildTYPE() == "emul32":
+        options += " --prefix=/emul32 \
+                     --libdir=/usr/lib32 \
+                     --bindir=/emul32/bin \
+                     --mandir=/emul32/man"
+
+        shelltools.export("PKG_CONFIG_PATH", "/usr/lib32/pkgconfig")
+        shelltools.export("CFLAGS", "%s -I/usr/include/freetype2 -fno-strict-aliasing -m32" % get.CFLAGS())
+        shelltools.export("CXXFLAGS", "%s -I/usr/include/freetype2 -fno-strict-aliasing -m32" % get.CXXFLAGS())
+        shelltools.export("LDFLAGS", "%s -m32" % get.LDFLAGS())
+
+    autotools.configure(options)
+
 
 def build():
     autotools.make('-j1 MWMRCDIR="/etc/X11/mwm"')
@@ -43,7 +60,11 @@ def install():
     autotools.rawInstall('DESTDIR=%s -j1 MWMRCDIR="/etc/X11/mwm"' % get.installDIR())
 
     # these are just demos
-    pisitools.removeDir("/usr/share/Xm")
+    if not get.buildTYPE() == "emul32":
+        pisitools.removeDir("/usr/share/Xm")
 
     pisitools.dodoc("ChangeLog", "README*", "BUGREPORT", "RELEASE", "RELNOTES", "TODO")
+
+    if get.buildTYPE() == "emul32":
+        pisitools.removeDir("/emul32")
 
