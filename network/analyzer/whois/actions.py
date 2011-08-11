@@ -10,7 +10,7 @@ from pisi.actionsapi import pisitools
 from pisi.actionsapi import get
 
 def build():
-    autotools.make('OPT="%s" HAVE_LIBIDN=1' % get.CFLAGS())
+    autotools.make('OPT="%s" HAVE_LIBIDN=1 HAVE_ICONV=1' % get.CFLAGS())
 
 def install():
     autotools.rawInstall('BASEDIR="%s" prefix=/usr' % get.installDIR())

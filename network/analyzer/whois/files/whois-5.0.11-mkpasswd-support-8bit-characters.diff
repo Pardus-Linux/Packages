@@ -1,0 +1,42 @@
+From b6d62022a7ab3694ed6cef0021a2f837c6b5d80b Mon Sep 17 00:00:00 2001
+From: Ludwig Nussel <ludwig.nussel@suse.de>
+Date: Thu, 14 Jul 2011 13:06:41 +0200
+Subject: [PATCH whois 2/7] support 8bit characters
+
+8bit characters are accepted when typed interactively so there is no
+reason to reject them when read from a file.
+---
+ mkpasswd.c |   17 +++--------------
+ 1 files changed, 3 insertions(+), 14 deletions(-)
+
+diff --git a/mkpasswd.c b/mkpasswd.c
+index 43403d4..59c7a58 100644
+--- a/mkpasswd.c
++++ b/mkpasswd.c
+@@ -312,20 +312,9 @@ int main(int argc, char *argv[])
+ 	    exit(2);
+ 	}
+ 
+-	p = (unsigned char *)password;
+-	while (*p) {
+-	    if (*p == '\n' || *p == '\r') {
+-		*p = '\0';
+-		break;
+-	    }
+-	    /* which characters are valid? */
+-	    if (*p > 0x7f) {
+-		fprintf(stderr,
+-			_("Illegal password character '0x%hhx'.\n"), *p);
+-		exit(1);
+-	    }
+-	    p++;
+-	}
++	p = strpbrk(password, "\n\r");
++	if (p)
++	    *p = '\0';
+     } else {
+ 	password = getpass(_("Password: "));
+ 	if (!password) {
+-- 
+1.7.3.4
+
