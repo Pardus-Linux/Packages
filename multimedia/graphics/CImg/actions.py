@@ -17,4 +17,4 @@ def install():
     pisitools.insinto(examples, "examples/*")
     pisitools.insinto(plugins, "plugins/*")
     pisitools.dohtml("html/*")
-    pisitools.dodoc("*.txt", "html/CImg_reference.pdf")
+    pisitools.dodoc("*.txt")
