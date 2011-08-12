@@ -7,13 +7,14 @@ from pisi.actionsapi import autotools
 from pisi.actionsapi import pisitools
 from pisi.actionsapi import get
 
+def setup():
+    autotools.autoreconf("-fi")
+    autotools.configure()
+
 def build():
-    autotools.make("OPT_FLAGS='%s' openconnect" % get.CFLAGS())
+    autotools.make()
 
 def install():
     autotools.rawInstall("DESTDIR=%s" % get.installDIR())
-    autotools.rawInstall("DESTDIR=%s LIBDIR=/usr/lib" % get.installDIR(), "install-lib")
 
-    pisitools.doman("openconnect.8")
-
-    pisitools.dodoc("AUTHORS", "COPYING*", "README*")
+    pisitools.dodoc("AUTHORS", "COPYING*")
