@@ -20,4 +20,4 @@ def install():
     pythonmodules.install()
 
     shelltools.cd("..")
-    pisitools.dodoc("ADOPTERS", "CREDITS", "LAYOUT", "README")
+    pisitools.dodoc("CREDITS", "LAYOUT", "README")
