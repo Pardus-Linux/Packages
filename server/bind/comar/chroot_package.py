@@ -30,8 +30,16 @@ def postInstall(fromVersion, fromRelease, toVersion, toRelease):
     for files in ["/etc/bind/bind.keys", "/etc/bind/named.conf", "/etc/bind/rndc.key", "/var/named/named.ca"]:
         shutil.copy("%s" % files, "%s%s" % (CHROOT, files))
 
-    shutil.copytree("/var/named/pri", "%s/var/named/pri" % CHROOT)
-    shutil.copytree("/var/named/sec", "%s/var/named/sec" % CHROOT)
+    try:
+        shutil.copytree("/var/named/pri", "%s/var/named/pri" % CHROOT)
+    except OSError:
+        pass
+
+    try:
+        shutil.copytree("/var/named/sec", "%s/var/named/sec" % CHROOT)
+    except OSError:
+        pass
+
     os.system("ln -s ../../var/named/pri /var/named/chroot/etc/bind/")
     os.system("ln -s ../../var/named/sec /var/named/chroot/etc/bind/")
 
