@@ -27,4 +27,3 @@ def install():
 
     pisitools.insinto(examples, "examples/*.c")
     pisitools.insinto(examples, "examples/*.h")
-    pisitools.insinto(examples, "examples/Makefile.am")
