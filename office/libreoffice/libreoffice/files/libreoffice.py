@@ -10,6 +10,10 @@ lo_program_path = lo_base_path + "program/"
 programName = os.path.basename(sys.argv[0])
 params = sys.argv[1:]
 
+# Since we disable kde4 interface LO fallbacks to LO style open/save dialogs
+# We force LO to gnome interface to use Gnome open/save dialogs.
+os.environ['OOO_FORCE_DESKTOP'] = "gnome"
+
 if os.path.isfile(os.path.join(lo_program_path, programName)):
     program = os.path.join(lo_program_path, programName)
 
