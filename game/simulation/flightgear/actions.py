@@ -9,8 +9,6 @@ from pisi.actionsapi import shelltools
 from pisi.actionsapi import pisitools
 from pisi.actionsapi import get
 
-WorkDir = "FlightGear-%s" % get.srcVERSION()
-
 def setup():
     shelltools.system("./autogen.sh")
     autotools.configure("--enable-sp-fdms \
