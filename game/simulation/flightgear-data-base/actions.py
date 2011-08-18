@@ -1,7 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright 2006,2007 TUBITAK/UEKAE
 # Licensed under the GNU General Public License, version 2.
 # See the file http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
 
@@ -26,4 +25,4 @@ def install():
     pisitools.dodir("/usr/share")
     shelltools.cd("..")
     fixperms(WorkDir)
-    shelltools.copytree(WorkDir, "%s/usr/share/FlightGear" % get.installDIR())
+    shelltools.copytree(WorkDir, "%s/usr/share/flightgear" % get.installDIR())
