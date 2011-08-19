@@ -1,0 +1,109 @@
+Index: thunderbird/editor/ui/dialogs/content/EdSpellCheck.js
+===================================================================
+--- thunderbird.orig/editor/ui/dialogs/content/EdSpellCheck.js
++++ thunderbird/editor/ui/dialogs/content/EdSpellCheck.js
+@@ -576,7 +576,7 @@ function ExitSpellChecker()
+       var curLang = gSpellChecker.GetCurrentDictionary();
+       gSpellChecker.UninitSpellChecker();
+       if ("@mozilla.org/spellchecker;1" in Components.classes) {
+-        var spellChecker = Components.classes["@mozilla.org/spellchecker/engine;1"]
++        var spellChecker = Components.classes["@mozilla.org/spellchecker/hunspell;1"]
+                                      .getService(Components.interfaces.mozISpellCheckingEngine);
+         spellChecker.dictionary = curLang;
+       }
+Index: thunderbird/mail/components/compose/content/MsgComposeCommands.js
+===================================================================
+--- thunderbird.orig/mail/components/compose/content/MsgComposeCommands.js
++++ thunderbird/mail/components/compose/content/MsgComposeCommands.js
+@@ -2414,7 +2414,7 @@ function InitLanguageMenu()
+   if (!languageMenuList)
+     return;
+ 
+-  var spellChecker = Components.classes['@mozilla.org/spellchecker/engine;1']
++  var spellChecker = Components.classes['@mozilla.org/spellchecker/hunspell;1']
+                                .getService(mozISpellCheckingEngine);
+   var o1 = {};
+   var o2 = {};
+@@ -2510,7 +2510,7 @@ function ChangeLanguage(event)
+   // We need to change the dictionary language and if we are using inline spell check,
+   // recheck the message
+ 
+-  var spellChecker = Components.classes['@mozilla.org/spellchecker/engine;1']
++  var spellChecker = Components.classes['@mozilla.org/spellchecker/hunspell;1']
+                                .getService(mozISpellCheckingEngine);
+   if (spellChecker.dictionary != event.target.value)
+   {
+Index: thunderbird/mail/components/preferences/compose.js
+===================================================================
+--- thunderbird.orig/mail/components/preferences/compose.js
++++ thunderbird/mail/components/preferences/compose.js
+@@ -105,7 +105,7 @@ var gComposePane = {
+   initLanguageMenu: function ()
+   {
+     var languageMenuList = document.getElementById("languageMenuList");
+-    this.mSpellChecker = Components.classes['@mozilla.org/spellchecker/engine;1'].getService(Components.interfaces.mozISpellCheckingEngine);
++    this.mSpellChecker = Components.classes['@mozilla.org/spellchecker/hunspell;1'].getService(Components.interfaces.mozISpellCheckingEngine);
+     var o1 = {};
+     var o2 = {};
+ 
+Index: thunderbird/mozilla/extensions/spellcheck/hunspell/tests/unit/test_hunspell.js
+===================================================================
+--- thunderbird.orig/mozilla/extensions/spellcheck/hunspell/tests/unit/test_hunspell.js
++++ thunderbird/mozilla/extensions/spellcheck/hunspell/tests/unit/test_hunspell.js
+@@ -203,7 +203,7 @@ function do_run_test(checker, name, char
+ }
+ 
+ function run_test() {
+-  let spellChecker = Cc["@mozilla.org/spellchecker/engine;1"].
++  let spellChecker = Cc["@mozilla.org/spellchecker/hunspell;1"].
+                      getService(Ci.mozISpellCheckingEngine);
+ 
+   do_check_true(!!spellChecker, "Should have a spell checker");
+Index: thunderbird/mozilla/extensions/spellcheck/osxspell/src/mozOSXSpell.h
+===================================================================
+--- thunderbird.orig/mozilla/extensions/spellcheck/osxspell/src/mozOSXSpell.h
++++ thunderbird/mozilla/extensions/spellcheck/osxspell/src/mozOSXSpell.h
+@@ -49,7 +49,7 @@
+ 
+ // Use the same contract ID as the Hunspell spellchecker so we get picked up
+ // instead on Mac OS X but we have our own CID. 
+-#define MOZ_OSXSPELL_CONTRACTID "@mozilla.org/spellchecker/engine;1"
++#define MOZ_OSXSPELL_CONTRACTID "@mozilla.org/spellchecker/hunspell;1"
+ #define MOZ_OSXSPELL_CID         \
+ { /* BAABBAF4-71C3-47F4-A576-E75469E485E2 */  \
+ 0xBAABBAF4, 0x71C3, 0x47F4,                    \
+Index: thunderbird/suite/mailnews/compose/MsgComposeCommands.js
+===================================================================
+--- thunderbird.orig/suite/mailnews/compose/MsgComposeCommands.js
++++ thunderbird/suite/mailnews/compose/MsgComposeCommands.js
+@@ -2114,7 +2114,7 @@ function InitLanguageMenu()
+   if (!languageMenuList)
+     return;
+ 
+-  var spellChecker = Components.classes["@mozilla.org/spellchecker/engine;1"]
++  var spellChecker = Components.classes["@mozilla.org/spellchecker/hunspell;1"]
+                                .getService(mozISpellCheckingEngine);
+   var o1 = {};
+   var o2 = {};
+@@ -2208,7 +2208,7 @@ function ChangeLanguage(event)
+   // We need to change the dictionary language and if we are using inline spell check,
+   // recheck the message
+ 
+-  var spellChecker = Components.classes["@mozilla.org/spellchecker/engine;1"]
++  var spellChecker = Components.classes["@mozilla.org/spellchecker/hunspell;1"]
+                                .getService(mozISpellCheckingEngine);
+   if (spellChecker.dictionary != event.target.value)
+   {
+Index: thunderbird/suite/mailnews/compose/prefs/pref-composing_messages.js
+===================================================================
+--- thunderbird.orig/suite/mailnews/compose/prefs/pref-composing_messages.js
++++ thunderbird/suite/mailnews/compose/prefs/pref-composing_messages.js
+@@ -70,7 +70,7 @@ function PopulateFonts() {
+ }
+ 
+ function InitLanguageMenu() {
+-  var spellChecker = Components.classes["@mozilla.org/spellchecker/engine;1"]
++  var spellChecker = Components.classes["@mozilla.org/spellchecker/hunspell;1"]
+                                .getService(Components.interfaces.mozISpellCheckingEngine);
+ 
+   var o1 = {};

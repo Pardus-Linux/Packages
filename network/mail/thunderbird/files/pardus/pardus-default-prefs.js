@@ -6,12 +6,6 @@ pref("mailnews.default_sort_type", 18); // By date
 pref("mailnews.default_sort_order", 1); // Ascending
 pref("mailnews.default_view_flags", 1); // ThreadedView
 
-pref("network.negotiate-auth.gsslib", "GSSAPI");
-
-// Use NM to check for online state
-
-pref("toolkit.networkmanager.disable", false);
-
 // Check all folders for new e-mails by default
 pref("mail.check_all_imap_folders_for_new", true);
 

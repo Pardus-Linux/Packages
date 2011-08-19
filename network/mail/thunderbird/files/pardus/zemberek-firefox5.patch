@@ -28,7 +28,7 @@ Index: mozilla/extensions/spellcheck/src/Makefile.in
 ===================================================================
 --- mozilla/extensions/spellcheck/src/Makefile.in.orig
 +++ mozilla/extensions/spellcheck/src/Makefile.in
-@@ -84,11 +84,16 @@ SHARED_LIBRARY_LIBS += ../hunspell/src/$
+@@ -70,11 +70,16 @@ SHARED_LIBRARY_LIBS += ../hunspell/src/$
  LOCAL_INCLUDES += -I$(srcdir)/../hunspell/src
  endif
  
@@ -45,7 +45,7 @@ Index: mozilla/extensions/spellcheck/src/Makefile.in
  		$(NULL)
  
  include $(topsrcdir)/config/rules.mk
-@@ -96,3 +101,6 @@ include $(topsrcdir)/config/rules.mk
+@@ -82,3 +87,6 @@ include $(topsrcdir)/config/rules.mk
  LOCAL_INCLUDES += \
  	-I$(topsrcdir)/xpcom/io \
  	$(NULL)
@@ -65,7 +65,7 @@ Index: mozilla/extensions/spellcheck/src/mozSpellChecker.cpp
  
  NS_IMPL_CYCLE_COLLECTING_ADDREF(mozSpellChecker)
  NS_IMPL_CYCLE_COLLECTING_RELEASE(mozSpellChecker)
-@@ -368,13 +368,20 @@ mozSpellChecker::SetCurrentDictionary(co
+@@ -367,13 +367,20 @@ mozSpellChecker::SetCurrentDictionary(co
    nsresult rv;
    nsCString *contractId;
  
@@ -88,15 +88,15 @@ Index: mozilla/extensions/spellcheck/src/mozSpellChecker.cpp
      if (NS_FAILED(rv))
        return rv;
  
-@@ -554,6 +561,12 @@ mozSpellChecker::InitSpellCheckDictionar
+@@ -551,7 +558,11 @@ mozSpellChecker::InitSpellCheckDictionar
+       if (mDictionariesMap.Get(dictName, NULL))
          continue;
  
-       mDictionariesMap.Put(dictName, new nsCString(contractId));
+-      mDictionariesMap.Put(dictName, new nsCString(contractId));
 +      if (dictName.Equals(NS_LITERAL_STRING("tr-TR").get()))
 +        mDictionariesMap.Put(dictName, new nsCString("@mozilla.org/spellchecker/zemberek;1"));
 +      else
 +        mDictionariesMap.Put(dictName, new nsCString(contractId));
-+
 +
      }
  
@@ -115,7 +115,7 @@ Index: mozilla/extensions/spellcheck/src/mozSpellCheckerFactory.cpp
  #endif
  
  #include "mozSpellChecker.h"
-@@ -70,7 +72,9 @@
+@@ -64,7 +66,9 @@
  NS_GENERIC_FACTORY_CONSTRUCTOR(mozOSXSpell)
  #else
  NS_GENERIC_FACTORY_CONSTRUCTOR_INIT(mozHunspell, Init)
@@ -125,34 +125,42 @@ Index: mozilla/extensions/spellcheck/src/mozSpellCheckerFactory.cpp
  #endif
  
  NS_GENERIC_FACTORY_CONSTRUCTOR_INIT(mozSpellChecker, Init)
-@@ -133,6 +137,12 @@ static const nsModuleComponentInfo compo
-         mozHunspellConstructor
-     },
-     {
-+        "mozZemberek",
-+        MOZ_ZEMBEREK_CID,
-+        MOZ_ZEMBEREK_CONTRACTID,
-+        mozZemberekConstructor
-+    },
-+    {
-         "mozHunspellDirProvider",
-         HUNSPELLDIRPROVIDER_CID,
-         mozHunspellDirProvider::kContractID,
-@@ -140,6 +150,14 @@ static const nsModuleComponentInfo compo
-         mozHunspellDirProvider::Register,
-         mozHunspellDirProvider::Unregister
-     },
-+    {
-+        "mozZemberekDirProvider",
-+        ZEMBEREKDIRPROVIDER_CID,
-+        mozZemberekDirProvider::kContractID,
-+        mozZemberekDirProviderConstructor,
-+        mozZemberekDirProvider::Register,
-+        mozZemberekDirProvider::Unregister
-+    },
+@@ -108,7 +112,9 @@ mozInlineSpellCheckerConstructor(nsISupp
+ NS_DEFINE_NAMED_CID(MOZ_OSXSPELL_CID);
+ #else
+ NS_DEFINE_NAMED_CID(MOZ_HUNSPELL_CID);
++NS_DEFINE_NAMED_CID(MOZ_ZEMBEREK_CID);
+ NS_DEFINE_NAMED_CID(HUNSPELLDIRPROVIDER_CID);
++NS_DEFINE_NAMED_CID(ZEMBEREKDIRPROVIDER_CID);
  #endif // MOZ_MACBROWSER
-   {
-       NULL,
+ NS_DEFINE_NAMED_CID(NS_SPELLCHECKER_CID);
+ NS_DEFINE_NAMED_CID(MOZ_PERSONALDICTIONARY_CID);
+@@ -121,6 +127,8 @@ static const mozilla::Module::CIDEntry k
+ #else
+     { &kMOZ_HUNSPELL_CID, false, NULL, mozHunspellConstructor },
+     { &kHUNSPELLDIRPROVIDER_CID, false, NULL, mozHunspellDirProviderConstructor },
++    { &kMOZ_ZEMBEREK_CID, false, NULL, mozZemberekConstructor },
++    { &kZEMBEREKDIRPROVIDER_CID, false, NULL, mozZemberekDirProviderConstructor },
+ #endif // MOZ_MACBROWSER
+     { &kNS_SPELLCHECKER_CID, false, NULL, mozSpellCheckerConstructor },
+     { &kMOZ_PERSONALDICTIONARY_CID, false, NULL, mozPersonalDictionaryConstructor },
+@@ -135,6 +143,8 @@ static const mozilla::Module::ContractID
+ #else
+     { MOZ_HUNSPELL_CONTRACTID, &kMOZ_HUNSPELL_CID },
+     { mozHunspellDirProvider::kContractID, &kHUNSPELLDIRPROVIDER_CID },
++    { MOZ_ZEMBEREK_CONTRACTID, &kMOZ_ZEMBEREK_CID },
++    { mozZemberekDirProvider::kContractID, &kZEMBEREKDIRPROVIDER_CID },
+ #endif // MOZ_MACBROWSER
+     { NS_SPELLCHECKER_CONTRACTID, &kNS_SPELLCHECKER_CID },
+     { MOZ_PERSONALDICTIONARY_CONTRACTID, &kMOZ_PERSONALDICTIONARY_CID },
+@@ -146,6 +156,7 @@ static const mozilla::Module::ContractID
+ static const mozilla::Module::CategoryEntry kSpellcheckCategories[] = {
+ #ifndef MOZ_MACBROWSER
+     { XPCOM_DIRECTORY_PROVIDER_CATEGORY, "spellcheck-directory-provider", mozHunspellDirProvider::kContractID },
++    { XPCOM_DIRECTORY_PROVIDER_CATEGORY, "spellcheck-directory-provider", mozZemberekDirProvider::kContractID },
+ #endif
+     { NULL }
+ };
 Index: mozilla/extensions/spellcheck/zemberek/Makefile.in
 ===================================================================
 --- /dev/null
@@ -297,7 +305,7 @@ Index: mozilla/extensions/spellcheck/zemberek/src/mozZemberek.cpp
 ===================================================================
 --- /dev/null
 +++ mozilla/extensions/spellcheck/zemberek/src/mozZemberek.cpp
-@@ -0,0 +1,483 @@
+@@ -0,0 +1,496 @@
 +/* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 +/*# ***** BEGIN LICENSE BLOCK *****
 +# Version: MPL 1.1/GPL 2.0/LGPL 2.1
@@ -357,10 +365,21 @@ Index: mozilla/extensions/spellcheck/zemberek/src/mozZemberek.cpp
 +static NS_DEFINE_CID(kCharsetConverterManagerCID, NS_ICHARSETCONVERTERMANAGER_CID);
 +static NS_DEFINE_CID(kUnicharUtilCID, NS_UNICHARUTIL_CID);
 +
-+NS_IMPL_ISUPPORTS3(mozZemberek,
-+                   mozISpellCheckingEngine,
-+                   nsIObserver,
-+                   nsISupportsWeakReference)
++NS_IMPL_CYCLE_COLLECTING_ADDREF(mozZemberek)
++NS_IMPL_CYCLE_COLLECTING_RELEASE(mozZemberek)
++
++NS_INTERFACE_MAP_BEGIN(mozZemberek)
++  NS_INTERFACE_MAP_ENTRY(mozISpellCheckingEngine)
++  NS_INTERFACE_MAP_ENTRY(nsIObserver)
++  NS_INTERFACE_MAP_ENTRY(nsISupportsWeakReference)
++  NS_INTERFACE_MAP_ENTRY_AMBIGUOUS(nsISupports, mozISpellCheckingEngine)
++  NS_INTERFACE_MAP_ENTRIES_CYCLE_COLLECTION(mozZemberek)
++NS_INTERFACE_MAP_END
++
++NS_IMPL_CYCLE_COLLECTION_3(mozZemberek,
++                           mPersonalDictionary,
++                           mEncoder,
++                           mDecoder)
 +
 +nsresult
 +mozZemberek::Init()
@@ -631,7 +650,7 @@ Index: mozilla/extensions/spellcheck/zemberek/src/mozZemberek.cpp
 +  }
 +}
 +
-+void
++NS_IMETHODIMP
 +mozZemberek::LoadDictionariesFromDir(nsIFile* aDir)
 +{
 +  nsresult rv;
@@ -639,20 +658,20 @@ Index: mozilla/extensions/spellcheck/zemberek/src/mozZemberek.cpp
 +  PRBool check = PR_FALSE;
 +  rv = aDir->Exists(&check);
 +  if (NS_FAILED(rv) || !check)
-+    return;
++    return NS_ERROR_UNEXPECTED;
 +
 +  rv = aDir->IsDirectory(&check);
 +  if (NS_FAILED(rv) || !check)
-+    return;
++    return NS_ERROR_UNEXPECTED;
 +
 +  nsCOMPtr<nsISimpleEnumerator> e;
 +  rv = aDir->GetDirectoryEntries(getter_AddRefs(e));
 +  if (NS_FAILED(rv))
-+    return;
++    return NS_ERROR_UNEXPECTED;
 +
 +  nsCOMPtr<nsIDirectoryEnumerator> files(do_QueryInterface(e));
 +  if (!files)
-+    return;
++    return NS_ERROR_UNEXPECTED;
 +
 +  nsCOMPtr<nsIFile> file;
 +  while (NS_SUCCEEDED(files->GetNextFile(getter_AddRefs(file))) && file) {
@@ -678,6 +697,8 @@ Index: mozilla/extensions/spellcheck/zemberek/src/mozZemberek.cpp
 +
 +    mDictionaries.Put(dict, file);
 +  }
++
++  return NS_OK;
 +}
 +
 +nsresult mozZemberek::ConvertCharset(const PRUnichar* aStr, char ** aDst)
@@ -785,7 +806,7 @@ Index: mozilla/extensions/spellcheck/zemberek/src/mozZemberekDirProvider.cpp
 ===================================================================
 --- /dev/null
 +++ mozilla/extensions/spellcheck/zemberek/src/mozZemberekDirProvider.cpp
-@@ -0,0 +1,182 @@
+@@ -0,0 +1,144 @@
 +/*# ***** BEGIN LICENSE BLOCK *****
 +# Version: MPL 1.1/GPL 2.0/LGPL 2.1
 +#
@@ -928,51 +949,13 @@ Index: mozilla/extensions/spellcheck/zemberek/src/mozZemberekDirProvider.cpp
 +  GetNext(nsnull);
 +}
 +
-+NS_METHOD
-+mozZemberekDirProvider::Register(nsIComponentManager* aCompMgr,
-+				nsIFile* aPath, const char *aLoaderStr,
-+				const char *aType,
-+				const nsModuleComponentInfo *aInfo)
-+{
-+  nsresult rv;
-+
-+  nsCOMPtr<nsICategoryManager> catMan =
-+    do_GetService(NS_CATEGORYMANAGER_CONTRACTID);
-+  if (!catMan)
-+    return NS_ERROR_FAILURE;
-+
-+  rv = catMan->AddCategoryEntry(XPCOM_DIRECTORY_PROVIDER_CATEGORY,
-+				"spellcheck-directory-provider",
-+				kContractID, PR_TRUE, PR_TRUE, nsnull);
-+  return rv;
-+}
-+
-+NS_METHOD
-+mozZemberekDirProvider::Unregister(nsIComponentManager* aCompMgr,
-+				  nsIFile* aPath,
-+				  const char *aLoaderStr,
-+				  const nsModuleComponentInfo *aInfo)
-+{
-+  nsresult rv;
-+
-+  nsCOMPtr<nsICategoryManager> catMan =
-+    do_GetService(NS_CATEGORYMANAGER_CONTRACTID);
-+  if (!catMan)
-+    return NS_ERROR_FAILURE;
-+
-+  rv = catMan->DeleteCategoryEntry(XPCOM_DIRECTORY_PROVIDER_CATEGORY,
-+				   "spellcheck-directory-provider",
-+				   PR_TRUE);
-+  return rv;
-+}
-+
 +char const *const
 +mozZemberekDirProvider::kContractID = "@mozilla.org/spellcheck/dir-provider;1";
 Index: mozilla/extensions/spellcheck/zemberek/src/mozZemberekDirProvider.h
 ===================================================================
 --- /dev/null
 +++ mozilla/extensions/spellcheck/zemberek/src/mozZemberekDirProvider.h
-@@ -0,0 +1,85 @@
+@@ -0,0 +1,75 @@
 +/*# ***** BEGIN LICENSE BLOCK *****
 +# Version: MPL 1.1/GPL 2.0/LGPL 2.1
 +#
@@ -1016,7 +999,6 @@ Index: mozilla/extensions/spellcheck/zemberek/src/mozZemberekDirProvider.h
 +#define mozZemberekDirProvider_h__
 +
 +#include "nsIDirectoryService.h"
-+#include "nsIGenericFactory.h"
 +#include "nsISimpleEnumerator.h"
 +
 +class mozZemberekDirProvider :
@@ -1026,15 +1008,6 @@ Index: mozilla/extensions/spellcheck/zemberek/src/mozZemberekDirProvider.h
 +  NS_DECL_ISUPPORTS
 +  NS_DECL_NSIDIRECTORYSERVICEPROVIDER
 +  NS_DECL_NSIDIRECTORYSERVICEPROVIDER2
-+
-+  static NS_METHOD Register(nsIComponentManager* aCompMgr,
-+			    nsIFile* aPath, const char *aLoaderStr,
-+			    const char *aType,
-+			    const nsModuleComponentInfo *aInfo);
-+
-+  static NS_METHOD Unregister(nsIComponentManager* aCompMgr,
-+			      nsIFile* aPath, const char *aLoaderStr,
-+			      const nsModuleComponentInfo *aInfo);
 +
 +  static char const *const kContractID;
 +
@@ -1058,99 +1031,11 @@ Index: mozilla/extensions/spellcheck/zemberek/src/mozZemberekDirProvider.h
 +  { 0xb7, 0x64, 0xaa, 0x3d, 0xcf, 0x27, 0xe4, 0x7d } }
 +
 +#endif // mozZemberekDirProvider
-Index: mozilla/extensions/spellcheck/zemberek/src/mozZemberekFactory.cpp
-===================================================================
---- /dev/null
-+++ mozilla/extensions/spellcheck/zemberek/src/mozZemberekFactory.cpp
-@@ -0,0 +1,83 @@
-+/* -*- Mode: C++; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
-+/*# ***** BEGIN LICENSE BLOCK *****
-+# Version: MPL 1.1/GPL 2.0/LGPL 2.1
-+#
-+# The contents of this file are subject to the Mozilla Public License Version
-+# 1.1 (the "License"); you may not use this file except in compliance with
-+# the License. You may obtain a copy of the License at
-+# http://www.mozilla.org/MPL/
-+#
-+# Software distributed under the License is distributed on an "AS IS" basis,
-+# WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
-+# for the specific language governing rights and limitations under the
-+# License.
-+#
-+# The Original Code is Mozilla Spellchecker Component.
-+#
-+# The Initial Developer of the Original Code is Faik Uygur.
-+# Portions created by the Initial Developer are Copyright (C) 2006
-+# TUBITAK/UEKAE. All Rights Reserved.
-+#
-+# Contributor(s): Faik Uygur <faik@pardus.org.tr>
-+#
-+# Mozilla Zemberek Client library is based on zpspell. The Initial Developer
-+# of the zpspell code is Baris Metin. Portions created by the Initial Developer
-+# Copyright (c) 2004, TUBITAK/UEKAE. All Rights Reserved.
-+#
-+# Alternatively, the contents of this file may be used under the terms of
-+# either the GNU General Public License Version 2 or later (the "GPL"), or
-+# the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
-+# in which case the provisions of the GPL or the LGPL are applicable instead
-+# of those above. If you wish to allow use of your version of this file only
-+# under the terms of either the GPL or the LGPL, and not to allow others to
-+# use your version of this file under the terms of the MPL, indicate your
-+# decision by deleting the provisions above and replace them with the notice
-+# and other provisions required by the GPL or the LGPL. If you do not delete
-+# the provisions above, a recipient may use your version of this file under
-+# the terms of any one of the MPL, the GPL or the LGPL.
-+#
-+# ***** END LICENSE BLOCK ***** */
-+
-+#include "nsIGenericFactory.h"
-+
-+#include "mozZemberek.h"
-+
-+#include "mozZemberekDirProvider.h"
-+
-+////////////////////////////////////////////////////////////////////////
-+// Define the contructor function for the objects
-+//
-+// NOTE: This creates an instance of objects by using the default constructor
-+//
-+
-+NS_GENERIC_FACTORY_CONSTRUCTOR_INIT(mozZemberek, Init)
-+
-+NS_GENERIC_FACTORY_CONSTRUCTOR(mozZemberekDirProvider)
-+
-+////////////////////////////////////////////////////////////////////////
-+// Define a table of CIDs implemented by this module along with other
-+// information like the function to create an instance, contractid, and
-+// class name.
-+//
-+static nsModuleComponentInfo components[] = {
-+    {
-+        "mozZemberek",
-+        MOZ_ZEMBEREK_CID,
-+        MOZ_ZEMBEREK_CONTRACTID,
-+        mozZemberekConstructor
-+    }
-+    , {
-+        "mozZemberekDirProvider",
-+        ZEMBEREKDIRPROVIDER_CID,
-+        mozZemberekDirProvider::kContractID,
-+        mozZemberekDirProviderConstructor,
-+        mozZemberekDirProvider::Register,
-+        mozZemberekDirProvider::Unregister
-+    }
-+};
-+
-+////////////////////////////////////////////////////////////////////////
-+// Implement the NSGetModule() exported function for your module
-+// and the entire implementation of the module object.
-+//
-+NS_IMPL_NSGETMODULE(mozZemberekModule, components)
 Index: mozilla/extensions/spellcheck/zemberek/src/mozZemberek.h
 ===================================================================
 --- /dev/null
 +++ mozilla/extensions/spellcheck/zemberek/src/mozZemberek.h
-@@ -0,0 +1,95 @@
+@@ -0,0 +1,96 @@
 +/* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 +/*# ***** BEGIN LICENSE BLOCK *****
 +# Version: MPL 1.1/GPL 2.0/LGPL 2.1
@@ -1204,6 +1089,7 @@ Index: mozilla/extensions/spellcheck/zemberek/src/mozZemberek.h
 +#include "nsIUnicodeDecoder.h"
 +#include "nsInterfaceHashtable.h"
 +#include "nsWeakReference.h"
++#include "nsCycleCollectionParticipant.h"
 +
 +#define MOZ_ZEMBEREK_CONTRACTID "@mozilla.org/spellchecker/zemberek;1"
 +#define MOZ_ZEMBEREK_CID         \
@@ -1216,9 +1102,10 @@ Index: mozilla/extensions/spellcheck/zemberek/src/mozZemberek.h
 +                   public nsSupportsWeakReference
 +{
 +public:
-+  NS_DECL_ISUPPORTS
++  NS_DECL_CYCLE_COLLECTING_ISUPPORTS
 +  NS_DECL_MOZISPELLCHECKINGENGINE
 +  NS_DECL_NSIOBSERVER
++  NS_DECL_CYCLE_COLLECTION_CLASS_AMBIGUOUS(mozZemberek, mozISpellCheckingEngine)
 +
 +  mozZemberek() : mZemberek(nsnull) { }
 +  virtual ~mozZemberek();
@@ -1226,7 +1113,6 @@ Index: mozilla/extensions/spellcheck/zemberek/src/mozZemberek.h
 +  nsresult Init();
 +
 +  void LoadDictionaryList();
-+  void LoadDictionariesFromDir(nsIFile* aDir);
 +
 +  // helper method for converting a word to the charset of the dictionary
 +  nsresult ConvertCharset(const PRUnichar* aStr, char ** aDst);
@@ -1488,7 +1374,7 @@ Index: mozilla/extensions/spellcheck/zemberek/src/zsconn.h
 ===================================================================
 --- /dev/null
 +++ mozilla/extensions/spellcheck/zemberek/src/zsconn.h
-@@ -0,0 +1,45 @@
+@@ -0,0 +1,43 @@
 +/*
 +  Copyright (c) 2004, TUBITAK/UEKAE
 +
@@ -1508,8 +1394,6 @@ Index: mozilla/extensions/spellcheck/zemberek/src/zsconn.h
 +#define ZSCONN_H
 +
 +#include <dbus/dbus-glib.h>
-+#include <stdio.h>
-+#include <errno.h>
 +#include "zstring.h"
 +
 +
@@ -1527,10 +1411,10 @@ Index: mozilla/extensions/spellcheck/zemberek/src/zsconn.h
 +private:
 +    DBusGConnection *connection;
 +    DBusGProxy *proxy;
-+
++    
 +    enum Z_CHECK_RESULT spellCheck( const string& str ) const;
 +    string recvResult() const;
-+
++    
 +};
 +
 +#endif
@@ -1674,99 +1558,3 @@ Index: mozilla/extensions/spellcheck/zemberek/src/zstring.h
 +};
 +
 +#endif // ZSTRING_H
-Index: editor/ui/dialogs/content/EdSpellCheck.js
-===================================================================
---- editor/ui/dialogs/content/EdSpellCheck.js.orig
-+++ editor/ui/dialogs/content/EdSpellCheck.js
-@@ -576,7 +576,7 @@ function ExitSpellChecker()
-       var curLang = gSpellChecker.GetCurrentDictionary();
-       gSpellChecker.UninitSpellChecker();
-       if ("@mozilla.org/spellchecker;1" in Components.classes) {
--        var spellChecker = Components.classes["@mozilla.org/spellchecker/engine;1"]
-+        var spellChecker = Components.classes["@mozilla.org/spellchecker/hunspell;1"]
-                                      .getService(Components.interfaces.mozISpellCheckingEngine);
-         spellChecker.dictionary = curLang;
-       }
-Index: mail/components/compose/content/MsgComposeCommands.js
-===================================================================
---- mail/components/compose/content/MsgComposeCommands.js.orig
-+++ mail/components/compose/content/MsgComposeCommands.js
-@@ -2359,7 +2359,7 @@ function InitLanguageMenu()
-   if (!languageMenuList)
-     return;
- 
--  var spellChecker = Components.classes['@mozilla.org/spellchecker/engine;1']
-+  var spellChecker = Components.classes['@mozilla.org/spellchecker/hunspell;1']
-                                .getService(mozISpellCheckingEngine);
-   var o1 = {};
-   var o2 = {};
-@@ -2455,7 +2455,7 @@ function ChangeLanguage(event)
-   // We need to change the dictionary language and if we are using inline spell check,
-   // recheck the message
- 
--  var spellChecker = Components.classes['@mozilla.org/spellchecker/engine;1']
-+  var spellChecker = Components.classes['@mozilla.org/spellchecker/hunspell;1']
-                                .getService(mozISpellCheckingEngine);
-   if (spellChecker.dictionary != event.target.value)
-   {
-Index: mail/components/preferences/compose.js
-===================================================================
---- mail/components/preferences/compose.js.orig
-+++ mail/components/preferences/compose.js
-@@ -115,7 +115,7 @@ var gComposePane = {
-   initLanguageMenu: function ()
-   {
-     var languageMenuList = document.getElementById("languageMenuList");
--    this.mSpellChecker = Components.classes['@mozilla.org/spellchecker/engine;1'].getService(Components.interfaces.mozISpellCheckingEngine);
-+    this.mSpellChecker = Components.classes['@mozilla.org/spellchecker/hunspell;1'].getService(Components.interfaces.mozISpellCheckingEngine);
-     var o1 = {};
-     var o2 = {};
- 
-Index: mozilla/extensions/spellcheck/osxspell/src/mozOSXSpell.h
-===================================================================
---- mozilla/extensions/spellcheck/osxspell/src/mozOSXSpell.h.orig
-+++ mozilla/extensions/spellcheck/osxspell/src/mozOSXSpell.h
-@@ -49,7 +49,7 @@
- 
- // Use the same contract ID as the Hunspell spellchecker so we get picked up
- // instead on Mac OS X but we have our own CID. 
--#define MOZ_OSXSPELL_CONTRACTID "@mozilla.org/spellchecker/engine;1"
-+#define MOZ_OSXSPELL_CONTRACTID "@mozilla.org/spellchecker/hunspell;1"
- #define MOZ_OSXSPELL_CID         \
- { /* BAABBAF4-71C3-47F4-A576-E75469E485E2 */  \
- 0xBAABBAF4, 0x71C3, 0x47F4,                    \
-Index: suite/mailnews/compose/MsgComposeCommands.js
-===================================================================
---- suite/mailnews/compose/MsgComposeCommands.js.orig
-+++ suite/mailnews/compose/MsgComposeCommands.js
-@@ -2108,7 +2108,7 @@ function InitLanguageMenu()
-   if (!languageMenuList)
-     return;
- 
--  var spellChecker = Components.classes["@mozilla.org/spellchecker/engine;1"]
-+  var spellChecker = Components.classes["@mozilla.org/spellchecker/hunspell;1"]
-                                .getService(mozISpellCheckingEngine);
-   var o1 = {};
-   var o2 = {};
-@@ -2202,7 +2202,7 @@ function ChangeLanguage(event)
-   // We need to change the dictionary language and if we are using inline spell check,
-   // recheck the message
- 
--  var spellChecker = Components.classes["@mozilla.org/spellchecker/engine;1"]
-+  var spellChecker = Components.classes["@mozilla.org/spellchecker/hunspell;1"]
-                                .getService(mozISpellCheckingEngine);
-   if (spellChecker.dictionary != event.target.value)
-   {
-Index: suite/mailnews/compose/prefs/pref-composing_messages.js
-===================================================================
---- suite/mailnews/compose/prefs/pref-composing_messages.js.orig
-+++ suite/mailnews/compose/prefs/pref-composing_messages.js
-@@ -70,7 +70,7 @@ function PopulateFonts() {
- }
- 
- function InitLanguageMenu() {
--  var spellChecker = Components.classes["@mozilla.org/spellchecker/engine;1"]
-+  var spellChecker = Components.classes["@mozilla.org/spellchecker/hunspell;1"]
-                                .getService(Components.interfaces.mozISpellCheckingEngine);
- 
-   var o1 = {};
