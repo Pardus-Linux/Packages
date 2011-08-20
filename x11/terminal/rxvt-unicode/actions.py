@@ -11,34 +11,30 @@ from pisi.actionsapi import shelltools
 from pisi.actionsapi import get
 
 def setup():
-    autotools.rawConfigure("--prefix=/usr \
-                            --mandir=/usr/share/man \
-                            --enable-everything \
-                            --enable-perl \
-                            --disable-iso14755 \
-                            --enable-mousewheel \
-                            --enable-slipwheeling \
-                            --enable-xft \
-                            --enable-pixbuf \
-                            --enable-font-styles \
-                            --enable-xpm-background \
-                            --enable-transparency \
-                            --enable-tinting \
-                            --enable-fading \
-                            --enable-smart-resize \
-                            --enable-text-blink \
-                            --enable-pointer-blank \
-                            --enable-utmp \
-                            --enable-wtmp \
-                            --enable-rxvt-scroll \
-                            --enable-next-scroll \
-                            --enable-xterm-scroll \
-                            --enable-frills \
-                            --enable-keepscrolling \
-                            --enable-selectionscrolling \
-                            --enable-font-styles \
-                            --enable-256-color \
-                            --enable-combining")
+    autotools.configure("--enable-everything \
+                         --enable-perl \
+                         --disable-iso14755 \
+                         --enable-mousewheel \
+                         --enable-slipwheeling \
+                         --enable-xft \
+                         --enable-pixbuf \
+                         --enable-font-styles \
+                         --enable-transparency \
+                         --enable-fading \
+                         --enable-smart-resize \
+                         --enable-text-blink \
+                         --enable-pointer-blank \
+                         --enable-utmp \
+                         --enable-wtmp \
+                         --enable-rxvt-scroll \
+                         --enable-next-scroll \
+                         --enable-xterm-scroll \
+                         --enable-frills \
+                         --enable-keepscrolling \
+                         --enable-selectionscrolling \
+                         --enable-font-styles \
+                         --enable-256-color \
+                         --enable-combining")
 
 def build():
     autotools.make()
