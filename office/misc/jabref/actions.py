@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright 2007-2009 TUBITAK/UEKAE
+# Copyright 2007-2011 TUBITAK/UEKAE
 # Licensed under the GNU General Public License, version 2.
 # See the file http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
 
@@ -24,5 +24,5 @@ def install():
 
     pisitools.dodir(jabrefDir)
 
-    pisitools.insinto( "%s" % jabrefDir, "lib/JabRef-2.6.jar")
+    pisitools.insinto( "%s" % jabrefDir, "lib/JabRef-2.7.jar")
 
