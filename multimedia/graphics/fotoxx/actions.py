@@ -16,5 +16,4 @@ def build():
 def install():
     autotools.rawInstall("DESTDIR=%s PREFIX=/usr" % get.installDIR())
 
-    pisitools.domove("/usr/share/doc/fotoxx/fotoxx.man", "/usr/share/man/man1")
     pisitools.insinto("/usr/share/icons/hicolor/48x48/apps/", "icons/fotoxx.png")
