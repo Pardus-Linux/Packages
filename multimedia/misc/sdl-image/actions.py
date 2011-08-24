@@ -27,7 +27,6 @@ def setup():
                --enable-pcx"
 
     if get.buildTYPE() == "emul32":
-        #options += " --prefix=/emul32 \
         options += " --includedir=/usr/include \
                      --libdir=/usr/lib32"
 
