@@ -26,8 +26,6 @@ def install():
     for bin in ["wpa_supplicant", "wpa_cli", "wpa_passphrase", "eapol_test"]:
         pisitools.dosbin(bin)
 
-    pisitools.dodir("/var/run/wpa_supplicant")
-
     # Install dbus files
     pisitools.insinto("/usr/share/dbus-1/system-services", "dbus/*.service")
     pisitools.insinto("/etc/dbus-1/system.d", "dbus/dbus-wpa_supplicant.conf", "wpa_supplicant.conf")

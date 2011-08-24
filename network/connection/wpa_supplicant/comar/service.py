@@ -6,19 +6,19 @@ serviceDefault = "off" #NM starts wpa_supp automatically. Use at your own risk i
 serviceDesc = _({"en": "WPA Daemon",
                  "tr": "WPA Hizmeti"})
 
-pidfile = "/var/run/wpa_supplicant.pid"
+PIDFILE = "/var/run/wpa_supplicant.pid"
 
 @synchronized
 def start():
     startService(command="/usr/sbin/wpa_supplicant",
-                 args="-WuB -P%s %s" % (pidfile, config.get("OPTS", "")),
-                 pidfile=pidfile,
+                 args="-WuB -P%s %s" % (PIDFILE, config.get("OPTS", "")),
+                 pidfile=PIDFILE,
                  donotify=True)
 
 @synchronized
 def stop():
-    stopService(pidfile=pidfile,
+    stopService(pidfile=PIDFILE,
                 donotify=True)
 
 def status():
-    return isServiceRunning(pidfile)
+    return isServiceRunning(PIDFILE)
