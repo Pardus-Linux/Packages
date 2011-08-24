@@ -1,7 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright 2006-2010 TUBITAK/UEKAE
 # Licensed under the GNU General Public License, version 2.
 # See the file http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
 
@@ -18,15 +17,27 @@ def setup():
     shelltools.makedirs("m4")
 
     autotools.autoreconf("-vfi")
-    autotools.configure("--disable-dependency-tracking \
-                         --enable-mmx \
-                         --disable-static")
+
+    options = "--disable-dependency-tracking \
+               --enable-mmx \
+               --disable-static"
+
+    if get.buildTYPE() == "emul32":
+        options += " --includedir=/usr/include \
+                     --libdir=/usr/lib32"
+
+        shelltools.export("PKG_CONFIG_PATH", "/usr/lib32/pkgconfig")
+        shelltools.export("CFLAGS", "%s -m32" % get.CFLAGS())
+        shelltools.export("CXXFLAGS", "%s -m32" % get.CXXFLAGS())
+        shelltools.export("LDFLAGS", "%s -m32" % get.LDFLAGS())
+
+    autotools.configure(options)
 
 def build():
     autotools.make()
 
 def install():
-    autotools.install()
+    autotools.rawInstall("DESTDIR=%s" % get.installDIR())
 
     pisitools.dodoc("AUTHORS", "ChangeLog", "LICENSE", "README")
     pisitools.insinto("/%s/sdl-gfx/" % get.docDIR(), "Docs", "html")
