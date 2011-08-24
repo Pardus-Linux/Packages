@@ -188,6 +188,7 @@ def postInstall(fromVersion, fromRelease, toVersion, toRelease):
                 (209, "vdr"),
                 (210, "ecryptfs"),
                 (211, "slocate"),
+                (212, "dansguardian"),
             )
 
     for gid, groupName in groups:
@@ -257,6 +258,7 @@ def postInstall(fromVersion, fromRelease, toVersion, toRelease):
                 (167, "ntop", "ntop user", "/var/lib/ntop", "/sbin/nologin", "", ["ntop"], [], []),
                 (168, "smolt", "smolt user", "/dev/null", "/bin/false", "", [], [], []),
                 (169, "svxlink", "Svxlink Daemon", "/", "/sbin/nologin", "", ["daemon", "audio", "dialout"], [], []),
+                (170, "dansguardian", "Dansguardian web content filter", "/usr/share/dansguardian", "/sbin/nologin", "", ["dansguardian"], [], []),
                 (200, "pnp", "PnP", "/dev/null", "/bin/false", "", ["pnp"], [], []),
                 (250, "mpd", "Music Player Daemon", "/var/lib/mpd", "/bin/false", "", ["audio", "pulse", "pulse-access", "pulse-rt"], [], []),
                 (252, "vdr", "VDR User", "/var/vdr", "/bin/false", "", ["audio", "video", "cdrom", "dialout"], [], []),
