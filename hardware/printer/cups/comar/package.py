@@ -14,7 +14,7 @@ CUPSD_CONFIG_FILE = "/etc/cups/cupsd.conf"
 def postInstall(fromVersion, fromRelease, toVersion, toRelease):
     for directory,owners in ownerships.items():
         if os.path.exists(directory):
-            os.system("chown %s %s" % (directory, owners))
+            os.system("chown %s %s" % (owners, directory))
 
     # Replace possible pnpadmin leftover from cupsd.conf
     if os.path.exists(CUPSD_CONFIG_FILE):
