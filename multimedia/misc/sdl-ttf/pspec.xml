@@ -12,10 +12,9 @@
         <IsA>library</IsA>
         <Summary>TrueType font support for SDL</Summary>
         <Description>SDL_ttf is a TrueType font rendering library that is used with the SDL library, and almost as portable.</Description>
-        <Archive sha1sum="6bc3618b08ddbbf565fe8f63f624782c15e1cef2" type="targz">http://www.libsdl.org/projects/SDL_ttf/release/SDL_ttf-2.0.9.tar.gz</Archive>
+        <Archive sha1sum="98f6518ec71d94b8ad303a197445e0991850b887" type="targz">http://www.libsdl.org/projects/SDL_ttf/release/SDL_ttf-2.0.10.tar.gz</Archive>
         <BuildDependencies>
             <Dependency>libsdl-devel</Dependency>
-            <Dependency>libXt-devel</Dependency>
             <Dependency>freetype-devel</Dependency>
         </BuildDependencies>
     </Source>
@@ -24,7 +23,6 @@
         <Name>sdl-ttf</Name>
         <RuntimeDependencies>
             <Dependency>libsdl</Dependency>
-            <Dependency>libXt</Dependency>
             <Dependency>freetype</Dependency>
         </RuntimeDependencies>
         <Files>
@@ -41,10 +39,38 @@
         </RuntimeDependencies>
         <Files>
             <Path fileType="header">/usr/include</Path>
+            <Path fileType="data">/usr/lib/pkgconfig</Path>
+            <Path fileType="data">/usr/lib32/pkgconfig</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>sdl-ttf-32bit</Name>
+        <PartOf>emul32</PartOf>
+        <Summary>32-bit shared libraries for sdl-ttf</Summary>
+        <BuildType>emul32</BuildType>
+        <BuildDependencies>
+            <Dependency>libsdl-32bit</Dependency>
+            <Dependency>freetype-32bit</Dependency>
+        </BuildDependencies>
+        <RuntimeDependencies>
+            <Dependency release="current">sdl-ttf</Dependency>
+            <Dependency>libsdl-32bit</Dependency>
+            <Dependency>freetype-32bit</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="library">/usr/lib32/</Path>
         </Files>
     </Package>
 
     <History>
+        <Update release="10">
+            <Date>2011-08-22</Date>
+            <Version>2.0.10</Version>
+            <Comment>Add lib32 package for sdl-ttf and version bump, fixes pb#18993</Comment>
+            <Name>Anıl Özbek</Name>
+            <Email>ozbekanil@gmail.com</Email>
+        </Update>
         <Update release="9">
             <Date>2010-10-12</Date>
             <Version>2.0.9</Version>
