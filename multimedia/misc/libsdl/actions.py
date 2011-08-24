@@ -55,8 +55,7 @@ def setup():
                --disable-static"
 
     if get.buildTYPE() == "emul32":
-        options += " --prefix=/emul32 \
-                     --libdir=/usr/lib32 \
+        options += " --libdir=/usr/lib32 \
                      --bindir=/emul32/bin \
                      --mandir=/emul32/man \
                      --disable-video-aalib \
