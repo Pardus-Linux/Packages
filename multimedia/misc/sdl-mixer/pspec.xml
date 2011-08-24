@@ -11,7 +11,7 @@
         <License>LGPLv2.1</License>
         <IsA>library</IsA>
         <Summary>SDL mixer library</Summary>
-        <Description>sdl-mixer is a SDL library for loading sound files.</Description>
+        <Description>SDL_mixer is a SDL library for loading sound files.</Description>
         <Archive sha1sum="ef5d45160babeb51eafa7e4019cec38324ee1a5d" type="targz">http://www.libsdl.org/projects/SDL_mixer/release/SDL_mixer-1.2.11.tar.gz</Archive>
         <BuildDependencies>
             <Dependency>libsdl-devel</Dependency>
@@ -23,6 +23,7 @@
         </BuildDependencies>
         <Patches>
             <Patch level="1">dev_snd_seq.patch</Patch>
+            <Patch level="1">ldflags.patch</Patch>
         </Patches>
     </Source>
 
@@ -52,10 +53,43 @@
         <Files>
             <Path fileType="header">/usr/include</Path>
             <Path fileType="data">/usr/lib/pkgconfig</Path>
+            <Path fileType="data">/usr/lib32/pkgconfig</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>sdl-mixer-32bit</Name>
+        <PartOf>emul32</PartOf>
+        <Summary>32-bit shared libraries for sdl-mixer</Summary>
+        <BuildType>emul32</BuildType>
+        <BuildDependencies>
+            <Dependency>libsdl-32bit</Dependency>
+            <Dependency>libmikmod-32bit</Dependency>
+            <Dependency>libvorbis-32bit</Dependency>
+            <Dependency>libogg-32bit</Dependency>
+            <Dependency>smpeg-32bit</Dependency>
+        </BuildDependencies>
+        <RuntimeDependencies>
+            <Dependency release="current">sdl-mixer</Dependency>
+            <Dependency>libsdl-32bit</Dependency>
+            <Dependency>libmikmod-32bit</Dependency>
+            <Dependency>libvorbis-32bit</Dependency>
+            <Dependency>libogg-32bit</Dependency>
+            <Dependency>smpeg-32bit</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="library">/usr/lib32/</Path>
         </Files>
     </Package>
 
     <History>
+        <Update release="13">
+            <Date>2011-08-22</Date>
+            <Version>1.2.11</Version>
+            <Comment>Add lib32 package for sdl-mixer, fixes pb#18997</Comment>
+            <Name>Anıl Özbek</Name>
+            <Email>ozbekanil@gmail.com</Email>
+        </Update>
         <Update release="12">
             <Date>2010-12-13</Date>
             <Version>1.2.11</Version>
