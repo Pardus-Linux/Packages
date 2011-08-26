@@ -20,7 +20,7 @@ def setup():
     shelltools.makedirs("plugins/build")
 
     shelltools.cd("build")
-    shelltools.system("cmake .. -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release")
+    shelltools.system("cmake .. -DCMAKE_INSTALL_PREFIX=/usr -DAVIDEMUX_SOURCE_DIR=%s -DAVIDEMUX_INSTALL_PREFIX=%s/usr -DAVIDEMUX_CORECONFIG_DIR=%s/\build/config -DCMAKE_BUILD_TYPE=Release" % (SourceDir, get.installDIR(), SourceDir))
 
 def build():
     shelltools.cd("build")
