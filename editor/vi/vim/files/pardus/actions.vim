@@ -1,6 +1,6 @@
 " Vim plugin
 " Purpose:      Intelligently create content for PISI's action.py files
-" Author:       A. Murat Eren 
+" Author:       A. Murat Eren
 " Copyright:    Copyright (c) 2005 A. Murat Eren & S. Çağlar Onur
 " Licence:      You may redistribute this under the terms of the GNU GPL v2..
 
@@ -11,8 +11,7 @@ endif
 fun! MakeNewActionsPY()
     set nopaste
 
-    0 put = '#!/usr/bin/python'
-    put = '# -*- coding: utf-8 -*-'
+    0 put = '# -*- coding: utf-8 -*-'
     put = '#'
     put = '# Copyright 2011 TUBITAK/BILGEM'
     put = '# Licensed under the GNU General Public License, version 2.'
