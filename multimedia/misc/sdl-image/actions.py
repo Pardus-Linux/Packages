@@ -24,7 +24,10 @@ def setup():
                --enable-xpm \
                --enable-tga \
                --enable-lbm \
-               --enable-pcx"
+               --enable-pcx \
+               --disable-jpg-shared \
+               --disable-png-shared \
+               --disable-tif-shared"
 
     if get.buildTYPE() == "emul32":
         options += " --includedir=/usr/include \
@@ -35,6 +38,10 @@ def setup():
         shelltools.export("CXXFLAGS", "%s -m32" % get.CXXFLAGS())
         shelltools.export("LDFLAGS", "%s -m32" % get.LDFLAGS())
 
+    for i in ["NEWS", "AUTHORS", "ChangeLog"]:
+        shelltools.touch(i)
+
+    autotools.autoreconf("-vfi")
     autotools.configure(options)
 
 def build():
