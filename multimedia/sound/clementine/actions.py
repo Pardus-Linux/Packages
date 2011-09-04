@@ -43,4 +43,4 @@ def install():
     pisitools.insinto("/usr/share/clementine/locale", "src/translations/*.qm")
     pisitools.dosym("/usr/share/icons/hicolor/64x64/apps/clementine.png", "/usr/share/pixmaps/clementine.png")
 
-    pisitools.dodoc("Changelog", "COPYING", "TODO")
+    pisitools.dodoc("Changelog", "COPYING")

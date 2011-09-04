@@ -1,0 +1,39 @@
+Index: clementine-0.7.1_20110904/src/ui/behavioursettingspage.cpp
+===================================================================
+--- clementine-0.7.1_20110904.orig/src/ui/behavioursettingspage.cpp
++++ clementine-0.7.1_20110904/src/ui/behavioursettingspage.cpp
+@@ -111,7 +111,7 @@ void BehaviourSettingsPage::Load() {
+ 
+   s.beginGroup(Playlist::kSettingsGroup);
+   ui_->b_grey_out_deleted_->setChecked(s.value("greyoutdeleted", false).toBool());
+-  ui_->b_enable_background_img_->setChecked(s.value("bg_enabled", true).toBool());
++  ui_->b_enable_background_img_->setChecked(s.value("bg_enabled", false).toBool());
+   s.endGroup();
+ }
+ 
+Index: clementine-0.7.1_20110904/src/ui/behavioursettingspage.ui
+===================================================================
+--- clementine-0.7.1_20110904.orig/src/ui/behavioursettingspage.ui
++++ clementine-0.7.1_20110904/src/ui/behavioursettingspage.ui
+@@ -37,7 +37,7 @@
+       <string>Enable playlist background image</string>
+      </property>
+      <property name="checked">
+-      <bool>true</bool>
++      <bool>false</bool>
+      </property>
+     </widget>
+    </item>
+Index: clementine-0.7.1_20110904/src/playlist/playlistview.cpp
+===================================================================
+--- clementine-0.7.1_20110904.orig/src/playlist/playlistview.cpp
++++ clementine-0.7.1_20110904/src/playlist/playlistview.cpp
+@@ -870,7 +870,7 @@ void PlaylistView::ReloadSettings() {
+   QSettings s;
+   s.beginGroup(Playlist::kSettingsGroup);
+   glow_enabled_ = s.value("glow_effect", true).toBool();
+-  background_enabled_ = s.value("bg_enabled", true).toBool();
++  background_enabled_ = s.value("bg_enabled", false).toBool();
+ 
+   if (setting_initial_header_layout_ || upgrading_from_qheaderview_) {
+     header_->SetStretchEnabled(s.value("stretch", true).toBool());
