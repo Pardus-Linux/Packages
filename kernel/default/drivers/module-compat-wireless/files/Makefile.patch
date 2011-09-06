@@ -76,16 +76,3 @@ Index: compat-wireless-2.6.38-3-ns/scripts/gen-compat-autoconf.sh
  	if [ $SUBLEVEL -le 22 ]; then
  		define_config CONFIG_MAC80211_QOS y
  	else # kernel >= 2.6.23
-Index: compat-wireless-2.6.38-3-ns/config.mk
-===================================================================
---- compat-wireless-2.6.38-3-ns.orig/config.mk
-+++ compat-wireless-2.6.38-3-ns/config.mk
-@@ -21,7 +21,7 @@ endif
- # 802.11n (HT) support.
- ifneq ($(wildcard $(KLIB_BUILD)/Makefile),)
- COMPAT_LATEST_VERSION = 38
--KERNEL_SUBLEVEL := $(shell $(MAKE) -C $(KLIB_BUILD) kernelversion | sed -n 's/^2\.6\.\([0-9]\+\).*/\1/p')
-+KERNEL_SUBLEVEL := $(shell echo "@KERNELRELEASE@" | sed -n 's/^2\.6\.\([0-9]\+\).*/\1/p')
- COMPAT_VERSIONS := $(shell I=$(COMPAT_LATEST_VERSION); while [ "$$I" -gt $(KERNEL_SUBLEVEL) ]; do echo $$I; I=$$(($$I - 1)); done)
- $(foreach ver,$(COMPAT_VERSIONS),$(eval CONFIG_COMPAT_KERNEL_$(ver)=y))
- 

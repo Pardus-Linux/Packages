@@ -18,6 +18,8 @@ def setup():
     # Dump code-metrics before building :)
     shelltools.system("cat code-metrics.txt")
 
+    pisitools.dosed("config.mk", "^KERNEL_SUBLEVEL.*", 'KERNEL_SUBLEVEL := $(shell echo "@KERNELRELEASE@" | sed -n \'s/^2\.6\.\([0-9]\+\).*/\\\\1/p\')')
+
     for f in ("config.mk", "scripts/gen-compat-autoconf.sh"):
         pisitools.dosed(f, "@KERNELRELEASE@", KDIR)
 
