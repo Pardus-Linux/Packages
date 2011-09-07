@@ -1,15 +1,15 @@
-Index: kdelibs-4.6.5/kfile/kfilepreviewgenerator.cpp
+Index: kdelibs-4.7.0/kfile/kfilepreviewgenerator.cpp
 ===================================================================
---- kdelibs-4.6.5.orig/kfile/kfilepreviewgenerator.cpp
-+++ kdelibs-4.6.5/kfile/kfilepreviewgenerator.cpp
-@@ -1032,7 +1032,9 @@ void KFilePreviewGenerator::Private::sta
-             m_enabledPlugins = globalConfig.readEntry("Plugins", QStringList()
-                                                                  << "directorythumbnail"
-                                                                  << "imagethumbnail"
--                                                                 << "jpegthumbnail");
-+                                                                 << "svgthumbnail"
-+                                                                 << "ffmpegthumbs"
-+                                                                 << "jpegrotatedthumbnail");
-         }
+--- kdelibs-4.7.0.orig/kfile/kfilepreviewgenerator.cpp
++++ kdelibs-4.7.0/kfile/kfilepreviewgenerator.cpp
+@@ -484,7 +484,9 @@ KFilePreviewGenerator::Private::Private(
+     m_enabledPlugins = globalConfig.readEntry("Plugins", QStringList()
+                                                          << "directorythumbnail"
+                                                          << "imagethumbnail"
+-                                                         << "jpegthumbnail");
++                                                         << "svgthumbnail"
++                                                         << "ffmpegthumbs"
++                                                         << "jpegrotatedthumbnail");
  
-         KIO::PreviewJob* job = KIO::filePreview(items, width, height, 0, 70, true, true, &m_enabledPlugins);
+     // If the user is upgrading from KDE <= 4.6, we must check if he had the 'jpegrotatedthumbnail' plugin enabled.
+     // This plugin does not exist any more in KDE >= 4.7, so we have to replace it with the 'jpegthumbnail' plugin.
