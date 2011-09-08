@@ -5,9 +5,12 @@
 
 from pisi.actionsapi import pisitools
 from pisi.actionsapi import get
+from pisi.actionsapi import shelltools
 
 WorkDir = get.ARCH()
 NoStrip = "/"
 
 def install():
+    shelltools.copytree("usr", "%s/usr" % get.installDIR())
+
     pisitools.doexe("libflashplayer.so", "/usr/lib/browser-plugins")
