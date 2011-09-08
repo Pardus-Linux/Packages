@@ -11,13 +11,15 @@
         <License>GPLv2</License>
         <Summary>Fast Version Control System</Summary>
         <Description>Git is a fast, scalable, distributed revision control system with an unusually rich command set that provides both high-level operations and full access to internals.</Description>
-        <Archive sha1sum="c519b0765c419c84b561bb4a2a86526b16d95cde" type="tarbz2">http://kernel.org/pub/software/scm/git/git-1.7.6.tar.bz2</Archive>
+        <Archive sha1sum="a0e9f63ec432d4b20411d3759084b4118edf5887" type="tarbz2">http://kernel.org/pub/software/scm/git/git-1.7.6.1.tar.bz2</Archive>
         <BuildDependencies>
             <Dependency>tcltk-devel</Dependency>
             <Dependency>xmlto</Dependency>
             <Dependency>asciidoc</Dependency>
             <Dependency>perl-Error</Dependency>
             <Dependency version="5.12.2">perl</Dependency>
+            <!--Needed for emacs-Git package-->
+            <Dependency>emacs</Dependency>
         </BuildDependencies>
         <Patches>
             <Patch>project-root.patch</Patch>
@@ -91,6 +93,23 @@
         <Files>
             <Path fileType="library">/usr/lib/perl5</Path>
             <Path fileType="man">/usr/share/man/man3/Git.3pm</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>emacs-Git</Name>
+        <IsA>library</IsA>
+        <PartOf>programming.language.perl</PartOf>
+        <Summary>Git support for emacs</Summary>
+        <RuntimeDependencies>
+            <Dependency>emacs</Dependency>
+        </RuntimeDependencies>
+        <Conflicts>
+            <Package releaseTo="80">git</Package>
+        </Conflicts>
+        <Files>
+            <Path fileType="data">/usr/share/emacs/site-lisp/git*</Path>
+            <Path fileType="doc">/usr/share/doc/emacs-git</Path>
         </Files>
     </Package>
 
@@ -191,6 +210,17 @@
     </Package>
 
     <History>
+        <Update release="105">
+            <Date>2011-09-08</Date>
+            <Version>1.7.6.1</Version>
+            <Comment>
+                * New stable release 1.7.6.1
+                * Enable libpcre for using "git grep -P"
+                * Add git support for emacs
+            </Comment>
+            <Name>Fatih Arslan</Name>
+            <Email>farslan@pardus.org.tr</Email>
+        </Update>
         <Update release="104">
             <Date>2011-07-04</Date>
             <Version>1.7.6</Version>
