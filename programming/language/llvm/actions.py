@@ -11,6 +11,8 @@ from pisi.actionsapi import get
 libdir = "/usr/lib/llvm"
 
 def setup():
+    shelltools.move("tools/clang-%s" % get.srcVERSION(), "tools/clang")
+
     pisitools.dosed("tools/llvm-config/llvm-config.in.in",
                     r'"(\$ABS_RUN_DIR/lib.*)"', r'"\1/llvm"')
 
@@ -46,20 +48,25 @@ def setup():
     autotools.configure(options)
 
 
+def check():
+    autotools.make("check")
+    autotools.make("-C tools/clang test")
+
 def build():
     autotools.make()
 
 def install():
     if get.buildTYPE() == "emul32":
+
         autotools.rawInstall("DESTDIR=%s \
                               PROJ_etcdir=/etc/llvm \
                               PROJ_libdir=/usr/lib32/llvm \
                               PROJ_docsdir=/%s/llvm"
-                              % (get.installDIR(), get.docDIR()))
-
+                              % (get.installDIR(),  get.docDIR()))
         pisitools.removeDir("/emul32")
+        # Remove executable bit from static libs
+        shelltools.chmod("%s/usr/lib32/*/*.a" % get.installDIR(), 0644)
         return
-
     else:
         autotools.rawInstall("DESTDIR=%s \
                               PROJ_etcdir=/etc/llvm \
@@ -67,6 +74,14 @@ def install():
                               PROJ_docsdir=/%s/llvm"
                               % (get.installDIR(), libdir, get.docDIR()))
 
+
+    # Install static analyzers which aren't installed by default
+    for exe in ("scan-build", "scan-view"):
+        pisitools.insinto("/usr/lib/clang-analyzer/%s" % exe, "tools/clang/tools/%s/%s" % (exe, exe))
+        pisitools.dosym("/usr/lib/clang-analyzer/%s/%s" % (exe, exe), "/usr/bin/%s" % exe)
+
+    pisitools.dodir("/etc/ld.so.conf.d")
+    shelltools.echo("%s/etc/ld.so.conf.d/51-llvm.conf" % get.installDIR(), "/usr/lib/llvm")
 
     # Remove executable bit from static libs
     shelltools.chmod("%s/usr/lib/*/*.a" % get.installDIR(), 0644)

@@ -12,17 +12,17 @@
         <Summary>The Low Level Virtual Machine</Summary>
         <Description>The LLVM Project is a collection of modular and reusable compiler and toolchain technologies. Despite its name, LLVM has little to do with traditional virtual machines, though it does provide helpful libraries that can be used to build them.</Description>
         <Archive sha1sum="500f587f840199ac53c4fc7572839d08fa9d9123" type="targz">http://www.llvm.org/releases/2.9/llvm-2.9.tgz</Archive>
+        <Archive sha1sum="5fd3b5cec050ec12858c1602b23cf096282ad4a4" type="targz" target="llvm-2.9/tools">http://www.llvm.org/releases/2.9/clang-2.9.tgz</Archive>
         <BuildDependencies>
-            <Dependency>tcl-devel</Dependency>
             <Dependency>ocaml</Dependency>
-            <Dependency>libffi-devel</Dependency>
+            <Dependency>tcl-devel</Dependency>
             <Dependency>libstdc++</Dependency>
+            <Dependency>libffi-devel</Dependency>
         </BuildDependencies>
         <Patches>
             <Patch level="1">llvm-2.6-timestamp.patch</Patch>
-            <Patch level="1">rpath.patch</Patch>
             <Patch level="1">relative-links.patch</Patch>
-            <Patch level="0">alignof-c++0x-v2.diff</Patch>
+            <Patch level="1">clang-2.9-add_gcc_vers.patch</Patch>
         </Patches>
     </Source>
 
@@ -36,8 +36,11 @@
         </RuntimeDependencies>
         <Files>
             <Path fileType="executable">/usr/bin</Path>
-            <Path fileType="header">/usr/include</Path>
+            <Path fileType="executable">/usr/bin/llvm-config</Path>
+            <Path fileType="header">/usr/include/llvm*</Path>
             <Path fileType="library">/usr/lib/llvm</Path>
+            <Path fileType="library">/usr/lib/llvm/*.a</Path>
+            <Path fileType="data">/etc/ld.so.conf.d</Path>
             <Path fileType="doc">/usr/share/doc</Path>
             <Path fileType="man">/usr/share/man</Path>
         </Files>
@@ -54,6 +57,48 @@
         </RuntimeDependencies>
         <Files>
             <Path fileType="library">/usr/lib/ocaml</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>llvm-clang-analyzer</Name>
+        <IsA>app:console</IsA>
+        <Summary>A source code analysis framework</Summary>
+        <Description>The Clang Static Analyzer consists of both a source code analysis framework and a standalone tool that finds bugs in C and Objective-C programs.</Description>
+        <RuntimeDependencies>
+            <Dependency release="current">llvm-clang</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="executable">/usr/lib/clang-analyzer</Path>
+            <Path fileType="executable">/usr/bin/scan-*</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>llvm-clang</Name>
+        <Summary>A C language family front-end for LLVM</Summary>
+        <Description>The goal of the Clang project is to create a new C, C++, Objective C and Objective C++ front-end for the LLVM compiler.</Description>
+        <RuntimeDependencies>
+            <Dependency release="current">llvm</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="executable">/usr/bin/clang*</Path>
+            <Path fileType="executable">/usr/bin/tblgen</Path>
+            <Path fileType="library">/usr/lib/clang</Path>
+            <Path fileType="library">/usr/lib/clang/libclang.so</Path>
+            <Path fileType="man">/usr/share/man/man1/clang.1</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>llvm-clang-devel</Name>
+        <Summary>Development headers for llvm-clang</Summary>
+        <RuntimeDependencies>
+            <Dependency release="current">llvm-clang</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="header">/usr/include/clang</Path>
+            <Path fileType="header">/usr/include/clang-c</Path>
         </Files>
     </Package>
 
@@ -85,6 +130,13 @@
     </Package>
 
     <History>
+        <Update release="5">
+            <Date>2011-09-08</Date>
+            <Version>2.9</Version>
+            <Comment>Version bump to 2.9, add clang suite (kudos to Ozan)</Comment>
+            <Name>Fatih Arslan</Name>
+            <Email>farslan@pardus.org.tr</Email>
+        </Update>
         <Update release="4">
             <Date>2011-03-16</Date>
             <Version>2.8</Version>
