@@ -31,6 +31,7 @@ def setup():
 
     if get.buildTYPE() == "emul32":
         options += " --libdir=/usr/lib32 \
+                     --without-freetype \
                      --with-wine64=%s/work/wine-%s" % (get.pkgDIR(), get.srcVERSION())
     elif get.ARCH() == "x86_64":
         options += " --enable-win64"
