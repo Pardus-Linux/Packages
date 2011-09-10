@@ -32,6 +32,7 @@ def setup():
                --enable-shared \
                --enable-targets=host \
                --enable-bindings=all \
+               --with-binutils-include=/usr/include \
                --enable-libffi \
                --enable-llvmc-dynamic \
                --enable-llvmc-dynamic-plugins \
