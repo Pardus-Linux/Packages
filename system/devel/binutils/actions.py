@@ -60,6 +60,9 @@ def install():
     pisitools.insinto("/usr/lib", "libiberty/libiberty.a")
     pisitools.insinto("/usr/include", "include/libiberty.h")
 
+    # Copy plugin-api.h file to build LLVM with LLVM gold plugin
+    pisitools.insinto("/usr/include", "include/plugin-api.h")
+
     # Prevent programs to link against libbfd and libopcodes dynamically,
     # they are changing far too often
     pisitools.remove("/usr/lib/libopcodes.so")
