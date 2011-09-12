@@ -16,8 +16,8 @@ def setup():
                          --disable-gtk-doc \
                          --disable-altivec \
                          --disable-alsatest \
-                         --enable-gimp-remote \
                          --enable-python \
+                         --enable-default-binary \
                          --enable-mmx \
                          --enable-sse \
                          --enable-mp \
