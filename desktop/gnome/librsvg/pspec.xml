@@ -20,10 +20,14 @@
             <Dependency>cairo-devel</Dependency>
             <Dependency>pango-devel</Dependency>
             <Dependency>gdk-pixbuf-devel</Dependency>
+            <Dependency>gtk-doc</Dependency>
         </BuildDependencies>
         <Patches>
             <Patch level="1">0001-Don-t-accidentally-return-NULL-from-parse_style_valu.patch</Patch>
             <Patch>env-paths.diff</Patch>
+            <!-- Store node type separately in RsvgNode, CVE-2011-3146
+            See https://bugzilla.gnome.org/show_bug.cgi?id=658014 for details -->
+            <Patch level="1">CVE-2011-3146.patch</Patch>
         </Patches>
     </Source>
 
@@ -64,6 +68,15 @@
     </Package>
 
     <History>
+        <Update release="18">
+            <Date>2011-09-12</Date>
+            <Version>2.32.1</Version>
+            <Comment>* Version bump to fix NULL pointer dereference flaw, CVE-2011-3146 pb#19111.
+                * gtk-doc is needed to build the package, because of the autoreconf actions. This can be patched later, but as a workaround for now, I am adding gtk-doc as a build dependency.
+            </Comment>
+            <Name>Serdar Dalgıç</Name>
+            <Email>serdar@pardus.org.tr</Email>
+        </Update>
         <Update release="17">
             <Date>2011-02-22</Date>
             <Version>2.32.1</Version>
