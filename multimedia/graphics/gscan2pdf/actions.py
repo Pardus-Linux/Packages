@@ -8,6 +8,7 @@ from pisi.actionsapi import perlmodules
 from pisi.actionsapi import pisitools
 
 def setup():
+    pisitools.dosed("bin/gscan2pdf", "<http://www.gnu.org/licenses/>", "http://www.gnu.org/licenses/")
     perlmodules.configure()
 
 def build():
