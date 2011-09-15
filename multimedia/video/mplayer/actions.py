@@ -18,9 +18,6 @@ gcc_version = "4.3.5"
 mp_version = "32752"
 ff_version = "26223"
 
-NoStrip=["/"]
-
-
 def fixPermissions(dest):
     for root, dirs, files in os.walk(dest):
         for name in dirs:
