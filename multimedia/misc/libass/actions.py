@@ -11,6 +11,8 @@ from pisi.actionsapi import get
 
 #WorkDir = "libass"
 
+NoStrip=["/"]
+
 def setup():
     autotools.autoreconf("-vfi")
     autotools.configure("--enable-fontconfig \
