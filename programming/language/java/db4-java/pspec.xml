@@ -11,7 +11,7 @@
         <IsA>library</IsA>
         <Summary>Java bindings for Berkeley DB</Summary>
         <Description>db4-java contains the libraries for building programs which use the Berkeley DB in Java.</Description>
-        <Archive sha1sum="0c84ed9c6e16857ceb66193bedbb15b05ffbebd0" type="targz">http://download.oracle.com/berkeley-db/db-5.1.19.tar.gz</Archive>
+        <Archive sha1sum="1a216821957ce910a269bf9916bf49aba0f08b4d" type="targz">http://download.oracle.com/berkeley-db/db-5.1.25.tar.gz</Archive>
         <BuildDependencies>
             <Dependency>sun-jdk</Dependency>
         </BuildDependencies>
@@ -29,6 +29,24 @@
     </Package>
 
     <History>
+        <Update release="8">
+            <Date>2011-09-16</Date>
+            <Version>5.1.25</Version>
+            <Comment>Version bump. Some changes in this release:
+                * Fix a leak of log file ids when a database is closed before the end of a transaction that references it
+                * A log write failure on a replication master will now cause a panic since the transaction may be committed on some clients
+                * Remove the possibility that checkpoints will overlap in the log, decreasing the time to recover
+                * The database open code will no longer log the open and close of the master database in a file when opening a sub database in that file
+                * Fix a bug where an error during an update to a hash database with DB_NOOVERWRITE set could return DB_KEYEXIST rather than the correct error
+                * Fix a bug where an updater supporting DB_READ_UNCOMMITED might downgrade its lock too soon if there was an error during the update
+                * Fix a bug that could cause the wrong page number to be on a root or metadata page if DB->compact moved the page and the operation was later rolled forward
+                * Change SQL API library build on *nix to link with libpthreads when necessary.
+                * Fix a JDBC error where building would fail on Solaris without the flag "-D_HAVE_SQLITE_CONFIG_H"
+                * Fix a JDBC bug that the configure can not deal with CPPFLAGS
+            </Comment>
+            <Name>Gökhan Özbulak</Name>
+            <Email>gozbulak@pardus.org.tr</Email>
+        </Update>
         <Update release="7">
             <Date>2011-02-02</Date>
             <Version>5.1.19</Version>
