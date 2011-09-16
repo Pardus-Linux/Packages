@@ -37,8 +37,6 @@ def setup():
                         -Duse_system_libjpeg=1 \
                         -Duse_system_libxslt=1 \
                         -Duse_system_zlib=1 \
-                        -Duse_system_ffmpeg=0 \
-                        -Dbuild_ffmpegsumo=1 \
                         -Duse_system_flac=1 \
                         -Duse_system_libxml=1 \
                         -Duse_system_vpx=0 \
