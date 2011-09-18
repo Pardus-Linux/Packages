@@ -18,5 +18,9 @@ def build():
 def install():
     autotools.rawInstall("DESTDIR=%s" % get.installDIR())
 
+    # install efix tool
+    pisitools.dobin("efax/efix-0.9a")
+    pisitools.doman("efax/efix.1")
+
     pisitools.domo("po/tr.po", "tr", "efax-gtk.mo")
     pisitools.dodoc("AUTHORS", "ChangeLog", "COPYING", "NEWS", "README")
