@@ -62,6 +62,10 @@ def install():
     pisitools.insinto("/usr/lib/chromium-browser", "locales")
     pisitools.insinto("/usr/lib/chromium-browser", "resources")
 
+    # Internal ffmpeg libraries
+    pisitools.insinto("/usr/lib/chromium-browser", "libffmpegsumo.so")
+    pisitools.insinto("/usr/lib/chromium-browser", "ffmpegsumo_nolink")
+
     # Nacl plugin
     # pisitools.insinto("/usr/lib/chromium-browser", "libppGoogleNaClPluginChrome.so")
 
@@ -69,8 +73,8 @@ def install():
 
     # Chromium looks for these in its folder
     # See media_posix.cc and base_paths_linux.cc
-    for lib in ["libavcodec.so.52" , "libavformat.so.52", "libavutil.so.50"]:
-        shelltools.sym("/usr/lib/%s" % lib, "%s/usr/lib/chromium-browser/%s" % (get.installDIR(), lib))
+    #for lib in ["libavcodec.so.52" , "libavformat.so.52", "libavutil.so.50"]:
+    #    shelltools.sym("/usr/lib/%s" % lib, "%s/usr/lib/chromium-browser/%s" % (get.installDIR(), lib))
 
 
     shelltools.cd("../..")
