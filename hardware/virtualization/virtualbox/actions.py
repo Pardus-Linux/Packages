@@ -56,16 +56,16 @@ def install():
         print "Installing %s ..." % _file
         pisitools.insinto(VBoxLibDir, _file)
 
-    pisitools.dobin("VBoxTunctl")
-
     pisitools.dobin("VBox*.sh", VBoxDataDir)
     pisitools.insinto(VBoxDataDir, "nls")
 
     # TODO: Add vboxwebsrv when ready
     # Binaries and Wrapper with Launchers
-    apps = ("VBoxHeadless", "VBoxManage", "VBoxSDL", "VBoxVRDP", "VirtualBox")
+    apps = ("VBoxHeadless", "VBoxManage", "VBoxSDL", "VBoxVRDP", "VirtualBox", "VBoxBalloonCtrl")
     for link in apps:
         pisitools.dosym("../share/virtualbox/VBox.sh", "/usr/bin/%s" % link)
+
+    pisitools.dobin("VBoxTunctl")
 
     # Desktop file, mimetype file for xml and icon
     pisitools.domove("%s/*.desktop" % VBoxLibDir, "/usr/share/applications")
