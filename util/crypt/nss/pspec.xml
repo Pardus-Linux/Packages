@@ -12,14 +12,14 @@
         <IsA>library</IsA>
         <Summary>Network Security Services</Summary>
         <Description>Network Security Services (NSS) is a set of libraries designed to support cross-platform development of security-enabled client and server applications. Applications built with NSS can support SSL v2 and v3, TLS, PKCS #5, PKCS #7, PKCS #11, PKCS #12, S/MIME, X.509 v3 certificates, and other security standards.</Description>
-        <Archive sha1sum="229f65c8d4e2c1b34e145253bceddada5a82a142" type="targz">http://ftp.mozilla.org/pub/mozilla.org/security/nss/releases/NSS_3_12_10_RTM/src/nss-3.12.10.tar.gz</Archive>
+        <Archive sha1sum="187ae83a8368512bb8729c206da2ed34db1725ad" type="targz">http://ftp.mozilla.org/pub/mozilla.org/security/nss/releases/NSS_3_12_11_RTM/src/nss-3.12.11.tar.gz</Archive>
         <AdditionalFiles>
             <AdditionalFile target="dist/pkgconfig/nss.pc.in">nss.pc.in</AdditionalFile>
             <AdditionalFile target="dist/pkgconfig/nss-config.in">nss-config.in</AdditionalFile>
             <AdditionalFile permission="0755" target="generate-pc-config.sh">generate-pc-config.sh</AdditionalFile>
         </AdditionalFiles>
         <BuildDependencies>
-            <Dependency releaseFrom="31">nspr-devel</Dependency>
+            <Dependency versionFrom="4.8.9">nspr-devel</Dependency>
         </BuildDependencies>
         <Patches>
             <Patch level="1">include-fix.patch</Patch>
@@ -33,14 +33,18 @@
 
             <!-- Fedora patches -->
             <Patch level="2">fedora/nss-539183.patch</Patch>
-            <Patch level="1">fedora/nss-703658.patch</Patch>
+            <Patch level="2">fedora/nss-646045.patch</Patch>
+            <Patch level="1">fedora/renegotiate-transitional.patch</Patch>
+
+            <!--Distrust DigiNotar root CA - backported from CVS (https://bugzilla.mozilla.org/show_bug.cgi?id=682927)-->
+            <Patch level="0">distrust-diginotar.patch</Patch>
         </Patches>
     </Source>
 
     <Package>
         <Name>nss</Name>
         <RuntimeDependencies>
-            <Dependency releaseFrom="31">nspr</Dependency>
+            <Dependency versionFrom="4.8.9">nspr</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="library">/usr/lib</Path>
@@ -73,6 +77,13 @@
     </Package>
 
     <History>
+        <Update release="42" type="security">
+            <Date>2011-09-21</Date>
+            <Version>3.12.11</Version>
+            <Comment>New release 3.12.11. Patch to distrust DigiNotar CA</Comment>
+            <Name>Fatih Arslan</Name>
+            <Email>farslan@pardus.org.tr</Email>
+        </Update>
         <Update release="41">
             <Date>2011-05-19</Date>
             <Version>3.12.10</Version>
