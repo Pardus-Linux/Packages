@@ -9,7 +9,7 @@ from pisi.actionsapi import pisitools
 from pisi.actionsapi import qt4
 
 def setup():
-    qt4.configure()
+    qt4.configure(parameters="CONFIG+=QwtSVGItem")
 
 def build():
     qt4.make()
