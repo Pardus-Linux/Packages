@@ -1,16 +1,16 @@
 # HG changeset patch
 # User Wolfgang Rosenauer <wr@rosenauer.org>
-# Parent ec1efb28a1fea666f22730689d811fc67720f2db
+# Parent 8b1b35442fee96324a141ab5d7710c3a88769df5
 Add searchplugins to chrome packaging for proper localization
 
 diff --git a/browser/app/profile/firefox.js b/browser/app/profile/firefox.js
 --- a/browser/app/profile/firefox.js
 +++ b/browser/app/profile/firefox.js
-@@ -327,16 +327,20 @@ pref("browser.download.manager.scanWhenD
+@@ -323,16 +323,20 @@ pref("browser.download.manager.scanWhenD
  pref("browser.download.manager.resumeOnWakeDelay", 10000);
  
  // search engines URL
- pref("browser.search.searchEnginesURL",      "https://addons.mozilla.org/%LOCALE%/%APP%/search-engines/");
+ pref("browser.search.searchEnginesURL",      "https://addons.mozilla.org/%LOCALE%/firefox/search-engines/");
  
  // pointer to the default engine name
  pref("browser.search.defaultenginename",      "chrome://browser-region/locale/region.properties");
@@ -30,7 +30,7 @@ diff --git a/browser/app/profile/firefox.js b/browser/app/profile/firefox.js
 diff --git a/browser/locales/Makefile.in b/browser/locales/Makefile.in
 --- a/browser/locales/Makefile.in
 +++ b/browser/locales/Makefile.in
-@@ -167,31 +167,43 @@ libs:: $(call MERGE_FILES,$(addprefix pr
+@@ -167,29 +167,41 @@ libs:: $(call MERGE_FILES,$(addprefix pr
  install:: $(DESTDIR)$(mozappdir)/defaults/profile/bookmarks.html ;
  
  install:: $(addprefix generic/profile/,$(PROFILE_FILES))
@@ -67,22 +67,20 @@ diff --git a/browser/locales/Makefile.in b/browser/locales/Makefile.in
  libs-%:
  	$(NSINSTALL) -D $(DIST)/install
  	@$(MAKE) -C ../../toolkit/locales libs-$* BOTH_MANIFESTS=1
- ifdef MOZ_SERVICES_SYNC
  	@$(MAKE) -C ../../services/sync/locales AB_CD=$* XPI_NAME=locale-$* BOTH_MANIFESTS=1
- endif
 +	@$(MAKE) -B searchplugins AB_CD=$* XPI_NAME=locale-$*
  	@$(MAKE) -C ../../extensions/spellcheck/locales AB_CD=$* XPI_NAME=locale-$* BOTH_MANIFESTS=1
- 	@$(MAKE) libs AB_CD=$* XPI_NAME=locale-$* PREF_DIR=defaults/pref BOTH_MANIFESTS=1
+ 	@$(MAKE) -C ../../intl/locales AB_CD=$* XPI_NAME=locale-$* BOTH_MANIFESTS=1
+ 	@$(MAKE) libs AB_CD=$* XPI_NAME=locale-$* PREF_DIR=$(PREF_DIR) BOTH_MANIFESTS=1
  	@$(MAKE) -C $(DEPTH)/$(MOZ_BRANDING_DIRECTORY)/locales AB_CD=$* XPI_NAME=locale-$* BOTH_MANIFESTS=1
  
  
  repackage-win32-installer: WIN32_INSTALLER_OUT=$(_ABS_DIST)/$(PKG_INST_PATH)$(PKG_INST_BASENAME).exe
  repackage-win32-installer: $(call ESCAPE_SPACE,$(WIN32_INSTALLER_IN)) $(SUBMAKEFILES) libs-$(AB_CD)
- 	@echo "Repackaging $(WIN32_INSTALLER_IN) into $(WIN32_INSTALLER_OUT)."
 diff --git a/browser/locales/jar.mn b/browser/locales/jar.mn
 --- a/browser/locales/jar.mn
 +++ b/browser/locales/jar.mn
-@@ -81,11 +81,12 @@
+@@ -84,11 +84,12 @@
      locale/browser-region/region.properties        (%chrome/browser-region/region.properties)
  # the following files are browser-specific overrides
  *   locale/browser/netError.dtd                (%chrome/overrides/netError.dtd)

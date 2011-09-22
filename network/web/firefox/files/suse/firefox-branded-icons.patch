@@ -1,0 +1,78 @@
+# HG changeset patch
+# Parent 0a9fd1d7099ccdff12205e23f0d9bf4d93a328ee
+
+diff --git a/browser/app/Makefile.in b/browser/app/Makefile.in
+--- a/browser/app/Makefile.in
++++ b/browser/app/Makefile.in
+@@ -221,16 +221,21 @@ endif
+ 
+ ifeq ($(MOZ_WIDGET_TOOLKIT),gtk2)
+ libs::
+ 	$(INSTALL) $(IFLAGS1) $(DIST)/branding/mozicon128.png $(DIST)/bin/icons
+ 	$(INSTALL) $(IFLAGS1) $(DIST)/branding/document.png   $(DIST)/bin/icons
+ 	$(INSTALL) $(IFLAGS1) $(DIST)/branding/default16.png  $(DIST)/bin/chrome/icons/default
+ 	$(INSTALL) $(IFLAGS1) $(DIST)/branding/default32.png  $(DIST)/bin/chrome/icons/default
+ 	$(INSTALL) $(IFLAGS1) $(DIST)/branding/default48.png  $(DIST)/bin/chrome/icons/default
++ifdef MOZ_OFFICIAL_BRANDING
++	$(INSTALL) $(IFLAGS1) $(DIST)/branding/default22.png  $(DIST)/bin/chrome/icons/default
++	$(INSTALL) $(IFLAGS1) $(DIST)/branding/default24.png  $(DIST)/bin/chrome/icons/default
++	$(INSTALL) $(IFLAGS1) $(DIST)/branding/default256.png  $(DIST)/bin/chrome/icons/default
++endif
+ endif
+ 
+ ifdef MOZ_SPLASHSCREEN
+ ifeq ($(MOZ_WIDGET_TOOLKIT),windows)
+ libs::
+ 	$(INSTALL) $(IFLAGS1) $(DIST)/branding/splash.bmp $(DIST)/bin
+ endif
+ endif
+diff --git a/browser/branding/official/Makefile.in b/browser/branding/official/Makefile.in
+--- a/browser/branding/official/Makefile.in
++++ b/browser/branding/official/Makefile.in
+@@ -68,18 +68,21 @@ OSX_BRANDING_FILES = \
+ 	firefox.icns \
+ 	disk.icns \
+ 	document.icns \
+ 	dsstore \
+ 	$(NULL)
+ 
+ LINUX_BRANDING_FILES = \
+ 	default16.png \
++	default22.png \
++	default24.png \
+ 	default32.png \
+ 	default48.png \
++	default256.png \
+ 	document.png \
+ 	mozicon128.png \
+ 	$(NULL)
+ 
+ OS2_BRANDING_FILES = \
+ 	firefox-os2.ico \
+ 	document-os2.ico \
+ 	$(NULL)
+diff --git a/browser/installer/package-manifest.in b/browser/installer/package-manifest.in
+--- a/browser/installer/package-manifest.in
++++ b/browser/installer/package-manifest.in
+@@ -416,18 +416,21 @@
+ #ifdef SHIP_FEEDBACK
+ @BINPATH@/distribution/extensions/testpilot@labs.mozilla.com.xpi
+ #endif
+ @BINPATH@/chrome/toolkit@JAREXT@
+ @BINPATH@/chrome/toolkit.manifest
+ #ifdef XP_UNIX
+ #ifndef XP_MACOSX
+ @BINPATH@/chrome/icons/default/default16.png
++@BINPATH@/chrome/icons/default/default22.png
++@BINPATH@/chrome/icons/default/default24.png
+ @BINPATH@/chrome/icons/default/default32.png
+ @BINPATH@/chrome/icons/default/default48.png
++@BINPATH@/chrome/icons/default/default256.png
+ #endif
+ #endif
+ 
+ 
+ ; shell icons
+ #ifdef XP_UNIX
+ #ifndef XP_MACOSX
+ @BINPATH@/icons/*.xpm

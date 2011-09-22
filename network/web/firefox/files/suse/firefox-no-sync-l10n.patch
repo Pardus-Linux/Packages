@@ -1,26 +1,14 @@
-# HG changeset patch
-# Parent 0266a8a602473a4fa13393628be0b2fd50d0efc6
-
-diff --git a/browser/locales/Makefile.in b/browser/locales/Makefile.in
---- a/browser/locales/Makefile.in
-+++ b/browser/locales/Makefile.in
-@@ -179,17 +179,19 @@ libs:: $(addsuffix .xml,$(SEARCH_PLUGINS
- 
- install:: $(addsuffix .xml,$(SEARCH_PLUGINS))
- 	$(SYSINSTALL) $(IFLAGS1) $^ $(DESTDIR)$(mozappdir)/searchplugins
- 
- 
+Index: mozilla-release/browser/locales/Makefile.in
+===================================================================
+--- mozilla-release.orig/browser/locales/Makefile.in
++++ mozilla-release/browser/locales/Makefile.in
+@@ -195,7 +195,9 @@ GARBAGE += tmp-search.jar.mn
  libs-%:
  	$(NSINSTALL) -D $(DIST)/install
  	@$(MAKE) -C ../../toolkit/locales libs-$* BOTH_MANIFESTS=1
 +ifdef MOZ_SERVICES_SYNC
  	@$(MAKE) -C ../../services/sync/locales AB_CD=$* XPI_NAME=locale-$* BOTH_MANIFESTS=1
 +endif
+ 	@$(MAKE) -B searchplugins AB_CD=$* XPI_NAME=locale-$*
  	@$(MAKE) -C ../../extensions/spellcheck/locales AB_CD=$* XPI_NAME=locale-$* BOTH_MANIFESTS=1
- 	@$(MAKE) libs AB_CD=$* XPI_NAME=locale-$* PREF_DIR=defaults/pref BOTH_MANIFESTS=1
- 	@$(MAKE) -C $(DEPTH)/$(MOZ_BRANDING_DIRECTORY)/locales AB_CD=$* XPI_NAME=locale-$* BOTH_MANIFESTS=1
- 
- 
- repackage-win32-installer: WIN32_INSTALLER_OUT=$(_ABS_DIST)/$(PKG_INST_PATH)$(PKG_INST_BASENAME).exe
- repackage-win32-installer: $(call ESCAPE_SPACE,$(WIN32_INSTALLER_IN)) $(SUBMAKEFILES) libs-$(AB_CD)
- 	@echo "Repackaging $(WIN32_INSTALLER_IN) into $(WIN32_INSTALLER_OUT)."
+ 	@$(MAKE) -C ../../intl/locales AB_CD=$* XPI_NAME=locale-$* BOTH_MANIFESTS=1

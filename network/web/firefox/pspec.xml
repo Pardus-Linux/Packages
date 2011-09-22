@@ -5,8 +5,8 @@
         <Name>firefox</Name>
         <Homepage>http://www.mozilla.org/projects/firefox/</Homepage>
         <Packager>
-            <Name>Fatih Arslan</Name>
-            <Email>farslan@pardus.org.tr</Email>
+            <Name>Pardus</Name>
+            <Email>admins@pardus.org.tr</Email>
         </Packager>
         <License>MPL-1.1</License>
         <License>NPL-1.1</License>
@@ -15,12 +15,19 @@
         <IsA>app:gui</IsA>
         <Summary>Firefox Web Browser</Summary>
         <Description>It is more secure and faster to browse the web with Firefox web browser. You can personalize your web browser with many specifications that is not enough to explain in two sentences.</Description>
-        <Archive sha1sum="501353529ad7bd8edbcd366da2a943fb3960848a" type="tarlzma">http://cekirdek.pardus.org.tr/~gokcen/files/mozilla-FIREFOX_5_0_RELEASE.tar.lzma</Archive>
+        <Archive sha1sum="074eb9c1df4de0fe0a4bb9226ca3c2822c334cd6" type="tarbz2">ftp://ftp.mozilla.org/pub/mozilla.org/firefox/releases/6.0.2/source/firefox-6.0.2.source.tar.bz2</Archive>
+        <!--Use tools/create-locale-tar.sh script to create the l10n-tarball from mozilla sources-->
+        <Archive sha1sum="ac7acb1f829666183a19b1ae444114d87746e145" type="tarbz2">http://cekirdek.pardus.org.tr/~farslan/dist/firefox/l10n-6.0.2.tar.bz2</Archive>
         <AdditionalFiles>
             <AdditionalFile target="browser/app/profile/kde.js" permission="0644">suse/kde.js</AdditionalFile>
+
+            <!--Our main configure script. Configure paramters are stored here.-->
+            <AdditionalFile target=".mozconfig" permission="0644">mozconfig</AdditionalFile>
+
+            <!--Our locale directory is seperated, thus we need to apply this patch manually-->
+            <AdditionalFile target="../fix-double-turkish-option.diff" permission="0644">pardus/fix-double-turkish-option.diff</AdditionalFile>
         </AdditionalFiles>
         <BuildDependencies>
-            <Dependency>nspr-devel</Dependency>
             <Dependency>fontconfig-devel</Dependency>
             <Dependency versionFrom="2.18.5">gtk2-devel</Dependency>
             <Dependency>pango-devel</Dependency>
@@ -32,6 +39,10 @@
             <Dependency>dbus-glib-devel</Dependency>
             <Dependency>hunspell-devel</Dependency>
             <Dependency versionFrom="0.4.0">libproxy-devel</Dependency>
+            <Dependency versionFrom="4.8.9">nspr-devel</Dependency>
+            <Dependency versionFrom="3.12.11">nss-devel</Dependency>
+            <Dependency>libevent-devel</Dependency>
+            <Dependency>libvpx-devel</Dependency>
 
             <!-- Those are checked by configure -->
             <Dependency>mesa-devel</Dependency>
@@ -39,36 +50,35 @@
             <Dependency>libXt-devel</Dependency>
         </BuildDependencies>
         <Patches>
-            <!-- default config values -->
-            <Patch>mozconfig.patch</Patch>
-
-            <!--<Patch level="1">suse/mozilla-kde.patch</Patch>-->
+            <Patch level="1">suse/mozilla-kde.patch</Patch>
             <Patch level="1">suse/mozilla-language.patch</Patch>
-            <Patch level="1">suse/firefox-linkorder.patch</Patch>
-            <Patch level="1">suse/firefox-browser-css.patch</Patch>
-            <Patch level="1">suse/firefox-cross-desktop.patch</Patch>
-            <!--
+
+            <!--Remove an obsolote curl header. Look /usr/include/curl/types.h-->
+            <Patch level="1">suse/mozilla-curl.patch</Patch>
+
+            <!--These are mainly integrations stuff like default browser-->
             <Patch level="1">suse/firefox-kde.patch</Patch>
             <Patch level="1">suse/firefox-kde-114.patch</Patch>
-            -->
-            <Patch level="1">suse/firefox-no-sync-l10n.patch</Patch>
+
+            <Patch level="1">suse/firefox-browser-css.patch</Patch>
+            <Patch level="1">suse/firefox-cross-desktop.patch</Patch>
+            <Patch level="1">suse/firefox-branded-icons.patch</Patch>
             <Patch level="1">suse/firefox-no-default-ualocale.patch</Patch>
             <Patch level="1">suse/firefox-multilocale-chrome.patch</Patch>
+            <Patch level="1">suse/firefox-no-sync-l10n.patch</Patch>
 
-            <Patch>pardus/as-needed.diff</Patch>
+            <Patch level="1">fedora/firefox-5.0-asciidel.patch</Patch>
 
-            <!--<Patch>pardus/fix-double-turkish-option.diff</Patch>-->
+            <Patch level="0">pardus/as-needed.diff</Patch>
             <Patch level="1">pardus/autoconf-213-hack.diff</Patch>
-
             <Patch level="1">pardus/workaround-dbus-glib-build-error.diff</Patch>
-            <Patch>pardus/zemberek-firefox5.patch</Patch>
+            <Patch level="0">pardus/zemberek-firefox5.patch</Patch>
         </Patches>
     </Source>
 
     <Package>
         <Name>firefox</Name>
         <RuntimeDependencies>
-            <Dependency>nspr</Dependency>
             <Dependency>fontconfig</Dependency>
             <Dependency versionFrom="2.18.5">gtk2</Dependency>
             <Dependency>pango</Dependency>
@@ -78,6 +88,10 @@
             <Dependency>dbus-glib</Dependency>
             <Dependency>hunspell</Dependency>
             <Dependency versionFrom="0.4.0">libproxy</Dependency>
+            <Dependency versionFrom="4.8.9">nspr</Dependency>
+            <Dependency versionFrom="3.12.11">nss</Dependency>
+            <Dependency>libevent</Dependency>
+            <Dependency>libvpx</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="config">/etc/</Path>
@@ -143,6 +157,27 @@
     </Package>
 
     <History>
+        <Update release="158">
+            <Date>2011-09-22</Date>
+            <Version>6.0.2</Version>
+            <Comment>
+                * New stable release 6.0.2
+                * Strict dep to nss and nspr are written to prevent users using
+                  fraudulent DigiNotar SSL certificates
+                * Mozconfig is trated as an additional file to make the life
+                  for Firefox packagers more easy
+                * Add files/tools folder for scripts that makes Firefox packaging easier
+                * Localization is seperated from the main tarball and is
+                  presented as a single archive on his own
+                * Many stability improvements
+                * A new progress element to be used to show a progress in a visual cue
+                * Touch events and Server Sent events are implemented
+                * Many other HTML, CSS, DOM, JS, SVG changes and improvements.
+                * More info can be found on: http://hacks.mozilla.org/2011/08/firefox6/
+            </Comment>
+            <Name>Fatih Arslan</Name>
+            <Email>farslan@pardus.org.tr</Email>
+        </Update>
         <Update release="157">
             <Date>2011-07-11</Date>
             <Version>5.0</Version>
