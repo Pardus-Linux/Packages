@@ -1,0 +1,110 @@
+commit 027340cd9a8e01762d0ec0aafb46f4b05a7d29e8
+Author: Kevin Funk <krf@electrostorm.net>
+Date:   Sun Sep 18 23:37:11 2011 +0200
+
+    Fix crash in WikipediaApplet.
+    
+    The crash happened because of the loadProgress() signal triggering the
+    _pageLoadProgress() slot in the Wikipedia applet *after* the
+    _pageLoadFinished() has been triggered already.
+    That caused a null-pointer dereference.
+    
+    The actual problem is that we are not disconnecting from the webView
+    loadProgress() signal after some page loading has been finished.
+    
+    Also remove some not-so-pretty static_assert statements and use a more
+    type-safe approach to keep track of the progress bar proxy widget.
+    Use some soft asserts to avoid the worst-case when the proxy widget may
+    have been deleted somehow.
+    
+    BUG: 279813
+    FIXED-IN: 2.5
+
+diff --git a/src/context/applets/wikipedia/WikipediaApplet.cpp b/src/context/applets/wikipedia/WikipediaApplet.cpp
+index 1f8cd07..41412bf 100644
+--- a/src/context/applets/wikipedia/WikipediaApplet.cpp
++++ b/src/context/applets/wikipedia/WikipediaApplet.cpp
+@@ -464,10 +464,19 @@ void
+ WikipediaAppletPrivate::_pageLoadStarted()
+ {
+     Q_Q( WikipediaApplet );
+-    QGraphicsProxyWidget *proxy = new QGraphicsProxyWidget;
+-    proxy->setWidget( new QProgressBar );
++
++    // create a proxy widget for displaying the webview load status in form of a progress bar
++
++    // if the proxyWidget still exists, re-use the existing object
++    if ( proxyWidget )
++        return;
++
++    proxyWidget = new QGraphicsProxyWidget;
++    proxyWidget->setWidget( new QProgressBar );
++
++    // add proxy widget to layout
+     QGraphicsLinearLayout *lo = static_cast<QGraphicsLinearLayout*>( q->layout() );
+-    lo->addItem( proxy );
++    lo->addItem( proxyWidget );
+     lo->activate();
+     QObject::connect( webView, SIGNAL(loadProgress(int)), q, SLOT(_pageLoadProgress(int)) );
+ }
+@@ -475,11 +484,13 @@ WikipediaAppletPrivate::_pageLoadStarted()
+ void
+ WikipediaAppletPrivate::_pageLoadProgress( int progress )
+ {
++    DEBUG_BLOCK
+     Q_Q( WikipediaApplet );
+-    QGraphicsLinearLayout *lo = static_cast<QGraphicsLinearLayout*>( q->layout() );
+-    QGraphicsProxyWidget *proxy = static_cast<QGraphicsProxyWidget*>( lo->itemAt( lo->count() - 1 ) );
+-    QString kbytes = QString::number( webView->page()->totalBytes() / 1024 );
+-    QProgressBar *pbar = static_cast<QProgressBar*>( proxy->widget() );
++    DEBUG_ASSERT(proxyWidget, return)
++
++    const QString kbytes = QString::number( webView->page()->totalBytes() / 1024 );
++
++    QProgressBar *pbar = qobject_cast<QProgressBar*>( proxyWidget->widget() );
+     pbar->setFormat( QString( "%1kB : %p%" ).arg( kbytes ) );
+     pbar->setValue( progress );
+ }
+@@ -487,13 +498,19 @@ WikipediaAppletPrivate::_pageLoadProgress( int progress )
+ void
+ WikipediaAppletPrivate::_pageLoadFinished( bool ok )
+ {
++    DEBUG_BLOCK
+     Q_UNUSED( ok )
+     Q_Q( WikipediaApplet );
++
++    // remove proxy widget from layout again, delete it
+     QGraphicsLinearLayout *lo = static_cast<QGraphicsLinearLayout*>( q->layout() );
+-    QGraphicsProxyWidget *proxy = static_cast<QGraphicsProxyWidget*>( lo->itemAt( lo->count() - 1 ) );
+-    lo->removeItem( proxy );
++    lo->removeItem( proxyWidget );
+     lo->activate();
+-    proxy->deleteLater();
++
++    // disconnect (so that we don't get any further progress signalling) and delete widget
++    QObject::disconnect( webView, SIGNAL(loadProgress(int)), q, SLOT(_pageLoadProgress(int)) );
++    proxyWidget->deleteLater();
++    proxyWidget = 0;
+ }
+ 
+ void
+diff --git a/src/context/applets/wikipedia/WikipediaApplet_p.h b/src/context/applets/wikipedia/WikipediaApplet_p.h
+index d435b89..98bd007 100644
+--- a/src/context/applets/wikipedia/WikipediaApplet_p.h
++++ b/src/context/applets/wikipedia/WikipediaApplet_p.h
+@@ -65,6 +65,7 @@ public:
+         , settingsIcon( 0 )
+         , trackIcon( 0 )
+         , webView( 0 )
++        , proxyWidget( 0 )
+         , aspectRatio( 0 )
+         , isForwardHistory( false )
+         , isBackwardHistory( false )
+@@ -128,6 +129,7 @@ public:
+     Plasma::IconWidget *settingsIcon;
+     Plasma::IconWidget *trackIcon;
+     WikipediaWebView *webView;
++    QGraphicsProxyWidget *proxyWidget;
+     QStack<QUrl> historyBack;
+     QStack<QUrl> historyForward;
+     QUrl currentUrl;
