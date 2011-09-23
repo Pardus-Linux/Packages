@@ -1,7 +1,7 @@
-From 14d6380cb9921ea09dc63d9401cb31c8f691449e Mon Sep 17 00:00:00 2001
+From 3c2e6dab927acfa3dfbeb7b9bc910d6a9780b095 Mon Sep 17 00:00:00 2001
 From: Bastien Nocera <hadess@hadess.net>
 Date: Tue, 1 Sep 2009 17:32:48 +0100
-Subject: [PATCH] Add sixaxis cable-pairing plugin
+Subject: [PATCH 1/2] Add sixaxis cable-pairing plugin
 
 Implement the old "sixpair" using libudev and libusb-1.0.
 
@@ -15,17 +15,15 @@ address, and added to the database of the current default adapter.
  plugins/cable.c |  382 +++++++++++++++++++++++++++++++++++++++++++++++++++++++
  src/adapter.c   |   19 +++
  src/adapter.h   |    3 +
- src/manager.c   |    5 +
- src/manager.h   |    1 +
- 8 files changed, 434 insertions(+), 2 deletions(-)
+ 6 files changed, 428 insertions(+), 2 deletions(-)
  create mode 100644 plugins/cable.c
 
-Index: bluez-4.84/Makefile.am
-===================================================================
---- bluez-4.84.orig/Makefile.am
-+++ bluez-4.84/Makefile.am
-@@ -197,6 +197,11 @@ builtin_sources += health/hdp_main.c hea
- 			health/hdp_util.h health/hdp_util.c
+diff --git a/Makefile.am b/Makefile.am
+index 7eadf82..aecc8f2 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -223,6 +223,11 @@ builtin_sources += thermometer/main.c \
+ 			thermometer/thermometer.h thermometer/thermometer.c
  endif
  
 +if CABLE
@@ -36,16 +34,16 @@ Index: bluez-4.84/Makefile.am
  builtin_modules += hciops mgmtops
  builtin_sources += plugins/hciops.c plugins/mgmtops.c
  
-@@ -242,7 +247,7 @@ src_bluetoothd_SOURCES = $(gdbus_sources
- 			src/dbus-common.c src/dbus-common.h \
- 			src/event.h src/event.c
+@@ -282,7 +287,7 @@ src_bluetoothd_SOURCES = $(gdbus_sources) $(builtin_sources) \
+ 			src/event.h src/event.c \
+ 			src/oob.h src/oob.c src/eir.h src/eir.c
  src_bluetoothd_LDADD = lib/libbluetooth.la @GLIB_LIBS@ @DBUS_LIBS@ \
 -							@CAPNG_LIBS@ -ldl -lrt
 +							@CAPNG_LIBS@ @CABLE_LIBS@ -ldl -lrt
  src_bluetoothd_LDFLAGS = -Wl,--export-dynamic \
  				-Wl,--version-script=$(srcdir)/src/bluetooth.ver
  
-@@ -358,7 +363,7 @@ EXTRA_DIST += doc/manager-api.txt \
+@@ -397,7 +402,7 @@ EXTRA_DIST += doc/manager-api.txt \
  
  AM_YFLAGS = -d
  
@@ -54,12 +52,12 @@ Index: bluez-4.84/Makefile.am
  		-DBLUETOOTH_PLUGIN_BUILTIN -DPLUGINDIR=\""$(plugindir)"\"
  
  INCLUDES = -I$(builddir)/lib -I$(builddir)/src -I$(srcdir)/src \
-Index: bluez-4.84/acinclude.m4
-===================================================================
---- bluez-4.84.orig/acinclude.m4
-+++ bluez-4.84/acinclude.m4
-@@ -146,6 +146,12 @@ AC_DEFUN([AC_PATH_USB], [
- 			[Define to 1 if you need the usb_interrupt_read() function.]))
+diff --git a/acinclude.m4 b/acinclude.m4
+index 3cb9459..c23368b 100644
+--- a/acinclude.m4
++++ b/acinclude.m4
+@@ -155,6 +155,12 @@ AC_DEFUN([AC_PATH_UDEV], [
+ 	AC_SUBST(UDEV_LIBS)
  ])
  
 +AC_DEFUN([AC_PATH_CABLE], [
@@ -71,7 +69,7 @@ Index: bluez-4.84/acinclude.m4
  AC_DEFUN([AC_PATH_SNDFILE], [
  	PKG_CHECK_MODULES(SNDFILE, sndfile, sndfile_found=yes, sndfile_found=no)
  	AC_SUBST(SNDFILE_CFLAGS)
-@@ -168,6 +174,7 @@ AC_DEFUN([AC_ARG_BLUEZ], [
+@@ -186,6 +192,7 @@ AC_DEFUN([AC_ARG_BLUEZ], [
  	sndfile_enable=${sndfile_found}
  	hal_enable=no
  	usb_enable=${usb_found}
@@ -79,7 +77,7 @@ Index: bluez-4.84/acinclude.m4
  	alsa_enable=${alsa_found}
  	gstreamer_enable=${gstreamer_found}
  	audio_enable=yes
-@@ -250,6 +257,10 @@ AC_DEFUN([AC_ARG_BLUEZ], [
+@@ -286,6 +293,10 @@ AC_DEFUN([AC_ARG_BLUEZ], [
  		usb_enable=${enableval}
  	])
  
@@ -90,7 +88,7 @@ Index: bluez-4.84/acinclude.m4
  	AC_ARG_ENABLE(tracer, AC_HELP_STRING([--enable-tracer], [install Tracing daemon]), [
  		tracer_enable=${enableval}
  	])
-@@ -341,6 +352,10 @@ AC_DEFUN([AC_ARG_BLUEZ], [
+@@ -385,6 +396,10 @@ AC_DEFUN([AC_ARG_BLUEZ], [
  		AC_DEFINE(HAVE_LIBUSB, 1, [Define to 1 if you have USB library.])
  	fi
  
@@ -101,28 +99,29 @@ Index: bluez-4.84/acinclude.m4
  	AM_CONDITIONAL(SNDFILE, test "${sndfile_enable}" = "yes" && test "${sndfile_found}" = "yes")
  	AM_CONDITIONAL(USB, test "${usb_enable}" = "yes" && test "${usb_found}" = "yes")
  	AM_CONDITIONAL(SBC, test "${alsa_enable}" = "yes" || test "${gstreamer_enable}" = "yes" ||
-@@ -372,4 +387,5 @@ AC_DEFUN([AC_ARG_BLUEZ], [
- 	AM_CONDITIONAL(UDEVRULES, test "${udevrules_enable}" = "yes")
- 	AM_CONDITIONAL(CONFIGFILES, test "${configfiles_enable}" = "yes")
- 	AM_CONDITIONAL(MAEMO6PLUGIN, test "${maemo6_enable}" = "yes")
+@@ -421,4 +436,5 @@ AC_DEFUN([AC_ARG_BLUEZ], [
+ 	AM_CONDITIONAL(DBUSOOBPLUGIN, test "${dbusoob_enable}" = "yes")
+ 	AM_CONDITIONAL(WIIMOTEPLUGIN, test "${wiimote_enable}" = "yes")
+ 	AM_CONDITIONAL(THERMOMETERPLUGIN, test "${thermometer_enable}" = "yes")
 +	AM_CONDITIONAL(CABLE, test "${cable_enable}" = "yes" && test "${cable_found}" = "yes")
  ])
-Index: bluez-4.84/configure.ac
-===================================================================
---- bluez-4.84.orig/configure.ac
-+++ bluez-4.84/configure.ac
-@@ -40,6 +40,7 @@ AC_PATH_GLIB
- AC_PATH_ALSA
- AC_PATH_GSTREAMER
+diff --git a/configure.ac b/configure.ac
+index 908ad55..bc2658c 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -46,6 +46,7 @@ AC_PATH_GSTREAMER
  AC_PATH_USB
-+AC_PATH_CABLE
+ AC_PATH_UDEV
  AC_PATH_SNDFILE
++AC_PATH_CABLE
  AC_PATH_OUI
+ AC_PATH_READLINE
  
-Index: bluez-4.84/plugins/cable.c
-===================================================================
+diff --git a/plugins/cable.c b/plugins/cable.c
+new file mode 100644
+index 0000000..e8cff76
 --- /dev/null
-+++ bluez-4.84/plugins/cable.c
++++ b/plugins/cable.c
 @@ -0,0 +1,382 @@
 +/*
 + *
@@ -506,11 +505,11 @@ Index: bluez-4.84/plugins/cable.c
 +
 +BLUETOOTH_PLUGIN_DEFINE(cable, VERSION,
 +			BLUETOOTH_PLUGIN_PRIORITY_DEFAULT, cable_init, cable_exit)
-Index: bluez-4.84/src/adapter.c
-===================================================================
---- bluez-4.84.orig/src/adapter.c
-+++ bluez-4.84/src/adapter.c
-@@ -1032,6 +1032,25 @@ static struct btd_device *adapter_create
+diff --git a/src/adapter.c b/src/adapter.c
+index 4c88a0e..09d8392 100644
+--- a/src/adapter.c
++++ b/src/adapter.c
+@@ -1092,6 +1092,25 @@ static struct btd_device *adapter_create_device(DBusConnection *conn,
  	return device;
  }
  
@@ -536,11 +535,11 @@ Index: bluez-4.84/src/adapter.c
  void adapter_remove_device(DBusConnection *conn, struct btd_adapter *adapter,
  						struct btd_device *device,
  						gboolean remove_storage)
-Index: bluez-4.84/src/adapter.h
-===================================================================
---- bluez-4.84.orig/src/adapter.h
-+++ bluez-4.84/src/adapter.h
-@@ -145,6 +145,9 @@ void adapter_update_found_devices(struct
+diff --git a/src/adapter.h b/src/adapter.h
+index 687275a..7f7cb55 100644
+--- a/src/adapter.h
++++ b/src/adapter.h
+@@ -116,6 +116,9 @@ void adapter_update_found_devices(struct btd_adapter *adapter, bdaddr_t *bdaddr,
  int adapter_remove_found_device(struct btd_adapter *adapter, bdaddr_t *bdaddr);
  void adapter_emit_device_found(struct btd_adapter *adapter,
  						struct remote_dev_info *dev);
@@ -548,33 +547,8 @@ Index: bluez-4.84/src/adapter.h
 +				      struct btd_adapter *adapter,
 +				      struct btd_device *device);
  void adapter_mode_changed(struct btd_adapter *adapter, uint8_t scan_mode);
- void adapter_update_local_name(struct btd_adapter *adapter, const char *name);
+ int adapter_update_local_name(struct btd_adapter *adapter, const char *name);
  void adapter_service_insert(struct btd_adapter *adapter, void *rec);
-Index: bluez-4.84/src/manager.c
-===================================================================
---- bluez-4.84.orig/src/manager.c
-+++ bluez-4.84/src/manager.c
-@@ -262,6 +262,11 @@ static void manager_set_default_adapter(
- 			DBUS_TYPE_INVALID);
- }
- 
-+struct btd_adapter *manager_get_default_adapter(void)
-+{
-+	return manager_find_adapter_by_id(default_adapter_id);
-+}
-+
- static void manager_remove_adapter(struct btd_adapter *adapter)
- {
- 	uint16_t dev_id = adapter_get_dev_id(adapter);
-Index: bluez-4.84/src/manager.h
-===================================================================
---- bluez-4.84.orig/src/manager.h
-+++ bluez-4.84/src/manager.h
-@@ -35,6 +35,7 @@ void manager_cleanup(DBusConnection *con
- const char *manager_get_base_path(void);
- struct btd_adapter *manager_find_adapter(const bdaddr_t *sba);
- struct btd_adapter *manager_find_adapter_by_id(int id);
-+struct btd_adapter *manager_get_default_adapter(void);
- void manager_foreach_adapter(adapter_cb func, gpointer user_data);
- GSList *manager_get_adapters(void);
- struct btd_adapter *btd_manager_register_adapter(int id);
+-- 
+1.7.6
+
