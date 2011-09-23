@@ -12,7 +12,7 @@
         <IsA>app:console</IsA>
         <Summary>An interpreted, interactive, object-orientated programming language</Summary>
         <Description>Python is a dynamic object-oriented programming language that can be used for many kinds of software development. It offers strong support for integration with other languages and tools, comes with extensive standard libraries, and can be learned in a few days.</Description>
-        <Archive sha1sum="fbe1894322ff91b80726e269c97454f4129fc2a3" type="tarbz2">http://python.org/ftp/python/2.7.1/Python-2.7.1.tar.bz2</Archive>
+        <Archive sha1sum="417bdeea77abfaf1b9257fc6b4a04aaa209f4547" type="tarbz2">http://python.org/ftp/python/2.7.2/Python-2.7.2.tar.bz2</Archive>
         <BuildDependencies>
             <Dependency versionFrom="1.1.3">zlib-devel</Dependency>
             <Dependency versionFrom="5.2">ncurses-devel</Dependency>
@@ -36,9 +36,6 @@
 
             <!-- Don't create pyc files on installation -->
             <Patch>no-pyc.patch</Patch>
-
-            <!-- Uluzilla bug #5649 -->
-            <Patch>decimal-ascii.patch</Patch>
 
             <!-- Use UTF-8 by default -->
             <Patch>default-utf8.patch</Patch>
@@ -69,28 +66,19 @@
             <!-- Use -lpthread rather than -pthread -->
             <Patch level="1">python-2.7-revised-linkage.patch</Patch>
 
-            <!-- Don't link with pthread -->
-            <!--<Patch>pthread.patch</Patch>-->
-
             <!-- https://bugzilla.redhat.com/show_bug.cgi?id=252136 -->
             <Patch level="1">python-2.5.1-plural-fix.patch</Patch>
 
             <!-- http://bugs.pardus.org.tr/show_bug.cgi?id=14910 -->
             <Patch>pardus_platform.patch</Patch>
 
-            <!-- http://bugs.pardus.org.tr/show_bug.cgi?id=11666 -->
-            <Patch level="1">CVE-2009-3560.patch</Patch>
-
-            <Patch level="1">python-2.7-fix-parallel-make.patch</Patch>
-
             <!-- Add flags for statvfs.f_flag to the constant list in posixmodule (i.e. "os")
             redhat bg:553020; partially upstream as http://bugs.python.org/issue7647 -->
             <Patch level="1">python-2.7rc1-statvfs-f_flag-constants.patch</Patch>
 
-            <!-- Make urllib and urllib2 ignore redirections if the scheme is not HTTP, 
-                HTTPS or FTP (CVE-2011-1521). -->
-            <Patch level="1">CVE-2011-1521-urllib-vulnerability.patch</Patch>
-
+            <!-- Add multiple stream support to bz2 module. This is needed to uncompress
+            multiple streams like pbzip2 compressed tarballs, etc. This is fixed in Python >= 3.3 -->
+            <Patch level="0">bz2-multiple-stream-support-issue1625.patch</Patch>
         </Patches>
     </Source>
 
@@ -182,6 +170,16 @@
     </Package>
 
     <History>
+        <Update release="70">
+            <Date>2011-09-16</Date>
+            <Version>2.7.2</Version>
+            <Comment>
+                - Version bump to 2.7.2,
+                - Add support for multistream bzip2 files.
+            </Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
         <Update release="69">
             <Date>2011-04-22</Date>
             <Version>2.7.1</Version>

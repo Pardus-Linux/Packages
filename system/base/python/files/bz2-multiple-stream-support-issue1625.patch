@@ -2,7 +2,15 @@ Index: Lib/test/test_bz2.py
 ===================================================================
 --- Lib/test/test_bz2.py.orig
 +++ Lib/test/test_bz2.py
-@@ -53,13 +53,13 @@ class BZ2FileTest(BaseTest):
+@@ -4,6 +4,7 @@ from test.test_support import TESTFN, im
+ 
+ import unittest
+ from cStringIO import StringIO
++from io import BytesIO
+ import os
+ import subprocess
+ import sys
+@@ -53,13 +54,13 @@ class BZ2FileTest(BaseTest):
          if os.path.isfile(self.filename):
              os.unlink(self.filename)
  
@@ -18,7 +26,7 @@ Index: Lib/test/test_bz2.py
  
      def testRead(self):
          # "Test BZ2File.read()"
-@@ -68,6 +68,14 @@ class BZ2FileTest(BaseTest):
+@@ -68,6 +69,14 @@ class BZ2FileTest(BaseTest):
              self.assertRaises(TypeError, bz2f.read, None)
              self.assertEqual(bz2f.read(), self.TEXT)
  
@@ -33,7 +41,7 @@ Index: Lib/test/test_bz2.py
      def testRead0(self):
          # Test BBZ2File.read(0)"
          self.createTempFile()
-@@ -87,6 +95,19 @@ class BZ2FileTest(BaseTest):
+@@ -87,6 +96,19 @@ class BZ2FileTest(BaseTest):
                  text += str
              self.assertEqual(text, self.TEXT)
  
@@ -53,7 +61,7 @@ Index: Lib/test/test_bz2.py
      def testRead100(self):
          # "Test BZ2File.read(100)"
          self.createTempFile()
-@@ -102,6 +123,16 @@ class BZ2FileTest(BaseTest):
+@@ -102,6 +124,16 @@ class BZ2FileTest(BaseTest):
              for line in sio.readlines():
                  self.assertEqual(bz2f.readline(), line)
  
@@ -70,7 +78,7 @@ Index: Lib/test/test_bz2.py
      def testReadLines(self):
          # "Test BZ2File.readlines()"
          self.createTempFile()
-@@ -110,6 +141,15 @@ class BZ2FileTest(BaseTest):
+@@ -110,6 +142,15 @@ class BZ2FileTest(BaseTest):
              sio = StringIO(self.TEXT)
              self.assertEqual(bz2f.readlines(), sio.readlines())
  
@@ -86,7 +94,7 @@ Index: Lib/test/test_bz2.py
      def testIterator(self):
          # "Test iter(BZ2File)"
          self.createTempFile()
-@@ -117,6 +157,14 @@ class BZ2FileTest(BaseTest):
+@@ -117,6 +158,14 @@ class BZ2FileTest(BaseTest):
              sio = StringIO(self.TEXT)
              self.assertEqual(list(iter(bz2f)), sio.readlines())
  
@@ -101,7 +109,7 @@ Index: Lib/test/test_bz2.py
      def testClosedIteratorDeadlock(self):
          # "Test that iteration on a closed bz2file releases the lock."
          # http://bugs.python.org/issue3309
-@@ -192,6 +240,19 @@ class BZ2FileTest(BaseTest):
+@@ -192,6 +241,19 @@ class BZ2FileTest(BaseTest):
              self.assertRaises(IOError, bz2f.write, "a")
              self.assertRaises(IOError, bz2f.writelines, ["a"])
  
@@ -121,7 +129,7 @@ Index: Lib/test/test_bz2.py
      def testSeekForward(self):
          # "Test BZ2File.seek(150, 0)"
          self.createTempFile()
-@@ -200,6 +261,15 @@ class BZ2FileTest(BaseTest):
+@@ -200,6 +262,15 @@ class BZ2FileTest(BaseTest):
              bz2f.seek(150)
              self.assertEqual(bz2f.read(), self.TEXT[150:])
  
@@ -137,7 +145,7 @@ Index: Lib/test/test_bz2.py
      def testSeekBackwards(self):
          # "Test BZ2File.seek(-150, 1)"
          self.createTempFile()
-@@ -208,6 +278,17 @@ class BZ2FileTest(BaseTest):
+@@ -208,6 +279,17 @@ class BZ2FileTest(BaseTest):
              bz2f.seek(-150, 1)
              self.assertEqual(bz2f.read(), self.TEXT[500-150:])
  
@@ -155,7 +163,7 @@ Index: Lib/test/test_bz2.py
      def testSeekBackwardsFromEnd(self):
          # "Test BZ2File.seek(-150, 2)"
          self.createTempFile()
-@@ -215,6 +296,14 @@ class BZ2FileTest(BaseTest):
+@@ -215,6 +297,14 @@ class BZ2FileTest(BaseTest):
              bz2f.seek(-150, 2)
              self.assertEqual(bz2f.read(), self.TEXT[len(self.TEXT)-150:])
  
@@ -170,7 +178,7 @@ Index: Lib/test/test_bz2.py
      def testSeekPostEnd(self):
          # "Test BZ2File.seek(150000)"
          self.createTempFile()
-@@ -223,6 +312,15 @@ class BZ2FileTest(BaseTest):
+@@ -223,6 +313,15 @@ class BZ2FileTest(BaseTest):
              self.assertEqual(bz2f.tell(), len(self.TEXT))
              self.assertEqual(bz2f.read(), "")
  
@@ -186,7 +194,7 @@ Index: Lib/test/test_bz2.py
      def testSeekPostEndTwice(self):
          # "Test BZ2File.seek(150000) twice"
          self.createTempFile()
-@@ -232,6 +330,16 @@ class BZ2FileTest(BaseTest):
+@@ -232,6 +331,16 @@ class BZ2FileTest(BaseTest):
              self.assertEqual(bz2f.tell(), len(self.TEXT))
              self.assertEqual(bz2f.read(), "")
  
@@ -203,7 +211,7 @@ Index: Lib/test/test_bz2.py
      def testSeekPreStart(self):
          # "Test BZ2File.seek(-150, 0)"
          self.createTempFile()
-@@ -240,6 +348,15 @@ class BZ2FileTest(BaseTest):
+@@ -240,6 +349,15 @@ class BZ2FileTest(BaseTest):
              self.assertEqual(bz2f.tell(), 0)
              self.assertEqual(bz2f.read(), self.TEXT)
  
@@ -219,7 +227,7 @@ Index: Lib/test/test_bz2.py
      def testOpenDel(self):
          # "Test opening and deleting a file many times"
          self.createTempFile()
-@@ -407,6 +524,11 @@ class FuncTest(BaseTest):
+@@ -407,6 +525,11 @@ class FuncTest(BaseTest):
          # "Test decompress() function with incomplete data"
          self.assertRaises(ValueError, bz2.decompress, self.DATA[:-10])
  
@@ -352,7 +360,19 @@ Index: Modules/bz2module.c
          } else if (bzerror != BZ_OK) {
              Util_CatchBZ2Error(bzerror);
              Py_DECREF(ret);
-@@ -708,13 +774,16 @@ BZ2File_readlines(BZ2FileObject *self, P
+@@ -586,7 +652,10 @@ BZ2File_read(BZ2FileObject *self, PyObje
+             if (_PyString_Resize(&ret, buffersize) < 0)
+                 goto cleanup;
+         } else {
+-            break;
++            /* Issue 1625 again: In multistream files, we have to continue
++             * to read the unused bytes to correctly uncompress the file in chunks */
++            if (bytesrequested == bytesread)
++                break;
+         }
+     }
+     if (bytesread != buffersize)
+@@ -708,13 +777,16 @@ BZ2File_readlines(BZ2FileObject *self, P
          self->pos += nread;
          Py_END_ALLOW_THREADS
          if (bzerror == BZ_STREAM_END) {
@@ -375,7 +395,7 @@ Index: Modules/bz2module.c
          } else if (bzerror != BZ_OK) {
              Util_CatchBZ2Error(bzerror);
            error:
-@@ -730,7 +799,8 @@ BZ2File_readlines(BZ2FileObject *self, P
+@@ -730,7 +802,8 @@ BZ2File_readlines(BZ2FileObject *self, P
              buffersize *= 2;
              if (buffersize > INT_MAX) {
                  PyErr_SetString(PyExc_OverflowError,
@@ -385,7 +405,7 @@ Index: Modules/bz2module.c
                  goto error;
              }
              if (big_buffer == NULL) {
-@@ -1077,15 +1147,20 @@ BZ2File_seek(BZ2FileObject *self, PyObje
+@@ -1077,15 +1150,20 @@ BZ2File_seek(BZ2FileObject *self, PyObje
  
                  bytesread += chunksize;
                  if (bzerror == BZ_STREAM_END) {
@@ -409,7 +429,7 @@ Index: Modules/bz2module.c
          }
          offset = self->size + offset;
      } else if (where == 1) {
-@@ -1094,7 +1169,6 @@ BZ2File_seek(BZ2FileObject *self, PyObje
+@@ -1094,7 +1172,6 @@ BZ2File_seek(BZ2FileObject *self, PyObje
  
      /* Before getting here, offset must be the absolute position the file
       * pointer should be set to. */
@@ -417,7 +437,7 @@ Index: Modules/bz2module.c
      if (offset >= self->pos) {
          /* we can move forward */
          offset -= self->pos;
-@@ -1146,9 +1220,12 @@ BZ2File_seek(BZ2FileObject *self, PyObje
+@@ -1146,9 +1223,12 @@ BZ2File_seek(BZ2FileObject *self, PyObje
          Py_END_ALLOW_THREADS
          bytesread += chunksize;
          if (bzerror == BZ_STREAM_END) {
@@ -433,7 +453,7 @@ Index: Modules/bz2module.c
          } else if (bzerror != BZ_OK) {
              Util_CatchBZ2Error(bzerror);
              goto cleanup;
-@@ -1211,11 +1288,13 @@ BZ2File_close(BZ2FileObject *self)
+@@ -1211,11 +1291,13 @@ BZ2File_close(BZ2FileObject *self)
      switch (self->mode) {
          case MODE_READ:
          case MODE_READ_EOF:
@@ -450,7 +470,7 @@ Index: Modules/bz2module.c
              break;
      }
      if (self->fp) {
-@@ -1391,6 +1470,7 @@ BZ2File_init(BZ2FileObject *self, PyObje
+@@ -1391,6 +1473,7 @@ BZ2File_init(BZ2FileObject *self, PyObje
          switch (*mode) {
              case 'r':
              case 'w':
@@ -458,7 +478,7 @@ Index: Modules/bz2module.c
                  if (mode_char)
                      error = 1;
                  mode_char = *mode;
-@@ -1425,7 +1505,20 @@ BZ2File_init(BZ2FileObject *self, PyObje
+@@ -1425,7 +1508,20 @@ BZ2File_init(BZ2FileObject *self, PyObje
          mode_char = 'r';
      }
  
@@ -480,7 +500,7 @@ Index: Modules/bz2module.c
  
      self->file = PyObject_CallFunction((PyObject*)&PyFile_Type, "(Osi)",
                                         name, mode, buffering);
-@@ -1484,11 +1577,13 @@ BZ2File_dealloc(BZ2FileObject *self)
+@@ -1484,11 +1580,13 @@ BZ2File_dealloc(BZ2FileObject *self)
      switch (self->mode) {
          case MODE_READ:
          case MODE_READ_EOF:
@@ -497,7 +517,7 @@ Index: Modules/bz2module.c
              break;
      }
      if (self->fp) {
-@@ -2223,6 +2318,7 @@ bz2_decompress(PyObject *self, PyObject
+@@ -2223,6 +2321,7 @@ bz2_decompress(PyObject *self, PyObject
      bz_stream _bzs;
      bz_stream *bzs = &_bzs;
      int bzerror;
@@ -505,7 +525,7 @@ Index: Modules/bz2module.c
  
      if (!PyArg_ParseTuple(args, "s*:decompress", &pdata))
          return NULL;
-@@ -2260,7 +2356,19 @@ bz2_decompress(PyObject *self, PyObject
+@@ -2260,7 +2359,19 @@ bz2_decompress(PyObject *self, PyObject
          bzerror = BZ2_bzDecompress(bzs);
          Py_END_ALLOW_THREADS
          if (bzerror == BZ_STREAM_END) {
@@ -526,7 +546,7 @@ Index: Modules/bz2module.c
          } else if (bzerror != BZ_OK) {
              BZ2_bzDecompressEnd(bzs);
              Util_CatchBZ2Error(bzerror);
-@@ -2284,13 +2392,16 @@ bz2_decompress(PyObject *self, PyObject
+@@ -2284,13 +2395,16 @@ bz2_decompress(PyObject *self, PyObject
                  Py_DECREF(ret);
                  return NULL;
              }
