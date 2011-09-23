@@ -47,7 +47,7 @@ def build():
     shelltools.system("./configure --prefix=/usr --libdir=/usr/lib --disable-strip --disable-install-strip")
 
     # FIXME: nsinstall get installed in the wrong place, fix it
-    shelltools.copy("%s/%s/obj-x86_64-unknown-linux-gnu/config/nsinstall" % (get.workDIR(), WorkDir), "%s/%s/config/" % (get.workDIR(), WorkDir))
+    shelltools.copy("%s/%s/obj-%s-unknown-linux-gnu/config/nsinstall" % (get.workDIR(), WorkDir, get.ARCH()), "%s/%s/config/" % (get.workDIR(), WorkDir))
     for locale in locales:
        autotools.make("-C browser/locales langpack-%s" % locale)
 
