@@ -26,10 +26,11 @@ def setup():
                         -Dno_strict_aliasing=1 \
                         -Dwerror= \
                         -Dlinux_strip_binary=1 \
-                        -Dlinux_sandbox_path=/usr/lib/chrome/chromium_sandbox \
+                        -Dlinux_sandbox_path=/usr/lib/chromium-browser/chromium-sandbox \
                         -Dlinux_sandbox_chrome_path=/usr/lib/chromium-browser/chromium-browser \
                         -Drelease_extra_cflags=-fno-ipa-cp \
                         -Dproprietary_codecs=1 \
+                        -Dinclude_pulse_audio=1 \
                         -Duse_system_bzip2=1 \
                         -Duse_system_libpng=1 \
                         -Duse_system_libevent=1 \
@@ -57,13 +58,16 @@ def install():
     pisitools.insinto("/usr/lib/chromium-browser", "chrome.pak")
     pisitools.insinto("/usr/lib/chromium-browser", "resources.pak")
     pisitools.insinto("/usr/lib/chromium-browser", "chrome", "chromium-browser")
-    pisitools.insinto("/usr/lib/chromium-browser", "chrome_sandbox", "chromium_sandbox")
+    pisitools.insinto("/usr/lib/chromium-browser", "chrome_sandbox", "chromium-sandbox")
+
+    # We need to set SUID otherwise it will not run
+    shelltools.chmod("%s/usr/lib/chromium-browser/chromium-sandbox" % get.installDIR(), 04755)
+
     pisitools.insinto("/usr/lib/chromium-browser", "locales")
     pisitools.insinto("/usr/lib/chromium-browser", "resources")
 
     # Internal ffmpeg libraries
     pisitools.insinto("/usr/lib/chromium-browser", "libffmpegsumo.so")
-    pisitools.insinto("/usr/lib/chromium-browser", "ffmpegsumo_nolink")
 
     # Nacl plugin
     # pisitools.insinto("/usr/lib/chromium-browser", "libppGoogleNaClPluginChrome.so")
