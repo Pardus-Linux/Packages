@@ -1,0 +1,48 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>dragonegg</Name>
+        <Homepage>http://dragonegg.llvm.org</Homepage>
+        <Packager>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Packager>
+        <License>GPLv2</License>
+        <IsA>library</IsA>
+        <Summary>A GCC plugin to use LLVM as a GCC backend</Summary>
+        <Description>dragonegg is a gcc plugin (dragonegg.so) that replaces gcc's optimizers and code generators with those from the LLVM project. It is a reimplementation of llvm-gcc that works with gcc-4.5 or later.</Description>
+        <Archive sha1sum="a892ad9740fd5c023357ea02f717050ae737980a" type="targz">http://llvm.org/releases/2.9/dragonegg-2.9.tgz</Archive>
+        <BuildDependencies>
+            <!-- Uses static LLVM archives -->
+            <Dependency>llvm</Dependency>
+            <Dependency>libgcc</Dependency>
+        </BuildDependencies>
+        <Patches>
+            <!-- Debian hack to workaround patching GCC code -->
+            <Patch>05_gcc_i386.diff</Patch>
+            <Patch level="1">fix-overlinking.patch</Patch>
+        </Patches>
+    </Source>
+
+    <Package>
+        <Name>dragonegg</Name>
+        <RuntimeDependencies>
+            <Dependency>libgcc</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="library">/usr/lib</Path>
+            <Path fileType="doc">/usr/share/doc</Path>
+        </Files>
+    </Package>
+
+    <History>
+        <Update release="1">
+            <Date>2011-09-13</Date>
+            <Version>2.9</Version>
+            <Comment>First release.</Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
+    </History>
+</PISI>
