@@ -24,3 +24,5 @@ def install():
                --install-dir /%s/BackupPC \
                --log-dir /%s/log/BackupPC"
               % (get.installDIR(), get.confDIR(), get.dataDIR(), get.localstateDIR(), get.dataDIR(), get.dataDIR(), get.localstateDIR()))
+
+    pisitools.dodoc("ChangeLog", "LICENSE", "README", "doc/*")
