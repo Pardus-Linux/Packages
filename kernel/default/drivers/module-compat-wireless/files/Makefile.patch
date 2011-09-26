@@ -1,8 +1,8 @@
-Index: compat-wireless-2.6.38-3-ns/Makefile
+Index: compat-wireless-2011-08-27-p/Makefile
 ===================================================================
---- compat-wireless-2.6.38-3-ns.orig/Makefile
-+++ compat-wireless-2.6.38-3-ns/Makefile
-@@ -89,7 +89,6 @@ btinstall: btuninstall bt-install-module
+--- compat-wireless-2011-08-27-p.orig/Makefile
++++ compat-wireless-2011-08-27-p/Makefile
+@@ -92,7 +92,6 @@ btinstall: btuninstall bt-install-module
  bt-install-modules: bt
  	$(MAKE) -C $(KLIB_BUILD) M=$(PWD) $(KMODDIR_ARG) $(KMODPATH_ARG) BT=TRUE \
  		modules_install
@@ -10,7 +10,7 @@ Index: compat-wireless-2.6.38-3-ns/Makefile
  	@echo
  	@echo "Currently detected bluetooth subsystem modules:"
  	@echo
-@@ -125,9 +124,6 @@ btuninstall:
+@@ -128,9 +127,6 @@ btuninstall:
  	@# New location, matches upstream
  	@rm -rf $(KLIB)/$(KMODDIR)/net/bluetooth/
  	@rm -rf $(KLIB)/$(KMODDIR)/drivers/bluetooth/
@@ -20,7 +20,7 @@ Index: compat-wireless-2.6.38-3-ns/Makefile
  	@echo
  	@echo "Your old bluetooth subsystem modules were left intact:"
  	@echo
-@@ -157,12 +153,11 @@ btclean:
+@@ -160,12 +156,11 @@ btclean:
  	make -C /lib/modules/$(shell uname -r)/build M=$(PWD) BT=TRUE clean
  	@rm -f $(CREL_PRE)*
  
@@ -34,7 +34,7 @@ Index: compat-wireless-2.6.38-3-ns/Makefile
  
  install-scripts:
  	@# All the scripts we can use
-@@ -194,19 +189,8 @@ install-scripts:
+@@ -197,19 +192,8 @@ install-scripts:
  		echo Running iwl-enable iwlagn...;\
  		/usr/sbin/iwl-enable iwlagn ;\
  	fi
@@ -54,7 +54,7 @@ Index: compat-wireless-2.6.38-3-ns/Makefile
  	@echo
  	@echo "Currently detected wireless subsystem modules:"
  	@echo 
-@@ -337,7 +321,6 @@ uninstall:
+@@ -340,7 +324,6 @@ uninstall:
  	@rm -f $(KLIB)/$(KMODDIR)/drivers/misc/eeprom/eeprom_93cx6.ko*
  	@rm -f $(KLIB)/$(KMODDIR)/drivers/misc/eeprom_93cx6.ko*
  	@rm -f $(KLIB)/$(KMODDIR)/drivers/net/b44.ko*
@@ -62,17 +62,3 @@ Index: compat-wireless-2.6.38-3-ns/Makefile
  	@echo
  	@echo "Your old wireless subsystem modules were left intact:"
  	@echo 
-Index: compat-wireless-2.6.38-3-ns/scripts/gen-compat-autoconf.sh
-===================================================================
---- compat-wireless-2.6.38-3-ns.orig/scripts/gen-compat-autoconf.sh
-+++ compat-wireless-2.6.38-3-ns/scripts/gen-compat-autoconf.sh
-@@ -184,7 +184,8 @@ done
- # Deal with special cases. CONFIG_MAC80211_QOS is such a case.
- # We handle this specially for different kernels we support.
- if [ -f $KLIB_BUILD/Makefile ]; then
--	SUBLEVEL=$(make -C $KLIB_BUILD kernelversion | sed -n 's/^2\.6\.\([0-9]\+\).*/\1/p')
-+    # Use our own version string, other method causes sandbox violations
-+	SUBLEVEL=$(echo "@KERNELRELEASE@" | sed -n 's/^2\.6\.\([0-9]\+\).*/\1/p')
- 	if [ $SUBLEVEL -le 22 ]; then
- 		define_config CONFIG_MAC80211_QOS y
- 	else # kernel >= 2.6.23
