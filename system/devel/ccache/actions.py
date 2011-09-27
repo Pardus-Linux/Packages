@@ -13,6 +13,7 @@ from pisi.actionsapi import get
 def setup():
     if shelltools.isDirectory("zlib"):
         shelltools.unlinkDir("zlib")
+
     autotools.configure()
 
 def build():
@@ -25,7 +26,7 @@ def install():
     autotools.install()
 
     # Create symlinks
-    for cc in ("gcc", "g++", "cc", "c++"):
+    for cc in ("gcc", "g++", "cc", "c++", "clang", "clang++"):
         pisitools.dosym("../../../bin/ccache", "/usr/lib/ccache/bin/%s" % cc)
         pisitools.dosym("../../../bin/ccache", "/usr/lib/ccache/bin/%s-%s" % (get.HOST(), cc))
 
