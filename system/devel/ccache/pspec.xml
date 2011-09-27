@@ -12,7 +12,7 @@
         <IsA>app:console</IsA>
         <Summary>Fast C/C++ compiler cache</Summary>
         <Description>ccache is a compiler cache. It speeds up recompilation of C/C++ code by caching previous compiles and detecting when the same compile is being done.</Description>
-        <Archive sha1sum="7e81c7269410dce34468b9393f3d2df6d577af9c" type="targz">http://samba.org/ftp/ccache/ccache-3.1.tar.gz</Archive>
+        <Archive sha1sum="9ed36cf97511f7e0fb7ec30176ebba0b7d9dccf4" type="targz">http://samba.org/ftp/ccache/ccache-3.1.6.tar.gz</Archive>
         <Patches>
             <Patch level="1">increase-default-cache.patch</Patch>
         </Patches>
@@ -32,6 +32,44 @@
     </Package>
 
     <History>
+        <Update release="11">
+            <Date>2011-09-27</Date>
+            <Version>3.1.6</Version>
+            <Comment>
+               -  Version bump to 3.1.6:
+               -  ccache now falls back to preprocessor mode when a non-regular include file (device, socket, etc) has been detected so that potential hanging due to blocking reads is avoided.
+               -  CRC errors are now detected when decompressing compressed files in the cache.
+               -  Fixed potential object file corruption race on NFS.
+               -  Minor documentation corrections.
+               -  Fixed configure detection of ar.
+               -  ccache development version (set by dev.mk) now works with gits whose describe command doesn’t understand --dirty.
+               -  Bail out on too hard compiler options -fdump-*.
+               -  NULL return values from malloc/calloc of zero bytes are now handled correctly.
+               -  Fixed issue when parsing precompiler output on AIX.
+               -  Improved documentation on which information is included in the hash sum.
+               -  Made the "too new header file" test case work on file systems with unsynchronized clocks.
+               -  The test suite now also works on systems that lack a /dev/zero.
+               -  The -MFarg, -MTarg and -MQarg compiler options (i.e, without space between option and argument) are now handled correctly.
+               -  Made a work-around for a bug in gzputc() in zlib 1.2.5.
+               -  Corrupt manifest files are now removed so that they won’t block direct mode hits.
+               -  ccache now copes with file systems that don’t know about symbolic links.
+               -  The file handle in now correctly closed on write error when trying to create a cache dir tag.
+               -  The -MF/-MT/-MQ options with concatenated argument are now handled correctly when they are last on the command line.
+               -  ccache is now bug compatible with GCC for the -MT/-MQ options with concatenated arguments.
+               -  Fixed a minor memory leak.
+               -  Systems that lack (and don't need to be linked with) libm are now supported.
+               -  Added a new statistics counter named "called for preprocessing".
+               -  The original command line is now logged to the file specified with CCACHE_LOGFILE.
+               -  Improved error logging when system calls fail.
+               -  Added support for rewriting absolute paths in -F/-iframework GCC options.
+               -  Improved order of statistics counters in ccache -s output.
+               -  Rewrite argument to --sysroot if CCACHE_BASEDIR is used.
+               -  Don't crash if getcwd() fails.
+               -  Fixed alignment of "called for preprocessing" counter.
+            </Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
         <Update release="10">
             <Date>2010-10-11</Date>
             <Version>3.1</Version>
