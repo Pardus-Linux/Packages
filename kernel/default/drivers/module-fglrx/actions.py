@@ -14,13 +14,23 @@ KDIR = kerneltools.getKernelVersion()
 NoStrip = ["/lib/modules"]
 
 BuildDir = "common/lib/modules/fglrx/build_mod"
-Target = get.ARCH().replace("i686", "x86")
+
+if get.buildTYPE() == 'emul32':
+    Target = "x86"
+    Libdir = "/usr/lib32"
+else:
+    Target = get.ARCH().replace("i686", "x86")
+    Libdir = "/usr/lib"
+
 XDir = "xpic" + ("_64a" if Target == "x86_64" else "")
 
 
 def setup():
     shelltools.export("SETUP_NOCHECK", "1")
     shelltools.system("sh ati-driver-installer-%s-x86.x86_64.run --extract ." % get.srcVERSION().replace(".", "-"))
+
+    if get.buildTYPE() == "emul32":
+        return
 
     # Needed during kernel module compiling
     shelltools.sym("../../../../../arch/%s/lib/modules/fglrx/build_mod/libfglrx_ip.a" % Target, "%s/libfglrx_ip.a" % BuildDir)
@@ -33,66 +43,83 @@ def setup():
     shelltools.system("patch -p1 < ati-powermode.patch")
 
 def build():
+    if get.buildTYPE() == "emul32":
+        return
+
     shelltools.cd(BuildDir)
     shelltools.system("sh make.sh")
 
-
 def install():
     # Controlcenter binaries
-    pisitools.dobin("arch/%s/usr/X11R6/bin/*" % Target)
-    pisitools.dobin("common/usr/X11R6/bin/*")
-    pisitools.dosbin("arch/%s/usr/sbin/*" % Target)
-    pisitools.dosbin("common/usr/sbin/*")
+    if not get.buildTYPE() == 'emul32':
+        pisitools.dobin("arch/%s/usr/X11R6/bin/*" % Target)
+        pisitools.dobin("common/usr/X11R6/bin/*")
+        pisitools.dosbin("arch/%s/usr/sbin/*" % Target)
+        pisitools.dosbin("common/usr/sbin/*")
 
     # Controlcenter libraries
     # The other files under /usr/share are common files like icon,man,doc ,etc ..
     DIRS = {
             "common/usr/share/doc/fglrx/examples/etc/acpi/events":  "/etc/acpi",
             "common/etc/ati":                       "/etc",
-            "arch/%s/usr/X11R6/lib*/*" % Target:    "/usr/lib",
-            "arch/%s/usr/lib*/*" % Target:          "/usr/lib",
+            "arch/%s/usr/X11R6/lib*/*" % Target:    Libdir,
+            "arch/%s/usr/lib*/*" % Target:          Libdir,
             "common/usr/share":                     "/usr"
             }
+
+    # Emul32 package don't need files that belongs to /usr/share
+    if get.buildTYPE() == "emul32":
+        del DIRS["common/usr/share"]
+        del DIRS["common/etc/ati"]
+        del DIRS["common/usr/share/doc/fglrx/examples/etc/acpi/events"]
 
     for source, target in DIRS.items():
         pisitools.insinto(target, source)
 
     # X.org drivers
-    pisitools.domove("/usr/lib/modules", "/usr/lib/fglrx")
-    pisitools.insinto("/usr/lib/fglrx/modules", "%s/usr/X11R6/lib*/modules/*" % XDir)
+    pisitools.domove("%s/modules" % Libdir, "%s/fglrx" % Libdir)
+    pisitools.insinto("%s/fglrx/modules" % Libdir, "%s/usr/X11R6/lib*/modules/*" % XDir)
 
     # libGl library name changed to fglrx-libGl since 1.15
-    pisitools.domove("/usr/lib/fglrx/fglrx-libGL.so.1.2", "/usr/lib/fglrx", "libGL.so.1.2")
+    pisitools.domove("%s/fglrx/fglrx-libGL.so.1.2" % Libdir, "%s/fglrx" % Libdir, "libGL.so.1.2")
 
-    pisitools.domove("/usr/lib/fglrx/modules/dri", "/usr/lib/xorg/modules/")
-    pisitools.domove("/usr/lib/fglrx/modules/extensions/fglrx/fglrx-libglx.so", "/usr/lib/fglrx/modules/extensions", "libglx.so")
+    pisitools.domove("%s/fglrx/modules/dri" % Libdir, "%s/xorg/modules/" % Libdir)
+
+    pisitools.domove("%s/fglrx/modules/extensions/fglrx/fglrx-libglx.so" % Libdir,
+                     "%s/fglrx/modules/extensions" % Libdir, "libglx.so")
 
     # Necessary symlinks
-    pisitools.dosym("/usr/lib/xorg/modules/dri/fglrx_dri.so", "/usr/lib/dri/fglrx_dri.so")
+    pisitools.dosym("%s/xorg/modules/dri/fglrx_dri.so" % Libdir, "%s/dri/fglrx_dri.so" % Libdir)
 
-    pisitools.dosym("libatiuki.so.1.0", "/usr/lib/libatiuki.so.1")
-    pisitools.dosym("libatiuki.so.1", "/usr/lib/libatiuki.so")
+    pisitools.dosym("libatiuki.so.1.0", "%s/libatiuki.so.1" % Libdir)
+    pisitools.dosym("libatiuki.so.1", "%s/libatiuki.so" % Libdir)
 
-    pisitools.dosym("libfglrx_dm.so.1.0", "/usr/lib/libfglrx_dm.so.1")
-    pisitools.dosym("libfglrx_dm.so.1", "/usr/lib/libfglrx_dm.so")
+    pisitools.dosym("libfglrx_dm.so.1.0", "%s/libfglrx_dm.so.1" % Libdir)
+    pisitools.dosym("libfglrx_dm.so.1", "%s/libfglrx_dm.so" % Libdir)
 
-    pisitools.dosym("libAMDXvBA.so.1.0", "/usr/lib/libAMDXvBA.so.1")
-    pisitools.dosym("libAMDXvBA.so.1", "/usr/lib/libAMDXvBA.so")
+    pisitools.dosym("libAMDXvBA.so.1.0", "%s/libAMDXvBA.so.1" % Libdir)
+    pisitools.dosym("libAMDXvBA.so.1", "%s/libAMDXvBA.so" % Libdir)
 
-    pisitools.dosym("libXvBAW.so.1.0", "/usr/lib/libXvBAW.so.1")
-    pisitools.dosym("libXvBAW.so.1", "/usr/lib/libXvBAW.so")
+    pisitools.dosym("libXvBAW.so.1.0", "%s/libXvBAW.so.1" % Libdir)
+    pisitools.dosym("libXvBAW.so.1", "%s/libXvBAW.so" % Libdir)
+
+    # remove static libs
+    pisitools.remove("%s/*.a" % Libdir)
+    if shelltools.isFile("%s%s/fglrx/modules/esut.a" % (get.installDIR(), Libdir)):
+        pisitools.remove("%s/fglrx/modules/esut.a" % Libdir)
 
     # compatibility links
+    pisitools.dosym("xorg/modules", "%s/modules" % Libdir)
+
+    # OK, That's the end of emul32 build, it's time to exit.
+    if get.buildTYPE() == "emul32":
+        return
+
+    # Another compatibility link
     pisitools.dosym("/usr", "/usr/X11R6")
-    pisitools.dosym("xorg/modules", "/usr/lib/modules")
 
     # copy compiled kernel module
     pisitools.insinto("/lib/modules/%s/extra" % KDIR, "common/lib/modules/fglrx/fglrx.%s.ko" % KDIR, "fglrx.ko")
-
-    # remove static libs
-    pisitools.remove("/usr/lib/*.a")
-    if shelltools.isFile("%s/usr/lib/fglrx/modules/esut.a" % get.installDIR()):
-        pisitools.remove("/usr/lib/fglrx/modules/esut.a")
 
     # control script for ACPI lid state and AC adapter state
     pisitools.insinto("/etc/acpi", "common/usr/share/doc/fglrx/examples/etc/acpi/ati-powermode.sh")
