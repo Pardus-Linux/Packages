@@ -10,6 +10,11 @@ from pisi.actionsapi import get
 
 #WorkDir = "Mesa-%s" % get.srcVERSION().replace("_", "-")
 
+if get.buildTYPE() == "emul32":
+    Libdir = "/usr/lib32"
+else:
+    Libdir = "/usr/lib"
+
 def setup():
     shelltools.export("CFLAGS", "%s -DNDEBUG" % get.CFLAGS())
 
@@ -65,15 +70,14 @@ def install():
     for header in ("[a-fh-wyz]*.h", "glf*.h", "*glut*.h"):
         pisitools.remove("/usr/include/GL/%s" % header)
 
-    if get.buildTYPE() == "emul32":
-        pisitools.rename("/usr/lib32/xorg/modules/dri/swrastg_dri.so", "swrast_dri.so")
-        return
-
     # Use llvmpipe instead of classic swrast driver
-    pisitools.rename("/usr/lib/xorg/modules/dri/swrastg_dri.so", "swrast_dri.so")
+    pisitools.rename("%s/xorg/modules/dri/swrastg_dri.so" % Libdir, "swrast_dri.so")
 
     # Moving libGL for dynamic switching
-    pisitools.domove("/usr/lib/libGL.so.1.2", "/usr/lib/mesa")
+    pisitools.domove("%s/libGL.so.1.2" % Libdir, "%s/mesa" % Libdir)
+
+    if get.buildTYPE() == "emul32":
+        return
 
     pisitools.dodoc("docs/COPYING")
     pisitools.dohtml("docs/*")
