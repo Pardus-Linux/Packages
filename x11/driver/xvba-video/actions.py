@@ -9,6 +9,10 @@ from pisi.actionsapi import get
 WorkDir = "%s-%s.%s" % (get.srcNAME(), get.srcVERSION(), get.ARCH())
 
 def install():
-    pisitools.insinto("/", "usr")
+    if get.buildTYPE() == "emul32":
+        pisitools.insinto("/usr/lib32", "usr/lib/*")
+        return
+    else:
+        pisitools.insinto("/usr/lib", "usr/lib/*")
 
     pisitools.dodoc("AUTHORS", "COPYING", "NEWS", "README")
