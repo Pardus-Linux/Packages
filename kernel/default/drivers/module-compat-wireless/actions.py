@@ -19,7 +19,7 @@ def setup():
     pisitools.dosed("scripts/gen-compat-autoconf.sh", "make -C \$KLIB_BUILD kernelversion", "echo \"%s\"" % KDIR)
 
 def build():
-    autotools.make("KLIB=/lib/modules/%s" % KDIR)
+    autotools.make("MODPROBE=/bin/true KLIB=/lib/modules/%s" % KDIR)
 
 def install():
     autotools.install("KLIB=/lib/modules/%s KMODPATH_ARG='INSTALL_MOD_PATH=%s' DEPMOD=/bin/true" % (KDIR, get.installDIR()))
