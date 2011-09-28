@@ -29,6 +29,9 @@
 
             <!-- Add Pardus specific C++ header directory. We use \-\-with-gxx-include-dir=/usr/include/c++ in GCC build -->
             <Patch level="1">add-c++-header-path.diff</Patch>
+
+            <!-- Use ld.gold instead of ld to ease -O4 usage. Patch derived from Arch. To use -O4 also add \-\-use-gold-plugin option -->
+            <Patch>use-ld-gold-by-default.patch</Patch>
         </Patches>
     </Source>
 
@@ -45,11 +48,18 @@
             <Path fileType="executable">/usr/bin/llvm-config</Path>
             <Path fileType="header">/usr/include/llvm*</Path>
             <Path fileType="library">/usr/lib/llvm</Path>
+            <Path fileType="library">/usr/lib/LLVMgold.so</Path>
             <Path fileType="library">/usr/lib/llvm/*.a</Path>
             <Path fileType="data">/etc/ld.so.conf.d</Path>
             <Path fileType="doc">/usr/share/doc</Path>
+            <Path fileType="data">/usr/share/vim</Path>
+             <!-- Kate syntax file -->
+            <Path fileType="data">/usr/share/kde4</Path>
             <Path fileType="man">/usr/share/man</Path>
         </Files>
+        <AdditionalFiles>
+            <AdditionalFile target="/usr/share/vim/vimfiles/ftdetect/llvm.vim" permission="0644" owner="root">llvm.vim</AdditionalFile>
+        </AdditionalFiles>
     </Package>
 
     <Package>
@@ -136,6 +146,16 @@
     </Package>
 
     <History>
+        <Update release="7">
+            <Date>2011-09-28</Date>
+            <Version>2.9</Version>
+            <Comment>
+                * Install kate and vim syntax files for .ll and .td file highlighting. Also add a ftdetect file.
+                * Add /usr/lib/LLVMgold.so -> /usr/lib/llvm/LLVMgold.so as clang expects. We can now use -O4 or -flto.
+            </Comment>
+            <Name>Gökçen Eraslan</Name>
+            <Email>gokcen@pardus.org.tr</Email>
+        </Update>
         <Update release="6">
             <Date>2011-09-26</Date>
             <Version>2.9</Version>

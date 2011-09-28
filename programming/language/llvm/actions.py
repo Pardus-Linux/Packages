@@ -7,6 +7,7 @@ from pisi.actionsapi import autotools
 from pisi.actionsapi import pisitools
 from pisi.actionsapi import shelltools
 from pisi.actionsapi import get
+from pisi.actionsapi import kde4
 
 libdir = "/usr/lib/llvm"
 
@@ -87,11 +88,21 @@ def install():
     # Remove executable bit from static libs
     shelltools.chmod("%s/usr/lib/*/*.a" % get.installDIR(), 0644)
 
+    # Symlink the gold plugin where clang expects it
+    pisitools.dosym("llvm/LLVMgold.so", "/usr/lib/LLVMgold.so")
+
     # Remove example file
     pisitools.remove("/usr/lib/llvm/*LLVMHello.*")
 
     pisitools.remove("/usr/share/doc/llvm/*.tar.gz")
     pisitools.remove("/usr/share/doc/llvm/ocamldoc/html/*.tar.gz")
     pisitools.removeDir("/usr/share/doc/llvm/ps")
+
+    # Install vim syntax files for .ll and .td files
+    # llvm.vim additional file add ftdetct vim file to detect .ll and .td as llvm files
+    pisitools.insinto("/usr/share/vim/vimfiles/syntax", "utils/vim/*.vim")
+
+    # Install kate syntax file
+    pisitools.insinto("%s/katepart/syntax" % kde4.appsdir, "utils/kate/*.xml")
 
     pisitools.dodoc("CREDITS.TXT", "LICENSE.TXT", "README.txt")
