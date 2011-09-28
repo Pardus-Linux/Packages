@@ -13,11 +13,16 @@ WorkDir = "."
 KDIR = kerneltools.getKernelVersion()
 NoStrip = ["/lib/modules"]
 
-arch = get.ARCH().replace("i686", "x86")
 version = get.srcVERSION()
 driver = "nvidia-current"
-libdir = "/usr/lib/%s" % driver
 datadir = "/usr/share/%s" % driver
+
+if get.buildTYPE() == 'emul32':
+    arch = "x86"
+    libdir = "/usr/lib32/%s" % driver
+else:
+    arch = get.ARCH().replace("i686", "x86")
+    libdir = "/usr/lib/%s" % driver
 
 def setup():
     shelltools.system("sh NVIDIA-Linux-%s-%s.run -x --target tmp"
@@ -35,22 +40,28 @@ def setup():
     shelltools.echo("XvMCConfig", "%s/libXvMCNVIDIA.so" % libdir)
 
 def build():
+    # We don't need kernel module for emul32 build
+    if get.buildTYPE() == 'emul32':
+        return
+
     shelltools.export("SYSSRC", "/lib/modules/%s/build" % KDIR)
     shelltools.cd("kernel")
 
     autotools.make("module")
 
 def install():
-    # Kernel driver
-    pisitools.insinto("/lib/modules/%s/extra/nvidia" % KDIR,
-                      "kernel/nvidia.ko", "%s.ko" % driver)
 
-    # Command line tools and their man pages
-    pisitools.dobin("nvidia-smi")
-    pisitools.doman("nvidia-smi.1.gz")
+    if not get.buildTYPE() == 'emul32':
+    # Kernel driver
+        pisitools.insinto("/lib/modules/%s/extra/nvidia" % KDIR,
+                          "kernel/nvidia.ko", "%s.ko" % driver)
+
+        # Command line tools and their man pages
+        pisitools.dobin("nvidia-smi")
+        pisitools.doman("nvidia-smi.1.gz")
+
 
     ###  Libraries
-
     # OpenGl library
     pisitools.dolib("libGL.so.%s" % version, libdir)
     pisitools.dosym("libGL.so.%s" % version, "%s/libGL.so.1.2" % libdir)
@@ -92,12 +103,16 @@ def install():
 
     # VDPAU driver
     pisitools.dolib("libvdpau_nvidia.so.%s" % version, "%s/vdpau" % libdir)
-    pisitools.dosym("../nvidia-current/vdpau/libvdpau_nvidia.so.%s" % version, "/usr/lib/vdpau/libvdpau_nvidia.so.1")
+    pisitools.dosym("../nvidia-current/vdpau/libvdpau_nvidia.so.%s" % version, "%s/vdpau/libvdpau_nvidia.so.1" % libdir.strip(driver))
 
     # X modules
     pisitools.dolib("nvidia_drv.so", "%s/modules/drivers" % libdir)
     pisitools.dolib("libglx.so.%s" % version, "%s/modules/extensions" % libdir)
     pisitools.dosym("libglx.so.%s" % version, "%s/modules/extensions/libglx.so" % libdir)
+
+    # Exit time for emul32 build
+    if get.buildTYPE() == 'emul32':
+        return
 
     pisitools.insinto("/etc/OpenCL/vendors", "nvidia.icd")
 
