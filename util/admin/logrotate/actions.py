@@ -17,7 +17,7 @@ def install():
 
     pisitools.dodir("/etc/logrotate.d")
 
-    pisitools.insinto("/etc/cron.daily", "examples/logrotate.cron")
+    pisitools.dobin("examples/logrotate.cron", "/etc/cron.daily")
     pisitools.insinto("/etc", "examples/logrotate-default", "logrotate.conf")
 
     pisitools.dodoc("CHANGES", "COPYING", "README*")
