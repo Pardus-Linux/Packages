@@ -18,9 +18,9 @@ def setup():
                --disable-static"
 
     if get.buildTYPE() == "emul32":
-        options += " --prefix=/emul32 \
-                     --without-python \
-                     --libdir=/usr/lib32"
+        options += " --libdir=/usr/lib32 \
+                     --bindir=/emul32/bin \
+                     --without-python"
         shelltools.export("CC", "%s -m32" % get.CC())
 
     autotools.configure(options)
