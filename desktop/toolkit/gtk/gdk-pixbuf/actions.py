@@ -20,8 +20,9 @@ def setup():
                --with-included-loaders=png"
 
     if get.buildTYPE() == "emul32":
-        options += " --prefix=/emul32 \
-                     --libdir=/usr/lib32"
+        options += " --libdir=/usr/lib32 \
+                     --bindir=/emul32/bin"
+
         shelltools.export("CFLAGS", "%s -m32" % get.CFLAGS())
 
     autotools.autoreconf("-fiv")
