@@ -3,7 +3,7 @@
 <PISI>
     <Source>
         <Name>pango</Name>
-        <Homepage>http://www.pango.org/</Homepage>
+        <Homepage>http://www.pango.org</Homepage>
         <Packager>
             <Name>Serdar Dalgıç</Name>
             <Email>serdar@pardus.org.tr</Email>
@@ -39,10 +39,12 @@
         <Files>
             <Path fileType="config">/etc/pango</Path>
             <Path fileType="executable">/usr/bin</Path>
-            <Path fileType="library">/usr/lib</Path>
-            <Path fileType="doc">/usr/share/doc</Path>
-            <Path fileType="man">/usr/share/man</Path>
+            <Path fileType="library">/usr/lib/libpango*</Path>
+            <Path fileType="library">/usr/lib/girepository-1.0</Path>
+            <Path fileType="library">/usr/lib/pango</Path>
             <Path fileType="data">/usr/share/gir-1.0</Path>
+            <Path fileType="man">/usr/share/man</Path>
+            <Path fileType="doc">/usr/share/doc</Path>
         </Files>
         <Provides>
             <COMAR script="package.py">System.Package</COMAR>
@@ -57,6 +59,7 @@
         </RuntimeDependencies>
         <Files>
             <Path fileType="library">/usr/lib/pkgconfig</Path>
+            <Path fileType="library">/usr/lib32/pkgconfig</Path>
             <Path fileType="header">/usr/include</Path>
         </Files>
     </Package>
@@ -70,7 +73,45 @@
         </Files>
     </Package>
 
+    <Package>
+        <Name>pango-32bit</Name>
+        <PartOf>emul32</PartOf>
+        <Summary>32-bit shared libraries for pango</Summary>
+        <BuildType>emul32</BuildType>
+        <BuildDependencies>
+            <Dependency>cairo-32bit</Dependency>
+            <Dependency>glib2-32bit</Dependency>
+            <Dependency>libX11-32bit</Dependency>
+            <Dependency>libXft-32bit</Dependency>
+            <Dependency>freetype-32bit</Dependency>
+            <Dependency>libXrender-32bit</Dependency>
+            <Dependency>fontconfig-32bit</Dependency>
+        </BuildDependencies>
+        <RuntimeDependencies>
+            <Dependency release="current">pango</Dependency>
+            <Dependency>cairo-32bit</Dependency>
+            <Dependency>glib2-32bit</Dependency>
+            <Dependency>libX11-32bit</Dependency>
+            <Dependency>libXft-32bit</Dependency>
+            <Dependency>freetype-32bit</Dependency>
+            <Dependency>libXrender-32bit</Dependency>
+            <Dependency>fontconfig-32bit</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="library">/usr/lib32/libpango*</Path>
+            <Path fileType="library">/usr/lib32/girepository-1.0</Path>
+            <Path fileType="library">/usr/lib32/pango</Path>
+        </Files>
+    </Package>
+
     <History>
+        <Update release="40">
+            <Date>2011-07-07</Date>
+            <Version>1.28.3</Version>
+            <Comment>Add lib32 package for pango</Comment>
+            <Name>Anıl Özbek</Name>
+            <Email>ozbekanil@gmail.com</Email>
+        </Update>
         <Update release="39" type="security">
             <Date>2011-03-08</Date>
             <Version>1.28.3</Version>
