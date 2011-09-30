@@ -13,14 +13,20 @@ from pisi.actionsapi import shelltools
 shelltools.export("HOME", get.workDIR())
 
 def setup():
+    options = "--disable-gtk-doc"
+
+    if get.buildTYPE() == "emul32":
+        options += " --libdir=/usr/lib32"
+        shelltools.export("CFLAGS", "%s -m32" % get.CFLAGS())
+
     autotools.autoreconf("-fiv")
-    autotools.configure("--disable-gtk-doc")
+    autotools.configure(options)
 
 def build():
     autotools.make()
 
 def install():
-    autotools.install()
+    autotools.rawInstall("DESTDIR=%s" % get.installDIR())
 
     pisitools.removeDir("/usr/share/gtk-doc")
     pisitools.dodoc("AUTHORS", "ChangeLog", "COPYING", "NEWS", "README")
