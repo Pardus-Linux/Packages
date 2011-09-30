@@ -25,6 +25,15 @@ def updateData(filepath):
             if iconFound:
                 return
 
+        if fnmatch.fnmatch(path, "usr/lib32/gtk-2.0/*immodules/*.so") and not immoduleFound:
+            immodulesdir = "/etc/gtk-2.0/32bit"
+            if not os.path.exists(immodulesdir):
+                os.makedirs(immodulesdir, 0755)
+            os.system("/usr/bin/gtk-query-immodules-2.0-32bit > %s/gtk.immodules" % immodulesdir)
+            immoduleFound = True
+            if iconFound:
+                return
+
 def setupPackage(metapath, filepath):
     updateData(filepath)
 
