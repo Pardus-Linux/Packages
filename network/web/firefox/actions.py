@@ -19,25 +19,6 @@ ObjDir = "obj-%s-unknown-linux-gnu" % get.ARCH() if get.ARCH() == "x86_64" else 
 
 locales = ["be", "ca", "de", "es-AR", "es-ES", "fr", "hu", "it", "nl", "pl", "ru", "sv-SE", "tr"]
 
-def setup():
-    # Let the lines stay below, we could need them in the future
-    # Mozilla uses autoconf 2.13 instead of 2.15. Thus we use own autoconf213
-    # Use autoconf-213 which we provide via a hacky patch to produce configure
-    #shelltools.system("/bin/bash ./autoconf-213/autoconf-2.13 --macro-dir=autoconf-213/m4")
-    #shelltools.cd("js/src")
-    #shelltools.system("/bin/bash ../../autoconf-213/autoconf-2.13 --macro-dir=../../autoconf-213/m4")
-    #shelltools.cd("../..") 
-
-    # TODO: Enable PGD
-    #pisitools.dosed("memory/jemalloc/Makefile.in", "^NO_PROFILE_GUIDED_OPTIMIZE = 1$", "")
-
-    # Needed for our custom l10n tarball
-    shelltools.sym("../l10n", "l10n")
-
-    # There are two entries for turkish, remove one. We have to apply it here 
-    # because we have one WorkDir but two different archives
-    shelltools.system("patch -Np0 -i %s/fix-double-turkish-option.diff" % get.workDIR())
-
 def build():
     # FIXME: Change library path and version with variables
     shelltools.export("LDFLAGS", "%s -Wl,-rpath,/usr/lib/%s-%s" % (get.LDFLAGS(), get.srcNAME(), get.srcVERSION()))
@@ -49,7 +30,9 @@ def build():
     # We need to execute configure, otherwise the Makefile in browser/locales doesn't
     # generate. Don't execute it before "make -f client.mk". Otherwise it's conflicts with
     # mozconfig.
-    shelltools.system("./configure --prefix=/usr --libdir=/usr/lib --disable-strip --disable-install-strip")
+    # With 'make -f client.mk' call, build action takes place in $TOPSRCDIR/$OBJDIR by default. But this 'configure' call will take place in $TOPSRCDIR.
+    # So we must override mozconfig l10n path specification to ./10n instead of ../l10n
+    shelltools.system("./configure --prefix=/usr --libdir=/usr/lib --disable-strip --disable-install-strip --with-l10n-base=./l10n")
 
     # FIXME: nsinstall get installed in the wrong place, fix it
     shelltools.copy("%s/%s/%s/config/nsinstall" % (get.workDIR(), WorkDir, ObjDir), "%s/%s/config/" % (get.workDIR(), WorkDir))

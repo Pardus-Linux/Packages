@@ -17,15 +17,12 @@
         <Description>It is more secure and faster to browse the web with Firefox web browser. You can personalize your web browser with many specifications that is not enough to explain in two sentences.</Description>
         <Archive sha1sum="074eb9c1df4de0fe0a4bb9226ca3c2822c334cd6" type="tarbz2">ftp://ftp.mozilla.org/pub/mozilla.org/firefox/releases/6.0.2/source/firefox-6.0.2.source.tar.bz2</Archive>
         <!--Use tools/create-locale-tar.sh script to create the l10n-tarball from mozilla sources-->
-        <Archive sha1sum="ac7acb1f829666183a19b1ae444114d87746e145" type="tarbz2">http://cekirdek.pardus.org.tr/~farslan/dist/firefox/l10n-6.0.2.tar.bz2</Archive>
+        <Archive sha1sum="ac7acb1f829666183a19b1ae444114d87746e145" type="tarbz2" target="mozilla-release">http://cekirdek.pardus.org.tr/~farslan/dist/firefox/l10n-6.0.2.tar.bz2</Archive>
         <AdditionalFiles>
             <AdditionalFile target="browser/app/profile/kde.js" permission="0644">suse/kde.js</AdditionalFile>
 
             <!--Our main configure script. Configure paramters are stored here.-->
             <AdditionalFile target=".mozconfig" permission="0644">mozconfig</AdditionalFile>
-
-            <!--Our locale directory is seperated, thus we need to apply this patch manually-->
-            <AdditionalFile target="../fix-double-turkish-option.diff" permission="0644">pardus/fix-double-turkish-option.diff</AdditionalFile>
         </AdditionalFiles>
         <BuildDependencies>
             <Dependency>fontconfig-devel</Dependency>
@@ -73,6 +70,7 @@
             <Patch level="1">pardus/autoconf-213-hack.diff</Patch>
             <Patch level="1">pardus/workaround-dbus-glib-build-error.diff</Patch>
             <Patch level="0">pardus/zemberek-firefox5.patch</Patch>
+            <Patch level="0">pardus/fix-double-turkish-option.diff</Patch>
         </Patches>
     </Source>
 
@@ -157,6 +155,17 @@
     </Package>
 
     <History>
+        <Update release="160">
+            <Date>2011-10-02</Date>
+            <Version>6.0.2</Version>
+            <Comment>
+                * Open l10n source to the mozilla directory with the help of 'target' attribute of PiSi
+                * Remove setup section
+                * We now do not have apply pardus/fix-double-turkish-option.diff in actions.py, and create symlink to l10n dir
+            </Comment>
+            <Name>Metin Akdere</Name>
+            <Email>metin@pardus.org.tr</Email>
+        </Update>
         <Update release="159">
             <Date>2011-09-26</Date>
             <Version>6.0.2</Version>
