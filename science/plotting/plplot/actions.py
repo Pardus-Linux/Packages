@@ -18,6 +18,7 @@ def setup():
                           -DENABLE_ada=OFF    \
                           -DHAVE_ADA_2007=OFF \
                           -DENABLE_d=OFF      \
+                          -DENABLE_octave=OFF \
                           -DENABLE_java=OFF")
 
 def build():
