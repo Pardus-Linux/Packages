@@ -7,10 +7,12 @@ from pisi.actionsapi import pisitools
 from pisi.actionsapi import get
 from pisi.actionsapi import shelltools
 
+ARCH = "i386" if get.ARCH() == "i686" else "x86_64"
 WorkDir = get.ARCH()
 NoStrip = "/"
 
 def install():
-    shelltools.copytree("usr", "%s/usr" % get.installDIR())
+    distdir = "%s-%s-%s" % (get.srcNAME(), get.srcVERSION(), ARCH)
 
-    pisitools.doexe("libflashplayer.so", "/usr/lib/browser-plugins")
+    shelltools.copytree("%s/usr" % distdir, "%s/usr" % get.installDIR())
+    pisitools.doexe("%s/libflashplayer.so" % distdir, "/usr/lib/browser-plugins")
