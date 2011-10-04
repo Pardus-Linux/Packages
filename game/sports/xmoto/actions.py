@@ -9,6 +9,7 @@ from pisi.actionsapi import autotools
 from pisi.actionsapi import get
 
 def setup():
+    autotools.autoreconf("-vfi")
     autotools.configure("--disable-rpath \
                          --with-internal-xdg=1 \
                          --enable-nls")
