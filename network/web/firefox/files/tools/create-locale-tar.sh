@@ -1,7 +1,7 @@
 #!/bin/bash
 
-RELEASE_TAG="FIREFOX_6_0_2_RELEASE"
-VERSION="6.0.2"
+RELEASE_TAG="FIREFOX_7_0_1_RELEASE"
+VERSION="7.0.1"
 
 # These are Pardus supported languages. This list may changed by time to time
 LOCALES="be ca de es-AR es-ES fr hu it nl pl ru sv-SE tr"
