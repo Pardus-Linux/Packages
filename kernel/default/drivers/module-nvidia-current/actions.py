@@ -112,6 +112,7 @@ def install():
 
     # Exit time for emul32 build
     if get.buildTYPE() == 'emul32':
+        pisitools.insinto(datadir, "ld.so.conf", "32bit-ld.so.conf")
         return
 
     pisitools.insinto("/etc/OpenCL/vendors", "nvidia.icd")
