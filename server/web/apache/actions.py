@@ -88,7 +88,7 @@ def setup():
                             --with-apr-util=/usr/bin/apu-1-config \
                             --with-suexec-safepath="/usr/bin:/bin" \
                             --with-suexec-logfile=/var/log/apache2/suexec_log \
-                            --with-suexec-bin=/usr/sbin/suexec2 \
+                            --with-suexec-bin=/usr/sbin/suexec \
                             --with-suexec-userdir="public_html" \
                             --with-suexec-caller=apache \
                             --with-suexec-docroot=/var/www \
