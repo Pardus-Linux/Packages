@@ -14,4 +14,5 @@ def build():
 
 def install():
     autotools.install("TARGET=%s" % get.installDIR())
-    pisitools.insinto("/etc/polipo", "*.sample")
+    pisitools.insinto("/etc/polipo", "config.sample", "config")
+    pisitools.insinto("/etc/polipo", "forbidden.sample", "forbidden")
