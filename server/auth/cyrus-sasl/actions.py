@@ -24,20 +24,21 @@ def setup():
 
     shelltools.export("CFLAGS", "%s -fPIC" % get.CFLAGS())
 
-    #XXX: enable-ldapdb and with-ldap is removed due to causing a circular dep.
+    # Don't disable ldap support to break circular dep. with openldap
+    # As workaround, we remove openldap-client runtime dep. in pspec
     autotools.configure("--with-saslauthd=/var/run/saslauthd \
                          --with-pwcheck=/var/lib/sasl2 \
                          --with-configdir=/etc/sasl2 \
                          --with-plugindir=/usr/lib/sasl2 \
                          --with-dbpath=/etc/sasl2/sasldb2 \
                          --with-pam \
+                         --with-ldap \
                          --with-openssl \
                          --with-dblib=gdbm \
                          --with-gss_impl=mit \
                          --with-devrandom=/dev/urandom \
                          --without-pgsql \
                          --without-mysql \
-                         --without-ldap \
                          --enable-anon \
                          --enable-cram \
                          --enable-digest \
@@ -45,7 +46,7 @@ def setup():
                          --enable-login \
                          --enable-ntlm \
                          --enable-plain \
-                         --disable-ldapdb \
+                         --enable-ldapdb \
                          --disable-krb4 \
                          --disable-otp \
                          --disable-java \
