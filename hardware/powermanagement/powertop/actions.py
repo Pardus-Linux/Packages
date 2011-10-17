@@ -10,7 +10,6 @@ from pisi.actionsapi import pisitools
 from pisi.actionsapi import get
 
 def build():
-    pisitools.dosed("Makefile", "\\$\\{PREFIX\\}/var/cache/powertop", "/var/cache/powertop")
     autotools.make()
 
 def install():
