@@ -11,14 +11,16 @@ from pisi.actionsapi import libtools
 from pisi.actionsapi import get
 
 def setup():
-    autotools.autoreconf("-vfi")
-    libtools.libtoolize("--force --install")
     autotools.configure("--with-pic \
                          --enable-sndfile \
                          --disable-static \
                          --enable-shared \
                          --disable-fftw \
                          --disable-dependency-tracking")
+
+    # Remove RPATH
+    pisitools.dosed("libtool", "^hardcode_libdir_flag_spec=.*", "hardcode_libdir_flag_spec=\"\"")
+    pisitools.dosed("libtool", "^runpath_var=LD_RUN_PATH", "runpath_var=DIE_RPATH_DIE")
 
 def build():
     autotools.make()
