@@ -12,4 +12,4 @@ from pisi.actionsapi import pisitools
 def install():
     autotools.install("DESTDIR=%s" %get.installDIR())
 
-    pisitools.dodoc("ChangeLog", "COPYING", "README")
+    pisitools.dodoc("COPYING", "README")
