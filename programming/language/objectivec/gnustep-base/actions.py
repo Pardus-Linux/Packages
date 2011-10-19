@@ -10,9 +10,14 @@ from pisi.actionsapi import pisitools
 from pisi.actionsapi import shelltools
 from pisi.actionsapi import get
 
-WorkPath="%s/%s-%s"  % (get.workDIR(), get.srcNAME(), get.srcVERSION())
+shelltools.export("HOME", get.workDIR())
+WorkPath="%s/%s"  % (get.workDIR(), get.srcDIR())
 
 def setup():
+    shelltools.touch("GNUstep.conf")
+    shelltools.echo("GNUstep.conf", "GNUSTEP_USER_DIR=%s" % get.workDIR())
+    shelltools.echo("GNUstep.conf", "GNUSTEP_USER_DEFAULTS_DIR=%s/Defaults" % get.workDIR())
+ 
     autotools.autoreconf("-vfi")
     autotools.configure("--enable-ffcall \
                         --enable-gnutls \
@@ -25,7 +30,7 @@ def build():
 
     shelltools.export("LD_LIBRARY_PATH", "%s/%s/Source/obj:${LD_LIBRARY_PATH}" % (get.workDIR(), get.srcDIR()))
     autotools.make("-C Documentation \
-                   GNUSTEP_CONFIG_FILE=%s/GNUstep.conf" % WorkPath)
+                    GNUSTEP_CONFIG_FILE=%s/GNUstep.conf" % WorkPath)
 
 def install():
     autotools.rawInstall("DESTDIR=%s" % get.installDIR())
