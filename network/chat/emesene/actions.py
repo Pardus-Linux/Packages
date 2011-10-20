@@ -8,26 +8,22 @@ from pisi.actionsapi import pisitools
 from pisi.actionsapi import pythonmodules
 from pisi.actionsapi import get
 
-share = "/usr/share/emesene"
-remove_dirs = ["misc", "libmimic"]
-remove_files = ["setup.py"]
-move_files = ["LGPL", "PSF", "COPYING", "GPL", "README"]
+# The tarball is created automatically from github servers.  Download it,
+# upload to cekirdek.pardus.org.tr and get the folder name by extracting the
+# tarball (It's actually the first seven characters of a git hash)
+WorkDir = "emesene-emesene-93a12ab"
 
 def build():
-    pythonmodules.run("setup.py build_ext -i")
+    pythonmodules.compile()
 
 def install():
-    pisitools.insinto("/usr/share/applications", "misc/emesene.desktop")
-    pisitools.insinto("/usr/share/pixmaps", "emesene-logo.png", "emesene.png")
-    pisitools.insinto(share, "*")
+    pythonmodules.install()
 
-    pisitools.removeDir("%s/build" % share)
+    # Use /usr/share instead of /usr/lib
+    from distutils.dir_util import copy_tree
+    copy_tree("%s/usr/lib/python2.7/site-packages/emesene" % get.installDIR(), "%s/usr/share/emesene" % get.installDIR())
 
-    for f in move_files:
-        pisitools.domove("%s/%s" % (share, f), "%s/%s" % (get.docDIR(), get.srcNAME()))
+    pisitools.removeDir("/usr/lib")
 
-    for d in remove_dirs:
-        pisitools.removeDir("%s/%s" % (share, d))
 
-    for f in remove_files:
-        pisitools.remove("%s/%s" % (share, f))
+
