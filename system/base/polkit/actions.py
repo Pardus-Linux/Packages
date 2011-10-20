@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright 2010 TUBITAK/UEKAE
+# Copyright 2010-2011 TUBITAK/UEKAE
 # Licensed under the GNU General Public License, version 2.
 # See the file http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
 
@@ -15,7 +15,6 @@ def setup():
     autotools.configure("--with-pam-module-dir=/lib/security/ \
                          --with-os-type=Pardus \
                          --enable-examples \
-                         --localstatedir=/var \
                          --libexecdir=/usr/libexec/polkit-1 \
                          --disable-introspection \
                          --disable-man-pages \

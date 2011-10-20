@@ -1,13 +1,22 @@
 '\" t
 .\"     Title: pkexec
 .\"    Author: [see the "AUTHOR" section]
-.\" Generator: DocBook XSL Stylesheets v1.74.3 <http://docbook.sf.net/>
+.\" Generator: DocBook XSL Stylesheets v1.76.1 <http://docbook.sf.net/>
 .\"      Date: May 2009
 .\"    Manual: pkexec
 .\"    Source: polkit
 .\"  Language: English
 .\"
 .TH "PKEXEC" "1" "May 2009" "polkit" "pkexec"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
 .\" -----------------------------------------------------------------
 .\" * set default formatting
 .\" -----------------------------------------------------------------
@@ -22,7 +31,7 @@
 pkexec \- Execute a command as another user
 .SH "SYNOPSIS"
 .HP \w'\fBpkexec\fR\ 'u
-\fBpkexec\fR [\fB\-\-version\fR] [\fB\-\-help\fR]
+\fBpkexec\fR [\fB\-\-version\fR] [\fB\-\-disable\-internal\-agent\fR] [\fB\-\-help\fR]
 .HP \w'\fBpkexec\fR\ 'u
 \fBpkexec\fR [\fB\-\-user\fR\ \fIusername\fR] \fIPROGRAM\fR [\fIARGUMENTS\fR...]
 .SH "DESCRIPTION"
@@ -40,7 +49,17 @@ is not specified, then the program will be executed as the administrative super 
 Upon successful completion, the return value is the return value of
 \fIPROGRAM\fR\&. If the calling process is not authorized or an authorization could not be obtained through authentication or an error occured,
 \fBpkexec\fR
-exits with a return value of 127\&.
+exits with a return value of 127\&. If the authorization could not be obtained because the user dismissed the authentication dialog,
+\fBpkexec\fR
+exits with a return value of 126\&.
+.SH "AUTHENTICATION AGENT"
+.PP
+
+\fBpkexec\fR, like any other PolicyKit application, will use the authentication agent registered for the calling process\&. However, if no authentication agent is available, then
+\fBpkexec\fR
+will register its own textual authentication agent\&. This behavior can be turned off by passing the
+\fB\-\-disable\-internal\-agent\fR
+option\&.
 .SH "SECURITY NOTES"
 .PP
 Executing a program as another user is a privileged operation\&. By default the required authorization (See
@@ -57,7 +76,7 @@ the section called \(lqREQUIRED AUTHORIZATIONS\(rq) requires administrator authe
 |                     Authenticate                     [X] |
 +\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+
 |                                                          |
-|  [Icon]  Authentication is needed to run `/bin/bash\'     |
+|  [Icon]  Authentication is needed to run `/bin/bash\*(Aq     |
 |          as the super user                               |
 |                                                          |
 |          An application is attempting to perform an      |
@@ -90,9 +109,13 @@ PKEXEC_UID
 environment variable is set to the user id of the process invoking
 \fBpkexec\fR\&. As a result,
 \fBpkexec\fR
-will not allow you to run e\&.g\&. X11 applications as another user since the
+will not allow you to run X11 applications as another user since the
 $DISPLAY
-environment variable is not set\&.
+and
+$XAUTHORITY
+environment variables are not set\&. These two variables will be retained if the
+\fIorg\&.freedesktop\&.policykit\&.exec\&.allow_gui\fR
+annotation on an action is set to a nonempty value; this is discouraged, though, and should only be used for legacy programs\&.
 .SH "REQUIRED AUTHORIZATIONS"
 .PP
 By default, the
@@ -124,8 +147,8 @@ as another user, simply write an action definition file like this
   <action id="org\&.freedesktop\&.policykit\&.example\&.pkexec\&.run\-frobnicate">
     <description>Run the PolicyKit example program Frobnicate</description>
     <description xml:lang="da">Kør PolicyKit eksemplet Frobnicate</description>
-    <message>Authentication is required to run the PolicyKit example program Frobnicate</message>
-    <message xml:lang="da">Autorisering er påkrævet for at afvikle PolicyKit eksemplet Frobnicate</message>
+    <message>Authentication is required to run the PolicyKit example program Frobnicate (user=$(user), program=$(program), command_line=$(command_line))</message>
+    <message xml:lang="da">Autorisering er påkrævet for at afvikle PolicyKit eksemplet Frobnicate (user=$(user), program=$(program), command_line=$(command_line))</message>
     <icon_name>audio\-x\-generic</icon_name> 
     <defaults>
       <allow_any>no</allow_any>
@@ -143,7 +166,12 @@ as another user, simply write an action definition file like this
 .PP
 and drop it in the
 /usr/share/polkit\-1/actions
-directory under a suitable name (e\&.g\&. matching the namespace of the action)\&. Note that in addition to specifying the program, the authentication message, description, icon and defaults can be specified\&. For example, for the action defined above, the following authentication dialog will be shown:
+directory under a suitable name (e\&.g\&. matching the namespace of the action)\&. Note that in addition to specifying the program, the authentication message, description, icon and defaults can be specified\&. Note that occurences of the strings
+$(user),
+$(program)
+and
+$(command_line)
+in the message will be replaced with respectively the user (of the form "Real Name (username)" or just "username" if there is no real name for the username), the binary to execute (a fully\-qualified path, e\&.g\&. "/usr/bin/pk\-example\-frobnicate") and the command\-line, e\&.g\&. "pk\-example\-frobnicate foo bar"\&. For example, for the action defined above, the following authentication dialog will be shown:
 .sp
 .RS 4
 [IMAGE]\&\s-2\u[2]\d\s+2
