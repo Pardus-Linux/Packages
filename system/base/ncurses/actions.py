@@ -10,6 +10,8 @@ from pisi.actionsapi import pisitools
 from pisi.actionsapi import shelltools
 from pisi.actionsapi import get
 
+import os
+
 WorkDir = "ncurses-%s" % get.srcVERSION().split("_", 1)[0]
 
 
@@ -79,6 +81,12 @@ def install():
     # We need the basic terminfo files in /etc
     terminfo = ["ansi", "console", "dumb", "linux", "rxvt", "screen", "sun", \
                 "vt52", "vt100", "vt102", "vt200", "vt220", "xterm", "xterm-color", "xterm-xfree86"]
+
+    # http://liste.pardus.org.tr/gelistirici/2011-October/057009.html
+    for d in ("ncurses", "ncursesw"):
+        pisitools.dodir("/usr/include/%s" % d)
+        for h in shelltools.ls("%s/usr/include/*.h" % get.installDIR()):
+            pisitools.dosym("../%s" % os.path.basename(h), "/usr/include/%s/%s" % (d, os.path.basename(h)))
 
     for f in terminfo:
         termfile = f[0] + "/" + f
