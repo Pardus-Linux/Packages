@@ -6,17 +6,25 @@
 # See the file http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
 
 from pisi.actionsapi import autotools
+from pisi.actionsapi import pisitools
 from pisi.actionsapi import shelltools
 
 
 def setup():
     shelltools.makedirs("m4")
     autotools.autoreconf("-vfi")
-    autotools.configure("--disable-static")
+    autotools.configure("   --disable-statici \
+                            --with-glib2 \
+                            --with-gobject \
+                            --with-pygobject \
+                            --with-qt4")
 
 def build():
     autotools.make()
 
 def install():
     autotools.install()
+    pisitools.remove("/usr/lib/*.a")
+    pisitools.remove("/usr/lib/ntrack/modules/*.a")
+    pisitools.remove("/usr/lib/python2*/site-packages/*.a")
 
