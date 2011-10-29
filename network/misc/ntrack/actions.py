@@ -13,7 +13,7 @@ from pisi.actionsapi import shelltools
 def setup():
     shelltools.makedirs("m4")
     autotools.autoreconf("-vfi")
-    autotools.configure("   --disable-statici \
+    autotools.configure("   --disable-static \
                             --with-glib2 \
                             --with-gobject \
                             --with-pygobject \
@@ -24,7 +24,4 @@ def build():
 
 def install():
     autotools.install()
-    pisitools.remove("/usr/lib/*.a")
-    pisitools.remove("/usr/lib/ntrack/modules/*.a")
-    pisitools.remove("/usr/lib/python2*/site-packages/*.a")
 
