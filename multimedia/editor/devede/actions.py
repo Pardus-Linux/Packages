@@ -8,6 +8,8 @@ from pisi.actionsapi import shelltools
 from pisi.actionsapi import pisitools
 from pisi.actionsapi import get
 
+WorkDir = "devede"
+
 def setup():
     shelltools.cd("po")
     shelltools.system("./update_mo_files")
