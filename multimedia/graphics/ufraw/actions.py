@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright 2005-2010 TUBITAK/UEKAE
+# Copyright 2005-2011 TUBITAK/UEKAE
 # Licensed under the GNU General Public License, version 2.
 # See the file http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
 
@@ -15,8 +15,7 @@ def setup():
 
     autotools.configure("--enable-mime \
                          --enable-extras \
-                         --enable-contrast \
-                         --with-lensfun")
+                         --enable-contrast")
 
     pisitools.dosed("Makefile", "/usr/lib/gimp/", "%s/usr/lib/gimp/" % get.installDIR())
 
