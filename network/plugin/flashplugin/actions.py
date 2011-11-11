@@ -15,4 +15,9 @@ def install():
     distdir = "%s-%s-%s" % (get.srcNAME(), get.srcVERSION(), ARCH)
 
     shelltools.copytree("%s/usr" % distdir, "%s/usr" % get.installDIR())
+
+    if get.ARCH() == "x86_64":
+        pisitools.insinto("/usr/lib/kde4", "%s/%s/%s/usr/lib64/kde4/kcm_adobe_flash_player.so" % (get.workDIR(), get.ARCH(), distdir))
+        pisitools.removeDir("/usr/lib64")
+
     pisitools.doexe("%s/libflashplayer.so" % distdir, "/usr/lib/browser-plugins")
