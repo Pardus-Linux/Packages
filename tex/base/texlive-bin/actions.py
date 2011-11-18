@@ -12,6 +12,7 @@ from pisi.actionsapi import get
 from pisi.actionsapi import libtools
 from pisi.actionsapi import texlivemodules
 
+import os
 
 WorkDir = "."
 
@@ -144,7 +145,7 @@ def install():
     # pathing each makefile makes it much harder, for now this is a "simpler" solution
     for binary in shelltools.ls(get.installDIR() + "/usr/bin"):
         real_path = shelltools.realPath(get.installDIR() + "/usr/bin/" + binary)
-        if "texmf" in real_path:
+        if "texmf" in real_path and not os.path.exists(real_path): # modify only if it is broken
             base_path = real_path.replace(get.installDIR() + "/usr", "")
             new_path = "/usr/share" + base_path
             shelltools.unlink(get.installDIR() + "/usr/bin/" + binary)
