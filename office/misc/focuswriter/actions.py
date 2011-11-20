@@ -16,5 +16,6 @@ def build():
 def install():
     qt4.install()
 
-    pisitools.insinto("/usr/share/pixmaps/", "icons/focuswriter.png")
+    pisitools.insinto("/usr/share/pixmaps/",
+            "resources/images/icons/hicolor/32x32/apps/focuswriter.png")
     pisitools.dodoc("ChangeLog", "COPYING", "README*")
