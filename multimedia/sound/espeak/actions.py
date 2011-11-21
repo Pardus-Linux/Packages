@@ -20,7 +20,7 @@ def setup():
     shelltools.system("rm -rf espeak-data/*_dict")
 
 def build():
-    autotools.make("-C src CFLAGS='%s' LDFLAGS='%s'" % (get.CFLAGS(), get.LDFLAGS()))
+    autotools.make("-C src CXXFLAGS='%s' CFLAGS='%s' LDFLAGS='%s'" % (get.CXXFLAGS(), get.CFLAGS(), get.LDFLAGS()))
 
     shelltools.system("./compile-voices")
 
@@ -29,4 +29,4 @@ def install():
     autotools.rawInstall("DESTDIR=%s BINDIR=/usr/bin INCDIR=/usr/include/espeak LIBDIR=/usr/lib" % get.installDIR())
     shelltools.cd("..")
 
-    pisitools.dodoc("ReadMe", "ChangeLog", "License.txt")
+    pisitools.dodoc("ReadMe", "ChangeLog.txt", "License.txt")

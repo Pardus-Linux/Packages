@@ -1,13 +1,15 @@
-diff -ur espeak-1.42.04-source/src/Makefile espeak-1.42.04-runtime-detection/src/Makefile
---- espeak-1.42.04-source/src/Makefile	2009-11-26 01:11:54.000000000 +0100
-+++ espeak-1.42.04-runtime-detection/src/Makefile	2009-12-17 17:08:57.000000000 +0100
-@@ -24,10 +24,16 @@
+diff -up espeak-1.45.05-source/src/Makefile.runtime-detection espeak-1.45.05-source/src/Makefile
+--- espeak-1.45.05-source/src/Makefile.runtime-detection	2011-09-15 14:02:16.601703780 +0200
++++ espeak-1.45.05-source/src/Makefile	2011-09-15 14:02:16.609703969 +0200
+@@ -25,12 +25,18 @@ INSTALL = install
  LN_SF = /bin/ln -sf
  MKDIR = mkdir -p
  
 -AUDIO = portaudio
 +AUDIO = runtime
 +#AUDIO = portaudio
+ #AUDIO = portaudio0
+ #AUDIO = portaudio2
  #AUDIO = pulseaudio
  #AUDIO = sada
  
@@ -19,7 +21,7 @@ diff -ur espeak-1.42.04-source/src/Makefile espeak-1.42.04-runtime-detection/src
  ifeq ($(AUDIO),pulseaudio)
  WAVE=wave_pulse.cpp
  LIB_AUDIO=-lpulse
-@@ -46,6 +52,7 @@
+@@ -61,6 +68,7 @@ endif
  endif
  endif
  endif
@@ -27,10 +29,10 @@ diff -ur espeak-1.42.04-source/src/Makefile espeak-1.42.04-runtime-detection/src
  
  speak_SOURCES = speak.cpp compiledict.cpp dictionary.cpp intonation.cpp \
  	readclause.cpp setlengths.cpp numbers.cpp synth_mbrola.cpp \
-diff -ur espeak-1.42.04-source/src/wave.cpp espeak-1.42.04-runtime-detection/src/wave.cpp
---- espeak-1.42.04-source/src/wave.cpp	2009-12-09 18:48:13.000000000 +0100
-+++ espeak-1.42.04-runtime-detection/src/wave.cpp	2009-12-17 16:30:14.000000000 +0100
-@@ -53,6 +53,145 @@
+diff -up espeak-1.45.05-source/src/wave.cpp.runtime-detection espeak-1.45.05-source/src/wave.cpp
+--- espeak-1.45.05-source/src/wave.cpp.runtime-detection	2011-08-11 23:38:05.000000000 +0200
++++ espeak-1.45.05-source/src/wave.cpp	2011-09-15 14:02:16.603703826 +0200
+@@ -53,6 +53,145 @@ enum {ONE_BILLION=1000000000};
  #endif
  
  
@@ -41,7 +43,7 @@ diff -ur espeak-1.42.04-source/src/wave.cpp espeak-1.42.04-runtime-detection/src
 +static int pulse_running;
 +
 +// wave.cpp (this file)
-+void wave_port_init();
++void wave_port_init(int);
 +void* wave_port_open(const char* the_api);
 +size_t wave_port_write(void* theHandler, char* theMono16BitsWaveBuffer, size_t theSize);
 +int wave_port_close(void* theHandler);
@@ -56,7 +58,7 @@ diff -ur espeak-1.42.04-source/src/wave.cpp espeak-1.42.04-runtime-detection/src
 +
 +// wave_pulse.cpp
 +int is_pulse_running();
-+void wave_pulse_init();
++void wave_pulse_init(int);
 +void* wave_pulse_open(const char* the_api);
 +size_t wave_pulse_write(void* theHandler, char* theMono16BitsWaveBuffer, size_t theSize);
 +int wave_pulse_close(void* theHandler);
@@ -70,13 +72,13 @@ diff -ur espeak-1.42.04-source/src/wave.cpp espeak-1.42.04-runtime-detection/src
 +int wave_pulse_get_remaining_time(uint32_t sample, uint32_t* time);
 +
 +// wrappers
-+void wave_init() {
++void wave_init(int srate) {
 +  pulse_running = is_pulse_running();
 +
 +  if (pulse_running)
-+    wave_pulse_init();
++    wave_pulse_init(srate);
 +  else
-+    wave_port_init();
++    wave_port_init(srate);
 +}
 +
 +void* wave_open(const char* the_api) {
@@ -176,10 +178,18 @@ diff -ur espeak-1.42.04-source/src/wave.cpp espeak-1.42.04-runtime-detection/src
  static t_wave_callback* my_callback_is_output_enabled=NULL;
  
  #define N_WAV_BUF   10
-diff -ur espeak-1.42.04-source/src/wave_pulse.cpp espeak-1.42.04-runtime-detection/src/wave_pulse.cpp
---- espeak-1.42.04-source/src/wave_pulse.cpp	2009-12-09 18:48:13.000000000 +0100
-+++ espeak-1.42.04-runtime-detection/src/wave_pulse.cpp	2009-12-17 17:11:35.000000000 +0100
-@@ -75,6 +75,39 @@
+diff -up espeak-1.45.05-source/src/wave_pulse.cpp.runtime-detection espeak-1.45.05-source/src/wave_pulse.cpp
+--- espeak-1.45.05-source/src/wave_pulse.cpp.runtime-detection	2011-08-11 23:38:05.000000000 +0200
++++ espeak-1.45.05-source/src/wave_pulse.cpp	2011-09-15 14:24:42.662695100 +0200
+@@ -65,6 +65,7 @@ enum {
+ 
+ static t_wave_callback* my_callback_is_output_enabled=NULL;
+ 
++#define SAMPLE_RATE 22050
+ #define ESPEAK_FORMAT PA_SAMPLE_S16LE
+ #define ESPEAK_CHANNEL 1
+ 
+@@ -74,6 +75,39 @@ static t_wave_callback* my_callback_is_o
  #define MINREQ 880
  #define FRAGSIZE 0
  
@@ -219,7 +229,7 @@ diff -ur espeak-1.42.04-source/src/wave_pulse.cpp espeak-1.42.04-runtime-detecti
  static pthread_mutex_t pulse_mutex;
  
  static pa_context *context = NULL;
-@@ -893,8 +926,9 @@
+@@ -843,8 +877,9 @@ int wave_get_remaining_time(uint32_t sam
  	return 0;
  }
  
@@ -230,7 +240,7 @@ diff -ur espeak-1.42.04-source/src/wave_pulse.cpp espeak-1.42.04-runtime-detecti
  //>
  //<clock_gettime2, add_time_in_ms
  
-@@ -928,6 +962,7 @@
+@@ -878,6 +913,7 @@ void add_time_in_ms(struct timespec *ts,
      }
    ts->tv_nsec = (long int)t_ns;
  }
