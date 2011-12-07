@@ -1,16 +1,14 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright 2005-2010 TUBITAK/UEKAE
 # Licensed under the GNU General Public License, version 2.
 # See the file http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
 
+from pisi.actionsapi import shelltools
 from pisi.actionsapi import autotools
 from pisi.actionsapi import pisitools
-from pisi.actionsapi import shelltools
 from pisi.actionsapi import get
 
-# linker = "gold"
 linker = "ld"
 multilib = "--enable-multilib" if get.ARCH() == "x86_64" else ""
 
@@ -22,7 +20,7 @@ def setup():
 
     autotools.configure('--enable-shared \
                          --build=%s \
-                         --enable-gold=both/%s \
+                         --enable-gold \
                          --enable-plugins \
                          --enable-threads \
                          --with-pkgversion="Pardus Linux" \
@@ -30,7 +28,7 @@ def setup():
                          --with-separate-debug-dir=/usr/lib/debug \
                          %s \
                          --disable-nls \
-                         --disable-werror' % (get.HOST(), linker, multilib))
+                         --disable-werror' % (get.HOST(), multilib))
                          # --with-pic \
                          # --enable-targets="i386-linux" \
 
@@ -48,7 +46,6 @@ def install():
     # Rebuild libbfd.a and libiberty.a with -fPIC
     pisitools.remove("/usr/lib/libbfd.a")
     pisitools.remove("/usr/lib/libiberty.a")
-    # pisitools.remove("/usr/include/libiberty.h")
 
     autotools.make("-C libiberty clean")
     autotools.make('CFLAGS="-fPIC %s" -C libiberty' % get.CFLAGS())
