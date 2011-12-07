@@ -1,0 +1,140 @@
+Index: gcc-4.6.2/gcc/common.opt
+===================================================================
+--- gcc-4.6.2.orig/gcc/common.opt
++++ gcc-4.6.2/gcc/common.opt
+@@ -1731,6 +1731,10 @@ fshow-column
+ Common Report Var(flag_show_column) Init(1)
+ Show column numbers in diagnostics, when available.  Default on
+ 
++fshow-error-count
++Common Report Var(flag_show_error_count) Init(1)
++Show total number of error and warning messages issued at the end. Default on
++
+ fsignaling-nans
+ Common Report Var(flag_signaling_nans) Optimization SetByCombined
+ Disable optimizations observable by IEEE signaling NaNs
+Index: gcc-4.6.2/gcc/testsuite/lib/gcc.exp
+===================================================================
+--- gcc-4.6.2.orig/gcc/testsuite/lib/gcc.exp
++++ gcc-4.6.2/gcc/testsuite/lib/gcc.exp
+@@ -149,6 +149,7 @@ proc gcc_target_compile { source dest ty
+ 	set options [concat "{additional_flags=$TOOL_OPTIONS}" $options]
+     }
+     lappend options "timeout=[timeout_value]"
++    lappend options "additional_flags=-fno-show-error-count"
+     lappend options "compiler=$GCC_UNDER_TEST"
+     set options [dg-additional-files-options $options $source]
+     return [target_compile $source $dest $type $options]
+Index: gcc-4.6.2/gcc/testsuite/lib/g++.exp
+===================================================================
+--- gcc-4.6.2.orig/gcc/testsuite/lib/g++.exp
++++ gcc-4.6.2/gcc/testsuite/lib/g++.exp
+@@ -289,6 +289,7 @@ proc g++_target_compile { source dest ty
+     }
+ 
+     lappend options "additional_flags=[libio_include_flags]"
++    lappend options "additional_flags=-fno-show-error-count"
+     lappend options "compiler=$GXX_UNDER_TEST"
+     lappend options "timeout=[timeout_value]"
+ 
+Index: gcc-4.6.2/gcc/testsuite/lib/gfortran.exp
+===================================================================
+--- gcc-4.6.2.orig/gcc/testsuite/lib/gfortran.exp
++++ gcc-4.6.2/gcc/testsuite/lib/gfortran.exp
+@@ -235,6 +235,7 @@ proc gfortran_target_compile { source de
+ 
+     lappend options "compiler=$GFORTRAN_UNDER_TEST"
+     lappend options "timeout=[timeout_value]"
++    lappend options "additional_flags=-fno-show-error-count"
+ 
+     set options [concat "$ALWAYS_GFORTRANFLAGS" $options]
+     set options [dg-additional-files-options $options $source]
+Index: gcc-4.6.2/gcc/testsuite/lib/obj-c++.exp
+===================================================================
+--- gcc-4.6.2.orig/gcc/testsuite/lib/obj-c++.exp
++++ gcc-4.6.2/gcc/testsuite/lib/obj-c++.exp
+@@ -365,6 +365,7 @@ proc obj-c++_target_compile { source des
+     lappend options "additional_flags=[libio_include_flags]"
+     lappend options "compiler=$OBJCXX_UNDER_TEST";
+     lappend options "timeout=[timeout_value]"
++    lappend options "additional_flags=-fno-show-error-count"
+ 
+     set options [concat $gpp_compile_options $options]
+ 
+Index: gcc-4.6.2/gcc/testsuite/lib/objc.exp
+===================================================================
+--- gcc-4.6.2.orig/gcc/testsuite/lib/objc.exp
++++ gcc-4.6.2/gcc/testsuite/lib/objc.exp
+@@ -246,6 +246,7 @@ proc objc_target_compile { source dest t
+     }
+     lappend options "compiler=$OBJC_UNDER_TEST"
+     lappend options "timeout=[timeout_value]"
++    lappend options "additional_flags=-fno-show-error-count"
+ 
+     set_ld_library_path_env_vars
+ 
+Index: gcc-4.6.2/gcc/toplev.c
+===================================================================
+--- gcc-4.6.2.orig/gcc/toplev.c
++++ gcc-4.6.2/gcc/toplev.c
+@@ -1869,6 +1869,12 @@ finalize (bool no_backend)
+ 
+   /* Language-specific end of compilation actions.  */
+   lang_hooks.finish ();
++
++
++  /* Print error / warning counts.  */
++  if ( flag_show_error_count && (errorcount || warningcount ))
++    fprintf (stderr, "\n*** %d errors, %d warnings\n",
++             errorcount, warningcount);
+ }
+ 
+ /* Initialize the compiler, and compile the input file.  */
+Index: gcc-4.6.2/libgomp/testsuite/lib/libgomp.exp
+===================================================================
+--- gcc-4.6.2.orig/libgomp/testsuite/lib/libgomp.exp
++++ gcc-4.6.2/libgomp/testsuite/lib/libgomp.exp
+@@ -196,6 +196,7 @@ proc libgomp_target_compile { source des
+     lappend options "additional_flags=[libio_include_flags]"
+     lappend options "timeout=[timeout_value]"
+     lappend options "compiler=$GCC_UNDER_TEST"
++    lappend options "additional_flags=-fno-show-error-count"
+ 
+     set options [concat $libgomp_compile_options $options]
+ 
+Index: gcc-4.6.2/libmudflap/testsuite/lib/libmudflap.exp
+===================================================================
+--- gcc-4.6.2.orig/libmudflap/testsuite/lib/libmudflap.exp
++++ gcc-4.6.2/libmudflap/testsuite/lib/libmudflap.exp
+@@ -220,6 +220,7 @@ proc libmudflap_target_compile { source
+     # Picks up the freshly-built testsuite library corresponding to the
+     # multilib under test.
+     lappend options "ldflags=-L${blddir}/testsuite"
++    lappend options "additional_flags=-fno-show-error-count"
+ 
+     return [target_compile $source $dest $type $options]
+ }
+Index: gcc-4.6.2/libstdc++-v3/testsuite/lib/libstdc++.exp
+===================================================================
+--- gcc-4.6.2.orig/libstdc++-v3/testsuite/lib/libstdc++.exp
++++ gcc-4.6.2/libstdc++-v3/testsuite/lib/libstdc++.exp
+@@ -445,6 +445,7 @@ proc v3_target_compile { source dest typ
+ 
+     lappend options "compiler=$cxx_final"
+     lappend options "timeout=[timeout_value]"
++    lappend options "additional_flags=-fno-show-error-count"
+ 
+     return [target_compile $source $dest $type $options]
+ }
+Index: gcc-4.6.2/libffi/testsuite/lib/libffi.exp
+===================================================================
+--- gcc-4.6.2.orig/libffi/testsuite/lib/libffi.exp
++++ gcc-4.6.2/libffi/testsuite/lib/libffi.exp
+@@ -208,6 +208,7 @@ proc libffi_target_compile { source dest
+     }
+ 
+     lappend options "libs= -lffi"
++    lappend options "additional_flags=-fno-show-error-count"
+ 
+     verbose "options: $options"
+     return [target_compile $source $dest $type $options]

@@ -1,74 +1,121 @@
-2010-07-01  Jakub Jelinek  <jakub@redhat.com>
+2011-01-04  Jakub Jelinek  <jakub@redhat.com>
 
-	* Makefile.in (BACKENDLIBS): Link against -ldl instead of -lcloog -lppl.
+	* Makefile.in (BACKENDLIBS): Link against -ldl instead of
+	-lcloog -lppl.
 	(graphite.o, graphite%.o): Force -O, remove -fkeep-inline-functions.
-	(graphite-ppl.o): Depend on graphite.h.
-	* graphite.h: Include <dlfcn.h>.  Reference libcloog and libppl symbols
-	through pointers in cloog_pointers__ variable.
+	(GRAPHITE_CLOOG_UTIL_H, GRAPHITE_POLY_H): New.
+	(graphite*.o): Adjust dependencies.
+	* graphite-cloog-compat.h: Include <dlfcn.h>.  Reference libcloog and
+	libppl symbols through pointers in cloog_pointers__ variable.
 	* graphite.c (init_cloog_pointers): New function.
 	(graphite_transform_loops): Call init_cloog_pointers.
-	* graphite-clast-to-gimple.c (gcc_type_for_iv_of_clast_loop): Rename stmt_for
-	argument to stmt_fora.
-	* graphite-ppl.c: Include graphite.h.
+	* graphite-clast-to-gimple.c (gcc_type_for_iv_of_clast_loop): Rename
+	stmt_for argument to stmt_fora.
+	* graphite-poly.h: Include graphite-cloog-util.h.
 
---- gcc/graphite.c.jj	2010-06-30 09:48:30.000000000 +0200
-+++ gcc/graphite.c	2010-07-01 16:57:48.248523237 +0200
-@@ -67,6 +67,35 @@ along with GCC; see the file COPYING3.  
- #include "graphite-clast-to-gimple.h"
- #include "graphite-sese-to-poly.h"
+--- gcc/Makefile.in.jj	2011-01-03 13:44:14.163900902 +0100
++++ gcc/Makefile.in	2011-01-04 17:48:53.588775911 +0100
+@@ -984,6 +984,8 @@ GCC_PLUGIN_H = gcc-plugin.h highlev-plug
+ PLUGIN_H = plugin.h $(GCC_PLUGIN_H)
+ PLUGIN_VERSION_H = plugin-version.h configargs.h
+ LIBFUNCS_H = libfuncs.h $(HASHTAB_H)
++GRAPHITE_CLOOG_UTIL_H = graphite-cloog-util.h graphite-cloog-compat.h
++GRAPHITE_POLY_H = graphite-poly.h $(GRAPHITE_CLOOG_UTIL_H)
  
-+__typeof (cloog_pointers__) cloog_pointers__;
-+
-+static bool
-+init_cloog_pointers (void)
-+{
-+  void *h;
-+
-+  if (cloog_pointers__.inited)
-+    return cloog_pointers__.h != NULL;
-+  h = dlopen ("libcloog.so.0", RTLD_LAZY);
-+  cloog_pointers__.h = h;
-+  if (h == NULL)
-+    return false;
-+#define DYNSYM(x) \
-+  do \
-+    { \
-+      union { __typeof (cloog_pointers__.p_##x) p; void *q; } u; \
-+      u.q = dlsym (h, #x); \
-+      if (u.q == NULL) \
-+	return false; \
-+      cloog_pointers__.p_##x = u.p; \
-+    } \
-+  while (0)
-+  DYNSYMS
-+#undef DYNSYM
-+  return true;
-+}
-+
-+
- /* Print global statistics to FILE.  */
+ #
+ # Now figure out from those variables how to compile and link.
+@@ -1037,7 +1039,7 @@ BUILD_LIBDEPS= $(BUILD_LIBIBERTY)
+ # and the system's installed libraries.
+ LIBS = @LIBS@ $(CPPLIB) $(LIBINTL) $(LIBICONV) $(LIBIBERTY) $(LIBDECNUMBER) \
+ 	$(HOST_LIBS)
+-BACKENDLIBS = $(CLOOGLIBS) $(PPLLIBS) $(GMPLIBS) $(PLUGINLIBS) $(HOST_LIBS) \
++BACKENDLIBS = $(GMPLIBS) $(if $(CLOOGLIBS),-ldl) $(PLUGINLIBS) $(HOST_LIBS) \
+ 	$(ZLIB)
+ # Any system libraries needed just for GNAT.
+ SYSLIBS = @GNAT_LIBEXC@
+@@ -2668,40 +2670,40 @@ sese.o : sese.c sese.h $(CONFIG_H) $(SYS
+    $(TREE_FLOW_H) $(CFGLOOP_H) $(TREE_DATA_REF_H) tree-pass.h value-prof.h
+ graphite.o : graphite.c $(CONFIG_H) $(SYSTEM_H) coretypes.h $(DIAGNOSTIC_CORE_H) \
+    $(TREE_FLOW_H) $(TREE_DUMP_H) $(CFGLOOP_H) $(TREE_DATA_REF_H) sese.h \
+-   $(DBGCNT_H) graphite-ppl.h graphite-poly.h graphite-scop-detection.h \
++   $(DBGCNT_H) graphite-ppl.h $(GRAPHITE_POLY_H) graphite-scop-detection.h \
+    graphite-clast-to-gimple.h graphite-sese-to-poly.h
+ graphite-blocking.o : graphite-blocking.c $(CONFIG_H) $(SYSTEM_H) \
+    coretypes.h $(TREE_FLOW_H) $(TREE_DUMP_H) $(CFGLOOP_H) $(TREE_DATA_REF_H) \
+-   sese.h graphite-ppl.h graphite-poly.h
++   sese.h graphite-ppl.h $(GRAPHITE_POLY_H)
+ graphite-clast-to-gimple.o : graphite-clast-to-gimple.c $(CONFIG_H) \
+    $(SYSTEM_H) coretypes.h $(DIAGNOSTIC_CORE_H) $(TREE_FLOW_H) $(TREE_DUMP_H) \
+-   $(CFGLOOP_H) $(TREE_DATA_REF_H) sese.h graphite-cloog-util.h \
+-   graphite-ppl.h graphite-poly.h graphite-clast-to-gimple.h \
++   $(CFGLOOP_H) $(TREE_DATA_REF_H) sese.h $(GRAPHITE_CLOOG_UTIL_H) \
++   graphite-ppl.h $(GRAPHITE_POLY_H) graphite-clast-to-gimple.h \
+    graphite-dependences.h graphite-cloog-compat.h
+ graphite-cloog-util.o : graphite-cloog-util.c $(CONFIG_H) $(SYSTEM_H) \
+-   coretypes.h graphite-cloog-util.h graphite-cloog-compat.h
++   coretypes.h $(GRAPHITE_CLOOG_UTIL_H) graphite-cloog-compat.h
+ graphite-dependences.o : graphite-dependences.c $(CONFIG_H) $(SYSTEM_H) \
+    coretypes.h $(TREE_FLOW_H) $(TREE_DUMP_H) $(CFGLOOP_H) $(TREE_DATA_REF_H) \
+-   sese.h graphite-ppl.h graphite-poly.h graphite-dependences.h \
+-   graphite-cloog-util.h
++   sese.h graphite-ppl.h $(GRAPHITE_POLY_H) graphite-dependences.h \
++   $(GRAPHITE_CLOOG_UTIL_H)
+ graphite-flattening.o : graphite-flattening.c $(CONFIG_H) $(SYSTEM_H)	\
+    coretypes.h $(TREE_FLOW_H) $(TREE_DUMP_H) $(CFGLOOP_H) $(TREE_DATA_REF_H) \
+-   sese.h graphite-ppl.h graphite-poly.h
++   sese.h graphite-ppl.h $(GRAPHITE_POLY_H)
+ graphite-interchange.o : graphite-interchange.c $(CONFIG_H) $(SYSTEM_H) \
+    coretypes.h $(TREE_FLOW_H) $(TREE_DUMP_H) $(CFGLOOP_H) $(TREE_DATA_REF_H) \
+-   sese.h graphite-ppl.h graphite-poly.h
++   sese.h graphite-ppl.h $(GRAPHITE_POLY_H)
+ graphite-poly.o : graphite-poly.c $(CONFIG_H) $(SYSTEM_H) coretypes.h \
+    $(DIAGNOSTIC_CORE_H) $(TREE_FLOW_H) $(TREE_DUMP_H) gimple-pretty-print.h \
+-   $(CFGLOOP_H) $(TREE_DATA_REF_H) sese.h graphite-ppl.h graphite-poly.h \
+-   graphite-dependences.h graphite-cloog-util.h
++   $(CFGLOOP_H) $(TREE_DATA_REF_H) sese.h graphite-ppl.h $(GRAPHITE_POLY_H) \
++   graphite-dependences.h $(GRAPHITE_CLOOG_UTIL_H)
+ graphite-ppl.o : graphite-ppl.c $(CONFIG_H) $(SYSTEM_H) coretypes.h \
+-   graphite-cloog-util.h graphite-ppl.h
++   $(GRAPHITE_CLOOG_UTIL_H) graphite-ppl.h
+ graphite-scop-detection.o : graphite-scop-detection.c $(CONFIG_H) $(SYSTEM_H) \
+    coretypes.h $(TREE_FLOW_H) $(CFGLOOP_H) $(TREE_DATA_REF_H) $(TREE_PASS_H) \
+-   sese.h graphite-ppl.h graphite-poly.h graphite-scop-detection.h
++   sese.h graphite-ppl.h $(GRAPHITE_POLY_H) graphite-scop-detection.h
+ graphite-sese-to-poly.o : graphite-sese-to-poly.c $(CONFIG_H) \
+    $(SYSTEM_H) coretypes.h $(TREE_FLOW_H) $(TREE_DUMP_H) $(CFGLOOP_H) \
+-   $(TREE_DATA_REF_H) domwalk.h sese.h graphite-ppl.h graphite-poly.h \
++   $(TREE_DATA_REF_H) domwalk.h sese.h graphite-ppl.h $(GRAPHITE_POLY_H) \
+    graphite-sese-to-poly.h
+ tree-vect-loop.o: tree-vect-loop.c $(CONFIG_H) $(SYSTEM_H) coretypes.h \
+    $(TM_H) $(GGC_H) $(TREE_H) $(BASIC_BLOCK_H) $(DIAGNOSTIC_H) $(TREE_FLOW_H) \
+@@ -3482,6 +3484,11 @@ $(out_object_file): $(out_file) $(CONFIG
+ 	$(COMPILER) -c $(ALL_COMPILERFLAGS) $(ALL_CPPFLAGS) \
+ 		$(out_file) $(OUTPUT_OPTION)
  
- static void
-@@ -210,6 +239,12 @@ graphite_initialize (void)
-       return false;
-     }
- 
-+  if (!init_cloog_pointers ())
-+    {
-+      sorry ("Graphite loop optimizations cannot be used");
-+      return false;
-+    }
++graphite%.o : \
++  ALL_CFLAGS := -O $(filter-out -fkeep-inline-functions, $(ALL_CFLAGS))
++graphite.o : \
++  ALL_CFLAGS := -O $(filter-out -fkeep-inline-functions, $(ALL_CFLAGS))
 +
-   scev_reset ();
-   recompute_all_dominators ();
-   initialize_original_copy_tables ();
---- gcc/graphite.h.jj	2010-06-30 09:48:30.000000000 +0200
-+++ gcc/graphite.h	2010-07-01 17:29:37.225491850 +0200
-@@ -21,4 +21,224 @@ along with GCC; see the file COPYING3.  
- #ifndef GCC_GRAPHITE_H
- #define GCC_GRAPHITE_H
- 
+ # Build auxiliary files that support ecoff format.
+ mips-tfile: mips-tfile.o version.o $(LIBDEPS)
+ 	$(LINKER) $(LINKERFLAGS) $(LDFLAGS) -o $@ \
+--- gcc/graphite-cloog-compat.h.jj	2011-01-03 12:53:05.000000000 +0100
++++ gcc/graphite-cloog-compat.h	2011-01-04 17:34:09.857757544 +0100
+@@ -272,4 +272,277 @@ static inline int cloog_matrix_nrows (Cl
+    return m->NbRows;
+ }
+ #endif /* CLOOG_ORG  */
++
 +#include <dlfcn.h>
++#if PPL_VERSION_MAJOR == 0 && PPL_VERSION_MINOR < 11
++#define DYNSYMS_PPL11
++#else
++#define DYNSYMS_PPL11 \
++  DYNSYM (ppl_new_PIP_Problem_from_constraints); \
++  DYNSYM (ppl_PIP_Problem_is_satisfiable); \
++  DYNSYM (ppl_delete_PIP_Problem);
++#endif
 +#define DYNSYMS \
 +  DYNSYM (cloog_block_alloc); \
 +  DYNSYM (cloog_block_list_free); \
@@ -172,7 +219,14 @@
 +  DYNSYM (stmt_for); \
 +  DYNSYM (stmt_guard); \
 +  DYNSYM (stmt_root); \
-+  DYNSYM (stmt_user);
++  DYNSYM (stmt_user); \
++  DYNSYM (ppl_delete_Constraint_System); \
++  DYNSYM (ppl_initialize); \
++  DYNSYM (ppl_new_Constraint_System_from_Constraint); \
++  DYNSYM (ppl_new_C_Polyhedron_from_Constraint_System); \
++  DYNSYM (ppl_Polyhedron_affine_image); \
++  DYNSYM (ppl_io_fprint_Pointset_Powerset_C_Polyhedron); \
++  DYNSYMS_PPL11
 +extern struct
 +{
 +  bool inited;
@@ -190,7 +244,12 @@
 +#define cloog_domain_free (*cloog_pointers__.p_cloog_domain_free)
 +#define cloog_domain_matrix2domain (*cloog_pointers__.p_cloog_domain_matrix2domain)
 +#define cloog_initialize (*cloog_pointers__.p_cloog_initialize)
++#ifndef CLOOG_ORG
++#undef cloog_loop_malloc
++#define cloog_loop_malloc(STATE) (*cloog_pointers__.p_cloog_loop_malloc) ()
++#else
 +#define cloog_loop_malloc (*cloog_pointers__.p_cloog_loop_malloc)
++#endif
 +#define cloog_matrix_alloc (*cloog_pointers__.p_cloog_matrix_alloc)
 +#define cloog_matrix_copy (*cloog_pointers__.p_cloog_matrix_copy)
 +#define cloog_matrix_free (*cloog_pointers__.p_cloog_matrix_free)
@@ -198,15 +257,35 @@
 +#define cloog_names_malloc (*cloog_pointers__.p_cloog_names_malloc)
 +#define cloog_names_scalarize (*cloog_pointers__.p_cloog_names_scalarize)
 +#define cloog_options_free (*cloog_pointers__.p_cloog_options_free)
++#ifndef CLOOG_ORG
++#undef cloog_options_malloc
++#define cloog_options_malloc(STATE) (*cloog_pointers__.p_cloog_options_malloc) ()
++#undef cloog_program_dump_cloog
++#define cloog_program_dump_cloog(DUMPFILE, PROGRAM, SCATTERINGLIST) \
++  (*cloog_pointers__.p_cloog_program_dump_cloog) (DUMPFILE, PROGRAM)
++#undef cloog_program_extract_scalars
++#define cloog_program_extract_scalars(PROG, SCATT, OPT) \
++  (*cloog_pointers__.p_cloog_program_extract_scalars) (PROG, SCATT)
++#else
 +#define cloog_options_malloc (*cloog_pointers__.p_cloog_options_malloc)
 +#define cloog_program_dump_cloog (*cloog_pointers__.p_cloog_program_dump_cloog)
 +#define cloog_program_extract_scalars (*cloog_pointers__.p_cloog_program_extract_scalars)
++#endif
 +#define cloog_program_free (*cloog_pointers__.p_cloog_program_free)
 +#define cloog_program_generate (*cloog_pointers__.p_cloog_program_generate)
 +#define cloog_program_malloc (*cloog_pointers__.p_cloog_program_malloc)
 +#define cloog_program_print (*cloog_pointers__.p_cloog_program_print)
++#ifndef CLOOG_ORG
++#undef cloog_program_scatter
++#define cloog_program_scatter(PROG, SCATT, OPT) \
++  (*cloog_pointers__.p_cloog_program_scatter) (PROG, SCATT)
++#undef cloog_statement_alloc
++#define cloog_statement_alloc(STATE, INDEX) \
++  (*cloog_pointers__.p_cloog_statement_alloc) (INDEX)
++#else
 +#define cloog_program_scatter (*cloog_pointers__.p_cloog_program_scatter)
 +#define cloog_statement_alloc (*cloog_pointers__.p_cloog_statement_alloc)
++#endif
 +#define cloog_domain_union (*cloog_pointers__.p_cloog_domain_union)
 +#define cloog_matrix_read (*cloog_pointers__.p_cloog_matrix_read)
 +#define cloog_new_pol (*cloog_pointers__.p_cloog_new_pol)
@@ -285,66 +364,96 @@
 +#define stmt_guard (*cloog_pointers__.p_stmt_guard)
 +#define stmt_root (*cloog_pointers__.p_stmt_root)
 +#define stmt_user (*cloog_pointers__.p_stmt_user)
++#define ppl_delete_Constraint_System (*cloog_pointers__.p_ppl_delete_Constraint_System)
++#define ppl_initialize (*cloog_pointers__.p_ppl_initialize)
++#define ppl_new_Constraint_System_from_Constraint (*cloog_pointers__.p_ppl_new_Constraint_System_from_Constraint)
++#define ppl_new_C_Polyhedron_from_Constraint_System (*cloog_pointers__.p_ppl_new_C_Polyhedron_from_Constraint_System)
++#define ppl_Polyhedron_affine_image (*cloog_pointers__.p_ppl_Polyhedron_affine_image)
++#define ppl_io_fprint_Pointset_Powerset_C_Polyhedron (*cloog_pointers__.p_ppl_io_fprint_Pointset_Powerset_C_Polyhedron)
++#if !(PPL_VERSION_MAJOR == 0 && PPL_VERSION_MINOR < 11)
++#define ppl_new_PIP_Problem_from_constraints (*cloog_pointers__.p_ppl_new_PIP_Problem_from_constraints)
++#define ppl_PIP_Problem_is_satisfiable (*cloog_pointers__.p_ppl_PIP_Problem_is_satisfiable)
++#define ppl_delete_PIP_Problem (*cloog_pointers__.p_ppl_delete_PIP_Problem)
++#endif
 +
 +#define cloog_finalize (*cloog_pointers__.p_ppl_finalize)
 +
- #endif  /* GCC_GRAPHITE_H  */
---- gcc/Makefile.in.jj	2010-06-30 21:23:29.000000000 +0200
-+++ gcc/Makefile.in	2010-07-01 17:33:11.016479963 +0200
-@@ -1011,7 +1011,7 @@ BUILD_LIBDEPS= $(BUILD_LIBIBERTY)
- # and the system's installed libraries.
- LIBS = @LIBS@ $(CPPLIB) $(LIBINTL) $(LIBICONV) $(LIBIBERTY) $(LIBDECNUMBER) \
- 	$(HOST_LIBS)
--BACKENDLIBS = $(CLOOGLIBS) $(PPLLIBS) $(GMPLIBS) $(PLUGINLIBS) $(HOST_LIBS) \
-+BACKENDLIBS = $(GMPLIBS) $(if $(CLOOGLIBS),-ldl) $(PLUGINLIBS) $(HOST_LIBS) \
- 	$(ZLIB) $(LIBELFLIBS)
- # Any system libraries needed just for GNAT.
- SYSLIBS = @GNAT_LIBEXC@
-@@ -2607,7 +2607,7 @@ graphite-poly.o: graphite-poly.c $(CONFI
-    $(TREE_DATA_REF_H) tree-pass.h domwalk.h graphite.h graphite-dependences.h \
-    pointer-set.h value-prof.h graphite-ppl.h sese.h output.h graphite-poly.h
- graphite-ppl.o: graphite-ppl.c $(CONFIG_H) $(SYSTEM_H) coretypes.h $(TM_H) \
--   $(GGC_H) graphite-ppl.h
-+   $(GGC_H) graphite-ppl.h graphite.h
- graphite-scop-detection.o: graphite-scop-detection.c $(CONFIG_H) $(SYSTEM_H) \
-    $(GGC_H) $(TREE_H) $(RTL_H) $(BASIC_BLOCK_H) $(DIAGNOSTIC_H) $(TOPLEV_H) \
-    $(TREE_FLOW_H) $(TREE_DUMP_H) $(TIMEVAR_H) $(CFGLOOP_H) $(GIMPLE_H) \
-@@ -3359,6 +3359,11 @@ $(out_object_file): $(out_file) $(CONFIG
- 	$(COMPILER) -c $(ALL_COMPILERFLAGS) $(ALL_CPPFLAGS) \
- 		$(out_file) $(OUTPUT_OPTION)
- 
-+graphite%.o : \
-+  ALL_CFLAGS := -O $(filter-out -fkeep-inline-functions, $(ALL_CFLAGS))
-+graphite.o : \
-+  ALL_CFLAGS := -O $(filter-out -fkeep-inline-functions, $(ALL_CFLAGS))
 +
- # Build auxiliary files that support ecoff format.
- mips-tfile: mips-tfile.o version.o $(LIBDEPS)
- 	$(LINKER) $(LINKERFLAGS) $(LDFLAGS) -o $@ \
---- gcc/graphite-ppl.c.jj	2010-06-30 09:48:30.000000000 +0200
-+++ gcc/graphite-ppl.c	2010-07-01 17:08:14.161335642 +0200
-@@ -29,6 +29,7 @@ along with GCC; see the file COPYING3.  
- #include "ppl_c.h"
- #include "cloog/cloog.h"
- #include "graphite-ppl.h"
-+#include "graphite.h"
+ #endif /* GRAPHITE_CLOOG_COMPAT_H  */
+--- gcc/graphite.c.jj	2011-01-03 12:53:05.194056513 +0100
++++ gcc/graphite.c	2011-01-04 16:18:32.385007767 +0100
+@@ -56,6 +56,35 @@ along with GCC; see the file COPYING3.  
  
- /* Translates row ROW of the CloogMatrix MATRIX to a PPL Constraint.  */
+ CloogState *cloog_state;
  
---- gcc/graphite-clast-to-gimple.c.jj	2010-06-30 09:48:30.000000000 +0200
-+++ gcc/graphite-clast-to-gimple.c	2010-07-01 16:50:15.812485671 +0200
-@@ -613,11 +613,11 @@ gcc_type_for_cloog_iv (const char *cloog
-    STMT.  */
++__typeof (cloog_pointers__) cloog_pointers__;
++
++static bool
++init_cloog_pointers (void)
++{
++  void *h;
++
++  if (cloog_pointers__.inited)
++    return cloog_pointers__.h != NULL;
++  h = dlopen ("libcloog.so.0", RTLD_LAZY);
++  cloog_pointers__.h = h;
++  if (h == NULL)
++    return false;
++#define DYNSYM(x) \
++  do \
++    { \
++      union { __typeof (cloog_pointers__.p_##x) p; void *q; } u; \
++      u.q = dlsym (h, #x); \
++      if (u.q == NULL) \
++	return false; \
++      cloog_pointers__.p_##x = u.p; \
++    } \
++  while (0)
++  DYNSYMS
++#undef DYNSYM
++  return true;
++}
++
++
+ /* Print global statistics to FILE.  */
+ 
+ static void
+@@ -201,6 +230,12 @@ graphite_initialize (void)
+       return false;
+     }
+ 
++  if (!init_cloog_pointers ())
++    {
++      sorry ("Graphite loop optimizations cannot be used");
++      return false;
++    }
++
+   scev_reset ();
+   recompute_all_dominators ();
+   initialize_original_copy_tables ();
+--- gcc/graphite-clast-to-gimple.c.jj	2011-01-03 12:53:05.000000000 +0100
++++ gcc/graphite-clast-to-gimple.c	2011-01-04 16:29:55.738007463 +0100
+@@ -738,10 +738,10 @@ clast_get_body_of_loop (struct clast_stm
+    from STMT_FOR.  */
  
  static tree
--gcc_type_for_iv_of_clast_loop (struct clast_for *stmt_for)
-+gcc_type_for_iv_of_clast_loop (struct clast_for *stmt_fora)
+-gcc_type_for_iv_of_clast_loop (struct clast_for *stmt_for, int level,
++gcc_type_for_iv_of_clast_loop (struct clast_for *stmt_fora, int level,
+ 			       tree lb_type, tree ub_type)
  {
 -  struct clast_stmt *stmt = (struct clast_stmt *) stmt_for;
 +  struct clast_stmt *stmt = (struct clast_stmt *) stmt_fora;
    struct clast_user_stmt *body = clast_get_body_of_loop (stmt);
--  const char *cloog_iv = stmt_for->iterator;
-+  const char *cloog_iv = stmt_fora->iterator;
    CloogStatement *cs = body->statement;
    poly_bb_p pbb = (poly_bb_p) cloog_statement_usr (cs);
+--- gcc/graphite-poly.h.jj	2011-01-03 12:53:05.000000000 +0100
++++ gcc/graphite-poly.h	2011-01-04 17:35:53.308788629 +0100
+@@ -22,6 +22,8 @@ along with GCC; see the file COPYING3.  
+ #ifndef GCC_GRAPHITE_POLY_H
+ #define GCC_GRAPHITE_POLY_H
  
++#include "graphite-cloog-util.h"
++
+ typedef struct poly_dr *poly_dr_p;
+ DEF_VEC_P(poly_dr_p);
+ DEF_VEC_ALLOC_P (poly_dr_p, heap);

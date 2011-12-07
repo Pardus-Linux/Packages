@@ -1,8 +1,6 @@
+# DP: Reducing the overhead of dwarf2 location tracking
 
-2011-03-28  Richard Sandiford  <richard.sandiford@linaro.org>
-
-
-	gcc/
+gcc/
 	* dwarf2out.c (dw_loc_list_node): Add resolved_addr and replaced.
 	(cached_dw_loc_list_def): New structure.
 	(cached_dw_loc_list): New typedef.
@@ -21,27 +19,23 @@
 	(resolve_addr): Cache the result of resolving a chain of
 	location lists.
 
-	From: 2010-10-12  Jakub Jelinek  <jakub@redhat.com>
-	* dwarf2out.c (dw_loc_list_node): Add emitted field.
-	(output_loc_list): Return immediately if emitted is set, set it.
-
- 
---- a/src/gcc/dwarf2out.c
-+++ b/src/gcc/dwarf2out.c
-@@ -4256,6 +4256,12 @@
- 		      Only on head of list */
+Index: gcc/dwarf2out.c
+===================================================================
+--- a/src/gcc/dwarf2out.c	2011-03-05 09:02:43.000000000 +0000
++++ b/src/gcc/dwarf2out.c	2011-03-05 09:09:46.000000000 +0000
+@@ -4464,6 +4464,11 @@ typedef struct GTY(()) dw_loc_list_struc
    const char *section; /* Section this loclist is relative to */
    dw_loc_descr_ref expr;
+   hashval_t hash;
 +  /* True if all addresses in this and subsequent lists are known to be
 +     resolved.  */
 +  bool resolved_addr;
 +  /* True if this list has been replaced by dw_loc_next.  */
 +  bool replaced;
-+  bool emitted;
+   bool emitted;
  } dw_loc_list_node;
  
- #if defined (DWARF2_DEBUGGING_INFO) || defined (DWARF2_UNWIND_INFO)
-@@ -5759,6 +5765,19 @@
+@@ -6119,6 +6124,19 @@ typedef struct var_loc_list_def var_loc_
  /* Table of decl location linked lists.  */
  static GTY ((param_is (var_loc_list))) htab_t decl_loc_table;
  
@@ -61,8 +55,8 @@
  /* A pointer to the base of a list of references to DIE's that
     are uniquely identified by their tag, presence/absence of
     children DIE's, and list of attribute/value pairs.  */
-@@ -6112,7 +6131,7 @@
- static void insert_int (HOST_WIDE_INT, unsigned, unsigned char *);
+@@ -6479,7 +6497,7 @@ static void insert_int (HOST_WIDE_INT, u
+ static void insert_double (double_int, unsigned char *);
  static void insert_float (const_rtx, unsigned char *);
  static rtx rtl_for_decl_location (tree);
 -static bool add_location_or_const_value_attribute (dw_die_ref, tree,
@@ -70,7 +64,7 @@
  						   enum dwarf_attribute);
  static bool tree_add_const_value_attribute (dw_die_ref, tree);
  static bool tree_add_const_value_attribute_for_decl (dw_die_ref, tree);
-@@ -7731,6 +7750,24 @@
+@@ -8201,6 +8219,24 @@ lookup_decl_loc (const_tree decl)
      htab_find_with_hash (decl_loc_table, decl, DECL_UID (decl));
  }
  
@@ -95,18 +89,7 @@
  /* Equate a DIE to a particular declaration.  */
  
  static void
-@@ -10355,6 +10392,10 @@
- {
-   dw_loc_list_ref curr = list_head;
- 
-+  if (list_head->emitted)
-+    return;
-+  list_head->emitted = true;
-+
-   ASM_OUTPUT_LABEL (asm_out_file, list_head->ll_symbol);
- 
-   /* Walk the location list, and output each range + expression.  */
-@@ -15920,15 +15961,22 @@
+@@ -16978,15 +17014,22 @@ fortran_common (tree decl, HOST_WIDE_INT
     these things can crop up in other ways also.)  Note that one type of
     constant value which can be passed into an inlined function is a constant
     pointer.  This can happen for example if an actual argument in an inlined
@@ -131,7 +114,7 @@
  
    if (TREE_CODE (decl) == ERROR_MARK)
      return false;
-@@ -15964,7 +16012,34 @@
+@@ -17023,7 +17066,33 @@ add_location_or_const_value_attribute (d
  	  && add_const_value_attribute (die, rtl))
  	 return true;
      }
@@ -157,8 +140,7 @@
 +	{
 +	  slot = htab_find_slot_with_hash (cached_dw_loc_list_table, decl,
 +					   DECL_UID (decl), INSERT);
-+	  cache = (cached_dw_loc_list *)
-+	    ggc_alloc_cleared (sizeof (cached_dw_loc_list));
++	  cache = ggc_alloc_cleared_cached_dw_loc_list ();
 +	  cache->decl_id = DECL_UID (decl);
 +	  cache->loc_list = list;
 +	  *slot = cache;
@@ -167,7 +149,7 @@
    if (list)
      {
        add_AT_location_description (die, attr, list);
-@@ -17532,7 +17607,7 @@
+@@ -18684,7 +18753,7 @@ gen_formal_parameter_die (tree node, tre
          equate_decl_number_to_die (node, parm_die);
        if (! DECL_ABSTRACT (node_or_origin))
  	add_location_or_const_value_attribute (parm_die, node_or_origin,
@@ -176,7 +158,7 @@
  
        break;
  
-@@ -17712,6 +17787,7 @@
+@@ -18869,6 +18938,7 @@ dwarf2out_abstract_function (tree decl)
    tree context;
    int was_abstract;
    htab_t old_decl_loc_table;
@@ -184,7 +166,7 @@
  
    /* Make sure we have the actual abstract inline, not a clone.  */
    decl = DECL_ORIGIN (decl);
-@@ -17725,7 +17801,9 @@
+@@ -18882,7 +18952,9 @@ dwarf2out_abstract_function (tree decl)
       DIE.  Be sure to not clobber the outer location table nor use it or we would
       get locations in abstract instantces.  */
    old_decl_loc_table = decl_loc_table;
@@ -194,7 +176,7 @@
  
    /* Be sure we've emitted the in-class declaration DIE (if any) first, so
       we don't get confused by DECL_ABSTRACT.  */
-@@ -17750,6 +17828,7 @@
+@@ -18907,6 +18979,7 @@ dwarf2out_abstract_function (tree decl)
  
    current_function_decl = save_fn;
    decl_loc_table = old_decl_loc_table;
@@ -202,7 +184,7 @@
    pop_cfun ();
  }
  
-@@ -18431,9 +18510,8 @@
+@@ -19723,9 +19796,8 @@ gen_variable_die (tree decl, tree origin
            && !TREE_SYMBOL_REFERENCED (DECL_ASSEMBLER_NAME (decl_or_origin)))
  	defer_location (decl_or_origin, var_die);
        else
@@ -214,7 +196,7 @@
        add_pubname (decl_or_origin, var_die);
      }
    else
-@@ -20049,6 +20127,7 @@
+@@ -21501,6 +21573,7 @@ dwarf2out_function_decl (tree decl)
    dwarf2out_decl (decl);
  
    htab_empty (decl_loc_table);
@@ -222,7 +204,7 @@
  }
  
  /* Output a marker (i.e. a label) for the beginning of the generated code for
-@@ -20649,6 +20728,11 @@
+@@ -22210,6 +22283,11 @@ dwarf2out_init (const char *filename ATT
    decl_loc_table = htab_create_ggc (10, decl_loc_table_hash,
  				    decl_loc_table_eq, NULL);
  
@@ -234,7 +216,7 @@
    /* Allocate the initial hunk of the decl_scope_table.  */
    decl_scope_table = VEC_alloc (tree, gc, 256);
  
-@@ -21278,30 +21362,53 @@
+@@ -22852,30 +22930,53 @@ resolve_addr (dw_die_ref die)
  {
    dw_die_ref c;
    dw_attr_ref a;
@@ -242,7 +224,7 @@
 +  dw_loc_list_ref *curr, *start, loc;
    unsigned ix;
  
-   for (ix = 0; VEC_iterate (dw_attr_node, die->die_attr, ix, a); ix++)
+   FOR_EACH_VEC_ELT (dw_attr_node, die->die_attr, ix, a)
      switch (AT_class (a))
        {
        case dw_val_class_loc_list:
@@ -299,7 +281,7 @@
  	  {
  	    remove_AT (die, a->dw_attr);
  	    ix--;
-@@ -21361,6 +21468,7 @@
+@@ -23304,6 +23405,7 @@ dwarf2out_finish (const char *filename)
        add_location_or_const_value_attribute (
          VEC_index (deferred_locations, deferred_locations_list, i)->die,
          VEC_index (deferred_locations, deferred_locations_list, i)->variable,
@@ -307,4 +289,3 @@
  	DW_AT_location);
      }
  
-

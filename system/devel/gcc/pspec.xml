@@ -8,95 +8,86 @@
             <Name>H. İbrahim Güngör</Name>
             <Email>ibrahim@pardus.org.tr</Email>
         </Packager>
+        <License>BSD</License>
+        <License>GPLv2+</License>
         <License>GPLv3+</License>
-        <License>LGPLv3+</License>
+        <License>LGPLv2+</License>
         <IsA>app:console</IsA>
         <IsA>library</IsA>
         <Summary>The GNU Compiler Collection, includes C, C++, Objective-C and Fortran compilers</Summary>
-        <Description>The GNU Compiler Collection includes front ends for C, C++, Objective-C, Fortran, as well as libraries for these languages</Description>
-        <!-- use for snapshots
-        <Archive sha1sum="e9cfac8483fa75e2e321be8c299a10fcad743a50" type="tarbz2">http://cekirdek.pardus.org.tr/~onur/distfiles/gcc-4.5.1-20101208.tar.bz2</Archive>
-        -->
-        <Archive sha1sum="73c45dfda5eef6b124be53e56828b5925198cc1b" type="tarbz2">ftp://gcc.gnu.org/pub/gcc/releases/gcc-4.5.3/gcc-4.5.3.tar.bz2</Archive>
+        <Description>gcc package includes front-ends for C, C++, Objective-C, Fortran, as well as libraries for these languages.</Description>
+        <Archive sha1sum="691974613b1c1f15ed0182ec539fa54a12dd6f93" type="tarbz2">ftp://gcc.gnu.org/pub/gcc/releases/gcc-4.6.2/gcc-4.6.2.tar.bz2</Archive>
         <BuildDependencies>
-            <Dependency>binutils</Dependency>
+            <Dependency>sed</Dependency>
+            <Dependency>flex</Dependency>
+            <Dependency>patch</Dependency>
             <Dependency>bison</Dependency>
             <Dependency>gettext</Dependency>
             <Dependency>ncurses</Dependency>
-            <Dependency>zlib</Dependency>
-            <Dependency>gnuconfig</Dependency>
-            <Dependency>patch</Dependency>
-            <Dependency>sed</Dependency>
             <Dependency>texinfo</Dependency>
-            <Dependency>gmp</Dependency>
-            <Dependency>mpfr</Dependency>
-            <Dependency>libmpc</Dependency>
-            <Dependency>ppl</Dependency>
-            <Dependency>cloog-ppl</Dependency>
             <Dependency>elfutils</Dependency>
+            <Dependency>binutils</Dependency>
+            <Dependency>gnuconfig</Dependency>
+            <Dependency>gmp-devel</Dependency>
+            <Dependency>ppl-devel</Dependency>
+            <Dependency>mpfr-devel</Dependency>
+            <Dependency>zlib-devel</Dependency>
+            <Dependency>glibc-devel</Dependency>
+            <Dependency>libmpc-devel</Dependency>
+            <Dependency>cloog-ppl-devel</Dependency>
         </BuildDependencies>
         <Patches>
-            <Patch>textdomain.patch</Patch>
-            <Patch>boehm-gc-getnprocs.patch</Patch>
+            <!-- Branch update -->
+            <Patch level="2">svn-updates-4.6.2-r181596.diff</Patch>
 
-            <!-- Patches from Redhat -->
-            <!-- not needed anymore
-            <Patch>redhat/const-dso-handle.patch</Patch>
-            <Patch>redhat/hash-style-gnu.patch</Patch>
-            -->
-            <Patch>redhat/c++-builtin-redecl.patch</Patch>
-            <Patch>redhat/gcc45-build-id.patch</Patch>
-            <!-- leave the decision to later on
-            <Patch>redhat/gcc45-no-add-needed.patch</Patch>
-            -->
-            <Patch>redhat/gcc45-cloog-dl.patch</Patch>
-            <Patch>redhat/gcc45-libgomp-omp_h-multilib.patch</Patch>
-            <Patch>redhat/gcc45-libstdc++-docs.patch</Patch>
-            <Patch>redhat/gcc45-libtool-no-rpath.patch</Patch>
-            <Patch>redhat/gcc45-pr33763.patch</Patch>
-            <Patch>redhat/gcc45-pr38757.patch</Patch>
-            <!-- merged in, check again
-            <Patch>redhat/gcc45-pr44542.patch</Patch>
-            -->
-            <Patch>redhat/gcc45-rh330771.patch</Patch>
+            <!-- Patches from Fedora/Redhat -->
+            <Patch>redhat/gcc46-c++-builtin-redecl.patch</Patch>
+            <Patch>redhat/gcc46-pr33763.patch</Patch>
+            <Patch>redhat/gcc46-rh330771.patch</Patch>
+            <Patch>redhat/gcc46-i386-libgomp.patch</Patch>
+            <Patch>redhat/gcc46-libgomp-omp_h-multilib.patch</Patch>
+            <Patch>redhat/gcc46-libtool-no-rpath.patch</Patch>
+            <Patch>redhat/gcc46-cloog-dl.patch</Patch> <!-- if build_cloog -->
+            <Patch>redhat/gcc46-pr38757.patch</Patch>
+            <Patch>redhat/gcc46-libstdc++-docs.patch</Patch>
+            <Patch>redhat/gcc46-no-add-needed.patch</Patch>
+            <Patch>redhat/gcc46-pr47858.patch</Patch>
 
-            <!-- Patches from Suse -->
+            <!-- Suse patches -->
+
             <Patch>suse/boehm-gc-strict-aliasing.patch</Patch>
             <Patch>suse/gcc-noalias-warn.diff</Patch>
             <Patch>suse/gcc43-no-unwind-tables.diff</Patch>
-            <!-- not worth
-            <Patch>suse/gcc45-disable-ipa-sra-O2.diff</Patch>
-            -->
-            <Patch>suse/libjava-no-multilib.diff</Patch>
             <Patch>suse/pr27880.diff</Patch>
-            <Patch>suse/pr43270.diff</Patch>
             <Patch>suse/sap303956-uchar.diff</Patch>
 
-            <!-- allow scalar is_va_list_type types -->
-            <Patch>pr42375.patch</Patch>
+            <!-- Pardus only patches -->
 
-            <!-- If computing a constraint for the rhs handle type punning through unions -->
-            <!-- merged in, check again
-            <Patch level="2">pr45623.patch</Patch>
+            <!-- put error/warning count -->
+            <Patch level="1">pardus/pr26061.patch</Patch>
+
+            <!-- Add gcc options to output file in PARDUS.OPTs section
+                (disable this to not hardcode distroname specific stuff for now)
+            <Patch level="0">pardus/record_gcc_options.patch</Patch>
             -->
 
-            <!-- Pardus only patches, put error/warning count -->
-            <Patch level="1">pr26061.patch</Patch>
-
-            <!-- Add gcc options to output file in PARDUS.OPTs section -->
-            <Patch>record_gcc_options.patch</Patch>
-
             <!-- Fix paths in 64bit -->
-            <Patch level="1">pure64.patch</Patch>
+            <Patch level="1">pardus/pure64.patch</Patch>
 
             <!-- Fix uClibc dynamic linker paths to suit our package's needs -->
-            <Patch level="1">fix-uClibc-loader-paths.patch</Patch>
+            <Patch level="1">pardus/fix-uClibc-loader-paths.patch</Patch>
 
-            <!-- Branch updates -->
-            <Patch level="2">svn-updates.patch</Patch>
+
+            <!-- Debian patches -->
 
             <!-- Reduce overhead of dwarf2 location tracking -->
-            <Patch level="2">dwarf2_loc_tracking.patch</Patch>
+            <Patch level="2">debian/gcc-dw2-loc-tracking.diff</Patch>
+
+            <!-- Set gettext's domain and textdomain to the versioned package name -->
+            <Patch level="2">debian/gcc-textdomain.diff</Patch>
+
+            <!-- boehm-gc: Use sysconf as fallback for getting number of processors -->
+            <Patch level="2">debian/boehm-gc-getnprocs.diff</Patch>
         </Patches>
     </Source>
 
@@ -104,7 +95,7 @@
         <Name>libgcc</Name>
         <IsA>library</IsA>
         <PartOf>system.base</PartOf>
-        <Summary>Contains a shared library of support routines used by GCC's runtime, and thus by every program on the system</Summary>
+        <Summary>Shared library of support routines used by GCC's runtime, and thus by every program on the system</Summary>
         <Files>
             <Path fileType="config">/etc</Path>
             <Path fileType="library">/usr/lib/libstdc++.so*</Path>
@@ -119,7 +110,7 @@
     <Package>
         <Name>libgomp</Name>
         <IsA>library</IsA>
-        <Summary>Contains GCC shared support library which is needed for OpenMP 2.5 support</Summary>
+        <Summary>GCC OpenMP v3.0 shared support library</Summary>
         <Files>
             <Path fileType="library">/usr/lib/libgomp.so*</Path>
             <Path fileType="library">/usr/lib/libgomp.spec*</Path>
@@ -128,6 +119,49 @@
             <Path fileType="info">/usr/share/info/libgomp.info</Path>
         </Files>
     </Package>
+
+    <!-- FIXME: mudflap
+    <Package>
+        <Name>libmudflap</Name>
+        <IsA>library</IsA>
+        <Summary>GCC mudflap shared support library</Summary>
+        <Files>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>libmudflap-devel</Name>
+        <IsA>library</IsA>
+        <Summary>Development headers for libmudflap</Summary>
+        <Description>libmudflap-devel contains headers for building mudflap-instrumented programs.</Description>
+        <RuntimeDependencies>
+            <Dependency release="current">libmudflap</Dependency>
+        </RuntimeDependencies>
+        <Files>
+        </Files>
+    </Package>
+    -->
+
+    <!-- FIXME: quadmath
+    <Package>
+        <Name>libquadmath</Name>
+        <IsA>library</IsA>
+        <Summary>GCC __float128 shared support library</Summary>
+        <Files>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>libquadmath-devel</Name>
+        <IsA>library</IsA>
+        <Summary>Development headers for libquadmath</Summary>
+        <RuntimeDependencies>
+            <Dependency release="current">libquadmath</Dependency>
+        </RuntimeDependencies>
+        <Files>
+        </Files>
+    </Package>
+    -->
 
     <Package>
         <Name>libgfortran</Name>
@@ -152,21 +186,18 @@
     <Package>
         <Name>gcc</Name>
         <RuntimeDependencies>
-            <Dependency>binutils</Dependency>
+            <Dependency>ppl</Dependency>
+            <Dependency>gmp</Dependency>
+            <Dependency>zlib</Dependency>
+            <Dependency>mpfr</Dependency>
             <Dependency>bison</Dependency>
+            <Dependency>libmpc</Dependency>
             <Dependency>gettext</Dependency>
             <Dependency>ncurses</Dependency>
-            <Dependency>zlib</Dependency>
-            <Dependency>gmp</Dependency>
-            <Dependency>mpfr</Dependency>
-            <Dependency>libmpc</Dependency>
-            <Dependency>ppl</Dependency>
-            <Dependency>cloog-ppl</Dependency>
+            <Dependency>binutils</Dependency>
             <Dependency>elfutils</Dependency>
+            <Dependency>cloog-ppl</Dependency>
         </RuntimeDependencies>
-        <Conflicts>
-            <Package releaseTo="62">libgomp</Package>
-        </Conflicts>
         <Files>
             <Path fileType="executable">/lib</Path>
             <Path fileType="executable">/usr/bin</Path>
@@ -184,6 +215,13 @@
     </Package>
 
     <History>
+        <Update release="65">
+            <Date>2011-12-07</Date>
+            <Version>4.6.2</Version>
+            <Comment>Version bump</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
         <Update release="64">
             <Date>2011-05-03</Date>
             <Version>4.5.3</Version>

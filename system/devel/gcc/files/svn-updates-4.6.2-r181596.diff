@@ -1,0 +1,6101 @@
+# DP: updates from the 4.6 branch upto 20111121 (r181596).
+
+last_updated()
+{
+	cat > ${dir}LAST_UPDATED <<EOF
+Mon Nov 21 21:46:29 CET 2011
+Mon Nov 21 20:46:29 UTC 2011 (revision 181596)
+EOF
+}
+
+svn diff svn://gcc.gnu.org/svn/gcc/tags/gcc_4_6_2_release svn://gcc.gnu.org/svn/gcc/branches/gcc-4_6-branch \
+	| sed -r 's,^--- (\S+)\t(\S+)(.*)$,--- a/src/\1\t\2,;s,^\+\+\+ (\S+)\t(\S+)(.*)$,+++ b/src/\1\t\2,' \
+	| awk '/^Index:.*\.(class|texi)/ {skip=1; next} /^Index:/ { skip=0 } skip==0'
+
+Index: configure
+===================================================================
+--- a/src/configure	(.../tags/gcc_4_6_2_release)
++++ b/src/configure	(.../branches/gcc-4_6-branch)
+@@ -6944,10 +6944,6 @@
+     extra_arflags_for_target=" -X32_64"
+     extra_nmflags_for_target=" -B -X32_64"
+     ;;
+-  *-*-darwin[3-9]*)
+-    # ranlib before Darwin10 requires the -c flag to look at common symbols.
+-    extra_ranlibflags_for_target=" -c"
+-    ;;
+   mips*-*-pe | sh*-*-pe | *arm-wince-pe)
+     target_makefile_frag="config/mt-wince"
+     ;;
+Index: libtool.m4
+===================================================================
+--- a/src/libtool.m4	(.../tags/gcc_4_6_2_release)
++++ b/src/libtool.m4	(.../branches/gcc-4_6-branch)
+@@ -2273,7 +2273,7 @@
+     objformat=`/usr/bin/objformat`
+   else
+     case $host_os in
+-    freebsd[[123]]*) objformat=aout ;;
++    freebsd[[23]].*) objformat=aout ;;
+     *) objformat=elf ;;
+     esac
+   fi
+@@ -2291,7 +2291,7 @@
+   esac
+   shlibpath_var=LD_LIBRARY_PATH
+   case $host_os in
+-  freebsd2*)
++  freebsd2.*)
+     shlibpath_overrides_runpath=yes
+     ;;
+   freebsd3.[[01]]* | freebsdelf3.[[01]]*)
+@@ -4804,7 +4804,7 @@
+       ;;
+ 
+     # Unfortunately, older versions of FreeBSD 2 do not have this feature.
+-    freebsd2*)
++    freebsd2.*)
+       _LT_TAGVAR(archive_cmds, $1)='$LD -Bshareable -o $lib $libobjs $deplibs $linker_flags'
+       _LT_TAGVAR(hardcode_direct, $1)=yes
+       _LT_TAGVAR(hardcode_minus_L, $1)=yes
+@@ -5751,7 +5751,7 @@
+         esac
+         ;;
+ 
+-      freebsd[[12]]*)
++      freebsd2.*)
+         # C++ shared libraries reported to be fairly broken before
+ 	# switch to ELF
+         _LT_TAGVAR(ld_shlibs, $1)=no
+Index: libgomp/configure
+===================================================================
+--- a/src/libgomp/configure	(.../tags/gcc_4_6_2_release)
++++ b/src/libgomp/configure	(.../branches/gcc-4_6-branch)
+@@ -9317,7 +9317,7 @@
+       ;;
+ 
+     # Unfortunately, older versions of FreeBSD 2 do not have this feature.
+-    freebsd2*)
++    freebsd2.*)
+       archive_cmds='$LD -Bshareable -o $lib $libobjs $deplibs $linker_flags'
+       hardcode_direct=yes
+       hardcode_minus_L=yes
+@@ -10230,7 +10230,7 @@
+     objformat=`/usr/bin/objformat`
+   else
+     case $host_os in
+-    freebsd[123]*) objformat=aout ;;
++    freebsd[23].*) objformat=aout ;;
+     *) objformat=elf ;;
+     esac
+   fi
+@@ -10248,7 +10248,7 @@
+   esac
+   shlibpath_var=LD_LIBRARY_PATH
+   case $host_os in
+-  freebsd2*)
++  freebsd2.*)
+     shlibpath_overrides_runpath=yes
+     ;;
+   freebsd3.[01]* | freebsdelf3.[01]*)
+@@ -13164,7 +13164,7 @@
+       ;;
+ 
+     # Unfortunately, older versions of FreeBSD 2 do not have this feature.
+-    freebsd2*)
++    freebsd2.*)
+       archive_cmds_FC='$LD -Bshareable -o $lib $libobjs $deplibs $linker_flags'
+       hardcode_direct_FC=yes
+       hardcode_minus_L_FC=yes
+@@ -13869,7 +13869,7 @@
+     objformat=`/usr/bin/objformat`
+   else
+     case $host_os in
+-    freebsd[123]*) objformat=aout ;;
++    freebsd[23].*) objformat=aout ;;
+     *) objformat=elf ;;
+     esac
+   fi
+@@ -13887,7 +13887,7 @@
+   esac
+   shlibpath_var=LD_LIBRARY_PATH
+   case $host_os in
+-  freebsd2*)
++  freebsd2.*)
+     shlibpath_overrides_runpath=yes
+     ;;
+   freebsd3.[01]* | freebsdelf3.[01]*)
+Index: libgomp/ChangeLog
+===================================================================
+--- a/src/libgomp/ChangeLog	(.../tags/gcc_4_6_2_release)
++++ b/src/libgomp/ChangeLog	(.../branches/gcc-4_6-branch)
+@@ -1,3 +1,7 @@
++2011-11-20  Andreas Tobler  <andreast@fgznet.ch>
++
++	* configure: Regenerate.
++
+ 2011-10-26  Release Manager
+ 
+ 	* GCC 4.6.2 released.
+Index: libquadmath/configure
+===================================================================
+--- a/src/libquadmath/configure	(.../tags/gcc_4_6_2_release)
++++ b/src/libquadmath/configure	(.../branches/gcc-4_6-branch)
+@@ -8727,7 +8727,7 @@
+       ;;
+ 
+     # Unfortunately, older versions of FreeBSD 2 do not have this feature.
+-    freebsd2*)
++    freebsd2.*)
+       archive_cmds='$LD -Bshareable -o $lib $libobjs $deplibs $linker_flags'
+       hardcode_direct=yes
+       hardcode_minus_L=yes
+@@ -9643,7 +9643,7 @@
+     objformat=`/usr/bin/objformat`
+   else
+     case $host_os in
+-    freebsd[123]*) objformat=aout ;;
++    freebsd[23].*) objformat=aout ;;
+     *) objformat=elf ;;
+     esac
+   fi
+@@ -9661,7 +9661,7 @@
+   esac
+   shlibpath_var=LD_LIBRARY_PATH
+   case $host_os in
+-  freebsd2*)
++  freebsd2.*)
+     shlibpath_overrides_runpath=yes
+     ;;
+   freebsd3.[01]* | freebsdelf3.[01]*)
+Index: libquadmath/ChangeLog
+===================================================================
+--- a/src/libquadmath/ChangeLog	(.../tags/gcc_4_6_2_release)
++++ b/src/libquadmath/ChangeLog	(.../branches/gcc-4_6-branch)
+@@ -1,3 +1,7 @@
++2011-11-20  Andreas Tobler  <andreast@fgznet.ch>
++
++	* configure: Regenerate.
++
+ 2011-10-26  Release Manager
+ 
+ 	* GCC 4.6.2 released.
+Index: gcc/c-family/ChangeLog
+===================================================================
+--- a/src/gcc/c-family/ChangeLog	(.../tags/gcc_4_6_2_release)
++++ b/src/gcc/c-family/ChangeLog	(.../branches/gcc-4_6-branch)
+@@ -1,3 +1,15 @@
++2011-11-04  Eric Botcazou  <ebotcazou@adacore.com>
++
++	PR c++/50608
++	* c-common.c (c_fully_fold_internal) <ADDR_EXPR>: Call fold_offsetof_1.
++	(fold_offsetof_1): Make global.  Remove STOP_REF argument and adjust.
++	<INDIRECT_REF>: Return the argument.
++	<ARRAY_REF>: Remove special code for negative offset.
++	Call fold_build_pointer_plus instead of size_binop.
++	(fold_offsetof): Remove STOP_REF argument and adjust.
++	* c-common.h (fold_offsetof_1): Declare.
++	(fold_offsetof): Remove STOP_REF argument.
++
+ 2011-10-26  Release Manager
+ 
+ 	* GCC 4.6.2 released.
+Index: gcc/c-family/c-common.c
+===================================================================
+--- a/src/gcc/c-family/c-common.c	(.../tags/gcc_4_6_2_release)
++++ b/src/gcc/c-family/c-common.c	(.../branches/gcc-4_6-branch)
+@@ -1236,13 +1236,7 @@
+ 	  && (op1 = get_base_address (op0)) != NULL_TREE
+ 	  && TREE_CODE (op1) == INDIRECT_REF
+ 	  && TREE_CONSTANT (TREE_OPERAND (op1, 0)))
+-	{
+-	  tree offset = fold_offsetof (op0, op1);
+-	  op1
+-	    = fold_convert_loc (loc, TREE_TYPE (expr), TREE_OPERAND (op1, 0));
+-	  ret = fold_build2_loc (loc, POINTER_PLUS_EXPR, TREE_TYPE (expr), op1,
+-				 offset);
+-	}
++	ret = fold_convert_loc (loc, TREE_TYPE (expr), fold_offsetof_1 (op0));
+       else if (op0 != orig_op0 || in_init)
+ 	ret = in_init
+ 	  ? fold_build1_initializer_loc (loc, code, TREE_TYPE (expr), op0)
+@@ -8459,20 +8453,15 @@
+     return uc;
+ }
+ 
+-/* Build the result of __builtin_offsetof.  EXPR is a nested sequence of
+-   component references, with STOP_REF, or alternatively an INDIRECT_REF of
+-   NULL, at the bottom; much like the traditional rendering of offsetof as a
+-   macro.  Returns the folded and properly cast result.  */
++/* Fold an offsetof-like expression.  EXPR is a nested sequence of component
++   references with an INDIRECT_REF of a constant at the bottom; much like the
++   traditional rendering of offsetof as a macro.  Return the folded result.  */
+ 
+-static tree
+-fold_offsetof_1 (tree expr, tree stop_ref)
++tree
++fold_offsetof_1 (tree expr)
+ {
+-  enum tree_code code = PLUS_EXPR;
+   tree base, off, t;
+ 
+-  if (expr == stop_ref && TREE_CODE (expr) != ERROR_MARK)
+-    return size_zero_node;
+-
+   switch (TREE_CODE (expr))
+     {
+     case ERROR_MARK:
+@@ -8489,15 +8478,15 @@
+ 
+     case NOP_EXPR:
+     case INDIRECT_REF:
+-      if (!integer_zerop (TREE_OPERAND (expr, 0)))
++      if (!TREE_CONSTANT (TREE_OPERAND (expr, 0)))
+ 	{
+ 	  error ("cannot apply %<offsetof%> to a non constant address");
+ 	  return error_mark_node;
+ 	}
+-      return size_zero_node;
++      return TREE_OPERAND (expr, 0);
+ 
+     case COMPONENT_REF:
+-      base = fold_offsetof_1 (TREE_OPERAND (expr, 0), stop_ref);
++      base = fold_offsetof_1 (TREE_OPERAND (expr, 0));
+       if (base == error_mark_node)
+ 	return base;
+ 
+@@ -8515,21 +8504,14 @@
+       break;
+ 
+     case ARRAY_REF:
+-      base = fold_offsetof_1 (TREE_OPERAND (expr, 0), stop_ref);
++      base = fold_offsetof_1 (TREE_OPERAND (expr, 0));
+       if (base == error_mark_node)
+ 	return base;
+ 
+       t = TREE_OPERAND (expr, 1);
+-      if (TREE_CODE (t) == INTEGER_CST && tree_int_cst_sgn (t) < 0)
+-	{
+-	  code = MINUS_EXPR;
+-	  t = fold_build1_loc (input_location, NEGATE_EXPR, TREE_TYPE (t), t);
+-	}
+-      t = convert (sizetype, t);
+-      off = size_binop (MULT_EXPR, TYPE_SIZE_UNIT (TREE_TYPE (expr)), t);
+ 
+       /* Check if the offset goes beyond the upper bound of the array.  */
+-      if (code == PLUS_EXPR && TREE_CODE (t) == INTEGER_CST)
++      if (TREE_CODE (t) == INTEGER_CST && tree_int_cst_sgn (t) >= 0)
+ 	{
+ 	  tree upbound = array_ref_up_bound (expr);
+ 	  if (upbound != NULL_TREE
+@@ -8569,26 +8551,30 @@
+ 		}
+ 	    }
+ 	}
++
++      t = convert (sizetype, t);
++      off = size_binop (MULT_EXPR, TYPE_SIZE_UNIT (TREE_TYPE (expr)), t);
+       break;
+ 
+     case COMPOUND_EXPR:
+       /* Handle static members of volatile structs.  */
+       t = TREE_OPERAND (expr, 1);
+       gcc_assert (TREE_CODE (t) == VAR_DECL);
+-      return fold_offsetof_1 (t, stop_ref);
++      return fold_offsetof_1 (t);
+ 
+     default:
+       gcc_unreachable ();
+     }
+ 
+-  return size_binop (code, base, off);
++  return fold_build2 (POINTER_PLUS_EXPR, TREE_TYPE (base), base, off);
+ }
+ 
++/* Likewise, but convert it to the return type of offsetof.  */
++
+ tree
+-fold_offsetof (tree expr, tree stop_ref)
++fold_offsetof (tree expr)
+ {
+-  /* Convert back from the internal sizetype to size_t.  */
+-  return convert (size_type_node, fold_offsetof_1 (expr, stop_ref));
++  return convert (size_type_node, fold_offsetof_1 (expr));
+ }
+ 
+ /* Warn for A ?: C expressions (with B omitted) where A is a boolean 
+Index: gcc/c-family/c-common.h
+===================================================================
+--- a/src/gcc/c-family/c-common.h	(.../tags/gcc_4_6_2_release)
++++ b/src/gcc/c-family/c-common.h	(.../branches/gcc-4_6-branch)
+@@ -916,7 +916,8 @@
+ 
+ extern void verify_sequence_points (tree);
+ 
+-extern tree fold_offsetof (tree, tree);
++extern tree fold_offsetof_1 (tree);
++extern tree fold_offsetof (tree);
+ 
+ /* Places where an lvalue, or modifiable lvalue, may be required.
+    Used to select diagnostic messages in lvalue_error and
+Index: gcc/DATESTAMP
+===================================================================
+--- a/src/gcc/DATESTAMP	(.../tags/gcc_4_6_2_release)
++++ b/src/gcc/DATESTAMP	(.../branches/gcc-4_6-branch)
+@@ -1 +1 @@
+-20111026
++20111121
+Index: gcc/configure
+===================================================================
+--- a/src/gcc/configure	(.../tags/gcc_4_6_2_release)
++++ b/src/gcc/configure	(.../branches/gcc-4_6-branch)
+@@ -7442,17 +7442,7 @@
+   RANLIB="$ac_cv_prog_RANLIB"
+ fi
+ 
+-case "${host}" in
+-*-*-darwin*)
+-  # By default, the Darwin ranlib will not treat common symbols as
+-  # definitions when  building the archive table of contents.  Other
+-  # ranlibs do that; pass an option to the Darwin ranlib that makes
+-  # it behave similarly.
+-  ranlib_flags="-c"
+-  ;;
+-*)
+-  ranlib_flags=""
+-esac
++ranlib_flags=""
+ 
+ 
+ # Find a good install program.  We prefer a C program (faster),
+@@ -15740,7 +15730,7 @@
+       ;;
+ 
+     # Unfortunately, older versions of FreeBSD 2 do not have this feature.
+-    freebsd2*)
++    freebsd2.*)
+       archive_cmds='$LD -Bshareable -o $lib $libobjs $deplibs $linker_flags'
+       hardcode_direct=yes
+       hardcode_minus_L=yes
+@@ -16653,7 +16643,7 @@
+     objformat=`/usr/bin/objformat`
+   else
+     case $host_os in
+-    freebsd[123]*) objformat=aout ;;
++    freebsd[23].*) objformat=aout ;;
+     *) objformat=elf ;;
+     esac
+   fi
+@@ -16671,7 +16661,7 @@
+   esac
+   shlibpath_var=LD_LIBRARY_PATH
+   case $host_os in
+-  freebsd2*)
++  freebsd2.*)
+     shlibpath_overrides_runpath=yes
+     ;;
+   freebsd3.[01]* | freebsdelf3.[01]*)
+@@ -17505,7 +17495,7 @@
+   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
+   lt_status=$lt_dlunknown
+   cat > conftest.$ac_ext <<_LT_EOF
+-#line 17508 "configure"
++#line 17498 "configure"
+ #include "confdefs.h"
+ 
+ #if HAVE_DLFCN_H
+@@ -17611,7 +17601,7 @@
+   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
+   lt_status=$lt_dlunknown
+   cat > conftest.$ac_ext <<_LT_EOF
+-#line 17614 "configure"
++#line 17604 "configure"
+ #include "confdefs.h"
+ 
+ #if HAVE_DLFCN_H
+@@ -18537,7 +18527,7 @@
+         esac
+         ;;
+ 
+-      freebsd[12]*)
++      freebsd2.*)
+         # C++ shared libraries reported to be fairly broken before
+ 	# switch to ELF
+         ld_shlibs_CXX=no
+@@ -20312,7 +20302,7 @@
+     objformat=`/usr/bin/objformat`
+   else
+     case $host_os in
+-    freebsd[123]*) objformat=aout ;;
++    freebsd[23].*) objformat=aout ;;
+     *) objformat=elf ;;
+     esac
+   fi
+@@ -20330,7 +20320,7 @@
+   esac
+   shlibpath_var=LD_LIBRARY_PATH
+   case $host_os in
+-  freebsd2*)
++  freebsd2.*)
+     shlibpath_overrides_runpath=yes
+     ;;
+   freebsd3.[01]* | freebsdelf3.[01]*)
+Index: gcc/objc/objc-next-runtime-abi-01.c
+===================================================================
+--- a/src/gcc/objc/objc-next-runtime-abi-01.c	(.../tags/gcc_4_6_2_release)
++++ b/src/gcc/objc/objc-next-runtime-abi-01.c	(.../branches/gcc-4_6-branch)
+@@ -2871,12 +2871,15 @@
+   return eh_id;
+ }
+ 
++/* For NeXT ABI 0 and 1, the personality routines are just those of the 
++   underlying language.  */
++
+ static tree
+ objc_eh_personality (void)
+ {
+   if (!objc_eh_personality_decl)
+ #ifndef OBJCPLUS
+-    objc_eh_personality_decl = build_personality_function ("objc");
++    objc_eh_personality_decl = build_personality_function ("gcc");
+ #else
+     objc_eh_personality_decl = build_personality_function ("gxx");
+ #endif
+Index: gcc/objc/objc-act.c
+===================================================================
+--- a/src/gcc/objc/objc-act.c	(.../tags/gcc_4_6_2_release)
++++ b/src/gcc/objc/objc-act.c	(.../branches/gcc-4_6-branch)
+@@ -3136,9 +3136,8 @@
+   struct string_descriptor *desc, key;
+   void **loc;
+ 
+-  /* Prep the string argument.  */
+-  string = fix_string_type (string);
+-  TREE_SET_CODE (string, STRING_CST);
++  /* We should be passed a STRING_CST.  */
++  gcc_checking_assert (TREE_CODE (string) == STRING_CST);
+   length = TREE_STRING_LENGTH (string) - 1;
+ 
+   /* The target may have different ideas on how to construct an ObjC string 
+Index: gcc/objc/ChangeLog
+===================================================================
+--- a/src/gcc/objc/ChangeLog	(.../tags/gcc_4_6_2_release)
++++ b/src/gcc/objc/ChangeLog	(.../branches/gcc-4_6-branch)
+@@ -1,3 +1,18 @@
++2011-11-12  Iain Sandoe  <iains@gcc.gnu.org>
++
++	Backport from mainline
++	2011-10-29  Iain Sandoe  <iains@gcc.gnu.org>
++	
++	PR target/47997
++	* objc-act.c (objc_build_string_object): Remove redundant second
++	call to fix_string_type ().  Add a checking assert that we are,
++	indeed, passed a STRING_CST.
++
++2011-11-12  Iain Sandoe  <iains@gcc.gnu.org>
++
++	* objc-next-runtime-abi-01.c (objc_eh_personality): Use gcc personality
++	for Objective-C m32.
++
+ 2011-10-26  Release Manager
+ 
+ 	* GCC 4.6.2 released.
+Index: gcc/reorg.c
+===================================================================
+--- a/src/gcc/reorg.c	(.../tags/gcc_4_6_2_release)
++++ b/src/gcc/reorg.c	(.../branches/gcc-4_6-branch)
+@@ -3554,9 +3554,11 @@
+ 	    }
+ 	}
+ 
++      /* See if we have a simple (conditional) jump that is useless.  */
+       if (! INSN_ANNULLED_BRANCH_P (delay_insn)
++	  && ! condjump_in_parallel_p (delay_insn)
+ 	  && prev_active_insn (target_label) == insn
+-	  && ! condjump_in_parallel_p (delay_insn)
++	  && ! BARRIER_P (prev_nonnote_insn (target_label))
+ #ifdef HAVE_cc0
+ 	  /* If the last insn in the delay slot sets CC0 for some insn,
+ 	     various code assumes that it is in a delay slot.  We could
+Index: gcc/ChangeLog
+===================================================================
+--- a/src/gcc/ChangeLog	(.../tags/gcc_4_6_2_release)
++++ b/src/gcc/ChangeLog	(.../branches/gcc-4_6-branch)
+@@ -1,3 +1,131 @@
++2011-11-20  Andreas Tobler  <andreast@fgznet.ch>
++
++	* configure: Regenerate.
++
++2011-11-19  Eric Botcazou  <ebotcazou@adacore.com>
++
++	PR rtl-optimization/51187
++	* reorg.c (relax_delay_slots): Do not consider a jump useless if there
++	is a barrier between the jump and its target label.
++
++2011-11-19  Richard Earnshaw  <rearnsha@arm.com>
++
++	PR target/50493
++	* config/arm/arm.c (neon_disambiguate_copy): Correctly handle partial
++	overlap of src and dest operands.
++
++2011-11-18  Iain Sandoe  <iains@gcc.gnu.org>
++
++	PR target/49992
++	* configure.ac: Remove ranlib special-casing for Darwin.
++	* configure: Regenerate.
++
++2011-11-16  Richard Earnshaw  <rearnsha@arm.com>
++	    Bernd Schmidt <bernds@coudesourcery.com>
++	    Sebastian Huber <sebastian.huber@embedded-brains.de>
++
++	PR target/49641
++	* config/arm/arm.c (store_multiple_sequence): Avoid cases where
++	the base reg is stored iff compiling for Thumb1.
++
++2011-11-13  Iain Sandoe  <iains@gcc.gnu.org>
++
++	PR target/48108
++	Backport from mainline r180523
++	* config/darwin.c (top level): Amend comments concerning LTO output.
++	(lto_section_num): New variable.  (darwin_lto_section_e): New GTY.
++	(LTO_SECTS_SECTION, LTO_INDEX_SECTION): New.
++	(LTO_NAMES_SECTION): Rename.
++	(darwin_asm_named_section): Record LTO section counts and switches
++	in a vec of darwin_lto_section_e.
++	(darwin_file_start): Remove unused code.
++	(darwin_file_end): Put an LTO section termination label.  Handle
++	output of the wrapped LTO sections, index and names table.
++
++2011-11-12  Iain Sandoe  <iains@gcc.gnu.org>
++
++	PR target/45233
++	* config/rs6000/rs6000.c (rs6000_legitimize_reload_address):
++	Only expand a symbol ref. into an access when the entity is defined
++	in the TU.
++
++2011-11-10  Jakub Jelinek  <jakub@redhat.com>
++
++	PR middle-end/51077
++	* tree-object-size.c (addr_object_size): Check TREE_CODE of
++	MEM_REF's operand rather than code of the MEM_REF itself.
++
++2011-11-07  Alan Modra  <amodra@gmail.com>
++
++	PR target/30282
++	* config/rs6000/rs6000.c (rs6000_emit_stack_reset): Always emit
++	blockage for ABI_V4.
++
++2011-11-04  Eric Botcazou  <ebotcazou@adacore.com>
++
++	PR c++/50608
++	* c-parser.c (c_parser_postfix_expression) <RID_OFFSETOF>: Adjust call
++	to fold_offsetof.
++	* c-typeck.c (build_unary_op) <ADDR_EXPR>: Call fold_offsetof_1.
++
++2011-11-04  Eric Botcazou  <ebotcazou@adacore.com>
++
++	PR target/50979
++	* config/sparc/sparc.h (ASM_CPU_SPEC): Pass -Av8 if -mcpu=v8.
++
++2011-11-03  Uros Bizjak  <ubizjak@gmail.com>
++
++	* config/i386/i386.md (lround<X87MODEF:mode><SWI248x:mode>2,
++	rint<mode>2, floor<mode>2, lfloor<MODEF:mode><SWI48:mode>2,
++	btrunc<mode>2, lwp_lwpval<mode>3): Use operands[N] instead of operandN.
++
++2011-11-02  Eric Botcazou  <ebotcazou@adacore.com>
++
++	PR target/50945
++	* config/sparc/sparc.md (movsf_insn): Reindent constraints.
++	(movsf_insn_no_fpu): Likewise.
++	(movdf_insn_sp32): Likewise.
++	(movdf_insn_sp32_no_fpu): Likewise.
++	(movdf_insn_sp32_v9): Likewise.  Remove redundant GY constraint.
++	(movdf_insn_sp32_v9_no_fpu): Likewise.
++	(movdf_insn_sp64): Likewise.
++	(movdf_insn_sp64_no_fpu): Likewise.
++	(movtf_insn_sp32): Likewise.
++	(movtf_insn_sp32_no_fpu): Likewise.
++	(movtf_insn_sp64): Likewise.
++	(movtf_insn_sp64_hq): Likewise.
++	(movtf_insn_sp64_no_fpu): Likewise.
++
++2011-11-02  Bernd Schmidt  <bernds@codesourcery.com>
++
++	* cfgcleanup.c (try_head_merge_bb): If get_condition returns
++	NULL for a jump that is a cc0 insn, pick the previous insn for
++	move_before.
++
++2011-11-01  Uros Bizjak  <ubizjak@gmail.com>
++
++	* config/i386/i386.md (splitters for int-float conversion): Use
++	SUBREG_REG on SUBREGs in splitter constraints.
++
++2011-11-01  Julian Brown  <julian@codesourcery.com>
++
++	PR rtl-optimization/47918
++	* reload1.c (set_initial_label_offsets): Use initial offsets
++	for labels on the nonlocal_goto_handler_labels chain.
++
++2011-10-29  John David Anglin  <dave.anglin@nrc-cnrc.gc.ca>
++
++	PR target/50691
++	* config/pa/pa.c (emit_move_sequence): Legitimize TLS symbol references.
++	* config/pa/pa.h (LEGITIMATE_CONSTANT_P): Return false for
++	TLS_MODEL_GLOBAL_DYNAMIC and TLS_MODEL_LOCAL_DYNAMIC symbol references.
++
++2011-10-27  Uros Bizjak  <ubizjak@gmail.com>
++
++	PR target/50875
++	* config/i386/sse.md (*avx_unpcklpd256): Remove extra insn
++	constraints.  Change alternative 1 to "x,m,1".
++
+ 2011-10-26  Release Manager
+ 
+ 	* GCC 4.6.2 released.
+@@ -144,8 +277,8 @@
+ 
+ 2011-10-07  Bernd Schmidt  <bernds@codesourcery.com>
+ 
+- 	PR target/49049
+- 	* config/arm/arm.md (arm_subsi3_insn): Lose the last alternative.
++	PR target/49049
++	* config/arm/arm.md (arm_subsi3_insn): Lose the last alternative.
+ 
+ 2011-10-06  Jakub Jelinek  <jakub@redhat.com>
+ 
+Index: gcc/testsuite/gcc.target/arm/pr49641.c
+===================================================================
+--- a/src/gcc/testsuite/gcc.target/arm/pr49641.c	(.../tags/gcc_4_6_2_release)
++++ b/src/gcc/testsuite/gcc.target/arm/pr49641.c	(.../branches/gcc-4_6-branch)
+@@ -0,0 +1,18 @@
++/* { dg-do compile } */
++/* { dg-options "-mthumb -O2" } */
++/* { dg-require-effective-target arm_thumb1_ok } */
++/* { dg-final { scan-assembler-not "stmia\[\\t \]*r3!\[^\\n]*r3" } } */
++typedef struct {
++  void *t1, *t2, *t3;
++} z;
++extern volatile int y;
++static inline void foo(z *x) {
++  x->t1 = &x->t2;
++  x->t2 = ((void *)0);
++  x->t3 = &x->t1;
++}
++extern z v;
++void bar (void) {
++   y = 0;
++   foo(&v);
++}
+Index: gcc/testsuite/gfortran.dg/pr50875.f90
+===================================================================
+--- a/src/gcc/testsuite/gfortran.dg/pr50875.f90	(.../tags/gcc_4_6_2_release)
++++ b/src/gcc/testsuite/gfortran.dg/pr50875.f90	(.../branches/gcc-4_6-branch)
+@@ -0,0 +1,39 @@
++! { dg-do compile { target { i?86-*-* x86_64-*-* } } }
++! { dg-options "-O3 -mavx" }
++!
++! PR fortran/50875.f90
++
++module test
++
++  implicit none
++
++  integer, parameter :: dp=kind(1.d0)
++
++  integer :: P = 2
++
++  real(kind=dp), allocatable :: real_array_A(:),real_array_B(:,:)
++  complex(kind=dp), allocatable :: cmplx_array_A(:) 
++
++contains
++
++  subroutine routine_A
++
++    integer :: i
++
++    allocate(cmplx_array_A(P),real_array_B(P,P),real_array_A(P))
++
++    real_array_A = 1
++    real_array_B = 1
++
++    do i = 1, p
++       cmplx_array_A = cmplx(real_array_B(:,i),0.0_dp,dp)
++       cmplx_array_A = cmplx_array_A * exp(cmplx(0.0_dp,real_array_A+1))
++    end do
++
++    deallocate(cmplx_array_A,real_array_B,real_array_A)
++
++  end subroutine routine_A
++
++end module test
++
++! { dg-final { cleanup-modules "test" } }
+Index: gcc/testsuite/gcc.c-torture/compile/pr51077.c
+===================================================================
+--- a/src/gcc/testsuite/gcc.c-torture/compile/pr51077.c	(.../tags/gcc_4_6_2_release)
++++ b/src/gcc/testsuite/gcc.c-torture/compile/pr51077.c	(.../branches/gcc-4_6-branch)
+@@ -0,0 +1,15 @@
++/* PR middle-end/51077 */
++
++struct S { unsigned char s, t[256]; };
++
++void
++foo (const struct S *x, struct S *y, int z)
++{
++  int i;
++  for (i = 0; i < 8; i++)
++    {
++      const struct S *a = &x[i];
++      __builtin___memcpy_chk (y->t, a->t, z, __builtin_object_size (y->t, 0));
++      y = (struct S *) &y->t[z];
++    }
++}
+Index: gcc/testsuite/gcc.c-torture/compile/20110913-1.c
+===================================================================
+--- a/src/gcc/testsuite/gcc.c-torture/compile/20110913-1.c	(.../tags/gcc_4_6_2_release)
++++ b/src/gcc/testsuite/gcc.c-torture/compile/20110913-1.c	(.../branches/gcc-4_6-branch)
+@@ -0,0 +1,26 @@
++struct ieee754_double {
++  double d;
++};
++extern const float __exp_deltatable[178];
++float __ieee754_expf (float x)
++{
++  static const float himark = 88.72283935546875;
++  static const float lomark = -103.972084045410;
++  if (__builtin_isless(x, himark) && __builtin_isgreater(x, lomark))
++    {
++      int tval;
++      double x22, t, result, dx;
++      float delta;
++      struct ieee754_double ex2_u;
++      dx -= t;
++      tval = (int) (t * 512.0);
++      if (t >= 0)
++	delta = - __exp_deltatable[tval];
++      else
++	delta = __exp_deltatable[-tval];
++      x22 = (0.5000000496709180453 * dx + 1.0000001192102037084) * dx + delta;
++      result = x22 * ex2_u.d + ex2_u.d;
++      return (float) result;
++    }
++  return x;
++}
+Index: gcc/testsuite/gcc.dg/cpp/assert4.c
+===================================================================
+--- a/src/gcc/testsuite/gcc.dg/cpp/assert4.c	(.../tags/gcc_4_6_2_release)
++++ b/src/gcc/testsuite/gcc.dg/cpp/assert4.c	(.../branches/gcc-4_6-branch)
+@@ -1,4 +1,4 @@
+-/* Copyright (C) 2003, 2006, 2008 Free Software Foundation, Inc.
++/* Copyright (C) 2003, 2006, 2008, 2009, 2011 Free Software Foundation, Inc.
+    Test builtin preprocessor assertions.
+    By Kaveh Ghazi <ghazi@caip.rutgers.edu>.  */
+ 
+@@ -7,7 +7,7 @@
+ 
+ /* Check for #system assertions.  */
+ 
+-#if defined __gnu_linux__
++#if defined __linux__
+ # if !#system(linux) || !#system(unix) || !#system(posix)
+ #  error
+ # endif
+Index: gcc/testsuite/gcc.dg/delay-slot-2.c
+===================================================================
+--- a/src/gcc/testsuite/gcc.dg/delay-slot-2.c	(.../tags/gcc_4_6_2_release)
++++ b/src/gcc/testsuite/gcc.dg/delay-slot-2.c	(.../branches/gcc-4_6-branch)
+@@ -0,0 +1,116 @@
++/* PR rtl-optimization/51187 */
++/* Reported by Jurij Smakov <jurij@wooyd.org> */
++
++/* { dg-do compile } */
++/* { dg-options "-g -O2" } */
++
++extern int printf (__const char *__restrict __format, ...);
++extern void print_c_condition (const char *);
++
++enum decision_type
++{
++  DT_num_insns,
++  DT_mode, DT_code, DT_veclen,
++  DT_elt_zero_int, DT_elt_one_int, DT_elt_zero_wide, DT_elt_zero_wide_safe,
++  DT_const_int,
++  DT_veclen_ge, DT_dup, DT_pred, DT_c_test,
++  DT_accept_op, DT_accept_insn
++};
++
++struct decision_test
++{
++  struct decision_test *next;
++  enum decision_type type;
++
++  union
++  {
++    int num_insns;
++
++    struct
++    {
++      const char *name;
++    } pred;
++
++    const char *c_test;
++    int veclen;
++    int dup;
++    long intval;
++    int opno;
++
++    struct {
++      int code_number;
++      int lineno;
++      int num_clobbers_to_add;
++    } insn;
++  } u;
++};
++
++enum routine_type {
++  RECOG, SPLIT, PEEPHOLE2
++};
++
++void
++write_cond (struct decision_test *p, int depth,
++     enum routine_type subroutine_type)
++{
++  switch (p->type)
++    {
++    case DT_num_insns:
++      printf ("peep2_current_count >= %d", p->u.num_insns);
++      break;
++
++    case DT_code:
++      printf ("GET_CODE (x%d) == ", depth);
++      break;
++
++    case DT_veclen:
++      printf ("XVECLEN (x%d, 0) == %d", depth, p->u.veclen);
++      break;
++
++    case DT_elt_zero_int:
++      printf ("XINT (x%d, 0) == %d", depth, (int) p->u.intval);
++      break;
++
++    case DT_elt_one_int:
++      printf ("XINT (x%d, 1) == %d", depth, (int) p->u.intval);
++      break;
++
++    case DT_elt_zero_wide:
++    case DT_elt_zero_wide_safe:
++      printf ("XWINT (x%d, 0) == ", depth);
++      print_host_wide_int (p->u.intval);
++      break;
++
++    case DT_const_int:
++      printf ("x%d == const_int_rtx[MAX_SAVED_CONST_INT + (%d)]",
++       depth, (int) p->u.intval);
++      break;
++
++    case DT_veclen_ge:
++      printf ("XVECLEN (x%d, 0) >= %d", depth, p->u.veclen);
++      break;
++
++    case DT_dup:
++      printf ("rtx_equal_p (x%d, operands[%d])", depth, p->u.dup);
++      break;
++
++    case DT_pred:
++      printf ("%s (x%d)", p->u.pred.name, depth);
++      break;
++
++    case DT_c_test:
++      print_c_condition (p->u.c_test);
++      break;
++
++    case DT_accept_insn:
++      ((void)(__builtin_expect(!(subroutine_type == RECOG), 0) ? __builtin_unreachable(), 0 : 0));
++      ((void)(__builtin_expect(!(p->u.insn.num_clobbers_to_add), 0) ? __builtin_unreachable(), 0 : 0));
++      printf ("pnum_clobbers != NULL");
++      break;
++
++    default:
++      __builtin_unreachable();
++    }
++}
++
++/* { dg-final { scan-assembler "printf" } } */
+Index: gcc/testsuite/ChangeLog
+===================================================================
+--- a/src/gcc/testsuite/ChangeLog	(.../tags/gcc_4_6_2_release)
++++ b/src/gcc/testsuite/ChangeLog	(.../branches/gcc-4_6-branch)
+@@ -1,3 +1,52 @@
++2011-11-19  Eric Botcazou  <ebotcazou@adacore.com>
++
++	* gcc.dg/delay-slot-2.c: New test.
++
++2011-11-18  Joseph Myers  <joseph@codesourcery.com>
++
++	* gcc.dg/cpp/assert4.c: Test __linux__, not __gnu_linux__.
++
++2011-11-18  Paolo Carlini  <paolo.carlini@oracle.com>
++
++	PR c++/51150
++	* g++.dg/cpp0x/pr51150.C: New.
++
++2011-11-16  Richard Earnshaw  <rearnsha@arm.com>
++	    Bernd Schmidt <bernds@coudesourcery.com>
++	    Sebastian Huber <sebastian.huber@embedded-brains.de>
++
++	PR target/49641
++	* gcc.target/arm/pr49641.c: New test.
++
++2011-11-10  Jakub Jelinek  <jakub@redhat.com>
++
++	PR middle-end/51077
++	* gcc.c-torture/compile/pr51077.c: New test.
++
++2011-11-07  Jason Merrill  <jason@redhat.com>
++
++	PR c++/50870
++	* g++.dg/cpp0x/decltype35.C: New.
++
++2011-11-04  Eric Botcazou  <ebotcazou@adacore.com>
++
++	* g++.dg/other/offsetof7.C: New test.
++
++2011-11-02  Bernd Schmidt  <bernds@codesourcery.com>
++
++	* gcc.c-torture/compile/20110907.c: New file.
++
++2011-10-29  Paolo Carlini  <paolo.carlini@oracle.com>
++
++	PR c++/50901
++	* g++.dg/cpp0x/pr50901.C: New.
++
++2011-10-27  Uros Bizjak  <ubizjak@gmail.com>
++	    Steven G. Kargl  <kargl@gcc.gnu.org>
++
++	PR target/50875
++	* gfortran.dg/pr50875.f90: New test.
++
+ 2011-10-26  Release Manager
+ 
+ 	* GCC 4.6.2 released.
+Index: gcc/testsuite/g++.dg/other/offsetof7.C
+===================================================================
+--- a/src/gcc/testsuite/g++.dg/other/offsetof7.C	(.../tags/gcc_4_6_2_release)
++++ b/src/gcc/testsuite/g++.dg/other/offsetof7.C	(.../branches/gcc-4_6-branch)
+@@ -0,0 +1,17 @@
++// PR c++/50608
++// Testcase by <dberger@oubliette.org>
++// { dg-do compile }
++
++struct A {
++    int offset;
++};
++
++struct B: public A {
++};
++
++struct C {
++    A a;
++    B b;
++};
++
++int fails = __builtin_offsetof (C, b.offset);
+Index: gcc/testsuite/g++.dg/cpp0x/pr50901.C
+===================================================================
+--- a/src/gcc/testsuite/g++.dg/cpp0x/pr50901.C	(.../tags/gcc_4_6_2_release)
++++ b/src/gcc/testsuite/g++.dg/cpp0x/pr50901.C	(.../branches/gcc-4_6-branch)
+@@ -0,0 +1,9 @@
++// { dg-options "-std=c++0x" }
++
++template<class T> int foo(int a)
++{
++  const unsigned b = a < 0 ? -a : a;
++  return 0;
++}
++
++int i = foo<float>(1);
+Index: gcc/testsuite/g++.dg/cpp0x/decltype35.C
+===================================================================
+--- a/src/gcc/testsuite/g++.dg/cpp0x/decltype35.C	(.../tags/gcc_4_6_2_release)
++++ b/src/gcc/testsuite/g++.dg/cpp0x/decltype35.C	(.../branches/gcc-4_6-branch)
+@@ -0,0 +1,15 @@
++// PR c++/50870
++// { dg-options -std=c++0x }
++
++template <class V>
++  struct impl
++  {
++    template <class T> static T create();
++  };
++
++template <class T, class U, class V, class
++      = decltype(impl<V>::template create<T>()
++             -> impl<V>::template create<U>())>
++struct tester { };
++
++tester<impl<float>*, int, float> ti;
+Index: gcc/testsuite/g++.dg/cpp0x/pr51150.C
+===================================================================
+--- a/src/gcc/testsuite/g++.dg/cpp0x/pr51150.C	(.../tags/gcc_4_6_2_release)
++++ b/src/gcc/testsuite/g++.dg/cpp0x/pr51150.C	(.../branches/gcc-4_6-branch)
+@@ -0,0 +1,20 @@
++// PR c++/51150
++// { dg-options "-std=c++0x" }
++
++struct Clock {
++  double Now();
++};
++template <class T> void Foo(Clock* clock) {
++  const int now = clock->Now();
++}
++
++template void Foo<float>(Clock*);
++
++template <class T> void Boo(int val) {
++  const int now1 = (double)(val);
++  const int now2 = const_cast<double>(val); // { dg-error "invalid" }
++  const int now3 = static_cast<double>(val);
++  const int now4 = reinterpret_cast<double>(val); // { dg-error "invalid" }
++}
++
++template void Boo<float>(int);
+Index: gcc/cp/typeck.c
+===================================================================
+--- a/src/gcc/cp/typeck.c	(.../tags/gcc_4_6_2_release)
++++ b/src/gcc/cp/typeck.c	(.../branches/gcc-4_6-branch)
+@@ -4835,9 +4835,7 @@
+       && TREE_CONSTANT (TREE_OPERAND (val, 0)))
+     {
+       tree type = build_pointer_type (argtype);
+-      tree op0 = fold_convert (type, TREE_OPERAND (val, 0));
+-      tree op1 = fold_convert (sizetype, fold_offsetof (arg, val));
+-      return fold_build2 (POINTER_PLUS_EXPR, type, op0, op1);
++      return fold_convert (type, fold_offsetof_1 (arg));
+     }
+ 
+   /* Handle complex lvalues (when permitted)
+Index: gcc/cp/ChangeLog
+===================================================================
+--- a/src/gcc/cp/ChangeLog	(.../tags/gcc_4_6_2_release)
++++ b/src/gcc/cp/ChangeLog	(.../branches/gcc-4_6-branch)
+@@ -1,3 +1,27 @@
++2011-11-18  Paolo Carlini  <paolo.carlini@oracle.com>
++
++	PR c++/51150
++	* pt.c (tsubst_copy_and_build): Handle FIX_TRUNC_EXPR.
++
++2011-11-07  Jason Merrill  <jason@redhat.com>
++
++	PR c++/50870
++	* pt.c (tsubst_copy): Handle NAMESPACE_DECL.
++	(tsubst_copy_and_build) [COMPONENT_REF]: Handle a still-dependent
++	object.
++
++2011-11-04  Eric Botcazou  <ebotcazou@adacore.com>
++
++	PR c++/50608
++	* semantics.c (finish_offsetof): Adjust call to fold_offsetof.
++	* typeck.c (cp_build_addr_expr_1): Call fold_offsetof_1.
++
++2011-10-29  Paolo Carlini  <paolo.carlini@oracle.com>
++
++	PR c++/50901
++	* call.c (build_new_op_1): Handle ABS_EXPR together with the
++	other unary EXPR.
++
+ 2011-10-26  Release Manager
+ 
+ 	* GCC 4.6.2 released.
+Index: gcc/cp/pt.c
+===================================================================
+--- a/src/gcc/cp/pt.c	(.../tags/gcc_4_6_2_release)
++++ b/src/gcc/cp/pt.c	(.../branches/gcc-4_6-branch)
+@@ -11439,6 +11439,9 @@
+       mark_used (t);
+       return t;
+ 
++    case NAMESPACE_DECL:
++      return t;
++
+     case OVERLOAD:
+       /* An OVERLOAD will always be a non-dependent overload set; an
+ 	 overload set from function scope will just be represented with an
+@@ -12704,6 +12707,10 @@
+       return build_x_unary_op (TREE_CODE (t), RECUR (TREE_OPERAND (t, 0)),
+                                complain);
+ 
++    case FIX_TRUNC_EXPR:
++      return cp_build_unary_op (FIX_TRUNC_EXPR, RECUR (TREE_OPERAND (t, 0)),
++				0, complain);
++
+     case ADDR_EXPR:
+       op1 = TREE_OPERAND (t, 0);
+       if (TREE_CODE (op1) == LABEL_DECL)
+@@ -13179,7 +13186,9 @@
+ 	if (member == error_mark_node)
+ 	  return error_mark_node;
+ 
+-	if (object_type && !CLASS_TYPE_P (object_type))
++	if (type_dependent_expression_p (object))
++	  /* We can't do much here.  */;
++	else if (!CLASS_TYPE_P (object_type))
+ 	  {
+ 	    if (SCALAR_TYPE_P (object_type))
+ 	      {
+Index: gcc/cp/semantics.c
+===================================================================
+--- a/src/gcc/cp/semantics.c	(.../tags/gcc_4_6_2_release)
++++ b/src/gcc/cp/semantics.c	(.../branches/gcc-4_6-branch)
+@@ -3348,7 +3348,7 @@
+     }
+   if (TREE_CODE (expr) == INDIRECT_REF && REFERENCE_REF_P (expr))
+     expr = TREE_OPERAND (expr, 0);
+-  return fold_offsetof (expr, NULL_TREE);
++  return fold_offsetof (expr);
+ }
+ 
+ /* Replace the AGGR_INIT_EXPR at *TP with an equivalent CALL_EXPR.  This
+Index: gcc/cp/call.c
+===================================================================
+--- a/src/gcc/cp/call.c	(.../tags/gcc_4_6_2_release)
++++ b/src/gcc/cp/call.c	(.../branches/gcc-4_6-branch)
+@@ -4996,6 +4996,7 @@
+     case POSTDECREMENT_EXPR:
+     case REALPART_EXPR:
+     case IMAGPART_EXPR:
++    case ABS_EXPR:
+       return cp_build_unary_op (code, arg1, candidates != 0, complain);
+ 
+     case ARRAY_REF:
+Index: gcc/ada/mlib-tgt-specific-darwin.adb
+===================================================================
+--- a/src/gcc/ada/mlib-tgt-specific-darwin.adb	(.../tags/gcc_4_6_2_release)
++++ b/src/gcc/ada/mlib-tgt-specific-darwin.adb	(.../branches/gcc-4_6-branch)
+@@ -36,8 +36,6 @@
+ 
+    --  Non default subprograms
+ 
+-   function Archive_Indexer_Options return String_List_Access;
+-
+    procedure Build_Dynamic_Library
+      (Ofiles       : Argument_List;
+       Options      : Argument_List;
+@@ -67,15 +65,6 @@
+                       (1 => Flat_Namespace'Access,
+                        2 => Shared_Libgcc'Access);
+ 
+-   -----------------------------
+-   -- Archive_Indexer_Options --
+-   -----------------------------
+-
+-   function Archive_Indexer_Options return String_List_Access is
+-   begin
+-      return new String_List'(1 => new String'("-c"));
+-   end Archive_Indexer_Options;
+-
+    ---------------------------
+    -- Build_Dynamic_Library --
+    ---------------------------
+@@ -180,7 +169,6 @@
+    end Is_Archive_Ext;
+ 
+ begin
+-   Archive_Indexer_Options_Ptr := Archive_Indexer_Options'Access;
+    Build_Dynamic_Library_Ptr := Build_Dynamic_Library'Access;
+    DLL_Ext_Ptr := DLL_Ext'Access;
+    Dynamic_Option_Ptr := Dynamic_Option'Access;
+Index: gcc/ada/init.c
+===================================================================
+--- a/src/gcc/ada/init.c	(.../tags/gcc_4_6_2_release)
++++ b/src/gcc/ada/init.c	(.../branches/gcc-4_6-branch)
+@@ -2216,12 +2216,33 @@
+   return 0;
+ }
+ 
++#define HAVE_GNAT_ADJUST_CONTEXT_FOR_RAISE
++
++void
++__gnat_adjust_context_for_raise (int signo ATTRIBUTE_UNUSED,
++				 void *ucontext ATTRIBUTE_UNUSED)
++{
++#if defined (__x86_64__)
++  /* Work around radar #10302855/pr50678, where the unwinders (libunwind or
++     libgcc_s depending on the system revision) and the DWARF unwind data for
++     the sigtramp have different ideas about register numbering (causing rbx
++     and rdx to be transposed)..  */
++  ucontext_t *uc = (ucontext_t *)ucontext ;
++  unsigned long t = uc->uc_mcontext->__ss.__rbx;
++
++  uc->uc_mcontext->__ss.__rbx = uc->uc_mcontext->__ss.__rdx;
++  uc->uc_mcontext->__ss.__rdx = t;
++#endif
++}
++
+ static void
+-__gnat_error_handler (int sig, siginfo_t *si, void *ucontext ATTRIBUTE_UNUSED)
++__gnat_error_handler (int sig, siginfo_t *si, void *ucontext)
+ {
+   struct Exception_Data *exception;
+   const char *msg;
+ 
++  __gnat_adjust_context_for_raise (sig, ucontext);
++
+   switch (sig)
+     {
+     case SIGSEGV:
+Index: gcc/ada/ChangeLog
+===================================================================
+--- a/src/gcc/ada/ChangeLog	(.../tags/gcc_4_6_2_release)
++++ b/src/gcc/ada/ChangeLog	(.../branches/gcc-4_6-branch)
+@@ -1,3 +1,33 @@
++2011-11-13  Iain Sandoe  <iains@gcc.gnu.org>
++
++	Backport from mainline r181474
++	PR target/50678
++	* init.c (__gnat_error_handler) [Darwin]: Move work-around to the
++	bug filed as radar #10302855 from __gnat_error_handler ...
++	... to (__gnat_adjust_context_for_raise) [Darwin]: New.
++	(HAVE_GNAT_ADJUST_CONTEXT_FOR_RAISE) [Darwin]: Define.
++	(__gnat_error_handler) [Darwin]: Use __gnat_adjust_context_for_raise.
++	
++2011-11-18  Tristan Gingold  <gingold@adacore.com>
++	    Iain Sandoe  <iains@gcc.gnu.org>
++
++	PR target/49992
++	* mlib-tgt-specific-darwin.adb (Archive_Indexer_Options): Remove.
++	* gcc-interface/Makefile.in (darwin): Remove ranlib special-casing
++	for Darwin.
++
++2011-11-13  Iain Sandoe  <iains@gcc.gnu.org>
++
++	Backport from mainline r181319
++	* gcc-interface/Makefile.in (stamp-gnatlib-$(RTSDIR)): Don't link
++	s-oscons.ads.
++	(OSCONS_CPP, OSCONS_EXTRACT): New.
++	(./bldtools/oscons/xoscons): New Target.
++	($(RTSDIR)/s-oscons.ads): New Target.
++	(gnatlib): Depend on  $(RTSDIR)/s-oscons.ads.
++	* Make-generated.in: Remove machinery to generate xoscons and
++	ada/s-oscons.ads.
++	
+ 2011-10-26  Release Manager
+ 
+ 	* GCC 4.6.2 released.
+Index: gcc/ada/gcc-interface/Makefile.in
+===================================================================
+--- a/src/gcc/ada/gcc-interface/Makefile.in	(.../tags/gcc_4_6_2_release)
++++ b/src/gcc/ada/gcc-interface/Makefile.in	(.../branches/gcc-4_6-branch)
+@@ -2189,7 +2189,6 @@
+ 
+   EH_MECHANISM=-gcc
+   GNATLIB_SHARED = gnatlib-shared-darwin
+-  RANLIB = ranlib -c
+   GMEM_LIB = gmemlib
+   LIBRARY_VERSION := $(LIB_VERSION)
+   soext = .dylib
+@@ -2447,21 +2446,52 @@
+ 	$(foreach PAIR,$(LIBGNAT_TARGET_PAIRS), \
+ 	          $(LN_S) $(fsrcpfx)ada/$(word 2,$(subst <, ,$(PAIR))) \
+ 	                $(RTSDIR)/$(word 1,$(subst <, ,$(PAIR)));)
+-# Copy generated target dependent sources
+-	$(RM) $(RTSDIR)/s-oscons.ads
+-	(cd $(RTSDIR); $(LN_S) ../s-oscons.ads s-oscons.ads)
++# Copy tsystem.h
++	$(CP) $(srcdir)/tsystem.h $(RTSDIR)
+ 	$(RM) ../stamp-gnatlib-$(RTSDIR)
+ 	touch ../stamp-gnatlib1-$(RTSDIR)
+ 
+ # GNULLI End #############################################################
+ 
++ifeq ($(strip $(filter-out alpha64 ia64 dec hp vms% openvms% alphavms%,$(subst -, ,$(host)))),)
++OSCONS_CPP=../../$(DECC) -E /comment=as_is -DNATIVE \
++             -DTARGET='""$(target)""' $(fsrcpfx)ada/s-oscons-tmplt.c
++
++OSCONS_EXTRACT=../../$(DECC) -DNATIVE \
++                 -DTARGET='""$(target)""' $(fsrcpfx)ada/s-oscons-tmplt.c ; \
++  ld -o s-oscons-tmplt.exe s-oscons-tmplt.obj; \
++  ./s-oscons-tmplt.exe > s-oscons-tmplt.s
++
++else
++# GCC_FOR_TARGET has paths relative to the gcc directory, so we need to adjust
++# for running it from $(RTSDIR)
++OSCONS_CC=`echo "$(GCC_FOR_TARGET)" \
++  | sed -e 's^\./xgcc^../../xgcc^' -e 's^-B./^-B../../^'`
++OSCONS_CPP=$(OSCONS_CC) $(GNATLIBCFLAGS) -E -C \
++  -DTARGET=\"$(target)\" $(fsrcpfx)ada/s-oscons-tmplt.c > s-oscons-tmplt.i
++OSCONS_EXTRACT=$(OSCONS_CC) -S s-oscons-tmplt.i
++endif
++
++./bldtools/oscons/xoscons: xoscons.adb xutil.ads xutil.adb
++	-$(MKDIR) ./bldtools/oscons
++	$(RM) $(addprefix ./bldtools/oscons/,$(notdir $^))
++	$(CP) $^ ./bldtools/oscons
++	(cd ./bldtools/oscons ; gnatmake -q xoscons)
++
++$(RTSDIR)/s-oscons.ads: ../stamp-gnatlib1-$(RTSDIR) s-oscons-tmplt.c gsocket.h ./bldtools/oscons/xoscons
++	$(RM) $(RTSDIR)/s-oscons-tmplt.i $(RTSDIR)/s-oscons-tmplt.s
++	(cd $(RTSDIR) ; \
++	    $(OSCONS_CPP) ; \
++	    $(OSCONS_EXTRACT) ; \
++	    ../bldtools/oscons/xoscons)
++
+ # Don't use semicolon separated shell commands that involve list expansions.
+ # The semicolon triggers a call to DCL on VMS and DCL can't handle command
+ # line lengths in excess of 256 characters.
+ # Example: cd $(RTSDIR); ar rc libfoo.a $(LONG_LIST_OF_OBJS)
+ # is guaranteed to overflow the buffer.
+ 
+-gnatlib: ../stamp-gnatlib1-$(RTSDIR) ../stamp-gnatlib2-$(RTSDIR)
++gnatlib: ../stamp-gnatlib1-$(RTSDIR) ../stamp-gnatlib2-$(RTSDIR) $(RTSDIR)/s-oscons.ads
+ 	$(MAKE) -C $(RTSDIR) \
+ 		CC="`echo \"$(GCC_FOR_TARGET)\" \
+ 		| sed -e 's,\./xgcc,../../xgcc,' -e 's,-B\./,-B../../,'`" \
+Index: gcc/ada/Make-generated.in
+===================================================================
+--- a/src/gcc/ada/Make-generated.in	(.../tags/gcc_4_6_2_release)
++++ b/src/gcc/ada/Make-generated.in	(.../branches/gcc-4_6-branch)
+@@ -64,37 +64,6 @@
+ 	$(CP) $^ $(ADA_GEN_SUBDIR)/bldtools/nmake_s
+ 	(cd $(ADA_GEN_SUBDIR)/bldtools/nmake_s; gnatmake -q xnmake ; ./xnmake -s ../../nmake.ads )
+ 
+-ifeq ($(strip $(filter-out alpha64 ia64 dec hp vms% openvms% alphavms%,$(subst -, ,$(host)))),)
+-OSCONS_CPP=../../../$(DECC) -E /comment=as_is -DNATIVE \
+-             -DTARGET='""$(target)""' s-oscons-tmplt.c
+-
+-OSCONS_EXTRACT=../../../$(DECC) -DNATIVE \
+-                 -DTARGET='""$(target)""' s-oscons-tmplt.c ; \
+-  ld -o s-oscons-tmplt.exe s-oscons-tmplt.obj; \
+-  ./s-oscons-tmplt.exe > s-oscons-tmplt.s
+-
+-else
+-# GCC_FOR_TARGET has paths relative to the gcc directory, so we need to ajust
+-# for running it from $(ADA_GEN_SUBDIR)/bldtools/oscons
+-OSCONS_CC=`echo "$(GCC_FOR_TARGET)" \
+-  | sed -e 's^\./xgcc^../../../xgcc^' -e 's^-B./^-B../../../^'`
+-OSCONS_CPP=$(OSCONS_CC) $(GNATLIBCFLAGS) -E -C \
+-  -DTARGET=\"$(target)\" s-oscons-tmplt.c > s-oscons-tmplt.i
+-OSCONS_EXTRACT=$(OSCONS_CC) -S s-oscons-tmplt.i
+-endif
+-
+-$(ADA_GEN_SUBDIR)/s-oscons.ads : $(ADA_GEN_SUBDIR)/s-oscons-tmplt.c $(ADA_GEN_SUBDIR)/gsocket.h $(ADA_GEN_SUBDIR)/xoscons.adb $(ADA_GEN_SUBDIR)/xutil.ads $(ADA_GEN_SUBDIR)/xutil.adb
+-	-$(MKDIR) $(ADA_GEN_SUBDIR)/bldtools/oscons
+-	$(RM) $(addprefix $(ADA_GEN_SUBDIR)/bldtools/oscons/,$(notdir $^))
+-	$(CP) $^ $(ADA_GEN_SUBDIR)/bldtools/oscons
+-	(cd $(ADA_GEN_SUBDIR)/bldtools/oscons ; gnatmake -q xoscons ; \
+-		$(RM) s-oscons-tmplt.i s-oscons-tmplt.s ; \
+-		$(OSCONS_CPP) ; \
+-		$(OSCONS_EXTRACT) ; \
+-		./xoscons ; \
+-		$(RM) ../../s-oscons.ads ; \
+-		$(CP) s-oscons.ads s-oscons.h ../../)
+-
+ $(ADA_GEN_SUBDIR)/sdefault.adb: $(ADA_GEN_SUBDIR)/stamp-sdefault ; @true
+ $(ADA_GEN_SUBDIR)/stamp-sdefault : $(srcdir)/version.c Makefile
+ 	$(ECHO) "pragma Style_Checks (Off);" >tmp-sdefault.adb
+Index: gcc/configure.ac
+===================================================================
+--- a/src/gcc/configure.ac	(.../tags/gcc_4_6_2_release)
++++ b/src/gcc/configure.ac	(.../branches/gcc-4_6-branch)
+@@ -807,17 +807,7 @@
+ gcc_AC_PROG_LN_S
+ ACX_PROG_LN($LN_S)
+ AC_PROG_RANLIB
+-case "${host}" in
+-*-*-darwin*)
+-  # By default, the Darwin ranlib will not treat common symbols as
+-  # definitions when  building the archive table of contents.  Other 
+-  # ranlibs do that; pass an option to the Darwin ranlib that makes
+-  # it behave similarly.
+-  ranlib_flags="-c" 
+-  ;;
+-*)
+-  ranlib_flags=""
+-esac
++ranlib_flags=""
+ AC_SUBST(ranlib_flags)
+      
+ gcc_AC_PROG_INSTALL
+Index: gcc/c-typeck.c
+===================================================================
+--- a/src/gcc/c-typeck.c	(.../tags/gcc_4_6_2_release)
++++ b/src/gcc/c-typeck.c	(.../branches/gcc-4_6-branch)
+@@ -3802,11 +3802,7 @@
+       if (val && TREE_CODE (val) == INDIRECT_REF
+           && TREE_CONSTANT (TREE_OPERAND (val, 0)))
+ 	{
+-	  tree op0 = fold_convert_loc (location, sizetype,
+-				       fold_offsetof (arg, val)), op1;
+-
+-	  op1 = fold_convert_loc (location, argtype, TREE_OPERAND (val, 0));
+-	  ret = fold_build2_loc (location, POINTER_PLUS_EXPR, argtype, op1, op0);
++	  ret = fold_convert_loc (location, argtype, fold_offsetof_1 (arg));
+ 	  goto return_build_unary_op;
+ 	}
+ 
+Index: gcc/cfgcleanup.c
+===================================================================
+--- a/src/gcc/cfgcleanup.c	(.../tags/gcc_4_6_2_release)
++++ b/src/gcc/cfgcleanup.c	(.../branches/gcc-4_6-branch)
+@@ -1969,7 +1969,14 @@
+ 
+   cond = get_condition (jump, &move_before, true, false);
+   if (cond == NULL_RTX)
+-    move_before = jump;
++    {
++#ifdef HAVE_cc0
++      if (reg_mentioned_p (cc0_rtx, jump))
++	move_before = prev_nonnote_nondebug_insn (jump);
++      else
++#endif
++	move_before = jump;
++    }
+ 
+   for (ix = 0; ix < nedges; ix++)
+     if (EDGE_SUCC (bb, ix)->dest == EXIT_BLOCK_PTR)
+@@ -2131,7 +2138,14 @@
+       jump = BB_END (final_dest_bb);
+       cond = get_condition (jump, &move_before, true, false);
+       if (cond == NULL_RTX)
+-	move_before = jump;
++	{
++#ifdef HAVE_cc0
++	  if (reg_mentioned_p (cc0_rtx, jump))
++	    move_before = prev_nonnote_nondebug_insn (jump);
++	  else
++#endif
++	    move_before = jump;
++	}
+     }
+ 
+   do
+Index: gcc/po/ChangeLog
+===================================================================
+--- a/src/gcc/po/ChangeLog	(.../tags/gcc_4_6_2_release)
++++ b/src/gcc/po/ChangeLog	(.../branches/gcc-4_6-branch)
+@@ -1,3 +1,7 @@
++2011-10-30  Joseph Myers  <joseph@codesourcery.com>
++
++	* ja.po: Update.
++
+ 2011-10-26  Release Manager
+ 
+ 	* GCC 4.6.2 released.
+Index: gcc/po/ja.po
+===================================================================
+--- a/src/gcc/po/ja.po	(.../tags/gcc_4_6_2_release)
++++ b/src/gcc/po/ja.po	(.../branches/gcc-4_6-branch)
+@@ -20,7 +20,7 @@
+ "Project-Id-Version: gcc 4.6.1\n"
+ "Report-Msgid-Bugs-To: http://gcc.gnu.org/bugs.html\n"
+ "POT-Creation-Date: 2011-06-21 10:27+0000\n"
+-"PO-Revision-Date: 2011-10-25 22:36+0900\n"
++"PO-Revision-Date: 2011-10-30 18:48+0900\n"
+ "Last-Translator: Yasuaki Taniguchi <yasuakit@gmail.com>\n"
+ "Language-Team: Japanese <translation-team-ja@lists.sourceforge.net>\n"
+ "Language: ja\n"
+@@ -834,12 +834,12 @@
+ #: gcov.c:420
+ #, c-format
+ msgid "  -a, --all-blocks                Show information for every basic block\n"
+-msgstr ""
++msgstr "  -a, --all-blocks                各基本ブロックに関する情報を表示する\n"
+ 
+ #: gcov.c:421
+ #, c-format
+ msgid "  -b, --branch-probabilities      Include branch probabilities in output\n"
+-msgstr ""
++msgstr "  -b, --branch-probabilities      出力に分岐可能性情報を含める\n"
+ 
+ #: gcov.c:422
+ #, c-format
+@@ -847,6 +847,8 @@
+ "  -c, --branch-counts             Given counts of branches taken\n"
+ "                                    rather than percentages\n"
+ msgstr ""
++"  -c, --branch-counts             分岐に関する百分率では無く行われた\n"
++"                                    回数を取得する\n"
+ 
+ #: gcov.c:424
+ #, c-format
+@@ -859,21 +861,23 @@
+ "  -l, --long-file-names           Use long output file names for included\n"
+ "                                    source files\n"
+ msgstr ""
++"  -l, --long-file-names           インクルードされたソースファイルに関する長い\n"
++"                                    出力ファイル名を使用する\n"
+ 
+ #: gcov.c:427
+ #, c-format
+ msgid "  -f, --function-summaries        Output summaries for each function\n"
+-msgstr ""
++msgstr "  -f, --function-summaries        各関数に関する要約を出力する\n"
+ 
+ #: gcov.c:428
+ #, c-format
+ msgid "  -o, --object-directory DIR|FILE Search for object files in DIR or called FILE\n"
+-msgstr ""
++msgstr "  -o, --object-directory DIR|FILE オブジェクトファイルを DIR 内または呼び出し用 FILE 内で検索する\n"
+ 
+ #: gcov.c:429
+ #, c-format
+ msgid "  -p, --preserve-paths            Preserve all pathname components\n"
+-msgstr ""
++msgstr "  -p, --preserve-paths            すべてのパス名要素を保護する\n"
+ 
+ #: gcov.c:430
+ #, c-format
+@@ -977,7 +981,7 @@
+ #: gcov.c:1045
+ #, c-format
+ msgid "%s:cannot open data file, assuming not executed\n"
+-msgstr ""
++msgstr "%s:データファイルを開けません。実行されていないと見なします\n"
+ 
+ #: gcov.c:1052
+ #, c-format
+@@ -1027,7 +1031,7 @@
+ #: gcov.c:1379
+ #, c-format
+ msgid "%s:graph is unsolvable for '%s'\n"
+-msgstr ""
++msgstr "%s: '%s' 用のグラフが解決できません\n"
+ 
+ #: gcov.c:1459
+ #, c-format
+@@ -1037,7 +1041,7 @@
+ #: gcov.c:1462
+ #, c-format
+ msgid "Lines executed:%s of %d\n"
+-msgstr ""
++msgstr "実行された行:%s of %d\n"
+ 
+ #: gcov.c:1466
+ #, c-format
+@@ -1047,7 +1051,7 @@
+ #: gcov.c:1472
+ #, c-format
+ msgid "Branches executed:%s of %d\n"
+-msgstr ""
++msgstr "実行された分岐:%s of %d\n"
+ 
+ #: gcov.c:1476
+ #, c-format
+@@ -1057,12 +1061,12 @@
+ #: gcov.c:1482
+ #, c-format
+ msgid "No branches\n"
+-msgstr ""
++msgstr "分岐がありません\n"
+ 
+ #: gcov.c:1484
+ #, c-format
+ msgid "Calls executed:%s of %d\n"
+-msgstr ""
++msgstr "実行された呼び出し:%s of %d\n"
+ 
+ #: gcov.c:1488
+ #, c-format
+@@ -1075,24 +1079,24 @@
+ msgstr "%s: '%s' に対する行がありません\n"
+ 
+ #: gcov.c:1843
+-#, fuzzy, c-format
++#, c-format
+ msgid "call   %2d returned %s\n"
+-msgstr "呼び出し %d の戻り = %d\n"
++msgstr ""
+ 
+ #: gcov.c:1848
+-#, fuzzy, c-format
++#, c-format
+ msgid "call   %2d never executed\n"
+-msgstr "呼び出し %d は一度も実行せず\n"
++msgstr ""
+ 
+ #: gcov.c:1853
+-#, fuzzy, c-format
++#, c-format
+ msgid "branch %2d taken %s%s\n"
+-msgstr "ブランチ %d 受理 = %d%%\n"
++msgstr ""
+ 
+ #: gcov.c:1857
+-#, fuzzy, c-format
++#, c-format
+ msgid "branch %2d never executed\n"
+-msgstr "ブランチ %d は一度も実行されず\n"
++msgstr ""
+ 
+ #: gcov.c:1862
+ #, c-format
+@@ -1100,9 +1104,9 @@
+ msgstr ""
+ 
+ #: gcov.c:1865
+-#, fuzzy, c-format
++#, c-format
+ msgid "unconditional %2d never executed\n"
+-msgstr "呼び出し %d は一度も実行せず\n"
++msgstr ""
+ 
+ #: gcov.c:1901
+ #, c-format
+@@ -1412,11 +1416,11 @@
+ 
+ #: opts.c:1183
+ msgid "The following options take separate arguments"
+-msgstr ""
++msgstr "次のオプションは分離した引数を取ります"
+ 
+ #: opts.c:1185
+ msgid "The following options take joined arguments"
+-msgstr ""
++msgstr "次のオプションは結合した引数を取ります"
+ 
+ #: opts.c:1196
+ msgid "The following options are language-related"
+@@ -1472,7 +1476,7 @@
+ #: targhooks.c:1469
+ #, c-format
+ msgid "created and used with differing settings of '%s'"
+-msgstr ""
++msgstr "作成時と使用時で '%s' の設定が異なります"
+ 
+ #: targhooks.c:1471
+ msgid "out of memory"
+@@ -1480,11 +1484,11 @@
+ 
+ #: targhooks.c:1486
+ msgid "created and used with different settings of -fpic"
+-msgstr ""
++msgstr "作成時と使用時で -fpic の設定が異なります"
+ 
+ #: targhooks.c:1488
+ msgid "created and used with different settings of -fpie"
+-msgstr ""
++msgstr "作成時と使用時で -fpie の設定が異なります"
+ 
+ #: tlink.c:386
+ #, c-format
+@@ -1717,11 +1721,11 @@
+ 
+ #: params.def:100
+ msgid "The maximum depth of recursive inlining for inline functions"
+-msgstr ""
++msgstr "インライン関数を再帰的にインライン化する時の最大深度"
+ 
+ #: params.def:105
+ msgid "The maximum depth of recursive inlining for non-inline functions"
+-msgstr ""
++msgstr "非インライン関数を再帰的にインライン化する時の最大深度"
+ 
+ #: params.def:110
+ msgid "Inline recursively only when the probability of call being executed exceeds the parameter"
+@@ -1761,16 +1765,15 @@
+ 
+ #: params.def:180
+ msgid "The size of function body to be considered large"
+-msgstr ""
++msgstr "大きいと見なされる関数本体のサイズ"
+ 
+ #: params.def:184
+ msgid "Maximal growth due to inlining of large function (in percent)"
+ msgstr ""
+ 
+ #: params.def:188
+-#, fuzzy
+ msgid "The size of translation unit to be considered large"
+-msgstr "翻訳単位全体をファイルにダンプする"
++msgstr "大きいと見なされる翻訳単位のサイズ"
+ 
+ #: params.def:192
+ msgid "How much can given compilation unit grow because of the inlining (in percent)"
+@@ -1786,20 +1789,19 @@
+ 
+ #: params.def:204
+ msgid "The size of stack frame to be considered large"
+-msgstr ""
++msgstr "大きいと見なされるスタックフレームのサイズ"
+ 
+ #: params.def:208
+ msgid "Maximal stack frame growth due to inlining (in percent)"
+-msgstr ""
++msgstr "インライン化によって増加するスタックフレームの最大量 (百分率)"
+ 
+ #: params.def:215
+ msgid "The maximum amount of memory to be allocated by GCSE"
+-msgstr ""
++msgstr "GCSE によって配置されるメモリの最大量"
+ 
+ #: params.def:222
+-#, fuzzy
+ msgid "The maximum ratio of insertions to deletions of expressions in GCSE"
+-msgstr "RPTS 用の最大反復数を指定する"
++msgstr ""
+ 
+ #: params.def:233
+ msgid "The threshold ratio for performing partial redundancy elimination after reload"
+@@ -1963,9 +1965,8 @@
+ msgstr ""
+ 
+ #: params.def:470
+-#, fuzzy
+ msgid "Bound on number of iv uses in loop optimized in iv optimizations"
+-msgstr "目立たない、コストのかかる最適化を行なう"
++msgstr ""
+ 
+ #: params.def:478
+ msgid "If number of candidates in the set is smaller, we always try to remove unused ivs during its optimization"
+@@ -2044,9 +2045,8 @@
+ msgstr ""
+ 
+ #: params.def:594
+-#, fuzzy
+ msgid "The maximum number of iterations through CFG to extend regions"
+-msgstr "RPTS 用の最大反復数を指定する"
++msgstr ""
+ 
+ #: params.def:599
+ msgid "The maximum conflict delay for an insn to be considered for speculative motion"
+@@ -2077,9 +2077,8 @@
+ msgstr ""
+ 
+ #: params.def:637
+-#, fuzzy
+ msgid "The upper bound for sharing integer constants"
+-msgstr "`%s' の列挙値が整数定数ではありません"
++msgstr "整数定数を共有するための上限値"
+ 
+ #: params.def:656
+ msgid "Minimum number of virtual mappings to consider switching to full virtual renames"
+@@ -2111,11 +2110,11 @@
+ 
+ #: params.def:714
+ msgid "The number of insns executed before prefetch is completed"
+-msgstr ""
++msgstr "プリフェッチが完了する前に実行される命令数"
+ 
+ #: params.def:721
+ msgid "The number of prefetches that can run at the same time"
+-msgstr ""
++msgstr "同時に実行可能なプリフェッチの数"
+ 
+ #: params.def:728
+ msgid "The size of L1 cache"
+@@ -2162,9 +2161,8 @@
+ msgstr ""
+ 
+ #: params.def:806
+-#, fuzzy
+ msgid "maximum number of parameters in a SCoP"
+-msgstr "RPTS 用の最大反復数を指定する"
++msgstr "SCoP 内のパラメータの最大数"
+ 
+ #: params.def:813
+ msgid "maximum number of basic blocks per function to be analyzed by Graphite"
+@@ -2597,9 +2595,9 @@
+ msgstr "無効な %%E 値"
+ 
+ #: config/alpha/alpha.c:5431 config/alpha/alpha.c:5479
+-#, fuzzy, c-format
++#, c-format
+ msgid "unknown relocation unspec"
+-msgstr "不明な設定済コンストラクタ型です"
++msgstr ""
+ 
+ #: config/alpha/alpha.c:5440 config/crx/crx.c:1119
+ #: config/rs6000/rs6000.c:16490 config/spu/spu.c:1726
+@@ -3000,32 +2998,32 @@
+ #: config/i386/i386.c:14106 config/i386/i386.c:14146
+ #, c-format
+ msgid "operand is not a condition code, invalid operand code 'D'"
+-msgstr ""
++msgstr "被演算子は条件コードではありません。無効な被演算子コード 'D' です"
+ 
+ #: config/i386/i386.c:14172
+ #, c-format
+ msgid "operand is neither a constant nor a condition code, invalid operand code 'C'"
+-msgstr ""
++msgstr "被演算子は定数でも条件コードでもありません。無効な被演算子コード 'C' です"
+ 
+ #: config/i386/i386.c:14182
+ #, c-format
+ msgid "operand is neither a constant nor a condition code, invalid operand code 'F'"
+-msgstr ""
++msgstr "被演算子は定数でも条件コードでもありません。無効な被演算子コード 'F' です"
+ 
+ #: config/i386/i386.c:14200
+ #, c-format
+ msgid "operand is neither a constant nor a condition code, invalid operand code 'c'"
+-msgstr ""
++msgstr "被演算子は定数でも条件コードでもありません。無効な被演算子コード 'c' です"
+ 
+ #: config/i386/i386.c:14210
+ #, c-format
+ msgid "operand is neither a constant nor a condition code, invalid operand code 'f'"
+-msgstr ""
++msgstr "被演算子は定数でも条件コードでもありません。無効な被演算子コード 'f' です"
+ 
+ #: config/i386/i386.c:14313
+ #, c-format
+ msgid "operand is not a condition code, invalid operand code 'Y'"
+-msgstr ""
++msgstr "被演算子は条件コードではありません。無効な被演算子コード 'Y' です"
+ 
+ #: config/i386/i386.c:14339
+ #, c-format
+@@ -3098,7 +3096,7 @@
+ #: config/lm32/lm32.c:529
+ #, c-format
+ msgid "only 0.0 can be loaded as an immediate"
+-msgstr ""
++msgstr "即値としてロードできるのは 0.0 のみです"
+ 
+ #: config/lm32/lm32.c:599
+ msgid "bad operand"
+@@ -3138,15 +3136,15 @@
+ 
+ #: config/m32r/m32r.c:2290
+ msgid "pre-increment address is not a register"
+-msgstr ""
++msgstr "前置増分アドレスがレジスタではありません"
+ 
+ #: config/m32r/m32r.c:2297
+ msgid "pre-decrement address is not a register"
+-msgstr ""
++msgstr "前置減分アドレスがレジスタではありません"
+ 
+ #: config/m32r/m32r.c:2304
+ msgid "post-increment address is not a register"
+-msgstr ""
++msgstr "後置増分アドレスがレジスタではありません"
+ 
+ #: config/m32r/m32r.c:2380 config/m32r/m32r.c:2394
+ #: config/rs6000/rs6000.c:25500
+@@ -3252,7 +3250,7 @@
+ 
+ #: config/mmix/mmix.c:1589 config/mmix/mmix.c:1719
+ msgid "MMIX Internal: Expected a CONST_INT, not this"
+-msgstr ""
++msgstr "MMIX 内部: CONST_INT が予期されますが、異なっています"
+ 
+ #: config/mmix/mmix.c:1668
+ msgid "MMIX Internal: Bad value for 'm', not a CONST_INT"
+@@ -3260,11 +3258,11 @@
+ 
+ #: config/mmix/mmix.c:1687
+ msgid "MMIX Internal: Expected a register, not this"
+-msgstr ""
++msgstr "MMIX 内部: レジスタが予期されますが、異なっています"
+ 
+ #: config/mmix/mmix.c:1697
+ msgid "MMIX Internal: Expected a constant, not this"
+-msgstr ""
++msgstr "MMIX 内部: 定数が予期されますが、異なっています"
+ 
+ #. We need the original here.
+ #: config/mmix/mmix.c:1781
+@@ -3301,7 +3299,7 @@
+ 
+ #: config/picochip/picochip.c:2983 config/picochip/picochip.c:3015
+ msgid "Bad address, not (reg+disp):"
+-msgstr ""
++msgstr "誤ったアドレスです。 (reg+disp) ではありません:"
+ 
+ #: config/picochip/picochip.c:3029
+ msgid "Bad address, not register:"
+@@ -3526,15 +3524,15 @@
+ 
+ #: config/sh/sh.c:9271
+ msgid "created and used with different architectures / ABIs"
+-msgstr ""
++msgstr "作成時と使用時で アーキテクチャ/ABI が異なります"
+ 
+ #: config/sh/sh.c:9273
+ msgid "created and used with different ABIs"
+-msgstr ""
++msgstr "作成時と使用時で ABI が異なります"
+ 
+ #: config/sh/sh.c:9275
+ msgid "created and used with different endianness"
+-msgstr ""
++msgstr "作成時と使用時でエンディアンが異なります"
+ 
+ #: config/sparc/sparc.c:7445 config/sparc/sparc.c:7451
+ #, c-format
+@@ -3617,7 +3615,7 @@
+ #: config/vax/vax.c:427
+ #, c-format
+ msgid "symbol with offset used in PIC mode"
+-msgstr ""
++msgstr "PIC モードで使用されるオフセット付きのシンボルです"
+ 
+ #: config/vax/vax.c:513
+ #, c-format
+@@ -3837,19 +3835,19 @@
+ msgstr "%s:%d:%d:   ここから再帰的に実体化されました"
+ 
+ #: cp/error.c:2913
+-#, fuzzy, c-format
++#, c-format
+ msgid "%s:%d:%d:   instantiated from here"
+ msgstr "%s:%d:%d:   ここから実体化されました"
+ 
+ #: cp/error.c:2918
+ #, c-format
+ msgid "%s:%d:   recursively instantiated from here"
+-msgstr ""
++msgstr "%s:%d:   ここから再帰的に実体化されました"
+ 
+ #: cp/error.c:2919
+-#, fuzzy, c-format
++#, c-format
+ msgid "%s:%d:   instantiated from here"
+-msgstr "%s:%d:   ここで実体化されました\n"
++msgstr "%s:%d:   ここから実体化されました"
+ 
+ #: cp/error.c:2962
+ #, c-format
+@@ -4029,22 +4027,21 @@
+ #: fortran/expr.c:607
+ #, c-format
+ msgid "Constant expression required at %C"
+-msgstr ""
++msgstr "%C では定数式が要求されます"
+ 
+ #: fortran/expr.c:610
+ #, c-format
+ msgid "Integer expression required at %C"
+-msgstr ""
++msgstr "%C では整数式が要求されます"
+ 
+ #: fortran/expr.c:615
+-#, fuzzy, c-format
++#, c-format
+ msgid "Integer value too large in expression at %C"
+-msgstr "式の整数がオーバーフローしました"
++msgstr "%C の式内で整数値が大きすぎます"
+ 
+ #: fortran/expr.c:3147
+-#, fuzzy
+ msgid "array assignment"
+-msgstr "代入"
++msgstr "配列代入"
+ 
+ #: fortran/gfortranspec.c:303
+ #, c-format
+@@ -4080,7 +4077,7 @@
+ 
+ #: fortran/io.c:551
+ msgid "Unexpected element '%c' in format string at %L"
+-msgstr ""
++msgstr "予期しない要素 '%c' が書式文字列内 (位置 %L) にあります"
+ 
+ #: fortran/io.c:553
+ msgid "Unexpected end of format string"
+@@ -4088,15 +4085,15 @@
+ 
+ #: fortran/io.c:554
+ msgid "Zero width in format descriptor"
+-msgstr ""
++msgstr "幅 0 の書式記述子です"
+ 
+ #: fortran/io.c:574
+ msgid "Missing leading left parenthesis"
+-msgstr ""
++msgstr "前に左小括弧がありません"
+ 
+ #: fortran/io.c:603
+ msgid "Left parenthesis required after '*'"
+-msgstr ""
++msgstr "'*' の後には左小括弧が必要です"
+ 
+ #: fortran/io.c:634
+ msgid "Expected P edit descriptor"
+@@ -4116,9 +4113,8 @@
+ msgstr ""
+ 
+ #: fortran/io.c:844
+-#, fuzzy
+ msgid "E specifier not allowed with g0 descriptor"
+-msgstr "型指定子 `%s' は struct や class の後には使えません"
++msgstr ""
+ 
+ #: fortran/io.c:914
+ msgid "Positive exponent width required"
+@@ -4362,9 +4358,8 @@
+ msgstr ""
+ 
+ #: fortran/resolve.c:6233
+-#, fuzzy
+ msgid "End expression in DO loop"
+-msgstr "オペランドとして無効な式"
++msgstr ""
+ 
+ #: fortran/resolve.c:6237
+ msgid "Step expression in DO loop"
+@@ -4564,7 +4559,7 @@
+ #: java/jcf-dump.c:1148
+ #, c-format
+ msgid "  --extdirs PATH          Set extensions directory path\n"
+-msgstr ""
++msgstr "  --extdirs PATH          拡張のディレクトリパスを設定する\n"
+ 
+ #: java/jcf-dump.c:1149
+ #, c-format
+@@ -4734,18 +4729,18 @@
+ #: config/pa/pa-hpux11.h:111 config/pa/pa64-hpux.h:30 config/pa/pa64-hpux.h:33
+ #: config/pa/pa64-hpux.h:42 config/pa/pa64-hpux.h:45
+ msgid "warning: consider linking with '-static' as system libraries with"
+-msgstr ""
++msgstr "警告: システムライブラリとリンクする時は '-static' を指定することを検討してください"
+ 
+ #: config/pa/pa-hpux10.h:90 config/pa/pa-hpux10.h:93 config/pa/pa-hpux10.h:101
+ #: config/pa/pa-hpux10.h:104 config/pa/pa-hpux11.h:109
+ #: config/pa/pa-hpux11.h:112 config/pa/pa64-hpux.h:31 config/pa/pa64-hpux.h:34
+ #: config/pa/pa64-hpux.h:43 config/pa/pa64-hpux.h:46
+ msgid "  profiling support are only provided in archive format"
+-msgstr ""
++msgstr "  プロファイリングサポートは書庫フォーマット内でのみ提供されます"
+ 
+ #: config/rs6000/darwin.h:99
+ msgid " conflicting code gen style switches are used"
+-msgstr ""
++msgstr " 競合しているコード生成スタイルスイッチが使用されています"
+ 
+ #: config/arm/arm.h:178
+ msgid "-msoft-float and -mhard_float may not be used together"
+@@ -4805,7 +4800,7 @@
+ 
+ #: config/i386/linux-unwind.h:186
+ msgid "ax ; {int $0x80 | syscall"
+-msgstr ""
++msgstr "ax ; {int $0x80 | syscall"
+ 
+ #: config/s390/tpf.h:120
+ msgid "static is not supported on TPF-OS"
+@@ -4869,7 +4864,7 @@
+ 
+ #: java/lang.opt:206
+ msgid "--extdirs=<path>\tSet the extension directory path"
+-msgstr ""
++msgstr "--extdirs=<path>\t拡張のディレクトリパスを設定する"
+ 
+ #: java/lang.opt:216
+ msgid "Input file is a file with a list of filenames to compile"
+@@ -5388,7 +5383,7 @@
+ 
+ #: config/frv/frv.opt:31
+ msgid "Enable label alignment optimizations"
+-msgstr ""
++msgstr "ラベル整列最適化を有効にする"
+ 
+ #: config/frv/frv.opt:35
+ msgid "Dynamically allocate cc registers"
+@@ -5452,7 +5447,7 @@
+ 
+ #: config/frv/frv.opt:116
+ msgid "Enable use of GPREL for read-only data in FDPIC"
+-msgstr ""
++msgstr "FDPIC 内の読み取り専用データ用 GPREL の使用を有効にする"
+ 
+ #: config/frv/frv.opt:120 config/rs6000/rs6000.opt:216
+ #: config/pdp11/pdp11.opt:67
+@@ -5460,9 +5455,8 @@
+ msgstr "ハードウェア浮動小数点を利用する"
+ 
+ #: config/frv/frv.opt:124 config/bfin/bfin.opt:77
+-#, fuzzy
+ msgid "Enable inlining of PLT in function calls"
+-msgstr "関数呼び出しの前後でレジスタの保存を有効にする"
++msgstr "関数呼び出し内で PLT のインライン化を有効にする"
+ 
+ #: config/frv/frv.opt:128
+ msgid "Enable PIC support for building libraries"
+@@ -5478,7 +5472,7 @@
+ 
+ #: config/frv/frv.opt:140
+ msgid "Use media instructions"
+-msgstr ""
++msgstr "media 命令を使用する"
+ 
+ #: config/frv/frv.opt:144
+ msgid "Use multiply add/subtract instructions"
+@@ -5494,7 +5488,7 @@
+ 
+ #: config/frv/frv.opt:157
+ msgid "Do not mark ABI switches in e_flags"
+-msgstr ""
++msgstr "e_flags 内の ABI スイッチをマークしない"
+ 
+ #: config/frv/frv.opt:161
+ msgid "Remove redundant membars"
+@@ -5506,7 +5500,7 @@
+ 
+ #: config/frv/frv.opt:169
+ msgid "Enable setting GPRs to the result of comparisons"
+-msgstr ""
++msgstr "比較結果を汎用レジスタに設定することを有効にする"
+ 
+ #: config/frv/frv.opt:173
+ msgid "Change the amount of scheduler lookahead"
+@@ -5565,9 +5559,8 @@
+ msgstr ""
+ 
+ #: config/mn10300/mn10300.opt:56
+-#, fuzzy
+ msgid "Allow gcc to generate LIW instructions"
+-msgstr "gcc が repeat/erepeat 命令を使用することを許可する"
++msgstr "gcc が LIW 命令を生成することを許可する"
+ 
+ #: config/s390/tpf.opt:23
+ msgid "Enable TPF-OS tracing code"
+@@ -5640,11 +5633,11 @@
+ 
+ #: config/s390/s390.opt:91
+ msgid "Warn if a function uses alloca or creates an array with dynamic size"
+-msgstr ""
++msgstr "関数で alloca を使用するか、または動的サイズの配列を作成した場合に、警告する"
+ 
+ #: config/s390/s390.opt:95
+ msgid "Warn if a single function's framesize exceeds the given framesize"
+-msgstr ""
++msgstr "一つの関数のフレームサイズが与えられたフレームサイズを超過する場合に警告する"
+ 
+ #: config/s390/s390.opt:99
+ msgid "z/Architecture"
+@@ -5692,7 +5685,7 @@
+ 
+ #: config/ia64/ia64.opt:56
+ msgid "gp is constant (but save/restore gp on indirect calls)"
+-msgstr "gp を定数とする（但、間接呼び出しでは gp を save/restore する）"
++msgstr "gp を定数とする（ただし、間接呼び出しでは gp を save/restore する）"
+ 
+ #: config/ia64/ia64.opt:60
+ msgid "Generate self-relocatable code"
+@@ -5741,39 +5734,39 @@
+ #: config/ia64/ia64.opt:107 config/spu/spu.opt:72 config/sh/sh.opt:258
+ #: config/pa/pa.opt:51
+ msgid "Specify range of registers to make fixed"
+-msgstr ""
++msgstr "固定するレジスタの範囲を指定する"
+ 
+ #: config/ia64/ia64.opt:119
+ msgid "Use data speculation before reload"
+-msgstr ""
++msgstr "reload 前にデータ投機を使用する"
+ 
+ #: config/ia64/ia64.opt:123
+ msgid "Use data speculation after reload"
+-msgstr ""
++msgstr "reload 後にデータ投機を使用する"
+ 
+ #: config/ia64/ia64.opt:127
+ msgid "Use control speculation"
+-msgstr ""
++msgstr "制御投機を使用する"
+ 
+ #: config/ia64/ia64.opt:131
+ msgid "Use in block data speculation before reload"
+-msgstr ""
++msgstr "reload 前にブロック内データ投機を使用する"
+ 
+ #: config/ia64/ia64.opt:135
+ msgid "Use in block data speculation after reload"
+-msgstr ""
++msgstr "reload 後にブロック内データ投機を使用する"
+ 
+ #: config/ia64/ia64.opt:139
+ msgid "Use in block control speculation"
+-msgstr ""
++msgstr "ブロック内制御投機を使用する"
+ 
+ #: config/ia64/ia64.opt:143
+ msgid "Use simple data speculation check"
+-msgstr ""
++msgstr "単純データ投機検査を使用する"
+ 
+ #: config/ia64/ia64.opt:147
+ msgid "Use simple data speculation check for control speculation"
+-msgstr ""
++msgstr "制御投機用の単純データ投機検査を使用する"
+ 
+ #: config/ia64/ia64.opt:151
+ msgid "If set, data speculative instructions will be chosen for schedule only if there are no other choices at the moment "
+@@ -5789,7 +5782,7 @@
+ 
+ #: config/ia64/ia64.opt:163
+ msgid "Place a stop bit after every cycle when scheduling"
+-msgstr ""
++msgstr "スケジューリング時の各サイクル後にストップビットを配置する"
+ 
+ #: config/ia64/ia64.opt:167
+ msgid "Assume that floating-point stores and loads are not likely to cause conflict when placed into one instruction group"
+@@ -5805,7 +5798,7 @@
+ 
+ #: config/ia64/ia64.opt:179
+ msgid "Don't generate checks for control speculation in selective scheduling"
+-msgstr ""
++msgstr "選択的スケジューリング内では制御投機用の検査を生成しない"
+ 
+ #: config/ia64/vms_symvec_libgcc_s.opt:3
+ msgid "! It would be better to auto-generate this file."
+@@ -6109,7 +6102,7 @@
+ 
+ #: config/m68k/m68k.opt:160 config/bfin/bfin.opt:61
+ msgid "Enable separate data segment"
+-msgstr ""
++msgstr "分離データセグメントを有効にする"
+ 
+ #: config/m68k/m68k.opt:164 config/bfin/bfin.opt:57
+ msgid "ID of shared library to build"
+@@ -6149,7 +6142,7 @@
+ 
+ #: config/i386/mingw.opt:23
+ msgid "Warn about none ISO msvcrt scanf/printf width extensions"
+-msgstr ""
++msgstr "非 ISO の msvcrt scanf/printf の幅拡張に関して警告する"
+ 
+ #: config/i386/mingw.opt:27
+ msgid "For nested functions on stack executable permission is set."
+@@ -6201,7 +6194,7 @@
+ 
+ #: config/i386/i386.opt:114
+ msgid "Data greater than given threshold will go into .ldata section in x86-64 medium model"
+-msgstr ""
++msgstr "x86-64 メディアモデルでは与えられた閾値より大きいデータを .ldata セクションに配置する"
+ 
+ #: config/i386/i386.opt:118
+ msgid "Use given x86-64 code model"
+@@ -6217,16 +6210,15 @@
+ 
+ #: config/i386/i386.opt:129
+ msgid "Always use Dynamic Realigned Argument Pointer (DRAP) to realign stack"
+-msgstr ""
++msgstr "スタックを再整列するために動的再整列引数ポインタ (Dynamic Realigned Argument Pointer, DRAP) を常に使用する"
+ 
+ #: config/i386/i386.opt:133
+ msgid "Return values of functions in FPU registers"
+ msgstr "FPU レジスタ内の機能の値を返す"
+ 
+ #: config/i386/i386.opt:137
+-#, fuzzy
+ msgid "Generate floating point mathematics using given instruction set"
+-msgstr "ハードウェア浮動小数点命令を使用する"
++msgstr "与えられた命令集合を使用して浮動小数数値計算を生成する"
+ 
+ #: config/i386/i386.opt:149
+ msgid "Inline all known string operations"
+@@ -6314,8 +6306,9 @@
+ msgstr "8 バイトベクトルをメモリに返す"
+ 
+ #: config/i386/i386.opt:253
++#, fuzzy
+ msgid "Generate reciprocals instead of divss and sqrtss."
+-msgstr ""
++msgstr "divss および sqrtss の代わりに逆数 (reciprocal) を生成する"
+ 
+ #: config/i386/i386.opt:257
+ msgid "Generate cld instruction in the function prologue."
+@@ -6331,7 +6324,7 @@
+ 
+ #: config/i386/i386.opt:271
+ msgid "Use 128-bit AVX instructions instead of 256-bit AVX instructions in the auto-vectorizer."
+-msgstr ""
++msgstr "自動ベクトル化で 256 ビット AVX 命令の代わりに 128 ビット AVX 命令を使用する"
+ 
+ #: config/i386/i386.opt:277
+ msgid "Generate 32bit i386 code"
+@@ -6382,9 +6375,8 @@
+ msgstr "SSE4.1 と SSE4.2 の組み込み関数とコード生成をサポートしない"
+ 
+ #: config/i386/i386.opt:328
+-#, fuzzy
+ msgid "%<-msse5%> was removed"
+-msgstr "'-msse5' は削除されました"
++msgstr "%<-msse5%> は削除されました"
+ 
+ #: config/i386/i386.opt:333
+ msgid "Support MMX, SSE, SSE2, SSE3, SSSE3, SSE4.1, SSE4.2 and AVX built-in functions and code generation"
+@@ -6544,7 +6536,7 @@
+ 
+ #: config/rs6000/rs6000.opt:152
+ msgid "Use PowerPC General Purpose group optional instructions"
+-msgstr "PowerPC 一般用途グループオプション命令を使用する"
++msgstr "PowerPC 汎用グループオプション命令を使用する"
+ 
+ #: config/rs6000/rs6000.opt:156
+ msgid "Use PowerPC Graphics group optional instructions"
+@@ -7002,7 +6994,7 @@
+ 
+ #: config/mcore/mcore.opt:56 config/fr30/fr30.opt:27
+ msgid "Assume that run-time support has been provided, so omit -lsim from the linker command line"
+-msgstr ""
++msgstr "実行時サポートが提供されると見なし、リンカコマンドラインに -lsim を含めない"
+ 
+ #: config/mcore/mcore.opt:60
+ msgid "Use arbitrary sized immediates in bit operations"
+@@ -7014,7 +7006,7 @@
+ 
+ #: config/mcore/mcore.opt:71
+ msgid "Set the maximum amount for a single stack increment operation"
+-msgstr "単一のスタックインクリメント操作の最大値を設定する"
++msgstr "単一のスタック増分操作の最大値を設定する"
+ 
+ #: config/mcore/mcore.opt:75
+ msgid "Always treat bitfields as int-sized"
+@@ -7234,7 +7226,7 @@
+ 
+ #: config/sh/sh.opt:246
+ msgid "Division strategy, one of: call, call2, fp, inv, inv:minlat, inv20u, inv20l, inv:call, inv:call2, inv:fp, call-div1, call-fp, call-table"
+-msgstr ""
++msgstr "除算戦略、次のいずれか: call, call2, fp, inv, inv:minlat, inv20u, inv20l, inv:call, inv:call2, inv:fp, call-div1, call-fp, call-table"
+ 
+ #: config/sh/sh.opt:250
+ msgid "Specify name for 32 bit signed division function"
+@@ -7282,7 +7274,7 @@
+ 
+ #: config/sh/sh.opt:298
+ msgid "Mark MAC register as call-clobbered"
+-msgstr ""
++msgstr "MAC レジスタを呼び出しで破壊されるとマークする"
+ 
+ #: config/sh/sh.opt:304
+ msgid "Make structs a multiple of 4 bytes (warning: ABI altered)"
+@@ -7960,7 +7952,7 @@
+ 
+ #: config/m68hc11/m68hc11.opt:49
+ msgid "Auto pre/post decrement increment allowed"
+-msgstr "自動 pre/post デクリメント インクリメントを許容する"
++msgstr "自動 前置/後置 減分/増分 を許容する"
+ 
+ #: config/m68hc11/m68hc11.opt:53
+ msgid "Min/max instructions allowed"
+@@ -7972,7 +7964,7 @@
+ 
+ #: config/m68hc11/m68hc11.opt:61
+ msgid "Auto pre/post decrement increment not allowed"
+-msgstr "自動 pre/post デクリメント インクリメントを許容しない"
++msgstr "自動 前置/後置 減分/増分を許容しない"
+ 
+ #: config/m68hc11/m68hc11.opt:65
+ msgid "Use jsr and rts for function calls and returns"
+@@ -8346,7 +8338,7 @@
+ 
+ #: config/bfin/bfin.opt:69
+ msgid "Link with the fast floating-point library"
+-msgstr ""
++msgstr "高速な浮動小数ライブラリとリンクする"
+ 
+ #: config/bfin/bfin.opt:81
+ msgid "Do stack checking using bounds in L1 scratch memory"
+@@ -8382,7 +8374,7 @@
+ 
+ #: config/picochip/picochip.opt:31
+ msgid "Specify whether the byte access instructions should be used. Enabled by default."
+-msgstr ""
++msgstr "バイトアクセス命令を使用するかどうかを指定する。デフォルトでは有効となる"
+ 
+ #: config/picochip/picochip.opt:35
+ msgid "Enable debug output to be generated."
+@@ -8390,11 +8382,11 @@
+ 
+ #: config/picochip/picochip.opt:39
+ msgid "Allow a symbol value to be used as an immediate value in an instruction."
+-msgstr ""
++msgstr "命令内でシンボル値が即値として使用されることを許可する"
+ 
+ #: config/picochip/picochip.opt:43
+ msgid "Generate warnings when inefficient code is known to be generated."
+-msgstr ""
++msgstr "非効率なコードが生成された時に警告する"
+ 
+ #: config/vxworks.opt:36
+ msgid "Assume the VxWorks RTP environment"
+@@ -8418,7 +8410,7 @@
+ 
+ #: config/darwin.opt:205
+ msgid "Warn if constant CFString objects contain non-portable characters"
+-msgstr ""
++msgstr "定数 CFString オブジェクトが移植性の無い文字を含む場合に警告する"
+ 
+ #: config/darwin.opt:210
+ msgid "Generate AT&T-style stubs for Mach-O"
+@@ -8430,7 +8422,7 @@
+ 
+ #: config/darwin.opt:218
+ msgid "Generate code suitable for fast turn around debugging"
+-msgstr ""
++msgstr "デバッグを高速に行うために適したコードを生成する"
+ 
+ #: config/darwin.opt:227
+ msgid "The earliest MacOS X version on which this program will run"
+@@ -8442,15 +8434,15 @@
+ 
+ #: config/darwin.opt:235
+ msgid "Generate code for darwin loadable kernel extensions"
+-msgstr ""
++msgstr "darwin ロード可能カーネル拡張用のコードを生成する"
+ 
+ #: config/darwin.opt:239
+ msgid "Generate code for the kernel or loadable kernel extensions"
+-msgstr ""
++msgstr "カーネル用、またはロード可能カーネル拡張用のコードを生成する"
+ 
+ #: config/darwin.opt:243
+ msgid "-iframework <dir>\tAdd <dir> to the end of the system framework include path"
+-msgstr ""
++msgstr "-iframework <dir>\t<dir> をシステムフレームワークインクルードパスの末尾に加える"
+ 
+ #: config/lynx.opt:23
+ msgid "Support legacy multi-threading"
+@@ -8737,7 +8729,6 @@
+ msgstr ""
+ 
+ #: config/microblaze/microblaze.opt:92
+-#, fuzzy
+ msgid "Use hardware floating point conversion instructions"
+ msgstr "ハードウェア浮動小数点変換命令を使用する"
+ 
+@@ -8862,7 +8853,7 @@
+ 
+ #: c-family/c.opt:249
+ msgid "-MT <target>\tAdd an unquoted target"
+-msgstr ""
++msgstr "-MT <target>\tターゲット (引用符を付けない) を追加する"
+ 
+ #: c-family/c.opt:253
+ msgid "Do not generate #line directives"
+@@ -8898,11 +8889,11 @@
+ 
+ #: c-family/c.opt:288
+ msgid "Warn about C constructs that are not in the common subset of C and C++"
+-msgstr ""
++msgstr "C と C++ の共通部分集合では無い C 構文に関して警告する"
+ 
+ #: c-family/c.opt:292
+ msgid "Warn about C++ constructs whose meaning differs between ISO C++ 1998 and ISO C++ 200x"
+-msgstr ""
++msgstr "ISO C++ 1998 と ISO C++ 200x で意味が異なる C++ 構文に関して警告する"
+ 
+ #: c-family/c.opt:296
+ msgid "Warn about casts which discard qualifiers"
+@@ -8962,7 +8953,7 @@
+ 
+ #: c-family/c.opt:352
+ msgid "Warn about stray tokens after #elif and #endif"
+-msgstr ""
++msgstr "#elif および #endif の後にあるはぐれたトークンに関して警告する"
+ 
+ #: c-family/c.opt:356
+ msgid "Warn about comparison of different enum types"
+@@ -8977,9 +8968,8 @@
+ msgstr "浮動小数点数の等価比較に関して警告する"
+ 
+ #: c-family/c.opt:372
+-#, fuzzy
+ msgid "Warn about printf/scanf/strftime/strfmon format string anomalies"
+-msgstr "printf/scanf/strftime/strfmon 形式の変則的なものに関して警告する"
++msgstr "printf/scanf/strftime/strfmon 書式文字列異常に関して警告する"
+ 
+ #: c-family/c.opt:376
+ msgid "Warn if passing too many arguments to a function for its format string"
+@@ -8998,9 +8988,8 @@
+ msgstr "セキュリティ問題になる可能性がある書式関数に関して警告する"
+ 
+ #: c-family/c.opt:392
+-#, fuzzy
+ msgid "Warn about strftime formats yielding 2-digit years"
+-msgstr "strftime 形式が二桁で年を表している時の警告しない"
++msgstr "strftime 書式が 2 桁の年の場合に警告する"
+ 
+ #: c-family/c.opt:396
+ msgid "Warn about zero-length formats"
+@@ -9409,7 +9398,7 @@
+ 
+ #: c-family/c.opt:823
+ msgid "Don't emit dllexported inline functions unless needed"
+-msgstr ""
++msgstr "必要が無い限り dllexported インライン関数を発行しない"
+ 
+ #: c-family/c.opt:830
+ msgid "Allow implicit conversions between vectors with differing numbers of subparts and/or differing element types."
+@@ -9501,7 +9490,7 @@
+ 
+ #: c-family/c.opt:942
+ msgid "Generate run time type descriptor information"
+-msgstr ""
++msgstr "実行時型記述子情報を生成する"
+ 
+ #: c-family/c.opt:946
+ msgid "Use the same size for double as for float"
+@@ -9889,19 +9878,16 @@
+ msgstr "関数が __attribute__((pure)) の候補となりそうな場合に警告する"
+ 
+ #: common.opt:608
+-#, fuzzy
+ msgid "Warn about enumerated switches, with no default, missing a case"
+-msgstr "列挙定数の switch で case 指定が欠けているものに関して警告する"
++msgstr "列挙定数を使用した switch 文で default 文が無いか特定の case が無い場合に警告する"
+ 
+ #: common.opt:612
+-#, fuzzy
+ msgid "Warn about enumerated switches missing a \"default:\" statement"
+-msgstr "列挙定数の switch で case 指定が欠けているものに関して警告する"
++msgstr "列挙定数を使用した switch 文で \"default:\" 文が無い場合に警告する"
+ 
+ #: common.opt:616
+-#, fuzzy
+ msgid "Warn about all enumerated switches missing a specific case"
+-msgstr "列挙定数の switch で case 指定が欠けているものに関して警告する"
++msgstr "列挙定数を使用した switch 文で特定の case が無い場合に警告する"
+ 
+ #: common.opt:620
+ msgid "Do not suppress warnings from system headers"
+@@ -10000,9 +9986,8 @@
+ msgstr "自動増加/減少命令を生成する"
+ 
+ #: common.opt:821
+-#, fuzzy
+ msgid "Generate code to check bounds before indexing arrays"
+-msgstr "配列の添字と添字境界を検査するコードを生成する"
++msgstr "配列の添え字を使用する前に境界検査を行うコードを生成する"
+ 
+ #: common.opt:825
+ #, fuzzy
+@@ -10043,7 +10028,7 @@
+ 
+ #: common.opt:864
+ msgid "Looks for opportunities to reduce stack adjustments and stack references."
+-msgstr ""
++msgstr "スタック調整およびスタック参照を削減する機会を探す"
+ 
+ #: common.opt:868
+ msgid "Do not put uninitialized globals in the common section"
+@@ -10058,18 +10043,16 @@
+ msgstr ""
+ 
+ #: common.opt:884
+-#, fuzzy
+ msgid "Perform comparison elimination after register allocation has finished"
+-msgstr "グローバル共通部分式を除去する"
++msgstr "レジスタは位置が完了した後に比較の除去を行う"
+ 
+ #: common.opt:888
+ msgid "Do not perform optimizations increasing noticeably stack usage"
+-msgstr ""
++msgstr "スタック使用量を著しく増加させる最適化を行わない"
+ 
+ #: common.opt:892
+-#, fuzzy
+ msgid "Perform a register copy-propagation optimization pass"
+-msgstr "最適化過程のレジスタつけ変えを行なう"
++msgstr ""
+ 
+ #: common.opt:896
+ msgid "Perform cross-jumping optimization"
+@@ -10101,7 +10084,7 @@
+ 
+ #: common.opt:928
+ msgid "Map one directory name to another in debug information"
+-msgstr ""
++msgstr "デバッグ情報内のディレクトリー名を他のものにマップする"
+ 
+ #: common.opt:934
+ msgid "Defer popping functions args from stack until later"
+@@ -10116,9 +10099,8 @@
+ msgstr "無意味な null ポインタ検査を削除する"
+ 
+ #: common.opt:946
+-#, fuzzy
+ msgid "Try to convert virtual calls to direct ones."
+-msgstr "リンカが PIC 呼び出しを直接呼び出しに変更することを許可するように試みる"
++msgstr "仮想呼び出しを直接呼び出しに変換することを試みる"
+ 
+ #: common.opt:950
+ #, fuzzy
+@@ -10137,7 +10119,7 @@
+ 
+ #: common.opt:978
+ msgid "-fdump-final-insns=filename\tDump to filename the insns at the end of translation"
+-msgstr ""
++msgstr "-fdump-final-insns=filename\t翻訳終了時に filename へ命令をダンプする"
+ 
+ #: common.opt:982
+ msgid "-fdump-go-spec=filename\tWrite all declarations to file as Go code"
+@@ -10173,7 +10155,7 @@
+ 
+ #: common.opt:1014 common.opt:1018
+ msgid "Perform unused type elimination in debug info"
+-msgstr ""
++msgstr "デバッグ情報内で使用されていない型の除去を行う"
+ 
+ #: common.opt:1022
+ msgid "Do not suppress C++ class debug information."
+@@ -10181,25 +10163,24 @@
+ 
+ #: common.opt:1026
+ msgid "Generate debug information to support Identical Code Folding (ICF)"
+-msgstr ""
++msgstr "Identical Code Folding (ICF) をサポートするためのデバッグ情報を生成する"
+ 
+ #: common.opt:1030
+ msgid "Enable exception handling"
+ msgstr "例外処理を有効にする"
+ 
+ #: common.opt:1034
+-#, fuzzy
+ msgid "Perform a number of minor, expensive optimizations"
+-msgstr "目立たない、コストのかかる最適化を行なう"
++msgstr "多くの、目立たないがコストが高い最適化を行う"
+ 
+ #: common.opt:1038
+ msgid "-fexcess-precision=[fast|standard]\tSpecify handling of excess floating-point precision"
+-msgstr ""
++msgstr "-fexcess-precision=[fast|standard]\t余分な浮動小数点精度の取り扱いを指定する"
+ 
+ #: common.opt:1041
+ #, c-format
+ msgid "unknown excess precision style %qs"
+-msgstr ""
++msgstr "不明な余分な精度スタイル %qs です"
+ 
+ #: common.opt:1054
+ msgid "Assume no NaNs or infinities are generated"
+@@ -10222,52 +10203,45 @@
+ msgstr ""
+ 
+ #: common.opt:1077
+-#, fuzzy, c-format
++#, c-format
+ msgid "unknown floating point contraction style %qs"
+-msgstr "浮動小数点定数を TOC 内に配置する"
++msgstr "不明な浮動小数短縮形 %qs です"
+ 
+ #: common.opt:1094
+ msgid "Allow function addresses to be held in registers"
+ msgstr "関数アドレスをレジスタに持たせる事を許可する"
+ 
+ #: common.opt:1098
+-#, fuzzy
+ msgid "Place each function into its own section"
+-msgstr "各々の関数をそれ自身のセクションに配置する"
++msgstr "それぞれの関数をそれ自身のセクションに配置する"
+ 
+ #: common.opt:1102
+-#, fuzzy
+ msgid "Perform global common subexpression elimination"
+-msgstr "グローバル共通部分式を除去する"
++msgstr "大域共通部分式の除去を行う"
+ 
+ #: common.opt:1106
+-#, fuzzy
+ msgid "Perform enhanced load motion during global common subexpression elimination"
+-msgstr "グローバル共通部分式を除去する"
++msgstr ""
+ 
+ #: common.opt:1110
+-#, fuzzy
+ msgid "Perform store motion after global common subexpression elimination"
+-msgstr "グローバル共通部分式を除去する"
++msgstr ""
+ 
+ #: common.opt:1114
+ msgid "Perform redundant load after store elimination in global common subexpression"
+ msgstr ""
+ 
+ #: common.opt:1119
+-#, fuzzy
+ msgid "Perform global common subexpression elimination after register allocation"
+-msgstr "グローバル共通部分式を除去する"
++msgstr "レジスタ配置後に大域共通部分式の除去を行う"
+ 
+ #: common.opt:1125
+-#, fuzzy
+ msgid "Enable in and out of Graphite representation"
+-msgstr "自動テンプレート実体化を有効にする"
++msgstr ""
+ 
+ #: common.opt:1129
+-#, fuzzy
+ msgid "Enable Graphite Identity transformation"
+-msgstr "呼び出しグラフ情報を送出する"
++msgstr ""
+ 
+ #: common.opt:1133
+ msgid "Mark all loops as parallel"
+@@ -10306,9 +10280,8 @@
+ msgstr ""
+ 
+ #: common.opt:1173
+-#, fuzzy
+ msgid "Perform conversion of conditional jumps to conditional execution"
+-msgstr "条件的な実行への変更のための閾値を変更する"
++msgstr ""
+ 
+ #: common.opt:1177
+ msgid "Convert conditional jumps in innermost loops to branchless equivalents"
+@@ -10376,13 +10349,12 @@
+ msgstr ""
+ 
+ #: common.opt:1253
+-#, fuzzy
+ msgid "Discover pure and const functions"
+-msgstr "使われない仮想関数を切り捨てる"
++msgstr "純粋および定数関数を見つける"
+ 
+ #: common.opt:1257
+ msgid "Discover readonly and non addressable static variables"
+-msgstr ""
++msgstr "読み取り専用およびアドレス付けできない静的変数を見つける"
+ 
+ #: common.opt:1261
+ msgid "Perform matrix layout flattening and transposing based"
+@@ -10415,9 +10387,8 @@
+ msgstr ""
+ 
+ #: common.opt:1305
+-#, fuzzy
+ msgid "Share slots for saving different hard registers."
+-msgstr "引数レジスタにローカルのものを格納する"
++msgstr ""
+ 
+ #: common.opt:1309
+ msgid "Share stack slots for spilled pseudo-registers."
+@@ -10621,19 +10592,19 @@
+ 
+ #: common.opt:1521
+ msgid "Enable basic program profiling code"
+-msgstr ""
++msgstr "基本プログラムプロファイリングコードを有効にする"
+ 
+ #: common.opt:1525
+ msgid "Insert arc-based program profiling code"
+-msgstr ""
++msgstr "円弧ベースプログラムプロファイリングコードを挿入する"
+ 
+ #: common.opt:1529
+ msgid "Set the top-level directory for storing the profile data."
+-msgstr ""
++msgstr "プロファイルデータ保存用の最上位ディレクリーを設定する"
+ 
+ #: common.opt:1534
+ msgid "Enable correction of flow inconsistent profile data input"
+-msgstr ""
++msgstr "フロー一貫性が無いデータ入力の訂正を有効にする"
+ 
+ #: common.opt:1538
+ msgid "Enable common options for generating profile info for profile feedback directed optimizations"
+@@ -10653,7 +10624,7 @@
+ 
+ #: common.opt:1554
+ msgid "Insert code to profile values of expressions"
+-msgstr ""
++msgstr "式の値をプロファイルするためのコードを挿入する"
+ 
+ #: common.opt:1561
+ msgid "-frandom-seed=<string>\tMake compile reproducible using <string>"
+@@ -11836,7 +11807,7 @@
+ #: c-decl.c:1150
+ #, gcc-internal-format
+ msgid "nested function %q+D declared but never defined"
+-msgstr ""
++msgstr "入れ子になった関数 %q+D が宣言されましたが定義されていません"
+ 
+ #: c-decl.c:1162
+ #, gcc-internal-format
+@@ -11893,7 +11864,7 @@
+ #: c-decl.c:1613
+ #, gcc-internal-format
+ msgid "prototype for %q+D follows non-prototype definition"
+-msgstr ""
++msgstr "非プロトタイプ定義に続いて %q+D 用のプロトタイプがあります"
+ 
+ #: c-decl.c:1628
+ #, gcc-internal-format
+@@ -11969,9 +11940,9 @@
+ msgstr "%q+D が異なる型で再定義されました"
+ 
+ #: c-decl.c:1818
+-#, fuzzy, gcc-internal-format
++#, gcc-internal-format
+ msgid "redefinition of typedef %q+D with variably modified type"
+-msgstr "%q+D が異なる型で再定義されました"
++msgstr ""
+ 
+ #: c-decl.c:1825
+ #, gcc-internal-format
+@@ -12016,17 +11987,17 @@
+ #: c-decl.c:2001
+ #, gcc-internal-format
+ msgid "extern declaration of %q+D follows declaration with no linkage"
+-msgstr ""
++msgstr "リンク無し宣言の後に %q+D の extern 宣言が続いています"
+ 
+ #: c-decl.c:2037
+ #, gcc-internal-format
+ msgid "declaration of %q+D with no linkage follows extern declaration"
+-msgstr ""
++msgstr "extern 宣言の後にリンク無し %q+D の宣言が続いています"
+ 
+ #: c-decl.c:2043
+ #, gcc-internal-format
+ msgid "redeclaration of %q+D with no linkage"
+-msgstr ""
++msgstr "リンク無し %q+D の再定義です"
+ 
+ #: c-decl.c:2069
+ #, gcc-internal-format
+@@ -12354,7 +12325,7 @@
+ #: c-decl.c:4614
+ #, gcc-internal-format
+ msgid "defining a type in a compound literal is invalid in C++"
+-msgstr ""
++msgstr "複合リテラル内での型定義は C++ では無効です"
+ 
+ #: c-decl.c:4666 c-decl.c:4681
+ #, gcc-internal-format
+@@ -13393,23 +13364,23 @@
+ #: c-parser.c:1829
+ #, gcc-internal-format
+ msgid "expression in static assertion is not an integer"
+-msgstr ""
++msgstr "静的アサーション内の式が整数ではありません"
+ 
+ #: c-parser.c:1836
+ #, gcc-internal-format
+ msgid "expression in static assertion is not an integer constant expression"
+-msgstr ""
++msgstr "静的アサーション内の式が整数定数式ではありません"
+ 
+ #: c-parser.c:1841
+ #, gcc-internal-format
+ msgid "expression in static assertion is not constant"
+-msgstr ""
++msgstr "静的アサーション内の式が定数ではありません"
+ 
+ #. Report the error.
+ #: c-parser.c:1846 cp/semantics.c:4719
+ #, gcc-internal-format
+ msgid "static assertion failed: %E"
+-msgstr ""
++msgstr "静的アサーションに失敗しました: %E"
+ 
+ #: c-parser.c:2207 c-parser.c:3063 c-parser.c:3709 c-parser.c:3983
+ #: c-parser.c:5084 c-parser.c:5175 c-parser.c:5800 c-parser.c:6083
+@@ -14125,12 +14096,12 @@
+ #: c-typeck.c:3578
+ #, gcc-internal-format
+ msgid "increment of enumeration value is invalid in C++"
+-msgstr "列挙値のインクリメントは C++ では無効です"
++msgstr "列挙値の増分は C++ では無効です"
+ 
+ #: c-typeck.c:3581
+ #, gcc-internal-format
+ msgid "decrement of enumeration value is invalid in C++"
+-msgstr "列挙値のデクリメントは C++ では無効です"
++msgstr "列挙値の減分は C++ では無効です"
+ 
+ #: c-typeck.c:3594
+ #, gcc-internal-format
+@@ -14140,22 +14111,22 @@
+ #: c-typeck.c:3613 c-typeck.c:3645
+ #, gcc-internal-format
+ msgid "wrong type argument to increment"
+-msgstr "インクリメントする引数の型が間違っています"
++msgstr "増分する引数の型が間違っています"
+ 
+ #: c-typeck.c:3615 c-typeck.c:3648
+ #, gcc-internal-format
+ msgid "wrong type argument to decrement"
+-msgstr "デクリメントする引数の型が間違っています"
++msgstr "減分する引数の型が間違っています"
+ 
+ #: c-typeck.c:3635
+ #, gcc-internal-format
+ msgid "increment of pointer to unknown structure"
+-msgstr "不明な構造体へのポインタのインクリメントです"
++msgstr "不明な構造体へのポインタの増分です"
+ 
+ #: c-typeck.c:3638
+ #, gcc-internal-format
+ msgid "decrement of pointer to unknown structure"
+-msgstr "不明な構造体へのポインタのデクリメントです"
++msgstr "不明な構造体へのポインタの減分です"
+ 
+ #: c-typeck.c:3722
+ #, gcc-internal-format
+@@ -14170,12 +14141,12 @@
+ #: c-typeck.c:3895 c-family/c-common.c:8658
+ #, gcc-internal-format
+ msgid "increment of read-only location %qE"
+-msgstr "読み取り専用位置 %qE のインクリメントです"
++msgstr "読み取り専用位置 %qE の増分です"
+ 
+ #: c-typeck.c:3898 c-family/c-common.c:8659
+ #, gcc-internal-format
+ msgid "decrement of read-only location %qE"
+-msgstr "読み取り専用位置 %qE のデクリメントです"
++msgstr "読み取り専用位置 %qE の減分です"
+ 
+ #: c-typeck.c:3939
+ #, gcc-internal-format
+@@ -19787,12 +19758,12 @@
+ #: c-family/c-common.c:8611
+ #, gcc-internal-format
+ msgid "increment of member %qD in read-only object"
+-msgstr "読み取り専用オブジェクト内のメンバ %qD のインクリメントです"
++msgstr "読み取り専用オブジェクト内のメンバ %qD の増分です"
+ 
+ #: c-family/c-common.c:8613
+ #, gcc-internal-format
+ msgid "decrement of member %qD in read-only object"
+-msgstr "読み取り専用オブジェクト内のメンバ %qD のデクリメントです"
++msgstr "読み取り専用オブジェクト内のメンバ %qD の減分です"
+ 
+ #: c-family/c-common.c:8615
+ #, gcc-internal-format
+@@ -19807,12 +19778,12 @@
+ #: c-family/c-common.c:8620
+ #, gcc-internal-format
+ msgid "increment of read-only member %qD"
+-msgstr "読み取り専用メンバ %qD のインクリメントです"
++msgstr "読み取り専用メンバ %qD の増分です"
+ 
+ #: c-family/c-common.c:8621
+ #, gcc-internal-format
+ msgid "decrement of read-only member %qD"
+-msgstr "読み取り専用メンバ %qD のデクリメントです"
++msgstr "読み取り専用メンバ %qD の減分です"
+ 
+ #: c-family/c-common.c:8622
+ #, gcc-internal-format
+@@ -19827,12 +19798,12 @@
+ #: c-family/c-common.c:8627
+ #, gcc-internal-format
+ msgid "increment of read-only variable %qD"
+-msgstr "読み取り専用変数 %qD のインクリメントです"
++msgstr "読み取り専用変数 %qD の増分です"
+ 
+ #: c-family/c-common.c:8628
+ #, gcc-internal-format
+ msgid "decrement of read-only variable %qD"
+-msgstr "読み取り専用変数 %qD のデクリメントです"
++msgstr "読み取り専用変数 %qD の減分です"
+ 
+ #: c-family/c-common.c:8629
+ #, gcc-internal-format
+@@ -19847,12 +19818,12 @@
+ #: c-family/c-common.c:8633
+ #, gcc-internal-format
+ msgid "increment of read-only parameter %qD"
+-msgstr "読み取り専用パラメータ %qD のインクリメントです"
++msgstr "読み取り専用パラメータ %qD の増分です"
+ 
+ #: c-family/c-common.c:8634
+ #, gcc-internal-format
+ msgid "decrement of read-only parameter %qD"
+-msgstr "読み取り専用パラメータ %qD のデクリメントです"
++msgstr "読み取り専用パラメータ %qD の減分です"
+ 
+ #: c-family/c-common.c:8635
+ #, gcc-internal-format
+@@ -19867,12 +19838,12 @@
+ #: c-family/c-common.c:8642
+ #, gcc-internal-format
+ msgid "increment of read-only named return value %qD"
+-msgstr "読み取り専用名前付き戻り値 %qD のインクリメントです"
++msgstr "読み取り専用名前付き戻り値 %qD の増分です"
+ 
+ #: c-family/c-common.c:8644
+ #, gcc-internal-format
+ msgid "decrement of read-only named return value %qD"
+-msgstr "読み取り専用名前付き戻り値 %qD のデクリメントです"
++msgstr "読み取り専用名前付き戻り値 %qD の減分です"
+ 
+ #: c-family/c-common.c:8646
+ #, gcc-internal-format
+@@ -19887,12 +19858,12 @@
+ #: c-family/c-common.c:8652
+ #, gcc-internal-format
+ msgid "increment of function %qD"
+-msgstr "関数 %qD のインクリメントです"
++msgstr "関数 %qD の増分です"
+ 
+ #: c-family/c-common.c:8653
+ #, gcc-internal-format
+ msgid "decrement of function %qD"
+-msgstr "関数 %qD のデクリメントです"
++msgstr "関数 %qD の減分です"
+ 
+ #: c-family/c-common.c:8654
+ #, gcc-internal-format
+@@ -19912,12 +19883,12 @@
+ #: c-family/c-common.c:8677
+ #, gcc-internal-format
+ msgid "lvalue required as increment operand"
+-msgstr "インクリメントの被演算子として左辺値が必要です"
++msgstr "増分の被演算子として左辺値が必要です"
+ 
+ #: c-family/c-common.c:8680
+ #, gcc-internal-format
+ msgid "lvalue required as decrement operand"
+-msgstr "デクリメントの被演算子として左辺値が必要です"
++msgstr "減分の被演算子として左辺値が必要です"
+ 
+ #: c-family/c-common.c:8683
+ #, gcc-internal-format
+@@ -20556,12 +20527,12 @@
+ #: c-family/c-omp.c:375 cp/semantics.c:4431
+ #, gcc-internal-format
+ msgid "missing increment expression"
+-msgstr "インクリメント式がありません"
++msgstr "増分式がありません"
+ 
+ #: c-family/c-omp.c:444 cp/semantics.c:4287
+ #, gcc-internal-format
+ msgid "invalid increment expression"
+-msgstr "無効なインクリメント式です"
++msgstr "無効な増分式です"
+ 
+ #: c-family/c-opts.c:303
+ #, gcc-internal-format
+@@ -20571,7 +20542,7 @@
+ #: c-family/c-opts.c:306
+ #, gcc-internal-format
+ msgid "obsolete option -I- used, please use -iquote instead"
+-msgstr "廃止あれたオプション -I- が使用されています。代わりに -iquote を使用してください"
++msgstr "廃止されたオプション -I- が使用されています。代わりに -iquote を使用してください"
+ 
+ #: c-family/c-opts.c:486
+ #, gcc-internal-format
+Index: gcc/tree-object-size.c
+===================================================================
+--- a/src/gcc/tree-object-size.c	(.../tags/gcc_4_6_2_release)
++++ b/src/gcc/tree-object-size.c	(.../branches/gcc-4_6-branch)
+@@ -175,7 +175,7 @@
+       unsigned HOST_WIDE_INT sz;
+ 
+       if (!osi || (object_size_type & 1) != 0
+-	  || TREE_CODE (pt_var) != SSA_NAME)
++	  || TREE_CODE (TREE_OPERAND (pt_var, 0)) != SSA_NAME)
+ 	{
+ 	  sz = compute_builtin_object_size (TREE_OPERAND (pt_var, 0),
+ 					    object_size_type & ~1);
+Index: gcc/c-parser.c
+===================================================================
+--- a/src/gcc/c-parser.c	(.../tags/gcc_4_6_2_release)
++++ b/src/gcc/c-parser.c	(.../branches/gcc-4_6-branch)
+@@ -6294,7 +6294,7 @@
+ 	      c_parser_error (parser, "expected identifier");
+ 	    c_parser_skip_until_found (parser, CPP_CLOSE_PAREN,
+ 				       "expected %<)%>");
+-	    expr.value = fold_offsetof (offsetof_ref, NULL_TREE);
++	    expr.value = fold_offsetof (offsetof_ref);
+ 	  }
+ 	  break;
+ 	case RID_CHOOSE_EXPR:
+Index: gcc/config/sparc/sparc.md
+===================================================================
+--- a/src/gcc/config/sparc/sparc.md	(.../tags/gcc_4_6_2_release)
++++ b/src/gcc/config/sparc/sparc.md	(.../branches/gcc-4_6-branch)
+@@ -1813,8 +1813,8 @@
+ })
+ 
+ (define_insn "*movsf_insn"
+-  [(set (match_operand:V32 0 "nonimmediate_operand" "=d,f,*r,*r,*r,f,*r,m,m")
+-	(match_operand:V32 1 "input_operand"        "GY,f,*rRY,Q,S,m,m,f,*rGY"))]
++  [(set (match_operand:V32 0 "nonimmediate_operand" "=d,f,  *r,*r,*r,f,*r,m,   m")
++	(match_operand:V32 1 "input_operand"        "GY,f,*rRY, Q, S,m, m,f,*rGY"))]
+   "TARGET_FPU
+    && (register_operand (operands[0], <V32:MODE>mode)
+        || register_or_zero_operand (operands[1], <V32:MODE>mode))"
+@@ -1861,8 +1861,8 @@
+ ;; when -mno-fpu.
+ 
+ (define_insn "*movsf_insn_no_fpu"
+-  [(set (match_operand:SF 0 "nonimmediate_operand" "=r,r,r,r,m")
+-	(match_operand:SF 1 "input_operand"    "rR,Q,S,m,rG"))]
++  [(set (match_operand:SF 0 "nonimmediate_operand" "=r,r,r,r, m")
++	(match_operand:SF 1 "input_operand"        "rR,Q,S,m,rG"))]
+   "! TARGET_FPU
+    && (register_operand (operands[0], SFmode)
+        || register_or_zero_operand (operands[1], SFmode))"
+@@ -1948,8 +1948,8 @@
+ 
+ ;; Be careful, fmovd does not exist when !v9.
+ (define_insn "*movdf_insn_sp32"
+-  [(set (match_operand:DF 0 "nonimmediate_operand" "=e,W,U,T,o,e,*r,o,e,o")
+-	(match_operand:DF 1 "input_operand"    "W#F,e,T,U,G,e,*rFo,*r,o#F,e"))]
++  [(set (match_operand:DF 0 "nonimmediate_operand" "= e,W,U,T,o,e,  *r, o,  e,o")
++	(match_operand:DF 1 "input_operand"        "W#F,e,T,U,G,e,*rFo,*r,o#F,e"))]
+   "TARGET_FPU
+    && ! TARGET_V9
+    && (register_operand (operands[0], DFmode)
+@@ -1969,8 +1969,8 @@
+   (set_attr "length" "*,*,*,*,2,2,2,2,2,2")])
+ 
+ (define_insn "*movdf_insn_sp32_no_fpu"
+-  [(set (match_operand:DF 0 "nonimmediate_operand" "=U,T,o,r,o")
+-	(match_operand:DF 1 "input_operand"    "T,U,G,ro,r"))]
++  [(set (match_operand:DF 0 "nonimmediate_operand" "=U,T,o, r,o")
++	(match_operand:DF 1 "input_operand"        " T,U,G,ro,r"))]
+   "! TARGET_FPU
+    && ! TARGET_V9
+    && (register_operand (operands[0], DFmode)
+@@ -1986,8 +1986,8 @@
+ 
+ ;; We have available v9 double floats but not 64-bit integer registers.
+ (define_insn "*movdf_insn_sp32_v9"
+-  [(set (match_operand:V64 0 "nonimmediate_operand" "=b,e,e,T,W,U,T,f,*r,o")
+-        (match_operand:V64 1 "input_operand" "GY,e,W#F,GY,e,T,U,o#F,*roGYDF,*rGYf"))]
++  [(set (match_operand:V64 0 "nonimmediate_operand" "=b,e,  e, T,W,U,T,  f,   *r,    o")
++	(match_operand:V64 1 "input_operand"        "GY,e,W#F,GY,e,T,U,o#F,*roFD,*rGYf"))]
+   "TARGET_FPU
+    && TARGET_V9
+    && ! TARGET_ARCH64
+@@ -2009,8 +2009,8 @@
+    (set_attr "fptype" "double,double,*,*,*,*,*,*,*,*")])
+ 
+ (define_insn "*movdf_insn_sp32_v9_no_fpu"
+-  [(set (match_operand:DF 0 "nonimmediate_operand" "=U,T,T,r,o")
+-	(match_operand:DF 1 "input_operand"    "T,U,G,ro,rG"))]
++  [(set (match_operand:DF 0 "nonimmediate_operand" "=U,T,T, r, o")
++	(match_operand:DF 1 "input_operand"        " T,U,G,ro,rG"))]
+   "! TARGET_FPU
+    && TARGET_V9
+    && ! TARGET_ARCH64
+@@ -2027,8 +2027,8 @@
+ 
+ ;; We have available both v9 double floats and 64-bit integer registers.
+ (define_insn "*movdf_insn_sp64"
+-  [(set (match_operand:V64 0 "nonimmediate_operand" "=b,e,e,W,*r,*r,m,*r")
+-        (match_operand:V64 1 "input_operand"    "GY,e,W#F,e,*rGY,m,*rGY,DF"))]
++  [(set (match_operand:V64 0 "nonimmediate_operand" "=b,e,  e,W,  *r,*r,   m,*r")
++	(match_operand:V64 1 "input_operand"        "GY,e,W#F,e,*rGY, m,*rGY,FD"))]
+   "TARGET_FPU
+    && TARGET_ARCH64
+    && (register_operand (operands[0], <V64:MODE>mode)
+@@ -2047,8 +2047,8 @@
+    (set_attr "fptype" "double,double,*,*,*,*,*,*")])
+ 
+ (define_insn "*movdf_insn_sp64_no_fpu"
+-  [(set (match_operand:DF 0 "nonimmediate_operand" "=r,r,m")
+-        (match_operand:DF 1 "input_operand"    "r,m,rG"))]
++  [(set (match_operand:DF 0 "nonimmediate_operand" "=r,r, m")
++	(match_operand:DF 1 "input_operand"         "r,m,rG"))]
+   "! TARGET_FPU
+    && TARGET_ARCH64
+    && (register_operand (operands[0], DFmode)
+@@ -2288,8 +2288,8 @@
+ })
+ 
+ (define_insn "*movtf_insn_sp32"
+-  [(set (match_operand:TF 0 "nonimmediate_operand" "=b,e,o,U,r")
+-	(match_operand:TF 1 "input_operand"    "G,oe,GeUr,o,roG"))]
++  [(set (match_operand:TF 0 "nonimmediate_operand" "=b, e,   o,U,  r")
++	(match_operand:TF 1 "input_operand"        " G,oe,GeUr,o,roG"))]
+   "TARGET_FPU
+    && ! TARGET_ARCH64
+    && (register_operand (operands[0], TFmode)
+@@ -2302,8 +2302,8 @@
+ ;; when -mno-fpu.
+ 
+ (define_insn "*movtf_insn_sp32_no_fpu"
+-  [(set (match_operand:TF 0 "nonimmediate_operand" "=o,U,o,r,o")
+-	(match_operand:TF 1 "input_operand"    "G,o,U,roG,r"))]
++  [(set (match_operand:TF 0 "nonimmediate_operand" "=o,U,o,  r,o")
++	(match_operand:TF 1 "input_operand"        " G,o,U,roG,r"))]
+   "! TARGET_FPU
+    && ! TARGET_ARCH64
+    && (register_operand (operands[0], TFmode)
+@@ -2312,8 +2312,8 @@
+   [(set_attr "length" "4")])
+ 
+ (define_insn "*movtf_insn_sp64"
+-  [(set (match_operand:TF 0 "nonimmediate_operand" "=b,e,o,r")
+-        (match_operand:TF 1 "input_operand"    "G,oe,Ger,roG"))]
++  [(set (match_operand:TF 0 "nonimmediate_operand" "=b, e,  o,  r")
++	(match_operand:TF 1 "input_operand"         "G,oe,Ger,roG"))]
+   "TARGET_FPU
+    && TARGET_ARCH64
+    && ! TARGET_HARD_QUAD
+@@ -2323,8 +2323,8 @@
+   [(set_attr "length" "2")])
+ 
+ (define_insn "*movtf_insn_sp64_hq"
+-  [(set (match_operand:TF 0 "nonimmediate_operand" "=b,e,e,m,o,r")
+-        (match_operand:TF 1 "input_operand"    "G,e,m,e,rG,roG"))]
++  [(set (match_operand:TF 0 "nonimmediate_operand" "=b,e,e,m, o,  r")
++	(match_operand:TF 1 "input_operand"         "G,e,m,e,rG,roG"))]
+   "TARGET_FPU
+    && TARGET_ARCH64
+    && TARGET_HARD_QUAD
+@@ -2341,8 +2341,8 @@
+    (set_attr "length" "2,*,*,*,2,2")])
+ 
+ (define_insn "*movtf_insn_sp64_no_fpu"
+-  [(set (match_operand:TF 0 "nonimmediate_operand" "=r,o")
+-        (match_operand:TF 1 "input_operand"    "orG,rG"))]
++  [(set (match_operand:TF 0 "nonimmediate_operand" "=  r, o")
++	(match_operand:TF 1 "input_operand"         "orG,rG"))]
+   "! TARGET_FPU
+    && TARGET_ARCH64
+    && (register_operand (operands[0], TFmode)
+Index: gcc/config/sparc/sparc.h
+===================================================================
+--- a/src/gcc/config/sparc/sparc.h	(.../tags/gcc_4_6_2_release)
++++ b/src/gcc/config/sparc/sparc.h	(.../branches/gcc-4_6-branch)
+@@ -408,6 +408,7 @@
+ %{mcpu=sparclite:-Asparclite} \
+ %{mcpu=sparclite86x:-Asparclite} \
+ %{mcpu=f930:-Asparclite} %{mcpu=f934:-Asparclite} \
++%{mcpu=v8:-Av8} \
+ %{mv8plus:-Av8plus} \
+ %{mcpu=v9:-Av9} \
+ %{mcpu=ultrasparc:%{!mv8plus:-Av9a}} \
+Index: gcc/config/i386/i386.md
+===================================================================
+--- a/src/gcc/config/i386/i386.md	(.../tags/gcc_4_6_2_release)
++++ b/src/gcc/config/i386/i386.md	(.../branches/gcc-4_6-branch)
+@@ -5103,7 +5103,7 @@
+    && reload_completed
+    && (SSE_REG_P (operands[0])
+        || (GET_CODE (operands[0]) == SUBREG
+-	   && SSE_REG_P (operands[0])))"
++	   && SSE_REG_P (SUBREG_REG (operands[0]))))"
+   [(set (match_dup 0) (float:MODEF (match_dup 1)))])
+ 
+ (define_split
+@@ -5116,7 +5116,7 @@
+    && reload_completed
+    && (SSE_REG_P (operands[0])
+        || (GET_CODE (operands[0]) == SUBREG
+-	   && SSE_REG_P (operands[0])))"
++	   && SSE_REG_P (SUBREG_REG (operands[0]))))"
+   [(set (match_dup 2) (match_dup 1))
+    (set (match_dup 0) (float:MODEF (match_dup 2)))])
+ 
+@@ -5207,7 +5207,7 @@
+    && reload_completed
+    && (SSE_REG_P (operands[0])
+        || (GET_CODE (operands[0]) == SUBREG
+-	   && SSE_REG_P (operands[0])))"
++	   && SSE_REG_P (SUBREG_REG (operands[0]))))"
+   [(const_int 0)]
+ {
+   rtx op1 = operands[1];
+@@ -5248,7 +5248,7 @@
+    && reload_completed
+    && (SSE_REG_P (operands[0])
+        || (GET_CODE (operands[0]) == SUBREG
+-	   && SSE_REG_P (operands[0])))"
++	   && SSE_REG_P (SUBREG_REG (operands[0]))))"
+   [(const_int 0)]
+ {
+   operands[3] = simplify_gen_subreg (<ssevecmode>mode, operands[0],
+@@ -5270,7 +5270,7 @@
+    && reload_completed
+    && (SSE_REG_P (operands[0])
+        || (GET_CODE (operands[0]) == SUBREG
+-	   && SSE_REG_P (operands[0])))"
++	   && SSE_REG_P (SUBREG_REG (operands[0]))))"
+   [(const_int 0)]
+ {
+   rtx op1 = operands[1];
+@@ -5314,7 +5314,7 @@
+    && reload_completed
+    && (SSE_REG_P (operands[0])
+        || (GET_CODE (operands[0]) == SUBREG
+-	   && SSE_REG_P (operands[0])))"
++	   && SSE_REG_P (SUBREG_REG (operands[0]))))"
+   [(const_int 0)]
+ {
+   operands[3] = simplify_gen_subreg (<ssevecmode>mode, operands[0],
+@@ -5375,7 +5375,7 @@
+    && reload_completed
+    && (SSE_REG_P (operands[0])
+        || (GET_CODE (operands[0]) == SUBREG
+-	   && SSE_REG_P (operands[0])))"
++	   && SSE_REG_P (SUBREG_REG (operands[0]))))"
+   [(set (match_dup 0) (float:MODEF (match_dup 1)))])
+ 
+ (define_insn "*float<SSEMODEI24:mode><MODEF:mode>2_sse_nointerunit"
+@@ -5410,7 +5410,7 @@
+    && reload_completed
+    && (SSE_REG_P (operands[0])
+        || (GET_CODE (operands[0]) == SUBREG
+-	   && SSE_REG_P (operands[0])))"
++	   && SSE_REG_P (SUBREG_REG (operands[0]))))"
+   [(set (match_dup 2) (match_dup 1))
+    (set (match_dup 0) (float:MODEF (match_dup 2)))])
+ 
+@@ -5423,7 +5423,7 @@
+    && reload_completed
+    && (SSE_REG_P (operands[0])
+        || (GET_CODE (operands[0]) == SUBREG
+-	   && SSE_REG_P (operands[0])))"
++	   && SSE_REG_P (SUBREG_REG (operands[0]))))"
+   [(set (match_dup 0) (float:MODEF (match_dup 1)))])
+ 
+ (define_insn "*float<SSEMODEI24:mode><X87MODEF:mode>2_i387_with_temp"
+@@ -14625,7 +14625,7 @@
+ 	emit_insn (gen_sse4_1_round<mode>2
+ 		   (operands[0], operands[1], GEN_INT (0x04)));
+       else
+-	ix86_expand_rint (operand0, operand1);
++	ix86_expand_rint (operands[0], operands[1]);
+     }
+   else
+     {
+@@ -14649,9 +14649,9 @@
+   if (optimize_insn_for_size_p ())
+     FAIL;
+   if (TARGET_64BIT || (<MODE>mode != DFmode))
+-    ix86_expand_round (operand0, operand1);
++    ix86_expand_round (operands[0], operands[1]);
+   else
+-    ix86_expand_rounddf_32 (operand0, operand1);
++    ix86_expand_rounddf_32 (operands[0], operands[1]);
+   DONE;
+ })
+ 
+@@ -14796,7 +14796,7 @@
+ {
+   if (optimize_insn_for_size_p ())
+     FAIL;
+-  ix86_expand_lround (operand0, operand1);
++  ix86_expand_lround (operands[0], operands[1]);
+   DONE;
+ })
+ 
+@@ -14871,9 +14871,9 @@
+ 	emit_insn (gen_sse4_1_round<mode>2
+ 		   (operands[0], operands[1], GEN_INT (0x01)));
+       else if (TARGET_64BIT || (<MODE>mode != DFmode))
+-	ix86_expand_floorceil (operand0, operand1, true);
++	ix86_expand_floorceil (operands[0], operands[1], true);
+       else
+-	ix86_expand_floorceildf_32 (operand0, operand1, true);
++	ix86_expand_floorceildf_32 (operands[0], operands[1], true);
+     }
+   else
+     {
+@@ -15053,7 +15053,7 @@
+ {
+   if (TARGET_64BIT && optimize_insn_for_size_p ())
+     FAIL;
+-  ix86_expand_lfloorceil (operand0, operand1, true);
++  ix86_expand_lfloorceil (operands[0], operands[1], true);
+   DONE;
+ })
+ 
+@@ -15128,9 +15128,9 @@
+       else if (optimize_insn_for_size_p ())
+ 	FAIL;
+       else if (TARGET_64BIT || (<MODE>mode != DFmode))
+-	ix86_expand_floorceil (operand0, operand1, false);
++	ix86_expand_floorceil (operands[0], operands[1], false);
+       else
+-	ix86_expand_floorceildf_32 (operand0, operand1, false);
++	ix86_expand_floorceildf_32 (operands[0], operands[1], false);
+     }
+   else
+     {
+@@ -15308,7 +15308,7 @@
+   "SSE_FLOAT_MODE_P (<MODEF:MODE>mode) && TARGET_SSE_MATH
+    && !flag_trapping_math"
+ {
+-  ix86_expand_lfloorceil (operand0, operand1, false);
++  ix86_expand_lfloorceil (operands[0], operands[1], false);
+   DONE;
+ })
+ 
+@@ -15383,9 +15383,9 @@
+       else if (optimize_insn_for_size_p ())
+ 	FAIL;
+       else if (TARGET_64BIT || (<MODE>mode != DFmode))
+-	ix86_expand_trunc (operand0, operand1);
++	ix86_expand_trunc (operands[0], operands[1]);
+       else
+-	ix86_expand_truncdf_32 (operand0, operand1);
++	ix86_expand_truncdf_32 (operands[0], operands[1]);
+     }
+   else
+     {
+@@ -18285,8 +18285,8 @@
+ 		     (match_operand:SI 3 "const_int_operand" "i")]
+ 		    UNSPECV_LWPVAL_INTRINSIC)]
+   "TARGET_LWP"
+-  "/* Avoid unused variable warning.  */
+-   (void) operand0;")
++  ;; Avoid unused variable warning.
++  "(void) operands[0];")
+ 
+ (define_insn "*lwp_lwpval<mode>3_1"
+   [(unspec_volatile [(match_operand:SWI48 0 "register_operand" "r")
+Index: gcc/config/i386/sse.md
+===================================================================
+--- a/src/gcc/config/i386/sse.md	(.../tags/gcc_4_6_2_release)
++++ b/src/gcc/config/i386/sse.md	(.../branches/gcc-4_6-branch)
+@@ -4521,15 +4521,14 @@
+   [(set (match_operand:V4DF 0 "register_operand"         "=x,x")
+ 	(vec_select:V4DF
+ 	  (vec_concat:V8DF
+-	    (match_operand:V4DF 1 "nonimmediate_operand" "xm,x")
+-	    (match_operand:V4DF 2 "nonimmediate_operand" " 1,xm"))
++	    (match_operand:V4DF 1 "nonimmediate_operand" " x,m")
++	    (match_operand:V4DF 2 "nonimmediate_operand" "xm,1"))
+ 	  (parallel [(const_int 0) (const_int 4)
+ 		     (const_int 2) (const_int 6)])))]
+-  "TARGET_AVX
+-   && (!MEM_P (operands[1]) || rtx_equal_p (operands[1], operands[2]))"
++  "TARGET_AVX"
+   "@
+-   vmovddup\t{%1, %0|%0, %1}
+-   vunpcklpd\t{%2, %1, %0|%0, %1, %2}"
++   vunpcklpd\t{%2, %1, %0|%0, %1, %2}
++   vmovddup\t{%1, %0|%0, %1}"
+   [(set_attr "type" "sselog")
+    (set_attr "prefix" "vex")
+    (set_attr "mode" "V4DF")])
+Index: gcc/config/rs6000/rs6000.c
+===================================================================
+--- a/src/gcc/config/rs6000/rs6000.c	(.../tags/gcc_4_6_2_release)
++++ b/src/gcc/config/rs6000/rs6000.c	(.../branches/gcc-4_6-branch)
+@@ -6824,6 +6824,7 @@
+ #if TARGET_MACHO
+       && DEFAULT_ABI == ABI_DARWIN
+       && (flag_pic || MACHO_DYNAMIC_NO_PIC_P)
++      && machopic_symbol_defined_p (x)
+ #else
+       && DEFAULT_ABI == ABI_V4
+       && !flag_pic
+@@ -20227,7 +20228,7 @@
+ {
+   /* This blockage is needed so that sched doesn't decide to move
+      the sp change before the register restores.  */
+-  if (frame_reg_rtx != sp_reg_rtx
++  if (DEFAULT_ABI == ABI_V4
+       || (TARGET_SPE_ABI
+ 	  && info->spe_64bit_regs_used != 0
+ 	  && info->first_gp_reg_save != 32))
+Index: gcc/config/darwin.c
+===================================================================
+--- a/src/gcc/config/darwin.c	(.../tags/gcc_4_6_2_release)
++++ b/src/gcc/config/darwin.c	(.../branches/gcc-4_6-branch)
+@@ -1753,19 +1753,51 @@
+   return (!strncmp ((const char *)p, "_OBJC_", 6));
+ }
+ 
+-/* LTO support for Mach-O.  */
++/* LTO support for Mach-O.
+ 
+-/* Section names for LTO sections.  */
+-static unsigned int lto_section_names_offset = 0;
++   This version uses three mach-o sections to encapsulate the (unlimited
++   number of) lto sections.
+ 
+-/* This is the obstack which we use to allocate the many strings.  */
+-static struct obstack lto_section_names_obstack;
++   __GNU_LTO, __lto_sections  contains the concatented GNU LTO section data.
++   __GNU_LTO, __section_names contains the GNU LTO section names.
++   __GNU_LTO, __section_index contains an array of values that index these.
+ 
+-/* Segment name for LTO sections.  */
++   Indexed thus:
++     <section offset from the start of __GNU_LTO, __lto_sections>,
++     <section length>
++     <name offset from the start of __GNU_LTO, __section_names,
++     <name length>.
++
++   At present, for both m32 and m64 mach-o files each of these fields is
++   represented  by a uint32_t.  This is because, AFAICT, a mach-o object
++   cannot exceed 4Gb because the section_64 offset field (see below) is 32bits.
++
++    uint32_t offset;
++   "offset  An integer specifying the offset to this section in the file."  */
++
++/* Count lto section numbers.  */
++static unsigned int lto_section_num = 0;
++
++/* A vector of information about LTO sections, at present, we only have
++   the name.  TODO: see if we can get the data length somehow.  */
++typedef struct GTY (()) darwin_lto_section_e {
++  const char *sectname;
++} darwin_lto_section_e ;
++DEF_VEC_O(darwin_lto_section_e);
++DEF_VEC_ALLOC_O(darwin_lto_section_e, gc);
++
++static GTY (()) VEC (darwin_lto_section_e, gc) * lto_section_names;
++
++/* Segment for LTO data.  */
+ #define LTO_SEGMENT_NAME "__GNU_LTO"
+ 
+-/* Section name for LTO section names section.  */
+-#define LTO_NAMES_SECTION "__section_names"
++/* Section wrapper scheme (used here to wrap the unlimited number of LTO
++   sections into three Mach-O ones).
++   NOTE: These names MUST be kept in sync with those in
++	 libiberty/simple-object-mach-o.  */
++#define LTO_SECTS_SECTION "__wrapper_sects"
++#define LTO_NAMES_SECTION "__wrapper_names"
++#define LTO_INDEX_SECTION "__wrapper_index"
+ 
+ /* File to temporarily store LTO data.  This is appended to asm_out_file
+    in darwin_end_file.  */
+@@ -1808,37 +1840,38 @@
+ 			  unsigned int flags,
+ 			  tree decl ATTRIBUTE_UNUSED)
+ {
+-  /* LTO sections go in a special segment __GNU_LTO.  We want to replace the
+-     section name with something we can use to represent arbitrary-length
+-     names (section names in Mach-O are at most 16 characters long).  */
++  /* LTO sections go in a special section that encapsulates the (unlimited)
++     number of GNU LTO sections within a single mach-o one.  */
+   if (strncmp (name, LTO_SECTION_NAME_PREFIX,
+ 	       strlen (LTO_SECTION_NAME_PREFIX)) == 0)
+     {
++      darwin_lto_section_e e;
+       /* We expect certain flags to be set...  */
+       gcc_assert ((flags & (SECTION_DEBUG | SECTION_NAMED))
+ 		  == (SECTION_DEBUG | SECTION_NAMED));
+ 
+-      /* Add the section name to the things to output when we end the
+-	 current assembler output file.
+-	 This is all not very efficient, but that doesn't matter -- this
+-	 shouldn't be a hot path in the compiler...  */
+-      obstack_1grow (&lto_section_names_obstack, '\t');
+-      obstack_grow (&lto_section_names_obstack, ".ascii ", 7);
+-      obstack_1grow (&lto_section_names_obstack, '"');
+-      obstack_grow (&lto_section_names_obstack, name, strlen (name));
+-      obstack_grow (&lto_section_names_obstack, "\\0\"\n", 4);
+-
+-      /* Output the dummy section name.  */
+-      fprintf (asm_out_file, "\t# %s\n", name);
+-      fprintf (asm_out_file, "\t.section %s,__%08X,regular,debug\n",
+-	       LTO_SEGMENT_NAME, lto_section_names_offset);
+-
+-      /* Update the offset for the next section name.  Make sure we stay
+-	 within reasonable length.  */  
+-      lto_section_names_offset += strlen (name) + 1;
+-      gcc_assert (lto_section_names_offset > 0
+-		  && lto_section_names_offset < ((unsigned) 1 << 31));
+-    }
++      /* Switch to our combined section.  */
++      fprintf (asm_out_file, "\t.section %s,%s,regular,debug\n",
++	       LTO_SEGMENT_NAME, LTO_SECTS_SECTION);
++      /* Output a label for the start of this sub-section.  */
++      fprintf (asm_out_file, "L_GNU_LTO%d:\t;# %s\n",
++	       lto_section_num, name);
++      /* We have to jump through hoops to get the values of the intra-section
++         offsets... */
++      fprintf (asm_out_file, "\t.set L$gnu$lto$offs%d,L_GNU_LTO%d-L_GNU_LTO0\n",
++	       lto_section_num, lto_section_num);
++      fprintf (asm_out_file,
++	       "\t.set L$gnu$lto$size%d,L_GNU_LTO%d-L_GNU_LTO%d\n",
++	       lto_section_num, lto_section_num+1, lto_section_num);
++      lto_section_num++;
++      e.sectname = xstrdup (name);
++      /* Keep the names, we'll need to make a table later.
++         TODO: check that we do not revisit sections, that would break
++         the assumption of how this is done.  */
++      if (lto_section_names == NULL)
++        lto_section_names = VEC_alloc (darwin_lto_section_e, gc, 16);
++      VEC_safe_push (darwin_lto_section_e, gc, lto_section_names, &e);
++   }
+   else if (strncmp (name, "__DWARF,", 8) == 0)
+     darwin_asm_dwarf_section (name, flags, decl);
+   else
+@@ -2711,16 +2744,12 @@
+   darwin_asm_output_dwarf_delta (file, size, lab, sname);
+ }
+ 
+-/* Called from the within the TARGET_ASM_FILE_START for each target. 
+-  Initialize the stuff we need for LTO long section names support.  */
++/* Called from the within the TARGET_ASM_FILE_START for each target.  */
+ 
+ void
+ darwin_file_start (void)
+ {
+-  /* We fill this obstack with the complete section text for the lto section
+-     names to write in darwin_file_end.  */
+-  obstack_init (&lto_section_names_obstack);
+-  lto_section_names_offset = 0;
++  /* Nothing to do.  */
+ }
+ 
+ /* Called for the TARGET_ASM_FILE_END hook.
+@@ -2731,8 +2760,6 @@
+ void
+ darwin_file_end (void)
+ {
+-  const char *lto_section_names;
+-
+   machopic_finish (asm_out_file);
+   if (strcmp (lang_hooks.name, "GNU C++") == 0)
+     {
+@@ -2762,6 +2789,13 @@
+ 	  lto_asm_txt = buf = (char *) xmalloc (n + 1);
+ 	  while (fgets (lto_asm_txt, n, lto_asm_out_file))
+ 	    fputs (lto_asm_txt, asm_out_file);
++	  /* Put a termination label.  */
++	  fprintf (asm_out_file, "\t.section %s,%s,regular,debug\n",
++		   LTO_SEGMENT_NAME, LTO_SECTS_SECTION);
++	  fprintf (asm_out_file, "L_GNU_LTO%d:\t;# end of lto\n",
++		   lto_section_num);
++	  /* Make sure our termination label stays in this section.  */
++	  fputs ("\t.space\t1\n", asm_out_file);
+ 	}
+ 
+       /* Remove the temporary file.  */
+@@ -2770,21 +2804,50 @@
+       free (lto_asm_out_name);
+     }
+ 
+-  /* Finish the LTO section names obstack.  Don't output anything if
+-     there are no recorded section names.  */
+-  obstack_1grow (&lto_section_names_obstack, '\0');
+-  lto_section_names = XOBFINISH (&lto_section_names_obstack, const char *);
+-  if (strlen (lto_section_names) > 0)
++  /* Output the names and indices.  */
++  if (lto_section_names && VEC_length (darwin_lto_section_e, lto_section_names))
+     {
+-      fprintf (asm_out_file,
+-	       "\t.section %s,%s,regular,debug\n",
++      int count;
++      darwin_lto_section_e *ref;
++      /* For now, we'll make the offsets 4 bytes and unaligned - we'll fix
++         the latter up ourselves.  */
++      const char *op = integer_asm_op (4,0);
++
++      /* Emit the names.  */
++      fprintf (asm_out_file, "\t.section %s,%s,regular,debug\n",
+ 	       LTO_SEGMENT_NAME, LTO_NAMES_SECTION);
+-      fprintf (asm_out_file,
+-	       "\t# Section names in %s are offsets into this table\n",
+-	       LTO_SEGMENT_NAME);
+-      fprintf (asm_out_file, "%s\n", lto_section_names);
++      FOR_EACH_VEC_ELT (darwin_lto_section_e, lto_section_names, count, ref)
++	{
++	  fprintf (asm_out_file, "L_GNU_LTO_NAME%d:\n", count);
++         /* We have to jump through hoops to get the values of the intra-section
++            offsets... */
++	  fprintf (asm_out_file,
++		   "\t.set L$gnu$lto$noff%d,L_GNU_LTO_NAME%d-L_GNU_LTO_NAME0\n",
++		   count, count);
++	  fprintf (asm_out_file,
++		   "\t.set L$gnu$lto$nsiz%d,L_GNU_LTO_NAME%d-L_GNU_LTO_NAME%d\n",
++		   count, count+1, count);
++	  fprintf (asm_out_file, "\t.asciz\t\"%s\"\n", ref->sectname);
++	}
++      fprintf (asm_out_file, "L_GNU_LTO_NAME%d:\t;# end\n", lto_section_num);
++      /* make sure our termination label stays in this section.  */
++      fputs ("\t.space\t1\n", asm_out_file);
++
++      /* Emit the Index.  */
++      fprintf (asm_out_file, "\t.section %s,%s,regular,debug\n",
++	       LTO_SEGMENT_NAME, LTO_INDEX_SECTION);
++      fputs ("\t.align\t2\n", asm_out_file);
++      fputs ("# Section offset, Section length, Name offset, Name length\n",
++	     asm_out_file);
++      FOR_EACH_VEC_ELT (darwin_lto_section_e, lto_section_names, count, ref)
++	{
++	  fprintf (asm_out_file, "%s L$gnu$lto$offs%d\t;# %s\n",
++		   op, count, ref->sectname);
++	  fprintf (asm_out_file, "%s L$gnu$lto$size%d\n", op, count);
++	  fprintf (asm_out_file, "%s L$gnu$lto$noff%d\n", op, count);
++	  fprintf (asm_out_file, "%s L$gnu$lto$nsiz%d\n", op, count);
++	}
+     }
+-  obstack_free (&lto_section_names_obstack, NULL);
+ 
+   /* If we have section anchors, then we must prevent the linker from
+      re-arranging data.  */
+Index: gcc/config/arm/arm.c
+===================================================================
+--- a/src/gcc/config/arm/arm.c	(.../tags/gcc_4_6_2_release)
++++ b/src/gcc/config/arm/arm.c	(.../branches/gcc-4_6-branch)
+@@ -9812,6 +9812,9 @@
+   rtx base_reg_rtx = NULL;
+   int i, stm_case;
+ 
++  /* Write back of base register is currently only supported for Thumb 1.  */
++  int base_writeback = TARGET_THUMB1;
++
+   /* Can only handle up to MAX_LDM_STM_OPS insns at present, though could be
+      easily extended if required.  */
+   gcc_assert (nops >= 2 && nops <= MAX_LDM_STM_OPS);
+@@ -9869,7 +9872,9 @@
+ 	  /* If it isn't an integer register, then we can't do this.  */
+ 	  if (unsorted_regs[i] < 0
+ 	      || (TARGET_THUMB1 && unsorted_regs[i] > LAST_LO_REGNUM)
+-	      || (TARGET_THUMB2 && unsorted_regs[i] == base_reg)
++	      /* The effects are unpredictable if the base register is
++		 both updated and stored.  */
++	      || (base_writeback && unsorted_regs[i] == base_reg)
+ 	      || (TARGET_THUMB2 && unsorted_regs[i] == SP_REGNUM)
+ 	      || unsorted_regs[i] > 14)
+ 	    return 0;
+@@ -19571,39 +19576,34 @@
+   emit_move_insn (mem, tmp2);
+ }
+ 
+-/* Set up operands for a register copy from src to dest, taking care not to
+-   clobber registers in the process.
+-   FIXME: This has rather high polynomial complexity (O(n^3)?) but shouldn't
+-   be called with a large N, so that should be OK.  */
++/* Set up OPERANDS for a register copy from SRC to DEST, taking care
++   not to early-clobber SRC registers in the process.
+ 
++   We assume that the operands described by SRC and DEST represent a
++   decomposed copy of OPERANDS[1] into OPERANDS[0].  COUNT is the
++   number of components into which the copy has been decomposed.  */
+ void
+ neon_disambiguate_copy (rtx *operands, rtx *dest, rtx *src, unsigned int count)
+ {
+-  unsigned int copied = 0, opctr = 0;
+-  unsigned int done = (1 << count) - 1;
+-  unsigned int i, j;
++  unsigned int i;
+ 
+-  while (copied != done)
++  if (!reg_overlap_mentioned_p (operands[0], operands[1])
++      || REGNO (operands[0]) < REGNO (operands[1]))
+     {
+       for (i = 0; i < count; i++)
+-        {
+-          int good = 1;
+-
+-          for (j = 0; good && j < count; j++)
+-            if (i != j && (copied & (1 << j)) == 0
+-                && reg_overlap_mentioned_p (src[j], dest[i]))
+-              good = 0;
+-
+-          if (good)
+-            {
+-              operands[opctr++] = dest[i];
+-              operands[opctr++] = src[i];
+-              copied |= 1 << i;
+-            }
+-        }
++	{
++	  operands[2 * i] = dest[i];
++	  operands[2 * i + 1] = src[i];
++	}
+     }
+-
+-  gcc_assert (opctr == count * 2);
++  else
++    {
++      for (i = 0; i < count; i++)
++	{
++	  operands[2 * i] = dest[count - i - 1];
++	  operands[2 * i + 1] = src[count - i - 1];
++	}
++    }
+ }
+ 
+ /* Expand an expression EXP that calls a built-in function,
+Index: gcc/config/pa/pa.c
+===================================================================
+--- a/src/gcc/config/pa/pa.c	(.../tags/gcc_4_6_2_release)
++++ b/src/gcc/config/pa/pa.c	(.../branches/gcc-4_6-branch)
+@@ -1863,6 +1863,11 @@
+   /* Handle the most common case: storing into a register.  */
+   else if (register_operand (operand0, mode))
+     {
++      /* Legitimize TLS symbol references.  This happens for references
++	 that aren't a legitimate constant.  */
++      if (PA_SYMBOL_REF_TLS_P (operand1))
++	operand1 = legitimize_tls_address (operand1);
++
+       if (register_operand (operand1, mode)
+ 	  || (GET_CODE (operand1) == CONST_INT
+ 	      && cint_ok_for_move (INTVAL (operand1)))
+Index: gcc/config/pa/pa.h
+===================================================================
+--- a/src/gcc/config/pa/pa.h	(.../tags/gcc_4_6_2_release)
++++ b/src/gcc/config/pa/pa.h	(.../branches/gcc-4_6-branch)
+@@ -848,6 +848,9 @@
+    && (NEW_HP_ASSEMBLER						\
+        || TARGET_GAS						\
+        || GET_CODE (X) != LABEL_REF)				\
++   && (!PA_SYMBOL_REF_TLS_P (X)					\
++       || (SYMBOL_REF_TLS_MODEL (X) != TLS_MODEL_GLOBAL_DYNAMIC		\
++	   && SYMBOL_REF_TLS_MODEL (X) != TLS_MODEL_LOCAL_DYNAMIC))	\
+    && (!TARGET_64BIT						\
+        || GET_CODE (X) != CONST_DOUBLE)				\
+    && (!TARGET_64BIT						\
+Index: gcc/reload1.c
+===================================================================
+--- a/src/gcc/reload1.c	(.../tags/gcc_4_6_2_release)
++++ b/src/gcc/reload1.c	(.../branches/gcc-4_6-branch)
+@@ -3899,6 +3899,10 @@
+     if (XEXP (x, 0))
+       set_label_offsets (XEXP (x, 0), NULL_RTX, 1);
+ 
++  for (x = nonlocal_goto_handler_labels; x; x = XEXP (x, 1))
++    if (XEXP (x, 0))
++      set_label_offsets (XEXP (x, 0), NULL_RTX, 1);
++
+   for_each_eh_label (set_initial_eh_label_offset);
+ }
+ 
+Index: zlib/configure
+===================================================================
+--- a/src/zlib/configure	(.../tags/gcc_4_6_2_release)
++++ b/src/zlib/configure	(.../branches/gcc-4_6-branch)
+@@ -8600,7 +8600,7 @@
+       ;;
+ 
+     # Unfortunately, older versions of FreeBSD 2 do not have this feature.
+-    freebsd2*)
++    freebsd2.*)
+       archive_cmds='$LD -Bshareable -o $lib $libobjs $deplibs $linker_flags'
+       hardcode_direct=yes
+       hardcode_minus_L=yes
+@@ -9516,7 +9516,7 @@
+     objformat=`/usr/bin/objformat`
+   else
+     case $host_os in
+-    freebsd[123]*) objformat=aout ;;
++    freebsd[23].*) objformat=aout ;;
+     *) objformat=elf ;;
+     esac
+   fi
+@@ -9534,7 +9534,7 @@
+   esac
+   shlibpath_var=LD_LIBRARY_PATH
+   case $host_os in
+-  freebsd2*)
++  freebsd2.*)
+     shlibpath_overrides_runpath=yes
+     ;;
+   freebsd3.[01]* | freebsdelf3.[01]*)
+Index: zlib/ChangeLog
+===================================================================
+--- a/src/zlib/ChangeLog	(.../tags/gcc_4_6_2_release)
++++ b/src/zlib/ChangeLog	(.../branches/gcc-4_6-branch)
+@@ -1,3 +1,7 @@
++2011-11-20  Andreas Tobler  <andreast@fgznet.ch>
++
++	* configure: Regenerate.
++
+ 2011-10-26  Release Manager
+ 
+ 	* GCC 4.6.2 released.
+Index: libstdc++-v3/configure
+===================================================================
+--- a/src/libstdc++-v3/configure	(.../tags/gcc_4_6_2_release)
++++ b/src/libstdc++-v3/configure	(.../branches/gcc-4_6-branch)
+@@ -9698,7 +9698,7 @@
+       ;;
+ 
+     # Unfortunately, older versions of FreeBSD 2 do not have this feature.
+-    freebsd2*)
++    freebsd2.*)
+       archive_cmds='$LD -Bshareable -o $lib $libobjs $deplibs $linker_flags'
+       hardcode_direct=yes
+       hardcode_minus_L=yes
+@@ -10614,7 +10614,7 @@
+     objformat=`/usr/bin/objformat`
+   else
+     case $host_os in
+-    freebsd[123]*) objformat=aout ;;
++    freebsd[23].*) objformat=aout ;;
+     *) objformat=elf ;;
+     esac
+   fi
+@@ -10632,7 +10632,7 @@
+   esac
+   shlibpath_var=LD_LIBRARY_PATH
+   case $host_os in
+-  freebsd2*)
++  freebsd2.*)
+     shlibpath_overrides_runpath=yes
+     ;;
+   freebsd3.[01]* | freebsdelf3.[01]*)
+@@ -12522,7 +12522,7 @@
+         esac
+         ;;
+ 
+-      freebsd[12]*)
++      freebsd2.*)
+         # C++ shared libraries reported to be fairly broken before
+ 	# switch to ELF
+         ld_shlibs_CXX=no
+@@ -14297,7 +14297,7 @@
+     objformat=`/usr/bin/objformat`
+   else
+     case $host_os in
+-    freebsd[123]*) objformat=aout ;;
++    freebsd[23].*) objformat=aout ;;
+     *) objformat=elf ;;
+     esac
+   fi
+@@ -14315,7 +14315,7 @@
+   esac
+   shlibpath_var=LD_LIBRARY_PATH
+   case $host_os in
+-  freebsd2*)
++  freebsd2.*)
+     shlibpath_overrides_runpath=yes
+     ;;
+   freebsd3.[01]* | freebsdelf3.[01]*)
+Index: libstdc++-v3/include/debug/unordered_map
+===================================================================
+--- a/src/libstdc++-v3/include/debug/unordered_map	(.../tags/gcc_4_6_2_release)
++++ b/src/libstdc++-v3/include/debug/unordered_map	(.../branches/gcc-4_6-branch)
+@@ -276,6 +276,10 @@
+       }
+ 
+       iterator
++      erase(iterator __it)
++      { return erase(const_iterator(__it)); }
++
++      iterator
+       erase(const_iterator __first, const_iterator __last)
+       {
+ 	__glibcxx_check_erase_range(__first, __last);
+@@ -558,6 +562,10 @@
+       }
+ 
+       iterator
++      erase(iterator __it)
++      { return erase(const_iterator(__it)); }
++
++      iterator
+       erase(const_iterator __first, const_iterator __last)
+       {
+ 	__glibcxx_check_erase_range(__first, __last);
+Index: libstdc++-v3/include/debug/unordered_set
+===================================================================
+--- a/src/libstdc++-v3/include/debug/unordered_set	(.../tags/gcc_4_6_2_release)
++++ b/src/libstdc++-v3/include/debug/unordered_set	(.../branches/gcc-4_6-branch)
+@@ -269,6 +269,10 @@
+       }
+ 
+       iterator
++      erase(iterator __it)
++      { return erase(const_iterator(__it)); }
++
++      iterator
+       erase(const_iterator __first, const_iterator __last)
+       {
+ 	__glibcxx_check_erase_range(__first, __last);
+@@ -539,6 +543,10 @@
+       }
+ 
+       iterator
++      erase(iterator __it)
++      { return erase(const_iterator(__it)); }
++
++      iterator
+       erase(const_iterator __first, const_iterator __last)
+       {
+ 	__glibcxx_check_erase_range(__first, __last);
+Index: libstdc++-v3/include/debug/map.h
+===================================================================
+--- a/src/libstdc++-v3/include/debug/map.h	(.../tags/gcc_4_6_2_release)
++++ b/src/libstdc++-v3/include/debug/map.h	(.../branches/gcc-4_6-branch)
+@@ -273,6 +273,10 @@
+ 	this->_M_invalidate_if(_Equal(__position.base()));
+ 	return iterator(_Base::erase(__position.base()), this);
+       }
++
++      iterator
++      erase(iterator __position)
++      { return erase(const_iterator(__position)); }
+ #else
+       void
+       erase(iterator __position)
+Index: libstdc++-v3/include/debug/multimap.h
+===================================================================
+--- a/src/libstdc++-v3/include/debug/multimap.h	(.../tags/gcc_4_6_2_release)
++++ b/src/libstdc++-v3/include/debug/multimap.h	(.../branches/gcc-4_6-branch)
+@@ -254,6 +254,10 @@
+ 	this->_M_invalidate_if(_Equal(__position.base()));
+ 	return iterator(_Base::erase(__position.base()), this);
+       }
++
++      iterator
++      erase(iterator __position)
++      { return erase(const_iterator(__position)); }
+ #else
+       void
+       erase(iterator __position)
+Index: libstdc++-v3/include/std/complex
+===================================================================
+--- a/src/libstdc++-v3/include/std/complex	(.../tags/gcc_4_6_2_release)
++++ b/src/libstdc++-v3/include/std/complex	(.../branches/gcc-4_6-branch)
+@@ -1,7 +1,7 @@
+ // The template and inlines for the -*- C++ -*- complex number classes.
+ 
+ // Copyright (C) 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005,
+-// 2006, 2007, 2008, 2009, 2010
++// 2006, 2007, 2008, 2009, 2010, 2011
+ // Free Software Foundation, Inc.
+ //
+ // This file is part of the GNU ISO C++ Library.  This library is free
+@@ -1695,12 +1695,9 @@
+     std::complex<_Tp>
+     __complex_acosh(const std::complex<_Tp>& __z)
+     {
+-      std::complex<_Tp> __t((__z.real() - __z.imag())
+-			    * (__z.real() + __z.imag()) - _Tp(1.0),
+-			    _Tp(2.0) * __z.real() * __z.imag());
+-      __t = std::sqrt(__t);
+-
+-      return std::log(__t + __z);
++      // Kahan's formula.
++      return _Tp(2.0) * std::log(std::sqrt(_Tp(0.5) * (__z + _Tp(1.0)))
++				 + std::sqrt(_Tp(0.5) * (__z - _Tp(1.0))));
+     }
+ 
+ #if _GLIBCXX_USE_C99_COMPLEX_TR1
+Index: libstdc++-v3/include/profile/map.h
+===================================================================
+--- a/src/libstdc++-v3/include/profile/map.h	(.../tags/gcc_4_6_2_release)
++++ b/src/libstdc++-v3/include/profile/map.h	(.../branches/gcc-4_6-branch)
+@@ -326,6 +326,10 @@
+         __profcxx_map_to_unordered_map_erase(this, size(), 1);
+         return __i;
+       }
++
++      iterator
++      erase(iterator __position)
++      { return erase(const_iterator(__position)); }
+ #else
+       void
+       erase(iterator __position)
+Index: libstdc++-v3/include/profile/multimap.h
+===================================================================
+--- a/src/libstdc++-v3/include/profile/multimap.h	(.../tags/gcc_4_6_2_release)
++++ b/src/libstdc++-v3/include/profile/multimap.h	(.../branches/gcc-4_6-branch)
+@@ -225,6 +225,10 @@
+       iterator
+       erase(const_iterator __position)
+       { return iterator(_Base::erase(__position)); }
++
++      iterator
++      erase(iterator __position)
++      { return iterator(_Base::erase(__position)); }
+ #else
+       void
+       erase(iterator __position)
+Index: libstdc++-v3/include/bits/hashtable.h
+===================================================================
+--- a/src/libstdc++-v3/include/bits/hashtable.h	(.../tags/gcc_4_6_2_release)
++++ b/src/libstdc++-v3/include/bits/hashtable.h	(.../branches/gcc-4_6-branch)
+@@ -440,6 +440,11 @@
+       iterator
+       erase(const_iterator);
+ 
++      // LWG 2059.
++      iterator
++      erase(iterator __it)
++      { return erase(const_iterator(__it)); }
++
+       size_type
+       erase(const key_type&);
+ 
+Index: libstdc++-v3/include/bits/stl_map.h
+===================================================================
+--- a/src/libstdc++-v3/include/bits/stl_map.h	(.../tags/gcc_4_6_2_release)
++++ b/src/libstdc++-v3/include/bits/stl_map.h	(.../branches/gcc-4_6-branch)
+@@ -612,6 +612,11 @@
+       iterator
+       erase(const_iterator __position)
+       { return _M_t.erase(__position); }
++
++      // LWG 2059.
++      iterator
++      erase(iterator __position)
++      { return _M_t.erase(__position); }
+ #else
+       /**
+        *  @brief Erases an element from a %map.
+Index: libstdc++-v3/include/bits/stl_multimap.h
+===================================================================
+--- a/src/libstdc++-v3/include/bits/stl_multimap.h	(.../tags/gcc_4_6_2_release)
++++ b/src/libstdc++-v3/include/bits/stl_multimap.h	(.../branches/gcc-4_6-branch)
+@@ -533,6 +533,11 @@
+       iterator
+       erase(const_iterator __position)
+       { return _M_t.erase(__position); }
++
++      // LWG 2059.
++      iterator
++      erase(iterator __position)
++      { return _M_t.erase(__position); }
+ #else
+       /**
+        *  @brief Erases an element from a %multimap.
+Index: libstdc++-v3/include/bits/stl_tree.h
+===================================================================
+--- a/src/libstdc++-v3/include/bits/stl_tree.h	(.../tags/gcc_4_6_2_release)
++++ b/src/libstdc++-v3/include/bits/stl_tree.h	(.../branches/gcc-4_6-branch)
+@@ -760,6 +760,16 @@
+ 	_M_erase_aux(__position);
+ 	return __result._M_const_cast();
+       }
++
++      // LWG 2059.
++      iterator
++      erase(iterator __position)
++      {
++	iterator __result = __position;
++	++__result;
++	_M_erase_aux(__position);
++	return __result;
++      }
+ #else
+       void
+       erase(iterator __position)
+Index: libstdc++-v3/include/tr1/complex
+===================================================================
+--- a/src/libstdc++-v3/include/tr1/complex	(.../tags/gcc_4_6_2_release)
++++ b/src/libstdc++-v3/include/tr1/complex	(.../branches/gcc-4_6-branch)
+@@ -185,12 +185,9 @@
+     std::complex<_Tp>
+     __complex_acosh(const std::complex<_Tp>& __z)
+     {
+-      std::complex<_Tp> __t((__z.real() - __z.imag())
+-			    * (__z.real() + __z.imag()) - _Tp(1.0),
+-			    _Tp(2.0) * __z.real() * __z.imag());
+-      __t = std::sqrt(__t);
+-
+-      return std::log(__t + __z);
++      // Kahan's formula.
++      return _Tp(2.0) * std::log(std::sqrt(_Tp(0.5) * (__z + _Tp(1.0)))
++				 + std::sqrt(_Tp(0.5) * (__z - _Tp(1.0))));
+     }
+ 
+ #if _GLIBCXX_USE_C99_COMPLEX_TR1
+Index: libstdc++-v3/include/tr1/poly_hermite.tcc
+===================================================================
+--- a/src/libstdc++-v3/include/tr1/poly_hermite.tcc	(.../tags/gcc_4_6_2_release)
++++ b/src/libstdc++-v3/include/tr1/poly_hermite.tcc	(.../branches/gcc-4_6-branch)
+@@ -1,6 +1,6 @@
+ // Special functions -*- C++ -*-
+ 
+-// Copyright (C) 2006, 2007, 2008, 2009, 2010
++// Copyright (C) 2006, 2007, 2008, 2009, 2010, 2011
+ // Free Software Foundation, Inc.
+ //
+ // This file is part of the GNU ISO C++ Library.  This library is free
+@@ -84,7 +84,7 @@
+       unsigned int __i;
+       for  (__H_nm2 = __H_0, __H_nm1 = __H_1, __i = 2; __i <= __n; ++__i)
+         {
+-          __H_n = 2 * (__x * __H_nm1 + (__i - 1) * __H_nm2);
++          __H_n = 2 * (__x * __H_nm1 - (__i - 1) * __H_nm2);
+           __H_nm2 = __H_nm1;
+           __H_nm1 = __H_n;
+         }
+Index: libstdc++-v3/ChangeLog
+===================================================================
+--- a/src/libstdc++-v3/ChangeLog	(.../tags/gcc_4_6_2_release)
++++ b/src/libstdc++-v3/ChangeLog	(.../branches/gcc-4_6-branch)
+@@ -1,3 +1,55 @@
++2011-11-20  Andreas Tobler  <andreast@fgznet.ch>
++
++	* configure: Regenerate.
++
++2011-11-16  Paolo Carlini  <paolo.carlini@oracle.com>
++
++	PR libstdc++/51142
++	* include/debug/unordered_map (unordered_map<>::erase(iterator),
++	unordered_multimap<>::erase(iterator)): Add, consistently with
++	LWG 2059.
++	* include/debug/unordered_set (unordered_set<>::erase(iterator),
++	unordered_multiset<>::erase(iterator)): Likewise.
++	* include/debug/map.h (map<>::erase(iterator)): Likewise.
++	* include/debug/multimap.h (multimap<>::erase(iterator)): Likewise.
++	* include/profile/map.h (map<>::erase(iterator)): Likewise.
++	* include/profile/multimap.h (multimap<>::erase(iterator)): Likewise.
++	* include/bits/hashtable.h (_Hashtable<>::erase(iterator)): Likewise.
++	* include/bits/stl_map.h (map<>::erase(iterator)): Likewise.
++	* include/bits/stl_multimap.h (multimap<>::erase(iterator)): Likewise.
++	* include/bits/stl_tree.h (_Rb_tree<>::erase(iterator)): Likewise.
++	* testsuite/23_containers/unordered_map/erase/51142.cc: New.
++	* testsuite/23_containers/multimap/modifiers/erase/51142.cc: Likewise.
++	* testsuite/23_containers/set/modifiers/erase/51142.cc: Likewise.
++	* testsuite/23_containers/unordered_multimap/erase/51142.cc: Likewise.
++	* testsuite/23_containers/unordered_set/erase/51142.cc: Likewise.
++	* testsuite/23_containers/multiset/modifiers/erase/51142.cc: Likewise.
++	* testsuite/23_containers/unordered_multiset/erase/51142.cc: Likewise.
++	* testsuite/23_containers/map/modifiers/erase/51142.cc: Likewise.
++
++2011-11-15  Jason Dick  <dickphd@gmail.com>
++
++	PR libstdc++/51133
++	* include/tr1/poly_hermite.tcc (__poly_hermite_recursion): Fix
++	wrong sign in recursion relation.
++
++2011-11-02  Richard B. Kreckel  <kreckel@ginac.de>
++	    Paolo Carlini  <paolo.carlini@oracle.com>
++
++	PR libstdc++/50880
++	* include/std/complex (__complex_acosh): Fix in a better way,
++	use Kahan's formula.
++	* include/tr1/complex (__complex_acosh): Likewise.
++
++2011-11-02  Richard B. Kreckel  <kreckel@ginac.de>
++	    Paolo Carlini  <paolo.carlini@oracle.com>
++
++	PR libstdc++/50880
++	* include/std/complex (__complex_acosh): Fix for __z.real() < 0.
++	* include/tr1/complex (__complex_acosh): Likewise.
++	* testsuite/26_numerics/complex/50880.cc: New.
++	* testsuite/tr1/8_c_compatibility/complex/50880.cc: Likewise.
++
+ 2011-10-26  Release Manager
+ 
+ 	* GCC 4.6.2 released.
+Index: libstdc++-v3/testsuite/26_numerics/complex/50880.cc
+===================================================================
+--- a/src/libstdc++-v3/testsuite/26_numerics/complex/50880.cc	(.../tags/gcc_4_6_2_release)
++++ b/src/libstdc++-v3/testsuite/26_numerics/complex/50880.cc	(.../branches/gcc-4_6-branch)
+@@ -0,0 +1,53 @@
++// { dg-options "-std=gnu++0x" }
++//
++// Copyright (C) 2011 Free Software Foundation, Inc.
++//
++// This file is part of the GNU ISO C++ Library.  This library is free
++// software; you can redistribute it and/or modify it under the
++// terms of the GNU General Public License as published by the
++// Free Software Foundation; either version 3, or (at your option)
++// any later version.
++//
++// This library is distributed in the hope that it will be useful,
++// but WITHOUT ANY WARRANTY; without even the implied warranty of
++// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++// GNU General Public License for more details.
++//
++// You should have received a copy of the GNU General Public License along
++// with this library; see the file COPYING3.  If not see
++// <http://www.gnu.org/licenses/>.
++
++#include <complex>
++#include <testsuite_hooks.h> 
++
++template<typename T>
++  void test01_do()
++  {
++    bool test __attribute__((unused)) = true;
++
++    const std::complex<T> ca(T(-2), T(2));
++    const std::complex<T> cb(T(-2), T(0));
++    const std::complex<T> cc(T(-2), T(-2));
++
++    std::complex<T> cra = std::acosh(ca);
++    std::complex<T> crb = std::acosh(cb);
++    std::complex<T> crc = std::acosh(cc);
++
++    VERIFY( cra.real() > T(0) );
++    VERIFY( crb.real() > T(0) );
++    VERIFY( crc.real() > T(0) );
++  }
++
++// libstdc++/50880
++void test01()
++{
++  test01_do<float>();
++  test01_do<double>();
++  test01_do<long double>();
++}
++
++int main()
++{
++  test01();
++  return 0;
++}
+Index: libstdc++-v3/testsuite/tr1/8_c_compatibility/complex/50880.cc
+===================================================================
+--- a/src/libstdc++-v3/testsuite/tr1/8_c_compatibility/complex/50880.cc	(.../tags/gcc_4_6_2_release)
++++ b/src/libstdc++-v3/testsuite/tr1/8_c_compatibility/complex/50880.cc	(.../branches/gcc-4_6-branch)
+@@ -0,0 +1,51 @@
++// Copyright (C) 2011 Free Software Foundation, Inc.
++//
++// This file is part of the GNU ISO C++ Library.  This library is free
++// software; you can redistribute it and/or modify it under the
++// terms of the GNU General Public License as published by the
++// Free Software Foundation; either version 3, or (at your option)
++// any later version.
++//
++// This library is distributed in the hope that it will be useful,
++// but WITHOUT ANY WARRANTY; without even the implied warranty of
++// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++// GNU General Public License for more details.
++//
++// You should have received a copy of the GNU General Public License along
++// with this library; see the file COPYING3.  If not see
++// <http://www.gnu.org/licenses/>.
++
++#include <tr1/complex>
++#include <testsuite_hooks.h> 
++
++template<typename T>
++  void test01_do()
++  {
++    bool test __attribute__((unused)) = true;
++
++    const std::complex<T> ca(T(-2), T(2));
++    const std::complex<T> cb(T(-2), T(0));
++    const std::complex<T> cc(T(-2), T(-2));
++
++    std::complex<T> cra = std::tr1::acosh(ca);
++    std::complex<T> crb = std::tr1::acosh(cb);
++    std::complex<T> crc = std::tr1::acosh(cc);
++
++    VERIFY( cra.real() > T(0) );
++    VERIFY( crb.real() > T(0) );
++    VERIFY( crc.real() > T(0) );
++  }
++
++// libstdc++/50880
++void test01()
++{
++  test01_do<float>();
++  test01_do<double>();
++  test01_do<long double>();
++}
++
++int main()
++{
++  test01();
++  return 0;
++}
+Index: libstdc++-v3/testsuite/23_containers/unordered_map/erase/51142.cc
+===================================================================
+--- a/src/libstdc++-v3/testsuite/23_containers/unordered_map/erase/51142.cc	(.../tags/gcc_4_6_2_release)
++++ b/src/libstdc++-v3/testsuite/23_containers/unordered_map/erase/51142.cc	(.../branches/gcc-4_6-branch)
+@@ -0,0 +1,38 @@
++// Copyright (C) 2011 Free Software Foundation, Inc.
++//
++// This file is part of the GNU ISO C++ Library.  This library is free
++// software; you can redistribute it and/or modify it under the
++// terms of the GNU General Public License as published by the
++// Free Software Foundation; either version 3, or (at your option)
++// any later version.
++//
++// This library is distributed in the hope that it will be useful,
++// but WITHOUT ANY WARRANTY; without even the implied warranty of
++// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++// GNU General Public License for more details.
++//
++// You should have received a copy of the GNU General Public License along
++// with this library; see the file COPYING3.  If not see
++// <http://www.gnu.org/licenses/>.
++//
++
++// { dg-do compile }
++// { dg-options "-std=gnu++0x" }
++
++#include <unordered_map>
++
++struct X
++{
++  template<typename T>
++  X(T&) {}
++};
++
++bool operator==(const X&, const X&) { return false; }
++
++// LWG 2059.
++void erasor(std::unordered_map<X, int>& s, X x)
++{
++  std::unordered_map<X, int>::iterator it = s.find(x);
++  if (it != s.end())
++    s.erase(it);
++}
+Index: libstdc++-v3/testsuite/23_containers/multimap/modifiers/erase/51142.cc
+===================================================================
+--- a/src/libstdc++-v3/testsuite/23_containers/multimap/modifiers/erase/51142.cc	(.../tags/gcc_4_6_2_release)
++++ b/src/libstdc++-v3/testsuite/23_containers/multimap/modifiers/erase/51142.cc	(.../branches/gcc-4_6-branch)
+@@ -0,0 +1,38 @@
++// Copyright (C) 2011 Free Software Foundation, Inc.
++//
++// This file is part of the GNU ISO C++ Library.  This library is free
++// software; you can redistribute it and/or modify it under the
++// terms of the GNU General Public License as published by the
++// Free Software Foundation; either version 3, or (at your option)
++// any later version.
++//
++// This library is distributed in the hope that it will be useful,
++// but WITHOUT ANY WARRANTY; without even the implied warranty of
++// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++// GNU General Public License for more details.
++//
++// You should have received a copy of the GNU General Public License along
++// with this library; see the file COPYING3.  If not see
++// <http://www.gnu.org/licenses/>.
++//
++
++// { dg-do compile }
++// { dg-options "-std=gnu++0x" }
++
++#include <map>
++
++struct X
++{
++  template<typename T>
++  X(T&) {}
++};
++
++bool operator<(const X&, const X&) { return false; }
++
++// LWG 2059.
++void erasor(std::multimap<X, int>& s, X x)
++{
++  std::multimap<X, int>::iterator it = s.find(x);
++  if (it != s.end())
++    s.erase(it);
++}
+Index: libstdc++-v3/testsuite/23_containers/set/modifiers/erase/51142.cc
+===================================================================
+--- a/src/libstdc++-v3/testsuite/23_containers/set/modifiers/erase/51142.cc	(.../tags/gcc_4_6_2_release)
++++ b/src/libstdc++-v3/testsuite/23_containers/set/modifiers/erase/51142.cc	(.../branches/gcc-4_6-branch)
+@@ -0,0 +1,38 @@
++// Copyright (C) 2011 Free Software Foundation, Inc.
++//
++// This file is part of the GNU ISO C++ Library.  This library is free
++// software; you can redistribute it and/or modify it under the
++// terms of the GNU General Public License as published by the
++// Free Software Foundation; either version 3, or (at your option)
++// any later version.
++//
++// This library is distributed in the hope that it will be useful,
++// but WITHOUT ANY WARRANTY; without even the implied warranty of
++// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++// GNU General Public License for more details.
++//
++// You should have received a copy of the GNU General Public License along
++// with this library; see the file COPYING3.  If not see
++// <http://www.gnu.org/licenses/>.
++//
++
++// { dg-do compile }
++// { dg-options "-std=gnu++0x" }
++
++#include <set>
++
++struct X
++{
++  template<typename T>
++  X(T&) {}
++};
++
++bool operator<(const X&, const X&) { return false; }
++
++// LWG 2059.
++void erasor(std::set<X>& s, X x)
++{
++  std::set<X>::iterator it = s.find(x);
++  if (it != s.end())
++    s.erase(it);
++}
+Index: libstdc++-v3/testsuite/23_containers/unordered_multimap/erase/51142.cc
+===================================================================
+--- a/src/libstdc++-v3/testsuite/23_containers/unordered_multimap/erase/51142.cc	(.../tags/gcc_4_6_2_release)
++++ b/src/libstdc++-v3/testsuite/23_containers/unordered_multimap/erase/51142.cc	(.../branches/gcc-4_6-branch)
+@@ -0,0 +1,38 @@
++// Copyright (C) 2011 Free Software Foundation, Inc.
++//
++// This file is part of the GNU ISO C++ Library.  This library is free
++// software; you can redistribute it and/or modify it under the
++// terms of the GNU General Public License as published by the
++// Free Software Foundation; either version 3, or (at your option)
++// any later version.
++//
++// This library is distributed in the hope that it will be useful,
++// but WITHOUT ANY WARRANTY; without even the implied warranty of
++// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++// GNU General Public License for more details.
++//
++// You should have received a copy of the GNU General Public License along
++// with this library; see the file COPYING3.  If not see
++// <http://www.gnu.org/licenses/>.
++//
++
++// { dg-do compile }
++// { dg-options "-std=gnu++0x" }
++
++#include <unordered_map>
++
++struct X
++{
++  template<typename T>
++  X(T&) {}
++};
++
++bool operator==(const X&, const X&) { return false; }
++
++// LWG 2059.
++void erasor(std::unordered_multimap<X, int>& s, X x)
++{
++  std::unordered_multimap<X, int>::iterator it = s.find(x);
++  if (it != s.end())
++    s.erase(it);
++}
+Index: libstdc++-v3/testsuite/23_containers/unordered_set/erase/51142.cc
+===================================================================
+--- a/src/libstdc++-v3/testsuite/23_containers/unordered_set/erase/51142.cc	(.../tags/gcc_4_6_2_release)
++++ b/src/libstdc++-v3/testsuite/23_containers/unordered_set/erase/51142.cc	(.../branches/gcc-4_6-branch)
+@@ -0,0 +1,38 @@
++// Copyright (C) 2011 Free Software Foundation, Inc.
++//
++// This file is part of the GNU ISO C++ Library.  This library is free
++// software; you can redistribute it and/or modify it under the
++// terms of the GNU General Public License as published by the
++// Free Software Foundation; either version 3, or (at your option)
++// any later version.
++//
++// This library is distributed in the hope that it will be useful,
++// but WITHOUT ANY WARRANTY; without even the implied warranty of
++// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++// GNU General Public License for more details.
++//
++// You should have received a copy of the GNU General Public License along
++// with this library; see the file COPYING3.  If not see
++// <http://www.gnu.org/licenses/>.
++//
++
++// { dg-do compile }
++// { dg-options "-std=gnu++0x" }
++
++#include <unordered_set>
++
++struct X
++{
++  template<typename T>
++  X(T&) {}
++};
++
++bool operator==(const X&, const X&) { return false; }
++
++// LWG 2059.
++void erasor(std::unordered_set<X>& s, X x)
++{
++  std::unordered_set<X>::iterator it = s.find(x);
++  if (it != s.end())
++    s.erase(it);
++}
+Index: libstdc++-v3/testsuite/23_containers/multiset/modifiers/erase/51142.cc
+===================================================================
+--- a/src/libstdc++-v3/testsuite/23_containers/multiset/modifiers/erase/51142.cc	(.../tags/gcc_4_6_2_release)
++++ b/src/libstdc++-v3/testsuite/23_containers/multiset/modifiers/erase/51142.cc	(.../branches/gcc-4_6-branch)
+@@ -0,0 +1,38 @@
++// Copyright (C) 2011 Free Software Foundation, Inc.
++//
++// This file is part of the GNU ISO C++ Library.  This library is free
++// software; you can redistribute it and/or modify it under the
++// terms of the GNU General Public License as published by the
++// Free Software Foundation; either version 3, or (at your option)
++// any later version.
++//
++// This library is distributed in the hope that it will be useful,
++// but WITHOUT ANY WARRANTY; without even the implied warranty of
++// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++// GNU General Public License for more details.
++//
++// You should have received a copy of the GNU General Public License along
++// with this library; see the file COPYING3.  If not see
++// <http://www.gnu.org/licenses/>.
++//
++
++// { dg-do compile }
++// { dg-options "-std=gnu++0x" }
++
++#include <set>
++
++struct X
++{
++  template<typename T>
++  X(T&) {}
++};
++
++bool operator<(const X&, const X&) { return false; }
++
++// LWG 2059.
++void erasor(std::multiset<X>& s, X x)
++{
++  std::multiset<X>::iterator it = s.find(x);
++  if (it != s.end())
++    s.erase(it);
++}
+Index: libstdc++-v3/testsuite/23_containers/unordered_multiset/erase/51142.cc
+===================================================================
+--- a/src/libstdc++-v3/testsuite/23_containers/unordered_multiset/erase/51142.cc	(.../tags/gcc_4_6_2_release)
++++ b/src/libstdc++-v3/testsuite/23_containers/unordered_multiset/erase/51142.cc	(.../branches/gcc-4_6-branch)
+@@ -0,0 +1,38 @@
++// Copyright (C) 2011 Free Software Foundation, Inc.
++//
++// This file is part of the GNU ISO C++ Library.  This library is free
++// software; you can redistribute it and/or modify it under the
++// terms of the GNU General Public License as published by the
++// Free Software Foundation; either version 3, or (at your option)
++// any later version.
++//
++// This library is distributed in the hope that it will be useful,
++// but WITHOUT ANY WARRANTY; without even the implied warranty of
++// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++// GNU General Public License for more details.
++//
++// You should have received a copy of the GNU General Public License along
++// with this library; see the file COPYING3.  If not see
++// <http://www.gnu.org/licenses/>.
++//
++
++// { dg-do compile }
++// { dg-options "-std=gnu++0x" }
++
++#include <unordered_set>
++
++struct X
++{
++  template<typename T>
++  X(T&) {}
++};
++
++bool operator==(const X&, const X&) { return false; }
++
++// LWG 2059.
++void erasor(std::unordered_multiset<X>& s, X x)
++{
++  std::unordered_multiset<X>::iterator it = s.find(x);
++  if (it != s.end())
++    s.erase(it);
++}
+Index: libstdc++-v3/testsuite/23_containers/map/modifiers/erase/51142.cc
+===================================================================
+--- a/src/libstdc++-v3/testsuite/23_containers/map/modifiers/erase/51142.cc	(.../tags/gcc_4_6_2_release)
++++ b/src/libstdc++-v3/testsuite/23_containers/map/modifiers/erase/51142.cc	(.../branches/gcc-4_6-branch)
+@@ -0,0 +1,38 @@
++// Copyright (C) 2011 Free Software Foundation, Inc.
++//
++// This file is part of the GNU ISO C++ Library.  This library is free
++// software; you can redistribute it and/or modify it under the
++// terms of the GNU General Public License as published by the
++// Free Software Foundation; either version 3, or (at your option)
++// any later version.
++//
++// This library is distributed in the hope that it will be useful,
++// but WITHOUT ANY WARRANTY; without even the implied warranty of
++// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++// GNU General Public License for more details.
++//
++// You should have received a copy of the GNU General Public License along
++// with this library; see the file COPYING3.  If not see
++// <http://www.gnu.org/licenses/>.
++//
++
++// { dg-do compile }
++// { dg-options "-std=gnu++0x" }
++
++#include <map>
++
++struct X
++{
++  template<typename T>
++  X(T&) {}
++};
++
++bool operator<(const X&, const X&) { return false; }
++
++// LWG 2059.
++void erasor(std::map<X, int>& s, X x)
++{
++  std::map<X, int>::iterator it = s.find(x);
++  if (it != s.end())
++    s.erase(it);
++}
+Index: configure.ac
+===================================================================
+--- a/src/configure.ac	(.../tags/gcc_4_6_2_release)
++++ b/src/configure.ac	(.../branches/gcc-4_6-branch)
+@@ -2428,10 +2428,6 @@
+     extra_arflags_for_target=" -X32_64"
+     extra_nmflags_for_target=" -B -X32_64"
+     ;;
+-  *-*-darwin[[3-9]]*)
+-    # ranlib before Darwin10 requires the -c flag to look at common symbols.
+-    extra_ranlibflags_for_target=" -c"
+-    ;;
+   mips*-*-pe | sh*-*-pe | *arm-wince-pe)
+     target_makefile_frag="config/mt-wince"
+     ;;
+Index: libobjc/configure
+===================================================================
+--- a/src/libobjc/configure	(.../tags/gcc_4_6_2_release)
++++ b/src/libobjc/configure	(.../branches/gcc-4_6-branch)
+@@ -8797,7 +8797,7 @@
+       ;;
+ 
+     # Unfortunately, older versions of FreeBSD 2 do not have this feature.
+-    freebsd2*)
++    freebsd2.*)
+       archive_cmds='$LD -Bshareable -o $lib $libobjs $deplibs $linker_flags'
+       hardcode_direct=yes
+       hardcode_minus_L=yes
+@@ -9713,7 +9713,7 @@
+     objformat=`/usr/bin/objformat`
+   else
+     case $host_os in
+-    freebsd[123]*) objformat=aout ;;
++    freebsd[23].*) objformat=aout ;;
+     *) objformat=elf ;;
+     esac
+   fi
+@@ -9731,7 +9731,7 @@
+   esac
+   shlibpath_var=LD_LIBRARY_PATH
+   case $host_os in
+-  freebsd2*)
++  freebsd2.*)
+     shlibpath_overrides_runpath=yes
+     ;;
+   freebsd3.[01]* | freebsdelf3.[01]*)
+Index: libobjc/ChangeLog
+===================================================================
+--- a/src/libobjc/ChangeLog	(.../tags/gcc_4_6_2_release)
++++ b/src/libobjc/ChangeLog	(.../branches/gcc-4_6-branch)
+@@ -1,3 +1,7 @@
++2011-11-20  Andreas Tobler  <andreast@fgznet.ch>
++
++	* configure: Regenerate.
++
+ 2011-10-26  Release Manager
+ 
+ 	* GCC 4.6.2 released.
+Index: libgfortran/configure
+===================================================================
+--- a/src/libgfortran/configure	(.../tags/gcc_4_6_2_release)
++++ b/src/libgfortran/configure	(.../branches/gcc-4_6-branch)
+@@ -10326,7 +10326,7 @@
+       ;;
+ 
+     # Unfortunately, older versions of FreeBSD 2 do not have this feature.
+-    freebsd2*)
++    freebsd2.*)
+       archive_cmds='$LD -Bshareable -o $lib $libobjs $deplibs $linker_flags'
+       hardcode_direct=yes
+       hardcode_minus_L=yes
+@@ -11242,7 +11242,7 @@
+     objformat=`/usr/bin/objformat`
+   else
+     case $host_os in
+-    freebsd[123]*) objformat=aout ;;
++    freebsd[23].*) objformat=aout ;;
+     *) objformat=elf ;;
+     esac
+   fi
+@@ -11260,7 +11260,7 @@
+   esac
+   shlibpath_var=LD_LIBRARY_PATH
+   case $host_os in
+-  freebsd2*)
++  freebsd2.*)
+     shlibpath_overrides_runpath=yes
+     ;;
+   freebsd3.[01]* | freebsdelf3.[01]*)
+@@ -14162,7 +14162,7 @@
+       ;;
+ 
+     # Unfortunately, older versions of FreeBSD 2 do not have this feature.
+-    freebsd2*)
++    freebsd2.*)
+       archive_cmds_FC='$LD -Bshareable -o $lib $libobjs $deplibs $linker_flags'
+       hardcode_direct_FC=yes
+       hardcode_minus_L_FC=yes
+@@ -14870,7 +14870,7 @@
+     objformat=`/usr/bin/objformat`
+   else
+     case $host_os in
+-    freebsd[123]*) objformat=aout ;;
++    freebsd[23].*) objformat=aout ;;
+     *) objformat=elf ;;
+     esac
+   fi
+@@ -14888,7 +14888,7 @@
+   esac
+   shlibpath_var=LD_LIBRARY_PATH
+   case $host_os in
+-  freebsd2*)
++  freebsd2.*)
+     shlibpath_overrides_runpath=yes
+     ;;
+   freebsd3.[01]* | freebsdelf3.[01]*)
+Index: libgfortran/ChangeLog
+===================================================================
+--- a/src/libgfortran/ChangeLog	(.../tags/gcc_4_6_2_release)
++++ b/src/libgfortran/ChangeLog	(.../branches/gcc-4_6-branch)
+@@ -1,3 +1,7 @@
++2011-11-20  Andreas Tobler  <andreast@fgznet.ch>
++
++	* configure: Regenerate.
++
+ 2011-10-26  Release Manager
+ 
+ 	* GCC 4.6.2 released.
+Index: libada/Makefile.in
+===================================================================
+--- a/src/libada/Makefile.in	(.../tags/gcc_4_6_2_release)
++++ b/src/libada/Makefile.in	(.../branches/gcc-4_6-branch)
+@@ -70,6 +70,7 @@
+ version := $(shell cat $(srcdir)/../gcc/BASE-VER)
+ libsubdir := $(libdir)/gcc/$(target_noncanonical)/$(version)$(MULTISUBDIR)
+ ADA_RTS_DIR=$(GCC_DIR)/ada/rts$(subst /,_,$(MULTISUBDIR))
++ADA_RTS_SUBDIR=./rts$(subst /,_,$(MULTISUBDIR))
+ 
+ # exeext should not be used because it's the *host* exeext.  We're building
+ # a *target* library, aren't we?!?  Likewise for CC.  Still, provide bogus
+@@ -96,10 +97,10 @@
+         "CFLAGS=$(CFLAGS) $(WARN_CFLAGS)"
+ 
+ # Rules to build gnatlib.
+-.PHONY: gnatlib gnatlib-plain gnatlib-sjlj gnatlib-zcx gnatlib-shared oscons
++.PHONY: gnatlib gnatlib-plain gnatlib-sjlj gnatlib-zcx gnatlib-shared osconstool
+ gnatlib: @default_gnatlib_target@
+ 
+-gnatlib-plain: oscons $(GCC_DIR)/ada/Makefile
++gnatlib-plain: osconstool $(GCC_DIR)/ada/Makefile
+ 	test -f stamp-libada || \
+ 	$(MAKE) -C $(GCC_DIR)/ada $(LIBADA_FLAGS_TO_PASS) gnatlib \
+ 	&& touch stamp-libada
+@@ -108,7 +109,7 @@
+ 	$(LN_S) $(ADA_RTS_DIR) adainclude
+ 	$(LN_S) $(ADA_RTS_DIR) adalib
+ 
+-gnatlib-sjlj gnatlib-zcx gnatlib-shared: oscons $(GCC_DIR)/ada/Makefile
++gnatlib-sjlj gnatlib-zcx gnatlib-shared: osconstool $(GCC_DIR)/ada/Makefile
+ 	test -f stamp-libada || \
+ 	$(MAKE) -C $(GCC_DIR)/ada $(LIBADA_FLAGS_TO_PASS) $@ \
+ 	&& touch stamp-libada
+@@ -117,8 +118,8 @@
+ 	$(LN_S) $(ADA_RTS_DIR) adainclude
+ 	$(LN_S) $(ADA_RTS_DIR) adalib
+ 
+-oscons:
+-	$(MAKE) -C $(GCC_DIR) $(LIBADA_FLAGS_TO_PASS) ada/s-oscons.ads
++osconstool:
++	$(MAKE) -C $(GCC_DIR)/ada $(LIBADA_FLAGS_TO_PASS) ./bldtools/oscons/xoscons
+ 
+ install-gnatlib: $(GCC_DIR)/ada/Makefile
+ 	$(MAKE) -C $(GCC_DIR)/ada $(LIBADA_FLAGS_TO_PASS) install-gnatlib
+Index: libada/ChangeLog
+===================================================================
+--- a/src/libada/ChangeLog	(.../tags/gcc_4_6_2_release)
++++ b/src/libada/ChangeLog	(.../branches/gcc-4_6-branch)
+@@ -1,3 +1,9 @@
++2011-11-13  Iain Sandoe  <iains@gcc.gnu.org>
++
++	Backport from mainline r181319
++	Makefile.in: Change dependency on oscons to depend on the generator
++	tool.
++
+ 2011-10-26  Release Manager
+ 
+ 	* GCC 4.6.2 released.
+Index: libmudflap/configure
+===================================================================
+--- a/src/libmudflap/configure	(.../tags/gcc_4_6_2_release)
++++ b/src/libmudflap/configure	(.../branches/gcc-4_6-branch)
+@@ -8818,7 +8818,7 @@
+       ;;
+ 
+     # Unfortunately, older versions of FreeBSD 2 do not have this feature.
+-    freebsd2*)
++    freebsd2.*)
+       archive_cmds='$LD -Bshareable -o $lib $libobjs $deplibs $linker_flags'
+       hardcode_direct=yes
+       hardcode_minus_L=yes
+@@ -9731,7 +9731,7 @@
+     objformat=`/usr/bin/objformat`
+   else
+     case $host_os in
+-    freebsd[123]*) objformat=aout ;;
++    freebsd[23].*) objformat=aout ;;
+     *) objformat=elf ;;
+     esac
+   fi
+@@ -9749,7 +9749,7 @@
+   esac
+   shlibpath_var=LD_LIBRARY_PATH
+   case $host_os in
+-  freebsd2*)
++  freebsd2.*)
+     shlibpath_overrides_runpath=yes
+     ;;
+   freebsd3.[01]* | freebsdelf3.[01]*)
+Index: libmudflap/ChangeLog
+===================================================================
+--- a/src/libmudflap/ChangeLog	(.../tags/gcc_4_6_2_release)
++++ b/src/libmudflap/ChangeLog	(.../branches/gcc-4_6-branch)
+@@ -1,3 +1,7 @@
++2011-11-20  Andreas Tobler  <andreast@fgznet.ch>
++
++	* configure: Regenerate.
++
+ 2011-10-26  Release Manager
+ 
+ 	* GCC 4.6.2 released.
+Index: boehm-gc/ChangeLog
+===================================================================
+--- a/src/boehm-gc/ChangeLog	(.../tags/gcc_4_6_2_release)
++++ b/src/boehm-gc/ChangeLog	(.../branches/gcc-4_6-branch)
+@@ -1,3 +1,7 @@
++2011-11-20  Andreas Tobler  <andreast@fgznet.ch>
++
++	* configure: Regenerate.
++
+ 2011-10-26  Release Manager
+ 
+ 	* GCC 4.6.2 released.
+Index: boehm-gc/configure
+===================================================================
+--- a/src/boehm-gc/configure	(.../tags/gcc_4_6_2_release)
++++ b/src/boehm-gc/configure	(.../branches/gcc-4_6-branch)
+@@ -9604,7 +9604,7 @@
+       ;;
+ 
+     # Unfortunately, older versions of FreeBSD 2 do not have this feature.
+-    freebsd2*)
++    freebsd2.*)
+       archive_cmds='$LD -Bshareable -o $lib $libobjs $deplibs $linker_flags'
+       hardcode_direct=yes
+       hardcode_minus_L=yes
+@@ -10520,7 +10520,7 @@
+     objformat=`/usr/bin/objformat`
+   else
+     case $host_os in
+-    freebsd[123]*) objformat=aout ;;
++    freebsd[23].*) objformat=aout ;;
+     *) objformat=elf ;;
+     esac
+   fi
+@@ -10538,7 +10538,7 @@
+   esac
+   shlibpath_var=LD_LIBRARY_PATH
+   case $host_os in
+-  freebsd2*)
++  freebsd2.*)
+     shlibpath_overrides_runpath=yes
+     ;;
+   freebsd3.[01]* | freebsdelf3.[01]*)
+@@ -12428,7 +12428,7 @@
+         esac
+         ;;
+ 
+-      freebsd[12]*)
++      freebsd2.*)
+         # C++ shared libraries reported to be fairly broken before
+ 	# switch to ELF
+         ld_shlibs_CXX=no
+@@ -14203,7 +14203,7 @@
+     objformat=`/usr/bin/objformat`
+   else
+     case $host_os in
+-    freebsd[123]*) objformat=aout ;;
++    freebsd[23].*) objformat=aout ;;
+     *) objformat=elf ;;
+     esac
+   fi
+@@ -14221,7 +14221,7 @@
+   esac
+   shlibpath_var=LD_LIBRARY_PATH
+   case $host_os in
+-  freebsd2*)
++  freebsd2.*)
+     shlibpath_overrides_runpath=yes
+     ;;
+   freebsd3.[01]* | freebsdelf3.[01]*)
+Index: libiberty/ChangeLog
+===================================================================
+--- a/src/libiberty/ChangeLog	(.../tags/gcc_4_6_2_release)
++++ b/src/libiberty/ChangeLog	(.../branches/gcc-4_6-branch)
+@@ -1,3 +1,17 @@
++2011-11-13  Iain Sandoe  <iains@gcc.gnu.org>
++
++	PR target/48108
++	Backport from mainline r180523
++	* simple-object-mach-o.c  (GNU_WRAPPER_SECTS, GNU_WRAPPER_INDEX,
++	GNU_WRAPPER_NAMES): New macros.
++	(simple_object_mach_o_segment): Handle wrapper scheme.
++	(simple_object_mach_o_write_section_header): Allow the segment name
++	to be supplied.
++	(simple_object_mach_o_write_segment): Handle wrapper scheme.  Ensure
++	that the top-level segment name in the load command is empty.
++	(simple_object_mach_o_write_to_file): Determine the number of
++	sections during segment output, use that in writing the header.
++
+ 2011-10-26  Release Manager
+ 
+ 	* GCC 4.6.2 released.
+Index: libiberty/simple-object-mach-o.c
+===================================================================
+--- a/src/libiberty/simple-object-mach-o.c	(.../tags/gcc_4_6_2_release)
++++ b/src/libiberty/simple-object-mach-o.c	(.../branches/gcc-4_6-branch)
+@@ -1,5 +1,5 @@
+ /* simple-object-mach-o.c -- routines to manipulate Mach-O object files.
+-   Copyright 2010 Free Software Foundation, Inc.
++   Copyright 2010, 2011 Free Software Foundation, Inc.
+    Written by Ian Lance Taylor, Google.
+ 
+ This program is free software; you can redistribute it and/or modify it
+@@ -174,6 +174,15 @@
+ 
+ #define GNU_SECTION_NAMES "__section_names"
+ 
++/* A GNU-specific extension to wrap multiple sections using three
++   mach-o sections within a given segment.  The section '__wrapper_sects'
++   is subdivided according to the index '__wrapper_index' and each sub
++   sect is named according to the names supplied in '__wrapper_names'.  */
++
++#define GNU_WRAPPER_SECTS "__wrapper_sects"
++#define GNU_WRAPPER_INDEX "__wrapper_index"
++#define GNU_WRAPPER_NAMES "__wrapper_names"
++
+ /* Private data for an simple_object_read.  */
+ 
+ struct simple_object_mach_o_read
+@@ -214,8 +223,19 @@
+   unsigned int reserved;
+ };
+ 
+-/* See if we have a Mach-O file.  */
++/* See if we have a Mach-O MH_OBJECT file:
+ 
++   A standard MH_OBJECT (from as) will have three load commands:
++   0 - LC_SEGMENT/LC_SEGMENT64
++   1 - LC_SYMTAB
++   2 - LC_DYSYMTAB
++
++   The LC_SEGMENT/LC_SEGMENT64 will introduce a single anonymous segment
++   containing all the sections.
++
++   Files written by simple-object will have only the segment command
++   (no symbol tables).  */
++
+ static void *
+ simple_object_mach_o_match (
+     unsigned char header[SIMPLE_OBJECT_MATCH_HEADER_LEN],
+@@ -356,9 +376,30 @@
+     }
+ }
+ 
+-/* Handle a segment in a Mach-O file.  Return 1 if we should continue,
+-   0 if the caller should return.  */
++/* Handle a segment in a Mach-O Object file.
+ 
++   This will callback to the function pfn for each "section found" the meaning
++   of which depends on gnu extensions to mach-o:
++
++   If we find mach-o sections (with the segment name as specified) which also
++   contain: a 'sects' wrapper, an index, and a  name table, we expand this into
++   as many sections as are specified in the index.  In this case, there will
++   be a callback for each of these.
++
++   We will also allow an extension that permits long names (more than 16
++   characters) to be used with mach-o.  In this case, the section name has
++   a specific format embedding an index into a name table, and the file must
++   contain such name table.
++
++   Return 1 if we should continue, 0 if the caller should return.  */
++
++#define SOMO_SECTS_PRESENT 0x01
++#define SOMO_INDEX_PRESENT 0x02
++#define SOMO_NAMES_PRESENT 0x04
++#define SOMO_LONGN_PRESENT 0x08
++#define SOMO_WRAPPING (SOMO_SECTS_PRESENT | SOMO_INDEX_PRESENT \
++		       | SOMO_NAMES_PRESENT)
++
+ static int
+ simple_object_mach_o_segment (simple_object_read *sobj, off_t offset,
+ 			      const unsigned char *segbuf,
+@@ -378,9 +419,20 @@
+   unsigned int nsects;
+   unsigned char *secdata;
+   unsigned int i;
++  unsigned int gnu_sections_found;
+   unsigned int strtab_index;
++  unsigned int index_index;
++  unsigned int nametab_index;
++  unsigned int sections_index;
+   char *strtab;
++  char *nametab;
++  unsigned char *index;
+   size_t strtab_size;
++  size_t nametab_size;
++  size_t index_size;
++  unsigned int n_wrapped_sects;
++  size_t wrapper_sect_size;
++  off_t wrapper_sect_offset;
+ 
+   fetch_32 = (omr->is_big_endian
+ 	      ? simple_object_fetch_big_32
+@@ -409,6 +461,8 @@
+ 					nsects));
+     }
+ 
++  /* Fetch the section headers from the segment command.  */
++
+   secdata = XNEWVEC (unsigned char, nsects * sechdrsize);
+   if (!simple_object_internal_read (sobj->descriptor, offset + seghdrsize,
+ 				    secdata, nsects * sechdrsize, errmsg, err))
+@@ -417,9 +471,13 @@
+       return 0;
+     }
+ 
+-  /* Scan for a __section_names section.  This is in effect a GNU
+-     extension that permits section names longer than 16 chars.  */
++  /* Scan for special sections that signal GNU extensions to the format.  */
+ 
++  gnu_sections_found = 0;
++  index_index = nsects;
++  sections_index = nsects;
++  strtab_index = nsects;
++  nametab_index = nsects;
+   for (i = 0; i < nsects; ++i)
+     {
+       size_t nameoff;
+@@ -427,19 +485,104 @@
+       nameoff = i * sechdrsize + segname_offset;
+       if (strcmp ((char *) secdata + nameoff, omr->segment_name) != 0)
+ 	continue;
++
+       nameoff = i * sechdrsize + sectname_offset;
+-      if (strcmp ((char *) secdata + nameoff, GNU_SECTION_NAMES) == 0)
+-	break;
++      if (strcmp ((char *) secdata + nameoff, GNU_WRAPPER_NAMES) == 0)
++	{
++	  nametab_index = i;
++	  gnu_sections_found |= SOMO_NAMES_PRESENT;
++	}
++      else if (strcmp ((char *) secdata + nameoff, GNU_WRAPPER_INDEX) == 0)
++	{
++	  index_index = i;
++	  gnu_sections_found |= SOMO_INDEX_PRESENT;
++	}
++      else if (strcmp ((char *) secdata + nameoff, GNU_WRAPPER_SECTS) == 0)
++	{
++	  sections_index = i;
++	  gnu_sections_found |= SOMO_SECTS_PRESENT;
++	}
++      else if (strcmp ((char *) secdata + nameoff, GNU_SECTION_NAMES) == 0)
++	{
++	  strtab_index = i;
++	  gnu_sections_found |= SOMO_LONGN_PRESENT;
++	}
+     }
+ 
+-  strtab_index = i;
+-  if (strtab_index >= nsects)
++  /* If any of the special wrapper section components is present, then
++     they all should be.  */
++
++  if ((gnu_sections_found & SOMO_WRAPPING) != 0)
+     {
+-      strtab = NULL;
+-      strtab_size = 0;
++      off_t nametab_offset;
++      off_t index_offset;
++
++      if ((gnu_sections_found & SOMO_WRAPPING) != SOMO_WRAPPING)
++	{
++	  *errmsg = "GNU Mach-o section wrapper: required section missing";
++	  *err = 0; /* No useful errno.  */
++	  XDELETEVEC (secdata);
++	  return 0;
++	}
++
++      /* Fetch the name table.  */
++
++      simple_object_mach_o_section_info (omr->is_big_endian, is_32,
++					 secdata + nametab_index * sechdrsize,
++					 &nametab_offset, &nametab_size);
++      nametab = XNEWVEC (char, nametab_size);
++      if (!simple_object_internal_read (sobj->descriptor,
++					sobj->offset + nametab_offset,
++					(unsigned char *) nametab, nametab_size,
++					errmsg, err))
++	{
++	  XDELETEVEC (nametab);
++	  XDELETEVEC (secdata);
++	  return 0;
++	}
++
++      /* Fetch the index.  */
++
++      simple_object_mach_o_section_info (omr->is_big_endian, is_32,
++					 secdata + index_index * sechdrsize,
++					 &index_offset, &index_size);
++      index = XNEWVEC (unsigned char, index_size);
++      if (!simple_object_internal_read (sobj->descriptor,
++					sobj->offset + index_offset,
++					index, index_size,
++					errmsg, err))
++	{
++	  XDELETEVEC (index);
++	  XDELETEVEC (nametab);
++	  XDELETEVEC (secdata);
++	  return 0;
++	}
++
++      /* The index contains 4 unsigned ints per sub-section:
++	 sub-section offset/length, sub-section name/length.
++	 We fix this for both 32 and 64 bit mach-o for now, since
++	 other fields limit the maximum size of an object to 4G.  */
++      n_wrapped_sects = index_size / 16;
++
++      /* Get the parameters for the wrapper too.  */
++      simple_object_mach_o_section_info (omr->is_big_endian, is_32,
++					 secdata + sections_index * sechdrsize,
++					 &wrapper_sect_offset,
++					 &wrapper_sect_size);
+     }
+   else
+     {
++      index = NULL;
++      index_size = 0;
++      nametab = NULL;
++      nametab_size = 0;
++      n_wrapped_sects = 0;
++    }
++
++  /* If we have a long names section, fetch it.  */
++
++  if ((gnu_sections_found & SOMO_LONGN_PRESENT) != 0)
++    {
+       off_t strtab_offset;
+ 
+       simple_object_mach_o_section_info (omr->is_big_endian, is_32,
+@@ -452,52 +595,120 @@
+ 					errmsg, err))
+ 	{
+ 	  XDELETEVEC (strtab);
++	  XDELETEVEC (index);
++	  XDELETEVEC (nametab);
+ 	  XDELETEVEC (secdata);
+ 	  return 0;
+ 	}
+     }
++  else
++    {
++      strtab = NULL;
++      strtab_size = 0;
++      strtab_index = nsects;
++    }
+ 
+   /* Process the sections.  */
+ 
+   for (i = 0; i < nsects; ++i)
+     {
+       const unsigned char *sechdr;
+-      char namebuf[MACH_O_NAME_LEN + 1];
++      char namebuf[MACH_O_NAME_LEN * 2 + 2];
+       char *name;
+       off_t secoffset;
+       size_t secsize;
++      int l;
+ 
+-      if (i == strtab_index)
++      sechdr = secdata + i * sechdrsize;
++
++      /* We've already processed the long section names.  */
++
++      if ((gnu_sections_found & SOMO_LONGN_PRESENT) != 0
++	  && i == strtab_index)
+ 	continue;
+ 
+-      sechdr = secdata + i * sechdrsize;
++      /* We only act on the segment named.  */
+ 
+       if (strcmp ((char *) sechdr + segname_offset, omr->segment_name) != 0)
+ 	continue;
+ 
+-      memcpy (namebuf, sechdr + sectname_offset, MACH_O_NAME_LEN);
+-      namebuf[MACH_O_NAME_LEN] = '\0';
++      /* Process sections associated with the wrapper.  */
+ 
+-      name = &namebuf[0];
+-      if (strtab != NULL && name[0] == '_' && name[1] == '_')
++      if ((gnu_sections_found & SOMO_WRAPPING) != 0)
+ 	{
+-	  unsigned long stringoffset;
++	  if (i == nametab_index || i == index_index)
++	    continue;
+ 
+-	  if (sscanf (name + 2, "%08lX", &stringoffset) == 1)
++	  if (i == sections_index)
+ 	    {
+-	      if (stringoffset >= strtab_size)
++	      unsigned int j;
++	      for (j = 0; j < n_wrapped_sects; ++j)
+ 		{
+-		  *errmsg = "section name offset out of range";
+-		  *err = 0;
+-		  XDELETEVEC (strtab);
+-		  XDELETEVEC (secdata);
+-		  return 0;
++		  unsigned int subsect_offset, subsect_length, name_offset;
++		  subsect_offset = (*fetch_32) (index + 16 * j);
++		  subsect_length = (*fetch_32) (index + 16 * j + 4);
++		  name_offset = (*fetch_32) (index + 16 * j + 8);
++		  /* We don't need the name_length yet.  */
++
++		  secoffset = wrapper_sect_offset + subsect_offset;
++		  secsize = subsect_length;
++		  name = nametab + name_offset;
++
++		  if (!(*pfn) (data, name, secoffset, secsize))
++		    {
++		      *errmsg = NULL;
++		      *err = 0;
++		      XDELETEVEC (index);
++		      XDELETEVEC (nametab);
++		      XDELETEVEC (strtab);
++		      XDELETEVEC (secdata);
++		      return 0;
++		    }
+ 		}
+-
+-	      name = strtab + stringoffset;
++	      continue;
+ 	    }
+ 	}
+ 
++      if ((gnu_sections_found & SOMO_LONGN_PRESENT) != 0)
++	{
++	  memcpy (namebuf, sechdr + sectname_offset, MACH_O_NAME_LEN);
++	  namebuf[MACH_O_NAME_LEN] = '\0';
++
++	  name = &namebuf[0];
++	  if (strtab != NULL && name[0] == '_' && name[1] == '_')
++	    {
++	      unsigned long stringoffset;
++
++	      if (sscanf (name + 2, "%08lX", &stringoffset) == 1)
++		{
++		  if (stringoffset >= strtab_size)
++		    {
++		      *errmsg = "section name offset out of range";
++		      *err = 0;
++		      XDELETEVEC (index);
++		      XDELETEVEC (nametab);
++		      XDELETEVEC (strtab);
++		      XDELETEVEC (secdata);
++		      return 0;
++		    }
++
++		  name = strtab + stringoffset;
++		}
++	  }
++	}
++      else
++	{
++	   /* Otherwise, make a name like __segment,__section as per the
++	      convention in mach-o asm.  */
++	  name = &namebuf[0];
++	  memset (namebuf, 0, MACH_O_NAME_LEN * 2 + 2);
++	  memcpy (namebuf, (char *) sechdr + segname_offset, MACH_O_NAME_LEN);
++	  l = strlen (namebuf);
++	  namebuf[l] = ',';
++	  memcpy (namebuf + l + 1, (char *) sechdr + sectname_offset,
++		  MACH_O_NAME_LEN);
++	}
++
+       simple_object_mach_o_section_info (omr->is_big_endian, is_32, sechdr,
+ 					 &secoffset, &secsize);
+ 
+@@ -505,12 +716,16 @@
+ 	{
+ 	  *errmsg = NULL;
+ 	  *err = 0;
++	  XDELETEVEC (index);
++	  XDELETEVEC (nametab);
+ 	  XDELETEVEC (strtab);
+ 	  XDELETEVEC (secdata);
+ 	  return 0;
+ 	}
+     }
+ 
++  XDELETEVEC (index);
++  XDELETEVEC (nametab);
+   XDELETEVEC (strtab);
+   XDELETEVEC (secdata);
+ 
+@@ -724,9 +939,9 @@
+ simple_object_mach_o_write_section_header (simple_object_write *sobj,
+ 					   int descriptor,
+ 					   size_t sechdr_offset,
+-					   const char *name, size_t secaddr,
+-					   size_t secsize, size_t offset,
+-					   unsigned int align,
++					   const char *name, const char *segn,
++					   size_t secaddr, size_t secsize,
++					   size_t offset, unsigned int align,
+ 					   const char **errmsg, int *err)
+ {
+   struct simple_object_mach_o_attributes *attrs =
+@@ -748,7 +963,7 @@
+       strncpy ((char *) hdr + offsetof (struct mach_o_section_32, sectname),
+ 	       name, MACH_O_NAME_LEN);
+       strncpy ((char *) hdr + offsetof (struct mach_o_section_32, segname),
+-	       sobj->segment_name, MACH_O_NAME_LEN);
++	       segn, MACH_O_NAME_LEN);
+       set_32 (hdr + offsetof (struct mach_o_section_32, addr), secaddr);
+       set_32 (hdr + offsetof (struct mach_o_section_32, size), secsize);
+       set_32 (hdr + offsetof (struct mach_o_section_32, offset), offset);
+@@ -773,7 +988,7 @@
+       strncpy ((char *) hdr + offsetof (struct mach_o_section_64, sectname),
+ 	       name, MACH_O_NAME_LEN);
+       strncpy ((char *) hdr + offsetof (struct mach_o_section_64, segname),
+-	       sobj->segment_name, MACH_O_NAME_LEN);
++	       segn, MACH_O_NAME_LEN);
+       set_64 (hdr + offsetof (struct mach_o_section_64, addr), secaddr);
+       set_64 (hdr + offsetof (struct mach_o_section_64, size), secsize);
+       set_32 (hdr + offsetof (struct mach_o_section_64, offset), offset);
+@@ -793,11 +1008,25 @@
+ 				       sechdrsize, errmsg, err);
+ }
+ 
+-/* Write out the single segment and the sections of a Mach-O file.  */
++/* Write out the single (anonymous) segment containing the sections of a Mach-O
++   Object file.
+ 
++   As a GNU extension to mach-o, when the caller specifies a segment name in
++   sobj->segment_name, all the sections passed will be output under a single
++   mach-o section header.  The caller's sections are indexed within this
++   'wrapper' section by a table stored in a second mach-o section.  Finally,
++   arbitrary length section names are permitted by the extension and these are
++   stored in a table in a third mach-o section.
++
++   Note that this is only likely to make any sense for the __GNU_LTO segment
++   at present.
++
++   If the wrapper extension is not in force, we assume that the section name
++   is in the form __SEGMENT_NAME,__section_name as per Mach-O asm.  */
++
+ static int
+ simple_object_mach_o_write_segment (simple_object_write *sobj, int descriptor,
+-				    size_t nsects, const char **errmsg,
++				    size_t *nsects, const char **errmsg,
+ 				    int *err)
+ {
+   struct simple_object_mach_o_attributes *attrs =
+@@ -814,6 +1043,10 @@
+   simple_object_write_section *section;
+   unsigned char hdrbuf[sizeof (struct mach_o_segment_command_64)];
+   unsigned char *hdr;
++  size_t nsects_in;
++  unsigned int *index;
++  char *snames;
++  unsigned int sect;
+ 
+   set_32 = (attrs->is_big_endian
+ 	    ? simple_object_set_big_32
+@@ -834,19 +1067,62 @@
+       sechdrsize = sizeof (struct mach_o_section_64);
+     }
+ 
++  name_offset = 0;
++  *nsects = nsects_in = 0;
++
++  /* Count the number of sections we start with.  */
++
++  for (section = sobj->sections; section != NULL; section = section->next)
++    nsects_in++;
++
++  if (sobj->segment_name != NULL)
++    {
++      /* We will only write 3 sections: wrapped data, index and names.  */
++
++      *nsects = 3;
++
++      /* The index has four entries per wrapped section:
++	   Section Offset, length,  Name offset, length.
++	 Where the offsets are based at the start of the wrapper and name
++	 sections respectively.
++	 The values are stored as 32 bit int for both 32 and 64 bit mach-o
++	 since the size of a mach-o MH_OBJECT cannot exceed 4G owing to
++	 other constraints.  */
++
++      index = XNEWVEC (unsigned int, nsects_in * 4);
++
++      /* We now need to figure out the size of the names section.  This just
++	 stores the names as null-terminated c strings, packed without any
++	 alignment padding.  */
++
++      for (section = sobj->sections, sect = 0; section != NULL;
++	   section = section->next, sect++)
++	{
++	  index[sect*4+2] = name_offset;
++	  index[sect*4+3] = strlen (section->name) + 1;
++	  name_offset += strlen (section->name) + 1;
++	}
++      snames = XNEWVEC (char, name_offset);
++    }
++  else
++    {
++      *nsects = nsects_in;
++      index = NULL;
++      snames = NULL;
++    }
++
+   sechdr_offset = hdrsize + seghdrsize;
+-  cmdsize = seghdrsize + nsects * sechdrsize;
++  cmdsize = seghdrsize + *nsects * sechdrsize;
+   offset = hdrsize + cmdsize;
+-  name_offset = 0;
+   secaddr = 0;
+ 
+-  for (section = sobj->sections; section != NULL; section = section->next)
++  for (section = sobj->sections, sect = 0;
++       section != NULL; section = section->next, sect++)
+     {
+       size_t mask;
+       size_t new_offset;
+       size_t secsize;
+       struct simple_object_write_section_buffer *buffer;
+-      char namebuf[MACH_O_NAME_LEN + 1];
+ 
+       mask = (1U << section->align) - 1;
+       new_offset = offset + mask;
+@@ -877,39 +1153,126 @@
+ 	  secsize += buffer->size;
+ 	}
+ 
+-      snprintf (namebuf, sizeof namebuf, "__%08X", name_offset);
++      if (sobj->segment_name != NULL)
++	{
++	  index[sect*4+0] = (unsigned int) offset;
++	  index[sect*4+1] = secsize;
++	  /* Stash the section name in our table.  */
++	  memcpy (snames + index[sect * 4 + 2], section->name,
++		  index[sect * 4 + 3]);
++	}
++      else
++	{
++	  char namebuf[MACH_O_NAME_LEN + 1];
++	  char segnbuf[MACH_O_NAME_LEN + 1];
++	  char *comma;
++
++	  /* Try to extract segment,section from the input name.  */
++
++	  memset (namebuf, 0, sizeof namebuf);
++	  memset (segnbuf, 0, sizeof segnbuf);
++	  comma = strchr (section->name, ',');
++	  if (comma != NULL)
++	    {
++	      int len = comma - section->name;
++	      len = len > MACH_O_NAME_LEN ? MACH_O_NAME_LEN : len;
++	      strncpy (namebuf, section->name, len);
++	      strncpy (segnbuf, comma + 1, MACH_O_NAME_LEN);
++	    }
++	  else /* just try to copy the name, leave segment blank.  */
++	    strncpy (namebuf, section->name, MACH_O_NAME_LEN);
++
++	  if (!simple_object_mach_o_write_section_header (sobj, descriptor,
++							  sechdr_offset,
++							  namebuf, segnbuf,
++							  secaddr, secsize,
++							  offset,
++							  section->align,
++							  errmsg, err))
++	    return 0;
++	  sechdr_offset += sechdrsize;
++	}
++
++      offset += secsize;
++      secaddr += secsize;
++    }
++
++  if (sobj->segment_name != NULL)
++    {
++      size_t secsize;
++      unsigned int i;
++
++      /* Write the section header for the wrapper.  */
++      /* Account for any initial aligment - which becomes the alignment for this
++	 created section.  */
++
++      secsize = (offset - index[0]);
+       if (!simple_object_mach_o_write_section_header (sobj, descriptor,
+-						      sechdr_offset, namebuf,
+-						      secaddr, secsize, offset,
+-						      section->align,
++						      sechdr_offset,
++						      GNU_WRAPPER_SECTS,
++						      sobj->segment_name,
++						      0 /*secaddr*/,
++						      secsize, index[0],
++						      sobj->sections->align,
+ 						      errmsg, err))
+ 	return 0;
+ 
++      /* Subtract the wrapper section start from the begining of each sub
++	 section.  */
++
++      for (i = 1; i < nsects_in; ++i)
++	index[4 * i] -= index[0];
++      index[0] = 0;
++
+       sechdr_offset += sechdrsize;
+-      offset += secsize;
+-      name_offset += strlen (section->name) + 1;
+-      secaddr += secsize;
+-    }
+ 
+-  /* Write out the section names.  */
++      /* Write out the section names.
++	 ... the header ...
++	 name_offset contains the length of the section.  It is not aligned.  */
+ 
+-  if (!simple_object_mach_o_write_section_header (sobj, descriptor,
+-						  sechdr_offset,
+-						  GNU_SECTION_NAMES, secaddr,
+-						  name_offset, offset, 0,
+-						  errmsg, err))
+-    return 0;
++      if (!simple_object_mach_o_write_section_header (sobj, descriptor,
++						      sechdr_offset,
++						      GNU_WRAPPER_NAMES,
++						      sobj->segment_name,
++						      0 /*secaddr*/,
++						      name_offset,
++						      offset,
++						      0, errmsg, err))
++	return 0;
+ 
+-  for (section = sobj->sections; section != NULL; section = section->next)
+-    {
+-      size_t namelen;
++      /* ... and the content.. */
++      if (!simple_object_internal_write (descriptor, offset,
++					 (const unsigned char *) snames,
++					 name_offset, errmsg, err))
++	return 0;
+ 
+-      namelen = strlen (section->name) + 1;
++      sechdr_offset += sechdrsize;
++      secaddr += name_offset;
++      offset += name_offset;
++
++      /* Now do the index, we'll align this to 4 bytes although the read code
++	 will handle unaligned.  */
++
++      offset += 3;
++      offset &= ~0x03;
++      if (!simple_object_mach_o_write_section_header (sobj, descriptor,
++						      sechdr_offset,
++						      GNU_WRAPPER_INDEX,
++						      sobj->segment_name,
++						      0 /*secaddr*/,
++						      nsects_in * 16,
++						      offset,
++						      2, errmsg, err))
++	return 0;
++
++      /* ... and the content.. */
+       if (!simple_object_internal_write (descriptor, offset,
+-					 (const unsigned char *) section->name,
+-					 namelen, errmsg, err))
++					 (const unsigned char *) index,
++					 nsects_in*16, errmsg, err))
+ 	return 0;
+-      offset += namelen;
++
++      XDELETEVEC (index);
++      XDELETEVEC (snames);
+     }
+ 
+   /* Write out the segment header.  */
+@@ -923,9 +1286,8 @@
+ 	      MACH_O_LC_SEGMENT);
+       set_32 (hdr + offsetof (struct mach_o_segment_command_32, cmdsize),
+ 	      cmdsize);
+-      strncpy (((char *) hdr
+-		+ offsetof (struct mach_o_segment_command_32, segname)),
+-	       sobj->segment_name, MACH_O_NAME_LEN);
++     /* MH_OBJECTS have a single, anonymous, segment - so the segment name
++	 is left empty.  */
+       /* vmaddr left as zero.  */
+       /* vmsize left as zero.  */
+       set_32 (hdr + offsetof (struct mach_o_segment_command_32, fileoff),
+@@ -935,7 +1297,7 @@
+       /* maxprot left as zero.  */
+       /* initprot left as zero.  */
+       set_32 (hdr + offsetof (struct mach_o_segment_command_32, nsects),
+-	      nsects);
++	      *nsects);
+       /* flags left as zero.  */
+     }
+   else
+@@ -951,9 +1313,8 @@
+ 	      MACH_O_LC_SEGMENT);
+       set_32 (hdr + offsetof (struct mach_o_segment_command_64, cmdsize),
+ 	      cmdsize);
+-      strncpy (((char *) hdr
+-		+ offsetof (struct mach_o_segment_command_64, segname)),
+-	       sobj->segment_name, MACH_O_NAME_LEN);
++      /* MH_OBJECTS have a single, anonymous, segment - so the segment name
++	 is left empty.  */
+       /* vmaddr left as zero.  */
+       /* vmsize left as zero.  */
+       set_64 (hdr + offsetof (struct mach_o_segment_command_64, fileoff),
+@@ -963,7 +1324,7 @@
+       /* maxprot left as zero.  */
+       /* initprot left as zero.  */
+       set_32 (hdr + offsetof (struct mach_o_segment_command_64, nsects),
+-	      nsects);
++	      *nsects);
+       /* flags left as zero.  */
+ #endif
+     }
+@@ -978,23 +1339,17 @@
+ simple_object_mach_o_write_to_file (simple_object_write *sobj, int descriptor,
+ 				    int *err)
+ {
+-  size_t nsects;
+-  simple_object_write_section *section;
++  size_t nsects = 0;
+   const char *errmsg;
+ 
+-  /* Start at 1 for symbol_names section.  */
+-  nsects = 1;
+-  for (section = sobj->sections; section != NULL; section = section->next)
+-    ++nsects;
++  if (!simple_object_mach_o_write_segment (sobj, descriptor, &nsects,
++					   &errmsg, err))
++    return errmsg;
+ 
+   if (!simple_object_mach_o_write_header (sobj, descriptor, nsects,
+ 					  &errmsg, err))
+     return errmsg;
+ 
+-  if (!simple_object_mach_o_write_segment (sobj, descriptor, nsects,
+-					   &errmsg, err))
+-    return errmsg;
+-
+   return NULL;
+ }
+ 
+Index: ChangeLog
+===================================================================
+--- a/src/ChangeLog	(.../tags/gcc_4_6_2_release)
++++ b/src/ChangeLog	(.../branches/gcc-4_6-branch)
+@@ -1,3 +1,13 @@
++2011-11-20  Andreas Tobler  <andreast@fgznet.ch>
++
++	* libtool.m4: Additional FreeBSD 10 fixes.
++
++2011-11-18  Iain Sandoe  <iains@gcc.gnu.org>
++
++	PR target/49992
++	* configure.ac: Remove ranlib special-casing for Darwin.
++	* configure: Regenerate.
++
+ 2011-10-26  Release Manager
+ 
+ 	* GCC 4.6.2 released.
+Index: lto-plugin/configure
+===================================================================
+--- a/src/lto-plugin/configure	(.../tags/gcc_4_6_2_release)
++++ b/src/lto-plugin/configure	(.../branches/gcc-4_6-branch)
+@@ -8733,7 +8733,7 @@
+       ;;
+ 
+     # Unfortunately, older versions of FreeBSD 2 do not have this feature.
+-    freebsd2*)
++    freebsd2.*)
+       archive_cmds='$LD -Bshareable -o $lib $libobjs $deplibs $linker_flags'
+       hardcode_direct=yes
+       hardcode_minus_L=yes
+@@ -9646,7 +9646,7 @@
+     objformat=`/usr/bin/objformat`
+   else
+     case $host_os in
+-    freebsd[123]*) objformat=aout ;;
++    freebsd[23].*) objformat=aout ;;
+     *) objformat=elf ;;
+     esac
+   fi
+@@ -9664,7 +9664,7 @@
+   esac
+   shlibpath_var=LD_LIBRARY_PATH
+   case $host_os in
+-  freebsd2*)
++  freebsd2.*)
+     shlibpath_overrides_runpath=yes
+     ;;
+   freebsd3.[01]* | freebsdelf3.[01]*)
+Index: lto-plugin/ChangeLog
+===================================================================
+--- a/src/lto-plugin/ChangeLog	(.../tags/gcc_4_6_2_release)
++++ b/src/lto-plugin/ChangeLog	(.../branches/gcc-4_6-branch)
+@@ -1,3 +1,7 @@
++2011-11-20  Andreas Tobler  <andreast@fgznet.ch>
++
++	* configure: Regenerate.
++
+ 2011-10-26  Release Manager
+ 
+ 	* GCC 4.6.2 released.
+Index: libffi/configure
+===================================================================
+--- a/src/libffi/configure	(.../tags/gcc_4_6_2_release)
++++ b/src/libffi/configure	(.../branches/gcc-4_6-branch)
+@@ -9001,7 +9001,7 @@
+       ;;
+ 
+     # Unfortunately, older versions of FreeBSD 2 do not have this feature.
+-    freebsd2*)
++    freebsd2.*)
+       archive_cmds='$LD -Bshareable -o $lib $libobjs $deplibs $linker_flags'
+       hardcode_direct=yes
+       hardcode_minus_L=yes
+@@ -9914,7 +9914,7 @@
+     objformat=`/usr/bin/objformat`
+   else
+     case $host_os in
+-    freebsd[123]*) objformat=aout ;;
++    freebsd[23].*) objformat=aout ;;
+     *) objformat=elf ;;
+     esac
+   fi
+@@ -9932,7 +9932,7 @@
+   esac
+   shlibpath_var=LD_LIBRARY_PATH
+   case $host_os in
+-  freebsd2*)
++  freebsd2.*)
+     shlibpath_overrides_runpath=yes
+     ;;
+   freebsd3.[01]* | freebsdelf3.[01]*)
+Index: libffi/ChangeLog
+===================================================================
+--- a/src/libffi/ChangeLog	(.../tags/gcc_4_6_2_release)
++++ b/src/libffi/ChangeLog	(.../branches/gcc-4_6-branch)
+@@ -1,3 +1,7 @@
++2011-11-20  Andreas Tobler  <andreast@fgznet.ch>
++
++	* configure: Regenerate.
++
+ 2011-10-26  Release Manager
+ 
+ 	* GCC 4.6.2 released.
+Index: libssp/configure
+===================================================================
+--- a/src/libssp/configure	(.../tags/gcc_4_6_2_release)
++++ b/src/libssp/configure	(.../branches/gcc-4_6-branch)
+@@ -8864,7 +8864,7 @@
+       ;;
+ 
+     # Unfortunately, older versions of FreeBSD 2 do not have this feature.
+-    freebsd2*)
++    freebsd2.*)
+       archive_cmds='$LD -Bshareable -o $lib $libobjs $deplibs $linker_flags'
+       hardcode_direct=yes
+       hardcode_minus_L=yes
+@@ -9780,7 +9780,7 @@
+     objformat=`/usr/bin/objformat`
+   else
+     case $host_os in
+-    freebsd[123]*) objformat=aout ;;
++    freebsd[23].*) objformat=aout ;;
+     *) objformat=elf ;;
+     esac
+   fi
+@@ -9798,7 +9798,7 @@
+   esac
+   shlibpath_var=LD_LIBRARY_PATH
+   case $host_os in
+-  freebsd2*)
++  freebsd2.*)
+     shlibpath_overrides_runpath=yes
+     ;;
+   freebsd3.[01]* | freebsdelf3.[01]*)
+Index: libssp/ChangeLog
+===================================================================
+--- a/src/libssp/ChangeLog	(.../tags/gcc_4_6_2_release)
++++ b/src/libssp/ChangeLog	(.../branches/gcc-4_6-branch)
+@@ -1,3 +1,7 @@
++2011-11-20  Andreas Tobler  <andreast@fgznet.ch>
++
++	* configure: Regenerate.
++
+ 2011-10-26  Release Manager
+ 
+ 	* GCC 4.6.2 released.
+Index: libjava/libltdl/configure
+===================================================================
+--- a/src/libjava/libltdl/configure	(.../tags/gcc_4_6_2_release)
++++ b/src/libjava/libltdl/configure	(.../branches/gcc-4_6-branch)
+@@ -7355,7 +7355,7 @@
+       ;;
+ 
+     # Unfortunately, older versions of FreeBSD 2 do not have this feature.
+-    freebsd2*)
++    freebsd2.*)
+       archive_cmds='$LD -Bshareable -o $lib $libobjs $deplibs $linker_flags'
+       hardcode_direct=yes
+       hardcode_minus_L=yes
+@@ -7968,7 +7968,7 @@
+   esac
+   shlibpath_var=LD_LIBRARY_PATH
+   case $host_os in
+-  freebsd2*)
++  freebsd2.*)
+     shlibpath_overrides_runpath=yes
+     ;;
+   freebsd3.[01]* | freebsdelf3.[01]*)
+Index: libjava/libltdl/ChangeLog
+===================================================================
+--- a/src/libjava/libltdl/ChangeLog	(.../tags/gcc_4_6_2_release)
++++ b/src/libjava/libltdl/ChangeLog	(.../branches/gcc-4_6-branch)
+@@ -1,3 +1,8 @@
++2011-11-20  Andreas Tobler  <andreast@fgznet.ch>
++
++	* acinclude.m4: Additional FreeBSD 10 fixes.
++	* configure: Regenerate.
++
+ 2011-10-26  Release Manager
+ 
+ 	* GCC 4.6.2 released.
+Index: libjava/libltdl/acinclude.m4
+===================================================================
+--- a/src/libjava/libltdl/acinclude.m4	(.../tags/gcc_4_6_2_release)
++++ b/src/libjava/libltdl/acinclude.m4	(.../branches/gcc-4_6-branch)
+@@ -1377,7 +1377,7 @@
+   esac
+   shlibpath_var=LD_LIBRARY_PATH
+   case $host_os in
+-  freebsd2*)
++  freebsd2.*)
+     shlibpath_overrides_runpath=yes
+     ;;
+   freebsd3.[[01]]* | freebsdelf3.[[01]]*)
+@@ -3035,7 +3035,7 @@
+ 	;;
+     esac
+     ;;
+-  freebsd[[12]]*)
++  freebsd2.*)
+     # C++ shared libraries reported to be fairly broken before switch to ELF
+     _LT_AC_TAGVAR(ld_shlibs, $1)=no
+     ;;
+@@ -5669,7 +5669,7 @@
+       ;;
+ 
+     # Unfortunately, older versions of FreeBSD 2 do not have this feature.
+-    freebsd2*)
++    freebsd2.*)
+       _LT_AC_TAGVAR(archive_cmds, $1)='$LD -Bshareable -o $lib $libobjs $deplibs $linker_flags'
+       _LT_AC_TAGVAR(hardcode_direct, $1)=yes
+       _LT_AC_TAGVAR(hardcode_minus_L, $1)=yes
+Index: libjava/configure.ac
+===================================================================
+--- a/src/libjava/configure.ac	(.../tags/gcc_4_6_2_release)
++++ b/src/libjava/configure.ac	(.../branches/gcc-4_6-branch)
+@@ -1060,7 +1060,7 @@
+      *-*-cygwin*)
+ 	# Don't set THREADLIBS here.  Cygwin doesn't have -lpthread.
+ 	;;
+-     *-*-freebsd[[1234]]*)
++     *-*-freebsd[[34]].*)
+ 	# Before FreeBSD 5, it didn't have -lpthread (or any library which
+ 	# merely adds pthread_* functions) but it does have a -pthread switch
+ 	# which is required at link-time to select -lc_r *instead* of -lc.
+Index: libjava/ChangeLog
+===================================================================
+--- a/src/libjava/ChangeLog	(.../tags/gcc_4_6_2_release)
++++ b/src/libjava/ChangeLog	(.../branches/gcc-4_6-branch)
+@@ -1,3 +1,8 @@
++2011-11-20  Andreas Tobler  <andreast@fgznet.ch>
++
++	* configure.ac: Fix FreeBSD 10 detection.
++	* configure: Regenerate.
++
+ 2011-10-26  Release Manager
+ 
+ 	* GCC 4.6.2 released.
+Index: libjava/configure
+===================================================================
+--- a/src/libjava/configure	(.../tags/gcc_4_6_2_release)
++++ b/src/libjava/configure	(.../branches/gcc-4_6-branch)
+@@ -11560,7 +11560,7 @@
+       ;;
+ 
+     # Unfortunately, older versions of FreeBSD 2 do not have this feature.
+-    freebsd2*)
++    freebsd2.*)
+       archive_cmds='$LD -Bshareable -o $lib $libobjs $deplibs $linker_flags'
+       hardcode_direct=yes
+       hardcode_minus_L=yes
+@@ -12476,7 +12476,7 @@
+     objformat=`/usr/bin/objformat`
+   else
+     case $host_os in
+-    freebsd[123]*) objformat=aout ;;
++    freebsd[23].*) objformat=aout ;;
+     *) objformat=elf ;;
+     esac
+   fi
+@@ -12494,7 +12494,7 @@
+   esac
+   shlibpath_var=LD_LIBRARY_PATH
+   case $host_os in
+-  freebsd2*)
++  freebsd2.*)
+     shlibpath_overrides_runpath=yes
+     ;;
+   freebsd3.[01]* | freebsdelf3.[01]*)
+@@ -14384,7 +14384,7 @@
+         esac
+         ;;
+ 
+-      freebsd[12]*)
++      freebsd2.*)
+         # C++ shared libraries reported to be fairly broken before
+ 	# switch to ELF
+         ld_shlibs_CXX=no
+@@ -16159,7 +16159,7 @@
+     objformat=`/usr/bin/objformat`
+   else
+     case $host_os in
+-    freebsd[123]*) objformat=aout ;;
++    freebsd[23].*) objformat=aout ;;
+     *) objformat=elf ;;
+     esac
+   fi
+@@ -16177,7 +16177,7 @@
+   esac
+   shlibpath_var=LD_LIBRARY_PATH
+   case $host_os in
+-  freebsd2*)
++  freebsd2.*)
+     shlibpath_overrides_runpath=yes
+     ;;
+   freebsd3.[01]* | freebsdelf3.[01]*)
+@@ -18520,7 +18520,7 @@
+       ;;
+ 
+     # Unfortunately, older versions of FreeBSD 2 do not have this feature.
+-    freebsd2*)
++    freebsd2.*)
+       archive_cmds_GCJ='$LD -Bshareable -o $lib $libobjs $deplibs $linker_flags'
+       hardcode_direct_GCJ=yes
+       hardcode_minus_L_GCJ=yes
+@@ -20715,7 +20715,7 @@
+      *-*-cygwin*)
+ 	# Don't set THREADLIBS here.  Cygwin doesn't have -lpthread.
+ 	;;
+-     *-*-freebsd[1234]*)
++     *-*-freebsd[34].*)
+ 	# Before FreeBSD 5, it didn't have -lpthread (or any library which
+ 	# merely adds pthread_* functions) but it does have a -pthread switch
+ 	# which is required at link-time to select -lc_r *instead* of -lc.

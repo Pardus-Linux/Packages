@@ -1,25 +1,17 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright 2005-2010 TUBITAK/UEKAE
 # Licensed under the GNU General Public License, version 2.
 # See the file http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
 
+from pisi.actionsapi import shelltools
 from pisi.actionsapi import autotools
 from pisi.actionsapi import pisitools
-from pisi.actionsapi import shelltools
 from pisi.actionsapi import get
 
 import os
 
-snapshot = False
-
-if snapshot:
-    verMajor, verMinor = get.srcVERSION().replace("pre", "").split("_", 1)
-    WorkDir = "gcc-4.5-%s" % verMinor
-else:
-    verMajor = get.srcVERSION()
-
+verMajor = get.srcVERSION()
 arch = get.ARCH().replace("x86_64", "x86-64")
 
 opt_unwind = "--with-system-libunwind" if get.ARCH() == "x86_64" else "--without-system-libunwind"
@@ -28,7 +20,6 @@ opt_multilib = "--enable-multilib" if get.ARCH() == "x86_64" else ""
 
 # WARNING: even -fomit-frame-pointer may break the build, stack protector, fortify source etc. are off limits
 cflags = "-O2 -g"
-
 
 def removePardusSection(_dir):
     for root, dirs, files in os.walk(_dir):
@@ -43,7 +34,6 @@ def exportFlags():
     # we set real flags with new configure settings, these are just safe optimizations
     shelltools.export("CFLAGS", cflags)
     shelltools.export("CXXFLAGS", cflags)
-    # shelltools.export("LDFLAGS", "")
 
     # FIXME: this may not be necessary for biarch
     shelltools.export("CC", "gcc")
@@ -68,35 +58,28 @@ def setup():
                        --infodir=/usr/share/info \
                        --with-gxx-include-dir=/usr/include/c++ \
                        --build=%s \
-                       --disable-libgcj \
                        --disable-nls \
-                       --disable-mudflap \
-                       --disable-libmudflap \
-                       --disable-libunwind-exceptions \
-                       --enable-checking=release \
                        --enable-clocale=gnu \
-                       --enable-__cxa_atexit \
-                       --enable-languages=c,c++,fortran,objc,obj-c++,lto \
                        --enable-libstdcxx-allocator=new \
                        --disable-libstdcxx-pch \
                        --enable-shared \
-                       --enable-ssp \
-                       --disable-libssp \
-                       --enable-plugin \
                        --enable-threads=posix \
+                       --enable-checking=release \
+                       --with-system-zlib \
+                       --enable-__cxa_atexit \
+                       --disable-libunwind-exceptions \
+                       --enable-gnu-unique-object \
+                       --enable-languages=c,c++,fortran,objc,obj-c++,lto \
+                       --enable-plugin \
+                       --disable-libgcj \
+                       --enable-ssp \
                        --without-included-gettext \
                        %s \
                        %s \
                        %s \
                        --with-tune=generic \
-                       --with-system-zlib \
-                       --with-tune=generic \
                        --with-pkgversion="Pardus Linux" \
                        --with-bugurl=http://bugs.pardus.org.tr' % (get.HOST(), opt_arch, opt_unwind, opt_multilib))
-                       # FIXME: this is supposed to be detected automatically
-                       #--enable-long-long \
-                       # --enable-gnu-unique-object \  enable with binutils > 2.20.51.0.2
-                       # --disable-libunwind-exceptions  # experiment with libunwind >= 0.99
 
 
 def build():
@@ -126,10 +109,11 @@ def install():
     pisitools.dosym("/usr/bin/cpp", "/lib/cpp")
 
     # Remove our options section from crt stuff
+    """
     removePardusSection("%s/usr/lib/" % get.installDIR())
     if get.ARCH() == "x86_64":
         removePardusSection("%s/usr/lib32/" % get.installDIR())
-
+    """
 
     # autoload gdb pretty printers
     gdbpy_dir = "/usr/share/gdb/auto-load/usr/lib/"
