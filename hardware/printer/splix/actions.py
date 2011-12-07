@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright 2008-2010 TUBITAK/UEKAE
+# Copyright 2008-2011 TUBITAK/UEKAE
 # Licensed under the GNU General Public License, version 2.
 # See the file http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
 
@@ -10,16 +10,22 @@ from pisi.actionsapi import autotools
 from pisi.actionsapi import pisitools
 from pisi.actionsapi import get
 
+WorkDir = "splix"
+
 def build():
     shelltools.export("OS_CFLAGS", get.CFLAGS())
     shelltools.export("OS_LDFLAGS", get.LDFLAGS())
-    shelltools.export("OS_CXXFLAGS", get.CXXFLAGS())
+    shelltools.export("OS_CXXFLAGS", "%s -fno-strict-aliasing" % get.CXXFLAGS())
 
-    autotools.make()
+    shelltools.makedirs("ppd")
+    autotools.make("-C ppd ppd")
+
+    autotools.make("V=1")
 
 def install():
-    autotools.install("DESTDIR=%s" % get.installDIR())
+    autotools.install("DESTDIR=%s CUPSPPD=/usr/share/cups/model/splix" % get.installDIR())
 
+    # Install color profiles
     pisitools.insinto("/usr/share/cups/model/samsung/cms", "cms/*")
 
     pisitools.dodoc("AUTHORS", "ChangeLog", "COPYING", "README", "THANKS", "TODO")
