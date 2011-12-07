@@ -12,11 +12,6 @@ from pisi.actionsapi import get
 import os
 
 verMajor = get.srcVERSION()
-arch = get.ARCH().replace("x86_64", "x86-64")
-
-opt_unwind = "--with-system-libunwind" if get.ARCH() == "x86_64" else "--without-system-libunwind"
-opt_arch = "--with-arch_32=i686" if get.ARCH() == "x86_64" else "--with-arch=i686"
-opt_multilib = "--enable-multilib" if get.ARCH() == "x86_64" else ""
 
 # WARNING: even -fomit-frame-pointer may break the build, stack protector, fortify source etc. are off limits
 cflags = "-O2 -g"
@@ -74,12 +69,12 @@ def setup():
                        --disable-libgcj \
                        --enable-ssp \
                        --without-included-gettext \
-                       %s \
-                       %s \
-                       %s \
+                       --with-system-libunwind \
+                       --with-arch32=i686 \
+                       --enable-multilib \
                        --with-tune=generic \
                        --with-pkgversion="Pardus Linux" \
-                       --with-bugurl=http://bugs.pardus.org.tr' % (get.HOST(), opt_arch, opt_unwind, opt_multilib))
+                       --with-bugurl=http://bugs.pardus.org.tr')
 
 
 def build():
@@ -123,6 +118,5 @@ def install():
     for i in gdbpy_files:
         pisitools.domove("/usr/lib/%s" % shelltools.baseName(i), gdbpy_dir)
 
-    if arch == "x86-64":
-        pisitools.remove("/usr/lib32/libstdc++*gdb.py*")
+    pisitools.remove("/usr/lib32/libstdc++*gdb.py*")
 
