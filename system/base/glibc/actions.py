@@ -1,25 +1,23 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright 2005-2010 TUBITAK/UEKAE
 # Licensed under the GNU General Public License, version 2.
 # See the file http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
 
+from pisi.actionsapi import shelltools
 from pisi.actionsapi import autotools
 from pisi.actionsapi import pisitools
-from pisi.actionsapi import shelltools
 from pisi.actionsapi import get
 
 import os
 
-WorkDir = "glibc-2.12-26-g9a98163"
+WorkDir = "glibc-2.14-394-g8f3b1ff"
 
-defaultflags = "-O3 -g -U_FORTIFY_SOURCE -fno-strict-aliasing -fomit-frame-pointer -mno-tls-direct-seg-refs"
-# this is getting ridiculous, also gdb3 breaks resulting binary
-#sysflags = get.CFLAGS().replace("-fstack-protector", "").replace("-D_FORTIFY_SOURCE=2", "").replace("-funwind-tables", "").replace("-fasynchronous-unwind-tables", "")
+defaultflags = "-O3 -g -U_FORTIFY_SOURCE -fno-strict-aliasing -mno-tls-direct-seg-refs"
 sysflags = "-mtune=generic -march=x86-64" if get.ARCH() == "x86_64" else "-mtune=atom -march=i686"
 
-multibuild = (get.ARCH() == "x86_64")
+#FIXME: multibuild = (get.ARCH() == "x86_64")
+multibuild = False
 pkgworkdir = "%s/%s" % (get.workDIR(), WorkDir)
 
 config = {"multiarch": {
@@ -43,11 +41,9 @@ config = {"multiarch": {
 ldconf32bit = """/lib32
 /usr/lib32
 """
-#/usr/local/lib32
-
 
 ### helper functions ###
-def removePardusSection(_dir):
+def remove_pardus_section(_dir):
     for root, dirs, files in os.walk(_dir):
         for name in files:
             # FIXME: should we do this only on nonshared or all ?
@@ -70,7 +66,7 @@ def set_variables(cfg):
 
 
 ### functionize repetetive tasks ###
-def libcSetup(cfg):
+def libc_setup(cfg):
     set_variables(cfg)
 
     if not os.path.exists(cfg["builddir"]):
@@ -82,7 +78,7 @@ def libcSetup(cfg):
                        --with-__thread \
                        --enable-add-ons=nptl,libidn \
                        --enable-bind-now \
-                       --enable-kernel=2.6.31 \
+                       --enable-kernel=2.6.32 \
                        --enable-stackguard-randomization \
                        --without-cvs \
                        --without-gd \
@@ -100,7 +96,7 @@ def libcBuild(cfg):
     shelltools.cd(cfg["builddir"])
     autotools.make()
 
-def libcInstall(cfg):
+def libc_install(cfg):
     # not to bork locale/zone stuff
     set_variables(cfg)
 
@@ -112,15 +108,15 @@ def libcInstall(cfg):
     pisitools.dosym("libbsd-compat.a", "/usr/%s/libbsd.a" % cfg["libdir"])
 
     # Remove our options section from crt stuff
-    removePardusSection("%s/usr/%s/" % (get.installDIR(), cfg["libdir"]))
+    remove_pardus_section("%s/usr/%s/" % (get.installDIR(), cfg["libdir"]))
 
 
 ### real actions start here ###
 def setup():
     if multibuild:
-        libcSetup(config["multiarch"])
+        libc_setup(config["multiarch"])
 
-    libcSetup(config["system"])
+    libc_setup(config["system"])
 
 
 def build():
@@ -145,13 +141,13 @@ def install():
     # we do second arch first, to allow first arch to overwrite headers, etc.
     # stubs-32.h, elf.h, vm86.h comes only with 32bit
     if multibuild:
-        libcInstall(config["multiarch"])
+        libc_install(config["multiarch"])
         pisitools.dosym("../lib32/ld-linux.so.2", "/lib/ld-linux.so.2")
-        # FIXME: these should be added as additional file, when we can define pkg per arch
+
         pisitools.dodir("/etc/ld.so.conf.d")
         shelltools.echo("%s/etc/ld.so.conf.d/60-glibc-32bit.conf" % get.installDIR(), ldconf32bit)
 
-    libcInstall(config["system"])
+    libc_install(config["system"])
 
     # localedata can be shared between archs
     shelltools.cd(config["system"]["builddir"])
@@ -185,4 +181,3 @@ def install():
             pisitools.remove("/usr/sbin/%s" % i)
 
     pisitools.dodoc("BUGS", "ChangeLog*", "CONFORMANCE", "FAQ", "NEWS", "NOTES", "PROJECTS", "README*", "LICENSES")
-

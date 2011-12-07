@@ -1,0 +1,49 @@
+From 7327af4c323f6d4f500bf4aaa66a9cac6236772f Mon Sep 17 00:00:00 2001
+From: Jim Meyering <meyering@redhat.com>
+Date: Wed, 26 Oct 2011 20:08:52 +0200
+Subject: [PATCH] Revert "Use leaf function attribute in __THROW"
+
+This reverts commit aa78043a4aafe5db1a1a76d544a833b63b4c5f5c
+and the related 49a43d80ec5c97cf6136b1ee2687414773b2d5aa.
+This fixes http://bugzilla.redhat.com/747377
+---
+ misc/sys/cdefs.h |   15 +++------------
+ 2 files changed, 3 insertions(+), 14 deletions(-)
+
+diff --git a/misc/sys/cdefs.h b/misc/sys/cdefs.h
+index 72073e8..165a94a 100644
+--- a/misc/sys/cdefs.h
++++ b/misc/sys/cdefs.h
+@@ -38,27 +38,18 @@
+
+ #ifdef __GNUC__
+
+-/* All functions, except those with callbacks, are leaf functions.  */
+-# if __GNUC_PREREQ (4, 6) && !defined _LIBC
+-#  define __LEAF , __leaf__
+-#  define __LEAF_ATTR __attribute__ ((__leaf__))
+-# else
+-#  define __LEAF
+-#  define __LEAF_ATTR
+-# endif
+-
+ /* GCC can always grok prototypes.  For C++ programs we add throw()
+    to help it optimize the function calls.  But this works only with
+    gcc 2.8.x and egcs.  For gcc 3.2 and up we even mark C functions
+    as non-throwing using a function attribute since programs can use
+    the -fexceptions options for C code as well.  */
+ # if !defined __cplusplus && __GNUC_PREREQ (3, 3)
+-#  define __THROW	__attribute__ ((__nothrow__ __LEAF))
+-#  define __NTH(fct)	__attribute__ ((__nothrow__ __LEAF)) fct
++#  define __THROW	__attribute__ ((__nothrow__))
++#  define __NTH(fct)	__attribute__ ((__nothrow__)) fct
+ # else
+ #  if defined __cplusplus && __GNUC_PREREQ (2,8)
+ #   define __THROW	throw ()
+-#   define __NTH(fct)	__LEAF_ATTR fct throw ()
++#   define __NTH(fct)	fct throw ()
+ #  else
+ #   define __THROW
+ #   define __NTH(fct)	fct
+--
+1.7.7.1

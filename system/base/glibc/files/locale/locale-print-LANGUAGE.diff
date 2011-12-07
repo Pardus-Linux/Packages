@@ -10,19 +10,21 @@ one.  Thus LANGUAGE is printed between them.
  locale/programs/locale.c |    4 ++++
  1 file changed, 4 insertions(+)
 
---- a/locale/programs/locale.c
-+++ b/locale/programs/locale.c
-@@ -752,6 +752,7 @@
+Index: glibc-2.14.1/locale/programs/locale.c
+===================================================================
+--- glibc-2.14.1.orig/locale/programs/locale.c
++++ glibc-2.14.1/locale/programs/locale.c
+@@ -793,6 +793,7 @@ show_locale_vars (void)
  {
    size_t cat_no;
-   const char *lcall = getenv ("LC_ALL");
+   const char *lcall = getenv ("LC_ALL") ? : "";
 +  const char *language = getenv ("LANGUAGE");
    const char *lang = getenv ("LANG") ? : "";
  
    auto void get_source (const char *name);
-@@ -770,6 +771,9 @@
+@@ -811,6 +812,9 @@ show_locale_vars (void)
    /* LANG has to be the first value.  */
-   printf ("LANG=%s\n", lang);
+   print_assignment ("LANG", lang, false);
  
 +  if (language != NULL && getenv ("POSIXLY_CORRECT") == NULL)
 +    printf ("LANGUAGE=%s\n", language);

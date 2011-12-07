@@ -2,7 +2,7 @@ Index: nscd/cache.c
 ===================================================================
 --- nscd/cache.c.orig	2010-01-18 18:01:41.000000000 +0100
 +++ nscd/cache.c	2010-02-14 14:58:08.000000000 +0100
-@@ -267,28 +267,31 @@ prune_cache (struct database_dyn *table,
+@@ -267,27 +267,29 @@
    if (table->inotify_descr < 0 && table->check_file && now != LONG_MAX)
      {
        struct stat64 st;
@@ -14,7 +14,7 @@ Index: nscd/cache.c
  	{
 -	  char buf[128];
 -	  /* We cannot stat() the file, disable file checking if the
--             file does not exist.  */
+-	     file does not exist.  */
 -	  dbg_log (_("cannot stat() file `%s': %s"),
 -		   table->filename, strerror_r (errno, buf, sizeof (buf)));
 -	  if (errno == ENOENT)
@@ -37,14 +37,12 @@ Index: nscd/cache.c
  	    }
  	}
      }
- 
 +  /* now == 0 means just check for changed files */
 +  if (now == (time_t)0)
 +    return 0;
-+
+ 
    /* We run through the table and find values which are not valid anymore.
  
-      Note that for the initial step, finding the entries to be removed,
 Index: nscd/connections.c
 ===================================================================
 --- nscd/connections.c.orig	2010-01-18 18:01:41.000000000 +0100

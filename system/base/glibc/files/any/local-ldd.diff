@@ -38,16 +38,3 @@
  	ret=$?
  	case $ret in
  	[02]) RTLD=${rtld}; break;;
-@@ -171,7 +175,11 @@
-       # If the program exits with exit code 5, it means the process has been
-       # invoked with __libc_enable_secure.  Fall back to running it through
-       # the dynamic linker.
--      try_trace "$file"
-+      if test -x "$file"; then
-+	try_trace "$file"
-+      else
-+	try_trace "${RTLD}" "$file"
-+      fi
-       rc=$?
-       if [ $rc = 5 ]; then
- 	try_trace "$RTLD" "$file"

@@ -13,21 +13,17 @@
         <IsA>library</IsA>
         <Summary>GNU libc6 (also called glibc2) C library</Summary>
         <Description>The GNU C library is used as the C library in the GNU system and most systems with the Linux kernel. It defines the system calls and other basic C programming language facilities.</Description>
-        <Archive sha1sum="7c6f6dc904a9168818f4c1f4986c3ad254b84a7e" type="tarbz2">http://cekirdek.pardus.org.tr/~onur/distfiles/glibc-2.12-26-g9a98163.tar.bz2</Archive>
+        <!-- Upstream tarball
+        <Archive sha1sum="41ead3cdc99a40a17d5830672c36b49b1d7b79f7" type="tarxz">http://ftp.gnu.org/gnu/glibc/glibc-2.14.1.tar.xz</Archive>
+        -->
+        <!-- Fedora tarball
+        -->
+        <Archive sha1sum="3f99a23b72539b29516c6cadc7fe2ab49430ab1e" type="tarxz">http://cekirdek.pardus.org.tr/~ozan/dist/sources/glibc-2.14-394-g8f3b1ff.tar.xz</Archive>
         <BuildDependencies>
-            <Dependency versionFrom="2.6.31">kernel-headers</Dependency>
             <Dependency>gettext</Dependency>
+            <Dependency>kernel-headers</Dependency>
         </BuildDependencies>
         <Patches>
-            <Patch level="1">locale-no-archive.patch</Patch>
-            <Patch level="1">sandbox.patch</Patch>
-            <!-- It may be a bad idea to allow this undefined behaviour, lets see
-                https://bugs.launchpad.net/ubuntu/+source/gcc-4.3/+bug/305901
-                http://sourceware.org/bugzilla/show_bug.cgi?id=7075
-            -->
-            <Patch level="1">no-sprintf-pre-truncate.diff</Patch>
-            <Patch level="1">translation-ldconfig-tr.patch</Patch>
-
             <!-- Ubuntu/Debian patches -->
             <Patch level="1">all/local-alias-UTF-8.diff</Patch>
             <Patch level="1">all/local-alias-et_EE.diff</Patch>
@@ -40,7 +36,6 @@
             <Patch level="1">any/submitted-fileops-and-signals.diff</Patch>
             <Patch level="1">any/submitted-getcwd-sys_param_h.diff</Patch>
             <Patch level="1">any/submitted-nis-netgrp.diff</Patch>
-            <Patch level="1">any/submitted-popen.diff</Patch>
             <Patch level="1">any/submitted-sched_h.diff</Patch>
             <Patch level="1">i386/local-clone.diff</Patch>
             <Patch level="1">i386/local-cmov.diff</Patch>
@@ -51,66 +46,49 @@
 
             <!-- Don't declare the fwrite and fwrite_unlocked functions with __attribute__((warn_unused_result)).
                  See https://lists.ubuntu.com/archives/ubuntu-devel/2009-March/027832.html -->
-            <Patch>ubuntu/local-fwrite-no-attr-unused.diff</Patch>
+            <Patch level="0">ubuntu/local-fwrite-no-attr-unused.diff</Patch>
+
+            <!-- It may be a bad idea to allow this undefined behaviour, lets see
+                https://bugs.launchpad.net/ubuntu/+source/gcc-4.3/+bug/305901
+                http://sourceware.org/bugzilla/show_bug.cgi?id=7075 -->
+            <Patch level="1">ubuntu/no-sprintf-pre-truncate.diff</Patch>
 
             <!-- Fedora patches -->
             <Patch level="1">fedora/glibc-fedora.patch</Patch>
-            <Patch level="1">fedora/glibc-nss_dns-gethostbyname4-disable.patch</Patch>
+            <Patch level="1">fedora/glibc-no-leaf-attribute.patch</Patch>
 
             <!-- Suse patches -->
-            <Patch>suse/glibc-resolv-reload.diff</Patch>
-            <!-- check for mtime of resolv.conf -->
-            <Patch>suse/glibc-2.4.90-nscd.diff</Patch>
+
+            <Patch level="0">suse/glibc-resolv-reload.diff</Patch>
+
+            <!-- FIXME: Can't apply. check for mtime of resolv.conf
+            <Patch level="0">suse/glibc-2.4.90-nscd.diff</Patch>
+            -->
 
             <!-- Gentoo patches -->
-            <Patch>gentoo/0085_all_glibc-disable-ldconfig.patch</Patch>
-            <Patch level="1">gentoo/1160_all_glibc-2.8-nscd-one-fork.patch</Patch>
-            <Patch level="1">gentoo/0030_all_glibc-respect-env-CPPFLAGS.patch</Patch>
-            <Patch level="1">gentoo/0044_all_glibc-2.10-resolv-nameserver-fallback.patch</Patch>
             <Patch level="1">gentoo/0055_all_glibc-2.12-static-shared-getpagesize.patch</Patch>
-            <Patch level="1">gentoo/0060_all_glibc-2.12-sse4-x86-static-strspn.patch</Patch>
-            <Patch level="1">gentoo/0070_all_glibc-2.12-asm-gnu-indirect.patch</Patch>
             <Patch level="1">gentoo/1010_all_glibc-queue-header-updates.patch</Patch>
-            <Patch level="1">gentoo/1020_all_glibc-longjmp-chk-hidden-fortify.patch</Patch>
             <Patch level="1">gentoo/1030_all_glibc-manual-no-perl.patch</Patch>
             <Patch level="1">gentoo/1040_all_2.3.3-localedef-fix-trampoline.patch</Patch>
             <Patch level="1">gentoo/1070_all_glibc-fadvise64_64.patch</Patch>
-            <Patch>gentoo/1085_all_glibc-2.9-check_native-headers.patch</Patch>
             <Patch level="1">gentoo/1120_all_glibc-2.11-longjmp-chk-fallback.patch</Patch>
+            <Patch level="1">gentoo/1160_all_glibc-2.8-nscd-one-fork.patch</Patch>
             <Patch level="1">gentoo/5063_all_glibc-dont-build-timezone.patch</Patch>
 
 
-            <!-- CVE-2010-3847 -->
-            <Patch level="1">glibc-2.12.1-never-expand-ORIGIN-in-privileged-programs.patch</Patch>
-            <!-- CVE-2010-3856 -->
-            <Patch level="1">glibc-2.12.1-CVE-2010-3856.diff</Patch>
-            <!-- CVE-2011-1095 -->
-            <Patch level="1">CVE-2011-1095.patch</Patch>
-            <!-- CVE-2011-1089 -->
-            <Patch level="1">CVE-2011-1089.patch</Patch>
-            <!-- Fix alloca usage and check size of pattern in wide character representation in fnmatch, fixes CVE-2011-1071 -->
-            <Patch level="1">fix_use_of_alloca_in_fnmatch.patch</Patch>
+            <!-- Pardus specific patches -->
 
-            <!-- Pardus spesific patches -->
+            <Patch level="1">pardus/locale-no-archive.patch</Patch>
+
             <!-- Fix paths in 64bit -->
-            <Patch level="1">pure64.patch</Patch>
+            <Patch level="1">pardus/pure64.patch</Patch>
 
-            <!-- for make 3.82 sed -i 's/ot \$/ot:\n\ttouch $@\n$/' manual/Makefile -->
-            <Patch level="1">make_3.82.patch</Patch>
+            <!-- Fix sandbox violation -->
+            <Patch level="1">pardus/sandbox.patch</Patch>
 
-            <!-- systemd patches -->
-            <Patch level="1">systemd_listen_fd_in_nscd.patch</Patch>
+            <!-- Turkish translations for ldconfig -->
+            <Patch level="1">pardus/translation-ldconfig-tr.patch</Patch>
 
-            <!-- Fall back to singlebyte matching in fnmatch if multibyte matching fails -->
-            <!-- FIXME: forwardport of 5021_all_2.9-fnmatch.patch, seems it is not needed anymore
-            <Patch level="1">fnmatch_singlebyte.patch</Patch>
-            -->
-
-            <!-- http://bugs.pardus.org.tr/show_bug.cgi?id=18943
-                 http://sourceware.org/bugzilla/show_bug.cgi?id=12113
-                 http://repo.or.cz/w/glibc.git/commitdiff/f90681487d90a6eea8f1c60021bc8dd83313c59b
-            -->
-            <Patch level="1">glibc.git-f90681487d90a6eea8f1c60021bc8dd83313c59b.patch</Patch>
         </Patches>
     </Source>
 
@@ -1710,6 +1688,13 @@
     </Package>
 
     <History>
+        <Update release="66">
+            <Date>2011-12-07</Date>
+            <Version>2.14.1</Version>
+            <Comment>Version bump.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
         <Update release="65">
             <Date>2011-08-13</Date>
             <Version>2.12_20100706</Version>
@@ -2205,4 +2190,3 @@
         </Update>
     </History>
 </PISI>
-
