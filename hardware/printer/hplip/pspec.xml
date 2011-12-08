@@ -12,10 +12,11 @@
         <License>MIT</License>
         <Summary>HP Linux Imaging and Printing System</Summary>
         <Description>HP Linux Imaging and Printing (HPLIP) System includes printer and scanner drivers and related service tools.</Description>
-        <Archive sha1sum="3462f169302cd9abca0e7a0150f07f591796a0d0" type="targz">mirrors://sourceforge/hplip/hplip-3.11.3a.tar.gz</Archive>
+        <Archive sha1sum="716dea09c1570356b359e5b6d4a50f8b2654d760" type="targz">mirrors://sourceforge/hplip/hplip-3.11.10.tar.gz</Archive>
         <AdditionalFiles>
             <!-- PPD patcher -->
             <AdditionalFile permission="0755" target="patch-ppds">patch-ppds.sh</AdditionalFile>
+            <AdditionalFile permission="0755" target="copy-deviceids">fedora/copy-deviceids.py</AdditionalFile>
 
             <!-- PPD patches -->
             <AdditionalFile target="ppd-patches/001-hplip-deviceIDs-ppd.patch">fedora/hplip-deviceIDs-ppd.patch</AdditionalFile>
@@ -67,8 +68,8 @@
             <!-- Clear old printer-state-reasons we used to manage -->
             <Patch level="1">fedora/hplip-clear-old-state-reasons.patch</Patch>
 
-            <!-- Fix python shebang -->
-            <Patch level="1">fedora/hplip-env-python.patch</Patch>
+            <!-- Catch DBusException in hp-systray -->
+            <Patch level="1">fedora/hplip-systray-dbus-exception.patch</Patch>
 
             <!-- Avoid busy loops in hpcups when backend has exited -->
             <Patch level="1">fedora/hplip-hpcups-sigpipe.patch</Patch>
@@ -94,9 +95,6 @@
             <!-- Fix ImageableArea for LaserJet 8150/9000 -->
             <!-- UNPACKEDPATCH 2 -->
 
-            <!-- Increase timeouts for curl, wget, ping for high latency networks -->
-            <Patch level="1">fedora/hplip-network-timeout.patch</Patch>
-
             <!-- Fixed traceback on error condition in device.py -->
             <Patch level="1">fedora/hplip-raw_deviceID-traceback.patch</Patch>
 
@@ -112,7 +110,6 @@
             <!-- Call cupsSetUser in cupsext's addPrinter method before connecting so
                  that we can get an authentication callback -->
             <Patch level="1">fedora/hplip-addprinter.patch</Patch>
-
 
             <!-- Catch D-Bus exceptions in fax dialog -->
             <Patch level="1">fedora/hplip-dbus-exception.patch</Patch>
@@ -134,6 +131,12 @@
 
             <!-- Avoid KeyError in ui4/wifisetupdialog.py -->
             <Patch level="1">fedora/hplip-wifisetup.patch</Patch>
+
+            <!-- Pay attention to the SANE localOnly flag in hpaio -->
+            <Patch level="1">fedora/hplip-hpaio-localonly.patch</Patch>
+
+            <!-- Revert prnt/hpcups/HPCupsFilter.cpp 3.11.5->3.11.7 change -->
+            <Patch level="1">fedora/hplip-top-margins-not-respected.patch</Patch>
 
             <!-- Pardus patches -->
             <Patch level="1">pardus/desktop-i18n.patch</Patch>
@@ -226,6 +229,17 @@
     </Package>
 
     <History>
+        <Update release="48" type="security">
+            <Date>2011-12-08</Date>
+            <Version>3.11.10</Version>
+            <Comment>
+                - Version bump to fix hp-plugin problem (pb#19424),
+                - HP LaserJet P1005 not working (pb#18925),
+                - Fix insecure tmp file handing (pb#18831).
+            </Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
         <Update release="47">
             <Date>2011-05-06</Date>
             <Version>3.11.3a</Version>

@@ -20,14 +20,21 @@ def setup():
     for f in ("NEWS", "INSTALL", "README", "AUTHORS", "ChangeLog"):
         shelltools.touch(f)
 
-    autotools.autoreconf("-fi")
     pisitools.dosed("Makefile.am", "^rulesdir = .*$", "rulesdir = /lib/udev/rules.d")
+
+    # Migrate device ids from hpcups drv to hpijs drv
+    shelltools.system("./copy-deviceids prnt/drv/hpcups.drv.in prnt/drv/hpijs.drv.in > hpijs.drv.in.new")
+    shelltools.move("hpijs.drv.in.new", "prnt/drv/hpijs.drv.in")
 
     # Strip duplex constraints from hpcups
     pisitools.dosed("prnt/drv/hpcups.drv.in", "(UIConstraints.* \*Duplex)", "//\\1")
 
+    # Change python shebang
+    shelltools.system("find -name '*.py' -print0 | xargs -0 sed -i 's,^#!/usr/bin/env python,#!/usr/bin/python,'")
+
     # These are barely the defaults except:
     # --enable-foomatic-drv-install (default=no) (respected by Fedora, enabled by Ubuntu)
+    autotools.autoreconf("-fi")
     autotools.configure("--with-cupsbackenddir=/usr/lib/cups/backend \
                          --with-drvdir=/usr/share/cups/drv \
                          --with-hpppddir=/usr/share/cups/model/hplip \
