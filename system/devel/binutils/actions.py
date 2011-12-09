@@ -9,17 +9,15 @@ from pisi.actionsapi import autotools
 from pisi.actionsapi import pisitools
 from pisi.actionsapi import get
 
-linker = "ld"
 multilib = "--enable-multilib" if get.ARCH() == "x86_64" else ""
-
-# WorkDir = "binutils-2.20.51"
 
 def setup():
     # Build binutils with LD_SYMBOLIC_FUNCTIONS=1 and reduce PLT relocations in libfd.so by 84%.
     shelltools.export("LD_SYMBOLIC_FUNCTIONS", "1")
 
     autotools.configure('--enable-shared \
-                         --build=%s \
+                         --host=%s \
+                         --target=%s \
                          --enable-gold \
                          --enable-plugins \
                          --enable-threads \
@@ -28,13 +26,13 @@ def setup():
                          --with-separate-debug-dir=/usr/lib/debug \
                          %s \
                          --disable-nls \
-                         --disable-werror' % (get.HOST(), multilib))
+                         --disable-werror' % (get.HOST(), get.HOST(), multilib))
                          # --with-pic \
                          # --enable-targets="i386-linux" \
 
 def build():
-    autotools.make("all")
-    autotools.make("info")
+    autotools.make("tooldir=/usr all")
+    autotools.make("tooldir=/usr info")
 
 # check fails because of LD_LIBRARY_PATH
 #def check():
@@ -43,29 +41,38 @@ def build():
 def install():
     autotools.rawInstall("DESTDIR=%s tooldir=/usr" % get.installDIR())
 
-    # Rebuild libbfd.a and libiberty.a with -fPIC
-    pisitools.remove("/usr/lib/libbfd.a")
-    pisitools.remove("/usr/lib/libiberty.a")
+    # Copy plugin-api.h file to build LLVM with LLVM gold plugin
+    pisitools.insinto("/usr/include", "include/plugin-api.h")
 
+    # Rebuild libiberty with -fPIC
     autotools.make("-C libiberty clean")
     autotools.make('CFLAGS="-fPIC %s" -C libiberty' % get.CFLAGS())
 
+    # Rebuild libbfd with -fPIC
     autotools.make("-C bfd clean")
     autotools.make('CFLAGS="-fPIC %s" -C bfd' % get.CFLAGS())
 
-    pisitools.insinto("/usr/lib", "bfd/libbfd.a")
-    pisitools.insinto("/usr/lib", "libiberty/libiberty.a")
-    pisitools.insinto("/usr/include", "include/libiberty.h")
+    # Rebuild libopcodes with -fPIC
+    autotools.make("-C opcodes clean")
+    autotools.make('CFLAGS="-fPIC %s" -C opcodes' % get.CFLAGS())
 
-    # Copy plugin-api.h file to build LLVM with LLVM gold plugin
-    pisitools.insinto("/usr/include", "include/plugin-api.h")
+
+    # Install rebuilt static libraries
+    pisitools.dolib_a("bfd/libbfd.a")
+    pisitools.dolib_a("libiberty/libiberty.a")
+    pisitools.dolib_a("opcodes/libopcodes.a")
+
+    # Install header for libiberty
+    pisitools.insinto("/usr/include", "include/libiberty.h")
 
     # Prevent programs to link against libbfd and libopcodes dynamically,
     # they are changing far too often
     pisitools.remove("/usr/lib/libopcodes.so")
     pisitools.remove("/usr/lib/libbfd.so")
 
-    # Remove libtool files, which reference the .so libs
-    pisitools.remove("/usr/lib/libopcodes.la")
-    pisitools.remove("/usr/lib/libbfd.la")
+    # Remove Windows/Novell specific man pages
+    pisitools.remove("/usr/share/man/man1/dlltool.1")
+    pisitools.remove("/usr/share/man/man1/nlmconv.1")
+    pisitools.remove("/usr/share/man/man1/windres.1")
+
 
