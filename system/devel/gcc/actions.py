@@ -12,9 +12,10 @@ from pisi.actionsapi import get
 import os
 
 verMajor = get.srcVERSION()
+arch = get.ARCH().replace("x86_64", "x86-64")
 
 # WARNING: even -fomit-frame-pointer may break the build, stack protector, fortify source etc. are off limits
-cflags = "-O2 -g"
+cflags = "-O2"
 
 def removePardusSection(_dir):
     for root, dirs, files in os.walk(_dir):
@@ -40,6 +41,12 @@ def setup():
     # Maintainer mode off, do not force recreation of generated files
     # shelltools.system("contrib/gcc_update --touch")
 
+    # Do not install libiberty
+    pisitools.dosed("libiberty/Makefile.in", "install_to_$(INSTALL_DEST) ", "")
+
+    # Do not run fixincludes
+    pisitools.dosed("gcc/Makefile.in", "\./fixinc\.sh", "-c true")
+
     shelltools.makedirs("build")
     shelltools.cd("build")
 
@@ -51,31 +58,32 @@ def setup():
                        --includedir=/usr/include \
                        --mandir=/usr/share/man \
                        --infodir=/usr/share/info \
-                       --with-gxx-include-dir=/usr/include/c++ \
                        --build=%s \
-                       --disable-nls \
+                       --with-gxx-include-dir=/usr/include/c++ \
+                       --enable-linker-build-id \
+                       --enable-ssp \
                        --enable-clocale=gnu \
                        --enable-libstdcxx-allocator=new \
-                       --disable-libstdcxx-pch \
                        --enable-shared \
                        --enable-threads=posix \
                        --enable-checking=release \
+                       --enable-multilib \
+                       --enable-bootstrap \
                        --with-system-zlib \
+                       --with-system-libunwind \
                        --enable-__cxa_atexit \
-                       --disable-libunwind-exceptions \
                        --enable-gnu-unique-object \
                        --enable-languages=c,c++,fortran,objc,obj-c++,lto \
                        --enable-plugin \
+                       --disable-nls \
                        --disable-libgcj \
-                       --enable-ssp \
+                       --disable-libunwind-exceptions \
+                       --disable-libstdcxx-pch \
                        --without-included-gettext \
-                       --with-system-libunwind \
-                       --with-arch32=i686 \
-                       --enable-multilib \
+                       --with-arch_32=i686 \
                        --with-tune=generic \
                        --with-pkgversion="Pardus Linux" \
-                       --with-bugurl=http://bugs.pardus.org.tr')
-
+                       --with-bugurl=http://bugs.pardus.org.tr' % get.HOST())
 
 def build():
     exportFlags()
@@ -114,9 +122,12 @@ def install():
     gdbpy_dir = "/usr/share/gdb/auto-load/usr/lib/"
     pisitools.dodir(gdbpy_dir)
 
+    pisitools.removeDir("/usr/lib64")
+
     gdbpy_files = shelltools.ls("%s/usr/lib/libstdc++*gdb.py*" % get.installDIR())
     for i in gdbpy_files:
         pisitools.domove("/usr/lib/%s" % shelltools.baseName(i), gdbpy_dir)
 
-    pisitools.remove("/usr/lib32/libstdc++*gdb.py*")
+    #if arch == "x86-64":
+    #    pisitools.remove("/usr/lib32/libstdc++*gdb.py*")
 
