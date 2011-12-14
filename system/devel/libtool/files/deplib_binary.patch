@@ -1,20 +1,20 @@
-Index: libtool-2.2.6a/libltdl/config/ltmain.m4sh
+Index: libtool-2.4/libltdl/config/ltmain.m4sh
 ===================================================================
---- libtool-2.2.6a.orig/libltdl/config/ltmain.m4sh	2009-04-06 23:08:48.000000000 +0200
-+++ libtool-2.2.6a/libltdl/config/ltmain.m4sh	2009-04-06 23:15:32.000000000 +0200
-@@ -4905,19 +4905,19 @@
+--- libtool-2.4.orig/libltdl/config/ltmain.m4sh	2011-03-27 21:52:59.000000000 +0000
++++ libtool-2.4/libltdl/config/ltmain.m4sh	2011-03-27 22:06:06.000000000 +0000
+@@ -5644,19 +5644,19 @@
  	    # It is a libtool convenience library, so add in its objects.
- 	    convenience="$convenience $ladir/$objdir/$old_library"
- 	    old_convenience="$old_convenience $ladir/$objdir/$old_library"
+ 	    func_append convenience " $ladir/$objdir/$old_library"
+ 	    func_append old_convenience " $ladir/$objdir/$old_library"
 +	    tmp_libs=
 +	    for deplib in $dependency_libs; do
 +	      deplibs="$deplib $deplibs"
-+	      if $opt_duplicate_deps ; then
++	      if $opt_preserve_dup_deps ; then
 +		case "$tmp_libs " in
-+		*" $deplib "*) specialdeplibs="$specialdeplibs $deplib" ;;
++		*" $deplib "*) func_append specialdeplibs " $deplib" ;;
 +		esac
 +	      fi
-+	      tmp_libs="$tmp_libs $deplib"
++	      func_append tmp_libs " $deplib"
 +	    done
  	  elif test "$linkmode" != prog && test "$linkmode" != lib; then
  	    func_fatal_error "\`$lib' is not a convenience library"
@@ -22,12 +22,12 @@ Index: libtool-2.2.6a/libltdl/config/ltmain.m4sh
 -	  tmp_libs=
 -	  for deplib in $dependency_libs; do
 -	    deplibs="$deplib $deplibs"
--	    if $opt_duplicate_deps ; then
+-	    if $opt_preserve_dup_deps ; then
 -	      case "$tmp_libs " in
--	      *" $deplib "*) specialdeplibs="$specialdeplibs $deplib" ;;
+-	      *" $deplib "*) func_append specialdeplibs " $deplib" ;;
 -	      esac
 -	    fi
--	    tmp_libs="$tmp_libs $deplib"
+-	    func_append tmp_libs " $deplib"
 -	  done
  	  continue
  	fi # $pass = conv
