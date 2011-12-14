@@ -1,11 +1,11 @@
---- texinfo-4.13/makeinfo/sectioning.c.org	2008-11-03 23:01:26.957799459 +0100
-+++ texinfo-4.13/makeinfo/sectioning.c	2008-11-03 23:02:10.180927044 +0100
-@@ -256,14 +256,14 @@
-     return xstrdup ("");
+Index: texinfo-4.13/makeinfo/sectioning.c
+===================================================================
+--- texinfo-4.13.orig/makeinfo/sectioning.c
++++ texinfo-4.13/makeinfo/sectioning.c
+@@ -257,13 +257,13 @@ current_chapter_number (void)
    else if (enum_marker == APPENDIX_MAGIC)
      {
--      char s[1];
-+      char s[2];
+       char s[2];
 -      sprintf (s, "%c", numbers[0] + 64);
 +      snprintf (s, sizeof(s), "%c", numbers[0] + 64);
        return xstrdup (s);
@@ -13,7 +13,7 @@
    else
      {
        char s[5];
--      sprintf (s, "%d", numbers[0]);
+-      sprintf (s, "%4d", numbers[0]);
 +      snprintf (s, sizeof(s), "%d", numbers[0]);
        return xstrdup (s);
      }
