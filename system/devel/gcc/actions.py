@@ -42,7 +42,8 @@ def setup():
     # shelltools.system("contrib/gcc_update --touch")
 
     # Do not install libiberty
-    pisitools.dosed("libiberty/Makefile.in", "install_to_$(INSTALL_DEST) ", "")
+    # This one comes with binutils
+    pisitools.dosed("libiberty/Makefile.in", "install_to_\$\(INSTALL_DEST\) ", "")
 
     # Do not run fixincludes
     pisitools.dosed("gcc/Makefile.in", "\./fixinc\.sh", "-c true")
@@ -50,6 +51,7 @@ def setup():
     shelltools.makedirs("build")
     shelltools.cd("build")
 
+    # multilib is disabled
     shelltools.system('../configure \
                        --prefix=/usr \
                        --bindir=/usr/bin \
@@ -68,6 +70,7 @@ def setup():
                        --enable-threads=posix \
                        --enable-checking=release \
                        --enable-multilib \
+                       --disable-multilib \
                        --enable-bootstrap \
                        --with-system-zlib \
                        --with-system-libunwind \
@@ -102,9 +105,6 @@ def install():
     pisitools.removeDir("/usr/lib/gcc/*/*/include-fixed")
     pisitools.removeDir("/usr/lib/gcc/*/*/install-tools")
 
-    # This one comes with binutils
-    pisitools.remove("/usr/lib*/libiberty.a")
-
     # cc symlink
     pisitools.dosym("/usr/bin/gcc" , "/usr/bin/cc")
 
@@ -121,8 +121,6 @@ def install():
     # autoload gdb pretty printers
     gdbpy_dir = "/usr/share/gdb/auto-load/usr/lib/"
     pisitools.dodir(gdbpy_dir)
-
-    pisitools.removeDir("/usr/lib64")
 
     gdbpy_files = shelltools.ls("%s/usr/lib/libstdc++*gdb.py*" % get.installDIR())
     for i in gdbpy_files:
