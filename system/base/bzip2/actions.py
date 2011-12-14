@@ -1,7 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright 2005-2009 TUBITAK/UEKAE
 # Licensed under the GNU General Public License, version 2.
 # See the file http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
 
@@ -20,16 +19,14 @@ def install():
 
     # No static libs
     pisitools.removeDir("/usr/lib")
-    pisitools.domove("/usr/bin/", "/")
 
-    for link in ("/bin/bunzip2", "/bin/bzcat"):
+    for link in ("/usr/bin/bunzip2", "/usr/bin/bzcat"):
         pisitools.remove(link)
-        pisitools.dosym("/bin/bzip2", link)
+        pisitools.dosym("bzip2", link)
 
-    pisitools.dolib("libbz2.so.%s" % libversion, "/lib")
-
-    pisitools.dosym("libbz2.so.1", "/lib/libbz2.so")
-    pisitools.dosym("libbz2.so.%s" % libversion, "/lib/libbz2.so.1")
+    pisitools.dolib("libbz2.so.%s" % libversion, "/usr/lib")
+    pisitools.dosym("libbz2.so.1", "/usr/lib/libbz2.so")
+    pisitools.dosym("libbz2.so.%s" % libversion, "/usr/lib/libbz2.so.1")
 
     pisitools.dohtml("manual.html")
     pisitools.dodoc("README", "CHANGES", "bzip2.txt")
