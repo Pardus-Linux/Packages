@@ -7,7 +7,7 @@ from pisi.actionsapi import pythonmodules
 from pisi.actionsapi import pisitools
 from pisi.actionsapi import get
 
-WorkDir="setuptools-%s" % get.srcVERSION().replace("_", "c")
+WorkDir="distribute-%s" % get.srcVERSION()
 
 def install():
     pythonmodules.install()
