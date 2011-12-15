@@ -1,6 +1,7 @@
---- tcp_wrappers_7.6/hosts_access.c.sig	2003-02-10 16:18:31.000000000 +0100
-+++ tcp_wrappers_7.6/hosts_access.c	2003-02-10 16:50:38.000000000 +0100
-@@ -66,6 +66,7 @@
+diff -up tcp_wrappers_7.6/hosts_access.c.patch12 tcp_wrappers_7.6/hosts_access.c
+--- tcp_wrappers_7.6/hosts_access.c.patch12	2008-08-29 09:45:12.000000000 +0200
++++ tcp_wrappers_7.6/hosts_access.c	2008-08-29 09:45:12.000000000 +0200
+@@ -66,6 +66,7 @@ static char sep[] = ", \t\r\n";
  
  #define	YES		1
  #define	NO		0
@@ -8,7 +9,7 @@
  
   /*
    * These variables are globally visible so that they can be redirected in
-@@ -106,7 +107,6 @@
+@@ -106,7 +107,6 @@ int     hosts_access(request)
  struct request_info *request;
  {
      int     verdict;
@@ -16,7 +17,7 @@
      /*
       * If the (daemon, client) pair is matched by an entry in the file
       * /etc/hosts.allow, access is granted. Otherwise, if the (daemon,
-@@ -129,9 +129,9 @@
+@@ -129,9 +129,9 @@ struct request_info *request;
  	return (verdict == AC_PERMIT);
      if (table_match(hosts_allow_table, request))
  	return (YES);
@@ -29,7 +30,7 @@
  }
  
  /* table_match - match table entries with (daemon, client) pair */
-@@ -175,6 +175,7 @@
+@@ -175,6 +175,7 @@ struct request_info *request;
  	(void) fclose(fp);
      } else if (errno != ENOENT) {
  	tcpd_warn("cannot open %s: %m", table);
