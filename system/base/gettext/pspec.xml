@@ -16,31 +16,22 @@
         <Archive sha1sum="5009deb02f67fc3c59c8ce6b82408d1d35d4e38f" type="targz">mirrors://gnu/gettext/gettext-0.18.1.1.tar.gz</Archive>
         <BuildDependencies>
             <Dependency>acl-devel</Dependency>
-            <Dependency>glib2-devel</Dependency>
+            <Dependency>expat-devel</Dependency>
             <Dependency>ncurses-devel</Dependency>
+            <Dependency>libunistring-devel</Dependency>
         </BuildDependencies>
         <Patches>
-            <!--
-            <Patch>sigfpe.patch</Patch>
-            <Patch>gettextize.patch</Patch>
-            <Patch>codecleanup.patch</Patch>
-            <Patch>initialize-vars.patch</Patch>
-            <Patch>autotools.patch</Patch>
-            <Patch>gcc-lint.patch</Patch>
-            <Patch level="1">docdir.patch</Patch>
-            -->
-            <!-- disable dlopen patch as it seems to cause segfaults 
-            <Patch level="1">gettext-0.15-expat-no-dlopen.patch</Patch>
-            -->
             <Patch level="1">gettext-0.18.1.1-linkage.patch</Patch>
+            <Patch level="1">gettext-readlink-einval.patch</Patch>
         </Patches>
     </Source>
 
     <Package>
         <Name>gettext-docs</Name>
         <PartOf>system.doc</PartOf>
+        <Summary>Gettext documentation</Summary>
         <RuntimeDependencies>
-            <Dependency>gettext</Dependency>
+            <Dependency release="current">gettext</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="doc">/usr/share/doc/gettext/html</Path>
@@ -51,8 +42,9 @@
         <Name>gettext</Name>
         <RuntimeDependencies>
             <Dependency>acl</Dependency>
-            <Dependency>glib2</Dependency>
+            <Dependency>expat</Dependency>
             <Dependency>ncurses</Dependency>
+            <Dependency>libunistring</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="executable">/usr/bin</Path>
@@ -75,7 +67,6 @@
         <Files>
             <Path fileType="data">/usr/share/aclocal</Path>
             <Path fileType="header">/usr/include</Path>
-            <!-- FIXME: Remove this if not necessary -->
             <Path fileType="man">/usr/share/man/man3</Path>
         </Files>
     </Package>
