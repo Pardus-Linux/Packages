@@ -17,4 +17,6 @@ def build():
 def install():
     autotools.rawInstall("DESTDIR=%s install_testvbe" % get.installDIR())
 
+    pisitools.domove("/sbin", "/usr")
+
     pisitools.dodoc("AUTHORS", "ChangeLog", "README")
