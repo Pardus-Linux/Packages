@@ -1,7 +1,7 @@
-diff -up bash-4.1-rc1/config.h.in.interpreter bash-4.1-rc1/config.h.in
---- bash-4.1-rc1/config.h.in.interpreter	2009-12-26 22:44:46.000000000 +0100
-+++ bash-4.1-rc1/config.h.in	2009-12-26 22:44:46.000000000 +0100
-@@ -695,6 +695,9 @@
+diff -up bash-4.2-rc2/config.h.in.interpreter bash-4.2-rc2/config.h.in
+--- bash-4.2-rc2/config.h.in.interpreter	2011-02-09 07:59:21.000000000 +0100
++++ bash-4.2-rc2/config.h.in	2011-02-09 07:59:21.000000000 +0100
+@@ -706,6 +706,9 @@
  /* Define if you have the pathconf function. */
  #undef HAVE_PATHCONF
  
@@ -11,7 +11,7 @@ diff -up bash-4.1-rc1/config.h.in.interpreter bash-4.1-rc1/config.h.in
  /* Define if you have the putenv function.  */
  #undef HAVE_PUTENV
  
-@@ -881,6 +884,9 @@
+@@ -898,6 +901,9 @@
  /* Define if you have the <dlfcn.h> header file.  */
  #undef HAVE_DLFCN_H
  
@@ -21,15 +21,15 @@ diff -up bash-4.1-rc1/config.h.in.interpreter bash-4.1-rc1/config.h.in
  /* Define if you have the <grp.h> header file.  */
  #undef HAVE_GRP_H
  
-diff -up bash-4.1-rc1/configure.in.interpreter bash-4.1-rc1/configure.in
---- bash-4.1-rc1/configure.in.interpreter	2009-12-12 21:43:18.000000000 +0100
-+++ bash-4.1-rc1/configure.in	2009-12-26 22:46:19.000000000 +0100
+diff -up bash-4.2-rc2/configure.in.interpreter bash-4.2-rc2/configure.in
+--- bash-4.2-rc2/configure.in.interpreter	2011-01-16 21:31:12.000000000 +0100
++++ bash-4.2-rc2/configure.in	2011-02-09 08:02:27.000000000 +0100
 @@ -659,7 +659,7 @@ BASH_HEADER_INTTYPES
  AC_CHECK_HEADERS(unistd.h stdlib.h stdarg.h varargs.h limits.h string.h \
  		 memory.h locale.h termcap.h termio.h termios.h dlfcn.h \
  		 stddef.h stdint.h netdb.h pwd.h grp.h strings.h regex.h \
--		 syslog.h)
-+		 syslog.h elf.h)
+-		 syslog.h ulimit.h)
++		 syslog.h ulimit.h elf.h)
  AC_CHECK_HEADERS(sys/pte.h sys/stream.h sys/select.h sys/file.h \
  		 sys/resource.h sys/param.h sys/socket.h sys/stat.h \
  		 sys/time.h sys/times.h sys/types.h sys/wait.h)
@@ -42,9 +42,9 @@ diff -up bash-4.1-rc1/configure.in.interpreter bash-4.1-rc1/configure.in
  AC_REPLACE_FUNCS(rename)
  
  dnl checks for c library functions
-diff -up bash-4.1-rc1/execute_cmd.c.interpreter bash-4.1-rc1/execute_cmd.c
---- bash-4.1-rc1/execute_cmd.c.interpreter	2009-11-29 03:29:34.000000000 +0100
-+++ bash-4.1-rc1/execute_cmd.c	2009-12-26 22:44:46.000000000 +0100
+diff -up bash-4.2-rc2/execute_cmd.c.interpreter bash-4.2-rc2/execute_cmd.c
+--- bash-4.2-rc2/execute_cmd.c.interpreter	2011-01-20 04:24:47.000000000 +0100
++++ bash-4.2-rc2/execute_cmd.c	2011-02-09 07:59:21.000000000 +0100
 @@ -41,6 +41,10 @@
  #  include <unistd.h>
  #endif
@@ -56,7 +56,7 @@ diff -up bash-4.1-rc1/execute_cmd.c.interpreter bash-4.1-rc1/execute_cmd.c
  #include "posixtime.h"
  
  #if defined (HAVE_SYS_RESOURCE_H) && !defined (RLIMTYPE)
-@@ -4805,13 +4809,21 @@ shell_execve (command, args, env)
+@@ -4975,13 +4979,21 @@ shell_execve (command, args, env)
  	{
  	  /* The file has the execute bits set, but the kernel refuses to
  	     run it for some reason.  See why. */
@@ -79,7 +79,7 @@ diff -up bash-4.1-rc1/execute_cmd.c.interpreter bash-4.1-rc1/execute_cmd.c
  	      interp = getinterp (sample, sample_len, (int *)NULL);
  	      ilen = strlen (interp);
  	      errno = i;
-@@ -4827,6 +4839,136 @@ shell_execve (command, args, env)
+@@ -4997,6 +5009,136 @@ shell_execve (command, args, env)
  	      return (EX_NOEXEC);
  	    }
  #endif

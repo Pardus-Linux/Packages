@@ -1,13 +1,12 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright 2005-2010 TUBITAK/UEKAE
 # Licensed under the GNU General Public License, version 2.
 # See the file http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
 
+from pisi.actionsapi import shelltools
 from pisi.actionsapi import autotools
 from pisi.actionsapi import pisitools
-from pisi.actionsapi import shelltools
 from pisi.actionsapi import get
 
 
@@ -16,7 +15,6 @@ cfgsettings = """-DDEFAULT_PATH_VALUE=\'\"/usr/local/sbin:/usr/local/bin:/usr/sb
                  -DSYS_BASHRC=\'\"/etc/bash/bashrc\"\' \
                  -DNON_INTERACTIVE_LOGIN_SHELLS \
                  -DSSH_SOURCE_BASHRC"""
-                 #-DSYS_BASH_LOGOUT=\'\"/etc/bash/bash_logout\"\' \
 
 def setup():
     # Recycles pids is neccessary. When bash's last fork's pid was X and new fork's pid is also X,
@@ -24,11 +22,8 @@ def setup():
     shelltools.export("CFLAGS", "%s -D_GNU_SOURCE -DRECYCLES_PIDS %s " % (get.CFLAGS(), cfgsettings))
 
     autotools.autoconf()
-    autotools.configure("--without-installed-readline \
-                         --disable-profiling \
-                         --without-gnu-malloc \
-                         --disable-rpath \
-                         --with-curses")
+    autotools.configure("--with-bash-malloc=no \
+                         --disable-rpath")
 
 def build():
     autotools.make()
@@ -41,12 +36,9 @@ def build():
 def install():
     autotools.install()
 
-    pisitools.domove("/usr/bin/bash", "/bin")
-    pisitools.dosym("/bin/bash","/bin/sh")
-    pisitools.dosym("/bin/bash","/bin/rbash")
-
-    # Compatibility with old skels
-    # pisitools.dosym("/etc/bash/bashrc", "/etc/bashrc")
+    pisitools.dosym("/usr/bin/bash","/bin/sh")
+    pisitools.dosym("/usr/bin/bash","/bin/rbash")
+    pisitools.dosym("/usr/bin/bash","/bin/bash")
 
     pisitools.dosym("bash.info", "/usr/share/info/bashref.info")
     pisitools.doman("doc/bash.1", "doc/bashbug.1", "doc/builtins.1", "doc/rbash.1")
