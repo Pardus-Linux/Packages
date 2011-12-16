@@ -22,8 +22,10 @@ def install():
     autotools.rawInstall('DESTDIR="%s"' % get.installDIR())
 
     # required by man
-    pisitools.dosym("eqn", "/usr/bin/geqn")
-    pisitools.dosym("tbl", "/usr/bin/gtbl")
+    for file_ in ("gnroff", "gtroff", "gtbl", "gpic", "geqn", "gneqn",
+                  "grefer", "glookbib", "gindxbib", "gsoelim", "zsoelim"):
+        pisitools.dosym(file_[1:], "/usr/bin/%s" % file_)
+        pisitools.dosym(file_[1:], "/usr/share/man/man1/%s.1" % file_)
 
     pisitools.removeDir("/usr/share/doc/*-%s" % get.srcVERSION())
 
