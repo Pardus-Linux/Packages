@@ -1,6 +1,8 @@
---- zmore.in
+Index: zmore.in
+===================================================================
+--- zmore.in.orig
 +++ zmore.in
-@@ -52,11 +52,33 @@
+@@ -55,11 +55,34 @@ else
     trap 'stty $ncb echo 2>/dev/null; exit' 0 2 3 5 10 13 15
  fi
  
@@ -26,16 +28,17 @@
 +      ;;
 +  esac
 +done
++
  if test $# = 0; then
      if test -t 0; then
- 	echo "$usage"
+ 	echo "$usage" >&2
      else
 -	gzip -cdfq | eval ${PAGER-more}
-+	gzip -cdfq | pager
++	gzip -cdfq | eval pager
      fi
  else
      FIRST=1
-@@ -80,7 +102,7 @@
+@@ -83,7 +106,7 @@ else
  	fi
  	if test "$ANS" != 's'; then
  		echo "------> $FILE <------"

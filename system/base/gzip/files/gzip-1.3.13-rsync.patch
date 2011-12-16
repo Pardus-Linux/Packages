@@ -1,13 +1,7 @@
-NOTE: this patch is for _gzip_!
-
-This is pending for actual inclusion in gzip.  It is currently being
-tried out in the default gzip for Debian Sarge, and may go into the
-upstream gzip at somepoint in the not-too-distant future.
-
-================================================================================
---- gzip-1.3.6/deflate.c
-+++ gzip-1.3.6/deflate.c
-@@ -135,6 +135,14 @@
+diff -up gzip-1.3.13/deflate.c.rsync gzip-1.3.13/deflate.c
+--- gzip-1.3.13/deflate.c.rsync	2009-09-26 20:43:28.000000000 +0200
++++ gzip-1.3.13/deflate.c	2009-12-01 16:14:24.656387546 +0100
+@@ -131,6 +131,14 @@
  #endif
  /* Matches of length 3 are discarded if their distance exceeds TOO_FAR */
  
@@ -22,7 +16,7 @@ upstream gzip at somepoint in the not-too-distant future.
  /* ===========================================================================
   * Local data used by the "longest match" routines.
   */
-@@ -216,6 +224,8 @@
+@@ -212,6 +220,8 @@ local int compr_level;
  unsigned near good_match;
  /* Use a faster search when the previous match is longer than this */
  
@@ -31,7 +25,7 @@ upstream gzip at somepoint in the not-too-distant future.
  
  /* Values for max_lazy_match, good_match and max_chain_length, depending on
   * the desired pack level (0..9). The values given below have been tuned to
-@@ -314,6 +324,10 @@
+@@ -310,6 +320,10 @@ void lm_init (pack_level, flags)
  #endif
      /* prev will be initialized on the fly */
  
@@ -42,16 +36,16 @@ upstream gzip at somepoint in the not-too-distant future.
      /* Set the default configuration parameters:
       */
      max_lazy_match   = configuration_table[pack_level].max_lazy;
-@@ -550,6 +564,8 @@
+@@ -546,6 +560,8 @@ local void fill_window()
          memcpy((char*)window, (char*)window+WSIZE, (unsigned)WSIZE);
          match_start -= WSIZE;
          strstart    -= WSIZE; /* we now have strstart >= MAX_DIST: */
-+	if (rsync_chunk_end != 0xFFFFFFFFUL)
-+	    rsync_chunk_end -= WSIZE;
++        if (rsync_chunk_end != 0xFFFFFFFFUL)
++            rsync_chunk_end -= WSIZE;
  
          block_start -= (long) WSIZE;
  
-@@ -577,13 +593,46 @@
+@@ -573,13 +589,46 @@ local void fill_window()
      }
  }
  
@@ -62,23 +56,23 @@ upstream gzip at somepoint in the not-too-distant future.
 +    unsigned i;
 +
 +    if (start < RSYNC_WIN) {
-+	/* before window fills. */
-+	for (i = start; i < RSYNC_WIN; i++) {
-+	    if (i == start + num) return;
-+	    rsync_sum += (ulg)window[i];
-+	}
-+	num -= (RSYNC_WIN - start);
-+	start = RSYNC_WIN;
++       /* before window fills. */
++       for (i = start; i < RSYNC_WIN; i++) {
++           if (i == start + num) return;
++           rsync_sum += (ulg)window[i];
++       }
++       num -= (RSYNC_WIN - start);
++       start = RSYNC_WIN;
 +    }
 +
 +    /* buffer after window full */
 +    for (i = start; i < start+num; i++) {
-+	/* New character in */
-+	rsync_sum += (ulg)window[i];
-+	/* Old character out */
-+	rsync_sum -= (ulg)window[i - RSYNC_WIN];
-+	if (rsync_chunk_end == 0xFFFFFFFFUL && RSYNC_SUM_MATCH(rsync_sum))
-+	    rsync_chunk_end = i;
++       /* New character in */
++       rsync_sum += (ulg)window[i];
++       /* Old character out */
++       rsync_sum -= (ulg)window[i - RSYNC_WIN];
++       if (rsync_chunk_end == 0xFFFFFFFFUL && RSYNC_SUM_MATCH(rsync_sum))
++           rsync_chunk_end = i;
 +    }
 +}
 +
@@ -95,28 +89,28 @@ upstream gzip at somepoint in the not-too-distant future.
  #define FLUSH_BLOCK(eof) \
     flush_block(block_start >= 0L ? (char*)&window[(unsigned)block_start] : \
 -                (char*)NULL, (long)strstart - block_start, (eof))
-+                (char*)NULL, (long)strstart - block_start, flush-1, (eof))
++                (char*)NULL, (long)strstart - block_start, flush-1, (eof)) 
  
  /* ===========================================================================
   * Processes a new input file and return its compressed length. This
-@@ -594,7 +643,7 @@
+@@ -590,7 +639,7 @@ local void fill_window()
  local off_t deflate_fast()
  {
      IPos hash_head; /* head of the hash chain */
 -    int flush;      /* set if current block must be flushed */
-+    int flush;      /* set if current block must be flushed, 2=>and padded  */
++    int flush;      /* set if current block must be flushed, 2=>and padded  */ 
      unsigned match_length = 0;  /* length of best match */
  
      prev_length = MIN_MATCH-1;
-@@ -623,6 +672,7 @@
+@@ -620,6 +669,7 @@ local off_t deflate_fast()
  
              lookahead -= match_length;
  
-+	    RSYNC_ROLL(strstart, match_length);
++	    RSYNC_ROLL(strstart, match_length); 
  	    /* Insert new strings in the hash table only if the match length
               * is not too large. This saves time but degrades compression.
               */
-@@ -651,9 +701,14 @@
+@@ -648,9 +698,14 @@ local off_t deflate_fast()
              /* No match, output a literal byte */
              Tracevv((stderr,"%c",window[strstart]));
              flush = ct_tally (0, window[strstart]);
@@ -124,31 +118,31 @@ upstream gzip at somepoint in the not-too-distant future.
              lookahead--;
  	    strstart++;
          }
-+        if (rsync && strstart > rsync_chunk_end) {
-+            rsync_chunk_end = 0xFFFFFFFFUL;
-+            flush = 2;
-+        } 
++	if (rsync && strstart > rsync_chunk_end) {                                                        
++            rsync_chunk_end = 0xFFFFFFFFUL;                                                               
++            flush = 2;                                                                                    
++        }  
          if (flush) FLUSH_BLOCK(0), block_start = strstart;
  
          /* Make sure that we always have enough lookahead, except
-@@ -726,6 +781,7 @@
+@@ -724,6 +779,7 @@ off_t deflate()
               */
              lookahead -= prev_length-1;
              prev_length -= 2;
-+	    RSYNC_ROLL(strstart, prev_length+1);
++            RSYNC_ROLL(strstart, prev_length+1);
              do {
                  strstart++;
                  INSERT_STRING(strstart, hash_head);
-@@ -738,24 +794,39 @@
+@@ -736,24 +792,40 @@ off_t deflate()
              match_available = 0;
              match_length = MIN_MATCH-1;
              strstart++;
 -            if (flush) FLUSH_BLOCK(0), block_start = strstart;
  
-+	    if (rsync && strstart > rsync_chunk_end) {
-+		rsync_chunk_end = 0xFFFFFFFFUL;
-+		flush = 2;
-+	    }
++            if (rsync && strstart > rsync_chunk_end) {
++                rsync_chunk_end = 0xFFFFFFFFUL;
++                flush = 2;
++            }
 +            if (flush) FLUSH_BLOCK(0), block_start = strstart;
          } else if (match_available) {
              /* If there was no match at the previous position, output a
@@ -158,40 +152,41 @@ upstream gzip at somepoint in the not-too-distant future.
              Tracevv((stderr,"%c",window[strstart-1]));
 -            if (ct_tally (0, window[strstart-1])) {
 -                FLUSH_BLOCK(0), block_start = strstart;
--            }
-+	    flush = ct_tally (0, window[strstart-1]);
-+	    if (rsync && strstart > rsync_chunk_end) {
-+		rsync_chunk_end = 0xFFFFFFFFUL;
-+		flush = 2;
-+	    }
++            flush = ct_tally (0, window[strstart-1]);
++            if (rsync && strstart > rsync_chunk_end) {
++                rsync_chunk_end = 0xFFFFFFFFUL;
++                flush = 2;
+             }
 +            if (flush) FLUSH_BLOCK(0), block_start = strstart;
-+	    RSYNC_ROLL(strstart, 1);
++            RSYNC_ROLL(strstart, 1);
              strstart++;
              lookahead--;
          } else {
              /* There is no previous match to compare with, wait for
               * the next step to decide.
               */
-+	    if (rsync && strstart > rsync_chunk_end) {
-+		/* Reset huffman tree */
-+		rsync_chunk_end = 0xFFFFFFFFUL;
-+		flush = 2;
-+		FLUSH_BLOCK(0), block_start = strstart;
-+	    }
++            if (rsync && strstart > rsync_chunk_end) {
++                /* Reset huffman tree */
++                rsync_chunk_end = 0xFFFFFFFFUL;
++                flush = 2;
++                FLUSH_BLOCK(0), block_start = strstart;
++            }             
++             
              match_available = 1;
-+	    RSYNC_ROLL(strstart, 1);
++            RSYNC_ROLL(strstart, 1);  
              strstart++;
              lookahead--;
          }
---- gzip-1.3.6/doc/gzip.texi
-+++ gzip-1.3.6/doc/gzip.texi
-@@ -328,6 +328,14 @@
+diff -up gzip-1.3.13/doc/gzip.texi.rsync gzip-1.3.13/doc/gzip.texi
+--- gzip-1.3.13/doc/gzip.texi.rsync	2009-09-28 11:08:16.000000000 +0200
++++ gzip-1.3.13/doc/gzip.texi	2009-12-01 16:14:24.664394713 +0100
+@@ -353,6 +353,14 @@ specified on the command line are direct
  into the directory and compress all the files it finds there (or
- decompress them in the case of @code{gunzip}).
+ decompress them in the case of @command{gunzip}).
  
 +@item --rsyncable
 +While compressing, synchronize the output occasionally based on the
-+input.  This increases size by less than 1 percent most cases, but
++input.  This reduces compression by about 1 percent most cases, but
 +means that the @code{rsync} program can take advantage of similarities
 +in the uncompressed input when syncronizing two files compressed with
 +this flag.  @code{gunzip} cannot tell the difference between a
@@ -199,77 +194,80 @@ upstream gzip at somepoint in the not-too-distant future.
 +
  @item --suffix @var{suf}
  @itemx -S @var{suf}
- Use suffix @samp{@var{suf}} instead of @samp{.gz}. Any suffix can be
---- gzip-1.3.6/gzip.c
-+++ gzip-1.3.6/gzip.c
-@@ -218,6 +218,7 @@
+ Use suffix @var{suf} instead of @samp{.gz}.  Any suffix can be
+diff -up gzip-1.3.13/gzip.c.rsync gzip-1.3.13/gzip.c
+--- gzip-1.3.13/gzip.c.rsync	2009-09-26 20:56:02.000000000 +0200
++++ gzip-1.3.13/gzip.c	2009-12-01 16:18:17.121387126 +0100
+@@ -229,6 +229,7 @@ int  ofd;                  /* output fil
  unsigned insize;           /* valid bytes in inbuf */
  unsigned inptr;            /* index of next byte to be processed in inbuf */
  unsigned outcnt;           /* bytes in output buffer */
 +int rsync = 0;             /* make ryncable chunks */
  
- struct option longopts[] =
- {
-@@ -247,6 +248,7 @@
+ static int handled_sig[] =
+   {
+@@ -282,6 +283,7 @@ struct option longopts[] =
      {"best",       0, 0, '9'}, /* compress better */
      {"lzw",        0, 0, 'Z'}, /* make output compatible with old compress */
      {"bits",       1, 0, 'b'}, /* max number of bits per code (implies -Z) */
-+    {"rsyncable",  0, 0, 'R'}, /* make rsync-friendly archive */
++    {"rsyncable",  0, 0, 'R'}, /* make rsync-friendly archive */      
      { 0, 0, 0, 0 }
  };
  
---- gzip-1.3.6/gzip.h
-+++ gzip-1.3.6/gzip.h
-@@ -155,6 +155,7 @@
+@@ -363,6 +365,7 @@ local void help()
+  "  -Z, --lzw         produce output compatible with old compress",
+  "  -b, --bits=BITS   max number of bits per code (implies -Z)",
+ #endif
++ "    --rsyncable   Make rsync-friendly archive",  
+  "",
+  "With no FILE, or when FILE is -, read standard input.",
+  "",
+@@ -493,6 +496,9 @@ int main (argc, argv)
+ 	    recursive = 1;
+ #endif
+ 	    break;
++
++        case 'R':
++	    rsync = 1; break;
+ 	case 'S':
+ #ifdef NO_MULTIPLE_DOTS
+             if (*optarg == '.') optarg++;
+diff -up gzip-1.3.13/gzip.h.rsync gzip-1.3.13/gzip.h
+--- gzip-1.3.13/gzip.h.rsync	2009-09-26 20:43:28.000000000 +0200
++++ gzip-1.3.13/gzip.h	2009-12-01 16:14:24.664394713 +0100
+@@ -158,6 +158,7 @@ EXTERN(uch, window);         /* Sliding 
  extern unsigned insize; /* valid bytes in inbuf */
  extern unsigned inptr;  /* index of next byte to be processed in inbuf */
  extern unsigned outcnt; /* bytes in output buffer */
-+extern int rsync;  /* deflate into rsyncable chunks */
++extern int rsync;  /* deflate into rsyncable chunks */ 
  
  extern off_t bytes_in;   /* number of input bytes */
  extern off_t bytes_out;  /* number of output bytes */
-@@ -303,7 +304,7 @@
+@@ -306,7 +307,7 @@ off_t deflate OF((void));
          /* in trees.c */
  void ct_init     OF((ush *attr, int *method));
  int  ct_tally    OF((int dist, int lc));
 -off_t flush_block OF((char *buf, ulg stored_len, int eof));
-+off_t flush_block OF((char *buf, ulg stored_len, int pad, int eof));
++off_t flush_block OF((char *buf, ulg stored_len, int pad, int eof)); 
  
          /* in bits.c */
  void     bi_init    OF((file_t zipfile));
---- gzip-1.3.6/trees.c
-+++ gzip-1.3.6/trees.c
-@@ -59,12 +59,13 @@
-  *      void ct_tally (int dist, int lc);
-  *          Save the match info and tally the frequency counts.
-  *
-- *      off_t flush_block (char *buf, ulg stored_len, int eof)
-+ *      off_t flush_block (char *buf, ulg stored_len, int pad, int eof)
-  *          Determine the best encoding for the current block: dynamic trees,
-  *          static trees or store, and output the encoded block to the zip
-- *          file. Returns the total compressed length for the file so far.
-- *
-- */
-+ *          file. If pad is set, pads the block to the next
-+ *          byte. Returns the total compressed length for the file so
-+ *          far.
-+ * */
- 
- #include <config.h>
- #include <ctype.h>
-@@ -860,9 +861,10 @@
+diff -up gzip-1.3.13/trees.c.rsync gzip-1.3.13/trees.c
+--- gzip-1.3.13/trees.c.rsync	2009-09-26 20:43:28.000000000 +0200
++++ gzip-1.3.13/trees.c	2009-12-01 16:14:24.655388257 +0100
+@@ -856,9 +856,10 @@ local void send_all_trees(lcodes, dcodes
   * trees or store, and output the encoded block to the zip file. This function
   * returns the total compressed length for the file so far.
   */
 -off_t flush_block(buf, stored_len, eof)
-+off_t flush_block(buf, stored_len, pad, eof)
++off_t flush_block(buf, stored_len, pad, eof)  
      char *buf;        /* input block, or NULL if too old */
      ulg stored_len;   /* length of input block */
-+    int pad;          /* pad output to byte boundary */
++    int pad;          /* pad output to byte boundary */ 
      int eof;          /* true if this is the last block for a file */
  {
      ulg opt_lenb, static_lenb; /* opt_len and static_len in bytes */
-@@ -955,6 +957,10 @@
+@@ -951,6 +952,10 @@ off_t flush_block(buf, stored_len, eof)
          Assert (input_len == bytes_in, "bad input size");
          bi_windup();
          compressed_len += 7;  /* align on byte boundary */
