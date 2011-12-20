@@ -1,6 +1,18 @@
---- Makefile.am	2009-07-06 00:33:13.000000000 +0200
-+++ Makefile.am.new	2010-03-09 00:47:48.000000000 +0100
-@@ -9,7 +9,7 @@
+From dc92679e2c363f8c0d659fa428c138684455a6bd Mon Sep 17 00:00:00 2001
+From: Kamil Dudka <kdudka@redhat.com>
+Date: Wed, 11 May 2011 16:46:13 +0200
+Subject: [PATCH 1/4] findutils-4.4.0-no-locate.patch
+
+---
+ Makefile.am   |    2 +-
+ doc/find.texi |   24 ++++++++----------------
+ 2 files changed, 9 insertions(+), 17 deletions(-)
+
+diff --git a/Makefile.am b/Makefile.am
+index c7f8f39..0dacb93 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -9,7 +9,7 @@ DISTCLEANFILES = tool-versions.txt
  
  
  # "tests" is the gnulib unit test dir.
@@ -9,19 +21,10 @@
  
  ACLOCAL_AMFLAGS = -I gnulib/m4 -I m4
  
---- Makefile.in	2009-07-07 00:12:25.000000000 +0200
-+++ Makefile.in.new	2010-03-09 00:48:35.000000000 +0100
-@@ -736,7 +736,7 @@
- DISTCLEANFILES = tool-versions.txt
- 
- # "tests" is the gnulib unit test dir.
--SUBDIRS = gnulib tests build-aux lib find xargs locate doc po m4
-+SUBDIRS = gnulib tests build-aux lib find xargs doc po m4
- ACLOCAL_AMFLAGS = -I gnulib/m4 -I m4
- TESTFILE_SUFFIXES = .exp .xo .xe .xi
- all: config.h
---- doc/find.texi	2010-04-28 09:20:09.000000000 +0200
-+++ doc/find.texi	2010-04-28 09:20:11.000000000 +0200
+diff --git a/doc/find.texi b/doc/find.texi
+index 1f278de..c584298 100644
+--- a/doc/find.texi
++++ b/doc/find.texi
 @@ -7,7 +7,6 @@
  @c %**end of header
  
@@ -30,7 +33,7 @@
  
  @iftex
  @finalout
-@@ -570,8 +569,7 @@
+@@ -570,8 +569,7 @@ the databases are updated, and the directories for which they contain
  entries.
  
  Here is how to select which file name databases @code{locate}
@@ -40,7 +43,7 @@
  
  @table @code
  @item --database=@var{path}
-@@ -2728,13 +2726,9 @@
+@@ -2825,13 +2823,9 @@ thrashing the network.
  directories are indexed by each database file.
  
  The default location for the locate database depends on how findutils
@@ -57,7 +60,7 @@
  
  @node Database Formats
  @section Database Formats
-@@ -3213,8 +3207,7 @@
+@@ -3310,8 +3304,7 @@ present.
  
  @item --database=@var{path}
  @itemx -d @var{path}
@@ -67,7 +70,7 @@
  name databases in @var{path}, which is a colon-separated list of
  database file names.  You can also use the environment variable
  @code{LOCATE_PATH} to set the list of database files to search.  The
-@@ -3399,8 +3392,7 @@
+@@ -3496,8 +3489,7 @@ The environment variable @code{PRUNEFS} also sets this value.  Default
  is @file{nfs NFS proc}.
  
  @item --output=@var{dbfile}
@@ -77,7 +80,7 @@
  
  @item --localuser=@var{user}
  The user to search the non-network directories as, using @code{su}.
-@@ -5359,7 +5351,7 @@
+@@ -5491,7 +5483,7 @@ why @code{xargs} is confused by your operating system).
  @section Error Messages From @code{locate}
  
  @table @samp
@@ -86,7 +89,7 @@
  The @code{locate} program relies on a database which is periodically
  built by the @code{updatedb} program.  That hasn't happened in a long
  time.  To fix this problem, run @code{updatedb} manually.  This can
-@@ -5367,7 +5359,7 @@
+@@ -5499,7 +5491,7 @@ often happen on systems that are generally not left on, so the
  periodic ``cron'' task which normally does this doesn't get a chance
  to run.
  
@@ -95,3 +98,6 @@
  This should not happen.  Re-run @code{updatedb}.  If that works, but
  @code{locate} still produces this error, run @code{locate --version}
  and @code{updatedb --version}.  These should produce the same output.
+-- 
+1.7.4.4
+
