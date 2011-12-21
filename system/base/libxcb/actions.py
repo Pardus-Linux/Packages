@@ -10,9 +10,11 @@ from pisi.actionsapi import get
 
 def setup():
     shelltools.export("CFLAGS", "%s -DNDEBUG" % get.CFLAGS())
+    pisitools.dosed("configure.ac", "pthread-stubs ", "")
     options = "--disable-static \
                --disable-xevie \
                --disable-xprint \
+               --disable-build-docs \
                --without-doxygen"
 
     if get.buildTYPE() == "emul32":
