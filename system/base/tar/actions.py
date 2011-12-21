@@ -1,7 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright 2005-2010 TUBITAK/UEKAE
 # Licensed under the GNU General Public License, version 2.
 # See the file http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
 
@@ -16,10 +15,8 @@ def setup():
 
     # For being able to build as root, pff
     shelltools.export("FORCE_UNSAFE_CONFIGURE", "1")
-    autotools.configure("--bindir=/bin \
-                         --libexecdir=/bin \
-                         --disable-rpath \
-                         --enable-nls")
+
+    autotools.configure("--disable-rpath")
 
 def build():
     autotools.make()
@@ -32,7 +29,9 @@ def install():
 
     pisitools.removeDir("/usr/sbin")
 
+    # Drop rmt tool
+    pisitools.removeDir("/usr/libexec")
+
     pisitools.doman("doc/tar.1")
 
     pisitools.dodoc("AUTHORS", "ChangeLog", "NEWS", "README*", "THANKS")
-
