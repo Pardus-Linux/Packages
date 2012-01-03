@@ -15,9 +15,9 @@
         <IsA>app:gui</IsA>
         <Summary>Firefox Web Browser</Summary>
         <Description>It is more secure and faster to browse the web with Firefox web browser. You can personalize your web browser with many specifications that is not enough to explain in two sentences.</Description>
-        <Archive sha1sum="94bbc7152832371dc0be82f411730df043c5c6ac" type="tarbz2">http://releases.mozilla.org/pub/mozilla.org/firefox/releases/7.0.1/source/firefox-7.0.1.source.tar.bz2</Archive>
-        <!--Use tools/create-locale-tar.sh script to create the l10n-tarball from mozilla sources-->
-        <Archive sha1sum="4cfae5fe20d9862c053cda1239bcc9b8c0fdcb4e" type="tarbz2" target="mozilla-release">http://cekirdek.pardus.org.tr/~metin/dist/firefox/l10n-7.0.1.tar.bz2</Archive>
+        <!-- Use tools/{create-source.sh, create-locale.sh} scripts to create tarballs for both firefox source and l10n -->
+        <Archive sha1sum="f79324ec6205e4c23d51d8ab2e790de1b2541657" type="tarbz2">http://releases.mozilla.org/pub/mozilla.org/firefox/releases/9.0/source/firefox-9.0.source.tar.bz2</Archive>
+        <Archive sha1sum="34cc5ce1d90945d6ce6220d5cdd70d1fd4b6b0c0" type="tarbz2" target="mozilla-release">http://cekirdek.pardus.org.tr/~metin/dist/firefox/l10n-9.0.tar.bz2</Archive>
         <AdditionalFiles>
 
             <!--Our main configure script. Configure paramters are stored here.-->
@@ -36,7 +36,7 @@
             <Dependency>hunspell-devel</Dependency>
             <Dependency versionFrom="0.4.0">libproxy-devel</Dependency>
             <Dependency versionFrom="4.8.9">nspr-devel</Dependency>
-            <Dependency versionFrom="3.12.11">nss-devel</Dependency>
+            <Dependency versionFrom="3.13.1">nss-devel</Dependency>
             <Dependency>libevent-devel</Dependency>
             <Dependency>libvpx-devel</Dependency>
             <Dependency>atk-devel</Dependency>
@@ -58,9 +58,7 @@
         <Patches>
             <Patch level="1">suse/mozilla-kde.patch</Patch>
             <Patch level="1">suse/mozilla-language.patch</Patch>
-
-            <!--Remove an obsolote curl header. Look /usr/include/curl/types.h-->
-            <Patch level="1">suse/mozilla-curl.patch</Patch>
+            <Patch level="1">suse/mozilla-a11y.patch</Patch>
 
             <!--These are mainly integrations stuff like default browser-->
             <Patch level="1">suse/firefox-kde.patch</Patch>
@@ -75,13 +73,23 @@
 
             <Patch level="1">fedora/firefox-5.0-asciidel.patch</Patch>
 
-            <Patch level="0">pardus/as-needed.diff</Patch>
+            <!-- Disable addon check UI, non-advanced users might end up non-localized Firefox redhat#753551  -->
+            <Patch level="2">fedora/firefox-8.0-enable-addons.patch</Patch>
+
+            <!--
+            Add as needed patch to put .a files before libraries, especially -lplc4
+            check-sync-dirs.py does not allow differences between config files since 9.0, so apply changes both to {config, js/src/config}/rules.mk
+            -->
+            <Patch level="1">pardus/as-needed.diff</Patch>
             <Patch level="1">pardus/autoconf-213-hack.diff</Patch>
             <Patch level="1">pardus/workaround-dbus-glib-build-error.diff</Patch>
 
             <!-- Disable for now on, needs more investigation -->
             <!--Patch level="0">pardus/zemberek-firefox5.patch</Patch-->
             <Patch level="0">pardus/fix-double-turkish-option.diff</Patch>
+            <Patch level="1">pardus/fix-langpack-prefs-path.patch</Patch>
+            <Patch level="1">pardus/add-twitter-search.diff</Patch>
+            <Patch level="1">Allow-.js-preference-files-to-set-locked-prefs-with-.patch</Patch>
         </Patches>
     </Source>
 
@@ -98,7 +106,7 @@
             <Dependency>hunspell</Dependency>
             <Dependency versionFrom="0.4.0">libproxy</Dependency>
             <Dependency versionFrom="4.8.9">nspr</Dependency>
-            <Dependency versionFrom="3.12.11">nss</Dependency>
+            <Dependency versionFrom="3.13.1">nss</Dependency>
             <Dependency>libevent</Dependency>
             <Dependency>libvpx</Dependency>
             <Dependency>atk</Dependency>
@@ -138,10 +146,8 @@
             <AdditionalFile target="/usr/lib/MozillaFirefox/browserconfig.properties" permission="0644" owner="root">pardus/browserconfig.properties</AdditionalFile>
             <AdditionalFile target="/usr/lib/MozillaFirefox/defaults/pref/kde.js" permission="0644">suse/kde.js</AdditionalFile>
 
-            <!-- Uluzilla search plugin -->
+            <!-- Pardus Bugzilla search plugin -->
             <AdditionalFile target="/usr/lib/MozillaFirefox/searchplugins/uluzilla.xml" permission="0644" owner="root">searchplugins/uluzilla.xml</AdditionalFile>
-            <!-- Google linux search plugin -->
-            <AdditionalFile target="/usr/lib/MozillaFirefox/searchplugins/googlelinux.xml" permission="0644" owner="root">searchplugins/googlelinux.xml</AdditionalFile>
 
             <!-- Pardus-Wiki search plugins -->
             <AdditionalFile target="/usr/lib/MozillaFirefox/pardus/pardus-wiki_tr.xml" permission="0644" owner="root">searchplugins/pardus-wiki/pardus-wiki_tr.xml</AdditionalFile>
@@ -179,6 +185,46 @@
     </Package>
 
     <History>
+        <Update release="164">
+            <Date>2011-12-29</Date>
+            <Version>9.0</Version>
+            <Comment>Version bump to new 9.0 stable release:
+                * Added Type Inference, significantly improving JavaScript performance
+                * Added support for querying Do Not Track status via JavaScript
+                * Added support for font-stretch
+                * Improved support for text-overflow
+                * Improved standards support for HTML5, MathML, and CSS
+                * Crash scaling video to extreme sizes
+                * Key detection without JavaScript via SVG animation
+                * nsSVGValue out-of-bounds access
+                * Potentially exploitable crash in the YARR regular expression library
+                * Miscellaneous memory safety hazards (rv:9.0)
+                * Fixed several stability issues
+                * Fixed several security issues
+            </Comment>
+            <Name>Metin Akdere</Name>
+            <Email>metin@pardus.org.tr</Email>
+        </Update>
+        <Update release="163">
+            <Date>2011-12-08</Date>
+            <Version>8.0.1</Version>
+            <Comment>Version bump to new 8.0.1 stable release:
+                * Added a one-time add-on selection dialog to manage previously installed add-ons
+                * Added Twitter to the search bar for select locales. Additional locale support will be added in the future
+                * Added a preference to load tabs on demand, improving start-up time when windows are restored
+                * Improved performance and memory handling when using audio and video tagged elements
+                * Added CORS support for cross-domain textures in WebGL
+                * Added support for HTML5 context menus
+                * Added support for insertAdjacentHTML
+                * Improved CSS hyphen support for many languages
+                * Improved WebSocket support
+                * Fixed several stability issues
+                * Fixed several security issues
+                * Remove Google Linux search engine as it is no longer exists
+            </Comment>
+            <Name>Metin Akdere</Name>
+            <Email>metin@pardus.org.tr</Email>
+        </Update>
         <Update release="162">
             <Date>2011-10-05</Date>
             <Version>7.0.1</Version>

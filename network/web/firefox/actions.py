@@ -19,23 +19,28 @@ ObjDir = "obj-%s-unknown-linux-gnu" % get.ARCH() if get.ARCH() == "x86_64" else 
 
 locales = ["be", "ca", "de", "es-AR", "es-ES", "fr", "hu", "it", "nl", "pl", "ru", "sv-SE", "tr"]
 
+def setup():
+    # Mozilla sticks on with autoconf-213
+    shelltools.chmod("autoconf-213/autoconf-2.13", 0755)
+
+    # Set job count for make
+    pisitools.dosed(".mozconfig", "%%JOBS%%", get.makeJOBS())
+
 def build():
     # FIXME: Change library path and version with variables
     shelltools.export("LDFLAGS", "%s -Wl,-rpath,/usr/lib/%s-%s" % (get.LDFLAGS(), get.srcNAME(), get.srcVERSION()))
 
-    autotools.make("-f client.mk")
+    autotools.make("-f client.mk build")
 
     # LOCALE
+    # See: https://developer.mozilla.org/en/Creating_a_Language_Pack
     # FIXME: Find an elegant solution to create the Makefile from Makefile.in
-    # We need to execute configure, otherwise the Makefile in browser/locales doesn't
-    # generate. Don't execute it before "make -f client.mk". Otherwise it's conflicts with
-    # mozconfig.
-    # With 'make -f client.mk' call, build action takes place in $TOPSRCDIR/$OBJDIR by default. But this 'configure' call will take place in $TOPSRCDIR.
-    # So we must override mozconfig l10n path specification to ./10n instead of ../l10n
-    shelltools.system("./configure --prefix=/usr --libdir=/usr/lib --disable-strip --disable-install-strip --with-l10n-base=./l10n")
+    # We need to execute configure, otherwise the Makefile in browser/locales doesn't generate.
+    # Don't execute it before "make -f client.mk". Otherwise it's conflicts with mozconfig
+    # With 'make -f client.mk' call, build action takes place in $TOPSRCDIR/$OBJDIR by default. No need to specify l10n dir again, it's read from mozconfig
+    autotools.make("-f client.mk configure")
 
-    # FIXME: nsinstall get installed in the wrong place, fix it
-    shelltools.copy("%s/%s/%s/config/nsinstall" % (get.workDIR(), WorkDir, ObjDir), "%s/%s/config/" % (get.workDIR(), WorkDir))
+    shelltools.cd(ObjDir)
     for locale in locales:
        autotools.make("-C browser/locales langpack-%s" % locale)
 
@@ -43,14 +48,14 @@ def install():
     autotools.rawInstall("-f client.mk DESTDIR=%s" % get.installDIR())
 
     # Any reason to do this renaming ?
-    realdir = shelltools.ls("%s/usr/lib/firefox-?.?.?" % get.installDIR())[0].replace(get.installDIR(), "")
+    realdir = shelltools.ls("%s/usr/lib/firefox-?.?*" % get.installDIR())[0].replace(get.installDIR(), "")
     pisitools.rename(realdir, "MozillaFirefox")
 
     pisitools.remove("/usr/bin/firefox") # Additional file will replace that
 
     #install locales
     for locale in locales:
-        pisitools.copytree("dist/xpi-stage/locale-%s" % locale, "%s/usr/lib/MozillaFirefox/extensions/langpack-%s@firefox.mozilla.org" % (get.installDIR(), locale))
+        pisitools.insinto("/usr/lib/MozillaFirefox/extensions/langpack-%s@firefox.mozilla.org" % locale, "%s/dist/xpi-stage/locale-%s/*" % (ObjDir, locale), sym=False)
         pisitools.removeDir("/usr/lib/MozillaFirefox/extensions/langpack-%s@firefox.mozilla.org/defaults" % locale)
         pisitools.remove("/usr/lib/MozillaFirefox/extensions/langpack-%s@firefox.mozilla.org/chrome/%s/locale/branding/browserconfig.properties" % (locale, locale))
         pisitools.dosym("../../../../../../browserconfig.properties", "/usr/lib/MozillaFirefox/extensions/langpack-%s@firefox.mozilla.org/chrome/%s/locale/branding/browserconfig.properties" % (locale, locale))

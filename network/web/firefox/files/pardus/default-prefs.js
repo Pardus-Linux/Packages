@@ -30,6 +30,11 @@ pref("spellchecker.dictionary", "tr-TR");
 pref("startup.homepage_override_url", "resource:/browserconfig.properties");
 pref("intl.locale.matchOS", true);
 
+// Disable addon check UI, starting from release 8.0
+pref("dom.ipc.plugins.enabled.nswrapper*",  false);
+pref("extensions.shownSelectionUI",         true);
+pref("extensions.autoDisableScope",         0);
+
 pref("font.default.null", "sans-serif");
 pref("font.default.tr", "sans-serif");
 pref("font.default.x-unicode", "sans-serif");

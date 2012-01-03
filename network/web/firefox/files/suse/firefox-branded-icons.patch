@@ -1,10 +1,10 @@
 # HG changeset patch
-# Parent 6948d58326d5c2e46936e186079421e7d76445e2
+# Parent 87462739809ad0f41fd335f9a68203fd70f9883c
 
 diff --git a/browser/app/Makefile.in b/browser/app/Makefile.in
 --- a/browser/app/Makefile.in
 +++ b/browser/app/Makefile.in
-@@ -199,16 +199,21 @@ DEFINES += -DMOZILLA_OFFICIAL
+@@ -194,16 +194,21 @@ DEFINES += -DMOZILLA_OFFICIAL
  endif
  
  ifeq ($(MOZ_WIDGET_TOOLKIT),gtk2)
@@ -20,16 +20,16 @@ diff --git a/browser/app/Makefile.in b/browser/app/Makefile.in
 +endif
  endif
  
- ifdef MOZ_SPLASHSCREEN
- ifeq ($(MOZ_WIDGET_TOOLKIT),windows)
- libs::
- 	$(INSTALL) $(IFLAGS1) $(DIST)/branding/splash.bmp $(DIST)/bin
- endif
- endif
+ libs:: $(srcdir)/profile/prefs.js
+ 	$(INSTALL) $(IFLAGS1) $^ $(DIST)/bin/defaults/profile
+ 
+ libs:: $(srcdir)/blocklist.xml
+ 	$(INSTALL) $(IFLAGS1) $^ $(DIST)/bin
+ 
 diff --git a/browser/branding/official/Makefile.in b/browser/branding/official/Makefile.in
 --- a/browser/branding/official/Makefile.in
 +++ b/browser/branding/official/Makefile.in
-@@ -69,18 +69,21 @@ OSX_BRANDING_FILES = \
+@@ -65,18 +65,21 @@ OSX_BRANDING_FILES = \
  	firefox.icns \
  	disk.icns \
  	document.icns \
@@ -54,7 +54,7 @@ diff --git a/browser/branding/official/Makefile.in b/browser/branding/official/M
 diff --git a/browser/installer/package-manifest.in b/browser/installer/package-manifest.in
 --- a/browser/installer/package-manifest.in
 +++ b/browser/installer/package-manifest.in
-@@ -421,18 +421,21 @@
+@@ -415,18 +415,21 @@
  #ifdef SHIP_FEEDBACK
  @BINPATH@/distribution/extensions/testpilot@labs.mozilla.com.xpi
  #endif
