@@ -1,0 +1,32 @@
+Index: systemd-15/src/vconsole-setup.c
+===================================================================
+--- systemd-15.orig/src/vconsole-setup.c
++++ systemd-15/src/vconsole-setup.c
+@@ -79,11 +79,12 @@ static int disable_utf8(int fd) {
+ }
+ 
+ static int load_keymap(const char *vc, const char *map, const char *map_toggle, bool utf8, pid_t *_pid) {
+-        const char *args[8];
++        const char *args[9];
+         int i = 0;
+         pid_t pid;
+ 
+         args[i++] = KBD_LOADKEYS;
++        args[i++] = "-v";
+         args[i++] = "-q";
+         args[i++] = "-C";
+         args[i++] = vc;
+@@ -107,11 +108,12 @@ static int load_keymap(const char *vc, c
+ }
+ 
+ static int load_font(const char *vc, const char *font, const char *map, const char *unimap, pid_t *_pid) {
+-        const char *args[9];
++        const char *args[10];
+         int i = 0;
+         pid_t pid;
+ 
+         args[i++] = KBD_SETFONT;
++        args[i++] = "-v";
+         args[i++] = "-C";
+         args[i++] = vc;
+         args[i++] = font;

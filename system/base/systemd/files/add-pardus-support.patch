@@ -1,0 +1,240 @@
+Index: systemd-27/configure.ac
+===================================================================
+--- systemd-27.orig/configure.ac
++++ systemd-27/configure.ac
+@@ -280,11 +280,12 @@ AM_CONDITIONAL(HAVE_XSLTPROC, test x"$XS
+ 
+ AC_PATH_PROG([M4], [m4])
+ 
+-AC_ARG_WITH(distro, AS_HELP_STRING([--with-distro=DISTRO],[Specify the distribution to target: One of fedora, suse, debian, ubuntu, arch, gentoo, slackware, altlinux or other]))
++AC_ARG_WITH(distro, AS_HELP_STRING([--with-distro=DISTRO],[Specify the distribution to target: One of fedora, suse, debian, ubuntu, arch, gentoo, slackware, altlinux, pardus or other]))
+ if test "z$with_distro" = "z"; then
+         if test "$cross_compiling" = yes; then
+                 AC_MSG_WARN([Target distribution cannot be reliably detected when cross-compiling. You should specify it with --with-distro (see $0 --help for recognized distros)])
+         else
++                test -f "/etc/pardus-release" && with_distro="pardus"
+                 test -f "/etc/redhat-release" && with_distro="fedora"
+                 test -f "/etc/SuSE-release" && with_distro="suse"
+                 test -f "/etc/debian_version" &&  with_distro="debian"
+@@ -320,6 +321,14 @@ case $with_distro in
+                 M4_DISTRO_FLAG=-DTARGET_FEDORA=1
+ 		have_plymouth=true
+                 ;;
++        pardus)
++                SYSTEM_SYSVINIT_PATH=/etc/init.d
++                SYSTEM_SYSVRCND_PATH=/etc/init.d
++                SPECIAL_SYSLOG_SERVICE=rsyslog.service
++                AC_DEFINE(TARGET_PARDUS, [], [Target is Pardus])
++                M4_DISTRO_FLAG=-DTARGET_PARDUS=1
++        have_plymouth=true
++                ;;
+         suse)
+                 SYSTEM_SYSVRCND_PATH=/etc/init.d
+                 AC_DEFINE(TARGET_SUSE, [], [Target is openSUSE/SLE])
+@@ -421,6 +430,7 @@ AC_ARG_WITH([tty-gid],
+         [])
+ 
+ AM_CONDITIONAL(TARGET_FEDORA, test x"$with_distro" = xfedora)
++AM_CONDITIONAL(TARGET_PARDUS, test x"$with_distro" = xpardus)
+ AM_CONDITIONAL(TARGET_SUSE, test x"$with_distro" = xsuse)
+ AM_CONDITIONAL(TARGET_DEBIAN, test x"$with_distro" = xdebian)
+ AM_CONDITIONAL(TARGET_UBUNTU, test x"$with_distro" = xubuntu)
+Index: systemd-27/src/hostname-setup.c
+===================================================================
+--- systemd-27.orig/src/hostname-setup.c
++++ systemd-27/src/hostname-setup.c
+@@ -38,6 +38,8 @@
+ #define FILENAME "/etc/rc.conf"
+ #elif defined(TARGET_GENTOO)
+ #define FILENAME "/etc/conf.d/hostname"
++#elif defined(TARGET_PARDUS)
++#define FILENAME "/etc/env.d/01hostname"
+ #endif
+ 
+ static int read_and_strip_hostname(const char *path, char **hn) {
+@@ -64,7 +66,7 @@ static int read_and_strip_hostname(const
+ 
+ static int read_distro_hostname(char **hn) {
+ 
+-#if defined(TARGET_FEDORA) || defined(TARGET_ARCH) || defined(TARGET_GENTOO) || defined(TARGET_ALTLINUX) || defined(TARGET_MANDRIVA) || defined(TARGET_MEEGO)
++#if defined(TARGET_FEDORA) || defined(TARGET_ARCH) || defined(TARGET_GENTOO) || defined(TARGET_ALTLINUX) || defined(TARGET_MANDRIVA) || defined(TARGET_MEEGO) || defined(TARGET_PARDUS)
+         int r;
+         FILE *f;
+ 
+Index: systemd-27/Makefile.am
+===================================================================
+--- systemd-27.orig/Makefile.am
++++ systemd-27/Makefile.am
+@@ -84,6 +84,12 @@ AM_CPPFLAGS += \
+ 	-DKBD_SETFONT=\"/usr/bin/setfont\" \
+ 	-DDEFAULT_FONT=\"LatArCyrHeb-16\"
+ else
++if TARGET_PARDUS
++AM_CPPFLAGS += \
++	-DKBD_LOADKEYS=\"/usr/bin/loadkeys\" \
++	-DKBD_SETFONT=\"/usr/bin/setfont\" \
++	-DDEFAULT_FONT=\"LatArCyrHeb-16\"
++else
+ if TARGET_MANDRIVA
+ AM_CPPFLAGS += \
+ 	-DKBD_LOADKEYS=\"/bin/loadkeys\" \
+@@ -112,6 +118,7 @@ endif
+ endif
+ endif
+ endif
++endif
+ 
+ rootbin_PROGRAMS = \
+ 	systemd \
+@@ -410,6 +417,12 @@ dist_systemunit_DATA += \
+ 	units/frugalware/display-manager.service
+ endif
+ 
++if TARGET_PARDUS
++dist_systemunit_DATA += \
++	units/pardus/prefdm.service \
++	units/pardus/rc-local.service
++endif
++
+ if HAVE_PLYMOUTH
+ dist_systemunit_DATA += \
+ 	units/plymouth-start.service \
+@@ -1483,9 +1496,8 @@ if HAVE_PLYMOUTH
+ 		$(LN_S) ../plymouth-start.service plymouth-start.service && \
+ 		$(LN_S) ../plymouth-read-write.service plymouth-read-write.service )
+ 	( cd $(DESTDIR)$(systemunitdir)/multi-user.target.wants && \
+-		rm -f plymouth-quit.service plymouth-quit-wait.service && \
+-		$(LN_S) ../plymouth-quit.service plymouth-quit.service && \
+-		$(LN_S) ../plymouth-quit-wait.service plymouth-quit-wait.service )
++		rm -f plymouth-quit.service  && \
++		$(LN_S) ../plymouth-quit.service plymouth-quit.service )
+ 	( cd $(DESTDIR)$(systemunitdir)/reboot.target.wants && \
+ 		rm -f plymouth-reboot.service && \
+ 		$(LN_S) ../plymouth-reboot.service plymouth-reboot.service )
+@@ -1498,6 +1510,28 @@ if HAVE_PLYMOUTH
+ 	( cd $(DESTDIR)$(systemunitdir)/halt.target.wants && \
+ 		rm -f plymouth-halt.service && \
+ 		$(LN_S) ../plymouth-halt.service plymouth-halt.service )
++	( cd $(DESTDIR)$(systemunitdir) && \
++		rm -f display-manager.service && \
++		$(LN_S) prefdm.service display-manager.service )
++	( cd $(DESTDIR)$(systemunitdir)/graphical.target.wants && \
++		rm -f display-manager.service && \
++		$(LN_S) $(systemunitdir)/display-manager.service display-manager.service )
++endif
++if TARGET_PARDUS
++	$(MKDIR_P) -m 0755 $(DESTDIR)$(systemunitdir)/final.target.wants
++	( cd $(DESTDIR)$(systemunitdir)/multi-user.target.wants && \
++		rm -f rc-local.service && \
++		$(LN_S) $(systemunitdir)/rc-local.service rc-local.service )
++	( cd $(DESTDIR)$(systemunitdir)/final.target.wants && \
++		rm -f halt-local.service && \
++		$(LN_S) $(systemunitdir)/halt-local.service halt-local.service )
++	( cd $(DESTDIR)$(systemunitdir) && \
++		rm -f display-manager.service single.service && \
++		$(LN_S) prefdm.service display-manager.service && \
++		$(LN_S) rescue.service single.service )
++	( cd $(DESTDIR)$(systemunitdir)/graphical.target.wants && \
++		rm -f display-manager.service && \
++		$(LN_S) $(systemunitdir)/display-manager.service display-manager.service )
+ endif
+ if TARGET_MEEGO
+ 	$(MKDIR_P) -m 0755 $(DESTDIR)$(systemunitdir)/final.target.wants
+Index: systemd-27/units/pardus/rc-local.service
+===================================================================
+--- /dev/null
++++ systemd-27/units/pardus/rc-local.service
+@@ -0,0 +1,18 @@
++#  This file is part of systemd.
++#
++#  systemd is free software; you can redistribute it and/or modify it
++#  under the terms of the GNU General Public License as published by
++#  the Free Software Foundation; either version 2 of the License, or
++#  (at your option) any later version.
++
++[Unit]
++Description=/etc/conf.d/local.start Compatibility
++ConditionPathExists=/etc/conf.d/local.start
++
++[Service]
++Type=forking
++ExecStart=/bin/bash /etc/conf.d/local.start
++TimeoutSec=0
++StandardOutput=tty
++RemainAfterExit=yes
++SysVStartPriority=99
+Index: systemd-27/src/util.c
+===================================================================
+--- systemd-27.orig/src/util.c
++++ systemd-27/src/util.c
+@@ -3328,6 +3328,20 @@ void status_welcome(void) {
+                         const_color = "0;34"; /* Blue for Fedora */
+         }
+ 
++#elif defined(TARGET_PARDUS)
++
++        if (!pretty_name) {
++                if ((r = read_one_line_file("/etc/pardus-release", &pretty_name)) < 0) {
++
++                        if (r != -ENOENT)
++                                log_warning("Failed to read /etc/pardus-release: %s", strerror(-r));
++                } else
++                        truncate_nl(pretty_name);
++        }
++
++        if (!ansi_color)
++                const_color = "0;36"; /* Green for Pardus */
++
+ #elif defined(TARGET_SUSE)
+ 
+         if (!pretty_name) {
+Index: systemd-27/units/pardus/prefdm.service
+===================================================================
+--- /dev/null
++++ systemd-27/units/pardus/prefdm.service
+@@ -0,0 +1,20 @@
++#  This file is part of systemd.
++#
++#  systemd is free software; you can redistribute it and/or modify it
++#  under the terms of the GNU General Public License as published by
++#  the Free Software Foundation; either version 2 of the License, or
++#  (at your option) any later version.
++
++[Unit]
++Description=Display Manager
++After=syslog.target rc-local.service systemd-user-sessions.service
++
++# On Fedora gdm/X11 is on tty1. We explicitly cancel the getty here to
++# avoid any races around that.
++# Conflicts=getty@tty1.service plymouth-quit.service
++# After=getty@tty1.service plymouth-quit.service
++
++[Service]
++ExecStart=/usr/bin/start-dm --boot
++Restart=always
++RestartSec=0
+Index: systemd-27/units/pardus/halt-local.service
+===================================================================
+--- /dev/null
++++ systemd-27/units/pardus/halt-local.service
+@@ -0,0 +1,20 @@
++#  This file is part of systemd.
++#
++#  systemd is free software; you can redistribute it and/or modify it
++#  under the terms of the GNU General Public License as published by
++#  the Free Software Foundation; either version 2 of the License, or
++#  (at your option) any later version.
++
++[Unit]
++Description=/etc/conf.d/local.stop Compatibility
++ConditionPathExists=/etc/conf.d/local.stop
++DefaultDependencies=no
++After=shutdown.target
++Before=final.target
++
++[Service]
++Type=oneshot
++ExecStart=/bin/bash /etc/conf.d/local.stop
++TimeoutSec=0
++StandardOutput=tty
++RemainAfterExit=yes

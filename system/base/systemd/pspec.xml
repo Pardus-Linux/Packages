@@ -1,0 +1,157 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
+<PISI>
+    <Source>
+        <Name>systemd</Name>
+        <Homepage>http://www.freedesktop.org/wiki/Software/systemd</Homepage>
+        <Packager>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Packager>
+        <License>GPLv2+</License>
+        <IsA>app:console</IsA>
+        <IsA>service</IsA>
+        <Summary>A System and Session Manager</Summary>
+        <Description>systemd is a system and session manager for Linux, compatible with SysV and LSB init scripts.</Description>
+        <Archive sha1sum="02665bcb8c609193170579537c3a94013519405c" type="tarbz2">http://www.freedesktop.org/software/systemd/systemd-37.tar.bz2</Archive>
+        <BuildDependencies>
+            <Dependency>pam-devel</Dependency>
+            <Dependency>dbus-devel</Dependency>
+            <Dependency>util-linux</Dependency>
+            <Dependency>docbook-xsl</Dependency>
+            <Dependency>audit-devel</Dependency>
+            <Dependency>libcap-devel</Dependency>
+            <Dependency>libxslt-devel</Dependency>
+            <Dependency>libudev-devel</Dependency>
+            <Dependency>dbus-glib-devel</Dependency>
+            <Dependency>tcp-wrappers-devel</Dependency>
+            <Dependency>cryptsetup-luks-devel</Dependency>
+        </BuildDependencies>
+        <Patches>
+            <Patch level="1">add-pardus-support.patch</Patch>
+            <Patch level="1" reverse="true">0001-unit-fix-complementing-of-requirement-deps-with-Afte.patch</Patch>
+            <Patch level="1">0002-manager-fix-a-crash-in-isolating.patch</Patch>
+            <Patch level="1">0005-systemctl-completion-always-invoke-with-no-legend.patch</Patch>
+            <Patch level="1">0001-mount-order-remote-mounts-after-both-network.target-.patch</Patch>
+            <Patch level="1">0001-units-drop-Install-section-from-remote-fs-pre.target.patch</Patch>
+        </Patches>
+    </Source>
+
+    <Package>
+        <Name>systemd</Name>
+        <RuntimeDependencies>
+            <Dependency>pam</Dependency>
+            <Dependency>dbus</Dependency>
+            <Dependency>udev</Dependency>
+            <Dependency>libcap</Dependency>
+            <Dependency>libudev</Dependency>
+            <Dependency>util-linux</Dependency>
+            <Dependency>tcp-wrappers</Dependency>
+            <Dependency>cryptsetup-luks</Dependency>
+            <Dependency release="current">systemd-units</Dependency>
+        </RuntimeDependencies>
+        <Replaces>
+            <Package>sysvinit</Package>
+        </Replaces>
+        <Files>
+            <Path fileType="executable">/sbin</Path>
+            <Path fileType="executable">/bin/systemd</Path>
+            <Path fileType="executable">/bin/systemd-notify</Path>
+            <Path fileType="executable">/bin/systemd-loginctl</Path>
+            <Path fileType="executable">/bin/systemd-ask-password</Path>
+            <Path fileType="executable">/bin/systemd-tty-ask-password-agent</Path>
+            <Path fileType="executable">/bin/systemd-machine-id-setup</Path>
+            <Path fileType="executable">/usr/bin/systemd-cgls</Path>
+            <Path fileType="executable">/usr/bin/systemd-nspawn</Path>
+            <Path fileType="executable">/usr/bin/systemd-stdio-bridge</Path>
+            <Path fileType="executable">/usr/bin/systemd-analyze</Path>
+            <Path fileType="executable">/lib/systemd</Path>
+            <Path fileType="executable">/lib/systemd/system-generators/systemd-cryptsetup-generator</Path>
+            <Path fileType="executable">/lib/systemd/system-generators/systemd-getty-generator</Path>
+            <Path fileType="executable">/usr/libexec/systemd</Path>
+            <Path fileType="header">/usr/include</Path>
+            <Path fileType="library">/lib/security/pam_systemd.so</Path>
+            <Path fileType="library">/usr/lib/libsystemd*</Path>
+            <Path fileType="config">/etc/dbus-1/system.d</Path>
+            <Path fileType="config">/etc/systemd/system.conf</Path>
+            <Path fileType="data">/usr/lib/pkgconfig</Path>
+            <Path fileType="data">/usr/lib/systemd/user</Path>
+            <Path fileType="data">/etc/os-release</Path>
+            <Path fileType="data">/lib/udev/rules.d</Path>
+            <Path fileType="data">/usr/share/dbus-1/services</Path>
+            <Path fileType="data">/usr/share/dbus-1/system-services</Path>
+            <Path fileType="data">/usr/share/dbus-1/interfaces</Path>
+            <Path fileType="data">/usr/share/systemd</Path>
+            <Path fileType="data">/usr/share/polkit-1/actions</Path>
+            <Path fileType="man">/usr/share/man</Path>
+            <Path fileType="doc">/usr/share/doc/systemd</Path>
+        </Files>
+        <AdditionalFiles>
+            <AdditionalFile owner="root" permission="0644" target="/etc/os-release">os-release</AdditionalFile>
+        </AdditionalFiles>
+        <Provides>
+            <COMAR script="system-package-systemd.py">System.Package</COMAR>
+        </Provides>
+    </Package>
+
+    <Package>
+        <Name>systemd-units</Name>
+        <Summary>Configuration files, directories and installation tool for systemd</Summary>
+        <RuntimeDependencies>
+            <Dependency>gawk</Dependency>
+            <Dependency>coreutils</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="executable">/bin/systemctl</Path>
+            <Path fileType="executable">/bin/systemd-tmpfiles</Path>
+            <Path fileType="config">/etc/systemd</Path>
+            <Path fileType="data">/etc/bash_completion.d</Path>
+            <Path fileType="config">/etc/xdg/systemd</Path>
+            <Path fileType="data">/lib/systemd/system</Path>
+            <Path fileType="data">/usr/lib/tmpfiles.d</Path>
+            <Path fileType="data">/usr/lib/sysctl.d</Path>
+            <Path fileType="data">/usr/lib/binfmt.d</Path>
+            <Path fileType="data">/usr/lib/modules-load.d</Path>
+            <Path fileType="data">/etc/tmpfiles.d</Path>
+            <Path fileType="data">/etc/sysctl.d</Path>
+            <Path fileType="data">/etc/binfmt.d</Path>
+            <Path fileType="data">/etc/modules-load.d</Path>
+            <Path fileType="data">/usr/share/pkgconfig/systemd.pc</Path>
+            <Path fileType="man">/usr/share/man/man1/systemctl.*</Path>
+        </Files>
+        <Provides>
+            <COMAR script="system-package-units.py">System.Package</COMAR>
+        </Provides>
+    </Package>
+
+    <Package>
+        <Name>systemd-gtk</Name>
+        <Summary>Graphical front-end for systemd</Summary>
+        <RuntimeDependencies>
+            <Dependency release="current">systemd</Dependency>
+            <Dependency>polkit</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="executable">/bin/systemadm</Path>
+            <Path fileType="executable">/bin/systemd-gnome-ask-password-agent</Path>
+            <Path fileType="man">/usr/share/man/man1/systemadm.*</Path>
+        </Files>
+    </Package>
+
+    <History>
+        <Update release="2">
+            <Date>2011-11-04</Date>
+            <Version>37</Version>
+            <Comment>Version bump</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="1">
+            <Date>2011-05-26</Date>
+            <Version>28</Version>
+            <Comment>Initial release.</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+    </History>
+</PISI>
