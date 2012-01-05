@@ -11,8 +11,8 @@
         <License>NVIDIA</License>
         <Summary>NVIDIA drivers for GeForce 6xxx and newer GPUs</Summary>
         <Description>NVIDIA graphics drivers provide optimized 2D/3D performance.</Description>
-        <Archive sha1sum="27d4228da677576b7c2b178cb0a3ce540444e6a2" type="binary">ftp://download.nvidia.com/XFree86/Linux-x86/280.13/NVIDIA-Linux-x86-280.13.run</Archive>
-        <Archive sha1sum="5f78984dfdbff6573b1c8899e3a8d71e32c33fed" type="binary">ftp://download.nvidia.com/XFree86/Linux-x86_64/280.13/NVIDIA-Linux-x86_64-280.13.run</Archive>
+        <Archive sha1sum="dfc095db2bdca672e6cfe7878a75c5d25d8c54a9" type="binary">ftp://download.nvidia.com/XFree86/Linux-x86/290.10/NVIDIA-Linux-x86-290.10.run</Archive>
+        <Archive sha1sum="f3e8b43248d9d167b1c3f67a8cba9c1f2c53e583" type="binary">ftp://download.nvidia.com/XFree86/Linux-x86_64/290.10/NVIDIA-Linux-x86_64-290.10.run</Archive>
         <BuildDependencies>
             <Dependency version="2.6.37.6">kernel-module-headers</Dependency>
         </BuildDependencies>
@@ -83,6 +83,9 @@
         <RuntimeDependencies>
             <Dependency release="current">xorg-video-nvidia-current</Dependency>
             <Dependency>libvdpau-32bit</Dependency>
+            <Dependency>libXv-32bit</Dependency>
+            <Dependency>libX11-32bit</Dependency>
+            <Dependency>libXext-32bit</Dependency>
         </RuntimeDependencies>
         <Files>
             <Path fileType="library">/usr/lib32</Path>
@@ -94,6 +97,43 @@
     </Package>
 
     <History>
+        <Update release="55">
+            <Date>2012-01-03</Date>
+            <Version>290.10</Version>
+            <Comment>
+                * Update to current official release: 290.10
+                * Add support for the pre-VBO DrawArrays command in the server-side GLX driver module.  The NVIDIA client-side GLX implementation never sends this command, but the server needs to support it for compatibility with other GLX client implementations.
+                * Added support for limiting heap allocations in the OpenGL driver through the use of the __GL_HEAP_ALLOC_LIMIT environment variable.  See the README for further details.
+                * Added an "Accel" option to the X driver to allow disabling its use of the graphics processing hardware.  This is useful when other components, such as CUDA, require exclusive use of the GPU's processing cores.
+                * Improved the performance of FBO bind operations when using Xinerama by ~30% in some cases.
+                * Improved performance by caching compiled OpenGL shaders to disk. Added a "GLShaderDiskCache" option to the X driver to enable/disable this feature. Added the __GL_SHADER_DISK_CACHE and __GL_SHADER_DISK_CACHE_PATH environment variables for further configuration. See the README for further details.
+                * Improved performance of the RENDER extension on Fermi-based GPUs.
+                * Added GLX protocol support (i.e., for GLX indirect rendering) for the following OpenGL extension: GL_NV_copy_image
+                * Modified how the OpenGL driver allocates executable memory so it may continue to function properly if /tmp is mounted noexec. As some fallback allocation methods may be prohibited under SELinux policy, the driver now supports detection of this policy as well as manual override of this detection via the __GL_SELINUX_BOOLEANS environment variable.
+                * Fixed a bug that would cause OpenGL applications to crash when run with recent releases of glibc such as glibc 2.14.90.
+                * Fixed a bug that could cause stereo corruption when driving a stereo display and a non-stereo display from the same GPU.
+                * Fixed a bug that could cause display devices on a secondary GPU to get swapped between X screens when restarting the X server.
+                * Fixed a bug that could result in line flickering in full-scene anti- aliasing contexts.
+                * Fixed a bug that caused the physical dimensions of rotated monitors to be reported incorrectly.
+                * Fixed a regression that caused blank/white windows when exhausting video memory on GeForce 6 and 7 series GPUs while using composited desktops.
+                * Fixed a bug that would cause applications which export custom allocation functions to our driver (such as Adobe Flash in Firefox or Chrome) to crash.
+                * Fixed a bug that prevented the driver from loading on some systems with integrated graphics.
+                * Fixed issues in VDPAU that prevented allocating and displaying extremely large VdpOutputSurfaces.
+                * Fixed a bug that caused various GLSL built-in uniforms to not be updated properly when calling glPopAttrib.
+                * Fixed a bug causing a Linux kernel BUG when retrieving CPU information on some systems.
+                * Fixed a bug causing some applications to hang on exit.
+                * Fixed a bug causing flickering in some GPU/display combinations.
+                * Fixed a bug that could result in poor OpenGL performance after hotplugging a monitor.
+                * Fixed a bug causing possible text corruption when recovering from GPU errors.
+                * Fixed a bug causing corruption of images which are 2047 pixels wide.
+                * Fixed a bug causing the X server to crash after a VT-switch while running an OpenGL stereo application which is a member of a swap group.
+                * Added support for the following GPU:
+                    * GeForce GT 520MX
+                    * GeForce GTX 460 SE v2
+            </Comment>
+            <Name>Fatih Arslan</Name>
+            <Email>farslan@pardus.org.tr</Email>
+        </Update>
         <Update release="54">
             <Date>2011-10-07</Date>
             <Version>280.13</Version>
@@ -136,7 +176,7 @@
                 * New official release
                 * Fixed a bug that caused nvidia-settings to crash when configuring multiple X screens after all monitors were unplugged from one of the X screens.
                 * Fixed a bug in nvidia-settings that caused the display configuration page to show extra disabled displays after connecting a new monitor.
-                * Added X configuration options "3DVisionProHwButtonPairing", "3DVisionProHwSinglePairingTimeout", "3DVisionProHwMultiPairingTimeout", and "3DVisionProHwDoubleClickThreshold" to configure hardware button based pairing in NVIDIA 3D Vision Pro. 
+                * Added X configuration options "3DVisionProHwButtonPairing", "3DVisionProHwSinglePairingTimeout", "3DVisionProHwMultiPairingTimeout", and "3DVisionProHwDoubleClickThreshold" to configure hardware button based pairing in NVIDIA 3D Vision Pro.
                 * Fixed a bug that prevented initialization of the NVIDIA 3D Vision or NVIDIA 3D Vision Pro hub if no EDID was present.
                 * Fix memory error and abort reported by glibc when running the application FieldView from Intelligent Light.
                 * Fixed an OpenGL driver bug that caused an application crash when running Altair HyperMesh.
