@@ -1,11 +1,22 @@
+From 802e6d8c8477a553a677b23a247d6d2638e01958 Mon Sep 17 00:00:00 2001
+From: Dave Jones <davej@redhat.com>
+Date: Wed, 26 Oct 2011 13:31:47 -0400
+Subject: [PATCH] e1000e: ich9 montevina
+
 This only showed up in one SDV (Montevina).
 The PCIE slots don't seem to like network cards, so this is the only hope
 to get networking working.  It's never going upstream, but it's low impact
 enough to carry just to keep those SDVs working.
+---
+ drivers/net/ethernet/intel/e1000e/ich8lan.c |    6 ++++++
+ drivers/net/ethernet/intel/e1000e/netdev.c  |    1 +
+ 2 files changed, 7 insertions(+), 0 deletions(-)
 
---- linux-2.6.35.noarch/drivers/net/e1000e/ich8lan.c~	2010-09-29 17:53:13.000000000 -0400
-+++ linux-2.6.35.noarch/drivers/net/e1000e/ich8lan.c	2010-09-29 17:54:00.000000000 -0400
-@@ -424,6 +424,12 @@ static s32 e1000_init_phy_params_ich8lan
+diff --git a/drivers/net/ethernet/intel/e1000e/ich8lan.c b/drivers/net/ethernet/intel/e1000e/ich8lan.c
+index 6a17c62..0e40975 100644
+--- a/drivers/net/ethernet/intel/e1000e/ich8lan.c
++++ b/drivers/net/ethernet/intel/e1000e/ich8lan.c
+@@ -452,6 +452,12 @@ static s32 e1000_init_phy_params_ich8lan(struct e1000_hw *hw)
  
  	/* Verify phy id */
  	switch (phy->id) {
@@ -18,9 +29,11 @@ enough to carry just to keep those SDVs working.
  	case IGP03E1000_E_PHY_ID:
  		phy->type = e1000_phy_igp_3;
  		phy->autoneg_mask = AUTONEG_ADVERTISE_SPEED_DEFAULT;
---- linux-2.6.35.noarch/drivers/net/e1000e/netdev.c~	2010-09-29 17:54:07.000000000 -0400
-+++ linux-2.6.35.noarch/drivers/net/e1000e/netdev.c	2010-09-29 17:54:29.000000000 -0400
-@@ -5994,6 +5994,7 @@ static DEFINE_PCI_DEVICE_TABLE(e1000_pci
+diff --git a/drivers/net/ethernet/intel/e1000e/netdev.c b/drivers/net/ethernet/intel/e1000e/netdev.c
+index a855db1..edac30b 100644
+--- a/drivers/net/ethernet/intel/e1000e/netdev.c
++++ b/drivers/net/ethernet/intel/e1000e/netdev.c
+@@ -6359,6 +6359,7 @@ static DEFINE_PCI_DEVICE_TABLE(e1000_pci_tbl) = {
  	{ PCI_VDEVICE(INTEL, E1000_DEV_ID_ICH9_IGP_M), board_ich9lan },
  	{ PCI_VDEVICE(INTEL, E1000_DEV_ID_ICH9_IGP_M_AMT), board_ich9lan },
  	{ PCI_VDEVICE(INTEL, E1000_DEV_ID_ICH9_IGP_M_V), board_ich9lan },
@@ -28,3 +41,6 @@ enough to carry just to keep those SDVs working.
  
  	{ PCI_VDEVICE(INTEL, E1000_DEV_ID_ICH10_R_BM_LM), board_ich9lan },
  	{ PCI_VDEVICE(INTEL, E1000_DEV_ID_ICH10_R_BM_LF), board_ich9lan },
+-- 
+1.7.6.4
+

@@ -1,7 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright 2005-2011 TUBITAK/UEKAE
 # Licensed under the GNU General Public License, version 2.
 # See the file http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
 
@@ -13,6 +12,11 @@ from pisi.actionsapi import get
 
 NoStrip = ["/lib", "/boot"]
 
+shelltools.export("KBUILD_BUILD_USER", "pardus")
+shelltools.export("KBUILD_BUILD_HOST", "buildfarm")
+
+cpupower_arch = get.ARCH().replace("i686", "i386")
+
 def setup():
     kerneltools.configure()
 
@@ -20,7 +24,11 @@ def build():
     kerneltools.build(debugSymbols=False)
 
     # When bumping major version build man files and put them into files/man
-    autotools.make("V=1 -C tools/perf perf LDFLAGS='%s'" % get.LDFLAGS())
+    autotools.make("V=1 -C tools/perf perf HAVE_CPLUS_DEMANGLE=1 LDFLAGS='%s'" % get.LDFLAGS())
+
+    # Build cpupowertools
+    autotools.make("-C tools/power/cpupower CPUFREQ_BENCH=false")
+    autotools.make("-C tools/power/cpupower/debug/%s centrino-decode powernow-k8-decode" % cpupower_arch)
 
 def install():
     kerneltools.install()
@@ -29,6 +37,12 @@ def install():
     kerneltools.installHeaders()
 
     kerneltools.installLibcHeaders()
+
+    # Install cpupowertools stuff
+    autotools.install("-C tools/power/cpupower DESTDIR=%s libdir=/usr/lib mandir=/%s CPUFREQ_BENCH=false" % (get.installDIR(), get.manDIR()))
+
+    pisitools.dobin("tools/power/cpupower/debug/%s/centrino-decode" % cpupower_arch)
+    pisitools.dobin("tools/power/cpupower/debug/%s/powernow-k8-decode" % cpupower_arch)
 
     # Generate some module lists to use within mkinitramfs
     shelltools.system("./generate-module-list %s/lib/modules/%s" % (get.installDIR(), kerneltools.__getSuffix()))

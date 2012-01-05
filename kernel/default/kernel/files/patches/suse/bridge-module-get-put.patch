@@ -8,12 +8,12 @@ implicitly unload bridge, bringing down all connectivity that was using
 bridges.
 
 ---
- net/bridge/br_if.c |    9 +++++++++
- 1 file changed, 9 insertions(+)
+ net/bridge/br_if.c |   13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
 
 --- a/net/bridge/br_if.c
 +++ b/net/bridge/br_if.c
-@@ -279,6 +279,11 @@ int br_add_bridge(struct net *net, const
+@@ -238,11 +239,18 @@ int br_add_bridge(struct net *net, const
  	if (!dev)
  		return -ENOMEM;
  
@@ -22,20 +22,19 @@ bridges.
 +		return -ENOENT;
 +	}
 +
- 	rtnl_lock();
- 	if (strchr(dev->name, '%')) {
- 		ret = dev_alloc_name(dev, dev->name);
-@@ -297,6 +302,8 @@ int br_add_bridge(struct net *net, const
- 		unregister_netdevice(dev);
-  out:
- 	rtnl_unlock();
-+	if (ret)
-+		module_put(THIS_MODULE);
- 	return ret;
+ 	dev_net_set(dev, net);
  
- out_free:
-@@ -328,6 +335,8 @@ int br_del_bridge(struct net *net, const
- 		del_br(netdev_priv(dev), NULL);
+ 	res = register_netdev(dev);
+-	if (res)
++	if (res) {
+ 		free_netdev(dev);
++		module_put(THIS_MODULE);
++	}
+ 	return res;
+ }
+ 
+@@ -267,6 +276,8 @@ int br_del_bridge(struct net *net, const
+ 		br_dev_delete(dev, NULL);
  
  	rtnl_unlock();
 +	if (ret == 0)

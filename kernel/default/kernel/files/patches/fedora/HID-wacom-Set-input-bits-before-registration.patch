@@ -1,0 +1,131 @@
+From b28ae436288861916de0019a81b9817366fe35a9 Mon Sep 17 00:00:00 2001
+From: David Herrmann <dh.herrmann@googlemail.com>
+Date: Sat, 8 Oct 2011 23:20:17 +0200
+Subject: [PATCH] HID: wacom: Set input bits before registration
+
+We shouldn't change the event flags of input devices after they get registered.
+Otherwise, udev will not get notified of these flags and cannot setup the
+devices properly.
+This fixes the probing to set the input event flags on the input_mapped callback
+instead of the probe function.
+
+Reported-by: Bastien Nocera <hadess@hadess.net>
+Signed-off-by: David Herrmann <dh.herrmann@googlemail.com>
+Tested-by: Bastien Nocera <hadess@hadess.net>
+Signed-off-by: Bastien Nocera <hadess@hadess.net>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+---
+ drivers/hid/hid-wacom.c |   80 +++++++++++++++++++++++++---------------------
+ 1 files changed, 43 insertions(+), 37 deletions(-)
+
+diff --git a/drivers/hid/hid-wacom.c b/drivers/hid/hid-wacom.c
+index 72ca689..1492728 100644
+--- a/drivers/hid/hid-wacom.c
++++ b/drivers/hid/hid-wacom.c
+@@ -304,11 +304,51 @@ static int wacom_raw_event(struct hid_device *hdev, struct hid_report *report,
+ 	return 1;
+ }
+ 
++static int wacom_input_mapped(struct hid_device *hdev, struct hid_input *hi,
++	struct hid_field *field, struct hid_usage *usage, unsigned long **bit,
++								int *max)
++{
++	struct input_dev *input = hi->input;
++
++	__set_bit(INPUT_PROP_POINTER, input->propbit);
++
++	/* Basics */
++	input->evbit[0] |= BIT(EV_KEY) | BIT(EV_ABS) | BIT(EV_REL);
++
++	__set_bit(REL_WHEEL, input->relbit);
++
++	__set_bit(BTN_TOOL_PEN, input->keybit);
++	__set_bit(BTN_TOUCH, input->keybit);
++	__set_bit(BTN_STYLUS, input->keybit);
++	__set_bit(BTN_STYLUS2, input->keybit);
++	__set_bit(BTN_LEFT, input->keybit);
++	__set_bit(BTN_RIGHT, input->keybit);
++	__set_bit(BTN_MIDDLE, input->keybit);
++
++	/* Pad */
++	input->evbit[0] |= BIT(EV_MSC);
++
++	__set_bit(MSC_SERIAL, input->mscbit);
++
++	__set_bit(BTN_0, input->keybit);
++	__set_bit(BTN_1, input->keybit);
++	__set_bit(BTN_TOOL_FINGER, input->keybit);
++
++	/* Distance, rubber and mouse */
++	__set_bit(BTN_TOOL_RUBBER, input->keybit);
++	__set_bit(BTN_TOOL_MOUSE, input->keybit);
++
++	input_set_abs_params(input, ABS_X, 0, 16704, 4, 0);
++	input_set_abs_params(input, ABS_Y, 0, 12064, 4, 0);
++	input_set_abs_params(input, ABS_PRESSURE, 0, 511, 0, 0);
++	input_set_abs_params(input, ABS_DISTANCE, 0, 32, 0, 0);
++
++	return 0;
++}
++
+ static int wacom_probe(struct hid_device *hdev,
+ 		const struct hid_device_id *id)
+ {
+-	struct hid_input *hidinput;
+-	struct input_dev *input;
+ 	struct wacom_data *wdata;
+ 	int ret;
+ 
+@@ -370,41 +410,6 @@ static int wacom_probe(struct hid_device *hdev,
+ 		goto err_ac;
+ 	}
+ #endif
+-	hidinput = list_entry(hdev->inputs.next, struct hid_input, list);
+-	input = hidinput->input;
+-
+-	__set_bit(INPUT_PROP_POINTER, input->propbit);
+-
+-	/* Basics */
+-	input->evbit[0] |= BIT(EV_KEY) | BIT(EV_ABS) | BIT(EV_REL);
+-
+-	__set_bit(REL_WHEEL, input->relbit);
+-
+-	__set_bit(BTN_TOOL_PEN, input->keybit);
+-	__set_bit(BTN_TOUCH, input->keybit);
+-	__set_bit(BTN_STYLUS, input->keybit);
+-	__set_bit(BTN_STYLUS2, input->keybit);
+-	__set_bit(BTN_LEFT, input->keybit);
+-	__set_bit(BTN_RIGHT, input->keybit);
+-	__set_bit(BTN_MIDDLE, input->keybit);
+-
+-	/* Pad */
+-	input->evbit[0] |= BIT(EV_MSC);
+-
+-	__set_bit(MSC_SERIAL, input->mscbit);
+-
+-	__set_bit(BTN_0, input->keybit);
+-	__set_bit(BTN_1, input->keybit);
+-	__set_bit(BTN_TOOL_FINGER, input->keybit);
+-
+-	/* Distance, rubber and mouse */
+-	__set_bit(BTN_TOOL_RUBBER, input->keybit);
+-	__set_bit(BTN_TOOL_MOUSE, input->keybit);
+-
+-	input_set_abs_params(input, ABS_X, 0, 16704, 4, 0);
+-	input_set_abs_params(input, ABS_Y, 0, 12064, 4, 0);
+-	input_set_abs_params(input, ABS_PRESSURE, 0, 511, 0, 0);
+-	input_set_abs_params(input, ABS_DISTANCE, 0, 32, 0, 0);
+ 
+ 	return 0;
+ 
+@@ -448,6 +453,7 @@ static struct hid_driver wacom_driver = {
+ 	.probe = wacom_probe,
+ 	.remove = wacom_remove,
+ 	.raw_event = wacom_raw_event,
++	.input_mapped = wacom_input_mapped,
+ };
+ 
+ static int __init wacom_init(void)
+-- 
+1.7.7.1
+
