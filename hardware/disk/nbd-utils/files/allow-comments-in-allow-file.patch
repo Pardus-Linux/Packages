@@ -1,0 +1,14 @@
+Index: nbd-2.9.24/nbd-server.c
+===================================================================
+--- nbd-2.9.24.orig/nbd-server.c
++++ nbd-2.9.24/nbd-server.c
+@@ -321,6 +321,9 @@ int authorized_client(CLIENT *opts) {
+   
+   	inet_aton(opts->clientname, &client);
+ 	while (fgets(line,LINELEN,f)!=NULL) {
++		if (line[0] == '#')
++			/* Skip comments */
++			continue;
+ 		if((tmp=index(line, '/'))) {
+ 			if(strlen(line)<=tmp-line) {
+ 				msg4(LOG_CRIT, ERRMSG, line, opts->server->authname);
