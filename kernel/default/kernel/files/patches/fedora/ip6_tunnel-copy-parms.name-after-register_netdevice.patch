@@ -1,0 +1,76 @@
+From 731abb9cb27aef6013ce60808a04e04a545f3f4e Mon Sep 17 00:00:00 2001
+From: Josh Boyer <jwboyer@redhat.com>
+Date: Thu, 10 Nov 2011 15:10:23 +0000
+Subject: [PATCH] ip6_tunnel: copy parms.name after register_netdevice
+
+Commit 1c5cae815d removed an explicit call to dev_alloc_name in ip6_tnl_create
+because register_netdevice will now create a valid name.  This works for the
+net_device itself.
+
+However the tunnel keeps a copy of the name in the parms structure for the
+ip6_tnl associated with the tunnel.  parms.name is set by copying the net_device
+name in ip6_tnl_dev_init_gen.  That function is called from ip6_tnl_dev_init in
+ip6_tnl_create, but it is done before register_netdevice is called so the name
+is set to a bogus value in the parms.name structure.
+
+This shows up if you do a simple tunnel add, followed by a tunnel show:
+
+[root@localhost ~]# ip -6 tunnel add remote fec0::100 local fec0::200
+[root@localhost ~]# ip -6 tunnel show
+ip6tnl0: ipv6/ipv6 remote :: local :: encaplimit 0 hoplimit 0 tclass 0x00 flowlabel 0x00000 (flowinfo 0x00000000)
+ip6tnl%d: ipv6/ipv6 remote fec0::100 local fec0::200 encaplimit 4 hoplimit 64 tclass 0x00 flowlabel 0x00000 (flowinfo 0x00000000)
+[root@localhost ~]#
+
+Fix this by moving the strcpy out of ip6_tnl_dev_init_gen, and calling it after
+register_netdevice has successfully returned.
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Josh Boyer <jwboyer@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+---
+ net/ipv6/ip6_tunnel.c |    8 +++++++-
+ 1 files changed, 7 insertions(+), 1 deletions(-)
+
+diff --git a/net/ipv6/ip6_tunnel.c b/net/ipv6/ip6_tunnel.c
+index bdc15c9..4e2e9ff 100644
+--- a/net/ipv6/ip6_tunnel.c
++++ b/net/ipv6/ip6_tunnel.c
+@@ -289,6 +289,8 @@ static struct ip6_tnl *ip6_tnl_create(struct net *net, struct ip6_tnl_parm *p)
+ 	if ((err = register_netdevice(dev)) < 0)
+ 		goto failed_free;
+ 
++	strcpy(t->parms.name, dev->name);
++
+ 	dev_hold(dev);
+ 	ip6_tnl_link(ip6n, t);
+ 	return t;
+@@ -1407,7 +1409,6 @@ ip6_tnl_dev_init_gen(struct net_device *dev)
+ 	struct ip6_tnl *t = netdev_priv(dev);
+ 
+ 	t->dev = dev;
+-	strcpy(t->parms.name, dev->name);
+ 	dev->tstats = alloc_percpu(struct pcpu_tstats);
+ 	if (!dev->tstats)
+ 		return -ENOMEM;
+@@ -1487,6 +1488,7 @@ static void __net_exit ip6_tnl_destroy_tunnels(struct ip6_tnl_net *ip6n)
+ static int __net_init ip6_tnl_init_net(struct net *net)
+ {
+ 	struct ip6_tnl_net *ip6n = net_generic(net, ip6_tnl_net_id);
++	struct ip6_tnl *t = NULL;
+ 	int err;
+ 
+ 	ip6n->tnls[0] = ip6n->tnls_wc;
+@@ -1507,6 +1509,10 @@ static int __net_init ip6_tnl_init_net(struct net *net)
+ 	err = register_netdev(ip6n->fb_tnl_dev);
+ 	if (err < 0)
+ 		goto err_register;
++
++	t = netdev_priv(ip6n->fb_tnl_dev);
++
++	strcpy(t->parms.name, ip6n->fb_tnl_dev->name);
+ 	return 0;
+ 
+ err_register:
+-- 
+1.7.6.2
+

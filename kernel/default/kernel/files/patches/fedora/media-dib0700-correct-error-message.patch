@@ -1,0 +1,103 @@
+From: Olivier Grenie <olivier.grenie@dibcom.fr>
+Date: Thu, 4 Aug 2011 16:10:03 +0000 (-0300)
+Subject: [media] dib0700: correct error message
+X-Git-Tag: next-20110927~67^2~4^2~223
+X-Git-Url: http://git.kernel.org/?p=linux%2Fkernel%2Fgit%2Fnext%2Flinux-next.git;a=commitdiff_plain;h=680417bb318adc5f1f8f392730776176fbcdedd8
+
+[media] dib0700: correct error message
+
+The goal of this patch is to correct a previous patch. In case of error,
+the err() function should be used instead of dprintk() function.
+
+[mchehab@redhat.com: as I've replaced dprintk by deb_info, on the the
+ previous patch, to avoid breaking bisect, I had to fix a merge conflict
+ on this one]
+Signed-off-by: Olivier Grenie <olivier.grenie@dibcom.fr>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@redhat.com>
+---
+
+diff --git a/drivers/media/dvb/dvb-usb/dib0700_core.c b/drivers/media/dvb/dvb-usb/dib0700_core.c
+index a224e94..b693ed1 100644
+--- a/drivers/media/dvb/dvb-usb/dib0700_core.c
++++ b/drivers/media/dvb/dvb-usb/dib0700_core.c
+@@ -31,7 +31,7 @@ int dib0700_get_version(struct dvb_usb_device *d, u32 *hwversion,
+ 	int ret;
+ 
+ 	if (mutex_lock_interruptible(&d->usb_mutex) < 0) {
+-		deb_info("could not acquire lock");
++		err("could not acquire lock");
+ 		return 0;
+ 	}
+ 
+@@ -117,7 +117,7 @@ int dib0700_set_gpio(struct dvb_usb_device *d, enum dib07x0_gpios gpio, u8 gpio_
+ 	int ret;
+ 
+ 	if (mutex_lock_interruptible(&d->usb_mutex) < 0) {
+-		deb_info("could not acquire lock");
++		err("could not acquire lock");
+ 		return 0;
+ 	}
+ 
+@@ -138,7 +138,7 @@ static int dib0700_set_usb_xfer_len(struct dvb_usb_device *d, u16 nb_ts_packets)
+ 
+ 	if (st->fw_version >= 0x10201) {
+ 		if (mutex_lock_interruptible(&d->usb_mutex) < 0) {
+-			deb_info("could not acquire lock");
++			err("could not acquire lock");
+ 			return 0;
+ 		}
+ 
+@@ -227,7 +227,7 @@ static int dib0700_i2c_xfer_new(struct i2c_adapter *adap, struct i2c_msg *msg,
+ 		} else {
+ 			/* Write request */
+ 			if (mutex_lock_interruptible(&d->usb_mutex) < 0) {
+-				deb_info("could not acquire lock");
++				err("could not acquire lock");
+ 				return 0;
+ 			}
+ 			st->buf[0] = REQUEST_NEW_I2C_WRITE;
+@@ -273,7 +273,7 @@ static int dib0700_i2c_xfer_legacy(struct i2c_adapter *adap,
+ 	if (mutex_lock_interruptible(&d->i2c_mutex) < 0)
+ 		return -EAGAIN;
+ 	if (mutex_lock_interruptible(&d->usb_mutex) < 0) {
+-		deb_info("could not acquire lock");
++		err("could not acquire lock");
+ 		return 0;
+ 	}
+ 
+@@ -368,7 +368,7 @@ static int dib0700_set_clock(struct dvb_usb_device *d, u8 en_pll,
+ 	int ret;
+ 
+ 	if (mutex_lock_interruptible(&d->usb_mutex) < 0) {
+-		deb_info("could not acquire lock");
++		err("could not acquire lock");
+ 		return 0;
+ 	}
+ 
+@@ -400,7 +400,7 @@ int dib0700_set_i2c_speed(struct dvb_usb_device *d, u16 scl_kHz)
+ 		return -EINVAL;
+ 
+ 	if (mutex_lock_interruptible(&d->usb_mutex) < 0) {
+-		deb_info("could not acquire lock");
++		err("could not acquire lock");
+ 		return 0;
+ 	}
+ 
+@@ -560,7 +560,7 @@ int dib0700_streaming_ctrl(struct dvb_usb_adapter *adap, int onoff)
+ 	}
+ 
+ 	if (mutex_lock_interruptible(&adap->dev->usb_mutex) < 0) {
+-		deb_info("could not acquire lock");
++		err("could not acquire lock");
+ 		return 0;
+ 	}
+ 
+@@ -610,7 +610,7 @@ int dib0700_change_protocol(struct rc_dev *rc, u64 rc_type)
+ 	int new_proto, ret;
+ 
+ 	if (mutex_lock_interruptible(&d->usb_mutex) < 0) {
+-		deb_info("could not acquire lock");
++		err("could not acquire lock");
+ 		return 0;
+ 	}
+ 

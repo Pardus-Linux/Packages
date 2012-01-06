@@ -12,7 +12,7 @@
         <IsA>kernel</IsA>
         <Summary>The Linux kernel (the core of the Linux operating system) for Pardus Linux</Summary>
         <Description>kernel contains the Linux kernel, the core of any Linux operating system. The kernel handles the basic functions of the operating system: memory allocation, process allocation, device input and output, etc.</Description>
-        <Archive sha1sum="eba83c89e71a86060ef6ff76aefff660aef819e2" type="tarbz2">http://www.kernel.org/pub/linux/kernel/v2.6/linux-2.6.37.tar.bz2</Archive>
+        <Archive sha1sum="3460afa971049aa79b8f914e1bfd619eedd19f55" type="tarbz2">http://www.kernel.org/pub/linux/kernel/v3.0/linux-3.2.tar.bz2</Archive>
         <AdditionalFiles>
             <AdditionalFile target="configs/kernel-i686-config">configs/kernel-i686-config</AdditionalFile>
             <AdditionalFile target="configs/kernel-x86_64-config">configs/kernel-x86_64-config</AdditionalFile>
@@ -20,64 +20,21 @@
         </AdditionalFiles>
         <BuildDependencies>
             <Dependency>cpio</Dependency>
-            <Dependency>newt</Dependency> <!-- For perf -->
             <Dependency>unifdef</Dependency>
             <Dependency>elfutils</Dependency>
             <Dependency>diffutils</Dependency>
+            <Dependency>newt-devel</Dependency> <!-- For perf -->
         </BuildDependencies>
         <Patches>
             <!-- Stable patch -->
-            <!-- xfs: prevent leaking uninitialized stack memory in FSGEOMETRY_V1 (CVE-2011-0711) (pb#17149) -->
-            <!-- rdma: panic in ib_cm:cm_work_handler (CVE-2011-0695) (pb#17486) -->
-            <!-- nfs4: Ensure that ACL pages sent over NFS were not allocated from the slab (CVE-2011-1090) (pb#17448) -->
-            <!-- epoll subsystem in did not prevent users from creating circular epoll file structures leading to a DoS (CVE-2011-{1082,1083}) (pb#17423) -->
-            <!-- fs/partitions: Validate map_count in Mac partition tables (CVE-2011-1010) (pb#17157) -->
-            <!-- Corrupted LDM partition table can cause kernel oops (CVE-2011-1012) (pb#17379) -->
-            <!-- Prevent rt_sigqueueinfo and rt_tgsigqueueinfo from spoofing the signal code (CVE-2011-1182) (pb#17555) -->
-            <Patch level="1" compressionType="bz2">patches/mainline/patch-2.6.37.6.bz2</Patch>
 
-            <!-- bridge: Fix mglist corruption that leads to memory corruption (CVE-2011-0716) (pb#17153) -->
-            <Patch level="1">patches/mainline/net-2.6.git-6b0d6a9b4296fa16a28d10d416db7a770fc03287.patch</Patch>
-
-            <!-- gro: reset dev and skb_iff on skb reuse (CVE-2011-1478) (pb#17551) -->
-            <Patch level="1">patches/mainline/linux-2.6.git-net-gro-66c46d741e2e60f0e8b625b80edb0ab820c46d7a.patch</Patch>
-            <Patch level="1">patches/mainline/linux-2.6.git-net-gro-6d152e23ad1a7a5b40fef1f42e017d66e6115159.patch</Patch>
-
-            <!-- bluetooth: sco: fix information leak to userspace (CVE-2011-1078)
-                 bluetooth: bnep: fix buffer overflow (CVE-2011-1079)
-                 bridge: netfilter: fix information leak (CVE-2011-1080)    (pb#17459) -->
-            <Patch level="1">patches/mainline/fix-memleaks-CVE-2011-1078-1079-1080.patch</Patch>
-
-            <!-- unionfs support -->
-            <Patch level="1" compressionType="gz">patches/unionfs-2.5.7_for_2.6.37-rc1.diff.gz</Patch>
-
-            <!-- Fix kworker CPU hogging issue (#14614) -->
-            <Patch level="1">patches/mainline/pci-pcie-execute-OSC-once-for-each-root.patch</Patch>
-            <Patch level="1">patches/mainline/linux-2.6.git-d3072e6a7e9bf7aca200370317f8e297be360b17.patch</Patch>
-
-            <!-- Sync samsung backlight driver -->
-            <Patch level="1">patches/mainline/sync-samsung-laptop-driver-from-upstream.patch</Patch>
-
-            <!-- Apple HID patches for new Macbook Pro models -->
-            <Patch level="1">patches/mainline/linux-2.6.git-99b9f758bbc904f22faffcf4d83205f4a5e7bc0c.patch</Patch>
-            <Patch level="1">patches/mainline/linux-2.6.git-a4bc6926d05b60bf70aab2db2c6715e15118cbdc.patch</Patch>
-            <Patch level="1">patches/mainline/linux-2.6.git-47340bd9fefb571888836da942b5aee0e85e959c.patch</Patch>
-            <Patch level="1">patches/mainline/linux-2.6.git-4a4c879904aa0cc64629e14a49b64fb3d149bf1a.patch</Patch>
-
-            <!-- Apple touchpad patches for new Macbook Pro models -->
-            <Patch level="1">patches/mainline/linux-2.6.git-db0b34b07438d92c4c190998c42a502fbf90064e.patch</Patch>
-            <Patch level="1">patches/mainline/linux-2.6.git-c331eb580a0a7906c0cdb8dbae3cfe99e3c0e555.patch</Patch>
-            <Patch level="1">patches/mainline/linux-2.6.git-1c601beaf21671b5033169d04efeda462bf58f01.patch</Patch>
-
-            <!-- Apple magic mouse patches  -->
-            <Patch level="1">patches/mainline/linux-2.6.git-4f6fdf08681cecd9f38499de7a02eb4f05f399a7.patch</Patch>
-            <Patch level="1">patches/mainline/linux-2.6.git-35d851df23b093ee027f827fed2213ae5e88fc7a.patch</Patch>
+            <!-- aufs patch -->
+            <!--
+            <Patch level="1">aufs-3.1-20111116.patch</Patch>
+            -->
 
 
             <!-- Mandriva/Mageia patches -->
-
-            <!-- Allow access to Shuttle WMI interface controls -->
-            <Patch level="1">patches/mandriva/platform-x86-add-shuttle-wmi-driver.patch</Patch>
 
             <!-- fix NULL pointer deref -->
             <Patch level="1">patches/mandriva/block-loop-queue_lock-NULL-pointer-derefence-in-blk_throtl_exit.patch</Patch>
@@ -91,50 +48,12 @@
             <!-- disable PNPBIOS -->
             <Patch level="1">patches/mandriva/pnp-pnpbios-off-by-default.patch</Patch>
 
-            <!-- Unionfs fixes -->
-            <Patch level="1">patches/mandriva/fs-unionfs-2.5.3-oops.patch</Patch>
-            <Patch level="1">patches/mandriva/fs-unionfs-buildfix.patch</Patch>
-
-            <!-- (Can be problematic, disable) Backport sched-autogroup feature (#16584)
-            <Patch level="1">patches/mandriva/kernel-sched-automated-per-session-task-groups-20101130.patch</Patch>
-            <Patch level="1">patches/mandriva/kernel-sched-autogroup-Fix-reference-leak.patch</Patch>
-            <Patch level="1">patches/mandriva/kernel-sched-fix-potential-access-to-freed-memory.patch</Patch>
-            <Patch level="1">patches/mandriva/kernel-sched-sched-Move-sched_autogroup_exit-to-free_signal_struct.patch</Patch>
-            <Patch level="1">patches/mandriva/kernel-sched-Mark-autogroup_init-__init.patch</Patch>
-            <Patch level="1">patches/mandriva/kernel-sched-Fix-struct-autogroup-memory-leak.patch</Patch>
-            -->
-            <!-- Patch to fix broken RT-scheduling with Jack when autogroup is enabled
-            <Patch level="1">patches/mainline/linux-2.6.git-f44937718ce3b8360f72f6c68c9481712517a867.patch</Patch>
-            -->
-
-            <!-- Add AuFS support -->
-            <Patch level="1">patches/mandriva/fs-aufs2.1-for-2.6.37.patch</Patch>
-            <Patch level="1">patches/mandriva/fs-aufs2.1-for-2.6.37-fixes.patch</Patch>
-
-            <!-- dm-crypt: Better scale on multiple CPUs -->
-            <Patch level="1">patches/mandriva/dm-crypt-scale-to-multiple-CPUs-v5-2.6.36.patch</Patch>
-
             <!-- pwc: Remove useless messages in dmesg -->
             <Patch level="1">patches/mandriva/media-video-pwc-no-ads-in-dmesg.patch</Patch>
-
-            <!-- Add some IDs -->
-            <Patch level="1">patches/mandriva/net-wireless-zd1211rw-add-id.patch</Patch>
-            <Patch level="1">patches/mandriva/net-wireless-zd1201-add-id.patch</Patch>
 
             <!-- btusb: Disable ISOC transfer on a specific bluetooth dongle -->
             <Patch level="1">patches/mandriva/bluetooth-hci_usb-disable-isoc-transfers.patch</Patch>
 
-            <!-- Several rtl8187 cleanups and fixes -->
-            <Patch level="1">patches/mandriva/net-wireless-rtl8187-do-not-do-per-packet-TX-AGC.patch</Patch>
-            <Patch level="1">patches/mandriva/net-wireless-rtl8187-remove-redundant-initialization-of-ARFR.patch</Patch>
-            <Patch level="1">patches/mandriva/net-wireless-rtl8187-remove-setting-of-beacon-atim-regs-from-init.patch</Patch>
-            <Patch level="1">patches/mandriva/net-wireless-rtl8187-fix-wrong-register-initialization-in-8187B.patch</Patch>
-            <Patch level="1">patches/mandriva/net-wireless-rtl8187-avoid-redundant-write-to-register-FF72.patch</Patch>
-            <Patch level="1">patches/mandriva/net-wireless-rtl8187-move-pll-reset-at-start-out-of-ANAPARAM-write.patch</Patch>
-            <Patch level="1">patches/mandriva/net-wireless-rtl8187-don-t-set-RTL818X_CONFIG3_GNT_SELECT.patch</Patch>
-            <Patch level="1">patches/mandriva/net-wireless-rtl8187-consolidate-anaparam-on-off-write-sequences.patch</Patch>
-            <Patch level="1">patches/mandriva/net-wireless-rtl8187-remove-uneeded-setting-of-anaparam-write.patch</Patch>
-            <Patch level="1">patches/mandriva/net-wireless-rtl8187-restore-anaparam-registers-after-reset.patch</Patch>
 
 
             <!-- Moblin patches -->
@@ -142,95 +61,58 @@
             <!-- fastboot: retry mounting / if it fails first time -->
             <Patch level="1">patches/meego/linux-2.6.29-retry-root-mount.patch</Patch>
 
-            <!-- patches/meego: try mounting / before all devices  (the mouse) are
-            done probing. This saves several seconds of boot time. -->
-            <Patch level="1">patches/meego/linux-2.6.29-dont-wait-for-mouse.patch</Patch>
-
-            <!-- patches/meego: Move kms after SATA in drivers/Makefile -->
-            <Patch level="1">patches/meego/0005-Ordering-kms-after-sata-in-drivers-Makefile.patch</Patch>
-
 
             <!-- Ubuntu Kernel Patches -->
 
-
             <!-- Async init pnp subsystem -->
             <Patch level="1">patches/ubuntu/pnp-isapnp-async-init.patch</Patch>
-
-            <!-- Restore VT fonts on switch -->
-            <Patch level="1">patches/ubuntu/ubuntu-intrepid.git-0e1f6f9df557fe4c7d5523275c25c166ee15efb5.patch</Patch>
-
-            <!-- frame buffer regression - screen blank except for blinking -->
-            <Patch level="1">patches/ubuntu/ubuntu-intrepid.git-ba0d60fcc049028112c7ae493f5df9e863ea660d.patch</Patch>
 
             <!-- ata: blacklist FUJITSU MHW2160BH PL -->
             <Patch level="1">patches/ubuntu/ubuntu-intrepid.git-3522f638ddff561fb46c1056fcb8c678e9e649ab.patch</Patch>
 
             <!-- Several SAUCE patches from jaunty and karmic -->
             <Patch level="1">patches/ubuntu/0002-UBUNTU-SAUCE-Dell-XPS710-reboot-quirk.patch</Patch>
-            <Patch level="1">patches/ubuntu/0005-UBUNTU-SAUCE-Correctly-blacklist-Thinkpad-r40e-in-AC.patch</Patch>
 
             <!-- Don't install scsi headers to avoid conflict with glibc -->
             <Patch level="1">patches/ubuntu/ubuntu-maverick.git-c7a74029969b912241591b2889961b17514ca61f.patch</Patch>
 
-            <!-- Add r8192se_pci module (#15534) -->
+            <!-- FIXME: Add r8192se_pci module (#15534)
             <Patch level="1" compressionType="bz2">patches/ubuntu/rtl8192se_pci.patch.bz2</Patch>
-
-            <!-- Make DVD Drive recognisable on systems with Intel Sandybridge chipsets -->
-            <Patch level="1">patches/ubuntu/ubuntu-oneiric.git-e4825dfaadb9eeb46517785231eca5454f19a24c.patch</Patch>
+            -->
 
 
             <!-- Fedora Kernel Patches -->
 
-            <!-- Disable floppy pnp alias -->
-            <Patch level="1">patches/fedora/die-floppy-die.patch</Patch>
-
-            <!-- Disable pcspkr alias -->
-            <Patch level="1">patches/fedora/linux-2.6.30-no-pcspkr-modalias.patch</Patch>
-
-            <!-- NX support -->
-            <Patch level="1">patches/fedora/linux-2.6-i386-nx-emulation.patch</Patch>
+            <!-- NX emulation -->
             <Patch level="1">patches/fedora/linux-2.6-32bit-mmap-exec-randomization.patch</Patch>
+            <Patch level="1">patches/fedora/linux-2.6-i386-nx-emulation.patch</Patch>
 
-            <!-- runtime pm fixes (disabled for now as they're problematic)
-            <Patch level="1">patches/fedora/linux-2.6-usb-pci-autosuspend.patch</Patch>
-            <Patch level="1">patches/fedora/linux-2.6-enable-more-pci-autosuspend.patch</Patch>
-            <Patch level="1">patches/fedora/runtime_pm_fixups.patch</Patch>
-            <Patch level="1">patches/fedora/linux-2.6-ehci-check-port-status.patch</Patch>
-            -->
+            <!-- FS patches -->
+            <Patch level="1">patches/fedora/jbd-jbd2-validate-sb-s_first-in-journal_get_superblo.patch</Patch>
+            <Patch level="1">patches/fedora/nfsv4-include-bitmap-in-nfsv4_get_acl_data.patch</Patch>
 
-            <!-- Quirk to disable DMAR with Ricoh card reader/firewire -->
-            <Patch level="1">patches/fedora/dmar-disable-when-ricoh-multifunction.patch</Patch>
-
-            <!-- Add Apple IR driver -->
-            <Patch level="1">patches/fedora/add-appleir-usb-driver.patch</Patch>
-
-            <!-- Disable i8042 check on apple mac -->
-            <Patch level="1">patches/fedora/disable-i8042-check-on-apple-mac.patch</Patch>
-
-            <!-- Some ACPI stuff -->
-            <Patch level="1">patches/fedora/acpi-ec-add-delay-before-write.patch</Patch>
-            <Patch level="1">patches/fedora/linux-2.6-silence-acpi-blacklist.patch</Patch>
-            <Patch level="1">patches/fedora/linux-2.6-acpi-video-dos.patch</Patch>
+            <!-- ACPI stuff -->
             <Patch level="1">patches/fedora/linux-2.6-defaults-acpi-video.patch</Patch>
+            <Patch level="1">patches/fedora/linux-2.6-acpi-video-dos.patch</Patch>
             <Patch level="1">patches/fedora/linux-2.6-acpi-debug-infinite-loop.patch</Patch>
+            <Patch level="1">patches/fedora/acpi-ensure-thermal-limits-match-cpu-freq.patch</Patch>
+            <Patch level="1">patches/fedora/acpi-sony-nonvs-blacklist.patch</Patch>
+
+            <!-- Enable ASPM by default -->
             <Patch level="1">patches/fedora/linux-2.6-defaults-aspm.patch</Patch>
-            <Patch level="1">patches/fedora/pci-disable-aspm-if-bios-asks-us-to.patch</Patch>
-
-            <!-- acpi: Fix battery status on some devices -->
-            <Patch level="1">patches/fedora/acpi-update-battery-information-on-notification-0x81.patch</Patch>
-
-            <Patch level="1">patches/fedora/neuter_intel_microcode_load.patch</Patch>
-
-            <!-- Use UTF-8 by default on VFAT -->
-            <Patch level="1">patches/fedora/linux-2.6-defaults-fat-utf8.patch</Patch>
 
             <!-- input: The input layer spews crap no-one cares about -->
             <Patch level="1">patches/fedora/linux-2.6-input-kill-stupid-messages.patch</Patch>
 
-            <!-- pci: disable message signaled interrupts  -->
-            <Patch level="1">patches/fedora/linux-2.6-defaults-pci_no_msi.patch</Patch>
+            <!-- Disable floppy pnp alias -->
+            <Patch level="1">patches/fedora/die-floppy-die.patch</Patch>
+            <Patch level="1">patches/fedora/floppy-Remove-_hlt-related-functions.patch</Patch>
 
-            <Patch level="1">patches/fedora/linux-2.6-defaults-pci_use_crs.patch</Patch>
+            <!-- Disable pcspkr alias -->
+            <Patch level="1">patches/fedora/linux-2.6.30-no-pcspkr-modalias.patch</Patch>
+
+            <!-- Allow to use 480600 baud on 16C950 UARTs -->
+            <Patch level="1">patches/fedora/linux-2.6-serial-460800.patch</Patch>
 
             <!-- Silence some useless messages that still get printed with 'quiet' -->
             <Patch level="1">patches/fedora/linux-2.6-silence-noise.patch</Patch>
@@ -238,54 +120,52 @@
             <!-- fbcon: Silence fbcon logo if quiet -->
             <Patch level="1">patches/fedora/linux-2.6-silence-fbcon-logo.patch</Patch>
 
-            <!-- Allow to use 480600 baud on 16C950 UARTs -->
-            <Patch level="1">patches/fedora/linux-2.6-serial-460800.patch</Patch>
-
-            <!-- hdpvr: Enable IR -->
-            <Patch level="1">patches/fedora/hdpvr-ir-enable.patch</Patch>
-
             <!-- e1000e: Enable networking on montevina -->
             <Patch level="1">patches/fedora/linux-2.6-e1000-ich9-montevina.patch</Patch>
 
-            <!-- various fixes for Apple and EFI -->
+            <!-- Assorted virt fixes -->
+            <Patch level="1">patches/fedora/fix_xen_guest_on_old_EC2.patch</Patch>
 
-            <!-- FIXME: Floods dmesg with SMC Interrupt messages
-            <Patch level="1">patches/fedora/applesmc_update.patch</Patch>
-            -->
-            <Patch level="1">patches/fedora/apple_backlight.patch</Patch>
-            <Patch level="1">patches/fedora/efifb_update.patch</Patch>
-
-            <!-- FIXME: This may be the cause for reboot/shutdown problems
-            <Patch level="1">patches/fedora/acpi_reboot.patch</Patch>
-            -->
-            <Patch level="1">patches/fedora/efi_default_physical.patch</Patch>
-
-            <!-- backport some fixes for kswapd from mmotm -->
-            <Patch level="1">patches/fedora/net-AF_PACKET-vmalloc.patch</Patch>
-
-            <Patch level="1">patches/fedora/flexcop-fix-xlate_proc_name-warning.patch</Patch>
-
-
-            <!-- DRM stuff -->
-            <Patch level="1">patches/fedora/drm-nouveau-nva3-noaccel.patch</Patch>
-            <Patch level="1">patches/fedora/drm-nouveau-nv50-crtc-update-delay.patch</Patch>
-            <Patch level="1">patches/fedora/drm-nouveau-imac-g4.patch</Patch>
-            <Patch level="1">patches/fedora/drm-nouveau-evo-hang.patch</Patch>
-            <Patch level="1">patches/fedora/drm-nouveau-nvaf-grclass.patch</Patch>
-
-            <Patch level="1">patches/fedora/drm-intel-big-hammer.patch</Patch>
-            <Patch level="1">patches/fedora/drm-intel-make-lvds-work.patch</Patch>
             <Patch level="1">patches/fedora/linux-2.6-intel-iommu-igfx.patch</Patch>
-            <Patch level="1">patches/fedora/drm-intel-edp-fixes.patch</Patch>
+
+            <!-- Silence the ACPI blacklist code -->
+            <Patch level="1">patches/fedora/linux-2.6-silence-acpi-blacklist.patch</Patch>
+            <Patch level="1">patches/fedora/quite-apm.patch</Patch>
+
+            <!-- Patches headed upstream -->
+            <Patch level="1">patches/fedora/disable-i8042-check-on-apple-mac.patch</Patch>
+            <Patch level="1">patches/fedora/epoll-limit-paths.patch</Patch>
+            <Patch level="1">patches/fedora/block-stray-block-put-after-teardown.patch</Patch>
+
+            <!-- Quirk to disable DMAR with Ricoh card reader/firewire -->
+            <Patch level="1">patches/fedora/dmar-disable-when-ricoh-multifunction.patch</Patch>
+
+            <!-- Other fixes -->
+            <Patch level="1">patches/fedora/revert-efi-rtclock.patch</Patch>
+            <Patch level="1">patches/fedora/efi-dont-map-boot-services-on-32bit.patch</Patch>
+            <Patch level="1">patches/fedora/sysfs-msi-irq-per-device.patch</Patch>
+            <Patch level="1">patches/fedora/linux-3.1-keys-remove-special-keyring.patch</Patch>
+
+            <!-- Remove overlap between bcma/b43 and brcmsmac and reenable bcm4331 -->
+            <Patch level="1">patches/fedora/bcma-brcmsmac-compat.patch</Patch>
+
+            <Patch level="1">patches/fedora/pci-Rework-ASPM-disable-code.patch</Patch>
+            <Patch level="1">patches/fedora/alps.patch</Patch>
+            <Patch level="1">patches/fedora/nfs-client-freezer.patch</Patch>
+            <Patch level="1">patches/fedora/Bluetooth-Add-support-for-BCM20702A0-0a5c-21e3.patch</Patch>
+
+            <!-- Use UTF-8 by default on VFAT -->
+            <Patch level="1">patches/fedora/linux-2.6-defaults-fat-utf8.patch</Patch>
 
 
-            <!-- Subset of OpenSuSE Kernel Patches -->
-
-            <!-- Eventhough we don't build legacy IDE drivers, prefer libata over them -->
-            <Patch level="1">patches/suse/libata-prefer-over-ide.patch</Patch>
+            <!-- OpenSuSE Kernel Patches -->
 
             <!-- Add ELO touchpad driver -->
             <Patch level="1">patches/suse/elousb.patch</Patch>
+            <Patch level="1">patches/suse/elousb-2.6.35-api-changes.patch</Patch>
+
+            <!-- Misc input fixes -->
+            <Patch level="1">patches/suse/input-Add-LED-support-to-Synaptics-device.patch</Patch>
 
             <!-- Explain OOM warning better -->
             <Patch level="1">patches/suse/explain-oom-warning.patch</Patch>
@@ -299,21 +179,6 @@
             <!-- Module use count must be updated as bridges are created/destroyed -->
             <Patch level="1">patches/suse/bridge-module-get-put.patch</Patch>
 
-            <!-- Enable apm=power_off on uniprocessors (Fixes #4519) -->
-            <Patch level="1">patches/suse/apm_setup_UP.patch</Patch>
-
-            <!-- Make ext3 mount default to barrier=1 -->
-            <Patch level="1">patches/suse/ext3-barrier-default.patch</Patch>
-
-            <!-- fastboot stuff -->
-            <Patch level="1">patches/suse/linux-2.6.29-jbd-longer-commit-interval.patch</Patch>
-
-            <!-- mouse: Add more touch screen device IDs -->
-            <Patch level="1">patches/suse/linux-2.6.29-touchkit.patch</Patch>
-
-            <!-- Add new serial Wacom device IDs -->
-            <Patch level="1">patches/suse/serial-8250-add-new-wacom-devices.patch</Patch>
-
 
 
             <!-- Pardus Kernel Patches -->
@@ -322,20 +187,8 @@
             <Patch level="1">patches/pardus/add-realtek-pcie-card-reader-driver.patch</Patch>
             <Patch level="1">patches/pardus/realtek-pcie-card-reader-driver-cleanup.patch</Patch>
 
-            <!-- rtl8192e: netif_stop_queue() shouldn't be called before register_netdev() -->
-            <Patch level="1">patches/pardus/rtl8192e-drop-netif-stop-queue-call-before-register-netdev.patch</Patch>
-
-            <!-- rtl8192se_pci: netif_stop_queue() shouldn't be called before register_netdev() -->
-            <Patch level="1">patches/pardus/rtl8192se_pci-fix-netif-stop-queue-usage.patch</Patch>
-
-            <!-- brcm80211 driver supports the following devices: 14e4:{4357,4353,4727} -->
-            <Patch level="1">patches/pardus/brcm80211-remove-module-aliases.patch</Patch>
-
             <!-- Blacklist 2 Lenovo in acer-wmi (#15967) -->
             <Patch level="1">patches/pardus/0001-Add-Lenovo-Ideapad-S12-to-acer-blacklist.patch</Patch>
-
-            <!-- Autoload mantis and hopper drivers (#14647) -->
-            <Patch level="1">patches/pardus/mantis-add-device-table.patch</Patch>
 
             <!-- hid-apple: Invert Fn+F? behaviour on apple keyboards -->
             <Patch level="1">patches/pardus/invert-hidapple-fnkey-behaviour.patch</Patch>
@@ -348,9 +201,6 @@
                  http://www.zwobble.de -->
             <Patch level="1">patches/pardus/linux-2.6-add-fujitsu-amilo-74xx-rfkill-drivers.patch</Patch>
 
-            <!-- Use buildfarm.pardus.org.tr and pardus for /proc/version -->
-            <Patch level="1">patches/pardus/buildhost.patch</Patch>
-
             <!-- Pardus Logo Enhancements -->
             <Patch level="1">patches/pardus/logo.patch</Patch>
             <Patch level="1">patches/pardus/logo-vga16.patch</Patch>
@@ -359,17 +209,26 @@
             <!-- Fallback to vesa 640x480x16 on undefined video mode number (Fixes #7117)-->
             <Patch level="1">patches/pardus/vesa_fallback_on_fail.patch</Patch>
 
-            <Patch level="1">patches/pardus/add-macbookpro-8.1-keyboard.patch</Patch>
+            <!-- Add new device ID for Atheros 3012 bluetooth device to load the correct firmware -->
+            <Patch level="1">patches/pardus/new-btusb-id-for-asus_ux31.patch</Patch>
         </Patches>
     </Source>
 
     <Package>
         <Name>kernel</Name>
         <RuntimeDependencies>
-            <!-- For new mkinitramfs pakhandler -->
-            <Dependency releaseFrom="84">mkinitramfs</Dependency>
+            <!-- FIXME: Should be replaced by dracut -->
+            <Dependency>mkinitramfs</Dependency>
             <Dependency>linux-firmware</Dependency>
         </RuntimeDependencies>
+        <Replaces>
+            <Package>module-lirc</Package>
+            <Package>module-gspca</Package>
+            <Package>module-uvcvideo</Package>
+            <Package>module-omnibook</Package>
+            <Package>module-ipheth-driver</Package>
+            <Package>module-lenovo-sl-laptop</Package>
+        </Replaces>
         <Files>
             <Path fileType="executable" permanent="true">/boot</Path>
             <Path fileType="library" permanent="true">/lib/modules</Path>
@@ -403,9 +262,31 @@
         <Name>kernel-docs</Name>
         <Summary>Documentation and scripts for the Linux kernel</Summary>
         <Description>kernel-docs includes several documentation files and scripts for managing several debugging and other tasks.</Description>
+        <Replaces>
+            <Package>kernel-doc</Package>
+        </Replaces>
         <Files>
             <Path fileType="header">/usr/src/linux-headers*/Documentation</Path>
         </Files>
+    </Package>
+
+    <Package>
+        <Name>cpupowertools</Name>
+        <Summary>CPU power management tools</Summary>
+        <Description>cpupowertools contains utilities to manage power management and frequency scaling policies of modern CPUs.</Description>
+        <Files>
+            <Path fileType="man">/usr/share/man/man1/cpupower*</Path>
+            <Path fileType="executable">/usr/bin/cpupower</Path>
+            <Path fileType="executable">/usr/bin/*-decode</Path>
+            <Path fileType="library">/usr/lib/libcpupower*</Path>
+            <Path fileType="data">/usr/share/locale/*/*/cpupower.mo</Path>
+            <Path fileType="data">/lib/systemd/system</Path>
+            <Path fileType="config">/etc/conf.d</Path>
+        </Files>
+        <AdditionalFiles>
+            <AdditionalFile owner="root" permission="0644" target="/lib/systemd/system/cpupower.service">cpupower.service</AdditionalFile>
+            <AdditionalFile owner="root" permission="0644" target="/etc/conf.d/cpupower">cpupower.config</AdditionalFile>
+        </AdditionalFiles>
     </Package>
 
     <Package>
@@ -446,10 +327,28 @@
             <AdditionalFile owner="root" permission="0644" target="/usr/share/man/man1/perf-test.1">perf/perf-test.1</AdditionalFile>
             <AdditionalFile owner="root" permission="0644" target="/usr/share/man/man1/perf-trace-perl.1">perf/perf-trace-perl.1</AdditionalFile>
             <AdditionalFile owner="root" permission="0644" target="/usr/share/man/man1/perf-trace-python.1">perf/perf-trace-python.1</AdditionalFile>
+            <AdditionalFile owner="root" permission="0644" target="/usr/share/man/man1/perf-script-python.1">perf/perf-script-python.1</AdditionalFile>
+            <AdditionalFile owner="root" permission="0644" target="/usr/share/man/man1/perf-script-perl.1">perf/perf-script-perl.1</AdditionalFile>
+            <AdditionalFile owner="root" permission="0644" target="/usr/share/man/man1/perf-script.1">perf/perf-script.1</AdditionalFile>
+            <AdditionalFile owner="root" permission="0644" target="/usr/share/man/man1/perf-evlist.1">perf/perf-evlist.1</AdditionalFile>
         </AdditionalFiles>
     </Package>
 
     <History>
+        <Update release="159">
+            <Date>2012-01-05</Date>
+            <Version>3.2.0</Version>
+            <Comment>Version bump to 3.2.0</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
+        <Update release="158">
+            <Date>2011-11-16</Date>
+            <Version>3.1.1</Version>
+            <Comment>Version bump</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
         <Update release="157">
             <Date>2011-03-29</Date>
             <Version>2.6.37.6</Version>

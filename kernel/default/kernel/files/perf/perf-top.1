@@ -1,13 +1,22 @@
 '\" t
 .\"     Title: perf-top
 .\"    Author: [FIXME: author] [see http://docbook.sf.net/el/author]
-.\" Generator: DocBook XSL Stylesheets v1.75.2 <http://docbook.sf.net/>
-.\"      Date: 12/27/2010
-.\"    Manual: \ \&
-.\"    Source: \ \&
+.\" Generator: DocBook XSL Stylesheets v1.76.1 <http://docbook.sf.net/>
+.\"      Date: 01/05/2012
+.\"    Manual: perf Manual
+.\"    Source: perf 3.2.0
 .\"  Language: English
 .\"
-.TH "PERF\-TOP" "1" "12/27/2010" "\ \&" "\ \&"
+.TH "PERF\-TOP" "1" "01/05/2012" "perf 3\&.2\&.0" "perf Manual"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
 .\" -----------------------------------------------------------------
 .\" * set default formatting
 .\" -----------------------------------------------------------------
@@ -27,7 +36,7 @@ perf-top \- System profiling tool\&.
 .fi
 .SH "DESCRIPTION"
 .sp
-This command generates and displays a performance counter profile in realtime\&.
+This command generates and displays a performance counter profile in real time\&.
 .SH "OPTIONS"
 .PP
 \-a, \-\-all\-cpus
@@ -42,7 +51,7 @@ Event period to sample\&.
 .PP
 \-C <cpu\-list>, \-\-cpu=<cpu>
 .RS 4
-Monitor only on the list of cpus provided\&. Multiple CPUs can be provided as a comma\-sperated list with no space: 0,1\&. Ranges of CPUs are specified with \-: 0\-2\&. Default is to monitor all CPUS\&.
+Monitor only on the list of CPUs provided\&. Multiple CPUs can be provided as a comma\-separated list with no space: 0,1\&. Ranges of CPUs are specified with \-: 0\-2\&. Default is to monitor all CPUS\&.
 .RE
 .PP
 \-d <seconds>, \-\-delay=<seconds>
@@ -67,6 +76,11 @@ Display this many functions\&.
 Only display functions with more events than this\&.
 .RE
 .PP
+\-g, \-\-group
+.RS 4
+Put the counters into a counter group\&.
+.RE
+.PP
 \-F <freq>, \-\-freq=<freq>
 .RS 4
 Profile at this frequency\&.
@@ -89,7 +103,12 @@ Number of mmapped data pages\&.
 .PP
 \-p <pid>, \-\-pid=<pid>
 .RS 4
-Profile events on existing pid\&.
+Profile events on existing Process ID\&.
+.RE
+.PP
+\-t <tid>, \-\-tid=<tid>
+.RS 4
+Profile events on existing thread ID\&.
 .RE
 .PP
 \-r <priority>, \-\-realtime=<priority>
@@ -102,6 +121,21 @@ Collect data with this RT SCHED_FIFO priority\&.
 Annotate this symbol\&.
 .RE
 .PP
+\-K, \-\-hide_kernel_symbols
+.RS 4
+Hide kernel symbols\&.
+.RE
+.PP
+\-U, \-\-hide_user_symbols
+.RS 4
+Hide user symbols\&.
+.RE
+.PP
+\-D, \-\-dump\-symtab
+.RS 4
+Dump the symbol table used for profiling\&.
+.RE
+.PP
 \-v, \-\-verbose
 .RS 4
 Be more verbose (show counter open errors, etc)\&.
@@ -110,6 +144,111 @@ Be more verbose (show counter open errors, etc)\&.
 \-z, \-\-zero
 .RS 4
 Zero history across display updates\&.
+.RE
+.PP
+\-s, \-\-sort
+.RS 4
+Sort by key(s): pid, comm, dso, symbol, parent
+.RE
+.PP
+\-n, \-\-show\-nr\-samples
+.RS 4
+Show a column with the number of samples\&.
+.RE
+.PP
+\-\-show\-total\-period
+.RS 4
+Show a column with the sum of periods\&.
+.RE
+.PP
+\-\-dsos
+.RS 4
+Only consider symbols in these dsos\&.
+.RE
+.PP
+\-\-comms
+.RS 4
+Only consider symbols in these comms\&.
+.RE
+.PP
+\-\-symbols
+.RS 4
+Only consider these symbols\&.
+.RE
+.PP
+\-M, \-\-disassembler\-style=
+.RS 4
+Set disassembler style for objdump\&.
+.RE
+.PP
+\-\-source
+.RS 4
+Interleave source code with assembly code\&. Enabled by default, disable with \-\-no\-source\&.
+.RE
+.PP
+\-\-asm\-raw
+.RS 4
+Show raw instruction encoding of assembly instructions\&.
+.RE
+.PP
+\-G [type,min,order], \-\-call\-graph
+.RS 4
+Display call chains using type, min percent threshold and order\&. type can be either:
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+flat: single column, linear exposure of call chains\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+graph: use a graph tree, displaying absolute overhead rates\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+fractal: like graph, but displays relative rates\&. Each branch of the tree is considered as a new profiled object\&.
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+order can be either:
+\- callee: callee based call graph\&.
+\- caller: inverted caller based call graph\&.
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+Default: fractal,0\&.5,callee\&.
+.fi
+.if n \{\
+.RE
+.\}
+.RE
 .RE
 .SH "INTERACTIVE PROMPTING KEYS"
 .PP
@@ -146,11 +285,6 @@ Annotate symbol\&.
 [S]
 .RS 4
 Stop annotation, return to full profile display\&.
-.RE
-.PP
-[w]
-.RS 4
-Toggle between weighted sum and individual count[E]r profile\&.
 .RE
 .PP
 [z]
