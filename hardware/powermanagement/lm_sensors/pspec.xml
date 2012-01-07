@@ -8,31 +8,54 @@
             <Name>Serdar Dalgıç</Name>
             <Email>serdar@pardus.org.tr</Email>
         </Packager>
-        <License>GPLv2</License>
+        <License>LGPLv2+</License>
         <IsA>app:console</IsA>
-        <Summary>Hardware temperature monitor</Summary>
-        <Description>lm_sensors provides essential tools for monitoring the temperatures, voltages, and fans of Linux systems with hardware monitoring devices. It also contains scripts for sensor hardware identification and fan speed control</Description>
-        <Archive sha1sum="4a3b13e4f9c18c29e7f853739bdd88ca7799fcc7" type="tarbz2">http://dl.lm-sensors.org/lm-sensors/releases/lm_sensors-3.1.2.tar.bz2</Archive>
-        <Patches>
-            <Patch>pardus-dirs.patch</Patch>
-            <Patch level="1">probe-modules.patch</Patch>
-        </Patches>
+        <IsA>library</IsA>
+        <Summary>Hardware monitoring tools</Summary>
+        <Description>lm_sensors provides essential tools for monitoring the temperatures, voltages, and fans of Linux systems with hardware monitoring devices. It also contains scripts for sensor hardware identification and fan speed control.</Description>
+        <Archive sha1sum="cb819e5a93adb36ef00e6d3c5363f5f474efa78a" type="tarbz2">http://dl.lm-sensors.org/lm-sensors/releases/lm_sensors-3.3.1.tar.bz2</Archive>
+        <BuildDependencies>
+            <Dependency>rrdtool-devel</Dependency>
+        </BuildDependencies>
     </Source>
 
     <Package>
         <Name>lm_sensors</Name>
+        <RuntimeDependencies>
+            <Dependency>dmidecode</Dependency>
+            <Dependency>rrdtool</Dependency>
+        </RuntimeDependencies>
         <Files>
             <Path fileType="config">/etc</Path>
             <Path fileType="executable">/usr/bin</Path>
-            <Path fileType="header">/usr/include</Path>
-            <Path fileType="library">/usr/lib</Path>
             <Path fileType="executable">/usr/sbin</Path>
+            <Path fileType="library">/usr/lib</Path>
             <Path fileType="man">/usr/share/man</Path>
             <Path fileType="doc">/usr/share/doc</Path>
+            <Path fileType="data">/lib/systemd/system</Path>
+        </Files>
+    </Package>
+
+    <Package>
+        <Name>lm_sensors-devel</Name>
+        <Summary>Development files for lm_sensors</Summary>
+        <RuntimeDependencies>
+            <Dependency release="current">lm_sensors</Dependency>
+        </RuntimeDependencies>
+        <Files>
+            <Path fileType="header">/usr/include</Path>
+            <Path fileType="man">/usr/share/man/man3</Path>
         </Files>
     </Package>
 
     <History>
+        <Update release="9">
+            <Date>2012-01-07</Date>
+            <Version>3.3.1</Version>
+            <Comment>Version bump</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
         <Update release="8">
             <Date>2010-10-13</Date>
             <Version>3.1.2</Version>
