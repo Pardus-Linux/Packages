@@ -59,7 +59,6 @@ def setup():
     pisitools.dosed("configs/autoconf", "(PYTHON_FLAGS) = .*", r"\1 = -t")
 
 def build():
-    autotools.make("-C src/glsl glsl_lexer.cpp")
     autotools.make()
 
 def install():
