@@ -12,33 +12,37 @@
         <IsA>service</IsA>
         <Summary>Distribute hardware interrupts across processors</Summary>
         <Description>Daemon to balance IRQs across multiple CPUs on systems.This can lead to better performance and I/O balance on SMP systems.</Description>
-        <Archive sha1sum="64065ab2d9eeecc9bf15c242453c9882b36c85fb" type="tarbz2">http://irqbalance.googlecode.com/files/irqbalance-0.56.tbz2</Archive>
-        <Patches>
-            <Patch level="1">irqbalance-pie.patch</Patch>
-            <!--
-            <Patch>irqbalance-0.55-cputree-parse.patch</Patch>
-            <Patch level="1">irqbalance-0.55-pid-file.patch</Patch>
-            -->
-        </Patches>
+        <Archive sha1sum="d7596796190dc1855f53680e1a6221790fe5a05f" type="targz">http://irqbalance.googlecode.com/files/irqbalance-1.0.3.tar.gz</Archive>
+        <BuildDependencies>
+            <Dependency>numactl-devel</Dependency>
+        </BuildDependencies>
     </Source>
 
     <Package>
         <Name>irqbalance</Name>
+        <RuntimeDependencies>
+            <Dependency>numactl</Dependency>
+        </RuntimeDependencies>
         <Files>
             <Path fileType="config">/etc</Path>
             <Path fileType="executable">/usr/sbin</Path>
+            <Path fileType="data">/lib/systemd/system</Path>
             <Path fileType="man">/usr/share/man</Path>
+            <Path fileType="doc">/usr/share/doc</Path>
         </Files>
         <AdditionalFiles>
-            <AdditionalFile owner="root" permission="0644" target="/usr/share/man/man1/irqbalance.1">irqbalance.1</AdditionalFile>
             <AdditionalFile owner="root" permission="0644" target="/etc/conf.d/irqbalance">irqbalance.confd</AdditionalFile>
         </AdditionalFiles>
-        <Provides>
-            <COMAR script="service.py">System.Service</COMAR>
-        </Provides>
     </Package>
 
     <History>
+        <Update release="12">
+            <Date>2012-01-19</Date>
+            <Version>1.0.3</Version>
+            <Comment>Version bump</Comment>
+            <Name>Ozan Çağlayan</Name>
+            <Email>ozan@pardus.org.tr</Email>
+        </Update>
         <Update release="11">
             <Date>2010-10-13</Date>
             <Version>0.56</Version>
