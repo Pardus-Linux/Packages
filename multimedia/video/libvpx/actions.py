@@ -10,13 +10,12 @@ from pisi.actionsapi import pisitools
 from pisi.actionsapi import shelltools
 from pisi.actionsapi import get
 
-WorkDir = "libvpx"
 # libdir = "lib64" if get.ARCH() == "x86_64" else "lib"
 libdir = "lib"
 
 def setup():
     shelltools.export("LC_ALL", "en_US.UTF-8")
-    shelltools.export("CFLAGS", "%s -O3" % get.CFLAGS())
+    shelltools.export("CFLAGS", get.CFLAGS().replace("-ggdb3", ""))
 
     autotools.rawConfigure("--prefix=/usr \
                             --libdir=/usr/%s \
