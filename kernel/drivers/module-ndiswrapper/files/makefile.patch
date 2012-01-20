@@ -1,8 +1,8 @@
 Index: utils/Makefile
 ===================================================================
---- utils/Makefile.orig	2010-02-11 03:09:32.000000000 +0100
-+++ utils/Makefile	2010-09-09 12:53:57.348385587 +0200
-@@ -5,7 +5,7 @@ usrsbindir = $(DESTDIR)/usr/sbin
+--- utils/Makefile.orig
++++ utils/Makefile
+@@ -4,7 +4,7 @@ usrsbindir = /usr/sbin
  DRIVER_DIR ?= ../driver
  
  CC = gcc
@@ -15,18 +15,21 @@ Index: Makefile
 ===================================================================
 --- Makefile.orig
 +++ Makefile
-@@ -10,9 +10,9 @@ DISTFILES=AUTHORS ChangeLog INSTALL Make
- DIST_SUBDIRS=utils driver
+@@ -9,13 +9,9 @@ DISTFILES=AUTHORS ChangeLog INSTALL Make
+ 				   ndiswrapper.8 loadndisdriver.8
+ SUBDIRS = utils driver
  
- DESTDIR =
--mandir = $(DESTDIR)$(shell [ -d /usr/man/man8 ] && echo /usr/man || echo /usr/share/man )
-+mandir = $(DESTDIR)$(shell [ -d /usr/share/man/man8 ] && echo /usr/share/man || echo /usr/man )
+-ifeq ($(wildcard /usr/share/man)$(wildcard /usr/man),/usr/man)
+-mandir = /usr/man
+-else
+ mandir = /usr/share/man
+-endif
  
 -KVERS ?= $(shell uname -r)
 +KVERS ?=
  
  .PHONY: all
- 
+ all: $(SUBDIRS)
 Index: driver/Makefile
 ===================================================================
 --- driver/Makefile.orig
@@ -40,30 +43,28 @@ Index: driver/Makefile
  
  # KBUILD is the path to the Linux kernel build tree.  It is usually the
  # same as the kernel source tree, except when the kernel was compiled in
-@@ -34,15 +34,9 @@ ifeq (,$(wildcard $(VERSION_H)))
+@@ -36,13 +36,7 @@ ifeq (,$(wildcard $(VERSION_H)))
  $(error Cannot find kernel version in $(KBUILD), is it configured?)
  endif
  
 -KVERS := $(shell sed -ne 's/"//g;s/^\#define UTS_RELEASE //p' $(VERSION_H))
 -
--ifdef DIST_DESTDIR
--DESTDIR = $(DIST_DESTDIR)
--else
- DESTDIR ?= /
+-ifeq (,$(KVERS))
+-$(error Cannot find UTS_RELEASE in $(VERSION_H), has 'make modules_prepare' been called?)
 -endif
- 
--INST_DIR ?= $(shell echo $(DESTDIR)/lib/modules/$(KVERS)/misc | sed 's^//^/^g')
-+INST_DIR ?= $(shell echo $(DESTDIR)/lib/modules/$(KVERS)/updates | sed 's^//^/^g')
+-
+-INST_DIR = /lib/modules/$(KVERS)/misc
++INST_DIR = /lib/modules/$(KVERS)/updates
  
  SRC_DIR=$(shell pwd)
  
-@@ -198,9 +192,6 @@ install: config_check modules
- 	echo $(INST_DIR)
- 	mkdir -p $(INST_DIR)
- 	install -m 0644 $(MODULE) $(INST_DIR)
--ifndef DIST_DESTDIR
--	-/sbin/depmod -a $(KVERS) -b $(DESTDIR)
+@@ -196,9 +190,6 @@ install: config_check $(MODULE)
+ 		{ echo "$(MODULE)" is not for Linux $(KVERS); exit 1; }
+ 	mkdir -p -m 755 $(DESTDIR)$(INST_DIR)
+ 	install -m 0644 $(MODULE) $(DESTDIR)$(INST_DIR)
+-ifndef DESTDIR
+-	-/sbin/depmod -a $(KVERS)
 -endif
  
- dist:
- 	@for file in $(DISTFILES); do \
+ uninstall:
+ 	rm -f $(DESTDIR)$(INST_DIR)/$(MODULE)
