@@ -1,7 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright 2005-2011 TUBITAK/UEKAE
 # Licensed under the GNU General Public License, version 2.
 # See the file http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
 
@@ -49,8 +48,10 @@ def build():
     #autotools.make("-C hda-emu")
 
     # Build v4l drivers
+    """
     shelltools.copy("Module.symvers", "v4l/")
     autotools.make("-C /lib/modules/%s/build M=%s/v4l V=1 modules" % (KDIR, get.curDIR()))
+    """
 
 def install():
     autotools.rawInstall("DESTDIR=%s" % get.installDIR(), "install-modules")
@@ -58,8 +59,10 @@ def install():
     #autotools.rawInstall("DESTDIR=%s -C hda-emu" % get.installDIR())
 
     # Install v4l drivers
+    """
     for d in ["saa7134", "cx88", "cx231xx", "em28xx"]:
         pisitools.insinto("/lib/modules/%s/kernel/sound/drivers" % KDIR, "v4l/%s/*.ko" % d)
+    """
 
     # Copy symvers file for external module building like saa7134-alsa, cx2388-alsa, etc.
     pisitools.insinto("/lib/modules/%s/kernel/sound" % KDIR, "Module.symvers", "Module.symvers.alsa")
