@@ -4,27 +4,27 @@ Subject: pkgconfig tuning
 diff --git a/xulrunner/installer/Makefile.in b/xulrunner/installer/Makefile.in
 --- a/xulrunner/installer/Makefile.in
 +++ b/xulrunner/installer/Makefile.in
-@@ -62,16 +62,19 @@ PKG_DMG_SOURCE = $(STAGEPATH)xulrunner-p
- endif
- 
- include $(topsrcdir)/config/rules.mk
+@@ -66,16 +66,19 @@ include $(topsrcdir)/config/rules.mk
  
  INSTALL_SDK = 1
+ GENERATE_CACHE = 1
  
  include $(topsrcdir)/toolkit/mozapps/installer/packager.mk
  
+ # Add pkg-config files to the install:: target
+ 
 +# the apilibdir always ends with 1.9 as every patch update will provide a link
-+apilibdir = $(dir $(installdir))xulrunner-2.0
++apilibdir = $(dir $(installdir))xulrunner-9
 +
- $(MOZILLA_VERSION).system.conf: $(topsrcdir)/config/milestone.txt Makefile
- 	printf "[%s]\nGRE_PATH=%s\nxulrunner=true\nabi=%s" \
- 	  $(MOZILLA_VERSION) $(installdir) $(TARGET_XPCOM_ABI)> $@
+ pkg_config_files = \
+ 	libxul.pc \
+ 	libxul-embedding.pc \
+ 	mozilla-js.pc \
+ 	mozilla-plugin.pc \
+ 	$(NULL)
  
- ifndef SKIP_GRE_REGISTRATION
- # to register xulrunner per-user, override this with $HOME/.gre.d
- regdir = /etc/gre.d
- 
-@@ -116,16 +119,17 @@ pkg_config_files += mozilla-nss.pc
+ ifdef MOZ_NATIVE_NSPR
+@@ -103,16 +106,17 @@ pkg_config_files += mozilla-nss.pc
  endif
  
  %.pc: $(srcdir)/%.pc.in $(GLOBAL_DEPS)
@@ -73,32 +73,6 @@ diff --git a/xulrunner/installer/libxul.pc.in b/xulrunner/installer/libxul.pc.in
  Version: %MOZILLA_VERSION%
  Requires: %NSPR_NAME% >= %NSPR_VERSION%
  Libs: -L${sdkdir}/lib %MOZ_XUL_LINK%
-diff --git a/xulrunner/installer/mozilla-gtkmozembed-embedding.pc.in b/xulrunner/installer/mozilla-gtkmozembed-embedding.pc.in
---- a/xulrunner/installer/mozilla-gtkmozembed-embedding.pc.in
-+++ b/xulrunner/installer/mozilla-gtkmozembed-embedding.pc.in
-@@ -1,8 +1,9 @@
- prefix=%prefix%
- sdkdir=%sdkdir%
-+libdir=%libdir%
- includedir=%includedir%
- 
- Name: mozilla-gtkembedmoz
- Description: Static version-independent Mozilla Embedding Widget for Gtk+
- Version: %MOZILLA_VERSION%
- Requires: libxul-embedding = %MOZILLA_VERSION%
-diff --git a/xulrunner/installer/mozilla-gtkmozembed.pc.in b/xulrunner/installer/mozilla-gtkmozembed.pc.in
---- a/xulrunner/installer/mozilla-gtkmozembed.pc.in
-+++ b/xulrunner/installer/mozilla-gtkmozembed.pc.in
-@@ -1,8 +1,9 @@
- prefix=%prefix%
- sdkdir=%sdkdir%
-+libdir=%libdir%
- includedir=%includedir%
- 
- Name: mozilla-gtkembedmoz
- Description: Mozilla Embedding Widget for Gtk+
- Version: %MOZILLA_VERSION%
- Requires: libxul = %MOZILLA_VERSION%
 diff --git a/xulrunner/installer/mozilla-js.pc.in b/xulrunner/installer/mozilla-js.pc.in
 --- a/xulrunner/installer/mozilla-js.pc.in
 +++ b/xulrunner/installer/mozilla-js.pc.in

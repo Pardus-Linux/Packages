@@ -5,16 +5,17 @@
         <Name>xulrunner</Name>
         <Homepage>http://mozilla.org</Homepage>
         <Packager>
-            <Name>Pardus</Name>
-            <Email>admins@pardus.org.tr</Email>
+            <Name>Metin Akdere</Name>
+            <Email>metin@pardus.org.tr</Email>
         </Packager>
         <License>MPL-1.1</License>
         <IsA>library</IsA>
         <Summary>XUL Runtime for Gecko Applications</Summary>
         <Description>xulrunner provides the XUL Runtime environment for Gecko applications.</Description>
-        <Archive sha1sum="ece7cbe63dd9804d4d830496b7097baf579666d3" type="tarlzma">http://cekirdek.pardus.org.tr/~gokcen/files/mozilla-FIREFOX_4_0_RELEASE.tar.lzma</Archive>
+        <Archive sha1sum="d904890a4849f9943ae11315f007e48443ddf665" type="tarbz2">ftp://ftp.mozilla.org/pub/mozilla.org/xulrunner/releases/10.0/source/xulrunner-10.0.source.tar.bz2</Archive>
         <AdditionalFiles>
             <AdditionalFile target="20-xulrunner.conf" permission="0644">ld.so.conf</AdditionalFile>
+            <AdditionalFile target=".mozconfig" permission="0644">pardus/mozconfig</AdditionalFile>
         </AdditionalFiles>
         <BuildDependencies>
             <Dependency releaseFrom="39">nss-devel</Dependency>
@@ -44,42 +45,51 @@
             <Dependency>libXext-devel</Dependency>
             <Dependency>nspr-devel</Dependency>
             <Dependency>pixman-devel</Dependency>
+            <Dependency>libevent-devel</Dependency>
 
             <!-- those are checked by configure -->
             <Dependency>mesa-devel</Dependency>
             <Dependency>libSM-devel</Dependency>
         </BuildDependencies>
         <Patches>
-            <Patch level="1">4.0-4.0.1.diff</Patch>
             <Patch level="1">xulrunner-version.patch</Patch>
-            <!-- Not ready yet: https://bugzilla.mozilla.org/show_bug.cgi?id=494163
-            <Patch level="1">gio-extension7-0.6.diff</Patch>
-            -->
 
-            <!-- SuSe patches -
-            <Patch level="1">mozilla-ps-pdf-simplify-operators.patch</Patch>
-            <Patch level="1">suse/mozilla-libproxy.patch</Patch>
-            <Patch level="1">suse/mozilla-helper-app.patch</Patch>
-            <Patch level="1">suse/mozilla-kde.patch</Patch>
-            <Patch level="1">suse/mozilla-gconf-backend.patch</Patch>
-            <Patch level="1">suse/gecko-lockdown.patch</Patch>
-            <Patch level="1">suse/toolkit-ui-lockdown.patch</Patch>
-            <Patch level="1">suse/mozilla-ua-locale-pref.patch</Patch>
-            -->
+            <!-- SuSe patches -->
+            <Patch level="1">suse/mozilla-language.patch</Patch>
+            <Patch level="1">suse/mozilla-a11y.patch</Patch>
+            <Patch level="1">suse/mozilla-nongnome-proxies.patch</Patch>
+            <Patch level="1">suse/mozilla-dump_syms-static.patch</Patch>
+            <Patch level="1">suse/mozilla-ntlm-full-path.patch</Patch>
+            <Patch level="1">suse/toolkit-download-folder.patch</Patch>
+            <Patch level="1">suse/mozilla-linux3.patch</Patch>
+            <Patch level="1">suse/mozilla-prefer_plugin_pref.patch</Patch>
             <Patch level="1">suse/mozilla-pkgconfig.patch</Patch>
+            <Patch level="1">suse/idldir.patch</Patch>
+            <Patch level="1">suse/mozilla-disable-neon-option.patch</Patch>
 
-            <Patch>suse/locale.patch</Patch>
+            <!-- Fedora Patches -->
+            <Patch level="2">fedora/mozilla-build.patch</Patch>
+            <Patch level="1">fedora/xulrunner-8.0-fix-maemo-checks-in-npapi.patch</Patch>
+            <Patch level="1">fedora/mozilla-682832-proxy.patch</Patch>
+            <Patch level="2">fedora/xulrunner-9.0-secondary-build-fix.patch</Patch>
+            <Patch level="1">fedora/mozilla-706724.patch</Patch>
+            <Patch level="1">fedora/mozilla-file.patch</Patch>
+
+            <!-- Needed to detect/use libvpx-1.0.0, keep and apply when we have libvpx 1.x
+             https://bugzilla.mozilla.org/show_bug.cgi?id=722127 -->
+            <!--Patch level="2">fedora/mozilla-722127.patch</Patch-->
 
             <!-- Pardus -->
             <Patch level="1">pardus/autoconf-213-hack.diff</Patch>
-            <Patch>pardus/xulrunner-mozconfig.patch</Patch>
-            <!--
-            <Patch>pardus/as-needed.diff</Patch>
             <Patch>pardus/pardus-nsplugin-path.patch</Patch>
-            <Patch level="1">pardus/change-kmozillahelper-directory.diff</Patch>
+
+            <!--
+            as-needed patch to put .a files before libraries, especially -lplc4
+            check-sync-dirs.py scripts in the source tree does not allow differences between config files since 9.0, so apply changes both to {config, js/src/config}/rules.mk
             -->
-            <Patch>pardus/zemberek-firefox4.patch</Patch>
-            <Patch level="1">pardus/workaround-dbus-glib-build-error.diff</Patch>
+            <Patch>pardus/as-needed.diff</Patch>
+
+            <!--Patch>pardus/zemberek-firefox4.patch</Patch-->
         </Patches>
     </Source>
 
@@ -111,16 +121,21 @@
             <Dependency>pango</Dependency>
             <Dependency>pixman</Dependency>
             <Dependency>startup-notification</Dependency>
+            <Dependency>libevent</Dependency>
         </RuntimeDependencies>
+        <Conflicts>
+            <!-- We have moved sdk libraries to base package -->
+            <Package releaseTo="10">xulrunner-devel</Package>
+        </Conflicts>
         <Files>
             <Path fileType="data">/etc/gre.d</Path>
             <Path fileType="data">/etc/ld.so.conf.d</Path>
             <Path fileType="executable">/usr/bin</Path>
-            <Path fileType="library">/usr/lib/xulrunner-2.0*</Path>
+            <Path fileType="library">/usr/lib/xulrunner-10.0</Path>
         </Files>
         <AdditionalFiles>
-            <AdditionalFile target="/usr/lib/xulrunner-2.0/defaults/pref/all-pardus.js" permission="0644" owner="root">all-pardus.js</AdditionalFile>
-            <AdditionalFile target="/usr/lib/xulrunner-2.0/defaults/pref/lockdown.js" permission="0644" owner="root">toolkit-lockdown.js</AdditionalFile>
+            <AdditionalFile target="/usr/lib/xulrunner-10.0/defaults/pref/all-pardus.js" permission="0644" owner="root">all-pardus.js</AdditionalFile>
+            <AdditionalFile target="/usr/lib/xulrunner-10.0/defaults/pref/lockdown.js" permission="0644" owner="root">toolkit-lockdown.js</AdditionalFile>
         </AdditionalFiles>
         <Provides>
             <COMAR script='package.py'>System.Package</COMAR>
@@ -144,6 +159,22 @@
     </Package>
 
     <History>
+        <Update release="53">
+            <Date>2012-02-02</Date>
+            <Version>10.0</Version>
+            <Comment> Version bump to latest 10.0 release:
+                * The forward button is now hidden until you navigate back
+                * Anti-Aliasing for WebGL is now implemented
+                * Full Screen APIs allow you to build a web application that runs full screen
+                * CSS3 3D-Transforms are now supported
+                * New "bdi" element for bi-directional text isolation, along with supporting CSS properties
+                * Inspect tool with content highlighting, includes new CSS Style Inspector
+                * Added IndexedDB APIs to more closely match the specification
+                * Fixed a crash that some users experience when moving bookmarks
+            </Comment>
+            <Name>Metin Akdere</Name>
+            <Email>metin@pardus.org.tr</Email>
+        </Update>
         <Update release="52">
             <Date>2011-05-30</Date>
             <Version>2.0.1</Version>

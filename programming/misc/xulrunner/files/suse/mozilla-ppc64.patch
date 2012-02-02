@@ -1,0 +1,30 @@
+# HG changeset patch
+# Parent 928a29c4a79c9041d6b9f68e24de8f5aab15cc5d
+From: upstream
+Subject: Fix PPC64 build
+https://bugzilla.mozilla.org/show_bug.cgi?id=670719
+https://bugzilla.mozilla.org/show_bug.cgi?id=654056
+
+diff --git a/ipc/chromium/src/build/build_config.h b/ipc/chromium/src/build/build_config.h
+--- a/ipc/chromium/src/build/build_config.h
++++ b/ipc/chromium/src/build/build_config.h
+@@ -54,16 +54,19 @@
+ #define ARCH_CPU_X86_FAMILY 1
+ #define ARCH_CPU_X86 1
+ #define ARCH_CPU_32_BITS 1
+ #elif defined(__ARMEL__)
+ #define ARCH_CPU_ARM_FAMILY 1
+ #define ARCH_CPU_ARMEL 1
+ #define ARCH_CPU_32_BITS 1
+ #define WCHAR_T_IS_UNSIGNED 1
++#elif defined(__powerpc64__)
++#define ARCH_CPU_PPC64 1
++#define ARCH_CPU_64_BITS 1
+ #elif defined(__ppc__) || defined(__powerpc__)
+ #define ARCH_CPU_PPC 1
+ #define ARCH_CPU_32_BITS 1
+ #elif defined(__sparc64__)
+ #define ARCH_CPU_SPARC 1
+ #define ARCH_CPU_64_BITS 1
+ #else
+ #error Please add support for your architecture in build/build_config.h

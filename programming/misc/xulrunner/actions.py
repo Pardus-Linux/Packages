@@ -11,30 +11,36 @@ from pisi.actionsapi import shelltools
 
 import os
 
-WorkDir = "mozilla"
+WorkDir = "mozilla-release"
 NoStrip = ["/usr/include", "/usr/share/idl"]
-XulVersion = "2.0"
+XulVersion = "10.0"
 XulDir = "/usr/lib/%s-%s" % (get.srcNAME(), XulVersion)
+ObjDir = "obj-%s-unknown-linux-gnu" % get.ARCH() if get.ARCH() == "x86_64" else "obj-%s-pc-linux-gnu" % get.ARCH()
 
 def setup():
     # Write xulrunner version correctly including the minor part
     for f in ("xulrunner/installer/Makefile.in", ".mozconfig", "20-xulrunner.conf"):
         pisitools.dosed(f, "PSPEC_VERSION", XulVersion)
 
-    #Use autoconf-213 which we provide via a hacky pathc to produce configure
-    shelltools.system("/bin/bash ./autoconf-213/autoconf-2.13 --macro-dir=autoconf-213/m4")
+    # Mozilla sticks on with autoconf-213, so use autoconf-213 which we provide via a hacky patch to produce configure
+    shelltools.chmod("autoconf-213/autoconf-2.13", 0755)
 
+    # Set job count for make
+    pisitools.dosed(".mozconfig", "%%JOBS%%", get.makeJOBS())
+
+    shelltools.system("/bin/bash ./autoconf-213/autoconf-2.13 --macro-dir=autoconf-213/m4")
     shelltools.cd("js/src")
     shelltools.system("/bin/bash ../../autoconf-213/autoconf-2.13 --macro-dir=../../autoconf-213/m4")
     shelltools.cd("../..")
 
-    autotools.configure("--disable-strip --disable-install-strip")
+    shelltools.makedirs(ObjDir)
 
 def build():
-    autotools.make()
+    shelltools.cd(ObjDir)
+    autotools.make("-f ../client.mk build")
 
 def install():
-    autotools.rawInstall("DESTDIR=%s" % get.installDIR())
+    autotools.rawInstall("-f client.mk DESTDIR=%s" % get.installDIR())
 
     executable = ["xpcshell", "xpidl", "xpt_dump", "xpt_link",\
                   "xulrunner-stub", "mozilla-xremote-client"]
