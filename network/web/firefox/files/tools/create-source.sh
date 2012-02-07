@@ -2,8 +2,8 @@
 
 CHANNEL="release"
 BRANCH="releases/mozilla-$CHANNEL"
-RELEASE_TAG="FIREFOX_9_0_RELEASE"
-VERSION="9.0"
+RELEASE_TAG="FIREFOX_10_0_RELEASE"
+VERSION="10.0"
 
 test ! -d mozilla && mkdir mozilla
 hg clone http://hg.mozilla.org/$BRANCH mozilla

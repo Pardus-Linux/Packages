@@ -15,9 +15,10 @@
         <IsA>app:gui</IsA>
         <Summary>Firefox Web Browser</Summary>
         <Description>It is more secure and faster to browse the web with Firefox web browser. You can personalize your web browser with many specifications that is not enough to explain in two sentences.</Description>
+
         <!-- Use tools/{create-source.sh, create-locale.sh} scripts to create tarballs for both firefox source and l10n -->
-        <Archive sha1sum="f79324ec6205e4c23d51d8ab2e790de1b2541657" type="tarbz2">http://releases.mozilla.org/pub/mozilla.org/firefox/releases/9.0/source/firefox-9.0.source.tar.bz2</Archive>
-        <Archive sha1sum="34cc5ce1d90945d6ce6220d5cdd70d1fd4b6b0c0" type="tarbz2" target="mozilla-release">http://cekirdek.pardus.org.tr/~metin/dist/firefox/l10n-9.0.tar.bz2</Archive>
+        <Archive sha1sum="cbf1fb0efe0a3a2b2dafaa324b136736e93de70c" type="tarbz2">ftp://ftp.mozilla.org/pub/mozilla.org/firefox/releases/10.0/source/firefox-10.0.source.tar.bz2</Archive>
+        <Archive sha1sum="a8cdfece0bce8e8d8c683b8ef0801425c86b6761" type="tarbz2" target="mozilla-release">http://cekirdek.pardus.org.tr/~metin/dist/firefox/l10n-10.0.tar.bz2</Archive>
         <AdditionalFiles>
 
             <!--Our main configure script. Configure paramters are stored here.-->
@@ -56,13 +57,22 @@
             <Dependency>libXt-devel</Dependency>
         </BuildDependencies>
         <Patches>
-            <Patch level="1">suse/mozilla-kde.patch</Patch>
+            <!--Patch level="1">suse/mozilla-kde.patch</Patch-->
             <Patch level="1">suse/mozilla-language.patch</Patch>
             <Patch level="1">suse/mozilla-a11y.patch</Patch>
+            <Patch level="1">suse/mozilla-nongnome-proxies.patch</Patch>
+            <Patch level="1">suse/mozilla-disable-neon-option.patch</Patch>
+            <Patch level="1">suse/mozilla-repo.patch</Patch>
+            <Patch level="1">suse/mozilla-dump_syms-static.patch</Patch>
+            <Patch level="1">suse/mozilla-ntlm-full-path.patch</Patch>
+            <Patch level="1">suse/mozilla-preferences.patch</Patch>
+            <Patch level="1">suse/mozilla-shared-nss-db.patch</Patch>
+            <Patch level="1">suse/mozilla-linux3.patch</Patch>
+            <Patch level="1">suse/mozilla-prefer_plugin_pref.patch</Patch>
 
             <!--These are mainly integrations stuff like default browser-->
-            <Patch level="1">suse/firefox-kde.patch</Patch>
-            <Patch level="1">suse/firefox-kde-114.patch</Patch>
+            <!--Patch level="1">suse/firefox-kde.patch</Patch>
+            <Patch level="1">suse/firefox-kde-114.patch</Patch-->
 
             <Patch level="1">suse/firefox-browser-css.patch</Patch>
             <Patch level="1">suse/firefox-cross-desktop.patch</Patch>
@@ -70,6 +80,7 @@
             <Patch level="1">suse/firefox-no-default-ualocale.patch</Patch>
             <Patch level="1">suse/firefox-multilocale-chrome.patch</Patch>
             <Patch level="1">suse/firefox-no-sync-l10n.patch</Patch>
+            <Patch level="1">suse/toolkit-download-folder.patch</Patch>
 
             <Patch level="1">fedora/firefox-5.0-asciidel.patch</Patch>
 
@@ -81,15 +92,15 @@
             check-sync-dirs.py does not allow differences between config files since 9.0, so apply changes both to {config, js/src/config}/rules.mk
             -->
             <Patch level="1">pardus/as-needed.diff</Patch>
+
             <Patch level="1">pardus/autoconf-213-hack.diff</Patch>
-            <Patch level="1">pardus/workaround-dbus-glib-build-error.diff</Patch>
 
             <!-- Disable for now on, needs more investigation -->
             <!--Patch level="0">pardus/zemberek-firefox5.patch</Patch-->
             <Patch level="0">pardus/fix-double-turkish-option.diff</Patch>
             <Patch level="1">pardus/fix-langpack-prefs-path.patch</Patch>
             <Patch level="1">pardus/add-twitter-search.diff</Patch>
-            <Patch level="1">Allow-.js-preference-files-to-set-locked-prefs-with-.patch</Patch>
+            <!--Patch level="1">Allow-.js-preference-files-to-set-locked-prefs-with-.patch</Patch-->
         </Patches>
     </Source>
 
@@ -185,6 +196,22 @@
     </Package>
 
     <History>
+        <Update release="165">
+            <Date>2012-02-07</Date>
+            <Version>10.0</Version>
+            <Comment>Version bump to latest stable release:
+                * The forward button is now hidden until you navigate back
+                * Anti-Aliasing for WebGL is now implemented
+                * Full Screen APIs allow you to build a web application that runs full screen
+                * CSS3 3D-Transforms are now supported
+                * New "bdi" element for bi-directional text isolation, along with supporting CSS properties
+                * Inspect tool with content highlighting, includes new CSS Style Inspector
+                * Added IndexedDB APIs to more closely match the specification
+                * Fixed a crash that some users experience when moving bookmarks
+            </Comment>
+            <Name>Metin Akdere</Name>
+            <Email>metin@pardus.org.tr</Email>
+        </Update>
         <Update release="164">
             <Date>2011-12-29</Date>
             <Version>9.0</Version>
@@ -206,9 +233,10 @@
             <Email>metin@pardus.org.tr</Email>
         </Update>
         <Update release="163">
-            <Date>2011-12-08</Date>
+            <Date>2011-11-14</Date>
             <Version>8.0.1</Version>
-            <Comment>Version bump to new 8.0.1 stable release:
+            <Comment>Version bump to new 8.0 stable release:
+                * Add-ons installed by third party programs are now disabled by default
                 * Added a one-time add-on selection dialog to manage previously installed add-ons
                 * Added Twitter to the search bar for select locales. Additional locale support will be added in the future
                 * Added a preference to load tabs on demand, improving start-up time when windows are restored
@@ -220,7 +248,6 @@
                 * Improved WebSocket support
                 * Fixed several stability issues
                 * Fixed several security issues
-                * Remove Google Linux search engine as it is no longer exists
             </Comment>
             <Name>Metin Akdere</Name>
             <Email>metin@pardus.org.tr</Email>
