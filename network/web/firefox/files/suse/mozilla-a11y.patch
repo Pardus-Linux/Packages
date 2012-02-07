@@ -1,6 +1,6 @@
 # HG changeset patch
 # User Michael Gorse <mgorse@suse.com>
-# Parent d02253d1e8217008dfa26e6e2a901b6a8b75e989
+# Parent 2c115988d04c0a0a8cb75b3a597ecdb2c4c001c9
 a11y only enabled from Gnome 2's GConf setting
 https://bugzilla.novell.com/show_bug.cgi?id=732898
 https://bugzilla.mozilla.org/show_bug.cgi?id=693343
@@ -31,7 +31,7 @@ diff --git a/accessible/src/atk/Makefile.in b/accessible/src/atk/Makefile.in
 diff --git a/accessible/src/atk/nsApplicationAccessibleWrap.cpp b/accessible/src/atk/nsApplicationAccessibleWrap.cpp
 --- a/accessible/src/atk/nsApplicationAccessibleWrap.cpp
 +++ b/accessible/src/atk/nsApplicationAccessibleWrap.cpp
-@@ -47,29 +47,27 @@
+@@ -47,29 +47,29 @@
  #include "nsIPrefBranch.h"
  #include "nsIServiceManager.h"
  #include "nsAutoPtr.h"
@@ -40,14 +40,15 @@ diff --git a/accessible/src/atk/nsApplicationAccessibleWrap.cpp b/accessible/src
  
  #include <gtk/gtk.h>
  #include <atk/atk.h>
++#ifdef MOZ_ENABLE_DBUS
 +#include <dbus/dbus.h>
++#endif
 +
 +using namespace mozilla::a11y;
  
  typedef GType (* AtkGetTypeType) (void);
  GType g_atk_hyperlink_impl_type = G_TYPE_INVALID;
--static bool sATKChecked = false;
-+static PRBool sATKChecked = PR_FALSE;
+ static bool sATKChecked = false;
  static PRLibrary *sATKLib = nsnull;
  static const char sATKLibName[] = "libatk-1.0.so.0";
  static const char sATKHyperlinkImplGetTypeSymbol[] =
@@ -65,13 +66,13 @@ diff --git a/accessible/src/atk/nsApplicationAccessibleWrap.cpp b/accessible/src
  static void (* gail_remove_key_event_listener) (guint remove_listener);
  static AtkObject * (*gail_get_root) (void);
  
-@@ -609,36 +607,17 @@ toplevel_event_watcher(GSignalInvocation
+@@ -609,36 +609,17 @@ toplevel_event_watcher(GSignalInvocation
    }
  
    return TRUE;
  }
  
- PRBool
+ bool
  nsApplicationAccessibleWrap::Init()
  {
 -    // XXX following code is copied from widget/src/gtk2/nsWindow.cpp
@@ -79,7 +80,7 @@ diff --git a/accessible/src/atk/nsApplicationAccessibleWrap.cpp b/accessible/src
 -    // see bug 390761
 -
 -    // check if accessibility enabled/disabled by environment variable
--    PRBool isGnomeATEnabled = PR_FALSE;
+-    bool isGnomeATEnabled = false;
 -    const char *envValue = PR_GetEnv(sAccEnv);
 -    if (envValue) {
 -        isGnomeATEnabled = !!atoi(envValue);
@@ -103,7 +104,7 @@ diff --git a/accessible/src/atk/nsApplicationAccessibleWrap.cpp b/accessible/src
          else {
              MAI_LOG_DEBUG(("Fail to load lib: %s\n", sGail.libName));
          }
-@@ -877,8 +856,129 @@ LoadGtkModule(GnomeAccessibilityModule& 
+@@ -877,8 +858,129 @@ LoadGtkModule(GnomeAccessibilityModule& 
                         aModule.init ? aModule.shutdownName : aModule.initName,
                         aModule.libName));
          PR_UnloadLibrary(aModule.lib);
@@ -117,22 +118,22 @@ diff --git a/accessible/src/atk/nsApplicationAccessibleWrap.cpp b/accessible/src
 +namespace a11y {
 +
 +#ifdef MOZ_ENABLE_DBUS
-+static DBusPendingCall *a11yPendingCall = NULL;
++  static DBusPendingCall *a11yPendingCall = NULL;
 +#endif
 +
 +void
 +PreInit()
 +{
-+  static PRBool sChecked = FALSE;
++  static bool sChecked = false;
 +  if (sChecked)
 +    return;
-+  sChecked = TRUE;
++  sChecked = true;
 +  DBusError error;
 +  dbus_error_init(&error);
 +  DBusConnection* bus = dbus_bus_get(DBUS_BUS_SESSION, &error);
 +  if (!bus)
 +    return;
-+  dbus_connection_set_exit_on_disconnect(bus, FALSE);
++  dbus_connection_set_exit_on_disconnect(bus, false);
 +
 +  DBusMessage *message;
 +  message = dbus_message_new_method_call("org.a11y.Bus", "/org/a11y/bus",
@@ -155,14 +156,14 @@ diff --git a/accessible/src/atk/nsApplicationAccessibleWrap.cpp b/accessible/src
 +  dbus_error_free(&error);
 +}
 +
-+PRBool
++bool
 +ShouldA11yBeEnabled()
 +{
-+  static PRBool sChecked = PR_FALSE, sShouldEnable = PR_FALSE;
++  static bool sChecked = false, sShouldEnable = false;
 +  if (sChecked)
 +    return sShouldEnable;
 +
-+  sChecked = PR_TRUE;
++  sChecked = true;
 +
 +  // check if accessibility enabled/disabled by environment variable
 +  static const char sAccEnv [] = "GNOME_ACCESSIBILITY";
@@ -172,7 +173,7 @@ diff --git a/accessible/src/atk/nsApplicationAccessibleWrap.cpp b/accessible/src
 +
 +#ifdef MOZ_ENABLE_DBUS
 +  PreInit();
-+  PRBool dbusSuccess = PR_FALSE;
++  bool dbusSuccess = false;
 +  DBusMessage *reply = nsnull;
 +  if (a11yPendingCall) {
 +    dbus_pending_call_block(a11yPendingCall);
@@ -236,47 +237,44 @@ diff --git a/accessible/src/atk/nsApplicationAccessibleWrap.cpp b/accessible/src
 diff --git a/accessible/src/base/nsAccessibilityService.h b/accessible/src/base/nsAccessibilityService.h
 --- a/accessible/src/base/nsAccessibilityService.h
 +++ b/accessible/src/base/nsAccessibilityService.h
-@@ -41,16 +41,36 @@
+@@ -46,16 +46,33 @@
  
- #include "nsIAccessibilityService.h"
- 
- #include "a11yGeneric.h"
- #include "nsAccDocManager.h"
+ #include "mozilla/a11y/FocusManager.h"
  
  #include "nsIObserver.h"
  
-+namespace mozilla {
-+namespace a11y {
+ namespace mozilla {
+ namespace a11y {
+ 
 +#ifdef MOZ_ACCESSIBILITY_ATK
 +/**
-+ * Perform initialization that should be done as soon as possible, in order
-+ * to minimize startup time.
-+ * XXX: this function and the next defined in nsApplicationAccessibleWrap.cpp
-+ */
++ * + * Perform initialization that should be done as soon as possible, in
++ * order
++ * + * to minimize startup time.
++ * + * XXX: this function and the next defined in
++ * nsApplicationAccessibleWrap.cpp
++ * + */
 +void PreInit();
 +
 +/**
-+ * Is platform accessibility enabled.
-+ * Only used on linux with atk for now.
-+ */
-+PRBool ShouldA11yBeEnabled();
++ * + * Is platform accessibility enabled.
++ * + * Only used on linux with atk for now.
++ * + */
++bool ShouldA11yBeEnabled();
 +#endif
 +
-+} // namespace a11y
-+} // namespace mozilla
-+
- class nsAccessibilityService : public nsAccDocManager,
-                                public nsIAccessibilityService,
-                                public nsIObserver
- {
- public:
-   virtual ~nsAccessibilityService();
+ /**
+  * Return focus manager.
+  */
+ FocusManager* FocusMgr();
  
-   NS_DECL_ISUPPORTS_INHERITED
+ } // namespace a11y
+ } // namespace mozilla
+ 
 diff --git a/widget/src/gtk2/nsWindow.cpp b/widget/src/gtk2/nsWindow.cpp
 --- a/widget/src/gtk2/nsWindow.cpp
 +++ b/widget/src/gtk2/nsWindow.cpp
-@@ -103,29 +103,20 @@
+@@ -105,29 +105,21 @@
  #include "nsIStringBundle.h"
  #include "nsGfxCIID.h"
  #include "nsIObserverService.h"
@@ -292,10 +290,10 @@ diff --git a/widget/src/gtk2/nsWindow.cpp b/widget/src/gtk2/nsWindow.cpp
 -#include "stdlib.h"
  
  using namespace mozilla;
--
--static PRBool sAccessibilityChecked = PR_FALSE;
+ 
+-static bool sAccessibilityChecked = false;
 -/* static */
--PRBool nsWindow::sAccessibilityEnabled = PR_FALSE;
+-bool nsWindow::sAccessibilityEnabled = false;
 -static const char sSysPrefService [] = "@mozilla.org/system-preference-service;1";
 -static const char sAccEnv [] = "GNOME_ACCESSIBILITY";
 -static const char sAccessibilityKey [] = "config.use_system_prefs.accessibility";
@@ -307,11 +305,11 @@ diff --git a/widget/src/gtk2/nsWindow.cpp b/widget/src/gtk2/nsWindow.cpp
  #include "nsIFile.h"
  #include "nsILocalFile.h"
  
-@@ -1109,19 +1100,18 @@ nsWindow::Show(PRBool aState)
+@@ -1111,19 +1103,18 @@ nsWindow::Show(bool aState)
              NativeResize(mBounds.x, mBounds.y, mBounds.width, mBounds.height,
-                          PR_FALSE);
+                          false);
          } else if (mNeedsResize) {
-             NativeResize(mBounds.width, mBounds.height, PR_FALSE);
+             NativeResize(mBounds.width, mBounds.height, false);
          }
      }
  
@@ -328,7 +326,7 @@ diff --git a/widget/src/gtk2/nsWindow.cpp b/widget/src/gtk2/nsWindow.cpp
  }
  
  NS_IMETHODIMP
-@@ -3887,16 +3877,21 @@ nsWindow::Create(nsIWidget        *aPare
+@@ -3885,16 +3876,21 @@ nsWindow::Create(nsIWidget        *aPare
      nsIWidget *baseParent = aInitData &&
          (aInitData->mWindowType == eWindowType_dialog ||
           aInitData->mWindowType == eWindowType_toplevel ||
@@ -342,27 +340,27 @@ diff --git a/widget/src/gtk2/nsWindow.cpp b/widget/src/gtk2/nsWindow.cpp
 +    a11y::PreInit();
 +#endif
 +
+     // Ensure that the toolkit is created.
+     nsGTKToolkit::GetToolkit();
+ 
      // initialize all the common bits of this class
-     BaseCreate(baseParent, aRect, aHandleEventFunction, aContext,
-                aAppShell, aToolkit, aInitData);
+     BaseCreate(baseParent, aRect, aHandleEventFunction, aContext, aInitData);
  
      // Do we need to listen for resizes?
-     PRBool listenForResizes = PR_FALSE;;
-     if (aNativeParent || (aInitData && aInitData->mListenForResizes))
-         listenForResizes = PR_TRUE;
-@@ -4278,43 +4273,16 @@ nsWindow::Create(nsIWidget        *aPare
+     bool listenForResizes = false;;
+@@ -4278,43 +4274,16 @@ nsWindow::Create(nsIWidget        *aPare
          LOG(("\tmGdkWindow %p %lx\n", (void *)mGdkWindow,
               gdk_x11_window_get_xid(mGdkWindow)));
      }
  
      // resize so that everything is set to the right dimensions
      if (!mIsTopLevel)
-         Resize(mBounds.x, mBounds.y, mBounds.width, mBounds.height, PR_FALSE);
+         Resize(mBounds.x, mBounds.y, mBounds.width, mBounds.height, false);
  
 -#ifdef ACCESSIBILITY
 -    nsresult rv;
 -    if (!sAccessibilityChecked) {
--        sAccessibilityChecked = PR_TRUE;
+-        sAccessibilityChecked = true;
 -
 -        //check if accessibility enabled/disabled by environment variable
 -        const char *envValue = PR_GetEnv(sAccEnv);
@@ -394,7 +392,7 @@ diff --git a/widget/src/gtk2/nsWindow.cpp b/widget/src/gtk2/nsWindow.cpp
  
           if (mDFB)
                mDFB->GetDisplayLayer( mDFB, DLID_PRIMARY, &mDFBLayer );
-@@ -6504,19 +6472,18 @@ nsWindow::DispatchAccessibleEvent()
+@@ -6504,19 +6473,18 @@ nsWindow::DispatchAccessibleEvent()
      DispatchEvent(&event, status);
  
      return event.mAccessible;

@@ -1,0 +1,95 @@
+# HG changeset patch
+# Parent 07dc7ea11c92368cb7c137a403feaaa6861abb3c
+
+diff --git a/browser/app/Makefile.in b/browser/app/Makefile.in
+--- a/browser/app/Makefile.in
++++ b/browser/app/Makefile.in
+@@ -68,17 +68,17 @@ GRE_BUILDID = $(shell $(PYTHON) $(topsrc
+ 
+ DEFINES += -DGRE_MILESTONE=$(GRE_MILESTONE) -DGRE_BUILDID=$(GRE_BUILDID)
+ 
+ MOZ_SOURCE_STAMP ?= $(shell hg -R $(topsrcdir) parent --template="{node|short}\n" 2>/dev/null)
+ ifdef MOZ_SOURCE_STAMP
+ DEFINES += -DMOZ_SOURCE_STAMP="$(MOZ_SOURCE_STAMP)"
+ endif
+ 
+-SOURCE_REPO := $(shell hg -R $(topsrcdir) showconfig paths.default 2>/dev/null | sed -e "s/^ssh:/http:/")
++SOURCE_REPO ?= $(shell hg -R $(topsrcdir) showconfig paths.default 2>/dev/null | sed -e "s/^ssh:/http:/")
+ ifdef SOURCE_REPO
+ DEFINES += -DMOZ_SOURCE_REPO="$(SOURCE_REPO)"
+ endif
+ 
+ DEFINES += -DMOZ_APP_BASENAME="$(MOZ_APP_BASENAME)" \
+            -DMOZ_APP_VENDOR="$(MOZ_APP_VENDOR)"
+ 
+ ifdef MOZ_APP_PROFILE
+diff --git a/toolkit/content/Makefile.in b/toolkit/content/Makefile.in
+--- a/toolkit/content/Makefile.in
++++ b/toolkit/content/Makefile.in
+@@ -65,17 +65,17 @@ endif
+ ifeq (Android,$(OS_TARGET))
+ DEFINES += -DANDROID_PACKAGE_NAME=$(ANDROID_PACKAGE_NAME)
+ endif
+ 
+ # strip a trailing slash from the repo URL because it's not always present,
+ # and we want to construct a working URL in buildconfig.html
+ # make+shell+sed = awful
+ _dollar=$$
+-SOURCE_REPO := $(shell cd $(topsrcdir) && hg showconfig paths.default 2>/dev/null | head -n1 | sed -e "s/^ssh:/http:/" -e "s/\/$(_dollar)//" )
++SOURCE_REPO ?= $(shell cd $(topsrcdir) && hg showconfig paths.default 2>/dev/null | head -n1 | sed -e "s/^ssh:/http:/" -e "s/\/$(_dollar)//" )
+ # extra sanity check for old versions of hg
+ # that don't support showconfig
+ ifeq (http,$(patsubst http%,http,$(SOURCE_REPO)))
+ DEFINES += -DSOURCE_REPO="$(SOURCE_REPO)"
+ endif
+ 
+ ifdef MOZ_TOOLKIT_SEARCH
+ DEFINES += -DMOZ_TOOLKIT_SEARCH
+diff --git a/toolkit/mozapps/installer/package-name.mk b/toolkit/mozapps/installer/package-name.mk
+--- a/toolkit/mozapps/installer/package-name.mk
++++ b/toolkit/mozapps/installer/package-name.mk
+@@ -154,20 +154,20 @@ SYMBOL_ARCHIVE_BASENAME = $(PKG_BASENAME
+ TEST_PACKAGE = $(PKG_BASENAME).tests.zip
+ 
+ ifneq (,$(wildcard $(DIST)/bin/application.ini))
+ BUILDID = $(shell $(PYTHON) $(MOZILLA_DIR)/config/printconfigsetting.py $(DIST)/bin/application.ini App BuildID)
+ else
+ BUILDID = $(shell $(PYTHON) $(MOZILLA_DIR)/config/printconfigsetting.py $(DIST)/bin/platform.ini Build BuildID)
+ endif
+ 
+-MOZ_SOURCE_STAMP = $(firstword $(shell hg -R $(MOZILLA_DIR) parent --template="{node|short}\n" 2>/dev/null))
++#MOZ_SOURCE_STAMP = $(firstword $(shell hg -R $(MOZILLA_DIR) parent --template="{node|short}\n" 2>/dev/null))
+ 
+ # strip a trailing slash from the repo URL because it's not always present,
+ # and we want to construct a working URL in the sourcestamp file.
+ # make+shell+sed = awful
+ _dollar=$$
+-MOZ_SOURCE_REPO = $(shell cd $(MOZILLA_DIR) && hg showconfig paths.default 2>/dev/null | head -n1 | sed -e "s/^ssh:/http:/" -e "s/\/$(_dollar)//" )
++#MOZ_SOURCE_REPO = $(shell cd $(MOZILLA_DIR) && hg showconfig paths.default 2>/dev/null | head -n1 | sed -e "s/^ssh:/http:/" -e "s/\/$(_dollar)//" )
+ 
+ MOZ_SOURCESTAMP_FILE = $(DIST)/$(PKG_PATH)/$(PKG_BASENAME).txt
+ 
+ # JavaScript Shell
+ PKG_JSSHELL = $(DIST)/jsshell-$(MOZ_PKG_PLATFORM).zip
+diff --git a/toolkit/xre/Makefile.in b/toolkit/xre/Makefile.in
+--- a/toolkit/xre/Makefile.in
++++ b/toolkit/xre/Makefile.in
+@@ -227,17 +227,17 @@ DEFINES += -DHAVE_USR_LIB64_DIR
+ endif
+ endif
+ 
+ MOZ_SOURCE_STAMP ?= $(firstword $(shell hg -R $(topsrcdir) parent --template="{node|short}\n" 2>/dev/null))
+ # strip a trailing slash from the repo URL because it's not always present,
+ # and we want to construct a working URL in buildconfig.html
+ # make+shell+sed = awful
+ _dollar=$$
+-SOURCE_REPO := $(shell cd $(topsrcdir) && hg showconfig paths.default 2>/dev/null | head -n1 | sed -e "s/^ssh:/http:/" -e "s/\/$(_dollar)//" )
++SOURCE_REPO ?= $(shell cd $(topsrcdir) && hg showconfig paths.default 2>/dev/null | head -n1 | sed -e "s/^ssh:/http:/" -e "s/\/$(_dollar)//" )
+ 
+ ifdef MOZ_SOURCE_STAMP
+ INIARGS = --sourcestamp=$(MOZ_SOURCE_STAMP)
+ # extra sanity check for old versions of hg
+ # that don't support showconfig
+ ifeq (http,$(patsubst http%,http,$(SOURCE_REPO)))
+ INIARGS += --sourcerepo=$(SOURCE_REPO)
+ endif

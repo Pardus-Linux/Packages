@@ -1,0 +1,55 @@
+From: Ubuntu
+Subject: introduce a pref to prefer certain plugins for mime-types
+
+diff --git a/dom/plugins/base/nsPluginHost.cpp b/dom/plugins/base/nsPluginHost.cpp
+--- a/dom/plugins/base/nsPluginHost.cpp
++++ b/dom/plugins/base/nsPluginHost.cpp
+@@ -1580,17 +1580,48 @@ nsPluginHost::FindPluginForType(const ch
+                                 bool aCheckEnabled)
+ {
+   if (!aMimeType) {
+     return nsnull;
+   }
+ 
+   LoadPlugins();
+ 
++  nsresult res;
++  nsCOMPtr<nsIPrefBranch> prefB (do_QueryInterface(mPrefService));
++
++  char *preferredPluginPath = NULL;
++  nsCAutoString mimetypePrefString ("modules.plugins.mimetype.");
++  mimetypePrefString.Append(aMimeType);
++  const char *mimetypePrefChar = mimetypePrefString.get();
++  res = prefB->GetCharPref(mimetypePrefChar, &preferredPluginPath);
++
++  if(!NS_SUCCEEDED(res)) preferredPluginPath = NULL;
++
+   nsPluginTag *plugin = mPlugins;
++  if(preferredPluginPath) {
++    while (nsnull != plugin) {
++      if (0 == PL_strcasecmp(plugin->mFileName.get(), preferredPluginPath) ||
++          0 == PL_strcasecmp(plugin->mFullPath.get(), preferredPluginPath)) {
++        return plugin;
++      }
++      plugin = plugin->mNext;
++    }
++
++    // now lets search for substrings
++    plugin = mPlugins;
++    while (nsnull != plugin) {
++      if (nsnull != PL_strstr(plugin->mFileName.get(), preferredPluginPath) ||
++          nsnull != PL_strstr(plugin->mFullPath.get(), preferredPluginPath)) {
++        return plugin;
++      }
++      plugin = plugin->mNext;
++    }
++  }
++
+   while (plugin) {
+     if (!aCheckEnabled || plugin->IsEnabled()) {
+       PRInt32 mimeCount = plugin->mMimeTypes.Length();
+       for (PRInt32 i = 0; i < mimeCount; i++) {
+         if (0 == PL_strcasecmp(plugin->mMimeTypes[i].get(), aMimeType)) {
+           return plugin;
+         }
+       }

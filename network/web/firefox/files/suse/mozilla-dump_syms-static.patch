@@ -1,0 +1,20 @@
+# HG changeset patch
+# Parent e589abb2c4d6aaa6083d254416211ac90360dbdd
+NO-BUG: Ignore a hack which is not needed in distribution build environments.
+
+diff --git a/toolkit/crashreporter/google-breakpad/src/tools/linux/dump_syms/Makefile.in b/toolkit/crashreporter/google-breakpad/src/tools/linux/dump_syms/Makefile.in
+--- a/toolkit/crashreporter/google-breakpad/src/tools/linux/dump_syms/Makefile.in
++++ b/toolkit/crashreporter/google-breakpad/src/tools/linux/dump_syms/Makefile.in
+@@ -59,11 +59,11 @@ HOST_LIBS += \
+   $(NULL)
+ 
+ # force C++ linking
+ CPP_PROG_LINK = 1
+ FORCE_USE_PIC = 1
+ 
+ #XXX: bug 554854 causes us to be unable to run binaries on the build slaves
+ # due to them having an older libstdc++
+-HOST_LDFLAGS += -static
++#HOST_LDFLAGS += -static
+ 
+ include $(topsrcdir)/config/rules.mk
