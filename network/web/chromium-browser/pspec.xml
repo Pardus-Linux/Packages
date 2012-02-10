@@ -1,3 +1,5 @@
+#ifndef PSPEC.XML
+#define PSPEC.XML
 <?xml version="1.0" ?>
 <!DOCTYPE PISI SYSTEM "http://www.pardus.org.tr/projeler/pisi/pisi-spec.dtd">
 <PISI>
@@ -13,7 +15,7 @@
         <IsA>app:gui</IsA>
         <Summary>A WebKit powered web browser</Summary>
         <Description>Chromium-browser is an open-source web browser, powered by WebKit.</Description>
-        <Archive sha1sum="c83e969bb6fa35a2e472eb0e265e237115edfed7" type="tarbz2">http://gsdview.appspot.com/chromium-browser-official/chromium-17.0.963.46.tar.bz2</Archive>
+        <Archive sha1sum="5a0fca3e08d33dbab638ae4684cdd2447dc1a0b0" type="tarbz2">http://gsdview.appspot.com/chromium-browser-official/chromium-18.0.1025.11.tar.bz2</Archive>
         <BuildDependencies>
             <Dependency>alsa-lib-devel</Dependency>
             <Dependency>libstdc++</Dependency>
@@ -48,7 +50,19 @@
 
             <!--Prevent jpeg render curruption when used libjpeg-turbo-->
             <!--https://bugs.gentoo.org/show_bug.cgi?id=393471-->
-            <Patch level="0">chromium-revert-jpeg-swizzle-r0.patch</Patch>
+            <Patch level="0">chromium-revert-jpeg-swizzle-r2.patch</Patch>
+
+            <!--Prevent compilation failures caused by missing zlib #include and dependency.-->
+            <Patch level="0">chromium-webkit-zlib-r0.patch</Patch>
+
+            <!--Fix crashes on illegal instructions, bug #401537.-->
+            <Patch level="0">chromium-media-no-sse-r0.patch</Patch>
+
+            <!--Prevent gyp failures caused by target type 'settings' instead of 'none'.-->
+            <Patch level="0">chromium-gyp-settings-r0.patch</Patch>
+
+            <!--Fix build pulseaudio: http://crbug.com/111392-->
+            <Patch level="1">pulse-compile-fix.diff</Patch>
 
             <!--Use this patch if nacl is enabled. Also add zlib-32bit as build dependency.-->
             <!--NaCL toolchain needs it-->
@@ -99,6 +113,13 @@
     </Package>
 
     <History>
+        <Update release="58">
+            <Date>2012-02-10</Date>
+            <Version>18.0.1025.11</Version>
+            <Comment>New beta release 18.0.1025.11</Comment>
+            <Name>Fatih Arslan</Name>
+            <Email>farslan@pardus.org.tr</Email>
+        </Update>
         <Update release="57">
             <Date>2012-01-31</Date>
             <Version>17.0.963.46</Version>
@@ -765,3 +786,4 @@
         </Update>
     </History>
 </PISI>
+#endif // PSPEC.XML
