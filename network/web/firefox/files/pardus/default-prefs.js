@@ -17,17 +17,17 @@ pref("browser.display.use_document_fonts", 1);
 pref("browser.link.open_external", 3);
 pref("browser.startup.homepage_override.mstone", "ignore");
 pref("browser.startup.page", 3);
-pref("browser.startup.homepage", "resource:///browserconfig.properties");
+pref("browser.startup.homepage", "chrome://browserconfig.properties");
 pref("browser.tabs.autoHide", false);
 pref("browser.shell.checkDefaultBrowser", false);
-pref("browser.throbber.url", "resource:/browserconfig.properties");
+pref("browser.throbber.url", "chrome://browserconfig.properties");
 pref("general.autoScroll", true);
 pref("general.smoothScroll", false);
 pref("general.useragent.vendor", "Pardus");
 pref("general.useragent.vendorSub", "2011");
 pref("middlemouse.contentLoadURL", false);
 pref("spellchecker.dictionary", "tr-TR");
-pref("startup.homepage_override_url", "resource:/browserconfig.properties");
+pref("startup.homepage_override_url", "chrome://browserconfig.properties");
 pref("intl.locale.matchOS", true);
 
 // Disable addon check UI, starting from release 8.0
